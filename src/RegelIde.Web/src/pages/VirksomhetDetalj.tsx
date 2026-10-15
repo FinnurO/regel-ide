@@ -422,6 +422,25 @@ export default function VirksomhetDetalj() {
       </section>
       )}
 
+      {/* [Ny, issue #368] Oppgave/funksjon (F) — egen seksjon etter plikten, aldri inni kompetansen eller plikten (docs/09 §37):
+        * «skal samordne» er ikke instruksjonsmyndighet, og en oppgave gir ingen motpart en kravsrett. */}
+      {fane === 'myndighet' && (
+      <section style={{ marginBottom: '2rem' }}>
+        <Heading level={3} data-size="xs" style={{ marginBottom: '0.75rem' }}>
+          Oppgaver og funksjoner
+        </Heading>
+        <Metatekst style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
+          Hva loven legger til virksomheten som arbeidsfelt eller ansvar — forvalte, samordne, sørge for, føre oversikt, bistå,
+          være sekretariat, gi råd, veilede, påse — og oppgaver andre har som gjelder den (issue #368). En oppgave gir ikke myndighet
+          eller plikt overfor noen i seg selv; står det i teksten, er det egne utsagn i seksjonene over.
+        </Metatekst>
+        <StrukturkantTabell
+          kanter={kanter && kanter.filter((k) => k.kategori === 'F')}
+          tomTekst="Ingen oppgaver registrert."
+        />
+      </section>
+      )}
+
       {fane === 'myndighet' && (
       <section style={{ marginBottom: '2rem' }}>
         <Heading level={3} data-size="xs" style={{ marginBottom: '0.75rem' }}>
@@ -440,7 +459,7 @@ export default function VirksomhetDetalj() {
           tomTekst="Ingen relasjoner registrert."
         />
         <Button data-size="sm" variant="secondary" onClick={() => setVisLeggTilRelasjon((v) => !v)}>
-          {visLeggTilRelasjon ? 'Skjul skjema' : 'Legg til relasjon, kompetanse eller plikt'}
+          {visLeggTilRelasjon ? 'Skjul skjema' : 'Legg til relasjon, kompetanse, plikt eller oppgave'}
         </Button>
         {visLeggTilRelasjon && id && (
           <LeggTilVirksomhetRelasjonForm
@@ -685,7 +704,7 @@ export default function VirksomhetDetalj() {
           Kompetansen og ansvarsområdene står i egne seksjoner over.
         </Metatekst>
         <StrukturkantTabell
-          kanter={kanter && kanter.filter((k) => k.kategori !== 'R' && k.kategori !== 'K' && k.kategori !== 'P' && !(k.kategori === 'A' && k.retning === 'fra')
+          kanter={kanter && kanter.filter((k) => k.kategori !== 'R' && k.kategori !== 'K' && k.kategori !== 'P' && k.kategori !== 'F' && !(k.kategori === 'A' && k.retning === 'fra')
             && !((k.kategori === 'M' || k.kategori === 'I') && k.retning === 'fra'))}
           tomTekst="Ingen andre strukturutsagn registrert."
           visKategori

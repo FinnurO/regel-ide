@@ -897,6 +897,24 @@ export default function RettskildeDetalj() {
     }
   }
 
+  // [ENDRET, issue #368] Raden for ett strukturutsagn, felles for «Strukturutsagn hjemlet her» og «Oppgaver hjemlet her».
+  const strukturutsagnRad = (r: StrukturkantDto) => {
+    const kategori = STRUKTURKANT_KATEGORI_VISNING[r.kategori]?.tekst ?? r.kategori;
+    const negativ = r.polaritet === 'negativ' ? ' (negativ)' : '';
+    const forslag = r.status !== 'godkjent' ? ' [forslag]' : '';
+    // Paragrafen alene, ikke `tilEidVisning`: vi ER på denne lovens side, så lovtittelen er
+    // støy — og `eidVisningstekst` ville dessuten gitt leddnummeret som paragrafnummer.
+    const eid = r.hjemmelEid ?? r.paragrafspenn[0]?.fraEid ?? null;
+    const paragraf = eid
+      ? ` — ${paragrafEtikett(detaljNoderPerRettskilde.get(id ?? ''), eid)?.tekst ?? eid.split('/nor/').pop() ?? eid}`
+      : '';
+    return {
+      key: r.id,
+      label: `${kategori}: ${r.visningstekst}${negativ}${forslag}${paragraf}`,
+      onClick: () => navigate(eid ? rettskildeLenkeForId(id!, eid) : nodeHref(r.fra)),
+    };
+  };
+
   // Konsolidert kontekstpanel (docs/30 §4 punkt 2) — Hjemmel/Hjemmel for/Brukt i tjenester/Referert fra
   // håndbøker var tidligere fem separate <section>-er nedover siden; samles nå i ÉN "Relasjoner"-fane
   // via samme delte KontekstPanel-komponent Tjeneste-siden bruker (her i variant="full", siden denne
@@ -912,22 +930,13 @@ export default function RettskildeDetalj() {
       // [ENDRET, issue #311] «Strukturutsagn hjemlet her» — alle kategorier, med kategori og polaritet i
       // etiketten (en negativ kant er et utsagn om at noe IKKE gjelder, og skal ikke leses som det motsatte).
       heading: 'Strukturutsagn hjemlet her',
-      items: strukturkanter.map((r) => {
-        const kategori = STRUKTURKANT_KATEGORI_VISNING[r.kategori]?.tekst ?? r.kategori;
-        const negativ = r.polaritet === 'negativ' ? ' (negativ)' : '';
-        const forslag = r.status !== 'godkjent' ? ' [forslag]' : '';
-        // Paragrafen alene, ikke `tilEidVisning`: vi ER på denne lovens side, så lovtittelen er
-        // støy — og `eidVisningstekst` ville dessuten gitt leddnummeret som paragrafnummer.
-        const eid = r.hjemmelEid ?? r.paragrafspenn[0]?.fraEid ?? null;
-        const paragraf = eid
-          ? ` — ${paragrafEtikett(detaljNoderPerRettskilde.get(id ?? ''), eid)?.tekst ?? eid.split('/nor/').pop() ?? eid}`
-          : '';
-        return {
-          key: r.id,
-          label: `${kategori}: ${r.visningstekst}${negativ}${forslag}${paragraf}`,
-          onClick: () => navigate(eid ? rettskildeLenkeForId(id!, eid) : nodeHref(r.fra)),
-        };
-      }),
+      // [ENDRET, issue #368] Oppgavene (F) står i egen gruppe under — de er ikke myndighet eller plikt (docs/09 §37).
+      items: strukturkanter.filter((r) => r.kategori !== 'F').map(strukturutsagnRad),
+    },
+    {
+      // [Ny, issue #368] Oppgave/funksjon (F) for seg: «hvilke oppgaver gir denne bestemmelsen, og til hvem?» (docs/32 S2/S4).
+      heading: 'Oppgaver hjemlet her',
+      items: strukturkanter.filter((r) => r.kategori === 'F').map(strukturutsagnRad),
     },
     {
       heading: 'Hjemmel',

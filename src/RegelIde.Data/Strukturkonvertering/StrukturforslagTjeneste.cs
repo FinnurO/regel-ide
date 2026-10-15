@@ -106,6 +106,8 @@ public sealed class StrukturforslagTjeneste(
             "relasjon" when Strukturkontrakt.TyperPerKategori["relasjon"].Contains(fasitType) => (Strukturkanter.Relasjon, fasitType),
             "kompetanse" when Strukturkanter.KompetansetypeFraFasit.TryGetValue(fasitType, out var k) => (Strukturkanter.Kompetanse, k),
             "plikt" when Strukturkanter.PlikttypeFraFasit.TryGetValue(fasitType, out var p) => (Strukturkanter.Plikt, p),
+            // [Ny, issue #368] Oppgave/funksjon via Strukturkanter.OppgavetypeFraFasit.
+            "oppgave" when Strukturkanter.OppgavetypeFraFasit.TryGetValue(fasitType, out var f) => (Strukturkanter.Oppgave, f),
             "medlemskap" when fasitType == Strukturkanter.MedlemAv => (Strukturkanter.Medlemskap, Strukturkanter.MedlemAv),
             "sammensetning_omrade" when fasitType == "bestar_av" => (Strukturkanter.Omradesammensetning, "bestar_av"),
             "ansvarsomrade" when Strukturkontrakt.TyperPerKategori["ansvarsomrade"].Contains(fasitType) => (Strukturkanter.Ansvarsomrade, fasitType),
@@ -257,7 +259,9 @@ public sealed class StrukturforslagTjeneste(
                 Undertype: u.Undertype, Modalitet: u.Modalitet,
                 // Kunnskapsstatus bare der konverteringen setter den (mønsterlaget: normalisering, regelen = mønsteret; KI: ingen).
                 Kunnskapsstatus: u.Kunnskapsstatus,
-                Begrunnelse: u.Begrunnelse ?? (normalisering ? $"Regel: {kilde} (#307)" : null));
+                Begrunnelse: u.Begrunnelse ?? (normalisering ? $"Regel: {kilde} (#307)" : null),
+                // [Ny, issue #368] Juristrundens fortolkning bæres med (CHECK ck_strukturkanter_fortolkning krever argumentene).
+                Tolkningsargumenter: u.Tolkningsargumenter);
             var nokkel = new Nokkel(u.Eid, kat, kode, ny.Fra.VirksomhetId, ny.Fra.BegrepId, ny.Til?.VirksomhetId, ny.Til?.BegrepId,
                 ny.Undertype, ny.Normform, ny.Polaritet, ny.Modalitet);
             if (eksisterende.TryGetValue(nokkel, out var fantes))

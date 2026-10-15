@@ -233,9 +233,9 @@ internal static class Monsterkatalog
 
         Regex("samordning-samordne",
             "«X skal/kan samordne …», også sist i en oppramsing («skal planlegge, organisere, styre og samordne»). Passiv («skal samordnes med») tas ikke — den sier ikke hvem som har kompetansen.",
-            "Ikke målt i docs/33 §1. Tatt med etter Johanns beslutning 3 på #341 («samordne» → samordning).",
+            "Ikke målt i docs/33 §1. Tatt med etter Johanns beslutning 3 på #341 («samordne» → samordning). [ENDRET, #368] Gir samordningsOPPGAVE (F), ikke kompetanse — Johanns beslutning om F og juristrunden (energiloven u160); modaliteten fra modalverbet.",
             new RegexMonsteroppsett(KreverFra: true),
-            Start + Subjekt + Modal + @"(?:[^.;:]{0,60}?\s+og\s+)?(?<obj>samordne\b)"),
+            Start + Subjekt + PliktModal + @"(?:[^.;:]{0,60}?\s+og\s+)?(?<obj>samordne\b)"),
 
         // ---- [Ny, issue #353] P plikt overfor motpart (Johanns godkjenning 2026-10-08) -------------------------------
         // Modaliteten tas fra modalverbet (gruppen «modal», L14). Motparten er frasen etter «med/til/fra» fram til første
@@ -279,6 +279,43 @@ internal static class Monsterkatalog
             new RegexMonsteroppsett(KreverFra: true, KreverTil: true),
             Start + Subjekt + PliktModal + @"innhente\s+(?:\p{L}+\s+){0,2}?uttalelser?n?\s+fra\s+" + Frase("til"),
             @"\b(?<modal>skal|kan|bør)\s+" + SubjektOmvendt + @"\s+innhente\s+(?:\p{L}+\s+){0,2}?uttalelser?n?\s+fra\s+" + Frase("til")),
+
+        // ---- [Ny, issue #368] F oppgave/funksjon (Johanns beslutning 2026-10-15, begrepsmanualen docs/profil/02 §F) --------------
+        // En oppgave gir aldri K eller P i seg selv. Modaliteten tas fra modalverbet (gruppen «modal»), objektet (oppgaven) er resten
+        // av setningen fra oppgaveordet — påkrevd på F, så mønstrene krever et objekt. Det oppgaven gjelder (til) settes ikke: «for
+        // personer som oppholder seg i kommunen» er en beskrivelse, ikke en node mønsterlaget kan slå opp.
+        // [FJERNET, issue #368, Johanns beslutning på PR #381 2026-10-16] «oppgave-sorge-for» («X skal sørge for (at) …» →
+        // sorge_for_ansvar). Målt mot fasiten: 36 treff, 5 riktige (13,9 % presisjon, 25 % gjenfinning) — 27 uten rad i fasiten,
+        // blant dem saksbehandling («Retten skal sørge for at dom i straffesak blir forkynt»), og juristrunden viste at «sørge for at»
+        // også kan være P konsultasjon eller P avtale. Typen sorge_for står; den settes av juristrunder og KI-laget, ikke av ordet alene.
+        // Står i «Forkastede mønstre» i maling-monster.md.
+
+        Regex("oppgave-fore-oversikt",
+            "«X skal føre (en) oversikt/register/fortegnelse over …», «X fører register over …», og passiv «Registeret/Fortegnelse(n) over … føres av X» (normativ presens = skal).",
+            "Ikke målt i docs/33 §1. Tatt inn etter #368 (domstolloven u171/u198: «Fortegnelse over de valgte meddommere føres av kommunen», «Registeret over sidegjøremål føres av domstoladministrasjonen»).",
+            new RegexMonsteroppsett(KreverFra: true, PresensErSkal: true),
+            Start + Subjekt + "(?:" + PliktModal + @"føre|\s+fører)\s+(?<obj>(?:en\s+|et\s+)?(?:oversikt|register|fortegnelse)\b)",
+            @"(?<obj>(?:Registeret|Registret|Fortegnelsen|Fortegnelse|Oversikten|Oversikt)\b[^.;]{0,150}?)\s+(?:(?<modal>skal)\s+)?føres\s+av\s+" + Etter("fra")),
+
+        Regex("oppgave-veilede",
+            "«X skal veilede (om) …», «X skal gi veiledning (om) …», og omvendt ordstilling. Veiledning går til den som skal etterleve eller bruke regelverket; råd til den som skal avgjøre noe er rådgivning (begrepsmanualen §F).",
+            "Ikke målt i docs/33 §1. Tatt inn etter #368 (barnehageloven-piloten #375: «veilede og påse»).",
+            new RegexMonsteroppsett(KreverFra: true),
+            Start + Subjekt + PliktModal + @"(?:\p{L}+\s+og\s+)?(?<obj>(?:veilede|gi\s+(?:\p{L}+\s+)?veiledning)\b)",
+            @"\b(?<modal>skal|kan|bør)\s+" + SubjektOmvendt + @"\s+(?:også\s+)?(?<obj>(?:veilede|gi\s+(?:\p{L}+\s+)?veiledning)\b)"),
+
+        Regex("oppgave-pase",
+            "«X skal påse at …», og omvendt ordstilling. En kontrolloppgave: aktøren skal følge med på at andre etterlever regelverket, uten at uttrykket selv gir hjemmel til å undersøke eller reagere (det er K tilsyn/pålegg med egen hjemmel).",
+            "Ikke målt i docs/33 §1. Tatt inn etter juristrunden i #368 (barnehageloven § 10 «påse at» mot § 53 «fører tilsyn med»).",
+            new RegexMonsteroppsett(KreverFra: true),
+            Start + Subjekt + PliktModal + @"(?:[\p{L}\s,]{0,60}?\s+og\s+)?påse\s+at\s+(?<obj>\S)",
+            @"\b(?<modal>skal|kan|bør)\s+" + SubjektOmvendt + @"\s+(?:også\s+)?påse\s+at\s+(?<obj>\S)"),
+
+        Regex("oppgave-forvalte",
+            "«X skal forvalte …» — ansvaret for å forvalte et regelverk, en ordning, et register eller et fond. Objektet er det som forvaltes. (En ORDNING som forvaltes, er i tillegg R forvaltes_av, #353 — det avgjøres ikke av ordlyden alene.)",
+            "Ikke målt i docs/33 §1. Tatt inn etter #368 (folketrygdloven § 21-11 a: «Helsedirektoratet skal forvalte kapittel 5»).",
+            new RegexMonsteroppsett(KreverFra: true),
+            Start + Subjekt + PliktModal + @"(?<obj>forvalte\b)"),
 
         // ---- A har_sete_i -------------------------------------------------------------------------
         Regex("har-sete-i",

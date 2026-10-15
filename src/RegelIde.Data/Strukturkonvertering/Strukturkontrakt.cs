@@ -44,6 +44,8 @@ public static partial class Strukturkontrakt
             ["kompetanse"] = [.. Strukturkanter.Kompetansetyper.Select(t => t.FasitType), Ukjent],
             // [Ny, issue #353] Plikt overfor motpart — samme liste og rekkefølge som Strukturkanter.Plikttyper.
             ["plikt"] = [.. Strukturkanter.Plikttyper.Select(t => t.FasitType)],
+            // [Ny, issue #368] Oppgave/funksjon — samme liste og rekkefølge som Strukturkanter.Oppgavetyper.
+            ["oppgave"] = [.. Strukturkanter.Oppgavetyper.Select(t => t.FasitType)],
             ["medlemskap"] = ["medlem_av", "inngar_i"],
             ["sammensetning_omrade"] = ["bestar_av", "del_av"],
             ["ansvarsomrade"] = ["har_ansvarsomrade", "har_jurisdiksjon", "har_sete_i"],
@@ -64,8 +66,12 @@ public static partial class Strukturkontrakt
     public static bool ErGyldigUndertype(string fasitType, string undertype) =>
         Strukturkanter.KompetansetypeFraFasit.TryGetValue(fasitType, out var kode) && Strukturkanter.ErGyldigUndertype(kode, undertype);
 
-    /// <summary>[Ny, issue #353] FORMAT.md <c>utsagn.modalitet</c> — bare på plikt; samme liste som <see cref="Strukturkanter.Modaliteter"/>.</summary>
+    /// <summary>[Ny, issue #353] FORMAT.md <c>utsagn.modalitet</c> — bare på plikt; samme liste som <see cref="Strukturkanter.Modaliteter"/>.
+    /// [ENDRET, issue #368] og på oppgave (<see cref="KategorierMedModalitet"/>).</summary>
     public static IReadOnlyList<string> Modaliteter => Strukturkanter.Modaliteter;
+
+    /// <summary>[Ny, issue #368] FORMAT.md-kategoriene modalitet er lov på: plikt og oppgave.</summary>
+    public static IReadOnlyList<string> KategorierMedModalitet { get; } = ["plikt", "oppgave"];
 
     /// <summary>[Ny, issue #353] FORMAT.md <c>aktorer.undertype</c> — bare på entitetstype <c>ordning</c>; samme liste som
     /// <see cref="Nodetyper.Ordningstyper"/>.</summary>

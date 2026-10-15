@@ -570,7 +570,7 @@ public sealed record StrukturkantDto(
     // [Ny, issue #352] Undertypen på oppnevning (valg/ansettelse/utpeking/oppnevning) og overprøving (anke). Null = ikke angitt.
     // [ENDRET, issue #355] + oppnevning: utnevning/konstitusjon; avsetting: avsetting/oppsigelse/avskjed; vedtak: tilbakekall.
     string? Undertype,
-    // [Ny, issue #353] Modaliteten på en plikt (skal/kan/bor). Null = ikke angitt.
+    // [Ny, issue #353] Modaliteten på en plikt (skal/kan/bor). Null = ikke angitt. [ENDRET, #368] også på en oppgave (F).
     string? Modalitet = null,
     // [Ny, issue #367] Utsagnsstatus: status er GODKJENNING; kunnskapsstatus er metoden (null = ikke vurdert), med begrunnelse,
     // tolkningsargumenter, premisser (avledet), analysehistorikk og den versjonerte hjemmelen.
@@ -638,7 +638,7 @@ public sealed record StrukturkantRequest(
     string? Normform = null, string? Grunnlag = null, string? Delegeringsadgang = null, string? DelegeringSlutning = null,
     // [Ny, issue #352] Bare på K oppnevning/overproving — se StrukturkantEntitet.Undertype. Null = ikke angitt. [ENDRET, #355] + avsetting og vedtak.
     string? Undertype = null,
-    // [Ny, issue #353] Bare på P: skal | kan | bor — se StrukturkantEntitet.Modalitet. Null = ikke angitt.
+    // [Ny, issue #353] Bare på P (og [#368] F): skal | kan | bor — se StrukturkantEntitet.Modalitet. Null = ikke angitt.
     string? Modalitet = null,
     // [Ny, issue #367] Godkjenning (se over) og kunnskapsstatus med grunnlag: begrunnelse, tolkningsargumenter, premisser (avledet).
     string? Status = null, string? Kunnskapsstatus = null, string? Begrunnelse = null, IReadOnlyList<string>? Tolkningsargumenter = null,

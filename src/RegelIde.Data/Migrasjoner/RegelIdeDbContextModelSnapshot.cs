@@ -2335,7 +2335,7 @@ namespace RegelIde.Data.Migrasjoner
 
                             t.HasCheckConstraint("ck_relasjonstype_konfigurasjon_fvl_kategori", "fvl_kategori IS NULL OR (kategori = 'K' AND fvl_kategori IN ('forskrift', 'enkeltvedtak', 'ikke_vedtak'))");
 
-                            t.HasCheckConstraint("ck_relasjonstype_konfigurasjon_kategori", "kategori IN ('R', 'K', 'P', 'M', 'O', 'A', 'G', 'I', 'T')");
+                            t.HasCheckConstraint("ck_relasjonstype_konfigurasjon_kategori", "kategori IN ('R', 'K', 'P', 'F', 'M', 'O', 'A', 'G', 'I', 'T')");
                         });
                 });
 
@@ -3093,7 +3093,7 @@ namespace RegelIde.Data.Migrasjoner
 
                             t.HasCheckConstraint("ck_strukturkanter_ikke_selv", "(kategori = 'K' AND typekode = 'normgivning') OR (kategori = 'P' AND fra_begrep_id IS NOT NULL) OR ((fra_virksomhet_id IS NULL OR til_virksomhet_id IS NULL OR fra_virksomhet_id <> til_virksomhet_id) AND (fra_begrep_id IS NULL OR til_begrep_id IS NULL OR fra_begrep_id <> til_begrep_id))");
 
-                            t.HasCheckConstraint("ck_strukturkanter_kategori", "kategori IN ('R', 'K', 'P', 'M', 'O', 'A', 'G', 'I', 'T')");
+                            t.HasCheckConstraint("ck_strukturkanter_kategori", "kategori IN ('R', 'K', 'P', 'F', 'M', 'O', 'A', 'G', 'I', 'T')");
 
                             t.HasCheckConstraint("ck_strukturkanter_kilde", "(hjemmel_rettskilde_id IS NOT NULL AND kilde_utenfor_korpus_tekst IS NULL AND kilde_utenfor_korpus_lenke IS NULL AND kilde_utenfor_korpus_type IS NULL AND kilde_utenfor_korpus_dokumentasjon IS NULL) OR (hjemmel_rettskilde_id IS NULL AND kilde_utenfor_korpus_tekst IS NOT NULL AND kilde_utenfor_korpus_type IS NOT NULL AND kilde_utenfor_korpus_dokumentasjon IS NOT NULL)");
 
@@ -3105,9 +3105,11 @@ namespace RegelIde.Data.Migrasjoner
 
                             t.HasCheckConstraint("ck_strukturkanter_kunnskapsstatus_grunnlag", "(kunnskapsstatus IS NULL OR kunnskapsstatus <> 'eksternt_dokumentert' OR kilde_utenfor_korpus_tekst IS NOT NULL) AND (kunnskapsstatus IS NULL OR kunnskapsstatus NOT IN ('tekstfunn', 'normalisering') OR (hjemmel_rettskilde_id IS NOT NULL AND hjemmel_eid IS NOT NULL)) AND (kunnskapsstatus IS NULL OR kunnskapsstatus <> 'foreldet' OR entitetsstatus = 'foreldet')");
 
-                            t.HasCheckConstraint("ck_strukturkanter_modalitet", "modalitet IS NULL OR (kategori = 'P' AND modalitet IN ('skal', 'kan', 'bor'))");
+                            t.HasCheckConstraint("ck_strukturkanter_modalitet", "modalitet IS NULL OR (kategori IN ('P', 'F') AND modalitet IN ('skal', 'kan', 'bor'))");
 
                             t.HasCheckConstraint("ck_strukturkanter_normform", "normform IS NULL OR (kategori = 'K' AND typekode = 'normgivning' AND normform IN ('forskrift', 'reglement', 'arbeidsordning', 'vedtekter', 'instruks'))");
+
+                            t.HasCheckConstraint("ck_strukturkanter_oppgave_objekt", "kategori <> 'F' OR objekt IS NOT NULL");
 
                             t.HasCheckConstraint("ck_strukturkanter_polaritet", "polaritet IN ('positiv', 'negativ')");
 
@@ -3115,7 +3117,7 @@ namespace RegelIde.Data.Migrasjoner
 
                             t.HasCheckConstraint("ck_strukturkanter_til_hoyst_en", "til_virksomhet_id IS NULL OR til_begrep_id IS NULL");
 
-                            t.HasCheckConstraint("ck_strukturkanter_til_pakrevd", "kategori IN ('K', 'P', 'T') OR til_virksomhet_id IS NOT NULL OR til_begrep_id IS NOT NULL");
+                            t.HasCheckConstraint("ck_strukturkanter_til_pakrevd", "kategori IN ('K', 'P', 'F', 'T') OR til_virksomhet_id IS NOT NULL OR til_begrep_id IS NOT NULL");
 
                             t.HasCheckConstraint("ck_strukturkanter_tolkningsargumenter", "tolkningsargumenter IS NULL OR tolkningsargumenter <@ ARRAY['ordlyd', 'kontekst_system', 'formal', 'forarbeider', 'praksis', 'reelle_hensyn', 'antitetisk_analogisk']::text[]");
 

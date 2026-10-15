@@ -4,6 +4,7 @@ import { ApiError, api } from '../api/client';
 import type { Aktortype, KildeUtenforKorpusDokumentasjon, KildeUtenforKorpusType, Kompetansegrunnlag, Kompetanseundertype, Normform, RelasjonsTypeKonfigurasjonDto, RettskildeSammendrag, StrukturkantDto, VirksomhetDto, Delegeringsadgang, DelegeringSlutning } from '../api/types';
 import { FAMILIE_VISNING } from '../strukturkant/StrukturkantTabell';
 import { MODALITETER, modalitetFraValg, ordningKanVaereMotpart, pliktValgtekst, typerForAktortype } from '../strukturkant/plikt';
+import { harModalitet, harMotpartEllerHva as harMotpartEllerHvaFor, oppgaveValgtekst } from '../strukturkant/oppgave';
 import { KildeUtenforKorpusVelger } from '../strukturkant/KildeUtenforKorpus';
 import { VirksomhetVelger } from './VirksomhetVelger';
 import { RettskildeVelger } from '../rettskilde/RettskildeVelger';
@@ -82,6 +83,12 @@ export interface LeggTilVirksomhetRelasjonFormProps {
  * fortsatt påkrevd i dette skjemaet (K uten motpart registreres av konverteringen eller over API-et). Typene filtreres på
  * aktørtypen (en ordning er ikke en aktør, `typerForAktortype`), og en ordning tilbys som motpart bare for P.
  * </p>
+ * <p>
+ * [ENDRET, issue #368 «oppgave/funksjon», 2026-10-15] Også F-typene («Oppgave — «har samordningsoppgave …»», docs/09 §37). Velges en
+ * F-type: «Modalitet» som for P og «Oppgaven» (objektet, PÅKREVD — CHECK ck_strukturkanter_oppgave_objekt). Det oppgaven gjelder
+ * (virksomheten under) er valgfritt; ingen «overfor», en oppgave har ingen motpart (begrepsmanualen §F). En ordning har ingen
+ * oppgaver (`typerForAktortype` tilbyr bare P og R forvaltes_av for en ordning).
+ * </p>
  */
 export function LeggTilVirksomhetRelasjonForm({ virksomhetId, virksomheter, rettskilder, onOpprettet, aktortype }: LeggTilVirksomhetRelasjonFormProps) {
   const [typer, setTyper] = useState<RelasjonsTypeKonfigurasjonDto[] | null>(null);
@@ -113,17 +120,18 @@ export function LeggTilVirksomhetRelasjonForm({ virksomhetId, virksomheter, rett
 
   useEffect(() => {
     // [ENDRET, issue #341] R og K: «er klageinstans for» heter nå «har klagekompetanse overfor» (K).
-    // [ENDRET, issue #353] + P (plikt overfor motpart).
-    Promise.all([api.hentRelasjonstyper('R'), api.hentRelasjonstyper('K'), api.hentRelasjonstyper('P')])
-      .then(([r, k, p]) => setTyper([...r, ...k, ...p]))
+    // [ENDRET, issue #353] + P (plikt overfor motpart). [ENDRET, issue #368] + F (oppgave/funksjon).
+    Promise.all([api.hentRelasjonstyper('R'), api.hentRelasjonstyper('K'), api.hentRelasjonstyper('P'), api.hentRelasjonstyper('F')])
+      .then(([r, k, p, f]) => setTyper([...r, ...k, ...p, ...f]))
       .catch(() => setTyper([]));
   }, []);
   // [Ny, issue #353] Bare typene serveren godtar fra denne aktørtypen (en ordning: P og R forvaltes_av).
   const tilbudteTyper = typer && typerForAktortype(typer, aktortype);
   // Verdien i nedtrekkslista er «kategori:kode» — samme kode kan i prinsippet finnes i to kategorier.
-  const [valgtKategori, valgtKode] = relasjonsType ? relasjonsType.split(':') as ['R' | 'K' | 'P', string] : [null, ''];
+  const [valgtKategori, valgtKode] = relasjonsType ? relasjonsType.split(':') as ['R' | 'K' | 'P' | 'F', string] : [null, ''];
   const erKompetanse = valgtKategori === 'K';
   const erPlikt = valgtKategori === 'P';
+  const erOppgave = valgtKategori === 'F'; // [Ny, issue #368]
   const undertyper = erKompetanse ? UNDERTYPER[valgtKode] : undefined;
 
   // Andre virksomheter enn denne selv — en relasjon til seg selv avvises uansett server-side, men
@@ -136,7 +144,8 @@ export function LeggTilVirksomhetRelasjonForm({ virksomhetId, virksomheter, rett
     ? !kildeTekst.trim()
     : !!kildeTekst.trim() && !!kildeType && !!kildeDok;
   // [Ny, issue #353] Motparten er valgfri bare for P — og da må objektet eller hjemmel-eId-en si hva plikten gjelder.
-  const harMotpartEllerHva = tilVirksomhetId ? true : erPlikt && (!!objekt.trim() || !!hjemmelEid.trim());
+  // [ENDRET, issue #368] F: oppgaven (objektet) er alltid påkrevd, det den gjelder er valgfritt (strukturkant/oppgave.ts).
+  const harMotpartEllerHva = harMotpartEllerHvaFor(valgtKategori, tilVirksomhetId, objekt, hjemmelEid);
   // En motpart som ikke lenger tilbys (en ordning, etter bytte fra en P-type til en R/K-type) skal ikke sendes skjult.
   const motpartGyldig = !tilVirksomhetId || andreVirksomheter.some((v) => v.id === tilVirksomhetId);
 
@@ -153,8 +162,9 @@ export function LeggTilVirksomhetRelasjonForm({ virksomhetId, virksomheter, rett
         delegeringSlutning: erKompetanse && delegeringsadgang === 'ikke_regulert' && delegeringSlutning ? delegeringSlutning : null,
         undertype: undertyper && undertyper.some((u) => u.verdi === undertype) ? (undertype as Kompetanseundertype) : null,
         // [Ny, issue #353] Bare på P — serveren avviser modalitet på andre kategorier.
-        modalitet: erPlikt ? modalitetFraValg(modalitet) : null,
-        objekt: erPlikt ? objekt.trim() || null : null,
+        // [ENDRET, issue #368] og på F.
+        modalitet: harModalitet(valgtKategori) ? modalitetFraValg(modalitet) : null,
+        objekt: erPlikt || erOppgave ? objekt.trim() || null : null,
         hjemmelRettskildeId: hjemmelRettskildeId || null, hjemmelEid: hjemmelEid.trim() || null,
         kildeUtenforKorpusTekst: kildeTekst.trim() || null, kildeUtenforKorpusLenke: kildeLenke.trim() || null,
         kildeUtenforKorpusType: kildeType || null, kildeUtenforKorpusDokumentasjon: kildeDok || null,
@@ -189,8 +199,8 @@ export function LeggTilVirksomhetRelasjonForm({ virksomhetId, virksomheter, rett
     <Card style={{ padding: '1rem', marginTop: '0.75rem' }}>
       <div style={{ marginBottom: '0.75rem' }}>
         <VirksomhetVelger virksomheter={andreVirksomheter} value={tilVirksomhetId} onChange={setTilVirksomhetId}
-          label={erPlikt ? 'Motpart (annen virksomhet, valgfri for plikt)' : 'Motpart (annen virksomhet)'}
-          tomValgTekst={erPlikt ? 'Ingen motpart i teksten' : 'Velg virksomhet …'} />
+          label={erOppgave ? 'Oppgaven gjelder (annen virksomhet, valgfri)' : erPlikt ? 'Motpart (annen virksomhet, valgfri for plikt)' : 'Motpart (annen virksomhet)'}
+          tomValgTekst={erPlikt || erOppgave ? 'Ingen i teksten' : 'Velg virksomhet …'} />
         {!motpartGyldig && (
           <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginTop: '0.25rem' }}>
             Den valgte motparten er en ordning, og en ordning kan bare være motpart i en plikt. Velg en annen motpart.
@@ -199,7 +209,7 @@ export function LeggTilVirksomhetRelasjonForm({ virksomhetId, virksomheter, rett
       </div>
 
       <Field data-size="sm" style={{ maxWidth: '24rem', marginBottom: '0.75rem' }}>
-        <Label>Relasjon, kompetanse eller plikt</Label>
+        <Label>Relasjon, kompetanse, plikt eller oppgave</Label>
         <Select data-size="sm" value={relasjonsType} onChange={(e) => setRelasjonsType(e.target.value)} disabled={!tilbudteTyper}>
           <Select.Option value="">{tilbudteTyper ? 'Velg type …' : 'Laster …'}</Select.Option>
           {tilbudteTyper?.map((t) => (
@@ -208,7 +218,9 @@ export function LeggTilVirksomhetRelasjonForm({ virksomhetId, virksomheter, rett
                 ? `Kompetanse${t.familie ? ` (${FAMILIE_VISNING[t.familie].toLowerCase()})` : ''} — «${t.fraVisningsmal.replace('{0}', 'overfor motparten')}»`
                 : t.kategori === 'P'
                   ? pliktValgtekst(t)
-                  : `Relasjon — «${t.fraVisningsmal.replace('{0}', 'motparten')}»`}
+                  : t.kategori === 'F'
+                    ? oppgaveValgtekst(t)
+                    : `Relasjon — «${t.fraVisningsmal.replace('{0}', 'motparten')}»`}
             </Select.Option>
           ))}
         </Select>
@@ -230,6 +242,27 @@ export function LeggTilVirksomhetRelasjonForm({ virksomhetId, virksomheter, rett
           <Textfield data-size="sm" label="Hva plikten gjelder (valgfritt)" placeholder="f.eks. behandlings- og forpleiningsutgifter"
             value={objekt} onChange={(e) => setObjekt(e.target.value)} style={{ flex: 1, minWidth: '16rem' }} />
         </div>
+      )}
+      {/* [Ny, issue #368] Oppgaven (F): modaliteten som for P, og oppgaven selv er påkrevd. */}
+      {erOppgave && (
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
+          <Field data-size="sm" style={{ minWidth: '12rem' }}>
+            <Label>Modalitet</Label>
+            <Select data-size="sm" value={modalitet} onChange={(e) => setModalitet(e.target.value)}>
+              <Select.Option value="">Ikke angitt</Select.Option>
+              {MODALITETER.map((m) => (
+                <Select.Option key={m.verdi} value={m.verdi}>{m.tekst}</Select.Option>
+              ))}
+            </Select>
+          </Field>
+          <Textfield data-size="sm" label="Oppgaven" placeholder="f.eks. beredskapsarbeid"
+            value={objekt} onChange={(e) => setObjekt(e.target.value)} style={{ flex: 1, minWidth: '16rem' }} />
+        </div>
+      )}
+      {erOppgave && !harMotpartEllerHva && (
+        <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
+          En oppgave må si hva den er: fyll ut «Oppgaven».
+        </Metatekst>
       )}
       {erPlikt && !harMotpartEllerHva && (
         <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>

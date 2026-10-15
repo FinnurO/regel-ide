@@ -73,7 +73,7 @@ Merk dobbeltnatur eksplisitt i kommentar (f.eks. «kommune» både rettssubjekt 
   "id": "u1",
   "eid": "<node-eid>",
   "sitat": "<eksakt delstreng, maks ~30 ord>",
-  "kategori": "relasjon" | "kompetanse" | "plikt" | "medlemskap" | "sammensetning_omrade" | "ansvarsomrade" | "konstituerende" | "organsammensetning" | "annet:<x>",
+  "kategori": "relasjon" | "kompetanse" | "plikt" | "oppgave" | "medlemskap" | "sammensetning_omrade" | "ansvarsomrade" | "konstituerende" | "organsammensetning" | "annet:<x>",
   "type": "<se lister under>",
   "fra": "a1",                // aktør-id (eller null hvis ikke i teksten)
   "til": "a2",                // aktør-id ELLER null. [ENDRET, #341] For kompetanse: MOTPARTEN («A har klagekompetanse
@@ -91,7 +91,7 @@ Merk dobbeltnatur eksplisitt i kommentar (f.eks. «kommune» både rettssubjekt 
                               // [ENDRET, #355] Avslutning speiler innsetting: avsettingskompetanse har avsetting (verv/styre),
                               // oppsigelse og avskjed; oppnevning også utnevning (embete) og konstitusjon (midlertidig);
                               // vedtakskompetanse har tilbakekall (av tillatelse/autorisasjon)
-  "modalitet": "skal" | "kan" | "bor",          // [Ny, #353] KUN på plikt (L14: modaliteten bevares): «skal», «plikter», «har plikt
+  "modalitet": "skal" | "kan" | "bor",          // [Ny, #353] KUN på plikt [ENDRET, #368: og oppgave] (L14: modaliteten bevares): «skal», «plikter», «har plikt
                               // til» = skal; «bør» = bor. [ENDRET, juristgjennomgangen 2026-10-09] Normativ presens uten modalverb
                               // («dekkes av staten», «Staten dekker») = skal; «Det samme gjelder …» arver modalverbet i setningen
                               // det viser til; «A kan pålegge B …» = B skal når pålegg er gitt (se under). Utelatt/null = ikke avgjort
@@ -107,6 +107,8 @@ Merk dobbeltnatur eksplisitt i kommentar (f.eks. «kommune» både rettssubjekt 
   "kunnskapsstatus": "tekstfunn" | "normalisering" | "fortolkning" | "avledet" | "eksternt_dokumentert" | "uavklart" | "omstridt" | "foreldet",
                               // [Ny, #367] HVORDAN utsagnet er kommet fram (docs/profil/03 §5). Utelatt = ikke vurdert
   "begrunnelse": "...",       // [Ny, #367] for normalisering: regelen som er brukt; for fortolkning: begrunnelsen
+  "tolkningsargumenter": ["ordlyd", "kontekst_system", "formal", "forarbeider", "praksis", "reelle_hensyn", "antitetisk_analogisk"],
+                              // [Ny, #368] KUN ved kunnskapsstatus fortolkning (docs/profil/03 §6), minst ett. Settes i juristrunder
   "polaritet": "positiv" | "negativ",           // «kan ikke instruere» = negativ
   "avgrensning": "<paragraf/sakstype/vilkår som begrenser utsagnet, ellers null>",
   "betinget": true | false,
@@ -255,6 +257,19 @@ idempotent, også på `ki-utdata/`):
   Runde 2: kompetansen i selve fullmaktsleddet (sameloven u168) og et sitat med både «Kongen» og «Kongen i statsråd» (energiloven u14)
   får ingen verdi og listes.
 
+**[ENDRET, issue #368, Johanns beslutning 2026-10-15] Oppgave/funksjon** (`oppgave`, kategori F; docs/profil/02-begrepsmanual.md §F):
+- Et arbeidsfelt eller ansvar loven legger til en aktør uten at det gir myndighet (kompetanse) eller en plikt overfor en bestemt motpart
+  (plikt): «skal samordne», «skal sørge for at», «skal føre register over», «skal veilede om», «skal påse at», «forvaltningsansvaret
+  for». `fra` = aktøren, `objekt` = oppgaven (PÅKREVD), `til` = det oppgaven gjelder eller null (aldri = `fra`), `modalitet` bare ved
+  modalverb eller normativ presens av en handling (attributiv form: null). **Gir aldri kompetanse eller plikt i seg selv**, heller ikke
+  for en tredjepart («A skal sørge for at B …» gir ingen plikt for B).
+- «A er sekretariat for B» / «A skal være rådgiver for B» alene er relasjon (`sekretariat_for`/`radgir`); `sekretariatsfunksjon` legges
+  til bare når teksten sier hva funksjonen går ut på. «sørge for at X blir hørt» er konsultasjonsplikt, «sørge for at det inngås avtaler»
+  med en motpart avtaleplikt.
+- `kunnskapsstatus` `fortolkning` med `tolkningsargumenter` når leddet har et kompetanse- eller pliktsignal som måtte vurderes.
+- Konverteringen gjør bare det juristrunden avgjorde: `konvertering-368-oppgave.py` leser `juristrunde-368-oppgave.json` (fasit 1 802 →
+  1 825, 52 oppgaverader; KI-utdata 1 042 → 1 051, 29).
+
 Typer per kategori (bruk disse når de passer, ellers "annet:<x>"):
 - relasjon (aktør→aktør): `eies_av`, `ledes_av`, `sekretariat_for`, `rapporterer_til`, `etterfolger`,
   `representerer`, `har_delegert_til` (gjennomført delegering, når BÅDE fra og til er gitt),
@@ -274,6 +289,9 @@ Typer per kategori (bruk disse når de passer, ellers "annet:<x>"):
   inngåtte avtalen er en ekstern kilde), `betalingsplikt` (til = betalingsmottakeren, null når teksten ikke sier det),
   `bistandsplikt`, `informasjonsplikt` (gi opplysninger, varsle, utlevere informasjon), `konsultasjonsplikt` (konsultere, innhente
   uttalelse fra; [#355] forelegge for et organ som svarer rådgivende — modalitet kan/skal). [Ny, #353]
+- oppgave (aktør/rolle/klasse → område/klasse/aktør, valgfri; objekt PÅKREVD): `forvaltningsoppgave`, `samordningsoppgave`,
+  `sorge_for_ansvar`, `oversiktsoppgave`, `bistandsoppgave`, `sekretariatsfunksjon`, `radgivningsoppgave`, `veiledningsoppgave`, `kontrolloppgave`.
+  [Ny, #368] Gir aldri kompetanse eller plikt i seg selv (docs/profil/02-begrepsmanual.md §F).
 - medlemskap (aktør/klasse → klasse): `medlem_av`, `inngar_i`.
 - sammensetning_omrade (område → område): `bestar_av`, `del_av`.
 - ansvarsomrade (aktør → område): `har_ansvarsomrade`, `har_jurisdiksjon`, `har_sete_i`.

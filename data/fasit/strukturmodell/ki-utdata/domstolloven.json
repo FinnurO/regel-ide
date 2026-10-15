@@ -5800,8 +5800,8 @@
       "id": "u189",
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§121f/ledd-1",
       "sitat": "Registeret over sidegjøremål føres av domstoladministrasjonen.",
-      "kategori": "kompetanse",
-      "type": "annet:registerføring",
+      "kategori": "oppgave",
+      "type": "oversiktsoppgave",
       "fra": "a10",
       "til": null,
       "objekt": "registeret over sidegjøremål",
@@ -5810,9 +5810,9 @@
       "betinget": null,
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#368, juristrunden] var kompetanse/annet:registerføring.",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "delegeringsadgang": "ikke_regulert"
+      "modalitet": "skal"
     },
     {
       "id": "u190",

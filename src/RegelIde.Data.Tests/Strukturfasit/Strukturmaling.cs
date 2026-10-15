@@ -97,6 +97,7 @@ internal static class Strukturmaling
         ("relasjon", "del_av") => "G",
         ("kompetanse", _) when Strukturkontrakt.TyperPerKategori["kompetanse"].Contains(type) => "K",
         ("plikt", _) when Strukturkontrakt.TyperPerKategori["plikt"].Contains(type) => "P", // [Ny, #353]
+        ("oppgave", _) when Strukturkontrakt.TyperPerKategori["oppgave"].Contains(type) => "F", // [Ny, #368]
         (_, "medlem_av" or "inngar_i") => "M",
         (_, "bestar_av") => "O",
         ("sammensetning_omrade", "del_av") => "O",
@@ -108,7 +109,8 @@ internal static class Strukturmaling
 
     /// <summary>Rekkefølgen bokstavene vises i (docs/33 §4.3), med I og T selv om fasiten har få/ingen.</summary>
     /// [ENDRET, issue #353] + P etter K; «senere lag» er borte (samarbeid/bistand er P).
-    public static readonly string[] Bokstavrekkefolge = ["R", "K", "P", "M", "O", "A", "G", "I", "T", "annet"];
+    /// [ENDRET, issue #368] + F (oppgave/funksjon) etter P.
+    public static readonly string[] Bokstavrekkefolge = ["R", "K", "P", "F", "M", "O", "A", "G", "I", "T", "annet"];
 }
 
 /// <summary>Ett utsagn (fasit eller predikert) med oppslåtte aktører.</summary>

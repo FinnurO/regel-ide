@@ -120,6 +120,8 @@ raden blir stående. Avviste skjules i alle oppslag som foreldede rader gjør, o
 
 ### 6.1 Oppgave/funksjon (ny kategori F)
 
+**[Bygget, #368, 2026-10-15]** Johann besluttet F som eget begrep. Definisjon og grenser: docs/profil/02-begrepsmanual.md §F; modell, migrasjon og juristrundens utfall: docs/33 §4.7. Avvik fra forslaget under: typen `veiledning` er lagt til.
+
 **Problem:** «Skal samordne», «sørge for», «forvalte», «føre oversikt» og «være sekretariat» blir i dag presset inn som K (samordning), P (bistand) eller R (`sekretariat_for`, `radgir`). Standardforslaget §7.8 sier at en oppgave verken er kompetanse eller plikt overfor en motpart, og at den ikke gir instruksjonsmyndighet.
 
 **Forslag:** Ny kategori **F: oppgave/funksjon**.

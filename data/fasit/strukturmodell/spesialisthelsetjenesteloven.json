@@ -4204,17 +4204,23 @@
       "id": "u170",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-1/ledd-1",
       "sitat": "Staten har det overordnede ansvar for at befolkningen gis nødvendig spesialisthelsetjeneste",
-      "kategori": "ansvarsomrade",
-      "type": "annet:sorge_for_ansvar_overordnet",
+      "kategori": "oppgave",
+      "type": "sorge_for_ansvar",
       "fra": "a1",
       "til": null,
-      "objekt": "nødvendig spesialisthelsetjeneste til befolkningen",
+      "objekt": "det overordnede ansvar for at befolkningen gis nødvendig spesialisthelsetjeneste",
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Ansvar for en PERSONKRETS («befolkningen»); område (riket) er implisitt. To nivåer av sørge-for-ansvar: staten (overordnet) og RHF (regionalt). [#309, kort nr. 16] Teksten sier «befolkningen», ikke «riket» (L1); området gjettes ikke. Var til = riket."
+      "kommentar": "[#368, juristrunden] var ansvarsomrade/annet:sorge_for_ansvar_overordnet. Ansvar for en PERSONKRETS («befolkningen»); område (riket) er implisitt. To nivåer av sørge-for-ansvar: staten (overordnet) og RHF (regionalt). [#309, kort nr. 16] Teksten sier «befolkningen», ikke «riket» (L1); området gjettes ikke. Var til = riket.",
+      "modalitet": null,
+      "kunnskapsstatus": "fortolkning",
+      "begrunnelse": "Aksepter. Statens overordnede ansvar skilles fra RHF-enes sørge-for-ansvar (shl. § 2-1 mot § 2-1 a).",
+      "tolkningsargumenter": [
+        "ordlyd"
+      ]
     },
     {
       "id": "u171",
@@ -4901,17 +4907,23 @@
       "id": "u211",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-5b/ledd-1",
       "sitat": "en koordinerende enhet som skal ha en generell oversikt over habiliterings- og rehabiliteringstiltak i helseregionen",
-      "kategori": "ansvarsomrade",
-      "type": "har_ansvarsomrade",
+      "kategori": "oppgave",
+      "type": "oversiktsoppgave",
       "fra": "a45",
       "til": "a6",
-      "objekt": "oversikt over habilitering/rehabilitering",
+      "objekt": "generell oversikt over habiliterings- og rehabiliteringstiltak i helseregionen",
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": "Enhet i et HF med oversiktsansvar for HELE helseregionen — områdenivå for enheten avviker fra nivået til eieren (HF). Hvilken helseregion løses via HF→RHF-eierskap."
+      "kommentar": "[#368, juristrunden] var ansvarsomrade/har_ansvarsomrade. Enhet i et HF med oversiktsansvar for HELE helseregionen — områdenivå for enheten avviker fra nivået til eieren (HF). Hvilken helseregion løses via HF→RHF-eierskap.",
+      "modalitet": "skal",
+      "kunnskapsstatus": "fortolkning",
+      "begrunnelse": "«skal ha en generell oversikt over» er typen oversikt.",
+      "tolkningsargumenter": [
+        "ordlyd"
+      ]
     },
     {
       "id": "u212",
@@ -4946,7 +4958,13 @@
       "sikkerhet": "hoy",
       "kommentar": "",
       "undertype": "oppnevning",
-      "delegeringsadgang": "ikke_regulert"
+      "delegeringsadgang": "ikke_regulert",
+      "kunnskapsstatus": "fortolkning",
+      "begrunnelse": "Fortolkning (juristrunden i #368): «ansvar for oppnevning … av koordinator» legger avgjørelsen av hvem som er koordinator til enheten — oppnevningskompetanse etter #352 («myndighet til å bestemme hvem som skal inneha en rolle»). Ikke sluttet fra oppgaven; oppgaven (overordnet ansvar, opplæring og veiledning) står som egne F-rader.",
+      "tolkningsargumenter": [
+        "ordlyd",
+        "kontekst_system"
+      ]
     },
     {
       "id": "u214",
@@ -5277,17 +5295,23 @@
       "id": "u232",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§3-5/ledd-1",
       "sitat": "De regionale helseforetakene skal sørge for at behovet for undervisning og opplæring av helsefaglige elever, lærlinger, studenter, turnuskandidater og spesialister dekkes innen helseregionen",
-      "kategori": "ansvarsomrade",
-      "type": "har_ansvarsomrade",
+      "kategori": "oppgave",
+      "type": "sorge_for_ansvar",
       "fra": "a2",
       "til": "a6",
-      "objekt": "undervisning og opplæring",
+      "objekt": "at behovet for undervisning og opplæring av helsefaglige elever, lærlinger, studenter, turnuskandidater og spesialister dekkes innen helseregionen",
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "[#368, juristrunden] var ansvarsomrade/har_ansvarsomrade.",
+      "modalitet": "skal",
+      "kunnskapsstatus": "fortolkning",
+      "begrunnelse": "«skal sørge for at» er resultatansvar; studentene får ingen kravsrett av F-raden.",
+      "tolkningsargumenter": [
+        "ordlyd"
+      ]
     },
     {
       "id": "u233",
@@ -5788,17 +5812,24 @@
       "id": "u260",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§4-4/ledd-1",
       "sitat": "De regionale helseforetakene skal sørge for et felles system for å beslutte hvilke metoder som kan tilbys i spesialisthelsetjenesten",
-      "kategori": "konstituerende",
-      "type": "annet:felles_opprettelse",
+      "kategori": "oppgave",
+      "type": "sorge_for_ansvar",
       "fra": "a2",
       "til": "a58",
-      "objekt": null,
+      "objekt": "et felles system for å beslutte hvilke metoder som kan tilbys i spesialisthelsetjenesten",
       "polaritet": "positiv",
-      "avgrensning": "alle RHF i fellesskap",
+      "avgrensning": "felles for de regionale helseforetakene (ett system for alle)",
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": "Kollektiv opprettelse av en ordning av FLERE rettssubjekter i fellesskap; ordningen («Nye metoder») er ikke navngitt i korpus."
+      "kommentar": "[#368, juristrunden] var konstituerende/annet:felles_opprettelse. Kollektiv opprettelse av en ordning av FLERE rettssubjekter i fellesskap; ordningen («Nye metoder») er ikke navngitt i korpus.",
+      "modalitet": "skal",
+      "kunnskapsstatus": "fortolkning",
+      "begrunnelse": "Aksepter. til = systemet (a58) og fellesskapet i avgrensningen.",
+      "tolkningsargumenter": [
+        "ordlyd",
+        "kontekst_system"
+      ]
     },
     {
       "id": "u261",
@@ -6352,18 +6383,25 @@
       "id": "u292",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§7-3/ledd-1",
       "sitat": "Helsedirektoratet skal utvikle, formidle og vedlikeholde nasjonale faglige retningslinjer og veiledere",
-      "kategori": "kompetanse",
-      "type": "annet:normeringskompetanse",
+      "kategori": "oppgave",
+      "type": "veiledningsoppgave",
       "fra": "a35",
       "til": null,
-      "objekt": "nasjonale faglige retningslinjer og veiledere",
+      "objekt": "nasjonale faglige retningslinjer og veiledere som understøtter de mål som er satt for helse- og omsorgstjenesten",
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Myk normering (ikke forskrift).",
-      "delegeringsadgang": "ikke_regulert"
+      "kommentar": "[#368, juristrunden] var kompetanse/annet:normeringskompetanse. Myk normering (ikke forskrift).",
+      "modalitet": "skal",
+      "kunnskapsstatus": "fortolkning",
+      "begrunnelse": "Ikke bindende normer; faglig veiledning av tjenesteyterne. Departementets bestemmelse om områder er egen K.",
+      "tolkningsargumenter": [
+        "ordlyd",
+        "kontekst_system",
+        "formal"
+      ]
     },
     {
       "id": "u293",
@@ -6386,18 +6424,24 @@
       "id": "u294",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§7-3/ledd-2",
       "sitat": "Helsedirektoratet skal utvikle, formidle og vedlikeholde nasjonale kvalitetsindikatorer",
-      "kategori": "kompetanse",
-      "type": "annet:normeringskompetanse",
+      "kategori": "oppgave",
+      "type": "oversiktsoppgave",
       "fra": "a35",
       "til": null,
-      "objekt": "nasjonale kvalitetsindikatorer",
+      "objekt": "nasjonale kvalitetsindikatorer som hjelpemiddel for ledelse og kvalitetsforbedring i spesialisthelsetjenesten",
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
-      "delegeringsadgang": "ikke_regulert"
+      "kommentar": "[#368, juristrunden] var kompetanse/annet:normeringskompetanse.",
+      "modalitet": "skal",
+      "kunnskapsstatus": "fortolkning",
+      "begrunnelse": "Å utvikle og vedlikeholde indikatorer er å følge med på en tilstand; ingen myndighet.",
+      "tolkningsargumenter": [
+        "ordlyd",
+        "formal"
+      ]
     },
     {
       "id": "u295",
@@ -6637,6 +6681,230 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "[#356, juristrunden] § 42 tredje ledd tredje punktum. Samme oppsett som u305."
+    },
+    {
+      "id": "u309",
+      "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§2a/ledd-1",
+      "sitat": "Regionale helseforetak skal planlegge, organisere, styre og samordne virksomhetene i helseforetakene som de eier",
+      "kategori": "oppgave",
+      "type": "samordningsoppgave",
+      "fra": "a2",
+      "til": "a4",
+      "objekt": "virksomhetene i helseforetakene som de eier",
+      "modalitet": "skal",
+      "polaritet": "positiv",
+      "avgrensning": null,
+      "betinget": false,
+      "kilde_utenfor_korpus": false,
+      "sikkerhet": "hoy",
+      "kommentar": "[#368, juristrunden] ny oppgaverad fra u10 (begge).",
+      "kunnskapsstatus": "fortolkning",
+      "begrunnelse": "«samordne» står ved siden av «styre»; myndigheten ligger i eierskapet og foretaksmøtet, ikke i samordningsordet.",
+      "tolkningsargumenter": [
+        "ordlyd",
+        "kontekst_system"
+      ]
+    },
+    {
+      "id": "u310",
+      "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§28/ledd-1",
+      "sitat": "Forvaltningen av foretaket hører under styret",
+      "kategori": "oppgave",
+      "type": "sorge_for_ansvar",
+      "fra": "a13",
+      "til": null,
+      "objekt": "en tilfredsstillende organisering av foretakets samlede virksomhet",
+      "modalitet": null,
+      "polaritet": "positiv",
+      "avgrensning": null,
+      "betinget": false,
+      "kilde_utenfor_korpus": false,
+      "sikkerhet": "hoy",
+      "kommentar": "[#368, juristrunden] ny oppgaverad fra u98 (begge).",
+      "kunnskapsstatus": "fortolkning",
+      "begrunnelse": "«har ansvar for» er sorge_for-ordlyd; organiseringsmyndigheten følger av generalkompetansen, ikke av F-raden.",
+      "tolkningsargumenter": [
+        "ordlyd",
+        "kontekst_system"
+      ]
+    },
+    {
+      "id": "u311",
+      "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-1a/ledd-1",
+      "sitat": "Det regionale helseforetaket skal sørge for at personer med fast bopel eller oppholdssted innen helseregionen tilbys spesialisthelsetjeneste",
+      "kategori": "oppgave",
+      "type": "sorge_for_ansvar",
+      "fra": "a2",
+      "til": "a6",
+      "objekt": "at personer med fast bopel eller oppholdssted innen helseregionen tilbys spesialisthelsetjeneste i og utenfor institusjon",
+      "modalitet": "skal",
+      "polaritet": "positiv",
+      "avgrensning": null,
+      "betinget": false,
+      "kilde_utenfor_korpus": true,
+      "sikkerhet": "hoy",
+      "kommentar": "[#368, juristrunden] ny oppgaverad fra u171 (begge).",
+      "kunnskapsstatus": "fortolkning",
+      "begrunnelse": "«skal sørge for at» er resultatansvar for en befolkning i et område (begrepsmanualen, grensen F sørge for mot A).",
+      "tolkningsargumenter": [
+        "ordlyd"
+      ]
+    },
+    {
+      "id": "u312",
+      "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-4a/ledd-2",
+      "sitat": "skal den kliniske etikkomiteen bistå med råd om hvordan konkrete etiske utfordringer ved behandlingen av den enkelte pasient kan løses",
+      "kategori": "oppgave",
+      "type": "veiledningsoppgave",
+      "fra": "a43",
+      "til": "a55",
+      "objekt": "å øke helsepersonellets kompetanse i å identifisere, analysere og avklare etiske verdispørsmål i forbindelse med pasientbehandling og ved prioritering av ressurser",
+      "modalitet": "skal",
+      "polaritet": "positiv",
+      "avgrensning": null,
+      "betinget": true,
+      "kilde_utenfor_korpus": false,
+      "sikkerhet": "hoy",
+      "kommentar": "[#368, juristrunden] ny oppgaverad fra u200 (begge).",
+      "kunnskapsstatus": "fortolkning",
+      "begrunnelse": "Å bygge kompetanse hos helsepersonell er opplæring/veiledning i fag uten motpart som kan kreve det (typen veiledning).",
+      "tolkningsargumenter": [
+        "ordlyd",
+        "formal"
+      ]
+    },
+    {
+      "id": "u313",
+      "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-5/ledd-2",
+      "sitat": "skal i slike tilfeller medvirke i kommunens arbeid med individuell plan",
+      "kategori": "oppgave",
+      "type": "sorge_for_ansvar",
+      "fra": "a31",
+      "til": null,
+      "objekt": "at arbeidet med planen settes i gang og koordineres",
+      "modalitet": "skal",
+      "polaritet": "positiv",
+      "avgrensning": "når pasienten har behov for tjenester både etter loven her og etter helse- og omsorgstjenesteloven",
+      "betinget": true,
+      "kilde_utenfor_korpus": false,
+      "sikkerhet": "hoy",
+      "kommentar": "[#368, juristrunden] ny oppgaverad fra u204 (begge).",
+      "kunnskapsstatus": "fortolkning",
+      "begrunnelse": "«skal sørge for at» er resultatansvar; samordningen gir kommunen ingen myndighet over helseforetaket.",
+      "tolkningsargumenter": [
+        "ordlyd"
+      ]
+    },
+    {
+      "id": "u314",
+      "eid": "https://lovdata.no/eli/lov/1997/02/28/19/nor/§21-11a/ledd-1",
+      "sitat": "Helsedirektoratet skal forvalte kapittel 5",
+      "kategori": "oppgave",
+      "type": "sorge_for_ansvar",
+      "fra": "a35",
+      "til": null,
+      "objekt": "rett ytelse til den enkelte",
+      "modalitet": "skal",
+      "polaritet": "positiv",
+      "avgrensning": "etter folketrygdloven kapittel 5",
+      "betinget": false,
+      "kilde_utenfor_korpus": false,
+      "sikkerhet": "hoy",
+      "kommentar": "[#368, juristrunden] ny oppgaverad fra u303 (begge).",
+      "kunnskapsstatus": "fortolkning",
+      "begrunnelse": "Aksepter. R forvaltes_av står alene for forvaltningen av kapittel 5 (begrepsmanualen §F, grensen mot forvaltes_av, presisert i r2); de to andre oppgavene står.",
+      "tolkningsargumenter": [
+        "ordlyd"
+      ]
+    },
+    {
+      "id": "u315",
+      "eid": "https://lovdata.no/eli/lov/1997/02/28/19/nor/§21-11a/ledd-1",
+      "sitat": "Helsedirektoratet skal forvalte kapittel 5",
+      "kategori": "oppgave",
+      "type": "kontrolloppgave",
+      "fra": "a35",
+      "til": null,
+      "objekt": "å følge opp og kontrollere tjenester, ytelser og utbetalinger",
+      "modalitet": "skal",
+      "polaritet": "positiv",
+      "avgrensning": "etter folketrygdloven kapittel 5",
+      "betinget": false,
+      "kilde_utenfor_korpus": false,
+      "sikkerhet": "hoy",
+      "kommentar": "[#368, juristrunden] ny oppgaverad fra u303 (begge).",
+      "kunnskapsstatus": "fortolkning",
+      "begrunnelse": "Aksepter. R forvaltes_av står alene for forvaltningen av kapittel 5 (begrepsmanualen §F, grensen mot forvaltes_av, presisert i r2); de to andre oppgavene står.",
+      "tolkningsargumenter": [
+        "ordlyd",
+        "kontekst_system"
+      ]
+    },
+    {
+      "id": "u316",
+      "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-5b/ledd-1",
+      "sitat": "en koordinerende enhet som skal ha en generell oversikt over habiliterings- og rehabiliteringstiltak i helseregionen",
+      "kategori": "oppgave",
+      "type": "oversiktsoppgave",
+      "fra": "a45",
+      "til": "a31",
+      "objekt": "oversikt over habiliterings- og rehabiliteringsvirksomheten i kommunen",
+      "modalitet": "skal",
+      "polaritet": "positiv",
+      "avgrensning": null,
+      "betinget": false,
+      "kilde_utenfor_korpus": true,
+      "sikkerhet": "hoy",
+      "kommentar": "[#368, juristrunden] ny oppgaverad fra u211 (F).",
+      "kunnskapsstatus": "fortolkning",
+      "begrunnelse": "«skal ha oversikt over» er typen oversikt; «nødvendig kontakt med» står som P samarbeid (u212).",
+      "tolkningsargumenter": [
+        "ordlyd"
+      ]
+    },
+    {
+      "id": "u317",
+      "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-5b/ledd-1",
+      "sitat": "overordnet ansvar for arbeidet med individuell plan og for oppnevning, opplæring og veiledning av koordinator",
+      "kategori": "oppgave",
+      "type": "sorge_for_ansvar",
+      "fra": "a45",
+      "til": null,
+      "objekt": "overordnet ansvar for arbeidet med individuell plan",
+      "modalitet": "skal",
+      "polaritet": "positiv",
+      "avgrensning": null,
+      "betinget": false,
+      "kilde_utenfor_korpus": false,
+      "sikkerhet": "hoy",
+      "kommentar": "[#368, juristrunden] ny oppgaverad fra u213 (begge).",
+      "kunnskapsstatus": "fortolkning",
+      "begrunnelse": "«overordnet ansvar for» er sorge_for.",
+      "tolkningsargumenter": [
+        "ordlyd"
+      ]
+    },
+    {
+      "id": "u318",
+      "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-5b/ledd-1",
+      "sitat": "overordnet ansvar for arbeidet med individuell plan og for oppnevning, opplæring og veiledning av koordinator",
+      "kategori": "oppgave",
+      "type": "veiledningsoppgave",
+      "fra": "a45",
+      "til": "a46",
+      "objekt": "opplæring og veiledning av koordinator",
+      "modalitet": "skal",
+      "polaritet": "positiv",
+      "avgrensning": null,
+      "betinget": false,
+      "kilde_utenfor_korpus": false,
+      "sikkerhet": "hoy",
+      "kommentar": "[#368, juristrunden] ny oppgaverad fra u213 (begge).",
+      "kunnskapsstatus": "fortolkning",
+      "begrunnelse": "«opplæring og veiledning av» er typen veiledning.",
+      "tolkningsargumenter": [
+        "ordlyd"
+      ]
     }
   ]
 }

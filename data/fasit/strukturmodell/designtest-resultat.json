@@ -1193,11 +1193,11 @@
  },
  {
   "kilde": "sameloven",
-  "kategori": "kompetanse",
-  "type": "annet:registerforing",
-  "dagens": "delvis",
+  "kategori": "oppgave",
+  "type": "oversiktsoppgave",
+  "dagens": "nei",
   "revidert": "ja",
-  "element": "K"
+  "element": "F"
  },
  {
   "kilde": "sameloven",
@@ -1481,11 +1481,11 @@
  },
  {
   "kilde": "sameloven",
-  "kategori": "ansvarsomrade",
-  "type": "annet:forvaltningsansvar_regelverk",
+  "kategori": "oppgave",
+  "type": "sorge_for_ansvar",
   "dagens": "nei",
   "revidert": "ja",
-  "element": "K"
+  "element": "F"
  },
  {
   "kilde": "sameloven",
@@ -1785,11 +1785,11 @@
  },
  {
   "kilde": "sameloven",
-  "kategori": "ansvarsomrade",
-  "type": "annet:saklig_arbeidsomrade",
+  "kategori": "oppgave",
+  "type": "sorge_for_ansvar",
   "dagens": "nei",
   "revidert": "ja",
-  "element": "A"
+  "element": "F"
  },
  {
   "kilde": "sameloven",
@@ -2273,11 +2273,11 @@
  },
  {
   "kilde": "sameloven",
-  "kategori": "ansvarsomrade",
-  "type": "annet:forvaltningsansvar_regelverk",
+  "kategori": "oppgave",
+  "type": "forvaltningsoppgave",
   "dagens": "nei",
   "revidert": "ja",
-  "element": "K"
+  "element": "F"
  },
  {
   "kilde": "sameloven",
@@ -2286,6 +2286,22 @@
   "dagens": "delvis",
   "revidert": "ja",
   "element": "K"
+ },
+ {
+  "kilde": "sameloven",
+  "kategori": "oppgave",
+  "type": "sorge_for_ansvar",
+  "dagens": "nei",
+  "revidert": "ja",
+  "element": "F"
+ },
+ {
+  "kilde": "sameloven",
+  "kategori": "oppgave",
+  "type": "sorge_for_ansvar",
+  "dagens": "nei",
+  "revidert": "ja",
+  "element": "F"
  },
  {
   "kilde": "energiloven",
@@ -3329,11 +3345,11 @@
  },
  {
   "kilde": "energiloven",
-  "kategori": "kompetanse",
-  "type": "annet:oppgaveansvar",
-  "dagens": "delvis",
+  "kategori": "oppgave",
+  "type": "sorge_for_ansvar",
+  "dagens": "nei",
   "revidert": "ja",
-  "element": "I"
+  "element": "F"
  },
  {
   "kilde": "energiloven",
@@ -3377,11 +3393,11 @@
  },
  {
   "kilde": "energiloven",
-  "kategori": "kompetanse",
-  "type": "annet:oppgaveansvar",
-  "dagens": "delvis",
+  "kategori": "oppgave",
+  "type": "sorge_for_ansvar",
+  "dagens": "nei",
   "revidert": "ja",
-  "element": "I"
+  "element": "F"
  },
  {
   "kilde": "energiloven",
@@ -3561,11 +3577,11 @@
  },
  {
   "kilde": "energiloven",
-  "kategori": "kompetanse",
-  "type": "samordningskompetanse",
-  "dagens": "delvis",
+  "kategori": "oppgave",
+  "type": "samordningsoppgave",
+  "dagens": "nei",
   "revidert": "ja",
-  "element": "K"
+  "element": "F"
  },
  {
   "kilde": "energiloven",
@@ -4201,19 +4217,27 @@
  },
  {
   "kilde": "energiloven",
-  "kategori": "kompetanse",
-  "type": "annet:forvaltningsansvar",
+  "kategori": "oppgave",
+  "type": "forvaltningsoppgave",
   "dagens": "nei",
   "revidert": "ja",
-  "element": "K"
+  "element": "F"
  },
  {
   "kilde": "energiloven",
-  "kategori": "kompetanse",
-  "type": "annet:forvaltningsansvar",
+  "kategori": "oppgave",
+  "type": "forvaltningsoppgave",
   "dagens": "nei",
   "revidert": "ja",
-  "element": "K"
+  "element": "F"
+ },
+ {
+  "kilde": "energiloven",
+  "kategori": "oppgave",
+  "type": "sorge_for_ansvar",
+  "dagens": "nei",
+  "revidert": "ja",
+  "element": "F"
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
@@ -4377,11 +4401,11 @@
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
-  "kategori": "plikt",
-  "type": "bistandsplikt",
+  "kategori": "oppgave",
+  "type": "bistandsoppgave",
   "dagens": "nei",
   "revidert": "ja",
-  "element": "P"
+  "element": "F"
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
@@ -4401,11 +4425,11 @@
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
-  "kategori": "relasjon",
-  "type": "annet:oppgave_overfort",
-  "dagens": "delvis",
+  "kategori": "oppgave",
+  "type": "samordningsoppgave",
+  "dagens": "nei",
   "revidert": "ja",
-  "element": "R"
+  "element": "F"
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
@@ -4465,11 +4489,11 @@
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
-  "kategori": "annet:funksjonstildeling",
-  "type": "annet:lovtildelt_oppgave",
-  "dagens": "delvis",
+  "kategori": "oppgave",
+  "type": "sorge_for_ansvar",
+  "dagens": "nei",
   "revidert": "ja",
-  "element": "I"
+  "element": "F"
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
@@ -4849,11 +4873,11 @@
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
-  "kategori": "annet:funksjonstildeling",
-  "type": "annet:lovtildelt_oppgave",
-  "dagens": "delvis",
+  "kategori": "oppgave",
+  "type": "sorge_for_ansvar",
+  "dagens": "nei",
   "revidert": "ja",
-  "element": "I"
+  "element": "F"
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
@@ -4873,19 +4897,19 @@
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
-  "kategori": "annet:funksjonstildeling",
-  "type": "annet:lovtildelt_oppgave",
-  "dagens": "delvis",
+  "kategori": "oppgave",
+  "type": "samordningsoppgave",
+  "dagens": "nei",
   "revidert": "ja",
-  "element": "I"
+  "element": "F"
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
-  "kategori": "plikt",
-  "type": "bistandsplikt",
+  "kategori": "oppgave",
+  "type": "oversiktsoppgave",
   "dagens": "nei",
   "revidert": "ja",
-  "element": "P"
+  "element": "F"
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
@@ -4921,35 +4945,35 @@
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
-  "kategori": "annet:funksjonstildeling",
-  "type": "annet:lovtildelt_oppgave",
-  "dagens": "delvis",
-  "revidert": "ja",
-  "element": "I"
- },
- {
-  "kilde": "helse-og-omsorgstjenesteloven",
-  "kategori": "kompetanse",
-  "type": "oppnevningskompetanse",
-  "dagens": "delvis",
-  "revidert": "ja",
-  "element": "K"
- },
- {
-  "kilde": "helse-og-omsorgstjenesteloven",
-  "kategori": "kompetanse",
-  "type": "oppnevningskompetanse",
-  "dagens": "delvis",
-  "revidert": "ja",
-  "element": "K"
- },
- {
-  "kilde": "helse-og-omsorgstjenesteloven",
-  "kategori": "relasjon",
-  "type": "annet:veileder",
+  "kategori": "oppgave",
+  "type": "sorge_for_ansvar",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "F"
+ },
+ {
+  "kilde": "helse-og-omsorgstjenesteloven",
+  "kategori": "kompetanse",
+  "type": "oppnevningskompetanse",
+  "dagens": "delvis",
+  "revidert": "ja",
+  "element": "K"
+ },
+ {
+  "kilde": "helse-og-omsorgstjenesteloven",
+  "kategori": "kompetanse",
+  "type": "oppnevningskompetanse",
+  "dagens": "delvis",
+  "revidert": "ja",
+  "element": "K"
+ },
+ {
+  "kilde": "helse-og-omsorgstjenesteloven",
+  "kategori": "oppgave",
+  "type": "veiledningsoppgave",
+  "dagens": "nei",
+  "revidert": "ja",
+  "element": "F"
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
@@ -5169,11 +5193,11 @@
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
-  "kategori": "relasjon",
-  "type": "annet:sorge_for_ansvar",
+  "kategori": "oppgave",
+  "type": "sorge_for_ansvar",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "F"
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
@@ -5641,11 +5665,11 @@
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
-  "kategori": "annet:funksjonstildeling",
-  "type": "annet:lovtildelt_oppgave",
-  "dagens": "delvis",
+  "kategori": "oppgave",
+  "type": "veiledningsoppgave",
+  "dagens": "nei",
   "revidert": "ja",
-  "element": "I"
+  "element": "F"
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
@@ -5665,11 +5689,11 @@
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
-  "kategori": "annet:funksjonstildeling",
-  "type": "annet:lovtildelt_oppgave",
-  "dagens": "delvis",
+  "kategori": "oppgave",
+  "type": "oversiktsoppgave",
+  "dagens": "nei",
   "revidert": "ja",
-  "element": "I"
+  "element": "F"
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
@@ -5742,6 +5766,78 @@
   "dagens": "delvis",
   "revidert": "ja",
   "element": "K"
+ },
+ {
+  "kilde": "helse-og-omsorgstjenesteloven",
+  "kategori": "oppgave",
+  "type": "sorge_for_ansvar",
+  "dagens": "nei",
+  "revidert": "ja",
+  "element": "F"
+ },
+ {
+  "kilde": "helse-og-omsorgstjenesteloven",
+  "kategori": "oppgave",
+  "type": "samordningsoppgave",
+  "dagens": "nei",
+  "revidert": "ja",
+  "element": "F"
+ },
+ {
+  "kilde": "helse-og-omsorgstjenesteloven",
+  "kategori": "oppgave",
+  "type": "samordningsoppgave",
+  "dagens": "nei",
+  "revidert": "ja",
+  "element": "F"
+ },
+ {
+  "kilde": "helse-og-omsorgstjenesteloven",
+  "kategori": "oppgave",
+  "type": "sorge_for_ansvar",
+  "dagens": "nei",
+  "revidert": "ja",
+  "element": "F"
+ },
+ {
+  "kilde": "helse-og-omsorgstjenesteloven",
+  "kategori": "oppgave",
+  "type": "veiledningsoppgave",
+  "dagens": "nei",
+  "revidert": "ja",
+  "element": "F"
+ },
+ {
+  "kilde": "helse-og-omsorgstjenesteloven",
+  "kategori": "oppgave",
+  "type": "veiledningsoppgave",
+  "dagens": "nei",
+  "revidert": "ja",
+  "element": "F"
+ },
+ {
+  "kilde": "helse-og-omsorgstjenesteloven",
+  "kategori": "oppgave",
+  "type": "sorge_for_ansvar",
+  "dagens": "nei",
+  "revidert": "ja",
+  "element": "F"
+ },
+ {
+  "kilde": "helse-og-omsorgstjenesteloven",
+  "kategori": "oppgave",
+  "type": "bistandsoppgave",
+  "dagens": "nei",
+  "revidert": "ja",
+  "element": "F"
+ },
+ {
+  "kilde": "helse-og-omsorgstjenesteloven",
+  "kategori": "oppgave",
+  "type": "veiledningsoppgave",
+  "dagens": "nei",
+  "revidert": "ja",
+  "element": "F"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
@@ -7081,11 +7177,11 @@
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
-  "kategori": "ansvarsomrade",
-  "type": "annet:sorge_for_ansvar_overordnet",
+  "kategori": "oppgave",
+  "type": "sorge_for_ansvar",
   "dagens": "nei",
   "revidert": "ja",
-  "element": "A"
+  "element": "F"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
@@ -7409,11 +7505,11 @@
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
-  "kategori": "ansvarsomrade",
-  "type": "har_ansvarsomrade",
+  "kategori": "oppgave",
+  "type": "oversiktsoppgave",
   "dagens": "nei",
   "revidert": "ja",
-  "element": "A"
+  "element": "F"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
@@ -7577,11 +7673,11 @@
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
-  "kategori": "ansvarsomrade",
-  "type": "har_ansvarsomrade",
+  "kategori": "oppgave",
+  "type": "sorge_for_ansvar",
   "dagens": "nei",
   "revidert": "ja",
-  "element": "A"
+  "element": "F"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
@@ -7801,11 +7897,11 @@
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
-  "kategori": "konstituerende",
-  "type": "annet:felles_opprettelse",
+  "kategori": "oppgave",
+  "type": "sorge_for_ansvar",
   "dagens": "nei",
   "revidert": "ja",
-  "element": "R"
+  "element": "F"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
@@ -8057,11 +8153,11 @@
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
-  "kategori": "kompetanse",
-  "type": "annet:normeringskompetanse",
-  "dagens": "delvis",
+  "kategori": "oppgave",
+  "type": "veiledningsoppgave",
+  "dagens": "nei",
   "revidert": "ja",
-  "element": "K"
+  "element": "F"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
@@ -8073,11 +8169,11 @@
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
-  "kategori": "kompetanse",
-  "type": "annet:normeringskompetanse",
-  "dagens": "delvis",
+  "kategori": "oppgave",
+  "type": "oversiktsoppgave",
+  "dagens": "nei",
   "revidert": "ja",
-  "element": "K"
+  "element": "F"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
@@ -8190,6 +8286,86 @@
   "dagens": "nei",
   "revidert": "ja",
   "element": "G"
+ },
+ {
+  "kilde": "spesialisthelsetjenesteloven",
+  "kategori": "oppgave",
+  "type": "samordningsoppgave",
+  "dagens": "nei",
+  "revidert": "ja",
+  "element": "F"
+ },
+ {
+  "kilde": "spesialisthelsetjenesteloven",
+  "kategori": "oppgave",
+  "type": "sorge_for_ansvar",
+  "dagens": "nei",
+  "revidert": "ja",
+  "element": "F"
+ },
+ {
+  "kilde": "spesialisthelsetjenesteloven",
+  "kategori": "oppgave",
+  "type": "sorge_for_ansvar",
+  "dagens": "nei",
+  "revidert": "ja",
+  "element": "F"
+ },
+ {
+  "kilde": "spesialisthelsetjenesteloven",
+  "kategori": "oppgave",
+  "type": "veiledningsoppgave",
+  "dagens": "nei",
+  "revidert": "ja",
+  "element": "F"
+ },
+ {
+  "kilde": "spesialisthelsetjenesteloven",
+  "kategori": "oppgave",
+  "type": "sorge_for_ansvar",
+  "dagens": "nei",
+  "revidert": "ja",
+  "element": "F"
+ },
+ {
+  "kilde": "spesialisthelsetjenesteloven",
+  "kategori": "oppgave",
+  "type": "sorge_for_ansvar",
+  "dagens": "nei",
+  "revidert": "ja",
+  "element": "F"
+ },
+ {
+  "kilde": "spesialisthelsetjenesteloven",
+  "kategori": "oppgave",
+  "type": "kontrolloppgave",
+  "dagens": "nei",
+  "revidert": "ja",
+  "element": "F"
+ },
+ {
+  "kilde": "spesialisthelsetjenesteloven",
+  "kategori": "oppgave",
+  "type": "oversiktsoppgave",
+  "dagens": "nei",
+  "revidert": "ja",
+  "element": "F"
+ },
+ {
+  "kilde": "spesialisthelsetjenesteloven",
+  "kategori": "oppgave",
+  "type": "sorge_for_ansvar",
+  "dagens": "nei",
+  "revidert": "ja",
+  "element": "F"
+ },
+ {
+  "kilde": "spesialisthelsetjenesteloven",
+  "kategori": "oppgave",
+  "type": "veiledningsoppgave",
+  "dagens": "nei",
+  "revidert": "ja",
+  "element": "F"
  },
  {
   "kilde": "domstolloven",
@@ -8825,11 +9001,11 @@
  },
  {
   "kilde": "domstolloven",
-  "kategori": "relasjon",
-  "type": "annet:administrerer",
+  "kategori": "oppgave",
+  "type": "forvaltningsoppgave",
   "dagens": "nei",
   "revidert": "ja",
-  "element": "R"
+  "element": "F"
  },
  {
   "kilde": "domstolloven",
@@ -9553,11 +9729,11 @@
  },
  {
   "kilde": "domstolloven",
-  "kategori": "kompetanse",
-  "type": "annet:registerforing",
-  "dagens": "delvis",
+  "kategori": "oppgave",
+  "type": "oversiktsoppgave",
+  "dagens": "nei",
   "revidert": "ja",
-  "element": "K"
+  "element": "F"
  },
  {
   "kilde": "domstolloven",
@@ -9769,11 +9945,11 @@
  },
  {
   "kilde": "domstolloven",
-  "kategori": "kompetanse",
-  "type": "annet:registerforing",
-  "dagens": "delvis",
+  "kategori": "oppgave",
+  "type": "oversiktsoppgave",
+  "dagens": "nei",
   "revidert": "ja",
-  "element": "K"
+  "element": "F"
  },
  {
   "kilde": "domstolloven",
@@ -14414,5 +14590,13 @@
   "dagens": "delvis",
   "revidert": "ja",
   "element": "K"
+ },
+ {
+  "kilde": "domstolloven",
+  "kategori": "oppgave",
+  "type": "sorge_for_ansvar",
+  "dagens": "nei",
+  "revidert": "ja",
+  "element": "F"
  }
 ]

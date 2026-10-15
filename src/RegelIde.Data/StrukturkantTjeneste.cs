@@ -231,6 +231,13 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
                 "En pliktkant uten motpart må si HVA plikten gjelder: et objekt (f.eks. «behandlings- og forpleiningsutgifter»), "
                 + "et paragrafspenn eller en hjemmel-eId (issue #353).");
         }
+        // [Ny, issue #368] En oppgave ER objektet («beredskapsarbeid», «fortegnelse over valgte meddommere») — uten det sier kanten
+        // bare at aktøren har «en oppgave». Påkrevd også med til-node (CHECK ck_strukturkanter_oppgave_objekt).
+        if (ny.Kategori == Strukturkanter.Oppgave && objekt is null)
+        {
+            throw new ArgumentException(
+                "En oppgavekant må si HVA oppgaven er (objekt, f.eks. «beredskapsarbeid»). Begrepsmanualen §F (issue #368).");
+        }
         if (ny.Kategori == Strukturkanter.Klasseniva && ny.Til is null && objekt is null)
         {
             throw new ArgumentException("En klassenivå-kant uten til-node må ha et objekt (f.eks. «kommunestyre»).");
@@ -927,7 +934,12 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
             var objektTekst = k.Objekt ?? (k.HjemmelEid is not null || k.AvgrensningParagrafspennJson != "[]" ? "etter hjemmelen" : "(ikke angitt)");
             var selvregulering = Strukturkanter.ErSelvregulering(k);
             string tekst;
-            if (retning == "til" && k.Kategori == Strukturkanter.Plikt)
+            if (retning == "til" && k.Kategori == Strukturkanter.Oppgave)
+            {
+                // [Ny, issue #368] Fra siden oppgaven gjelder beholder den modaliteten og objektet, som plikten (#353-rettingen).
+                tekst = $"{fra.Navn} {string.Format(type?.FraVisningsmal ?? "(ukjent type) {0}", Oppgavetekst(Modalitetsord(k.Modalitet), "denne", k.Objekt, objektTekst))}";
+            }
+            else if (retning == "til" && k.Kategori == Strukturkanter.Plikt)
             {
                 // [Ny, issue #353, koordinatorens kaldtest 2026-10-09] Fra motpartens side beholder en plikt modaliteten og
                 // objektet: «HELSE SØR-ØST RHF har avtaleplikt (skal) overfor denne — samarbeidsavtale». Til-malen («{0} har
@@ -953,7 +965,9 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
                     ? Kompetansetekst(k.Normform ?? k.Undertype, til?.Navn, selvregulering, k.Objekt, objektTekst)
                     : k.Kategori == Strukturkanter.Plikt
                         ? Kompetansetekst(Modalitetsord(k.Modalitet), til?.Navn, false, k.Objekt, objektTekst)
-                        : til?.Navn ?? objektTekst;
+                        : k.Kategori == Strukturkanter.Oppgave // [Ny, issue #368] «har samordningsoppgave (skal) beredskapsarbeid»
+                            ? Oppgavetekst(Modalitetsord(k.Modalitet), til?.Navn, k.Objekt, objektTekst)
+                            : til?.Navn ?? objektTekst;
                 var fraTekst = string.Format(type?.FraVisningsmal ?? "(ukjent type) {0}", motpart);
                 tekst = retning == "fra" ? fraTekst : $"{fra.Navn} {fraTekst}";
             }
@@ -1004,6 +1018,20 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
         return string.Join(' ', deler);
     }
 
+    /// <summary>
+    /// [Ny, issue #368] Teksten i en oppgavekant — det {0} står for i F-malene («har samordningsoppgave {0}»): modaliteten i parentes,
+    /// oppgaven (objektet), og hva den gjelder etter tankestrek: «(skal) sekretariat for forliksrådene — gjelder Forliksrådene». Ingen
+    /// «overfor» som i K og P: en oppgave har ingen motpart (begrepsmanualen §F).
+    /// </summary>
+    public static string Oppgavetekst(string? modalitet, string? gjelder, string? objekt, string reserve)
+    {
+        var deler = new List<string>();
+        if (modalitet is not null) deler.Add($"({modalitet})");
+        deler.Add(objekt ?? reserve);
+        if (gjelder is not null) deler.Add($"— gjelder {gjelder}");
+        return string.Join(' ', deler);
+    }
+
     /// <summary>[Ny, issue #353] Modaliteten slik den leses («bor» lagres uten ø, som de andre lukkede vokabularene).</summary>
     public static string? Modalitetsord(string? modalitet) => modalitet switch
     {
@@ -1014,15 +1042,16 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
 
     // ---------------- Validering ----------------
 
-    /// <summary>[Ny, issue #353] Modalitet finnes bare på P (CHECK ck_strukturkanter_modalitet), lukket liste, ingen standardverdi.</summary>
+    /// <summary>[Ny, issue #353] Modalitet finnes bare på P (CHECK ck_strukturkanter_modalitet), lukket liste, ingen standardverdi.
+    /// [ENDRET, issue #368] og på F (oppgave/funksjon): «skal» er plikten til å utføre oppgaven.</summary>
     private static string? ValiderModalitet(string kategori, string? modalitet)
     {
         var m = string.IsNullOrWhiteSpace(modalitet) ? null : modalitet.Trim();
         if (m is null) return null;
-        if (kategori != Strukturkanter.Plikt)
+        if (!Strukturkanter.KategorierMedModalitet.Contains(kategori))
         {
             throw new ArgumentException(
-                $"Modalitet er en egenskap ved en PLIKT (kategori P) — ikke ved {Strukturkanter.Visningsnavn(kategori)} (issue #353).");
+                $"Modalitet er en egenskap ved en PLIKT (P) eller en OPPGAVE (F) — ikke ved {Strukturkanter.Visningsnavn(kategori)} (issue #353, #368).");
         }
         if (!Strukturkanter.Modaliteter.Contains(m))
         {

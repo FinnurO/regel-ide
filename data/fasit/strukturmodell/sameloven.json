@@ -5069,18 +5069,23 @@
       "id": "u150",
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-6/ledd-3",
       "sitat": "Sametingets valgmanntall utarbeides av Sametinget",
-      "kategori": "kompetanse",
-      "type": "annet:registerforing",
+      "kategori": "oppgave",
+      "type": "oversiktsoppgave",
       "fra": "a1",
       "til": null,
       "objekt": "Sametingets valgmanntall",
       "polaritet": "positiv",
-      "avgrensning": null,
+      "avgrensning": "føres kommunevis",
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Registeransvar/registerfører — ingen standardtype. [#367, D3b] Delegering uttrykkelig tillatt: TEKSTFUNN — generell delegeringsfullmakt i loven («såfremt ikke annet fremgår»).",
-      "delegeringsadgang": "uttrykkelig_tillatt"
+      "kommentar": "[#368, juristrunden] var kompetanse/annet:registerforing. Registeransvar/registerfører — ingen standardtype. [#367, D3b] Delegering uttrykkelig tillatt: TEKSTFUNN — generell delegeringsfullmakt i loven («såfremt ikke annet fremgår»).",
+      "modalitet": "skal",
+      "kunnskapsstatus": "fortolkning",
+      "begrunnelse": "Valgmanntallet er et register; normativ presens «utarbeides av» = skal.",
+      "tolkningsargumenter": [
+        "ordlyd"
+      ]
     },
     {
       "id": "u151",
@@ -5674,17 +5679,23 @@
       "id": "u186",
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§3-2/ledd-1",
       "sitat": "det departementet som har ansvaret for loven eller forskriften",
-      "kategori": "ansvarsomrade",
-      "type": "annet:forvaltningsansvar_regelverk",
+      "kategori": "oppgave",
+      "type": "sorge_for_ansvar",
       "fra": "a15",
       "til": null,
-      "objekt": "den enkelte lov/forskrift",
+      "objekt": "at lover og forskrifter av særlig interesse for hele eller deler av den samiske befolkning oversettes til samiske språk",
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Forutsetter en relasjon departement→regelverk (forvaltningsansvar). Samme relasjon som forskrift 2021/489 fordeler for sameloven."
+      "kommentar": "[#368, juristrunden] var ansvarsomrade/annet:forvaltningsansvar_regelverk. Forutsetter en relasjon departement→regelverk (forvaltningsansvar). Samme relasjon som forskrift 2021/489 fordeler for sameloven.",
+      "modalitet": "skal",
+      "kunnskapsstatus": "fortolkning",
+      "begrunnelse": "Aksepter. «det departementet som har ansvaret for loven» er en identifiserende beskrivelse, ikke en tildeling; F forvaltning ut. Kommunenes og fylkeskommunenes oversettelsesansvar (annet punktum) lagt til.",
+      "tolkningsargumenter": [
+        "ordlyd"
+      ]
     },
     {
       "id": "u187",
@@ -6304,8 +6315,8 @@
       "id": "u224",
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§3-12/ledd-1",
       "sitat": "Sametinget skal arbeide for vern og videre utvikling av samiske språk i Norge.",
-      "kategori": "ansvarsomrade",
-      "type": "annet:saklig_arbeidsomrade",
+      "kategori": "oppgave",
+      "type": "sorge_for_ansvar",
       "fra": "a1",
       "til": "a45",
       "objekt": "vern og videre utvikling av samiske språk",
@@ -6314,7 +6325,14 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Saklig sektoransvar med geografisk ramme (Norge)."
+      "kommentar": "[#368, juristrunden] var ansvarsomrade/annet:saklig_arbeidsomrade. Saklig sektoransvar med geografisk ramme (Norge).",
+      "modalitet": "skal",
+      "kunnskapsstatus": "fortolkning",
+      "begrunnelse": "«skal arbeide for» er en innsatsoppgave, ikke et rent resultatansvar; sorge_for er valgt fordi det lukkede settet mangler en type for å fremme et formål.",
+      "tolkningsargumenter": [
+        "ordlyd",
+        "formal"
+      ]
     },
     {
       "id": "u225",
@@ -7316,8 +7334,8 @@
       "id": "u285",
       "eid": "https://lovdata.no/eli/forskrift/2021/02/19/489/nor/ledd-1",
       "sitat": "Forvaltningsansvaret for lov 12. juni 1987 nr. 56 om Sametinget og andre samiske rettsforhold (sameloven) § 1-4 og § 2-3 til § 2-11",
-      "kategori": "ansvarsomrade",
-      "type": "annet:forvaltningsansvar_regelverk",
+      "kategori": "oppgave",
+      "type": "forvaltningsoppgave",
       "fra": "a20",
       "til": null,
       "objekt": "sameloven § 1-4 og § 2-3 til § 2-11",
@@ -7326,7 +7344,9 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Forvaltningsansvar fordelt PER PARAGRAF. Øvrige paragrafer forblir (implisitt) hos distrikts- og digitaliseringsministeren — 'lovens departement' er dermed ikke entydig for sameloven."
+      "kommentar": "[#368, juristrunden] var ansvarsomrade/annet:forvaltningsansvar_regelverk. Forvaltningsansvar fordelt PER PARAGRAF. Øvrige paragrafer forblir (implisitt) hos distrikts- og digitaliseringsministeren — 'lovens departement' er dermed ikke entydig for sameloven.",
+      "modalitet": null,
+      "kunnskapsstatus": "tekstfunn"
     },
     {
       "id": "u286",
@@ -7344,6 +7364,50 @@
       "sikkerhet": "hoy",
       "kommentar": "[#356, kort nr. 28 og punkt 7] Sametinget kan samtykke til at andre får tilgang (§ 2-6 fjerde ledd). [#367, D3b] Delegering uttrykkelig tillatt: TEKSTFUNN — generell delegeringsfullmakt i loven («såfremt ikke annet fremgår»).",
       "delegeringsadgang": "uttrykkelig_tillatt"
+    },
+    {
+      "id": "u287",
+      "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§3-2/ledd-1",
+      "sitat": "det departementet som har ansvaret for loven eller forskriften",
+      "kategori": "oppgave",
+      "type": "sorge_for_ansvar",
+      "fra": "a7",
+      "til": null,
+      "objekt": "å oversette lokale forskrifter av særlig interesse for hele eller deler av den samiske befolkning til samiske språk",
+      "modalitet": null,
+      "polaritet": "positiv",
+      "avgrensning": null,
+      "betinget": false,
+      "kilde_utenfor_korpus": false,
+      "sikkerhet": "middels",
+      "kommentar": "[#368, juristrunden] ny oppgaverad fra u186 (F).",
+      "kunnskapsstatus": "fortolkning",
+      "begrunnelse": "Aksepter. «det departementet som har ansvaret for loven» er en identifiserende beskrivelse, ikke en tildeling; F forvaltning ut. Kommunenes og fylkeskommunenes oversettelsesansvar (annet punktum) lagt til.",
+      "tolkningsargumenter": [
+        "ordlyd"
+      ]
+    },
+    {
+      "id": "u288",
+      "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§3-2/ledd-1",
+      "sitat": "det departementet som har ansvaret for loven eller forskriften",
+      "kategori": "oppgave",
+      "type": "sorge_for_ansvar",
+      "fra": "a6",
+      "til": null,
+      "objekt": "å oversette lokale forskrifter av særlig interesse for hele eller deler av den samiske befolkning til samiske språk",
+      "modalitet": null,
+      "polaritet": "positiv",
+      "avgrensning": null,
+      "betinget": false,
+      "kilde_utenfor_korpus": false,
+      "sikkerhet": "middels",
+      "kommentar": "[#368, juristrunden] ny oppgaverad fra u186 (F).",
+      "kunnskapsstatus": "fortolkning",
+      "begrunnelse": "Aksepter. «det departementet som har ansvaret for loven» er en identifiserende beskrivelse, ikke en tildeling; F forvaltning ut. Kommunenes og fylkeskommunenes oversettelsesansvar (annet punktum) lagt til.",
+      "tolkningsargumenter": [
+        "ordlyd"
+      ]
     }
   ]
 }

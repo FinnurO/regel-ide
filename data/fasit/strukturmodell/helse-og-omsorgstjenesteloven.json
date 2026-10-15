@@ -1606,18 +1606,24 @@
       "id": "u21",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§3-3/ledd-2",
       "sitat": "Helse- og omsorgstjenestene skal bidra i kommunens folkehelsearbeid",
-      "kategori": "plikt",
-      "type": "bistandsplikt",
+      "kategori": "oppgave",
+      "type": "bistandsoppgave",
       "fra": "a20",
       "til": "a1",
-      "objekt": "folkehelsearbeid",
+      "objekt": "kommunens folkehelsearbeid, herunder til oversikten over helsetilstand og påvirkningsfaktorer etter folkehelseloven § 5",
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "lav",
-      "kommentar": "Tjenestesektor bidrar til kommunens (rettssubjektets) folkehelsearbeid – intern bistandsrelasjon innen samme kommune.",
-      "modalitet": "skal"
+      "kommentar": "[#368, juristrunden] var plikt/bistandsplikt. Tjenestesektor bidrar til kommunens (rettssubjektets) folkehelsearbeid – intern bistandsrelasjon innen samme kommune.",
+      "modalitet": "skal",
+      "kunnskapsstatus": "fortolkning",
+      "begrunnelse": "«bidra i» et arbeidsfelt uten motpart er F bistand (begrepsmanualen, grensen F/P bistand); tjenesten og kommunen er samme rettssubjekt.",
+      "tolkningsargumenter": [
+        "ordlyd",
+        "kontekst_system"
+      ]
     },
     {
       "id": "u22",
@@ -1658,17 +1664,23 @@
       "id": "u24",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§3-4/ledd-2",
       "sitat": "Dersom det er oppnevnt barnekoordinator etter § 7-2 a, skal barnekoordinatoren sørge for samordning av tjenestetilbudet.",
-      "kategori": "relasjon",
-      "type": "annet:oppgave_overfort",
+      "kategori": "oppgave",
+      "type": "samordningsoppgave",
       "fra": "a1",
-      "til": "a17",
-      "objekt": null,
+      "til": null,
+      "objekt": "tjenestetilbudet etter første ledd",
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Kommunens samordningsoppgave går over til rollen barnekoordinator når denne er oppnevnt. Ingen type for «funksjon flyttes fra rettssubjekt til rolle»."
+      "kommentar": "[#368, juristrunden] var relasjon/annet:oppgave_overfort. Kommunens samordningsoppgave går over til rollen barnekoordinator når denne er oppnevnt. Ingen type for «funksjon flyttes fra rettssubjekt til rolle».",
+      "modalitet": "skal",
+      "kunnskapsstatus": "fortolkning",
+      "begrunnelse": "«skal samordne» uten bindende virkning for tjenesteyterne er F samordning (grunnlagsdokumentet §7.8).",
+      "tolkningsargumenter": [
+        "ordlyd"
+      ]
     },
     {
       "id": "u25",
@@ -1792,17 +1804,23 @@
       "id": "u32",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§3-9c/ledd-1",
       "sitat": "Denne enheten skal ha ansvaret for å møte personer når oppmøte for enheten er satt som vilkår for en bestemt strafferettslig reaksjon.",
-      "kategori": "annet:funksjonstildeling",
-      "type": "annet:lovtildelt_oppgave",
+      "kategori": "oppgave",
+      "type": "sorge_for_ansvar",
       "fra": "a19",
       "til": null,
-      "objekt": "møte personer ved strafferettslig vilkår om oppmøte",
+      "objekt": "å møte personer når oppmøte for enheten er satt som vilkår for en bestemt strafferettslig reaksjon",
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Lov tildeler oppgave direkte til intern enhet. Ingen type for oppgave/ansvar lagt til enhet (ikke myndighet, ikke område)."
+      "kommentar": "[#368, juristrunden] var annet:funksjonstildeling/annet:lovtildelt_oppgave. Lov tildeler oppgave direkte til intern enhet. Ingen type for oppgave/ansvar lagt til enhet (ikke myndighet, ikke område).",
+      "modalitet": "skal",
+      "kunnskapsstatus": "fortolkning",
+      "begrunnelse": "«skal ha ansvaret for» er typisk ordlyd for sorge_for i begrepsmanualen; ingen motpart kan kreve ytelsen etter denne setningen.",
+      "tolkningsargumenter": [
+        "ordlyd"
+      ]
     },
     {
       "id": "u33",
@@ -2601,17 +2619,23 @@
       "id": "u81",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§7-2/ledd-1",
       "sitat": "Koordinatoren skal sørge for nødvendig oppfølging av den enkelte pasient eller bruker, samt sikre samordning av tjenestetilbudet",
-      "kategori": "annet:funksjonstildeling",
-      "type": "annet:lovtildelt_oppgave",
+      "kategori": "oppgave",
+      "type": "sorge_for_ansvar",
       "fra": "a16",
       "til": null,
-      "objekt": "oppfølging og samordning",
+      "objekt": "nødvendig oppfølging av den enkelte pasient eller bruker",
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": ""
+      "kommentar": "[#368, juristrunden] var annet:funksjonstildeling/annet:lovtildelt_oppgave.",
+      "modalitet": "skal",
+      "kunnskapsstatus": "fortolkning",
+      "begrunnelse": "«skal sørge for» er resultatansvar; en offentlig oppgave gir ikke pasienten en kravsrett etter denne setningen (metodenotatet §6).",
+      "tolkningsargumenter": [
+        "ordlyd"
+      ]
     },
     {
       "id": "u82",
@@ -2656,34 +2680,45 @@
       "id": "u84",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§7-2a/ledd-2",
       "sitat": "Barnekoordinatoren skal sørge for",
-      "kategori": "annet:funksjonstildeling",
-      "type": "annet:lovtildelt_oppgave",
+      "kategori": "oppgave",
+      "type": "samordningsoppgave",
       "fra": "a17",
       "til": null,
-      "objekt": "koordinering, oversikt, informasjon, veiledning, fremdrift i individuell plan (bokstav a–e)",
+      "objekt": "koordinering av det samlede tjenestetilbudet",
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": ""
+      "kommentar": "[#368, juristrunden] var annet:funksjonstildeling/annet:lovtildelt_oppgave.",
+      "modalitet": "skal",
+      "kunnskapsstatus": "fortolkning",
+      "begrunnelse": "Punkt 1 «koordinering» er samordningsoppgave (begrepsmanualen, typen samordning).",
+      "tolkningsargumenter": [
+        "ordlyd"
+      ]
     },
     {
       "id": "u85",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§7-2a/ledd-2/punkt-2",
       "sitat": "bidra aktivt til å ivareta kommunens ansvar",
-      "kategori": "plikt",
-      "type": "bistandsplikt",
+      "kategori": "oppgave",
+      "type": "oversiktsoppgave",
       "fra": "a17",
       "til": "a1",
-      "objekt": null,
+      "objekt": "kommunens ansvar for nødvendig oppfølging og tilrettelegging for familien og barnet i form av tilbud om eller ytelse av helse- og omsorgstjenester og andre velferdstjenester",
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Rollen bistår rettssubjektet med å ivareta dets ansvar.",
-      "modalitet": "skal"
+      "kommentar": "[#368, juristrunden] var plikt/bistandsplikt. Rollen bistår rettssubjektet med å ivareta dets ansvar.",
+      "modalitet": "skal",
+      "kunnskapsstatus": "fortolkning",
+      "begrunnelse": "«å ha oversikt over» er typen oversikt.",
+      "tolkningsargumenter": [
+        "ordlyd"
+      ]
     },
     {
       "id": "u86",
@@ -2762,17 +2797,23 @@
       "id": "u90",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§7-3/ledd-1",
       "sitat": "Denne enheten skal ha overordnet ansvar for arbeidet med individuell plan",
-      "kategori": "annet:funksjonstildeling",
-      "type": "annet:lovtildelt_oppgave",
+      "kategori": "oppgave",
+      "type": "sorge_for_ansvar",
       "fra": "a18",
       "til": null,
-      "objekt": "overordnet ansvar for individuell plan",
+      "objekt": "overordnet ansvar for arbeidet med individuell plan",
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Lovtildelt ansvar til intern enhet; ikke myndighet overfor tredjeperson."
+      "kommentar": "[#368, juristrunden] var annet:funksjonstildeling/annet:lovtildelt_oppgave. Lovtildelt ansvar til intern enhet; ikke myndighet overfor tredjeperson.",
+      "modalitet": "skal",
+      "kunnskapsstatus": "fortolkning",
+      "begrunnelse": "Aksepter. «overordnet» skiller enhetens ansvar fra koordinatorens (hotl. § 7-3 mot § 7-2).",
+      "tolkningsargumenter": [
+        "ordlyd"
+      ]
     },
     {
       "id": "u91",
@@ -2790,7 +2831,13 @@
       "sikkerhet": "hoy",
       "kommentar": "Intern enhet oppnevner rolle. #300.",
       "undertype": "oppnevning",
-      "delegeringsadgang": "ikke_regulert"
+      "delegeringsadgang": "ikke_regulert",
+      "kunnskapsstatus": "fortolkning",
+      "begrunnelse": "Fortolkning (juristrunden i #368): «ansvar for oppnevning … av koordinator» legger avgjørelsen av hvem som er koordinator til enheten — oppnevningskompetanse etter #352 («myndighet til å bestemme hvem som skal inneha en rolle»). Ikke sluttet fra oppgaven; oppgaven (overordnet ansvar, opplæring og veiledning) står som egne F-rader.",
+      "tolkningsargumenter": [
+        "ordlyd",
+        "kontekst_system"
+      ]
     },
     {
       "id": "u92",
@@ -2808,23 +2855,35 @@
       "sikkerhet": "hoy",
       "kommentar": "Jf. § 7-2 a der «kommunen» oppnevner – rettssubjekt har plikten, enheten utfører.",
       "undertype": "oppnevning",
-      "delegeringsadgang": "ikke_regulert"
+      "delegeringsadgang": "ikke_regulert",
+      "kunnskapsstatus": "fortolkning",
+      "begrunnelse": "Fortolkning (juristrunden i #368): «ansvar for oppnevning … av koordinator» legger avgjørelsen av hvem som er koordinator til enheten — oppnevningskompetanse etter #352 («myndighet til å bestemme hvem som skal inneha en rolle»). Ikke sluttet fra oppgaven; oppgaven (overordnet ansvar, opplæring og veiledning) står som egne F-rader.",
+      "tolkningsargumenter": [
+        "ordlyd",
+        "kontekst_system"
+      ]
     },
     {
       "id": "u93",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§7-3/ledd-1",
       "sitat": "og for oppnevning, opplæring og veiledning av koordinator og barnekoordinator",
-      "kategori": "relasjon",
-      "type": "annet:veileder",
+      "kategori": "oppgave",
+      "type": "veiledningsoppgave",
       "fra": "a18",
       "til": "a16",
-      "objekt": null,
+      "objekt": "opplæring og veiledning av koordinator",
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Faglig veiledningsrelasjon enhet→rolle (ikke instruksjon)."
+      "kommentar": "[#368, juristrunden] var relasjon/annet:veileder. Faglig veiledningsrelasjon enhet→rolle (ikke instruksjon).",
+      "modalitet": "skal",
+      "kunnskapsstatus": "fortolkning",
+      "begrunnelse": "Ordlyden «opplæring og veiledning av» er typen veiledning; ingen instruksjonsmyndighet følger.",
+      "tolkningsargumenter": [
+        "ordlyd"
+      ]
     },
     {
       "id": "u94",
@@ -3300,17 +3359,23 @@
       "id": "u121",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§9-13/ledd-3",
       "sitat": "Regionalt helseforetak plikter å sørge for at spesialisthelsetjenesten har den kompetansen og bemanningen som er nødvendig",
-      "kategori": "relasjon",
-      "type": "annet:sorge_for_ansvar",
+      "kategori": "oppgave",
+      "type": "sorge_for_ansvar",
       "fra": "a44",
       "til": "a47",
-      "objekt": null,
+      "objekt": "at spesialisthelsetjenesten har den kompetansen og bemanningen som er nødvendig for å yte forsvarlig bistand til kommunene ved tiltak etter reglene i dette kapitlet",
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "RHF har sørge-for-ansvar for spesialisthelsetjenesten (sektor)."
+      "kommentar": "[#368, juristrunden] var relasjon/annet:sorge_for_ansvar. RHF har sørge-for-ansvar for spesialisthelsetjenesten (sektor).",
+      "modalitet": "skal",
+      "kunnskapsstatus": "fortolkning",
+      "begrunnelse": "«plikter å sørge for at» = modalitet skal, typen sorge_for; spesialisthelsetjenesten er feltet ansvaret gjelder, ikke en motpart som kan kreve.",
+      "tolkningsargumenter": [
+        "ordlyd"
+      ]
     },
     {
       "id": "u122",
@@ -4321,17 +4386,25 @@
       "id": "u180",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§12-5/ledd-1",
       "sitat": "Helsedirektoratet skal utvikle, formidle og vedlikeholde nasjonale faglige retningslinjer og veiledere",
-      "kategori": "annet:funksjonstildeling",
-      "type": "annet:lovtildelt_oppgave",
+      "kategori": "oppgave",
+      "type": "veiledningsoppgave",
       "fra": "a37",
       "til": null,
-      "objekt": "nasjonale faglige retningslinjer og veiledere",
+      "objekt": "nasjonale faglige retningslinjer og veiledere som understøtter de mål som er satt for helse- og omsorgstjenesten",
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Lovtildelt oppgave (ikke bindende myndighet). Ingen eksisterende type."
+      "kommentar": "[#368, juristrunden] var annet:funksjonstildeling/annet:lovtildelt_oppgave. Lovtildelt oppgave (ikke bindende myndighet). Ingen eksisterende type.",
+      "modalitet": "skal",
+      "kunnskapsstatus": "fortolkning",
+      "begrunnelse": "Retningslinjer og veiledere er ikke bindende regelverk; de veileder tjenesteyterne i fag (fvl. § 11-begrepet, utvidet til faglig veiledning). Utvikle og vedlikeholde er en del av samme oppgave (L13: én rad per utsagn).",
+      "tolkningsargumenter": [
+        "ordlyd",
+        "kontekst_system",
+        "formal"
+      ]
     },
     {
       "id": "u181",
@@ -4370,17 +4443,24 @@
       "id": "u183",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§12-5/ledd-2",
       "sitat": "Helsedirektoratet skal utvikle, formidle og vedlikeholde nasjonale kvalitetsindikatorer",
-      "kategori": "annet:funksjonstildeling",
-      "type": "annet:lovtildelt_oppgave",
+      "kategori": "oppgave",
+      "type": "oversiktsoppgave",
       "fra": "a37",
       "til": null,
-      "objekt": "nasjonale kvalitetsindikatorer",
+      "objekt": "nasjonale kvalitetsindikatorer som hjelpemiddel for ledelse og kvalitetsforbedring i den kommunale helse- og omsorgstjenesten",
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "[#368, juristrunden] var annet:funksjonstildeling/annet:lovtildelt_oppgave.",
+      "modalitet": "skal",
+      "kunnskapsstatus": "fortolkning",
+      "begrunnelse": "Indikatorene skal måle kvalitet og gjøres offentlig tilgjengelige; det er å følge med på en tilstand (oversikt), ikke forvalte et regelverk.",
+      "tolkningsargumenter": [
+        "ordlyd",
+        "formal"
+      ]
     },
     {
       "id": "u184",
@@ -4542,6 +4622,206 @@
       "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "delegeringsadgang": "ikke_regulert",
       "delegering_slutning": "trolig_delegerbar"
+    },
+    {
+      "id": "u193",
+      "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§3-1/ledd-1",
+      "sitat": "Kommunen skal sørge for at personer som oppholder seg i kommunen, tilbys nødvendige helse- og omsorgstjenester.",
+      "kategori": "oppgave",
+      "type": "sorge_for_ansvar",
+      "fra": "a1",
+      "til": null,
+      "objekt": "at personer som oppholder seg i kommunen, tilbys nødvendige helse- og omsorgstjenester",
+      "modalitet": "skal",
+      "polaritet": "positiv",
+      "avgrensning": null,
+      "betinget": false,
+      "kilde_utenfor_korpus": false,
+      "sikkerhet": "hoy",
+      "kommentar": "[#368, juristrunden] ny oppgaverad fra u9 (begge).",
+      "kunnskapsstatus": "fortolkning",
+      "begrunnelse": "«skal sørge for at» er resultatansvar overfor en befolkning i et område, ikke en plikt overfor en bestemt motpart (test 2); til = kommunen som område.",
+      "tolkningsargumenter": [
+        "ordlyd"
+      ]
+    },
+    {
+      "id": "u194",
+      "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§3-4/ledd-2",
+      "sitat": "Dersom det er oppnevnt barnekoordinator etter § 7-2 a, skal barnekoordinatoren sørge for samordning av tjenestetilbudet.",
+      "kategori": "oppgave",
+      "type": "samordningsoppgave",
+      "fra": "a17",
+      "til": null,
+      "objekt": "samordning av tjenestetilbudet",
+      "modalitet": "skal",
+      "polaritet": "positiv",
+      "avgrensning": "dersom det er oppnevnt barnekoordinator etter § 7-2 a",
+      "betinget": true,
+      "kilde_utenfor_korpus": false,
+      "sikkerhet": "middels",
+      "kommentar": "[#368, juristrunden] ny oppgaverad fra u24 (F).",
+      "kunnskapsstatus": "fortolkning",
+      "begrunnelse": "«sørge for samordning av» er typisk ordlyd for F samordning; barnekoordinatoren får ingen myndighet over tjenesteyterne.",
+      "tolkningsargumenter": [
+        "ordlyd",
+        "kontekst_system"
+      ]
+    },
+    {
+      "id": "u195",
+      "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§7-2/ledd-1",
+      "sitat": "Koordinatoren skal sørge for nødvendig oppfølging av den enkelte pasient eller bruker, samt sikre samordning av tjenestetilbudet",
+      "kategori": "oppgave",
+      "type": "samordningsoppgave",
+      "fra": "a16",
+      "til": null,
+      "objekt": "samordning av tjenestetilbudet",
+      "modalitet": "skal",
+      "polaritet": "positiv",
+      "avgrensning": null,
+      "betinget": false,
+      "kilde_utenfor_korpus": false,
+      "sikkerhet": "middels",
+      "kommentar": "[#368, juristrunden] ny oppgaverad fra u81 (F).",
+      "kunnskapsstatus": "fortolkning",
+      "begrunnelse": "«sikre samordning av» er samordningsoppgave uten bindende virkning for tjenesteyterne.",
+      "tolkningsargumenter": [
+        "ordlyd"
+      ]
+    },
+    {
+      "id": "u196",
+      "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§7-2/ledd-1",
+      "sitat": "Koordinatoren skal sørge for nødvendig oppfølging av den enkelte pasient eller bruker, samt sikre samordning av tjenestetilbudet",
+      "kategori": "oppgave",
+      "type": "sorge_for_ansvar",
+      "fra": "a16",
+      "til": null,
+      "objekt": "fremdrift i arbeidet med individuell plan",
+      "modalitet": "skal",
+      "polaritet": "positiv",
+      "avgrensning": null,
+      "betinget": false,
+      "kilde_utenfor_korpus": false,
+      "sikkerhet": "middels",
+      "kommentar": "[#368, juristrunden] ny oppgaverad fra u81 (F).",
+      "kunnskapsstatus": "fortolkning",
+      "begrunnelse": "«sikre … fremdrift» er resultatansvar (sorge_for).",
+      "tolkningsargumenter": [
+        "ordlyd"
+      ]
+    },
+    {
+      "id": "u197",
+      "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§7-2a/ledd-2",
+      "sitat": "Barnekoordinatoren skal sørge for",
+      "kategori": "oppgave",
+      "type": "veiledningsoppgave",
+      "fra": "a17",
+      "til": null,
+      "objekt": "at familien og barnet får nødvendig informasjon og helhetlig veiledning om helse- og omsorgstjenestetilbudet",
+      "modalitet": "skal",
+      "polaritet": "positiv",
+      "avgrensning": null,
+      "betinget": false,
+      "kilde_utenfor_korpus": false,
+      "sikkerhet": "middels",
+      "kommentar": "[#368, juristrunden] ny oppgaverad fra u84 (F).",
+      "kunnskapsstatus": "fortolkning",
+      "begrunnelse": "Punkt 3 er veiledning av publikum om tjenestetilbudet (typen veiledning); familien får ikke en egen kravsrett av F-raden.",
+      "tolkningsargumenter": [
+        "ordlyd"
+      ]
+    },
+    {
+      "id": "u198",
+      "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§7-2a/ledd-2",
+      "sitat": "Barnekoordinatoren skal sørge for",
+      "kategori": "oppgave",
+      "type": "veiledningsoppgave",
+      "fra": "a17",
+      "til": null,
+      "objekt": "at familien og barnet får nødvendig informasjon og helhetlig veiledning om andre velferdstjenester og relevante pasient- og brukerorganisasjoner, veiledning i kontakten med disse, og at det formidles kontakt eller henvisning videre",
+      "modalitet": "skal",
+      "polaritet": "positiv",
+      "avgrensning": null,
+      "betinget": false,
+      "kilde_utenfor_korpus": false,
+      "sikkerhet": "middels",
+      "kommentar": "[#368, juristrunden] ny oppgaverad fra u84 (F).",
+      "kunnskapsstatus": "fortolkning",
+      "begrunnelse": "Punkt 4 er veiledning og formidling til publikum (typen veiledning).",
+      "tolkningsargumenter": [
+        "ordlyd"
+      ]
+    },
+    {
+      "id": "u199",
+      "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§7-2a/ledd-2",
+      "sitat": "Barnekoordinatoren skal sørge for",
+      "kategori": "oppgave",
+      "type": "sorge_for_ansvar",
+      "fra": "a17",
+      "til": null,
+      "objekt": "fremdrift i arbeidet med individuell plan",
+      "modalitet": "skal",
+      "polaritet": "positiv",
+      "avgrensning": null,
+      "betinget": false,
+      "kilde_utenfor_korpus": false,
+      "sikkerhet": "middels",
+      "kommentar": "[#368, juristrunden] ny oppgaverad fra u84 (F).",
+      "kunnskapsstatus": "fortolkning",
+      "begrunnelse": "Punkt 5 «sørge for … fremdrift» er resultatansvar.",
+      "tolkningsargumenter": [
+        "ordlyd"
+      ]
+    },
+    {
+      "id": "u200",
+      "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§7-2a/ledd-2/punkt-2",
+      "sitat": "bidra aktivt til å ivareta kommunens ansvar",
+      "kategori": "oppgave",
+      "type": "bistandsoppgave",
+      "fra": "a17",
+      "til": "a1",
+      "objekt": "å ivareta kommunens ansvar for nødvendig oppfølging og tilrettelegging for familien og barnet",
+      "modalitet": "skal",
+      "polaritet": "positiv",
+      "avgrensning": null,
+      "betinget": false,
+      "kilde_utenfor_korpus": false,
+      "sikkerhet": "middels",
+      "kommentar": "[#368, juristrunden] ny oppgaverad fra u85 (F).",
+      "kunnskapsstatus": "fortolkning",
+      "begrunnelse": "«bidra aktivt til å ivareta kommunens ansvar» er et bidrag til kommunens eget arbeid uten en motpart som kan kreve det (begrepsmanualen, grensen F/P bistand).",
+      "tolkningsargumenter": [
+        "ordlyd",
+        "kontekst_system"
+      ]
+    },
+    {
+      "id": "u201",
+      "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§7-3/ledd-1",
+      "sitat": "og for oppnevning, opplæring og veiledning av koordinator og barnekoordinator",
+      "kategori": "oppgave",
+      "type": "veiledningsoppgave",
+      "fra": "a18",
+      "til": "a17",
+      "objekt": "opplæring og veiledning av barnekoordinator",
+      "modalitet": "skal",
+      "polaritet": "positiv",
+      "avgrensning": null,
+      "betinget": false,
+      "kilde_utenfor_korpus": false,
+      "sikkerhet": "middels",
+      "kommentar": "[#368, juristrunden] ny oppgaverad fra u93 (F).",
+      "kunnskapsstatus": "fortolkning",
+      "begrunnelse": "Som raden over, for barnekoordinatoren.",
+      "tolkningsargumenter": [
+        "ordlyd"
+      ]
     }
   ]
 }

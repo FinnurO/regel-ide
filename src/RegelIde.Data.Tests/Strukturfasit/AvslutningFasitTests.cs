@@ -34,7 +34,7 @@ public class AvslutningFasitTests
     {
         var alle = StrukturfasitLeser.LesAlle();
         Assert.DoesNotContain(alle.SelectMany(k => k.Fasit.Utsagn), u => u.Type == "foreleggingskompetanse");
-        Assert.DoesNotContain(alle.SelectMany(k => k.Fasit.Utsagn), u => u.Modalitet is not null && u.Kategori != "plikt");
+        Assert.DoesNotContain(alle.SelectMany(k => k.Fasit.Utsagn), u => u.Modalitet is not null && !RegelIde.Data.Strukturkonvertering.Strukturkontrakt.KategorierMedModalitet.Contains(u.Kategori)); // [ENDRET, #368] også oppgave
 
         var dl = Kilde("domstolloven").Fasit.Utsagn;
         // Kort nr. 58: § 55 femte ledd er tre regler.

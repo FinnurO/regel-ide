@@ -25,6 +25,7 @@ internal static class HistoriskSkjema
     public const string OppnevningsfamilienOgRester = "20261008194308_OppnevningsfamilienOgRester"; // [Ny, #353]
     public const string PliktOgOrdning = "20261009000135_PliktOgOrdning"; // [Ny, #355]
     public const string AvslutningSpeilerInnsetting = "20261009093903_AvslutningSpeilerInnsetting"; // [Ny, #367]
+    public const string AvvistSomStatus = "20261015173308_AvvistSomStatus"; // [Ny, #368]
 
     /// <summary>Oppretter en ny, tom database og migrerer den til <paramref name="tilMigrasjon"/> (null = siste).</summary>
     /// <param name="leggTilSenereKolonner">[Ny, #341] false for en test som selv migrerer videre til siste versjon

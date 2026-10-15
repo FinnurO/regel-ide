@@ -13,7 +13,7 @@ Denne mappen holder **profilen**, altså det teknologinøytrale begrepsapparatet
 |---|---|---|---|
 | 00 | [Grunnlagsdokument](00-grunnlagsdokument.md): Johanns forslag til norsk profil, revidert 9.10.2026 | REFERAT (oppdateres ikke) | Nei. Grunnlag |
 | 01 | Profilspesifikasjon: definisjoner, krav, status | Ikke skrevet | Ja, når den publiseres |
-| 02 | Begrepsmanual: definisjon, eksempel, moteksempel og grense per begrep, fra fasitkontrollen | Ikke skrevet | Ja, sammen med 01 |
+| 02 | [Begrepsmanual](02-begrepsmanual.md): definisjon, eksempel, moteksempel og grense per begrep, fra fasitkontrollen. Påbegynt i #368 med F oppgave/funksjon | Arbeidsutkast | Ja, sammen med 01 |
 | 03 | [Metodenotat](03-metodenotat.md): rettslig metode og status for modellutsagn | Arbeidsutkast | Nei. Grunnlag for 01 |
 | 04 | [Mappingnotat](04-mappingnotat.md): regel-ide mot ELI/AKN, LKIF Core, UFO-L, LegalRuleML (verifisert mot primærkildene 2026-10-09) | Arbeidsutkast | Nei. Informativt (§5.7) |
 | 05 | Plan for testkorpus: låst utvalg, uavhengig menneskelig annotering | Ikke skrevet | – |

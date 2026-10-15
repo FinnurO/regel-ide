@@ -208,7 +208,7 @@ public class MonsterStrukturkonvertererTests
         var aktorfelt = Feltnavn(JsonSerializer.SerializeToNode(new StrukturAktor("a1", "x", [], [], 1, null, null, null, null, null, null) { VerifisertAv = "x", Undertype = "fond" })!); // [ENDRET, #312] + verifisert_av, [#353] + undertype
         var utsagnfelt = Feltnavn(JsonSerializer.SerializeToNode(new StrukturUtsagn("u1", "e", "s", "k", "t", null, null, null, "positiv", null, null, null, null, null)
             { VerifisertAv = "x", Normform = "forskrift", Grunnlag = "privatrettslig", Delegeringsadgang = "ikke_regulert", DelegeringSlutning = "trolig_delegerbar",
-              Kunnskapsstatus = "normalisering", Begrunnelse = "x", Undertype = "valg", Modalitet = "skal" })!); // [ENDRET, #341] + kompetansefeltene, [ENDRET, #352] + undertype, [#353] + modalitet, [#367] delegerbar → delegeringsadgang/slutning + kunnskapsstatus/begrunnelse
+              Kunnskapsstatus = "normalisering", Begrunnelse = "x", Undertype = "valg", Modalitet = "skal", Tolkningsargumenter = ["ordlyd"] })!); // [#368] + tolkningsargumenter. [ENDRET, #341] + kompetansefeltene, [ENDRET, #352] + undertype, [#353] + modalitet, [#367] delegerbar → delegeringsadgang/slutning + kunnskapsstatus/begrunnelse
 
         foreach (var kilde in StrukturfasitLeser.LesAlle())
         {

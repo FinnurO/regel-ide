@@ -21,6 +21,8 @@ public class MonsterStrukturkonvertererMalingTests(ITestOutputHelper output)
     /// </summary>
     internal static readonly IReadOnlyList<(string Id, string Grunn)> ForkastedeMonstre =
     [
+        ("oppgave-sorge-for: «X skal sørge for (at) …» → sorge_for_ansvar (#368)",
+            "Målt 2026-10-16: 36 treff, 5 riktige (13,9 % presisjon, 25 % gjenfinning). 27 hadde ingen rad i fasiten, blant dem saksbehandling («Retten skal sørge for at dom i straffesak blir forkynt»), og juristrunden i #368 viste at «sørge for at» også er P konsultasjon («… blir hørt») og P avtale («… det inngås samarbeidsavtaler»). Fjernet etter Johanns beslutning på PR #381; typen står."),
         ("vedtak-forvaltningsverb: verbet «pålegge»",
             "Prøvd sammen med «gi pålegg/dispensasjon, ilegge, trekke tilbake». Formen ga 11 utsagn, hvorav 8 falske positive: «En domstol kan pålegge en klager …», «Retten kan pålegge …», «Arbeidsgiver kan pålegge helsepersonell …», «Kommunen kan pålegge personell …» — prosessuelle pålegg og arbeidsgivers instruks, ikke enkeltvedtak. De 3 riktige: energiloven § 5-3 og § 10-1a («Departementet kan pålegge ethvert fjernvarmeanlegg …», «Konsesjonsmyndigheten kan … pålegge konsesjonæren …») og helse- og omsorgstjenesteloven § 6-6 («Departementet kan pålegge samarbeid mellom kommuner»). Uten verbet: 26 av 26."),
         ("tilsyn-forer-tilsyn: alle objekter etter «tilsyn med»",

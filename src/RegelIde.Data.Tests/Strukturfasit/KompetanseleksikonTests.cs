@@ -55,7 +55,8 @@ public class KompetanseleksikonTests
         Assert.Equal(("normgivningskompetanse", "forskrift"), (Kompetanseleksikon.For("forskrift-gi").Type, Kompetanseleksikon.For("forskrift-gi").Normform));
         Assert.Equal("klagekompetanse", Kompetanseleksikon.For("klage-er-klageinstans").Type);
         Assert.Equal("beslutningskompetanse", Kompetanseleksikon.For("beslutning-beslutningsmyndighet").Type);
-        Assert.Equal("samordningskompetanse", Kompetanseleksikon.For("samordning-samordne").Type);
+        // [ENDRET, #368] «skal samordne» er en oppgave (F), ikke kompetanse (juristrunden; grunnlagsdokumentet §7.8).
+        Assert.Equal(("oppgave", "samordningsoppgave"), (Kompetanseleksikon.For("samordning-samordne").Kategori, Kompetanseleksikon.For("samordning-samordne").Type));
     }
 
     [Fact]
@@ -90,9 +91,11 @@ public class KompetanseleksikonTests
     public void Beslutningsmyndighet_og_samordne_gir_de_nye_typene_men_passiv_samordnes_ikke()
     {
         Utsagn("Sametinget har beslutningsmyndighet når dette følger av andre bestemmelser.", "beslutningskompetanse", "Sametinget");
-        Utsagn("Kommunen skal samordne tjenestetilbudet etter første ledd.", "samordningskompetanse", "Kommunen");
+        // [ENDRET, #368] samordningsoppgave (F) med modaliteten fra modalverbet, ikke samordningskompetanse.
+        Utsagn("Kommunen skal samordne tjenestetilbudet etter første ledd.", "samordningsoppgave", "Kommunen");
+        Assert.Equal("skal", Konverter("Kommunen skal samordne tjenestetilbudet etter første ledd.").Utsagn.Single(u => u.Type == "samordningsoppgave").Modalitet);
         var passiv = Konverter("Planen skal samordnes med kommunens øvrige beredskapsplaner.");
-        Assert.DoesNotContain(passiv.Utsagn, u => u.Type == "samordningskompetanse");
+        Assert.DoesNotContain(passiv.Utsagn, u => u.Type is "samordningskompetanse" or "samordningsoppgave");
 
         static void Utsagn(string tekst, string type, string fra)
         {

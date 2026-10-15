@@ -1487,7 +1487,8 @@ public sealed class StrukturkantEntitet
     public Guid? TilBegrepId { get; set; }
 
     /// <summary>Sakstypen/gjenstanden når den ikke er en node — K «vedtak om konsesjon», T «kommunestyre».
-    /// Fritekst ordrett fra kilden; aldri utledet.</summary>
+    /// Fritekst ordrett fra kilden; aldri utledet. [ENDRET, issue #368] På F (oppgave/funksjon) ER objektet oppgaven
+    /// («beredskapsarbeid») og påkrevd (CHECK <c>ck_strukturkanter_oppgave_objekt</c>).</summary>
     public string? Objekt { get; set; }
 
     /// <summary>Strukturert (docs/20 §7.1, <c>[LÅST]</c>) — JSON-liste av <c>{ FraEid, TilEid? }</c>, samme
@@ -1559,7 +1560,8 @@ public sealed class StrukturkantEntitet
 
     /// <summary>
     /// [Ny, issue #353, jf. L14] Modaliteten i en PLIKT (P): <c>skal</c> | <c>kan</c> | <c>bor</c> (<see cref="Strukturkanter.Modaliteter"/>,
-    /// CHECK <c>ck_strukturkanter_modalitet</c>). Bare på P. NULL = ikke angitt — teksten har ikke et modalverb som avgjør det.
+    /// CHECK <c>ck_strukturkanter_modalitet</c>). Bare på P [ENDRET, issue #368: og på F, der «skal» er plikten til å utføre oppgaven].
+    /// NULL = ikke angitt — teksten har ikke et modalverb som avgjør det.
     /// </summary>
     public string? Modalitet { get; set; }
 

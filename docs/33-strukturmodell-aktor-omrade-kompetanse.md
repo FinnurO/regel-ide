@@ -237,6 +237,7 @@ Alle strukturutsagn lagres som én kanttype med kategori + konfigurerbar typekod
 | **R** relasjon | aktør → aktør | [ENDRET, #341] Struktur UTEN myndighet: eies_av, ledes_av, sekretariat_for, rapporterer_til, etterfolger, representerer, har_delegert_til (gjennomført delegering). [ENDRET, #352] Avgjort som R (struktur eller hendelse, ikke myndighet): administrativt_underordnet, radgir, oppretter, avvikler. velger og ankeinstans_for er flyttet til K. [Ny, #353] forvaltes_av (ordning → organet som forvalter den) |
 | **P** plikt overfor motpart ([Ny, #353]) | aktør (også ordning)/rolle/klasse → **motpart** (valgfri) | samarbeid, avtale, betaling, bistand, informasjon, konsultasjon — med `modalitet` (skal/kan/bør). Se §4.5 |
 | **K** kompetanse | aktør/rolle → **motpart** (valgfri) og bestemmelse/sakstype | [ENDRET, #341, #352, #355] beslutning; struktur: oppretting, avvikling, organisasjon; oppnevning: oppnevning (med undertype valg/ansettelse/utpeking/oppnevning/utnevning/konstitusjon), avsetting (med undertype avsetting/oppsigelse/avskjed); styring: instruksjon, samordning, delegering, godkjenning, samtykke, palegg; normgivning (med normform); kontroll: tilsyn, revisjon (~~forelegging~~ [FJERNET, #355]); klage og overprøving: klage, omgjoring, overproving (med undertype anke), stadfesting; vedtak (med undertype tilbakekall); sanksjon |
+| **F** oppgave/funksjon ([Ny, #368]) | aktør/rolle/klasse → område/klasse/rolle/aktør (valgfri), objekt PÅKREVD | forvaltning, samordning, sorge_for, oversikt, bistand, sekretariatsfunksjon, radgivning, veiledning, kontroll — med `modalitet`. Gir aldri K eller P i seg selv. Se §4.7 |
 | **M** medlemskap | aktør/klasse/område → klasse | medlem_av |
 | **O** områdesammensetning | område → område | bestar_av |
 | **A** ansvarsområde | aktør → område | har_ansvarsomrade, har_jurisdiksjon, har_sete_i, valgkrets_for |
@@ -676,6 +677,73 @@ forvaltningsloven er ikke i kraft).
 Kongen i statsråd har fått navneformen «Kongen», og taggene med teksten «Kongen» er flyttet dit (lokalt 7 av 12; 5 står på «Kongen i statsråd»).
 
 **Fasiten** er konvertert med `konvertering-367-utsagnsstatus.py` (regler D0–D5 og K1, se skriptet og FORMAT.md).
+
+### 4.7 Oppgave/funksjon (kategori F, issue #368)
+
+**[Bygget, issue #368, Johanns beslutning 2026-10-15: F er et eget begrep, og ingenting flyttes automatisk før en juristrunde på
+kandidatene]** Definisjon, typer, eksempler, moteksempler og grenser står i begrepsmanualen (docs/profil/02 §F); her står modellen,
+juristrunden og målingen.
+
+**Modellen.** Kategori `F` i `strukturkanter`: fra = aktør, rolle eller klasse (ikke ordning); `objekt` = oppgaven, PÅKREVD (CHECK
+`ck_strukturkanter_oppgave_objekt`); `til` valgfri (område, klasse, rolle eller aktør oppgaven gjelder); `modalitet` lov på P og F
+(`ck_strukturkanter_modalitet`). Ni typer (`Strukturkanter.Oppgavetyper`): forvaltning, samordning, sorge_for, oversikt, bistand,
+sekretariatsfunksjon (ikke «sekretariat» — det var R-koden #330 fjernet), radgivning, veiledning og kontroll — de to siste er lagt til i #368 (barnehageloven-piloten «veilede og påse»; juristrunden).
+Visningen har ingen «overfor»: «har samordningsoppgave (skal) beredskapsarbeid», «… — gjelder B». **F gir aldri K eller P i seg selv**:
+ingen kode slutter en K- eller P-kant fra F, og kompetanse- og pliktoppslagene ser ikke F (`OppgaveFunksjonTests`).
+
+**Juristrunden (CLAUDE.md §23).** Kandidater: K `samordningskompetanse`, R `sekretariat_for`, R `radgir`, P `bistandsplikt`, `annet:*`
+med oppgaveordlyd og andre typer der sitatet har «skal sørge for/samordne/føre oversikt/veilede/være sekretariat/forvalte» — 189 i
+fasit, KI-utdata og lokal base (pluss fire rader runde 1 viste at søket bommet på). Utfallet per kort står i
+`data/fasit/strukturmodell/juristrunde-368-oppgave.json`.
+
+| | Fasit | KI-utdata | Lokal base | Sum |
+|---|---:|---:|---:|---:|
+| F (raden erstattes) | 29 | 20 | 0 | 49 |
+| begge (raden står, F legges til) | 9 | 3 | 1 | 13 |
+| behold | 75 | 53 | 3 | 131 |
+
+Runde 1: 141 holder, 48 innvendinger (21 middels, 27 lav, 0 høy, 0 prinsipielle). Modelløren aksepterte 48 og svarte delvis på 4;
+juristen godtok alle i runde 2 (1 godtar, 9 presiseringer, 0 fastholder). Ingen uenighet går til Johann. Det runden endret:
+sekretariat og rådgiver er R alene når teksten bare sier relasjonen (F bare med eget innhold — `radgivning` brukes derfor ikke i
+fasiten); «sørge for at» avgjør ikke typen alene (P konsultasjon og P avtale i to kort); ny type `kontroll` for «påse at»; modalitet
+null ved attributiv form; K oppnevning ved siden av F «overordnet ansvar» står som egen fortolkning (hotl. u91/u92, shl. u213). Funn
+som ikke er F (R radgir som er P konsultasjon, P bistand som er informasjonsplikt, P samarbeid sluttet fra F i shl. u187/u188 m.fl.)
+er meldt som egen sak (#380). [Johanns beslutning på PR #381, 2026-10-16] Ingen ny type for innsats («arbeide for», «fremme») eller for en
+tjenestesektor som bærer; begge står som åpne spørsmål med eksempler i begrepsmanualen (§F) og avgjøres i barnehageloven-piloten (#375).
+
+**Fasiten** (`konvertering-368-oppgave.py`, deterministisk, idempotent, også på `ki-utdata/`): 1 802 → 1 825 utsagn, 52 oppgaverader
+(sorge_for 23, oversikt 8, veiledning 8, samordning 6, forvaltning 4, bistand 2, kontroll 1; fortolkning 50, tekstfunn 2). KI-utdata
+1 042 → 1 051, 29 oppgaverader (ingen kunnskapsstatus, som i #367).
+
+**Migrasjonen `OppgaveFunksjon`** (`OppgaveMigrering.cs`): CHECK-ene over, de ni F-typene i typekonfigurasjonen, og BARE juristrundens
+utfall for de fire lokale kandidatene (R sekretariat_for fra KLAGENEMNDSSEKRETARIATET): tre behold (Energi- og Konkurranseklagenemnda:
+«de oppgavene som lederen pålegger» er en henvisning, ingen F; Klagenemnda for utdanning: ingen hjemmeltekst), én begge
+(Stiftelsesklagenemnda: «sekretariat som foretar saksforberedelse» → ny F sekretariatsfunksjon, kunnskapsstatus `avledet` med R-kanten som
+premiss, status `maskinelt_foreslatt`, oppdagelseskilde `ki:juristrunde-368` — godkjennes i forslagskøen). Ingen kant flyttet. Teller
+før/etter og avbryter ved avvik; `Down` sletter nøyaktig radene med `migrasjon-368`-proveniens og nekter når det finnes F-kanter
+registrert etter migrasjonen. **Målt mot lokal `regelide` 2026-10-16 (kjørt ved API-oppstart):** 1 303 → 1 304 kanter, typekonfigurasjonen +9 (F), 1 ny F-kant (KNS sekretariatsfunksjon «saksforberedelse» → Stiftelsesklagenemnda, avledet, premiss = R-kanten 6d5b8668…), 1 proveniensrad, 0 kanter flyttet. `Down` er prøvd i `OppgaveMigreringTests` (ikke mot lokal base).
+
+**Leksikonet** (2026-10-16.2) og mønsterlaget: `oppgave-fore-oversikt`, `oppgave-veilede`, `oppgave-pase`, `oppgave-forvalte`, og `samordning-samordne` (fra #341) gir nå samordningsOPPGAVE, ikke samordningskompetanse: Johanns beslutning om F
+og juristrunden (energiloven u160 «Beredskapsmyndigheten skal samordne beredskapsarbeid»). K samordning står i typologien for tekst som
+gir bindende virkning, men den kan ikke leses av ordet alene.
+
+| Måling (samme treffregel) | Før #368 | Etter #368 |
+|---|---:|---:|
+| Fasitutsagn / KI-utsagn | 1 802 / 1 042 | 1 825 / 1 051 |
+| Mønster alle: P / G | 92,5 / 47,9 % | 92,5 / 47,5 % |
+| Mønster K (fasit 596 → 595): P / G | 87,3 / 47,5 % | 87,9 / 47,4 % |
+| Mønster F (fasit 52): P / G | – | 66,7 / 7,7 % |
+| — oppgave-fore-oversikt / samordning-samordne | – | 100 / 100 % · 66,7 / 100 % |
+| KI alle: P / G | 36,8 / 21,3 % | 37,9 / 21,8 % |
+| KI F: P / G | – | 51,7 / 28,8 % |
+| Union alle: P / G | 58,2 / 55,6 % | 58,8 / 55,7 % |
+| designtest.py revidert ja | 1 720 (95 %) | 1 745 (96 %), F 52 |
+
+[ENDRET, Johanns beslutning på PR #381, 2026-10-16] **`oppgave-sorge-for` er fjernet fra mønsterlaget; typen `sorge_for` står.** Målt
+med regelen: 36 treff, 5 riktige (13,9 % presisjon), mønsterlaget alle 89,6 / 47,8 %. 27 treff hadde ingen rad i fasiten, blant dem
+saksbehandling («Retten skal sørge for at dom i straffesak blir forkynt»), og juristrunden viste at «sørge for at» også kan være P
+konsultasjon eller P avtale. Den står under «Forkastede mønstre» i maling-monster.md. F-gjenfinningen i mønsterlaget er derfor lav (7,7 %);
+sørge-for-ansvaret settes av juristrunder og KI-laget (KI F 51,7 / 28,8 %). KI-tallene er de lagrede utdataene fra #308 konvertert med samme skript, ikke en ny kjøring.
 
 ## 5. Automatisk konvertering
 

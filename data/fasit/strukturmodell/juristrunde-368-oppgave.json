@@ -1,0 +1,4556 @@
+{
+ "issue": 368,
+ "beskrivelse": "Utfallet av juristrunden (CLAUDE.md §23) på kandidatene til kategori F (oppgave/funksjon), 2026-10-15/16. Runde 1: jurist-utfordrer vurderte modellørens forslag uten begrunnelsene; modelløren svarte (aksepter/delvis/avvis); runde 2: replikk. Ingen reell uenighet gikk til Johann. konvertering-368-oppgave.py gjør nøyaktig det kortene sier; DB-kortene gjøres av migrasjonen OppgaveFunksjon (OppgaveMigrering.cs).",
+ "prinsipper": [
+  {
+   "id": "prinsipp-a",
+   "svar": "aksepter",
+   "tekst": "Aksepter. veiledning står som egen type; fvl. § 11-begrunnelsen tas ut (alminnelig saksbehandlingsplikt for alle organer, regellaget). F veiledning er en særskilt lovbestemt veiledningsfunksjon; veiledning til en bestemt motpart som kan kreve den, er P.",
+   "endring": "begrepsmanualen + leksikonmerknad"
+  },
+  {
+   "id": "prinsipp-b",
+   "svar": "aksepter",
+   "tekst": "Aksepter. R alene når teksten bare sier relasjonen; F i tillegg bare med eget innhold; F aldri i stedet for R. u70/u52 flyttes fra positive eksempler til grenseavsnittet.",
+   "endring": "begrepsmanualen"
+  },
+  {
+   "id": "prinsipp-c",
+   "svar": "aksepter",
+   "tekst": "Aksepter. «skal påse at» er F, aldri K tilsyn i seg selv. Ny type `kontroll` (fasittype `kontrolloppgave`), fordi barnehageloven-piloten (#375) trenger den og ingen av de åtte passer; grensen mot K tilsyn står i manualen. shl. u303 «følge opp og kontrollere» flyttes fra oversikt til kontroll.",
+   "endring": "ny F-type kontroll"
+  },
+  {
+   "id": "prinsipp-d",
+   "svar": "delvis",
+   "tekst": "Aksepter 1–4, 8, 10–12 (presiseringer og moteksempler i manualen; til aldri = fra). 5: kontroll lagt til (c); innsats-typen er åpent spørsmål til Johann. 6: aksepter — modalitet bare ved modalverb eller normativ presens av en handling; attributiv form («har ansvaret for», «hører under», «forvaltningsansvaret») gir null. 7: delvis — fortolkning beholdes for juristrundens rader, fordi grensen mot K/P er vurdert for hver av dem (juristens eget kriterium); mønsterlaget setter normalisering på sine egne forslag, som i #367. 9: tekstens subjekt (tjenestesektor) kan bære F som tekstform, ansvarsbæreren løses opp etter grunnlagsdokumentet §4.5 — åpent, står i manualen.",
+   "endring": "begrepsmanualen; modalitet null ved attributiv form"
+  }
+ ],
+ "kort": [
+  {
+   "nokkel": "fasit:domstolloven:u37",
+   "kilde": "fasit",
+   "lov": "domstolloven",
+   "id": "u37",
+   "sitat": "For hvert lagsokn fastsetter domstoladministrasjonen ett eller flere rettssteder.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "«fastsetter domstoladministrasjonen ett eller flere rettssteder» binder (test 1): det er kompetanse, ikke en oppgave. Begrepsmanualen F, testen spørsmål 1.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:domstolloven:u43",
+   "kilde": "fasit",
+   "lov": "domstolloven",
+   "id": "u43",
+   "sitat": "Domstolens leder kan ellers be lagmannsretten om å foreta tilkalling av slike dommere innen lagdømmet.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "«A kan be B om å …» er en adgang til å be om bistand, avgjort i juristgjennomgangen #353 (docs/33 §4.5). Ingen oppgave legges til noen; ikke F.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:domstolloven:u53",
+   "kilde": "fasit",
+   "lov": "domstolloven",
+   "id": "u53",
+   "sitat": "I de domssogn, hvor domstoladministrasjonen finner det påkrevet, skal dommerfullmektiger ansettes.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Domstoladministrasjonen avgjør om dommerfullmektiger skal ansettes: myndighet (test 1), ikke oppgave.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:domstolloven:u54",
+   "kilde": "fasit",
+   "lov": "domstolloven",
+   "id": "u54",
+   "sitat": "Bemyndigelse gis av domstoladministrasjonen eller av domstollederen etter nærmere bestemmelse gitt av domstoladministrasjonen.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Bemyndigelse er myndighet til å gi en annen kompetanse (K). Ikke oppgaveordlyd.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:domstolloven:u70",
+   "kilde": "fasit",
+   "lov": "domstolloven",
+   "id": "u70",
+   "sitat": "Namsfogden er sekretariat for forliksrådene i sitt distrikt.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Sitatet sier bare «A er sekretariat for B»: det er den organisatoriske relasjonen R sekretariat_for (docs/33 §4.3, #330), og teksten sier ikke hva sekretariatet skal gjøre. Forslag til regel: R står alene når teksten bare sier hvem som er sekretariat; F sekretariat legges til først når teksten gir sekretariatet oppgaver (begrepsmanualen F, grensen mot R sekretariat_for). Appen kan vise R-kanten under «Oppgaver» som avledet visning.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:domstolloven:u80",
+   "kilde": "fasit",
+   "lov": "domstolloven",
+   "id": "u80",
+   "sitat": "den sentrale administrasjonen av domstolene",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "forvaltningsoppgave",
+     "fra": "da",
+     "til": "domstolene",
+     "objekt": "den sentrale administrasjonen av domstolene",
+     "modalitet": null,
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd",
+      "kontekst_system"
+     ],
+     "begrunnelse": "Slutning fra kapitteloverskriften og § 33 tredje ledd: domstoladministrasjonen ER den sentrale administrasjonen av domstolene — en forvaltningsoppgave for et forvaltningsapparat, ikke myndighet over domstolene."
+    },
+    {
+     "type": "sorge_for_ansvar",
+     "fra": "da_styre",
+     "til": "domstolene",
+     "objekt": "at den sentrale administrasjonen av domstolene skjer på en forsvarlig og hensiktsmessig måte",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd",
+      "kontekst_system"
+     ],
+     "begrunnelse": "Aksepter. Domstoladministrasjonens egen administrasjonsfunksjon er en forvaltningsoppgave (et forvaltningsapparat, begrepsmanualen §F «forvaltning», presisert i r2)."
+    }
+   ],
+   "begrunnelse": "Aksepter. Domstoladministrasjonens egen administrasjonsfunksjon er en forvaltningsoppgave (et forvaltningsapparat, begrepsmanualen §F «forvaltning», presisert i r2).",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "middels",
+    "gjelder": "raden"
+   },
+   "modellor_svar": "aksepter",
+   "jurist_runde2": "presiserer"
+  },
+  {
+   "nokkel": "fasit:domstolloven:u83",
+   "kilde": "fasit",
+   "lov": "domstolloven",
+   "id": "u83",
+   "sitat": "Domstoladministrasjonen skal gis anledning til å uttale seg før det treffes slike vedtak.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Aksepter — egen sak (ikke F/behold/begge).",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "middels",
+    "gjelder": "utenfor_raden"
+   },
+   "modellor_svar": "aksepter",
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:domstolloven:u92",
+   "kilde": "fasit",
+   "lov": "domstolloven",
+   "id": "u92",
+   "sitat": "Direktøren for domstoladministrasjonen eller den direktøren bemyndiger, har møterett i styret",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Møterett er en deltakerposisjon (regellaget/sammensetning), ikke oppgave.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:domstolloven:u99",
+   "kilde": "fasit",
+   "lov": "domstolloven",
+   "id": "u99",
+   "sitat": "Domstoladministrasjonen fremmer forslag til budsjett for domstolene for departementet.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Budsjettforslaget er saksforberedelse for departementet, som docs/33 §4.4 holder utenfor strukturlaget («budsjettforslag»). Det er en tilbakevendende funksjon, men et ledd i en annens beslutning, ikke et selvstendig arbeidsfelt. Usikker.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:domstolloven:u100",
+   "kilde": "fasit",
+   "lov": "domstolloven",
+   "id": "u100",
+   "sitat": "Domstoladministrasjonen fastsetter antall faste dommerstillinger for den enkelte domstol.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "«fastsetter antall faste dommerstillinger» binder (test 1): K, ikke F.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:domstolloven:u105",
+   "kilde": "fasit",
+   "lov": "domstolloven",
+   "id": "u105",
+   "sitat": "utføres de efter domstolens anmodning av stedets ret",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Rettsanmodning: den anmodende domstolen kan kreve at handlingen utføres (test 2), derfor P bistand. Begrepsmanualen F, grensen mot P bistand.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:domstolloven:u128",
+   "kilde": "fasit",
+   "lov": "domstolloven",
+   "id": "u128",
+   "sitat": "Direktøren for domstoladministrasjonen eller den direktøren bemyndiger, har møterett i Innstillingsrådet.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Møterett er ikke oppgaveordlyd.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:domstolloven:u130",
+   "kilde": "fasit",
+   "lov": "domstolloven",
+   "id": "u130",
+   "sitat": "Til dommerembeter i tingretten, i lagmannsretten og i jordskifteretten gir domstollederen skriftlig uttalelse.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Uttalelsen gis i den enkelte innstillingssak; det er saksgang (docs/33 §4.4, saksforberedelse), ikke en fast rådgiverfunksjon eller en oppgave lagt til domstollederen som arbeidsfelt. Ikke F.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:domstolloven:u131",
+   "kilde": "fasit",
+   "lov": "domstolloven",
+   "id": "u131",
+   "sitat": "høyesterettsjustitiarius muntlig eller skriftlig uttalelse direkte til departementet",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Som u130: uttalelse i den enkelte utnevningssak er saksgang, ikke F radgivning.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:domstolloven:u171",
+   "kilde": "fasit",
+   "lov": "domstolloven",
+   "id": "u171",
+   "sitat": "Fortegnelse over de valgte meddommere føres av kommunen.",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "oversiktsoppgave",
+     "fra": "kommune",
+     "til": null,
+     "objekt": "fortegnelse over de valgte meddommere",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "Å føre en fortegnelse er å føre oversikt/register (type oversikt); normativ presens «føres av» = skal."
+    }
+   ],
+   "begrunnelse": "«Fortegnelse over de valgte meddommere føres av kommunen» legger et arbeidsfelt til kommunen og binder ingen (test 1–3). Begrepsmanualens positive eksempel: F oversikt, normativ presens = skal.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:domstolloven:u180",
+   "kilde": "fasit",
+   "lov": "domstolloven",
+   "id": "u180",
+   "sitat": "Etter anmodning fra en domstol, kommune eller fylkeskommune skal politiet gi opplysning",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Politiet skal gi opplysning etter anmodning fra domstolen: motparten kan kreve ytelsen (test 2), P.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:domstolloven:u181",
+   "kilde": "fasit",
+   "lov": "domstolloven",
+   "id": "u181",
+   "sitat": "Etter anmodning fra en domstol, kommune eller fylkeskommune skal politiet gi opplysning",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Som u180: P overfor kommunen.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:domstolloven:u182",
+   "kilde": "fasit",
+   "lov": "domstolloven",
+   "id": "u182",
+   "sitat": "Etter anmodning fra en domstol, kommune eller fylkeskommune skal politiet gi opplysning",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Som u180: P overfor fylkeskommunen.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:domstolloven:u185",
+   "kilde": "fasit",
+   "lov": "domstolloven",
+   "id": "u185",
+   "sitat": "Domstoladministrasjonen kan ved forskrift dele lagsogn og domssogn i flere trekningskretser.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Forskriftshjemmel til å dele inn trekningskretser: K normgivning, ikke oppgave.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:domstolloven:u191",
+   "kilde": "fasit",
+   "lov": "domstolloven",
+   "id": "u191",
+   "sitat": "skal det likevel innhentes uttalelse fra domstoladministrasjonen",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Aksepter — egen sak (ikke F/behold/begge).",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "middels",
+    "gjelder": "utenfor_raden"
+   },
+   "modellor_svar": "aksepter",
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:domstolloven:u198",
+   "kilde": "fasit",
+   "lov": "domstolloven",
+   "id": "u198",
+   "sitat": "Registeret over sidegjøremål føres av domstoladministrasjonen.",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "oversiktsoppgave",
+     "fra": "da",
+     "til": null,
+     "objekt": "registeret over sidegjøremål",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "Registerføring er type oversikt; normativ presens = skal. Ingen myndighet over dommerne følger av setningen."
+    }
+   ],
+   "begrunnelse": "«Registeret over sidegjøremål føres av domstoladministrasjonen» er en registeroppgave uten myndighet: F oversikt (begrepsmanualen, typen oversikt: «registeret føres av»).",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:domstolloven:u218",
+   "kilde": "fasit",
+   "lov": "domstolloven",
+   "id": "u218",
+   "sitat": "statsforvaltere",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "«kan foreta forkynning» er en adgang til å foreta en rettslig handling (kompetanse), ikke et arbeidsfelt. Ikke F.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:domstolloven:u224",
+   "kilde": "fasit",
+   "lov": "domstolloven",
+   "id": "u224",
+   "sitat": "skal Posten Norge AS sørge for, at brev, som gjælder retssaker, blir bragt til adressaten",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "«Naar en offentlig myndighet forlanger det, skal Posten … sørge for» : den som forlanger, kan kreve ytelsen (test 2), derfor P bistand selv om «sørge for» står i sitatet.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:domstolloven:u250",
+   "kilde": "fasit",
+   "lov": "domstolloven",
+   "id": "u250",
+   "sitat": "domstoladministrasjonen",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Klagerett (initiativrett) er partsposisjon/regellaget, ikke oppgave.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:energiloven:u51",
+   "kilde": "fasit",
+   "lov": "energiloven",
+   "id": "u51",
+   "sitat": "operatørens oppgaver og myndighet overfor aktører som helt eller delvis eier eller er tilknyttet nett",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Oppgavene og myndigheten fastsettes i forskrift (kilde utenfor teksten); leddet legger ikke selv et arbeidsfelt til operatøren. Selve leddet er departementets K normgivning. Ikke tvangsklassifiser (grunnlagsdokumentet §4.3).",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:energiloven:u53",
+   "kilde": "fasit",
+   "lov": "energiloven",
+   "id": "u53",
+   "sitat": "skal departementet innhente rådgivende uttalelser fra andre relevante departementer",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Aksepter — egen sak (ikke F/behold/begge).",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "middels",
+    "gjelder": "utenfor_raden"
+   },
+   "modellor_svar": "aksepter",
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:energiloven:u54",
+   "kilde": "fasit",
+   "lov": "energiloven",
+   "id": "u54",
+   "sitat": "Før det fattes vedtak, skal departementet innhente rådgivende uttalelser",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Saksforberedelse for Kongen står utenfor strukturlaget (docs/33 §4.4).",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:energiloven:u69",
+   "kilde": "fasit",
+   "lov": "energiloven",
+   "id": "u69",
+   "sitat": "Myndighet etter regelverket som nevnt i første ledd til å koordinere måling og avregning av kraftomsetning",
+   "utfall": "begge",
+   "f_rader": [
+    {
+     "type": "sorge_for_ansvar",
+     "fra": "a14",
+     "til": null,
+     "objekt": "at all innmating og alt uttak av elektrisk energi blir korrekt avregnet slik at det oppnås økonomisk balanse i kraftmarkedet",
+     "modalitet": null,
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "«skal sørge for at» er resultatansvar; setningen gir ingen myndighet utover den som første punktum gir."
+    }
+   ],
+   "begrunnelse": "Første punktum sier uttrykkelig «Myndighet … til å koordinere»: det er K samordning, ikke bare en oppgave (begrepsmanualen, grensen F samordning mot K samordning). Annet punktum («skal sørge for at … blir korrekt avregnet») er et resultatansvar uten egen rad i fasiten: F sørge for legges til.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:energiloven:u79",
+   "kilde": "fasit",
+   "lov": "energiloven",
+   "id": "u79",
+   "sitat": "forvalteren av Energifondet treffer enkeltvedtak på vegne av staten",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "At forvalteren treffer enkeltvedtak på vegne av staten er kompetanse/representasjon, ikke oppgaveordlyd.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:energiloven:u102",
+   "kilde": "fasit",
+   "lov": "energiloven",
+   "id": "u102",
+   "sitat": "på eget initiativ eller ved begrunnet forespørsel fra EFTAs overvåkingsorgan",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Initiativ til saksbehandling er saksgang (regellaget), ikke oppgave.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:energiloven:u131",
+   "kilde": "fasit",
+   "lov": "energiloven",
+   "id": "u131",
+   "sitat": "Den systemansvarlige skal sørge for at det til enhver tid er momentan balanse",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "sorge_for_ansvar",
+     "fra": "a13",
+     "til": null,
+     "objekt": "at det til enhver tid er momentan balanse mellom den samlede produksjon og den samlede bruk av kraft",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": "hensett til kraftutvekslingen med tilknyttede utenlandske systemer",
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "«skal sørge for at» er resultatansvar; myndigheten til å utøve systemansvaret tildeles i første punktum og står for seg."
+    }
+   ],
+   "begrunnelse": "Begrepsmanualens positive eksempel: «Den systemansvarlige skal sørge for at det til enhver tid er momentan balanse» er resultatansvar uten myndighet i seg selv. kompetanse/annet:oppgaveansvar erstattes av F sørge for.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:energiloven:u137",
+   "kilde": "fasit",
+   "lov": "energiloven",
+   "id": "u137",
+   "sitat": "rasjoneringsmyndighet som er ansvarlig for planlegging og administrativ gjennomføring av tiltak i forbindelse med rasjonering",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "sorge_for_ansvar",
+     "fra": "a8",
+     "til": null,
+     "objekt": "planlegging og administrativ gjennomføring av tiltak i forbindelse med rasjonering",
+     "modalitet": null,
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd",
+      "kontekst_system"
+     ],
+     "begrunnelse": "«er ansvarlig for» er typen sorge_for i begrepsmanualen; vedtaksmyndigheten står i andre rader (u138), så F-raden skal ikke bære den."
+    }
+   ],
+   "begrunnelse": "Aksepter — egen sak (rasjoneringsmyndighetens vedtakskompetanse, avledet av § 6-2 tredje ledd).",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "lav",
+    "gjelder": "utenfor_raden"
+   },
+   "modellor_svar": "aksepter",
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:energiloven:u160",
+   "kilde": "fasit",
+   "lov": "energiloven",
+   "id": "u160",
+   "sitat": "Beredskapsmyndigheten skal samordne beredskapsarbeid",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "samordningsoppgave",
+     "fra": "a7",
+     "til": null,
+     "objekt": "beredskapsarbeid",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": "i kraftforsyningen (kapittel 9)",
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd",
+      "kontekst_system"
+     ],
+     "begrunnelse": "Ingen tekst i leddet gir bindende virkning for de samordnede; der loven gir myndighet (u159, u161, u164), står den som egne K-rader."
+    }
+   ],
+   "begrunnelse": "Begrepsmanualens hovedeksempel og grunnlagsdokumentet §7.8: «skal samordne beredskapsarbeid» er en oppgave, ikke instruksjonsmyndighet. K samordning erstattes av F samordning. Utpekingen av ledelsen i KBO står som egen K-rad (u161).",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:energiloven:u250",
+   "kilde": "fasit",
+   "lov": "energiloven",
+   "id": "u250",
+   "sitat": "Gjennomføring av rapportering etter energiloven § 10-1 tredje ledd annet punktum skal samordnes med departementet.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "«skal samordnes med departementet» er en plikt overfor en bestemt motpart (departementet kan kreve samordningen), dvs. P samarbeid (test 2). Ikke F.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:energiloven:u253",
+   "kilde": "fasit",
+   "lov": "energiloven",
+   "id": "u253",
+   "sitat": "Forvaltningsansvaret for energiloven § 4-4, med unntak av andre ledd",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "forvaltningsoppgave",
+     "fra": "a23",
+     "til": null,
+     "objekt": "energiloven § 4-4 og forskrift om innbetaling av påslag på nettariffen til Energifondet (forskrift om Energifondet)",
+     "modalitet": null,
+     "polaritet": "positiv",
+     "avgrensning": "med unntak av § 4-4 andre ledd; med virkning fra 1. januar 2025",
+     "kunnskapsstatus": "tekstfunn",
+     "tolkningsargumenter": [],
+     "begrunnelse": null
+    }
+   ],
+   "begrunnelse": "Teksten bruker selv funksjonsordet «Forvaltningsansvaret for energiloven § 4-4»: F forvaltning med regelverket som objekt (begrepsmanualen, grensen F forvaltning mot R forvaltes_av). Overføringen fra KLD er hendelsen; virkningstidspunktet hører til gyldighet.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:energiloven:u254",
+   "kilde": "fasit",
+   "lov": "energiloven",
+   "id": "u254",
+   "sitat": "Forvaltningsansvaret for energiloven § 4-4, med unntak av andre ledd",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "forvaltningsoppgave",
+     "fra": "a22",
+     "til": null,
+     "objekt": "energiloven § 4-4 andre ledd",
+     "modalitet": null,
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "antitetisk_analogisk",
+      "ordlyd"
+     ],
+     "begrunnelse": "Teksten sier bare at andre ledd unntas fra overføringen; at ansvaret blir værende hos KLD er en antitetisk slutning med lav sikkerhet."
+    }
+   ],
+   "begrunnelse": "Antitetisk slutning fra unntaket i samme setning: § 4-4 andre ledd overføres ikke og ligger antakelig fortsatt hos Klima- og miljødepartementet. Det er en forvaltningsoppgave, ikke kompetanse; F forvaltning med status fortolkning (aldri tekstfunn).",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:helse-og-omsorgstjenesteloven:u9",
+   "kilde": "fasit",
+   "lov": "helse-og-omsorgstjenesteloven",
+   "id": "u9",
+   "sitat": "Kommunen skal sørge for at personer som oppholder seg i kommunen, tilbys nødvendige helse- og omsorgstjenester.",
+   "utfall": "begge",
+   "f_rader": [
+    {
+     "type": "sorge_for_ansvar",
+     "fra": "a1",
+     "til": null,
+     "objekt": "at personer som oppholder seg i kommunen, tilbys nødvendige helse- og omsorgstjenester",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "«skal sørge for at» er resultatansvar overfor en befolkning i et område, ikke en plikt overfor en bestemt motpart (test 2); til = kommunen som område."
+    }
+   ],
+   "begrunnelse": "Begrepsmanualens positive eksempel og grensen F sørge for mot A ansvarsområde: A har_ansvarsomrade sier hvor kommunen virker, F sørge for hva den har resultatansvar for. Begge står.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:helse-og-omsorgstjenesteloven:u11",
+   "kilde": "fasit",
+   "lov": "helse-og-omsorgstjenesteloven",
+   "id": "u11",
+   "sitat": "Kommunens helse- og omsorgstjeneste omfatter offentlig organiserte helse- og omsorgstjenester som ikke hører under stat eller fylkeskommune.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Definisjon/avgrensning av hva kommunens tjeneste omfatter; ingen oppgave legges til en aktør i setningen.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:helse-og-omsorgstjenesteloven:u21",
+   "kilde": "fasit",
+   "lov": "helse-og-omsorgstjenesteloven",
+   "id": "u21",
+   "sitat": "Helse- og omsorgstjenestene skal bidra i kommunens folkehelsearbeid",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "bistandsoppgave",
+     "fra": "a20",
+     "til": "a1",
+     "objekt": "kommunens folkehelsearbeid, herunder til oversikten over helsetilstand og påvirkningsfaktorer etter folkehelseloven § 5",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd",
+      "kontekst_system"
+     ],
+     "begrunnelse": "«bidra i» et arbeidsfelt uten motpart er F bistand (begrepsmanualen, grensen F/P bistand); tjenesten og kommunen er samme rettssubjekt."
+    }
+   ],
+   "begrunnelse": "Begrepsmanualens eget eksempel på F bistand: «skal bidra i kommunens folkehelsearbeid» har ingen motpart som kan kreve ytelsen (test 2); tjenesten er del av kommunen selv. P bistandsplikt erstattes av F bistand.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:helse-og-omsorgstjenesteloven:u24",
+   "kilde": "fasit",
+   "lov": "helse-og-omsorgstjenesteloven",
+   "id": "u24",
+   "sitat": "Dersom det er oppnevnt barnekoordinator etter § 7-2 a, skal barnekoordinatoren sørge for samordning av tjenestetilbudet.",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "samordningsoppgave",
+     "fra": "a1",
+     "til": null,
+     "objekt": "tjenestetilbudet etter første ledd",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "«skal samordne» uten bindende virkning for tjenesteyterne er F samordning (grunnlagsdokumentet §7.8)."
+    },
+    {
+     "type": "samordningsoppgave",
+     "fra": "a17",
+     "til": null,
+     "objekt": "samordning av tjenestetilbudet",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": "dersom det er oppnevnt barnekoordinator etter § 7-2 a",
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd",
+      "kontekst_system"
+     ],
+     "begrunnelse": "«sørge for samordning av» er typisk ordlyd for F samordning; barnekoordinatoren får ingen myndighet over tjenesteyterne."
+    }
+   ],
+   "begrunnelse": "annet:oppgave_overfort er to oppgaver: kommunen «skal samordne tjenestetilbudet» (første punktum, ingen egen rad i fasiten) og barnekoordinatoren «skal sørge for samordning av tjenestetilbudet» når en er oppnevnt. Begge er F samordning; rekkefølgen mellom dem står i avgrensningen. Oppnevningen (u23) står som K.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:helse-og-omsorgstjenesteloven:u32",
+   "kilde": "fasit",
+   "lov": "helse-og-omsorgstjenesteloven",
+   "id": "u32",
+   "sitat": "Denne enheten skal ha ansvaret for å møte personer når oppmøte for enheten er satt som vilkår for en bestemt strafferettslig reaksjon.",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "sorge_for_ansvar",
+     "fra": "a19",
+     "til": null,
+     "objekt": "å møte personer når oppmøte for enheten er satt som vilkår for en bestemt strafferettslig reaksjon",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "«skal ha ansvaret for» er typisk ordlyd for sorge_for i begrepsmanualen; ingen motpart kan kreve ytelsen etter denne setningen."
+    }
+   ],
+   "begrunnelse": "«Denne enheten skal ha ansvaret for å møte personer …» legger et ansvar til en intern enhet uten myndighet over noen (test 1–3). annet:lovtildelt_oppgave er nettopp hullet F fyller; typen sorge_for («skal ha ansvaret for»).",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:helse-og-omsorgstjenesteloven:u34",
+   "kilde": "fasit",
+   "lov": "helse-og-omsorgstjenesteloven",
+   "id": "u34",
+   "sitat": "Kommunen skal sørge for at representanter for pasienter og brukere blir hørt ved utformingen av kommunens helse- og omsorgstjeneste.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Aksepter. «sørge for at representanter … blir hørt» er P konsultasjon overfor en klassebestemt motpart (trinn 2), ikke F. Ordformen «sørge for at» avgjør ikke typen alene — leksikonregelen oppgave-sorge-for har derfor lavere presisjon; målt i maling-monster.md. Raden beholdes i #368; P konsultasjon er egen sak.",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "middels",
+    "gjelder": "utenfor_raden"
+   },
+   "modellor_svar": "aksepter",
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:helse-og-omsorgstjenesteloven:u44",
+   "kilde": "fasit",
+   "lov": "helse-og-omsorgstjenesteloven",
+   "id": "u44",
+   "sitat": "Dersom forholdene tilsier det, skal kommunen yte bistand til andre kommuner ved ulykker og andre akutte situasjoner.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Begrepsmanualens eksempel på P bistand: «skal yte bistand til andre kommuner ved ulykker»; den anmodende kommunen kan kreve ytelsen (test 2).",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:helse-og-omsorgstjenesteloven:u45",
+   "kilde": "fasit",
+   "lov": "helse-og-omsorgstjenesteloven",
+   "id": "u45",
+   "sitat": "Anmodning om bistand fremmes av den kommunen som har bistandsbehovet.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Anmodningen er saksgang (initiativ), ikke oppgave.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:helse-og-omsorgstjenesteloven:u48",
+   "kilde": "fasit",
+   "lov": "helse-og-omsorgstjenesteloven",
+   "id": "u48",
+   "sitat": "som skal utføre de oppgaver kommunelegen er tillagt i lov eller instruks",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Leddet henviser til «de oppgaver kommunelegen er tillagt i lov eller instruks»; selve oppgavene står i andre lover og kommunal instruks. En henvisning er ikke et arbeidsfelt; F-rader hører hjemme der oppgavene gis (ikke tvangsklassifiser).",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:helse-og-omsorgstjenesteloven:u52",
+   "kilde": "fasit",
+   "lov": "helse-og-omsorgstjenesteloven",
+   "id": "u52",
+   "sitat": "Kommunelegen skal være medisinskfaglig rådgiver for kommunen.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "«Kommunelegen skal være medisinskfaglig rådgiver for kommunen» er den faste rådgiverrelasjonen R radgir, avgjort som struktur i #352 (docs/33 §4.3). Teksten sier ikke hva rådgivningen består i ut over fagfeltet. Forslag til regel (samme som for sekretariat): R står alene når teksten bare sier at A er rådgiver for B; «medisinskfaglig» kan stå i avgrensning. Usikker: begrepsmanualen har denne som positivt F-eksempel.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:helse-og-omsorgstjenesteloven:u60",
+   "kilde": "fasit",
+   "lov": "helse-og-omsorgstjenesteloven",
+   "id": "u60",
+   "sitat": "skal gi spesialisthelsetjenesten råd, veiledning og opplysninger",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Aksepter — egen sak (ikke F/behold/begge).",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "lav",
+    "gjelder": "utenfor_raden"
+   },
+   "modellor_svar": "aksepter",
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:helse-og-omsorgstjenesteloven:u71",
+   "kilde": "fasit",
+   "lov": "helse-og-omsorgstjenesteloven",
+   "id": "u71",
+   "sitat": "enighet om hvilke helse- og omsorgsoppgaver forvaltningsnivåene er pålagt ansvaret for",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Avtalens innhold (oppgavefordeling mellom forvaltningsnivåene) står utenfor strukturlaget (docs/33 §4.4, §4.5 punkt 7). Ikke F.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:helse-og-omsorgstjenesteloven:u81",
+   "kilde": "fasit",
+   "lov": "helse-og-omsorgstjenesteloven",
+   "id": "u81",
+   "sitat": "Koordinatoren skal sørge for nødvendig oppfølging av den enkelte pasient eller bruker, samt sikre samordning av tjenestetilbudet",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "sorge_for_ansvar",
+     "fra": "a16",
+     "til": null,
+     "objekt": "nødvendig oppfølging av den enkelte pasient eller bruker",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "«skal sørge for» er resultatansvar; en offentlig oppgave gir ikke pasienten en kravsrett etter denne setningen (metodenotatet §6)."
+    },
+    {
+     "type": "samordningsoppgave",
+     "fra": "a16",
+     "til": null,
+     "objekt": "samordning av tjenestetilbudet",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "«sikre samordning av» er samordningsoppgave uten bindende virkning for tjenesteyterne."
+    },
+    {
+     "type": "sorge_for_ansvar",
+     "fra": "a16",
+     "til": null,
+     "objekt": "fremdrift i arbeidet med individuell plan",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "«sikre … fremdrift» er resultatansvar (sorge_for)."
+    }
+   ],
+   "begrunnelse": "Koordinatoren får tre oppgaver i én setning uten myndighet over tjenesteyterne: oppfølging (sørge for), samordning og fremdrift i individuell plan. Én rad per oppgave (L13). annet:lovtildelt_oppgave er hullet F fyller.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:helse-og-omsorgstjenesteloven:u84",
+   "kilde": "fasit",
+   "lov": "helse-og-omsorgstjenesteloven",
+   "id": "u84",
+   "sitat": "Barnekoordinatoren skal sørge for",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "samordningsoppgave",
+     "fra": "a17",
+     "til": null,
+     "objekt": "koordinering av det samlede tjenestetilbudet",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "Punkt 1 «koordinering» er samordningsoppgave (begrepsmanualen, typen samordning)."
+    },
+    {
+     "type": "veiledningsoppgave",
+     "fra": "a17",
+     "til": null,
+     "objekt": "at familien og barnet får nødvendig informasjon og helhetlig veiledning om helse- og omsorgstjenestetilbudet",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "Punkt 3 er veiledning av publikum om tjenestetilbudet (typen veiledning); familien får ikke en egen kravsrett av F-raden."
+    },
+    {
+     "type": "veiledningsoppgave",
+     "fra": "a17",
+     "til": null,
+     "objekt": "at familien og barnet får nødvendig informasjon og helhetlig veiledning om andre velferdstjenester og relevante pasient- og brukerorganisasjoner, veiledning i kontakten med disse, og at det formidles kontakt eller henvisning videre",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "Punkt 4 er veiledning og formidling til publikum (typen veiledning)."
+    },
+    {
+     "type": "sorge_for_ansvar",
+     "fra": "a17",
+     "til": null,
+     "objekt": "fremdrift i arbeidet med individuell plan",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "Punkt 5 «sørge for … fremdrift» er resultatansvar."
+    }
+   ],
+   "begrunnelse": "Innledningen «Barnekoordinatoren skal sørge for» med bokstav a–e er fem oppgaver. a, c, d og e blir F-rader her; b er u85. Ingen av dem gir myndighet; Kongens forskriftshjemmel (u87) står for seg.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:helse-og-omsorgstjenesteloven:u85",
+   "kilde": "fasit",
+   "lov": "helse-og-omsorgstjenesteloven",
+   "id": "u85",
+   "sitat": "bidra aktivt til å ivareta kommunens ansvar",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "oversiktsoppgave",
+     "fra": "a17",
+     "til": "a1",
+     "objekt": "kommunens ansvar for nødvendig oppfølging og tilrettelegging for familien og barnet i form av tilbud om eller ytelse av helse- og omsorgstjenester og andre velferdstjenester",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "«å ha oversikt over» er typen oversikt."
+    },
+    {
+     "type": "bistandsoppgave",
+     "fra": "a17",
+     "til": "a1",
+     "objekt": "å ivareta kommunens ansvar for nødvendig oppfølging og tilrettelegging for familien og barnet",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd",
+      "kontekst_system"
+     ],
+     "begrunnelse": "«bidra aktivt til å ivareta kommunens ansvar» er et bidrag til kommunens eget arbeid uten en motpart som kan kreve det (begrepsmanualen, grensen F/P bistand)."
+    }
+   ],
+   "begrunnelse": "Barnekoordinatoren er en rolle i kommunen og ikke en motpart som skylder kommunen en ytelse, og kommunen kan ikke si «dette skylder du meg» til sin egen rolle i en plikt-kant (test 2). Punkt 2 er to oppgaver: oversikt og bidrag (F bistand). P bistandsplikt erstattes.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:helse-og-omsorgstjenesteloven:u86",
+   "kilde": "fasit",
+   "lov": "helse-og-omsorgstjenesteloven",
+   "id": "u86",
+   "sitat": "Kommunens plikt til å oppnevne barnekoordinator gjelder frem til barnet fyller 18 år.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Varigheten av oppnevningsplikten er ikke oppgaveordlyd.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:helse-og-omsorgstjenesteloven:u89",
+   "kilde": "fasit",
+   "lov": "helse-og-omsorgstjenesteloven",
+   "id": "u89",
+   "sitat": "Kommunen skal ha en koordinerende enhet for habiliterings- og rehabiliteringsvirksomhet.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "«Kommunen skal ha en koordinerende enhet» er begrepsmanualens moteksempel: T skal_finnes. Enhetens oppgaver i neste punktum er u90 og u93.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:helse-og-omsorgstjenesteloven:u90",
+   "kilde": "fasit",
+   "lov": "helse-og-omsorgstjenesteloven",
+   "id": "u90",
+   "sitat": "Denne enheten skal ha overordnet ansvar for arbeidet med individuell plan",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "sorge_for_ansvar",
+     "fra": "a18",
+     "til": null,
+     "objekt": "overordnet ansvar for arbeidet med individuell plan",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "Aksepter. «overordnet» skiller enhetens ansvar fra koordinatorens (hotl. § 7-3 mot § 7-2)."
+    }
+   ],
+   "begrunnelse": "Aksepter. «overordnet» skiller enhetens ansvar fra koordinatorens (hotl. § 7-3 mot § 7-2).",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "lav",
+    "gjelder": "raden"
+   },
+   "modellor_svar": "aksepter",
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:helse-og-omsorgstjenesteloven:u93",
+   "kilde": "fasit",
+   "lov": "helse-og-omsorgstjenesteloven",
+   "id": "u93",
+   "sitat": "og for oppnevning, opplæring og veiledning av koordinator og barnekoordinator",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "veiledningsoppgave",
+     "fra": "a18",
+     "til": "a16",
+     "objekt": "opplæring og veiledning av koordinator",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "Ordlyden «opplæring og veiledning av» er typen veiledning; ingen instruksjonsmyndighet følger."
+    },
+    {
+     "type": "veiledningsoppgave",
+     "fra": "a18",
+     "til": "a17",
+     "objekt": "opplæring og veiledning av barnekoordinator",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "Som raden over, for barnekoordinatoren."
+    }
+   ],
+   "begrunnelse": "Delvis. K oppnevning u91/u92 er ikke sluttet fra F: «ansvar for oppnevning … av koordinator» legger avgjørelsen av hvem som er koordinator til enheten — det er oppnevningskompetanse etter #352 (Johann: «gis myndighet til å bestemme hvem som skal inneha en rolle»), med egen fortolkning. Men da dobler F sorge_for «oppnevning av koordinator» K-raden; den F-raden er tatt ut. F veiledning (opplæring og veiledning) står.",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "middels",
+    "gjelder": "utenfor_raden"
+   },
+   "modellor_svar": "delvis",
+   "jurist_runde2": "presiserer"
+  },
+  {
+   "nokkel": "fasit:helse-og-omsorgstjenesteloven:u103",
+   "kilde": "fasit",
+   "lov": "helse-og-omsorgstjenesteloven",
+   "id": "u103",
+   "sitat": "Spesialisthelsetjenesten skal bistå ved utformingen av tiltakene.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Begrepsmanualens moteksempel: «Spesialisthelsetjenesten skal bistå ved utformingen av tiltakene» overfor kommunen, som kan kreve bistanden: P bistand.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:helse-og-omsorgstjenesteloven:u109",
+   "kilde": "fasit",
+   "lov": "helse-og-omsorgstjenesteloven",
+   "id": "u109",
+   "sitat": "Spesialisthelsetjenesten skal bistå ved gjennomføringen av tiltak etter § 9-5 tredje ledd bokstav b og c.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Som u103: P bistand ved gjennomføringen av tiltak.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:helse-og-omsorgstjenesteloven:u115",
+   "kilde": "fasit",
+   "lov": "helse-og-omsorgstjenesteloven",
+   "id": "u115",
+   "sitat": "Klageadgangen gjelder også hvis statsforvalteren har nektet å godkjenne kommunens vedtak",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Tilskrivning av vedtak til rettssubjektet er ikke oppgaveordlyd.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:helse-og-omsorgstjenesteloven:u118",
+   "kilde": "fasit",
+   "lov": "helse-og-omsorgstjenesteloven",
+   "id": "u118",
+   "sitat": "Klagesaken skal forberedes av statsforvalteren",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "«Klagesaken skal forberedes av statsforvalteren» er saksforberedelse etter fvl. § 33 (saksgang), som docs/33 §4.4 holder utenfor. Ikke F sekretariat: statsforvalteren er underinstans, ikke sekretariat for nemnda.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:helse-og-omsorgstjenesteloven:u121",
+   "kilde": "fasit",
+   "lov": "helse-og-omsorgstjenesteloven",
+   "id": "u121",
+   "sitat": "Regionalt helseforetak plikter å sørge for at spesialisthelsetjenesten har den kompetansen og bemanningen som er nødvendig",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "sorge_for_ansvar",
+     "fra": "a44",
+     "til": "a47",
+     "objekt": "at spesialisthelsetjenesten har den kompetansen og bemanningen som er nødvendig for å yte forsvarlig bistand til kommunene ved tiltak etter reglene i dette kapitlet",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "«plikter å sørge for at» = modalitet skal, typen sorge_for; spesialisthelsetjenesten er feltet ansvaret gjelder, ikke en motpart som kan kreve."
+    }
+   ],
+   "begrunnelse": "«Regionalt helseforetak plikter å sørge for at spesialisthelsetjenesten har den kompetansen og bemanningen som er nødvendig» er resultatansvar for en sektor, ikke en plikt overfor en motpart. annet:sorge_for_ansvar blir F sørge for.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:helse-og-omsorgstjenesteloven:u122",
+   "kilde": "fasit",
+   "lov": "helse-og-omsorgstjenesteloven",
+   "id": "u122",
+   "sitat": "for å yte forsvarlig bistand til kommunene",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Aksepter — egen sak (ikke F/behold/begge).",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "lav",
+    "gjelder": "utenfor_raden"
+   },
+   "modellor_svar": "aksepter",
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:helse-og-omsorgstjenesteloven:u180",
+   "kilde": "fasit",
+   "lov": "helse-og-omsorgstjenesteloven",
+   "id": "u180",
+   "sitat": "Helsedirektoratet skal utvikle, formidle og vedlikeholde nasjonale faglige retningslinjer og veiledere",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "veiledningsoppgave",
+     "fra": "a37",
+     "til": null,
+     "objekt": "nasjonale faglige retningslinjer og veiledere som understøtter de mål som er satt for helse- og omsorgstjenesten",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd",
+      "kontekst_system",
+      "formal"
+     ],
+     "begrunnelse": "Retningslinjer og veiledere er ikke bindende regelverk; de veileder tjenesteyterne i fag (fvl. § 11-begrepet, utvidet til faglig veiledning). Utvikle og vedlikeholde er en del av samme oppgave (L13: én rad per utsagn)."
+    }
+   ],
+   "begrunnelse": "«skal utvikle, formidle og vedlikeholde nasjonale faglige retningslinjer og veiledere» er en oppgave uten bindende virkning (retningslinjene er ikke forskrift). Begrepsmanualen lar juristrunden velge mellom forvaltning og veiledning; modelløren velger veiledning: produktet er faglig veiledning til tjenesteyterne, og forvaltning er i manualen forbeholdt regelverk, ordning, register eller fond. Departementets bestemmelse om områder er egen K.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:helse-og-omsorgstjenesteloven:u183",
+   "kilde": "fasit",
+   "lov": "helse-og-omsorgstjenesteloven",
+   "id": "u183",
+   "sitat": "Helsedirektoratet skal utvikle, formidle og vedlikeholde nasjonale kvalitetsindikatorer",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "oversiktsoppgave",
+     "fra": "a37",
+     "til": null,
+     "objekt": "nasjonale kvalitetsindikatorer som hjelpemiddel for ledelse og kvalitetsforbedring i den kommunale helse- og omsorgstjenesten",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd",
+      "formal"
+     ],
+     "begrunnelse": "Indikatorene skal måle kvalitet og gjøres offentlig tilgjengelige; det er å følge med på en tilstand (oversikt), ikke forvalte et regelverk."
+    }
+   ],
+   "begrunnelse": "Samme form som u180: en oppgave uten myndighet. Kvalitetsindikatorer er måleinstrumenter for å følge med på kvaliteten i tjenesten, og typen oversikt («følge med på en tilstand») passer best. Usikker: ingen type treffer «utvikle et instrument» godt.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:sameloven:u15",
+   "kilde": "fasit",
+   "lov": "sameloven",
+   "id": "u15",
+   "sitat": "Andre offentlige organer bør gi Sametinget anledning til å uttale seg før de treffer avgjørelse i saker på Sametingets arbeidsområde",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Aksepter — egen sak (ikke F/behold/begge).",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "middels",
+    "gjelder": "utenfor_raden"
+   },
+   "modellor_svar": "aksepter",
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:sameloven:u150",
+   "kilde": "fasit",
+   "lov": "sameloven",
+   "id": "u150",
+   "sitat": "Sametingets valgmanntall utarbeides av Sametinget",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "oversiktsoppgave",
+     "fra": "a1",
+     "til": null,
+     "objekt": "Sametingets valgmanntall",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": "føres kommunevis",
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "Valgmanntallet er et register; normativ presens «utarbeides av» = skal."
+    }
+   ],
+   "begrunnelse": "«Sametingets valgmanntall utarbeides av Sametinget» og «skal føres kommunevis» legger en registeroppgave til Sametinget (test 3); å utarbeide manntallet binder ingen. kompetanse/annet:registerforing blir F oversikt.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:sameloven:u152",
+   "kilde": "fasit",
+   "lov": "sameloven",
+   "id": "u152",
+   "sitat": "Denne registrering skal være tilgjengelig kun for den myndighet som har ansvaret for gjennomføring av valg til Sameting, eller etter samtykke fra Sametinget.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Informasjonstilgang er avgjort utenfor P og K (#356 kort 28, docs/33 §4.4). Ikke oppgaveordlyd.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:sameloven:u153",
+   "kilde": "fasit",
+   "lov": "sameloven",
+   "id": "u153",
+   "sitat": "Personale ved Sametingets administrasjon er likevel ikke valgbare.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Uforenlighet mellom ansettelse og valgbarhet; «administrasjon» ga søketreff, men det er ikke oppgaveordlyd.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:sameloven:u161",
+   "kilde": "fasit",
+   "lov": "sameloven",
+   "id": "u161",
+   "sitat": "Medlemmer som blir ansatt i Sametingets administrasjon, trer ut av Sametinget for resten av valgperioden.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Uforenlighet medlem/ansatt; ikke oppgaveordlyd.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:sameloven:u182",
+   "kilde": "fasit",
+   "lov": "sameloven",
+   "id": "u182",
+   "sitat": "kommuner inndelt i kategoriene språkutviklingskommuner, språkvitaliseringskommuner og språkstimuleringskommuner",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Inndeling av kommuner i kategorier (partisjon); ikke oppgaveordlyd.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:sameloven:u186",
+   "kilde": "fasit",
+   "lov": "sameloven",
+   "id": "u186",
+   "sitat": "det departementet som har ansvaret for loven eller forskriften",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "sorge_for_ansvar",
+     "fra": "a15",
+     "til": null,
+     "objekt": "at lover og forskrifter av særlig interesse for hele eller deler av den samiske befolkning oversettes til samiske språk",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "Aksepter. «det departementet som har ansvaret for loven» er en identifiserende beskrivelse, ikke en tildeling; F forvaltning ut. Kommunenes og fylkeskommunenes oversettelsesansvar (annet punktum) lagt til."
+    },
+    {
+     "type": "sorge_for_ansvar",
+     "fra": "a7",
+     "til": null,
+     "objekt": "å oversette lokale forskrifter av særlig interesse for hele eller deler av den samiske befolkning til samiske språk",
+     "modalitet": null,
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "Aksepter. «det departementet som har ansvaret for loven» er en identifiserende beskrivelse, ikke en tildeling; F forvaltning ut. Kommunenes og fylkeskommunenes oversettelsesansvar (annet punktum) lagt til."
+    },
+    {
+     "type": "sorge_for_ansvar",
+     "fra": "a6",
+     "til": null,
+     "objekt": "å oversette lokale forskrifter av særlig interesse for hele eller deler av den samiske befolkning til samiske språk",
+     "modalitet": null,
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "Aksepter. «det departementet som har ansvaret for loven» er en identifiserende beskrivelse, ikke en tildeling; F forvaltning ut. Kommunenes og fylkeskommunenes oversettelsesansvar (annet punktum) lagt til."
+    }
+   ],
+   "begrunnelse": "Aksepter. «det departementet som har ansvaret for loven» er en identifiserende beskrivelse, ikke en tildeling; F forvaltning ut. Kommunenes og fylkeskommunenes oversettelsesansvar (annet punktum) lagt til.",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "middels",
+    "gjelder": "raden"
+   },
+   "modellor_svar": "aksepter",
+   "jurist_runde2": "presiserer"
+  },
+  {
+   "nokkel": "fasit:sameloven:u187",
+   "kilde": "fasit",
+   "lov": "sameloven",
+   "id": "u187",
+   "sitat": "befolkningen i forvaltningsområdet for samiske språk",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Aksepter — egen sak (krever ny aktør «det organet som offentliggjør kunngjøringen»).",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "lav",
+    "gjelder": "utenfor_raden"
+   },
+   "modellor_svar": "aksepter",
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:sameloven:u188",
+   "kilde": "fasit",
+   "lov": "sameloven",
+   "id": "u188",
+   "sitat": "et statlig organ som har en språkutviklingskommune eller en språkvitaliseringskommune i sin tjenestekrets",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Tjenestekrets som område; ikke oppgaveordlyd.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:sameloven:u189",
+   "kilde": "fasit",
+   "lov": "sameloven",
+   "id": "u189",
+   "sitat": "et statlig organ som har en språkutviklingskommune eller en språkvitaliseringskommune i sin tjenestekrets",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Tjenestekrets som område; ikke oppgaveordlyd.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:sameloven:u191",
+   "kilde": "fasit",
+   "lov": "sameloven",
+   "id": "u191",
+   "sitat": "lokalt statlig organ, som har tjenestekrets i en språkutviklingskommune",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Tjenestekrets som område; ikke oppgaveordlyd.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:sameloven:u193",
+   "kilde": "fasit",
+   "lov": "sameloven",
+   "id": "u193",
+   "sitat": "en fylkeskommunal tannklinikk eller til et lokalt statlig organ, som har tjenestekrets i en språkutviklingskommune",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Tjenestekrets som område; ikke oppgaveordlyd.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:sameloven:u208",
+   "kilde": "fasit",
+   "lov": "sameloven",
+   "id": "u208",
+   "sitat": "offentlige helse- og omsorgsinstitusjoner og barnevernsinstitusjoner i språkutviklingskommuner og i språkvitaliseringskommuner",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Lokalisering av institusjoner; ikke oppgaveordlyd.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:sameloven:u209",
+   "kilde": "fasit",
+   "lov": "sameloven",
+   "id": "u209",
+   "sitat": "offentlige helse- og omsorgsinstitusjoner og barnevernsinstitusjoner i språkutviklingskommuner og i språkvitaliseringskommuner",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Lokalisering av institusjoner; ikke oppgaveordlyd.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:sameloven:u211",
+   "kilde": "fasit",
+   "lov": "sameloven",
+   "id": "u211",
+   "sitat": "Den norske kirkes menigheter i språkutviklingskommuner og språkvitaliseringskommuner",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Lokalisering av menigheter; ikke oppgaveordlyd.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:sameloven:u212",
+   "kilde": "fasit",
+   "lov": "sameloven",
+   "id": "u212",
+   "sitat": "Den norske kirkes menigheter i språkutviklingskommuner og språkvitaliseringskommuner",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Lokalisering av menigheter; ikke oppgaveordlyd.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:sameloven:u223",
+   "kilde": "fasit",
+   "lov": "sameloven",
+   "id": "u223",
+   "sitat": "landsomfattende offentlige organer med oppgaver av særlig betydning for hele eller deler av den samiske befolkningen, har klagerett i slike saker",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Klagerett er partsposisjon (regellaget). «organer med oppgaver av særlig betydning» beskriver hvem som har klagerett, og legger ingen oppgave til noen.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:sameloven:u224",
+   "kilde": "fasit",
+   "lov": "sameloven",
+   "id": "u224",
+   "sitat": "Sametinget skal arbeide for vern og videre utvikling av samiske språk i Norge.",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "sorge_for_ansvar",
+     "fra": "a1",
+     "til": "a45",
+     "objekt": "vern og videre utvikling av samiske språk",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd",
+      "formal"
+     ],
+     "begrunnelse": "«skal arbeide for» er en innsatsoppgave, ikke et rent resultatansvar; sorge_for er valgt fordi det lukkede settet mangler en type for å fremme et formål."
+    }
+   ],
+   "begrunnelse": "Aksepter. sorge_for står inntil videre; en type for innsats («arbeide for», «fremme», «legge til rette for») er et åpent spørsmål til Johann (typevekst, grunnlagsdokumentet §4.7).",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "lav",
+    "gjelder": "raden"
+   },
+   "modellor_svar": "aksepter",
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:sameloven:u227",
+   "kilde": "fasit",
+   "lov": "sameloven",
+   "id": "u227",
+   "sitat": "hvilke kommuner som skal regnes som språkutviklingskommuner, språkvitaliseringskommuner og språkstimuleringskommuner",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "«Kongen gir forskrift om …» er K normgivning.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:sameloven:u273",
+   "kilde": "fasit",
+   "lov": "sameloven",
+   "id": "u273",
+   "sitat": "Reglene i sameloven § 3-2, § 3-3 første ledd, § 3-7 og § 3-11 gjelder også for Sametinget, Reindriftsforvaltningen, Samisk høgskole og statlige samiske skoler.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Utvidet virkeområde for regler (medlemskap); ikke oppgaveordlyd.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:sameloven:u274",
+   "kilde": "fasit",
+   "lov": "sameloven",
+   "id": "u274",
+   "sitat": "Reglene i sameloven § 3-2, § 3-3 første ledd, § 3-7 og § 3-11 gjelder også for Sametinget, Reindriftsforvaltningen, Samisk høgskole og statlige samiske skoler.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Utvidet virkeområde for regler; ikke oppgaveordlyd.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:sameloven:u275",
+   "kilde": "fasit",
+   "lov": "sameloven",
+   "id": "u275",
+   "sitat": "Reglene i sameloven § 3-2, § 3-3 første ledd, § 3-7 og § 3-11 gjelder også for Sametinget, Reindriftsforvaltningen, Samisk høgskole og statlige samiske skoler.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Utvidet virkeområde for regler; ikke oppgaveordlyd.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:sameloven:u276",
+   "kilde": "fasit",
+   "lov": "sameloven",
+   "id": "u276",
+   "sitat": "Reglene i sameloven § 3-2, § 3-3 første ledd, § 3-7 og § 3-11 gjelder også for Sametinget, Reindriftsforvaltningen, Samisk høgskole og statlige samiske skoler.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Utvidet virkeområde for regler; ikke oppgaveordlyd.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:sameloven:u277",
+   "kilde": "fasit",
+   "lov": "sameloven",
+   "id": "u277",
+   "sitat": "Reglene i sameloven § 3-2, § 3-3 andre ledd, § 3-7 og § 3-11 gjelder også for Direktoratet for naturforvaltning og for Universitetet i Tromsø.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Utvidet virkeområde for regler; ikke oppgaveordlyd.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:sameloven:u278",
+   "kilde": "fasit",
+   "lov": "sameloven",
+   "id": "u278",
+   "sitat": "Reglene i sameloven § 3-2, § 3-3 andre ledd, § 3-7 og § 3-11 gjelder også for Direktoratet for naturforvaltning og for Universitetet i Tromsø.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Utvidet virkeområde for regler; ikke oppgaveordlyd.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:sameloven:u285",
+   "kilde": "fasit",
+   "lov": "sameloven",
+   "id": "u285",
+   "sitat": "Forvaltningsansvaret for lov 12. juni 1987 nr. 56 om Sametinget og andre samiske rettsforhold (sameloven) § 1-4 og § 2-3 til § 2-11",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "forvaltningsoppgave",
+     "fra": "a20",
+     "til": null,
+     "objekt": "sameloven § 1-4 og § 2-3 til § 2-11",
+     "modalitet": null,
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "tekstfunn",
+     "tolkningsargumenter": [],
+     "begrunnelse": null
+    }
+   ],
+   "begrunnelse": "Teksten bruker funksjonsordet «Forvaltningsansvaret for … sameloven § 1-4 og § 2-3 til § 2-11»: F forvaltning med regelverket som objekt, tekstfunn (begrepsmanualen, typen forvaltning). Samme form som energiloven u253.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:spesialisthelsetjenesteloven:u10",
+   "kilde": "fasit",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u10",
+   "sitat": "Regionale helseforetak skal planlegge, organisere, styre og samordne virksomhetene i helseforetakene som de eier",
+   "utfall": "begge",
+   "f_rader": [
+    {
+     "type": "samordningsoppgave",
+     "fra": "a2",
+     "til": "a4",
+     "objekt": "virksomhetene i helseforetakene som de eier",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd",
+      "kontekst_system"
+     ],
+     "begrunnelse": "«samordne» står ved siden av «styre»; myndigheten ligger i eierskapet og foretaksmøtet, ikke i samordningsordet."
+    }
+   ],
+   "begrunnelse": "«planlegge, organisere, styre og samordne virksomhetene i helseforetakene som de eier» er eierstyring (styre, organisere) og en samordningsoppgave. Styringen står som den er (privatrettslig grunnlag, via foretaksmøtet); «samordne» gir ikke i seg selv noen myndighet og legges til som F samordning (begrepsmanualen, regelen som binder).",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:spesialisthelsetjenesteloven:u23",
+   "kilde": "fasit",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u23",
+   "sitat": "lov 16. juni 2017 nr. 67 om statens ansatte mv. gjelder ikke for foretak",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Unntak fra statsansatteloven er rettslig status; ikke oppgaveordlyd.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:spesialisthelsetjenesteloven:u98",
+   "kilde": "fasit",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u98",
+   "sitat": "Forvaltningen av foretaket hører under styret",
+   "utfall": "begge",
+   "f_rader": [
+    {
+     "type": "sorge_for_ansvar",
+     "fra": "a13",
+     "til": null,
+     "objekt": "en tilfredsstillende organisering av foretakets samlede virksomhet",
+     "modalitet": null,
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd",
+      "kontekst_system"
+     ],
+     "begrunnelse": "«har ansvar for» er sorge_for-ordlyd; organiseringsmyndigheten følger av generalkompetansen, ikke av F-raden."
+    }
+   ],
+   "begrunnelse": "«Forvaltningen av foretaket hører under styret» er selskapsrettslig generalkompetanse (styret binder foretaket), altså K og ikke F forvaltning, selv om ordlyden ligner manualens «forvaltningen av … hører under». Relativsetningen «som har ansvar for en tilfredsstillende organisering av foretakets samlede virksomhet» er et resultatansvar og legges til som F sørge for.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:spesialisthelsetjenesteloven:u170",
+   "kilde": "fasit",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u170",
+   "sitat": "Staten har det overordnede ansvar for at befolkningen gis nødvendig spesialisthelsetjeneste",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "sorge_for_ansvar",
+     "fra": "a1",
+     "til": null,
+     "objekt": "det overordnede ansvar for at befolkningen gis nødvendig spesialisthelsetjeneste",
+     "modalitet": null,
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "Aksepter. Statens overordnede ansvar skilles fra RHF-enes sørge-for-ansvar (shl. § 2-1 mot § 2-1 a)."
+    }
+   ],
+   "begrunnelse": "Aksepter. Statens overordnede ansvar skilles fra RHF-enes sørge-for-ansvar (shl. § 2-1 mot § 2-1 a).",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "lav",
+    "gjelder": "raden"
+   },
+   "modellor_svar": "aksepter",
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:spesialisthelsetjenesteloven:u171",
+   "kilde": "fasit",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u171",
+   "sitat": "Det regionale helseforetaket skal sørge for at personer med fast bopel eller oppholdssted innen helseregionen tilbys spesialisthelsetjeneste",
+   "utfall": "begge",
+   "f_rader": [
+    {
+     "type": "sorge_for_ansvar",
+     "fra": "a2",
+     "til": "a6",
+     "objekt": "at personer med fast bopel eller oppholdssted innen helseregionen tilbys spesialisthelsetjeneste i og utenfor institusjon",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "«skal sørge for at» er resultatansvar for en befolkning i et område (begrepsmanualen, grensen F sørge for mot A)."
+    }
+   ],
+   "begrunnelse": "Som hotl. u9: A har_ansvarsomrade (helseregionen) og F sørge for (hva RHF-et har resultatansvar for). Begge står; A-raden trenger ikke lenger bære «sørge-for-ansvar» i objekt.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:spesialisthelsetjenesteloven:u180",
+   "kilde": "fasit",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u180",
+   "sitat": "Beredskapsplanen skal samordnes med kommunenes, fylkeskommunenes og de andre regionale helseforetakenes beredskapsplaner",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "«Beredskapsplanen skal samordnes med kommunenes … beredskapsplaner» er samordning med bestemte motparter: P samarbeid (som energiloven u250), ikke en samordningsoppgave over et felt.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:spesialisthelsetjenesteloven:u181",
+   "kilde": "fasit",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u181",
+   "sitat": "Beredskapsplanen skal samordnes med kommunenes, fylkeskommunenes og de andre regionale helseforetakenes beredskapsplaner",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Som u180: P samarbeid med fylkeskommunene.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:spesialisthelsetjenesteloven:u182",
+   "kilde": "fasit",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u182",
+   "sitat": "Beredskapsplanen skal samordnes med kommunenes, fylkeskommunenes og de andre regionale helseforetakenes beredskapsplaner",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Som u180: P samarbeid mellom RHF-ene (fra = til = klassen, FORMAT.md #353).",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:spesialisthelsetjenesteloven:u183",
+   "kilde": "fasit",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u183",
+   "sitat": "skal helsetjenesten til det regionale helseforetaket yte bistand til andre regionale helseforetak ved ulykker og andre akutte situasjoner",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "«yte bistand til andre regionale helseforetak ved ulykker» med anmodning fra den som trenger det: P bistand (test 2).",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:spesialisthelsetjenesteloven:u200",
+   "kilde": "fasit",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u200",
+   "sitat": "skal den kliniske etikkomiteen bistå med råd om hvordan konkrete etiske utfordringer ved behandlingen av den enkelte pasient kan løses",
+   "utfall": "begge",
+   "f_rader": [
+    {
+     "type": "veiledningsoppgave",
+     "fra": "a43",
+     "til": "a55",
+     "objekt": "å øke helsepersonellets kompetanse i å identifisere, analysere og avklare etiske verdispørsmål i forbindelse med pasientbehandling og ved prioritering av ressurser",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd",
+      "formal"
+     ],
+     "begrunnelse": "Å bygge kompetanse hos helsepersonell er opplæring/veiledning i fag uten motpart som kan kreve det (typen veiledning)."
+    }
+   ],
+   "begrunnelse": "Aksepter — egen sak (ikke F/behold/begge).",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "middels",
+    "gjelder": "utenfor_raden"
+   },
+   "modellor_svar": "aksepter",
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:spesialisthelsetjenesteloven:u204",
+   "kilde": "fasit",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u204",
+   "sitat": "skal i slike tilfeller medvirke i kommunens arbeid med individuell plan",
+   "utfall": "begge",
+   "f_rader": [
+    {
+     "type": "sorge_for_ansvar",
+     "fra": "a31",
+     "til": null,
+     "objekt": "at arbeidet med planen settes i gang og koordineres",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": "når pasienten har behov for tjenester både etter loven her og etter helse- og omsorgstjenesteloven",
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "«skal sørge for at» er resultatansvar; samordningen gir kommunen ingen myndighet over helseforetaket."
+    }
+   ],
+   "begrunnelse": "«skal … medvirke i kommunens arbeid med individuell plan»: helseforetaket er et annet rettssubjekt, og kommunen, som koordinerer planen, kan kreve medvirkningen (test 2). Derfor P bistand, i motsetning til hotl. u21 der tjenesten er en del av kommunen selv. Kommunens oppgave i første punktum («skal sørge for at arbeidet med planen settes i gang og koordineres») har ingen rad og legges til som F.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:spesialisthelsetjenesteloven:u210",
+   "kilde": "fasit",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u210",
+   "sitat": "Helseforetaket skal ha en koordinerende enhet",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Delvis. (1) Aksepter: u211 (A med oppgaven i objekt) erstattes av F oversikt — kortet er flyttet til u211, der sitatet står. (2) Som hotl. u93: K oppnevning u213 står, F «oppnevning» tatt ut. (3) «overordnet» lagt inn. F-radene ligger nå på u211 (F) og u213 (begge); u210 (har_organ) beholdes urørt. (4) Utenfor #368: egen sak.",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "middels",
+    "gjelder": "utenfor_raden"
+   },
+   "modellor_svar": "delvis",
+   "jurist_runde2": "presiserer"
+  },
+  {
+   "nokkel": "fasit:spesialisthelsetjenesteloven:u232",
+   "kilde": "fasit",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u232",
+   "sitat": "De regionale helseforetakene skal sørge for at behovet for undervisning og opplæring av helsefaglige elever, lærlinger, studenter, turnuskandidater og spesialister dekkes innen helseregionen",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "sorge_for_ansvar",
+     "fra": "a2",
+     "til": "a6",
+     "objekt": "at behovet for undervisning og opplæring av helsefaglige elever, lærlinger, studenter, turnuskandidater og spesialister dekkes innen helseregionen",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "«skal sørge for at» er resultatansvar; studentene får ingen kravsrett av F-raden."
+    }
+   ],
+   "begrunnelse": "«skal sørge for at behovet for undervisning og opplæring … dekkes innen helseregionen» er resultatansvar. A-relasjonen RHF → helseregionen står alt i u171; denne raden bærer bare oppgaven i objekt og erstattes av F sørge for.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:spesialisthelsetjenesteloven:u260",
+   "kilde": "fasit",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u260",
+   "sitat": "De regionale helseforetakene skal sørge for et felles system for å beslutte hvilke metoder som kan tilbys i spesialisthelsetjenesten",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "sorge_for_ansvar",
+     "fra": "a2",
+     "til": "a58",
+     "objekt": "et felles system for å beslutte hvilke metoder som kan tilbys i spesialisthelsetjenesten",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": "felles for de regionale helseforetakene (ett system for alle)",
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd",
+      "kontekst_system"
+     ],
+     "begrunnelse": "Aksepter. til = systemet (a58) og fellesskapet i avgrensningen."
+    }
+   ],
+   "begrunnelse": "Aksepter. til = systemet (a58) og fellesskapet i avgrensningen.",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "lav",
+    "gjelder": "raden"
+   },
+   "modellor_svar": "aksepter",
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:spesialisthelsetjenesteloven:u287",
+   "kilde": "fasit",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u287",
+   "sitat": "skal gi den kommunale helse- og omsorgstjenesten råd, veiledning og opplysninger om helsemessige forhold",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Aksepter — egen sak (ikke F/behold/begge).",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "lav",
+    "gjelder": "utenfor_raden"
+   },
+   "modellor_svar": "aksepter",
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:spesialisthelsetjenesteloven:u288",
+   "kilde": "fasit",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u288",
+   "sitat": "Politiet har plikt til å yte slik bistand",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "«Politiet har plikt til å yte slik bistand» overfor den som anmoder: P bistand.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:spesialisthelsetjenesteloven:u291",
+   "kilde": "fasit",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u291",
+   "sitat": "Hvis statsforvalteren mener at det bør ilegges tvangsmulkt etter § 9, skal saken oversendes Statens helsetilsyn",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Oversending av sak er saksgang (docs/33 §4.4).",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:spesialisthelsetjenesteloven:u292",
+   "kilde": "fasit",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u292",
+   "sitat": "Helsedirektoratet skal utvikle, formidle og vedlikeholde nasjonale faglige retningslinjer og veiledere",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "veiledningsoppgave",
+     "fra": "a35",
+     "til": null,
+     "objekt": "nasjonale faglige retningslinjer og veiledere som understøtter de mål som er satt for helse- og omsorgstjenesten",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd",
+      "kontekst_system",
+      "formal"
+     ],
+     "begrunnelse": "Ikke bindende normer; faglig veiledning av tjenesteyterne. Departementets bestemmelse om områder er egen K."
+    }
+   ],
+   "begrunnelse": "Samme tekst som hotl. u180: F veiledning (modellørens valg mellom forvaltning og veiledning, se hotl. u180). «Myk normering» i kommentaren bekrefter at det ikke er K.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:spesialisthelsetjenesteloven:u294",
+   "kilde": "fasit",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u294",
+   "sitat": "Helsedirektoratet skal utvikle, formidle og vedlikeholde nasjonale kvalitetsindikatorer",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "oversiktsoppgave",
+     "fra": "a35",
+     "til": null,
+     "objekt": "nasjonale kvalitetsindikatorer som hjelpemiddel for ledelse og kvalitetsforbedring i spesialisthelsetjenesten",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd",
+      "formal"
+     ],
+     "begrunnelse": "Å utvikle og vedlikeholde indikatorer er å følge med på en tilstand; ingen myndighet."
+    }
+   ],
+   "begrunnelse": "Samme tekst som hotl. u183: F oversikt (kvalitetsindikatorer for å følge med på kvaliteten).",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:spesialisthelsetjenesteloven:u303",
+   "kilde": "fasit",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u303",
+   "sitat": "Helsedirektoratet skal forvalte kapittel 5",
+   "utfall": "begge",
+   "f_rader": [
+    {
+     "type": "sorge_for_ansvar",
+     "fra": "a35",
+     "til": null,
+     "objekt": "rett ytelse til den enkelte",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": "etter folketrygdloven kapittel 5",
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "Aksepter. R forvaltes_av står alene for forvaltningen av kapittel 5 (begrepsmanualen §F, grensen mot forvaltes_av, presisert i r2); de to andre oppgavene står."
+    },
+    {
+     "type": "kontrolloppgave",
+     "fra": "a35",
+     "til": null,
+     "objekt": "å følge opp og kontrollere tjenester, ytelser og utbetalinger",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": "etter folketrygdloven kapittel 5",
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd",
+      "kontekst_system"
+     ],
+     "begrunnelse": "Aksepter. R forvaltes_av står alene for forvaltningen av kapittel 5 (begrepsmanualen §F, grensen mot forvaltes_av, presisert i r2); de to andre oppgavene står."
+    }
+   ],
+   "begrunnelse": "Aksepter. R forvaltes_av står alene for forvaltningen av kapittel 5 (begrepsmanualen §F, grensen mot forvaltes_av, presisert i r2); de to andre oppgavene står.",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "lav",
+    "gjelder": "raden"
+   },
+   "modellor_svar": "aksepter",
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:domstolloven:u28",
+   "kilde": "ki",
+   "lov": "domstolloven",
+   "id": "u28",
+   "sitat": "Namsfogden er sekretariat for forliksrådene i sitt distrikt.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Som fasit domstolloven u70: bare «A er sekretariat for B», R sekretariat_for står alene (forslaget til regel).",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:domstolloven:u48",
+   "kilde": "ki",
+   "lov": "domstolloven",
+   "id": "u48",
+   "sitat": "For lederstillinger utenom stillingen som domstoladministrasjonens direktør, avgir direktøren forslag.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Aksepter — egen sak (ikke F/behold/begge).",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "lav",
+    "gjelder": "utenfor_raden"
+   },
+   "modellor_svar": "aksepter",
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:domstolloven:u49",
+   "kilde": "ki",
+   "lov": "domstolloven",
+   "id": "u49",
+   "sitat": "For andre stillinger avgis innstillingen fra et innstillingsråd etter tjenestemannsloven.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Aksepter — egen sak (ikke F/behold/begge).",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "lav",
+    "gjelder": "utenfor_raden"
+   },
+   "modellor_svar": "aksepter",
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:domstolloven:u70",
+   "kilde": "ki",
+   "lov": "domstolloven",
+   "id": "u70",
+   "sitat": "Kongen innhenter innstilling fra Innstillingsrådet for dommere før en dommer blir utnevnt",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Aksepter — egen sak (ikke F/behold/begge).",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "middels",
+    "gjelder": "utenfor_raden"
+   },
+   "modellor_svar": "aksepter",
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:domstolloven:u73",
+   "kilde": "ki",
+   "lov": "domstolloven",
+   "id": "u73",
+   "sitat": "Til dommerembeter i tingretten, i lagmannsretten og i jordskifteretten gir domstollederen skriftlig uttalelse.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Som fasit u130: uttalelse i den enkelte sak er saksgang.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:domstolloven:u75",
+   "kilde": "ki",
+   "lov": "domstolloven",
+   "id": "u75",
+   "sitat": "Til ledig embete som høyesterettsdommer gir høyesterettsjustitiarius muntlig eller skriftlig uttalelse direkte til departementet",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Som fasit u131: uttalelse i den enkelte sak er saksgang.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:domstolloven:u78",
+   "kilde": "ki",
+   "lov": "domstolloven",
+   "id": "u78",
+   "sitat": "Dersom Kongen vurderer å utnevne en søker som ikke er innstilt, skal det bes om en uttalelse fra Innstillingsrådet om denne søkeren.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Aksepter — egen sak (ikke F/behold/begge).",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "middels",
+    "gjelder": "utenfor_raden"
+   },
+   "modellor_svar": "aksepter",
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:domstolloven:u86",
+   "kilde": "ki",
+   "lov": "domstolloven",
+   "id": "u86",
+   "sitat": "Til konstitusjon som høyesterettsdommer gir høyesterettsjustitiarius muntlig eller skriftlig uttalelse direkte til departementet.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Som fasit u131: uttalelse i den enkelte konstitusjonssak er saksgang.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:domstolloven:u133",
+   "kilde": "ki",
+   "lov": "domstolloven",
+   "id": "u133",
+   "sitat": "Etter anmodning fra en domstol, kommune eller fylkeskommune skal politiet gi opplysning",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Plikt til å gi opplysninger etter anmodning: P.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:domstolloven:u179",
+   "kilde": "ki",
+   "lov": "domstolloven",
+   "id": "u179",
+   "sitat": "Når Kongen i statsråd foretar oppnevninger etter første ledd jf. annet ledd nr. 1, skal det likevel innhentes uttalelse fra domstoladministrasjonen",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Aksepter — egen sak (ikke F/behold/begge).",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "middels",
+    "gjelder": "utenfor_raden"
+   },
+   "modellor_svar": "aksepter",
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:domstolloven:u180",
+   "kilde": "ki",
+   "lov": "domstolloven",
+   "id": "u180",
+   "sitat": "hvis det ikke gjelder oppnevning til granskingskommisjon eller medlem til styret i domstoladministrasjonen, Tilsynsutvalget eller Innstillingsrådet",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Unntak fra uttalelsesplikten (avgrensning på u179); ikke oppgaveordlyd.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:domstolloven:u181",
+   "kilde": "ki",
+   "lov": "domstolloven",
+   "id": "u181",
+   "sitat": "hvis det ikke gjelder oppnevning til granskingskommisjon eller medlem til styret i domstoladministrasjonen, Tilsynsutvalget eller Innstillingsrådet",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Unntak fra uttalelsesplikten; ikke oppgaveordlyd.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:domstolloven:u182",
+   "kilde": "ki",
+   "lov": "domstolloven",
+   "id": "u182",
+   "sitat": "hvis det ikke gjelder oppnevning til granskingskommisjon eller medlem til styret i domstoladministrasjonen, Tilsynsutvalget eller Innstillingsrådet",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Unntak fra uttalelsesplikten; ikke oppgaveordlyd.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:domstolloven:u183",
+   "kilde": "ki",
+   "lov": "domstolloven",
+   "id": "u183",
+   "sitat": "hvis det ikke gjelder oppnevning til granskingskommisjon eller medlem til styret i domstoladministrasjonen, Tilsynsutvalget eller Innstillingsrådet",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Unntak fra uttalelsesplikten; ikke oppgaveordlyd.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:domstolloven:u189",
+   "kilde": "ki",
+   "lov": "domstolloven",
+   "id": "u189",
+   "sitat": "Registeret over sidegjøremål føres av domstoladministrasjonen.",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "oversiktsoppgave",
+     "fra": "a10",
+     "til": null,
+     "objekt": "registeret over sidegjøremål",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "Registerføring er typen oversikt; normativ presens = skal."
+    }
+   ],
+   "begrunnelse": "Som fasit u198: «Registeret over sidegjøremål føres av domstoladministrasjonen» er F oversikt.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:domstolloven:u249",
+   "kilde": "ki",
+   "lov": "domstolloven",
+   "id": "u249",
+   "sitat": "Stevnevidner pligter at utføre forkyndelser, naar en offentlig myndighet kræver det.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "«Stevnevidner pligter at utføre forkyndelser, naar en offentlig myndighet kræver det»: den som krever, er motpart (test 2), P.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:domstolloven:u251",
+   "kilde": "ki",
+   "lov": "domstolloven",
+   "id": "u251",
+   "sitat": "en, som paa hans vegne fører tilsyn med huset",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Aksepter — egen sak (ikke F/behold/begge).",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "lav",
+    "gjelder": "utenfor_raden"
+   },
+   "modellor_svar": "aksepter",
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:domstolloven:u252",
+   "kilde": "ki",
+   "lov": "domstolloven",
+   "id": "u252",
+   "sitat": "en offentlig tjenestemann innlevere til tilbyder av posttjenester",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Aksepter — egen sak (ikke F/behold/begge).",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "lav",
+    "gjelder": "utenfor_raden"
+   },
+   "modellor_svar": "aksepter",
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:domstolloven:u255",
+   "kilde": "ki",
+   "lov": "domstolloven",
+   "id": "u255",
+   "sitat": "gjennem deres foresatte",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Aksepter — egen sak (ikke F/behold/begge).",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "lav",
+    "gjelder": "utenfor_raden"
+   },
+   "modellor_svar": "aksepter",
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:domstolloven:u256",
+   "kilde": "ki",
+   "lov": "domstolloven",
+   "id": "u256",
+   "sitat": "gjennem deres foresatte",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Aksepter — egen sak (ikke F/behold/begge).",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "lav",
+    "gjelder": "utenfor_raden"
+   },
+   "modellor_svar": "aksepter",
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:domstolloven:u261",
+   "kilde": "ki",
+   "lov": "domstolloven",
+   "id": "u261",
+   "sitat": "Naar en offentlig myndighet forlanger det, skal Posten Norge AS sørge for, at brev, som gjælder retssaker, blir bragt til adressaten",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "«Naar en offentlig myndighet forlanger det, skal Posten … sørge for»: myndigheten kan kreve, så det er P hos Posten (som fasit u224), ikke F og ikke instruksjonsmyndighet.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:energiloven:u12",
+   "kilde": "ki",
+   "lov": "energiloven",
+   "id": "u12",
+   "sitat": "Offentlige organer som berøres av tiltaket, og andre som tiltaket direkte gjelder, skal få søknaden tilsendt i forbindelse med høringen.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Aksepter — egen sak (ikke F/behold/begge).",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "lav",
+    "gjelder": "utenfor_raden"
+   },
+   "modellor_svar": "aksepter",
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:energiloven:u36",
+   "kilde": "ki",
+   "lov": "energiloven",
+   "id": "u36",
+   "sitat": "Før det fattes vedtak, skal departementet innhente rådgivende uttalelser fra andre relevante departementer",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Aksepter — egen sak (ikke F/behold/begge).",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "middels",
+    "gjelder": "utenfor_raden"
+   },
+   "modellor_svar": "aksepter",
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:energiloven:u54",
+   "kilde": "ki",
+   "lov": "energiloven",
+   "id": "u54",
+   "sitat": "Den avregningsansvarlige skal sørge for at all innmating og alt uttak av elektrisk energi blir korrekt avregnet",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "sorge_for_ansvar",
+     "fra": "a11",
+     "til": null,
+     "objekt": "at all innmating og alt uttak av elektrisk energi blir korrekt avregnet slik at det oppnås økonomisk balanse i kraftmarkedet",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "«skal sørge for at» er resultatansvar; myndigheten i første punktum står for seg."
+    }
+   ],
+   "begrunnelse": "A har_ansvarsomrade uten område, med oppgaven i objekt, er nettopp hullet F fyller: «skal sørge for at … blir korrekt avregnet» er F sørge for (som fasit u69).",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:energiloven:u90",
+   "kilde": "ki",
+   "lov": "energiloven",
+   "id": "u90",
+   "sitat": "Reguleringsmyndigheten skal igangsette prosedyre for sertifisering ved mottatt melding, på eget initiativ eller ved begrunnet forespørsel fra EFTAs overvåkingsorgan.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Plikten til å igangsette sertifiseringsprosedyre er saksgang med frist (regellaget, begrepsmanualen F mot regellaget).",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:energiloven:u144",
+   "kilde": "ki",
+   "lov": "energiloven",
+   "id": "u144",
+   "sitat": "Beredskapsmyndigheten skal samordne beredskapsarbeid og utpeke den samlede ledelse i KBO.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Raden er K oppnevning for «utpeke den samlede ledelse i KBO», som er riktig. Samordningsdelen av samme sitat er u145.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:energiloven:u145",
+   "kilde": "ki",
+   "lov": "energiloven",
+   "id": "u145",
+   "sitat": "Beredskapsmyndigheten skal samordne beredskapsarbeid og utpeke den samlede ledelse i KBO.",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "samordningsoppgave",
+     "fra": "a29",
+     "til": null,
+     "objekt": "beredskapsarbeid",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd",
+      "kontekst_system"
+     ],
+     "begrunnelse": "«skal samordne» uten bindende virkning er oppgave (grunnlagsdokumentet §7.8)."
+    }
+   ],
+   "begrunnelse": "A har_ansvarsomrade uten område med objekt «samordning av beredskapsarbeid» er begrepsmanualens hovedeksempel på F samordning (som fasit energiloven u160).",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:energiloven:u210",
+   "kilde": "ki",
+   "lov": "energiloven",
+   "id": "u210",
+   "sitat": "Gjennomføring av rapportering etter energiloven § 10-1 tredje ledd annet punktum skal samordnes med departementet.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Som fasit u250: «skal samordnes med departementet» er P samarbeid med en bestemt motpart.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:helse-og-omsorgstjenesteloven:u15",
+   "kilde": "ki",
+   "lov": "helse-og-omsorgstjenesteloven",
+   "id": "u15",
+   "sitat": "Kommunen skal samordne tjenestetilbudet etter første ledd. Ved behov skal kommunen bestemme hvilken kommunal tjenesteyter som skal ivareta samordningen.",
+   "utfall": "begge",
+   "f_rader": [
+    {
+     "type": "samordningsoppgave",
+     "fra": "a5",
+     "til": null,
+     "objekt": "tjenestetilbudet etter første ledd",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "«skal samordne» er oppgave, ikke myndighet; myndigheten til å peke ut tjenesteyteren står i K-raden."
+    }
+   ],
+   "begrunnelse": "Aksepter — egen sak (ikke F/behold/begge).",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "lav",
+    "gjelder": "utenfor_raden"
+   },
+   "modellor_svar": "aksepter",
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:helse-og-omsorgstjenesteloven:u16",
+   "kilde": "ki",
+   "lov": "helse-og-omsorgstjenesteloven",
+   "id": "u16",
+   "sitat": "Dersom det er oppnevnt barnekoordinator etter § 7-2 a, skal barnekoordinatoren sørge for samordning av tjenestetilbudet.",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "samordningsoppgave",
+     "fra": "a6",
+     "til": null,
+     "objekt": "samordning av tjenestetilbudet",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": "dersom det er oppnevnt barnekoordinator etter § 7-2 a",
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "«sørge for samordning av» er samordningsoppgave uten bindende virkning."
+    }
+   ],
+   "begrunnelse": "«skal barnekoordinatoren sørge for samordning av tjenestetilbudet» gir ingen myndighet; K vedtakskompetanse er en slutning fra oppgave til kompetanse, som regelen forbyr. F samordning.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:helse-og-omsorgstjenesteloven:u23",
+   "kilde": "ki",
+   "lov": "helse-og-omsorgstjenesteloven",
+   "id": "u23",
+   "sitat": "Kommunen skal sørge for at virksomheter som yter helse- og omsorgstjenester omfattet av loven her, etablerer systemer",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "sorge_for_ansvar",
+     "fra": "a5",
+     "til": "a11",
+     "objekt": "at virksomheter som yter helse- og omsorgstjenester omfattet av loven her, etablerer systemer for innhenting av pasienters og brukeres erfaringer og synspunkter",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd",
+      "kontekst_system"
+     ],
+     "begrunnelse": "«skal sørge for at» andre gjør noe, er resultatansvar; F gir ikke instruksjonsmyndighet over virksomhetene."
+    }
+   ],
+   "begrunnelse": "«Kommunen skal sørge for at virksomheter … etablerer systemer for innhenting av pasienters og brukeres erfaringer» er resultatansvar overfor virksomhetene. A har_ansvarsomrade er feil kategori (virksomhetene er ikke et område). F sørge for; om kommunen har myndighet over virksomhetene, følger ikke av setningen.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:helse-og-omsorgstjenesteloven:u32",
+   "kilde": "ki",
+   "lov": "helse-og-omsorgstjenesteloven",
+   "id": "u32",
+   "sitat": "skal kommunen yte bistand til andre kommuner ved ulykker og andre akutte situasjoner.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "P bistand mellom kommuner etter anmodning (som fasit u44).",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:helse-og-omsorgstjenesteloven:u33",
+   "kilde": "ki",
+   "lov": "helse-og-omsorgstjenesteloven",
+   "id": "u33",
+   "sitat": "Den kommunen som mottar bistand etter andre ledd, skal yte kommunen som bidrar med hjelp, kompensasjon for utgifter som pådras",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Kompensasjon for utgifter er en betalingsplikt overfor den bidragende kommunen (P), ikke oppgave.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:helse-og-omsorgstjenesteloven:u39",
+   "kilde": "ki",
+   "lov": "helse-og-omsorgstjenesteloven",
+   "id": "u39",
+   "sitat": "Kommunelegen skal være medisinskfaglig rådgiver for kommunen",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Aksepter — egen sak (ikke F/behold/begge).",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "lav",
+    "gjelder": "utenfor_raden"
+   },
+   "modellor_svar": "aksepter",
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:helse-og-omsorgstjenesteloven:u45",
+   "kilde": "ki",
+   "lov": "helse-og-omsorgstjenesteloven",
+   "id": "u45",
+   "sitat": "Personell som yter tjenester omfattet av loven her, skal gi spesialisthelsetjenesten råd, veiledning og opplysninger",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Aksepter — egen sak (ikke F/behold/begge).",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "lav",
+    "gjelder": "utenfor_raden"
+   },
+   "modellor_svar": "aksepter",
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:helse-og-omsorgstjenesteloven:u56",
+   "kilde": "ki",
+   "lov": "helse-og-omsorgstjenesteloven",
+   "id": "u56",
+   "sitat": "Koordinatoren skal sørge for nødvendig oppfølging av den enkelte pasient eller bruker, samt sikre samordning av tjenestetilbudet og fremdrift i arbeidet med individuell plan",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "sorge_for_ansvar",
+     "fra": "a28",
+     "til": null,
+     "objekt": "nødvendig oppfølging av den enkelte pasient eller bruker",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "«skal sørge for» er resultatansvar."
+    },
+    {
+     "type": "samordningsoppgave",
+     "fra": "a28",
+     "til": null,
+     "objekt": "samordning av tjenestetilbudet",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "«sikre samordning av» er samordningsoppgave."
+    },
+    {
+     "type": "sorge_for_ansvar",
+     "fra": "a28",
+     "til": null,
+     "objekt": "fremdrift i arbeidet med individuell plan",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "«sikre … fremdrift» er resultatansvar."
+    }
+   ],
+   "begrunnelse": "Som fasit u81: koordinatorens tre oppgaver. K vedtakskompetanse er en slutning fra oppgave til kompetanse; F gir aldri K.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:helse-og-omsorgstjenesteloven:u64",
+   "kilde": "ki",
+   "lov": "helse-og-omsorgstjenesteloven",
+   "id": "u64",
+   "sitat": "Kommunen skal ha en koordinerende enhet for habiliterings- og rehabiliteringsvirksomhet",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "T skal_finnes (begrepsmanualens moteksempel). Enhetens oppgaver står i neste punktum, som KI ikke har egen rad for.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:helse-og-omsorgstjenesteloven:u76",
+   "kilde": "ki",
+   "lov": "helse-og-omsorgstjenesteloven",
+   "id": "u76",
+   "sitat": "Spesialisthelsetjenesten skal bistå ved gjennomføringen av tiltak etter § 9-5 tredje ledd bokstav b og c.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "P bistand overfor kommunen (som fasit u109).",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:helse-og-omsorgstjenesteloven:u80",
+   "kilde": "ki",
+   "lov": "helse-og-omsorgstjenesteloven",
+   "id": "u80",
+   "sitat": "Klagesaken skal forberedes av statsforvalteren etter bestemmelsene i forvaltningsloven § 33 første til fjerde ledd.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Aksepter — egen sak (ikke F/behold/begge).",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "middels",
+    "gjelder": "utenfor_raden"
+   },
+   "modellor_svar": "aksepter",
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:helse-og-omsorgstjenesteloven:u123",
+   "kilde": "ki",
+   "lov": "helse-og-omsorgstjenesteloven",
+   "id": "u123",
+   "sitat": "Helsedirektoratet skal utvikle, formidle og vedlikeholde nasjonale faglige retningslinjer og veiledere",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "veiledningsoppgave",
+     "fra": "a25",
+     "til": null,
+     "objekt": "nasjonale faglige retningslinjer og veiledere som understøtter de mål som er satt for helse- og omsorgstjenesten",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd",
+      "kontekst_system",
+      "formal"
+     ],
+     "begrunnelse": "Ikke bindende normer; faglig veiledning av tjenesteyterne."
+    }
+   ],
+   "begrunnelse": "Som fasit hotl. u180: F veiledning. Ikke K (retningslinjene binder ikke).",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:helse-og-omsorgstjenesteloven:u125",
+   "kilde": "ki",
+   "lov": "helse-og-omsorgstjenesteloven",
+   "id": "u125",
+   "sitat": "Helsedirektoratet skal utvikle, formidle og vedlikeholde nasjonale kvalitetsindikatorer",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "oversiktsoppgave",
+     "fra": "a25",
+     "til": null,
+     "objekt": "nasjonale kvalitetsindikatorer som hjelpemiddel for ledelse og kvalitetsforbedring i den kommunale helse- og omsorgstjenesten",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd",
+      "formal"
+     ],
+     "begrunnelse": "Indikatorene skal følge med på kvalitet; ingen myndighet."
+    }
+   ],
+   "begrunnelse": "Som fasit hotl. u183: F oversikt.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:sameloven:u6",
+   "kilde": "ki",
+   "lov": "sameloven",
+   "id": "u6",
+   "sitat": "Medlemmer som blir ansatt i Sametingets administrasjon, trer ut av Sametinget for resten av valgperioden.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Uforenlighet medlem/ansatt; ikke oppgaveordlyd.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:sameloven:u31",
+   "kilde": "ki",
+   "lov": "sameloven",
+   "id": "u31",
+   "sitat": "Husleietvistutvalget skal sørge for at vedtak eller forlik skrevet på norsk, oversettes til samisk når en part krever det.",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "sorge_for_ansvar",
+     "fra": "a14",
+     "til": null,
+     "objekt": "at vedtak eller forlik skrevet på norsk, oversettes til samisk",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": "når en part krever det",
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd",
+      "kontekst_system"
+     ],
+     "begrunnelse": "Aksepter. Ingen myndighet til å binde; parten er privat (regellaget). F sorge_for."
+    }
+   ],
+   "begrunnelse": "Aksepter. Ingen myndighet til å binde; parten er privat (regellaget). F sorge_for.",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "middels",
+    "gjelder": "raden"
+   },
+   "modellor_svar": "aksepter",
+   "jurist_runde2": "presiserer"
+  },
+  {
+   "nokkel": "ki:sameloven:u57",
+   "kilde": "ki",
+   "lov": "sameloven",
+   "id": "u57",
+   "sitat": "Reglene i sameloven § 3-2, § 3-3 første ledd, § 3-7 og § 3-11 gjelder også for Sametinget, Reindriftsforvaltningen, Samisk høgskole og statlige samiske skoler.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Utvidet virkeområde for regler; ikke oppgaveordlyd.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:sameloven:u58",
+   "kilde": "ki",
+   "lov": "sameloven",
+   "id": "u58",
+   "sitat": "Reglene i sameloven § 3-2, § 3-3 første ledd, § 3-7 og § 3-11 gjelder også for Sametinget, Reindriftsforvaltningen, Samisk høgskole og statlige samiske skoler.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Utvidet virkeområde for regler; ikke oppgaveordlyd.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:sameloven:u59",
+   "kilde": "ki",
+   "lov": "sameloven",
+   "id": "u59",
+   "sitat": "Reglene i sameloven § 3-2, § 3-3 første ledd, § 3-7 og § 3-11 gjelder også for Sametinget, Reindriftsforvaltningen, Samisk høgskole og statlige samiske skoler.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Utvidet virkeområde for regler; ikke oppgaveordlyd.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:sameloven:u60",
+   "kilde": "ki",
+   "lov": "sameloven",
+   "id": "u60",
+   "sitat": "Reglene i sameloven § 3-2, § 3-3 første ledd, § 3-7 og § 3-11 gjelder også for Sametinget, Reindriftsforvaltningen, Samisk høgskole og statlige samiske skoler.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Utvidet virkeområde for regler; ikke oppgaveordlyd.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:sameloven:u61",
+   "kilde": "ki",
+   "lov": "sameloven",
+   "id": "u61",
+   "sitat": "Reglene i sameloven § 3-2, § 3-3 andre ledd, § 3-7 og § 3-11 gjelder også for Direktoratet for naturforvaltning og for Universitetet i Tromsø.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Utvidet virkeområde for regler; ikke oppgaveordlyd.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:sameloven:u62",
+   "kilde": "ki",
+   "lov": "sameloven",
+   "id": "u62",
+   "sitat": "Reglene i sameloven § 3-2, § 3-3 andre ledd, § 3-7 og § 3-11 gjelder også for Direktoratet for naturforvaltning og for Universitetet i Tromsø.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Utvidet virkeområde for regler; ikke oppgaveordlyd.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:spesialisthelsetjenesteloven:u8",
+   "kilde": "ki",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u8",
+   "sitat": "Det regionale helseforetaket skal sørge for at personer med fast bopel eller oppholdssted innen helseregionen tilbys spesialisthelsetjeneste",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "sorge_for_ansvar",
+     "fra": "a5",
+     "til": null,
+     "objekt": "at personer med fast bopel eller oppholdssted innen helseregionen tilbys spesialisthelsetjeneste i og utenfor institusjon",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "«skal sørge for at» er resultatansvar for en befolkning."
+    }
+   ],
+   "begrunnelse": "A har_ansvarsomrade uten område, med oppgaven i objekt: F sørge for (som fasit u171). KI-filen har ingen helseregion-aktør, så til = null og helseregionen står i objektet.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:spesialisthelsetjenesteloven:u9",
+   "kilde": "ki",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u9",
+   "sitat": "Det regionale helseforetaket skal sørge for at helseinstitusjoner som det eier, eller som mottar tilskudd fra de regionale helseforetakene til sin virksomhet",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "R eies_av står (forutsatt i relativsetningen, som kommentaren sier). Sørge-for-ansvaret i samme setning registreres på u160, som har samme sitat.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:spesialisthelsetjenesteloven:u10",
+   "kilde": "ki",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u10",
+   "sitat": "Det regionale helseforetaket skal sørge for at helseinstitusjoner som det eier, eller som mottar tilskudd fra de regionale helseforetakene til sin virksomhet",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "sorge_for_ansvar",
+     "fra": "a5",
+     "til": "a6",
+     "objekt": "at helseinstitusjoner som det eier, eller som mottar tilskudd fra de regionale helseforetakene, bidrar til å fremme folkehelsen og forebygge sykdom og skade, og innretter sitt tjenestetilbud i samsvar med vilkårene i andre ledd",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd",
+      "kontekst_system"
+     ],
+     "begrunnelse": "«skal sørge for at» gir ikke tilsynskompetanse; eventuell styring av eide institusjoner følger av eierskapet, ikke av denne setningen."
+    }
+   ],
+   "begrunnelse": "«skal sørge for at helseinstitusjoner … bidrar til å fremme folkehelsen …» er resultatansvar. KI-kommentaren «noe som innebærer tilsyn» er nettopp slutningen fra oppgave til kompetanse som begrepsmanualen forbyr. K tilsyn erstattes av F sørge for.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:spesialisthelsetjenesteloven:u17",
+   "kilde": "ki",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u17",
+   "sitat": "Beredskapsplanen skal samordnes med kommunenes, fylkeskommunenes og de andre regionale helseforetakenes beredskapsplaner",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "P samarbeid om beredskapsplaner (som fasit u180).",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:spesialisthelsetjenesteloven:u18",
+   "kilde": "ki",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u18",
+   "sitat": "Beredskapsplanen skal samordnes med kommunenes, fylkeskommunenes og de andre regionale helseforetakenes beredskapsplaner",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "P samarbeid om beredskapsplaner (som fasit u181).",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:spesialisthelsetjenesteloven:u19",
+   "kilde": "ki",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u19",
+   "sitat": "skal helsetjenesten til det regionale helseforetaket yte bistand til andre regionale helseforetak ved ulykker og andre akutte situasjoner",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "P bistand mellom RHF-er etter anmodning (som fasit u183).",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:spesialisthelsetjenesteloven:u21",
+   "kilde": "ki",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u21",
+   "sitat": "Det regionale helseforetaket som mottar bistand etter første ledd, skal yte kompensasjon for utgifter som pådras til det regionale helseforetaket som bidrar med hjelp",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Kompensasjon er betalingsplikt overfor det bidragende RHF-et (P).",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:spesialisthelsetjenesteloven:u24",
+   "kilde": "ki",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u24",
+   "sitat": "Det regionale helseforetaket skal sørge for at virksomheter som yter spesialisthelsetjenester som nevnt i § 2-1 a, samarbeider med andre tjenesteytere dersom samarbeid er nødvendig",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "sorge_for_ansvar",
+     "fra": "a5",
+     "til": "a12",
+     "objekt": "at virksomheter som yter spesialisthelsetjenester som nevnt i § 2-1 a, samarbeider med andre tjenesteytere dersom samarbeid er nødvendig for å gi pasienten et helhetlig og samordnet tjenestetilbud, og samarbeider med barnekoordinator dersom dette er oppnevnt",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd",
+      "kontekst_system"
+     ],
+     "begrunnelse": "«skal sørge for at» andre samarbeider, er resultatansvar hos RHF-et."
+    }
+   ],
+   "begrunnelse": "Aksepter. Virksomhetenes egen samarbeidsplikt står ikke i teksten — å beholde P samarbeid er å slutte P fra F. F alene. Fasit u187/u188 (samme feil i ikke-kandidatrader) går til egen sak.",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "middels",
+    "gjelder": "raden"
+   },
+   "modellor_svar": "aksepter",
+   "jurist_runde2": "presiserer"
+  },
+  {
+   "nokkel": "ki:spesialisthelsetjenesteloven:u30",
+   "kilde": "ki",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u30",
+   "sitat": "De regionale helseforetakene skal sørge for at det inngås samarbeidsavtaler som nevnt i helse- og omsorgstjenesteloven § 6-1.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Aksepter. Samarbeidsavtalene etter hotl. § 6-1 har kommunen som motpart: P avtale, ikke F. Behold i #368, egen sak.",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "middels",
+    "gjelder": "utenfor_raden"
+   },
+   "modellor_svar": "aksepter",
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:spesialisthelsetjenesteloven:u34",
+   "kilde": "ki",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u34",
+   "sitat": "De regionale helseforetakene skal legge til rette for at spesialisthelsetjenesten blir i stand til å forebygge, avdekke og avverge vold og seksuelle overgrep.",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "sorge_for_ansvar",
+     "fra": "a19",
+     "til": null,
+     "objekt": "at spesialisthelsetjenesten blir i stand til å forebygge, avdekke og avverge vold og seksuelle overgrep",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "«legge til rette for at» er et resultatrettet ansvar for en sektor uten motpart."
+    }
+   ],
+   "begrunnelse": "«skal legge til rette for at spesialisthelsetjenesten blir i stand til å forebygge, avdekke og avverge vold og seksuelle overgrep» har ingen motpart som kan kreve (test 2): F sørge for, ikke P bistand.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:spesialisthelsetjenesteloven:u41",
+   "kilde": "ki",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u41",
+   "sitat": "På forespørsel fra helsepersonell eller pasienter skal den kliniske etikkomiteen bistå med råd",
+   "utfall": "begge",
+   "f_rader": [
+    {
+     "type": "veiledningsoppgave",
+     "fra": "a22",
+     "til": "a10",
+     "objekt": "å øke helsepersonellets kompetanse i å identifisere, analysere og avklare etiske verdispørsmål i forbindelse med pasientbehandling og ved prioritering av ressurser",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd",
+      "formal"
+     ],
+     "begrunnelse": "Kompetansebygging hos helsepersonell er veiledning uten motpart som kan kreve den."
+    }
+   ],
+   "begrunnelse": "Som fasit u200: annet punktum («på forespørsel … bistå med råd») er P, og første punktum i samme ledd er F veiledning uten rad.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:spesialisthelsetjenesteloven:u44",
+   "kilde": "ki",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u44",
+   "sitat": "Dersom en pasient har behov for tjenester både etter loven her og etter helse- og omsorgstjenesteloven, skal kommunen sørge for at arbeidet med planen settes i gang og koordineres.",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "sorge_for_ansvar",
+     "fra": "a24",
+     "til": null,
+     "objekt": "at arbeidet med planen settes i gang og koordineres",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": "når pasienten har behov for tjenester både etter loven her og etter helse- og omsorgstjenesteloven",
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "«skal sørge for at» er resultatansvar."
+    }
+   ],
+   "begrunnelse": "A har_ansvarsomrade uten område, med «sørge for arbeid med individuell plan» i objekt: F sørge for (som tillegget på fasit u204).",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:spesialisthelsetjenesteloven:u45",
+   "kilde": "ki",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u45",
+   "sitat": "Helseforetaket skal så snart som mulig varsle kommunen",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "«skal så snart som mulig varsle kommunen» er en plikt overfor kommunen (P).",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:spesialisthelsetjenesteloven:u46",
+   "kilde": "ki",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u46",
+   "sitat": "skal i slike tilfeller medvirke i kommunens arbeid med individuell plan.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Som fasit u204: medvirkning i kommunens arbeid, som kommunen kan kreve: P bistand.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:spesialisthelsetjenesteloven:u51",
+   "kilde": "ki",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u51",
+   "sitat": "Helseforetaket skal ha en koordinerende enhet",
+   "utfall": "begge",
+   "f_rader": [
+    {
+     "type": "oversiktsoppgave",
+     "fra": "a27",
+     "til": null,
+     "objekt": "generell oversikt over habiliterings- og rehabiliteringstiltak i helseregionen",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "«skal ha en generell oversikt over» er typen oversikt."
+    },
+    {
+     "type": "oversiktsoppgave",
+     "fra": "a27",
+     "til": "a24",
+     "objekt": "oversikt over habiliterings- og rehabiliteringsvirksomheten i kommunen",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "«skal ha oversikt over» er typen oversikt."
+    },
+    {
+     "type": "sorge_for_ansvar",
+     "fra": "a27",
+     "til": null,
+     "objekt": "overordnet ansvar for arbeidet med individuell plan",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "«overordnet ansvar for» er sorge_for."
+    },
+    {
+     "type": "veiledningsoppgave",
+     "fra": "a27",
+     "til": "a26",
+     "objekt": "opplæring og veiledning av koordinator",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "«opplæring og veiledning av» er typen veiledning."
+    }
+   ],
+   "begrunnelse": "Delvis. «overordnet» og K/F-dobbelt for oppnevning: som shl. u213 — K står; F «oppnevning» tatt ut. At KI u53 (A) burde erstattes, gjelder en rad utenfor kandidatlisten i de lagrede KI-utdataene: egen sak.",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "lav",
+    "gjelder": "utenfor_raden"
+   },
+   "modellor_svar": "delvis",
+   "jurist_runde2": "presiserer"
+  },
+  {
+   "nokkel": "ki:spesialisthelsetjenesteloven:u73",
+   "kilde": "ki",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u73",
+   "sitat": "De regionale helseforetakene skal sørge for at behovet for undervisning og opplæring av helsefaglige elever, lærlinger, studenter, turnuskandidater og spesialister dekkes innen helseregionen.",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "sorge_for_ansvar",
+     "fra": "a39",
+     "til": null,
+     "objekt": "at behovet for undervisning og opplæring av helsefaglige elever, lærlinger, studenter, turnuskandidater og spesialister dekkes innen helseregionen",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "«skal sørge for at» er resultatansvar."
+    }
+   ],
+   "begrunnelse": "A har_ansvarsomrade uten område, med oppgaven i objekt: F sørge for (som fasit u232).",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:spesialisthelsetjenesteloven:u85",
+   "kilde": "ki",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u85",
+   "sitat": "Helseinstitusjoner som omfattes av loven her, skal sørge for at pasienten eller brukeren får medvirke ved gjennomføring av helse- og omsorgstjenester etter pasient- og brukerrettighetsloven § 3-1.",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "sorge_for_ansvar",
+     "fra": "a44",
+     "til": null,
+     "objekt": "at pasienten eller brukeren får medvirke ved gjennomføring av helse- og omsorgstjenester",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": "pasient- og brukerrettighetsloven § 3-1",
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "Aksepter. A uten område er ikke en ansvarsområdekant; F sorge_for overfor private begunstigede."
+    }
+   ],
+   "begrunnelse": "Aksepter. A uten område er ikke en ansvarsområdekant; F sorge_for overfor private begunstigede.",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "lav",
+    "gjelder": "raden"
+   },
+   "modellor_svar": "aksepter",
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:spesialisthelsetjenesteloven:u103",
+   "kilde": "ki",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u103",
+   "sitat": "De regionale helseforetakene skal sørge for et felles system",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "sorge_for_ansvar",
+     "fra": "a19",
+     "til": null,
+     "objekt": "et felles system for å beslutte hvilke metoder som kan tilbys i spesialisthelsetjenesten",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": "felles for de regionale helseforetakene (ett system for alle)",
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd",
+      "kontekst_system"
+     ],
+     "begrunnelse": "Aksepter (som u260)."
+    }
+   ],
+   "begrunnelse": "Aksepter (som u260).",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "lav",
+    "gjelder": "raden"
+   },
+   "modellor_svar": "aksepter",
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:spesialisthelsetjenesteloven:u110",
+   "kilde": "ki",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u110",
+   "sitat": "Helseinstitusjonen eller tjenesteyteren skal sørge for at pasienten mottar en spesifisert regning",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Aksepter — egen sak (ikke F/behold/begge).",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "lav",
+    "gjelder": "utenfor_raden"
+   },
+   "modellor_svar": "aksepter",
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:spesialisthelsetjenesteloven:u120",
+   "kilde": "ki",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u120",
+   "sitat": "Helsepersonell som er ansatt i statlige helseinstitusjoner som omfattes av denne loven, eller som mottar tilskudd fra regionale helseforetak til sin virksomhet, skal gi den kommunale helse- og omsorgstjenesten råd, veiledning og opplysninger",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Aksepter — egen sak (ikke F/behold/begge).",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "lav",
+    "gjelder": "utenfor_raden"
+   },
+   "modellor_svar": "aksepter",
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:spesialisthelsetjenesteloven:u121",
+   "kilde": "ki",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u121",
+   "sitat": "Helsepersonell kan uten hinder av taushetsplikt gi ut taushetsbelagte opplysninger når dette er nødvendig for å innhente bistand fra politiet",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Adgang til å gi opplysninger uten hinder av taushetsplikt er regellaget; ikke oppgaveordlyd.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:spesialisthelsetjenesteloven:u122",
+   "kilde": "ki",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u122",
+   "sitat": "Politiet har plikt til å yte slik bistand.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "«Politiet har plikt til å yte slik bistand»: P bistand.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:spesialisthelsetjenesteloven:u183",
+   "kilde": "ki",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u183",
+   "sitat": "Med mindre styret i det enkelte tilfellet bestemmer noe annet, har daglig leder rett og plikt til å være til stede og rett til å uttale seg på styremøter.",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Aksepter — egen sak (ikke F/behold/begge).",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "lav",
+    "gjelder": "utenfor_raden"
+   },
+   "modellor_svar": "aksepter",
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:spesialisthelsetjenesteloven:u195",
+   "kilde": "ki",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u195",
+   "sitat": "Styret skal sørge for at bokføring og formueforvaltning er gjenstand for betryggende kontroll.",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "sorge_for_ansvar",
+     "fra": "a58",
+     "til": null,
+     "objekt": "at bokføring og formueforvaltning er gjenstand for betryggende kontroll",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "«skal sørge for at» er resultatansvar; styrets kompetanse følger av generalkompetansen, ikke av F-raden."
+    }
+   ],
+   "begrunnelse": "«Styret skal sørge for at bokføring og formueforvaltning er gjenstand for betryggende kontroll» er resultatansvar. A har_ansvarsomrade uten område er hullet F fyller.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:spesialisthelsetjenesteloven:u214",
+   "kilde": "ki",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u214",
+   "sitat": "Regionalt helseforetak skal sørge for at representanter for pasienter og andre brukere blir hørt",
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Aksepter (som hotl. u34). Behold, P konsultasjon i egen sak.",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "middels",
+    "gjelder": "utenfor_raden"
+   },
+   "modellor_svar": "aksepter",
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:spesialisthelsetjenesteloven:u215",
+   "kilde": "ki",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u215",
+   "sitat": "Regionalt helseforetak skal sørge for at virksomheter som yter spesialisthelsetjenester og andre tjenester som hører naturlig sammen med dette, etablerer systemer",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "sorge_for_ansvar",
+     "fra": "a29",
+     "til": "a71",
+     "objekt": "at virksomheter som yter spesialisthelsetjenester og andre tjenester som hører naturlig sammen med dette, etablerer systemer for innhenting av pasienters og andre brukeres erfaringer og synspunkter",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd",
+      "kontekst_system"
+     ],
+     "begrunnelse": "F gir aldri K: om RHF-et kan instruere virksomhetene, må ha egen hjemmel (eierskap, avtale)."
+    }
+   ],
+   "begrunnelse": "«skal sørge for at virksomheter … etablerer systemer» er resultatansvar. K instruksjonskompetanse er en slutning fra «sørge for» til myndighet, som regelen forbyr.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "ki:spesialisthelsetjenesteloven:u223",
+   "kilde": "ki",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u223",
+   "sitat": "Daglig leder skal sørge for at foretakets registrering og dokumentasjon av regnskapsopplysninger er i samsvar med lov og forskrifter",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "sorge_for_ansvar",
+     "fra": "a63",
+     "til": "a56",
+     "objekt": "at foretakets registrering og dokumentasjon av regnskapsopplysninger er i samsvar med lov og forskrifter",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "«skal sørge for at» er resultatansvar."
+    },
+    {
+     "type": "sorge_for_ansvar",
+     "fra": "a63",
+     "til": "a56",
+     "objekt": "at formuesforvaltningen er ordnet på betryggende måte",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "Samme setning, andre «at»-ledd."
+    }
+   ],
+   "begrunnelse": "To resultatansvar for daglig leder i én setning (regnskap og formuesforvaltning). A har_ansvarsomrade (daglig leder → helseforetak) er ikke et område; F sørge for, én rad per «at»-ledd (L13).",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "db:12e28ad6-49cb-4eba-8408-93cf4b837e41",
+   "kilde": "db",
+   "lov": "regelide",
+   "id": "12e28ad6-49cb-4eba-8408-93cf4b837e41",
+   "sitat": null,
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Ingen rettskilde sier at KNS er sekretariat for klagenemnda, og ingen tekst sier hva sekretariatet skal gjøre. R sekretariat_for står med kilde utenfor korpus (nettside, sekundær); det er ikke grunnlag for F.",
+   "jurist_runde1": {
+    "dom": "holder",
+    "alvor": null,
+    "gjelder": "raden"
+   },
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "db:6d39745e-85e9-47a4-aadf-6046210aa3c6",
+   "kilde": "db",
+   "lov": "regelide",
+   "id": "6d39745e-85e9-47a4-aadf-6046210aa3c6",
+   "sitat": null,
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Aksepter. «De oppgavene som lederen pålegger» er en henvisning uten eget oppgaveinnhold (begrepsmanualen §F, moteksempel «henvisningsobjekt», r2). R står alene; K instruksjon fra nemndas leder er egen sak.",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "middels",
+    "gjelder": "raden"
+   },
+   "modellor_svar": "aksepter",
+   "jurist_runde2": "presiserer"
+  },
+  {
+   "nokkel": "db:6d5b8668-4a74-4bf1-b702-eaf0b332607d",
+   "kilde": "db",
+   "lov": "regelide",
+   "id": "6d5b8668-4a74-4bf1-b702-eaf0b332607d",
+   "sitat": null,
+   "utfall": "begge",
+   "f_rader": [
+    {
+     "type": "sekretariatsfunksjon",
+     "fra": "KLAGENEMNDSSEKRETARIATET (KNS)",
+     "til": "Stiftelsesklagenemnda",
+     "objekt": "saksforberedelse",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "avledet",
+     "tolkningsargumenter": null,
+     "begrunnelse": "Avledet: stiftelsesloven § 7a tredje ledd sier at nemndas sekretariat foretar saksforberedelse (stående funksjon, ikke ett trinn i én sak); at sekretariatet er KNS, følger av premisset R sekretariat_for KNS → Stiftelsesklagenemnda (kilde utenfor korpus)."
+    }
+   ],
+   "begrunnelse": "Aksepter. Kunnskapsstatus kan ikke være sterkere enn premisset: avledet, med R sekretariat_for-kanten som premiss (strukturkant_premisser).",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "lav",
+    "gjelder": "raden"
+   },
+   "modellor_svar": "aksepter",
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "db:0f407efc-4da0-4218-9ba7-97ca64ca8634",
+   "kilde": "db",
+   "lov": "regelide",
+   "id": "0f407efc-4da0-4218-9ba7-97ca64ca8634",
+   "sitat": null,
+   "utfall": "behold",
+   "f_rader": [],
+   "begrunnelse": "Aksepter (som Energiklagenemnda). K instruksjon og K delegering (innsyn) er egen sak.",
+   "jurist_runde1": {
+    "dom": "innvending",
+    "alvor": "middels",
+    "gjelder": "raden"
+   },
+   "modellor_svar": "aksepter",
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:spesialisthelsetjenesteloven:u211",
+   "kilde": "fasit",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u211",
+   "sitat": "en koordinerende enhet som skal ha en generell oversikt over habiliterings- og rehabiliteringstiltak i helseregionen",
+   "utfall": "F",
+   "f_rader": [
+    {
+     "type": "oversiktsoppgave",
+     "fra": "a45",
+     "til": "a6",
+     "objekt": "generell oversikt over habiliterings- og rehabiliteringstiltak i helseregionen",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "«skal ha en generell oversikt over» er typen oversikt."
+    },
+    {
+     "type": "oversiktsoppgave",
+     "fra": "a45",
+     "til": "a31",
+     "objekt": "oversikt over habiliterings- og rehabiliteringsvirksomheten i kommunen",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "«skal ha oversikt over» er typen oversikt; «nødvendig kontakt med» står som P samarbeid (u212)."
+    }
+   ],
+   "begrunnelse": "Juristrunde 1 (#101): A har_ansvarsomrade med oppgaven i objekt dobler F oversikt; raden erstattes.",
+   "jurist_runde1": null,
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:spesialisthelsetjenesteloven:u213",
+   "kilde": "fasit",
+   "lov": "spesialisthelsetjenesteloven",
+   "id": "u213",
+   "sitat": "overordnet ansvar for arbeidet med individuell plan og for oppnevning, opplæring og veiledning av koordinator",
+   "utfall": "begge",
+   "f_rader": [
+    {
+     "type": "sorge_for_ansvar",
+     "fra": "a45",
+     "til": null,
+     "objekt": "overordnet ansvar for arbeidet med individuell plan",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "«overordnet ansvar for» er sorge_for."
+    },
+    {
+     "type": "veiledningsoppgave",
+     "fra": "a45",
+     "til": "a46",
+     "objekt": "opplæring og veiledning av koordinator",
+     "modalitet": "skal",
+     "polaritet": "positiv",
+     "avgrensning": null,
+     "kunnskapsstatus": "fortolkning",
+     "tolkningsargumenter": [
+      "ordlyd"
+     ],
+     "begrunnelse": "«opplæring og veiledning av» er typen veiledning."
+    }
+   ],
+   "raden": {
+    "kunnskapsstatus": "fortolkning",
+    "begrunnelse": "Fortolkning (juristrunden i #368): «ansvar for oppnevning … av koordinator» legger avgjørelsen av hvem som er koordinator til enheten — oppnevningskompetanse etter #352 («myndighet til å bestemme hvem som skal inneha en rolle»). Ikke sluttet fra oppgaven; oppgaven (overordnet ansvar, opplæring og veiledning) står som egne F-rader.",
+    "tolkningsargumenter": [
+     "ordlyd",
+     "kontekst_system"
+    ]
+   },
+   "begrunnelse": "Juristrunde 1 (#101): K oppnevning u213 står (egen fortolkning, #352); F for overordnet ansvar for individuell plan og opplæring/veiledning legges på raden sitatet gjelder.",
+   "jurist_runde1": null,
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:helse-og-omsorgstjenesteloven:u91",
+   "kilde": "fasit",
+   "lov": "helse-og-omsorgstjenesteloven",
+   "id": "u91",
+   "sitat": "og for oppnevning, opplæring og veiledning av koordinator og barnekoordinator",
+   "utfall": "behold",
+   "f_rader": [],
+   "raden": {
+    "kunnskapsstatus": "fortolkning",
+    "begrunnelse": "Fortolkning (juristrunden i #368): «ansvar for oppnevning … av koordinator» legger avgjørelsen av hvem som er koordinator til enheten — oppnevningskompetanse etter #352 («myndighet til å bestemme hvem som skal inneha en rolle»). Ikke sluttet fra oppgaven; oppgaven (overordnet ansvar, opplæring og veiledning) står som egne F-rader.",
+    "tolkningsargumenter": [
+     "ordlyd",
+     "kontekst_system"
+    ]
+   },
+   "begrunnelse": "Juristrunde 2: kunnskapsstatus på raden.",
+   "jurist_runde1": null,
+   "modellor_svar": null,
+   "jurist_runde2": null
+  },
+  {
+   "nokkel": "fasit:helse-og-omsorgstjenesteloven:u92",
+   "kilde": "fasit",
+   "lov": "helse-og-omsorgstjenesteloven",
+   "id": "u92",
+   "sitat": "og for oppnevning, opplæring og veiledning av koordinator og barnekoordinator",
+   "utfall": "behold",
+   "f_rader": [],
+   "raden": {
+    "kunnskapsstatus": "fortolkning",
+    "begrunnelse": "Fortolkning (juristrunden i #368): «ansvar for oppnevning … av koordinator» legger avgjørelsen av hvem som er koordinator til enheten — oppnevningskompetanse etter #352 («myndighet til å bestemme hvem som skal inneha en rolle»). Ikke sluttet fra oppgaven; oppgaven (overordnet ansvar, opplæring og veiledning) står som egne F-rader.",
+    "tolkningsargumenter": [
+     "ordlyd",
+     "kontekst_system"
+    ]
+   },
+   "begrunnelse": "Juristrunde 2: kunnskapsstatus på raden.",
+   "jurist_runde1": null,
+   "modellor_svar": null,
+   "jurist_runde2": null
+  }
+ ]
+}
