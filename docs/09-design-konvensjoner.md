@@ -1104,3 +1104,20 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
   punktene»), med «(2)» for `avslutning-2`. Aldri bare «§ 10-2» — det ville sett ut som hele paragrafen.
 - **Merknaden «leddets tekst over fortsetter etter punktlista»** (#213) vises bare når noden IKKE har en avslutningsnode,
   dvs. for rettskilder importert før #361 og ikke resynket.
+
+## 36. Forslagskøen for strukturkanter (issue #313 / #374, 2026-10-15)
+
+- **Én kø, ingen ny side** (#264): `strukturkant/Strukturforslagsko.tsx` står på KI-oppdagelsessiden (`/ki-oppdagelse`, menypunktet heter
+  nå «Forslagskø: struktur og KI-oppdagelse») og erstatter den gamle lista over ventende KI-forslag. Den bruker kandidatbiblioteket
+  (`useKandidatvalg`, `Massehandlingsrad`) og `StrukturkantTabell` (§31) med en `handlinger`-kolonne — ingen egen kanttabell.
+- **Gruppert per hjemmel** i lukkede `Details` (flest forslag først). Per gruppe: «Godkjenn alle N» / «Avvis alle N» med to klikk
+  (knapp → «Bekreft», som §32), og avkrysning + «Godkjenn/Avvis valgte».
+- **Avvis sletter ikke** (#374): én valgfri begrunnelse over køen gjelder både enkeltavvisning og massehandling. «Vis avviste» (`Switch`)
+  viser de avviste med «Avvist av X (menneske) dato: begrunnelse» i handlingskolonnen. Avviste vises ikke på aktør- og rettskildesidene
+  (API-et har `visAvviste=true` for det). Merket `Avvist` er `danger` (§35).
+- **Forhåndsvisning** per forslag: tre ettrads-`StrukturkantTabell` — fra-nodens side, til-nodens side og rettskildesiden — beregnet av
+  samme `ByggVisningerAsync` som sidene. Aldri en egen tekstmal.
+- **Tillit** (docs/33 §5.5): KI-forslag får `neutral` «Lav tillit (KI)» / «Middels tillit (KI)» (tilsyn); KI-forskriftskompetanse og
+  mønsterforslag får ingen lapp. En klassifisering, ikke en advarsel (§21).
+- **Lasterapporten** viser tall per kategori (nye, fantes som forslag, fantes godkjent, tidligere avvist, dubletter, ikke lastet), årsakene
+  til det som ikke ble lastet, aktørene som ble navnekandidater (lenke til veiviseren) og en `info`-melding om de tidligere avviste.

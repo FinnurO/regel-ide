@@ -171,11 +171,23 @@ public sealed class StrukturforslagTjeneste(
             var treffnavn = new List<string>();
             foreach (var form in new[] { aktor.Tekstform }.Concat(aktor.Varianter).Distinct(StringComparer.OrdinalIgnoreCase))
             {
-                if (await virksomhetOppslag.FinnVirksomhetIdForNavnEllerNavneformAsync(form, ct) is { } vid && treff.Add(Kantnode.Virksomhet(vid)))
-                {
-                    treffnavn.Add($"virksomhet:{form}");
-                }
                 var lower = form.ToLower();
+                if (await virksomhetOppslag.FinnVirksomhetIdForNavnEllerNavneformAsync(form, ct) is { } vid)
+                {
+                    if (treff.Add(Kantnode.Virksomhet(vid))) treffnavn.Add($"virksomhet:{form}");
+                }
+                else
+                {
+                    // Oppslaget gir null både ved null og ved flere treff; skill dem, så årsaken i rapporten blir riktig («flertydig»).
+                    var flere = await db.Begreper
+                        .Where(b => b.Begrepskategori == "virksomhet" && b.Entitetsstatus == "gjeldende" && b.VirksomhetReferanseId != null
+                                    && b.Term.ToLower() == lower)
+                        .Select(b => b.VirksomhetReferanseId!.Value).Distinct().Take(3).ToListAsync(ct);
+                    foreach (var id in flere.Count > 1 ? flere : [])
+                    {
+                        if (treff.Add(Kantnode.Virksomhet(id))) treffnavn.Add($"virksomhet:{form}");
+                    }
+                }
                 var begreper = await db.Begreper
                     .Where(b => b.Entitetsstatus == "gjeldende" && Nodetyper.MedGruppefunksjon.Contains(b.Begrepskategori!) && b.Term.ToLower() == lower)
                     .Select(b => new { b.Id, b.Begrepskategori }).Take(3).ToListAsync(ct);
