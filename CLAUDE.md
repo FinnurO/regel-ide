@@ -92,18 +92,31 @@ symptomer: `BergenKorpusSeed` krasjet synlig på `ux_virksomheter_organisasjonsn
 tester), mens `AgderFylkeskommuneSeed` og `KommunaleParametreSeed` oppretter rader uten orgnr — der
 stopper ingen constraint dem, så de ville duplisert stille. Den stille varianten er den farlige.
 
-## 5. Tester: hvert prosjekt for seg, i forgrunnen
+## 5. Tester: målrettet lokalt, full kjøring i CI
 
-Embedded Postgres kolliderer på port når prosjektene kjører samtidig (issue #10). Kjør dem separat, og
-ikke i bakgrunnen:
+**Teststrategi (Johann 2026-10-16).** Full kjøring av testsuitene skjedde før lokalt i hver økt og
+kostet mye tid og tokens (Data alene har over 1 000 tester og tar minutter). Nå gjelder:
+
+1. **Full kjøring skjer i CI** (`.github/workflows/tester.yml`) på hver PR og på master. Hvert
+   .NET-testprosjekt har egen jobb, og frontenden (`tsc -b` + vitest) har egen jobb. **CI er
+   portvakten:** en PR flettes ikke med rød testjobb. Les testloggen bare når en jobb feiler.
+2. **Lokalt kjøres bare de berørte testklassene**, med minimal utdata, og bare feil leses:
 
 ```bash
-dotnet test src/RegelIde.Data.Tests --nologo
+dotnet test src/RegelIde.Data.Tests --nologo --filter "FullyQualifiedName~StrukturkantTjeneste" --logger "console;verbosity=minimal"
 ```
 
-```bash
-dotnet test src/RegelIde.Api.Tests --nologo
-```
+   Hele prosjektet kjøres lokalt bare når CI ikke kan brukes, eller for å feilsøke noe CI har funnet.
+   Endringer i `Program.cs` sin DI-/oppstartsdel er et unntak (§4). Kjør Api-testene lokalt straks.
+3. **Embedded Postgres kolliderer på port** når prosjektene kjører samtidig på samme maskin (issue #10).
+   Lokalt: ett prosjekt om gangen, i forgrunnen. Sjekk `tasklist` for gjenglemte postgres-prosesser
+   først.
+4. **Kaldsjekk med API-et først** (`curl`). Nettleseren brukes bare når synlig UI er endret, og da til én
+   kort kontroll, ikke en rundtur. Kaldsjekk er fortsatt påkrevd (§9).
+5. **Hengende tester:** CI har `--blame-hang-timeout 10m`. En test som henger lokalt, stoppes og
+   meldes. Den skal ikke ventes ut.
+6. **Juristrunder** (§23) er ikke tester, men har samme kostnad. De gjøres bare på endrede rader, og ved
+   mange rader på et representativt utvalg, oppgitt i PR-en.
 
 Ved mange røde tester samtidig: sjekk om feilene er ekte assertions eller `Test Collection Cleanup
 Failure` fra fixturens opprydning. Sistnevnte tilskrives alle testene i samlingen og skjuler den ekte

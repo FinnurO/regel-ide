@@ -1,0 +1,74 @@
+name: Tester
+
+# Kjører alle testsuitene på hver PR og på master (CLAUDE.md §5). Dette er portvakten for full kjøring;
+# lokalt kjøres bare berørte testklasser. Hvert .NET-testprosjekt får egen jobb (egen runner) fordi
+# embedded Postgres kolliderer på port når prosjektene kjører samtidig på samme maskin (issue #10).
+
+on:
+  pull_request:
+    paths-ignore:
+      - "nettside/**"
+      - "docs/**"
+      - "**/*.md"
+  push:
+    branches: [master]
+    paths-ignore:
+      - "nettside/**"
+      - "docs/**"
+      - "**/*.md"
+  workflow_dispatch:
+
+concurrency:
+  group: tester-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dotnet:
+    name: ${{ matrix.prosjekt }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        prosjekt:
+          - RegelIde.Kildekonvertering.Tests
+          - RegelIde.Data.Tests
+          - RegelIde.Api.Tests
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+      - name: Test
+        run: >
+          dotnet test src/${{ matrix.prosjekt }} --nologo
+          --logger "console;verbosity=minimal"
+          --logger "trx;LogFileName=resultat.trx"
+          --blame-hang-timeout 10m
+      - name: Last opp resultat ved feil
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: testresultat-${{ matrix.prosjekt }}
+          path: src/${{ matrix.prosjekt }}/TestResults/
+          retention-days: 7
+
+  web:
+    name: RegelIde.Web (tsc + vitest)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: src/RegelIde.Web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: src/RegelIde.Web/package-lock.json
+      - run: npm ci
+      - name: Typesjekk
+        run: npx tsc -b --noEmit
+      - name: Vitest
+        run: npx vitest run --reporter=dot
