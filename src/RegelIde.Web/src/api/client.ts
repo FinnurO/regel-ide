@@ -124,6 +124,8 @@ import type {
   TjenesteavhengighetRequest,
   RelasjonsTypeKonfigurasjonDto,
   StrukturkantDto,
+  StrukturkantForhandsvisningDto,
+  StrukturforslagRapport,
   StrukturkantRequest,
   Strukturkantkategori,
   TjenesteTverrTenantTreffDto,
@@ -1123,8 +1125,31 @@ export const api = {
   },
 
   /** [Ny, nemnd/sekretariat-runden, 2026-09-09; ENDRET #311] Kantene HJEMLET i én rettskilde (alle kategorier). */
-  hentStrukturkanterForRettskilde: (rettskildeId: string) =>
-    kall<StrukturkantDto[]>(`/api/rettskilder/${rettskildeId}/strukturkanter`),
+  hentStrukturkanterForRettskilde: (rettskildeId: string, visAvviste = false) =>
+    kall<StrukturkantDto[]>(`/api/rettskilder/${rettskildeId}/strukturkanter${visAvviste ? '?visAvviste=true' : ''}`),
+
+  /** [Ny, issue #313] Ventende forslag (alle, eller for én hjemmel). */
+  hentStrukturkantForslag: (hjemmelRettskildeId?: string) =>
+    kall<StrukturkantDto[]>(`/api/strukturkanter?status=forslag${hjemmelRettskildeId ? `&hjemmelRettskildeId=${hjemmelRettskildeId}` : ''}`),
+
+  /** [Ny, issue #313 / #374] Avviste kanter («vis avviste»), valgfritt for én hjemmel. */
+  hentAvvisteStrukturkanter: (hjemmelRettskildeId?: string) =>
+    kall<StrukturkantDto[]>(`/api/strukturkanter?status=avvist${hjemmelRettskildeId ? `&hjemmelRettskildeId=${hjemmelRettskildeId}` : ''}`),
+
+  /** [Ny, issue #313] Kjører konverteringen (mønster eller KI) på én rettskilde og laster utsagnene som forslag. */
+  lastStrukturforslag: (rettskildeId: string, lag: 'monster' | 'ki') =>
+    kall<StrukturforslagRapport>(`/api/rettskilder/${rettskildeId}/strukturforslag?lag=${lag}`, { method: 'POST' }),
+
+  /** [Ny, issue #313 AC4] Slik kanten blir seende ut på aktørsidene og rettskildesiden. */
+  forhandsvisStrukturkant: (id: string) =>
+    kall<StrukturkantForhandsvisningDto>(`/api/strukturkanter/${id}/forhandsvisning`),
+
+  /** [Ny, issue #313] Avviser alle ventende maskinelle forslag hjemlet i én rettskilde (radene blir stående som avvist, #374). */
+  avvisAlleStrukturkantForslag: (hjemmelRettskildeId: string, begrunnelse?: string, oppdagelseskildePrefiks?: string) =>
+    kall<{ avvist: number }>(`/api/strukturkanter/avvis-alle?hjemmelRettskildeId=${hjemmelRettskildeId}`
+      + (oppdagelseskildePrefiks ? `&oppdagelseskildePrefiks=${encodeURIComponent(oppdagelseskildePrefiks)}` : ''), {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ begrunnelse: begrunnelse || null }),
+    }),
 
   opprettStrukturkant: (request: StrukturkantRequest) =>
     kall<StrukturkantDto>('/api/strukturkanter', {
@@ -1145,9 +1170,12 @@ export const api = {
   godkjennStrukturkant: (id: string) =>
     kall<StrukturkantDto>(`/api/strukturkanter/${id}/godkjenn`, { method: 'POST' }),
 
-  /** Avviser (sletter) et FORSLAG. En validert kant slettes med `slettStrukturkant`. */
-  avvisStrukturkant: (id: string) =>
-    kall<void>(`/api/strukturkanter/${id}/avvis`, { method: 'POST' }),
+  /** Avviser et FORSLAG. [ENDRET, issue #313 / #374] Raden slettes ikke: status avvist med hvem, når og valgfri begrunnelse. En godkjent
+   *  kant slettes med `slettStrukturkant`. */
+  avvisStrukturkant: (id: string, begrunnelse?: string) =>
+    kall<StrukturkantDto>(`/api/strukturkanter/${id}/avvis`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ begrunnelse: begrunnelse || null }),
+    }),
 
   slettStrukturkant: (id: string) =>
     kall<void>(`/api/strukturkanter/${id}`, { method: 'DELETE' }),

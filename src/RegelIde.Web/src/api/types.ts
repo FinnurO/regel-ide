@@ -533,6 +533,37 @@ export interface StrukturkantDto {
   hjemmelNodeId: string | null;
   hjemmelVersjonMerknad: string | null;
   hjemmelEndretTidspunkt: string | null;
+  /** [Ny, issue #313 / #374] Hvem som sist godkjente/avviste, når, og begrunnelsen for en avvisning. */
+  sistEndretAv?: string | null;
+  sistEndretTidspunkt?: string | null;
+  avvisningBegrunnelse?: string | null;
+}
+
+/** [Ny, issue #313 AC4] Forhåndsvisning: slik kanten blir seende ut på fra-siden, til-siden og rettskildesiden. */
+export interface StrukturkantForhandsvisningDto {
+  fraSide: StrukturkantDto;
+  tilSide: StrukturkantDto | null;
+  rettskildeside: StrukturkantDto;
+}
+
+/** [Ny, issue #313] Rapporten fra én lasting av strukturforslag (StrukturforslagTjeneste.LastAsync). */
+export type Forslagsutfall = 'ny' | 'fantes_som_forslag' | 'fantes_godkjent' | 'tidligere_avvist' | 'dublett_i_kjoringen' | 'ikke_lastet';
+export interface ForslagsutfallRad {
+  utsagnId: string; eid: string; sitat: string; fasitKategori: string; fasitType: string;
+  kategori: string | null; typekode: string | null; utfall: Forslagsutfall; arsak: string | null; detalj: string | null;
+  kantId: string | null; oppdagelseskilde: string;
+}
+export interface ForslagKategoritall {
+  kategori: string; utsagn: number; nye: number; fantesSomForslag: number; fantesGodkjent: number; tidligereAvvist: number;
+  dubletter: number; ikkeLastet: number;
+}
+export interface StrukturforslagRapport {
+  rettskildeId: string; rettskildeTittel: string; lag: 'monster' | 'ki'; oppdagelseskilde: string; noderLest: number; utsagnTotalt: number;
+  perKategori: ForslagKategoritall[];
+  ikkeLastetPerArsak: { arsak: string; tekst: string; antall: number; eksempler: ForslagsutfallRad[] }[];
+  uloesteAktorer: { tekstform: string; arsak: string; antallUtsagn: number; navnekandidatId: string | null; treff: string[] }[];
+  rader: ForslagsutfallRad[];
+  kiInputTokens: number | null; kiOutputTokens: number | null; kiKastedeRader: number | null;
 }
 
 /** [Ny, issue #367 AC2] Godkjenning (strukturkant.status). Før #367: 'foreslatt_av_ai' | 'validert'. */
