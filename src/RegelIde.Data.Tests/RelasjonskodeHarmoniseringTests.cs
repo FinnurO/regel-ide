@@ -36,6 +36,7 @@ public class RelasjonskodeHarmoniseringTests
             KildeUtenforKorpusTekst = hjemmel is null ? "org-kart" : null,
             KildeUtenforKorpusType = hjemmel is null ? Strukturkanter.NettsideAnnet : null,
             KildeUtenforKorpusDokumentasjon = hjemmel is null ? Strukturkanter.Sekundaer : null,
+            Status = "validert", // [ENDRET, #367] historisk skjema (før #367): entitetens standard er nå «godkjent»
             OpprettetAv = "test", OpprettetTidspunkt = DateTimeOffset.UtcNow,
         }).Entity;
 
