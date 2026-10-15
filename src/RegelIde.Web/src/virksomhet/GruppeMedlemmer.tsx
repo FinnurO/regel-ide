@@ -256,7 +256,7 @@ export function GruppeMedlemmer({ gruppeBegrepId, rettskilder }: GruppeMedlemmer
                         </Link>
                         {t.kategori === 'I' && <Tag data-size="sm" data-color="neutral">Innehar rollen</Tag>}
                         {t.polaritet === 'negativ' && <Tag data-size="sm" data-color="warning">Negativ</Tag>}
-                        {t.status === 'foreslatt_av_ai' && <Tag data-size="sm" data-color="info">Forslag</Tag>}
+                        {t.status === 'maskinelt_foreslatt' && <Tag data-size="sm" data-color="info">Forslag</Tag>}
                       </span>
                     </Table.Cell>
                     <Table.Cell>

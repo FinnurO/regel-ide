@@ -499,7 +499,8 @@ export interface StrukturkantDto {
   kildeUtenforKorpusDokumentasjon: KildeUtenforKorpusDokumentasjon | null;
   gyldigFra: string | null;
   gyldigTil: string | null;
-  status: 'foreslatt_av_ai' | 'validert';
+  /** [ENDRET, issue #367] Godkjenning (hvem har godkjent), ikke metode — se `kunnskapsstatus`. */
+  status: Godkjenning;
   /** 'manuell' | 'monster:<id>' | 'ki:<modell>' — hvilken mekanisme som fant utsagnet (docs/33 §4.3). */
   oppdagelsesKilde: string;
   kommentar: string | null;
@@ -508,8 +509,9 @@ export interface StrukturkantDto {
   // [Ny, issue #341] K-feltene. For K er `til` MOTPARTEN («har klagekompetanse overfor …»).
   normform: Normform | null;
   grunnlag: Kompetansegrunnlag | null;
-  /** Kan kompetansen delegeres videre? null = ikke angitt. */
-  delegerbar: boolean | null;
+  /** [ENDRET, issue #367 / #335] Delegeringsadgang etter TEKSTEN (null = ikke vurdert) og slutningen etter alminnelige regler. */
+  delegeringsadgang: Delegeringsadgang | null;
+  delegeringSlutning: DelegeringSlutning | null;
   /** Normgivning der motparten er innehaveren selv (avledet). */
   selvregulering: boolean;
   /** Typens familie og fvl-kategori fra typekonfigurasjonen (bare K). */
@@ -519,7 +521,28 @@ export interface StrukturkantDto {
   fvlKategori: FvlKategori | null;
   /** [Ny, issue #353] Modaliteten (bare P). null = ikke angitt. Står alt i visningsteksten i parentes («(skal)», «(bør)»). */
   modalitet: Modalitet | null;
+  /** [Ny, issue #367] Hvordan utsagnet er kommet fram (null = ikke vurdert), med grunnlaget og analysehistorikken. */
+  kunnskapsstatus: Kunnskapsstatus | null;
+  begrunnelse: string | null;
+  tolkningsargumenter: Tolkningsargument[] | null;
+  premissIder: string[] | null;
+  entitetsstatus: 'gjeldende' | 'foreldet';
+  erstatterKantId: string | null;
+  profilversjon: string | null;
+  /** [Ny, issue #367 AC4] Den versjonerte hjemmelnoden; merknaden når den mangler, og resynk-flagget «hjemmel endret». */
+  hjemmelNodeId: string | null;
+  hjemmelVersjonMerknad: string | null;
+  hjemmelEndretTidspunkt: string | null;
 }
+
+/** [Ny, issue #367 AC2] Godkjenning (strukturkant.status). Før #367: 'foreslatt_av_ai' | 'validert'. */
+export type Godkjenning = 'maskinelt_foreslatt' | 'manuelt_foreslatt' | 'faglig_vurdert' | 'godkjent' | 'avvist';
+/** [Ny, issue #367 AC1, docs/profil/03 §5] */
+export type Kunnskapsstatus = 'tekstfunn' | 'normalisering' | 'fortolkning' | 'avledet' | 'eksternt_dokumentert' | 'uavklart' | 'omstridt' | 'foreldet';
+export type Tolkningsargument = 'ordlyd' | 'kontekst_system' | 'formal' | 'forarbeider' | 'praksis' | 'reelle_hensyn' | 'antitetisk_analogisk';
+/** [Ny, issue #367 AC5 / #335] */
+export type Delegeringsadgang = 'uttrykkelig_tillatt' | 'uttrykkelig_forbudt' | 'ikke_regulert';
+export type DelegeringSlutning = 'trolig_delegerbar' | 'trolig_ikke_delegerbar';
 
 /** [Ny, issue #311] Rå kantfelt — svaret fra veiviserens kobl-til-*-endepunkter. */
 export interface StrukturkantRadDto {
@@ -538,7 +561,7 @@ export interface StrukturkantRadDto {
   paragrafspenn: ParagrafspennParDto[];
   avgrensningTekst: string | null;
   polaritet: 'positiv' | 'negativ';
-  status: 'foreslatt_av_ai' | 'validert';
+  status: Godkjenning;
 }
 
 /** [Ny, issue #311] POST /api/strukturkanter. Nøyaktig én fra-node; høyst én til-node (ingen bare for K/T og — [ENDRET, issue #353] — P).
@@ -567,11 +590,19 @@ export interface StrukturkantRequest {
   /** [Ny, issue #341] Bare på K (normform bare på normgivning). Null/utelatt = ikke angitt. */
   normform?: Normform | null;
   grunnlag?: Kompetansegrunnlag | null;
-  delegerbar?: boolean | null;
+  /** [ENDRET, issue #367 / #335] Erstatter delegerbar. Slutningen bare sammen med 'ikke_regulert'. */
+  delegeringsadgang?: Delegeringsadgang | null;
+  delegeringSlutning?: DelegeringSlutning | null;
   /** [Ny, issue #352] Bare på K oppnevning/overproving. Null/utelatt = ikke angitt. */
   undertype?: Kompetanseundertype | null;
   /** [Ny, issue #353] Bare på P. Null/utelatt = ikke angitt (serveren avviser modalitet på andre kategorier). */
   modalitet?: Modalitet | null;
+  /** [Ny, issue #367] Godkjenning (utelatt = godkjent) og kunnskapsstatus med grunnlag. */
+  status?: Exclude<Godkjenning, 'maskinelt_foreslatt'> | null;
+  kunnskapsstatus?: Kunnskapsstatus | null;
+  begrunnelse?: string | null;
+  tolkningsargumenter?: Tolkningsargument[] | null;
+  premisser?: string[] | null;
 }
 
 // [FJERNET, issue #311] GruppeMedlemskapRequest, VirksomhetRelasjonDto/-Request/-HjemletDto og

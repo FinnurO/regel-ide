@@ -264,6 +264,8 @@ public sealed class HandbokForfatterTjeneste(RegelIdeDbContext db)
 
         forrige.Entitetsstatus = "erstattet";
         db.RettskildeNoder.Add(nyNode);
+        // [Ny, issue #367 AC4] Strukturkanter med hjemmel i denne seksjonen flagges «hjemmel endret» når teksten er endret.
+        await HjemmelEndretFlagg.FlaggForNodeAsync(db, forrige, nyNode, endretAv, ct);
         db.HandbokKommentarMetadata.Add(nyMetadata);
 
         // Lovreferansene er knyttet til den GAMLE noderaden (FraNodeId), som nå blir 'erstattet' — uten
