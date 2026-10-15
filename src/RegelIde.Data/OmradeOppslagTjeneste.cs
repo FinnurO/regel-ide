@@ -396,17 +396,24 @@ public sealed class OmradeOppslagTjeneste(RegelIdeDbContext db, StrukturkantTjen
             .Where(k => k.Kategori == Strukturkanter.Omradesammensetning && k.FraBegrepId != null && k.TilBegrepId != null)
             .ToListAsync(ct), ct);
         var foreldre = oKanter.GroupBy(k => k.TilBegrepId!.Value).ToDictionary(g => g.Key, g => g.Select(k => k.FraBegrepId!.Value).ToList());
-        // [Ny, issue #367 AC7] O-kantene traverseringen faktisk brukte — premisser for paret.
-        var oKantPerBarn = oKanter.GroupBy(k => k.TilBegrepId!.Value).ToDictionary(g => g.Key, g => g.Select(k => k.Id).ToList());
-        var omradePremisser = new HashSet<Guid>(egneA.Select(k => k.Id));
+        // [Ny, issue #367 AC7] Hvordan hvert område ble nådd (kanten og området før), så premissene for et par er bare KJEDEN fra
+        // domstolens egen A-kant opp til området instansen har ansvar for — ikke alle kommunene tingretten dekker.
+        var oKantPerBarn = oKanter.GroupBy(k => k.TilBegrepId!.Value).ToDictionary(g => g.Key, g => g.ToList());
+        var naadd = new Dictionary<Guid, (Guid Kant, Guid? Forrige)>();
         var dekker = new HashSet<Guid>();
-        var ko = new Queue<Guid>(egneA.Select(k => k.TilBegrepId!.Value));
+        var ko = new Queue<(Guid Omrade, Guid Kant, Guid? Forrige)>(egneA.Select(k => (k.TilBegrepId!.Value, k.Id, (Guid?)null)));
         while (ko.Count > 0)
         {
-            var o = ko.Dequeue();
+            var (o, kantId, forrige) = ko.Dequeue();
             if (!dekker.Add(o)) continue;
-            foreach (var id in oKantPerBarn.GetValueOrDefault(o) ?? []) omradePremisser.Add(id);
-            foreach (var f in foreldre.GetValueOrDefault(o) ?? []) ko.Enqueue(f);
+            naadd[o] = (kantId, forrige);
+            foreach (var k in oKantPerBarn.GetValueOrDefault(o) ?? []) ko.Enqueue((k.FraBegrepId!.Value, k.Id, o));
+        }
+        List<Guid> Omradekjede(Guid omrade)
+        {
+            var kjede = new List<Guid>();
+            for (Guid? o = omrade; o is { } x && naadd.TryGetValue(x, out var ledd); o = ledd.Forrige) kjede.Add(ledd.Kant);
+            return kjede;
         }
         if (dekker.Count == 0)
         {
@@ -476,7 +483,6 @@ public sealed class OmradeOppslagTjeneste(RegelIdeDbContext db, StrukturkantTjen
             PliktMotpart? instans;
             var forslag = kant.Status != Strukturkanter.Godkjent;
             var premisser = new List<Guid> { kant.Id };
-            premisser.AddRange(omradePremisser);
             if (grunnlag == "medlem_av") premisser.AddRange(medlemPremisser);
             if (kant.FraVirksomhetId is { } fv)
             {
@@ -488,12 +494,20 @@ public sealed class OmradeOppslagTjeneste(RegelIdeDbContext db, StrukturkantTjen
                 instans = omr is null || omr.Any(dekker.Contains)
                     ? new PliktMotpart("konkret", [visning.Fra.Navn], [fv], null)
                     : null;
-                premisser.AddRange(fraAnsvar.GetValueOrDefault(fv)?.Where(x => dekker.Contains(x.Omrade)).Select(x => x.Id) ?? []);
+                foreach (var x in fraAnsvar.GetValueOrDefault(fv)?.Where(x => dekker.Contains(x.Omrade)) ?? [])
+                {
+                    premisser.Add(x.Id);
+                    premisser.AddRange(Omradekjede(x.Omrade));
+                }
             }
             else
             {
                 instans = await MotpartAsync(null, kant.FraBegrepId, visning.Fra.Navn, dekker, ct);
                 premisser.AddRange(instans.KantIder);
+                var instansOmrader = await db.Strukturkanter
+                    .Where(k => instans.KantIder.Contains(k.Id) && k.Kategori == Strukturkanter.Ansvarsomrade && k.TilBegrepId != null)
+                    .Select(k => k.TilBegrepId!.Value).ToListAsync(ct);
+                foreach (var omrade in instansOmrader.Where(dekker.Contains)) premisser.AddRange(Omradekjede(omrade));
             }
             if (instans is null) continue;
             var grunnlagHull = grunnlag == "klasse_uten_registrert_medlemskap"
