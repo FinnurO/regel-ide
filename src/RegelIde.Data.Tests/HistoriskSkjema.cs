@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 
@@ -24,6 +24,7 @@ internal static class HistoriskSkjema
     public const string KompetanseMedMotpart = "20261008174215_KompetanseMedMotpart"; // [Ny, #352]
     public const string OppnevningsfamilienOgRester = "20261008194308_OppnevningsfamilienOgRester"; // [Ny, #353]
     public const string PliktOgOrdning = "20261009000135_PliktOgOrdning"; // [Ny, #355]
+    public const string AvslutningSpeilerInnsetting = "20261009093903_AvslutningSpeilerInnsetting"; // [Ny, #367]
 
     /// <summary>Oppretter en ny, tom database og migrerer den til <paramref name="tilMigrasjon"/> (null = siste).</summary>
     /// <param name="leggTilSenereKolonner">[Ny, #341] false for en test som selv migrerer videre til siste versjon
@@ -72,6 +73,21 @@ internal static class HistoriskSkjema
         // [Ny, issue #353] strukturkanter.modalitet og virksomheter.ordningstype (PliktOgOrdning).
         await db.Database.ExecuteSqlRawAsync("ALTER TABLE IF EXISTS strukturkanter ADD COLUMN IF NOT EXISTS modalitet text; "
             + "ALTER TABLE virksomheter ADD COLUMN IF NOT EXISTS ordningstype text;");
+        // [Ny, issue #367] Utsagnsstatus (UtsagnsstatusOgDelegeringsadgang). delegerbar står (lagt til over) — den gamle kolonnen
+        // leses ikke av dagens modell.
+        await db.Database.ExecuteSqlRawAsync("ALTER TABLE IF EXISTS strukturkanter ADD COLUMN IF NOT EXISTS delegeringsadgang text; "
+            + "ALTER TABLE IF EXISTS strukturkanter ADD COLUMN IF NOT EXISTS delegering_slutning text; "
+            + "ALTER TABLE IF EXISTS strukturkanter ADD COLUMN IF NOT EXISTS kunnskapsstatus text; "
+            + "ALTER TABLE IF EXISTS strukturkanter ADD COLUMN IF NOT EXISTS begrunnelse text; "
+            + "ALTER TABLE IF EXISTS strukturkanter ADD COLUMN IF NOT EXISTS tolkningsargumenter text[]; "
+            + "ALTER TABLE IF EXISTS strukturkanter ADD COLUMN IF NOT EXISTS entitetsstatus text NOT NULL DEFAULT 'gjeldende'; "
+            + "ALTER TABLE IF EXISTS strukturkanter ADD COLUMN IF NOT EXISTS erstatter_kant_id uuid; "
+            + "ALTER TABLE IF EXISTS strukturkanter ADD COLUMN IF NOT EXISTS profilversjon text; "
+            + "ALTER TABLE IF EXISTS strukturkanter ADD COLUMN IF NOT EXISTS hjemmel_node_id uuid; "
+            + "ALTER TABLE IF EXISTS strukturkanter ADD COLUMN IF NOT EXISTS hjemmel_endret_tidspunkt timestamptz; "
+            + "ALTER TABLE relasjonstype_konfigurasjon ADD COLUMN IF NOT EXISTS fvl_kategori_hjemmel text; "
+            + "ALTER TABLE relasjonstype_konfigurasjon ADD COLUMN IF NOT EXISTS fvl_kategori_gjelder_fra date; "
+            + "ALTER TABLE relasjonstype_konfigurasjon ADD COLUMN IF NOT EXISTS fvl_kategori_gjelder_til date;");
     }
 
     /// <summary>

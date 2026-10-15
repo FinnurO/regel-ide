@@ -138,7 +138,7 @@ public static class Strukturkanter
         if (!fra.StartsWith("Kongen", StringComparison.OrdinalIgnoreCase)) return (null, null);
         // «Grunnloven § 21»: embetsutnevnelse skjer i statsråd (jf. Grl. § 28) — juristrunden i #355 (domstolloven u120).
         if (sitat.Contains("Kongen i statsråd", StringComparison.Ordinal)
-            || System.Text.RegularExpressions.Regex.IsMatch(sitat, @"Grunnloven\s+§\s*21")) return (IkkeRegulert, TroligIkkeDelegerbar);
+            || System.Text.RegularExpressions.Regex.IsMatch(sitat, @"Grunnloven\s+§\s*21(?!\d)")) return (IkkeRegulert, TroligIkkeDelegerbar);
         return string.Equals(fra, "Kongen", StringComparison.OrdinalIgnoreCase) ? (IkkeRegulert, TroligDelegerbar) : (null, null);
     }
 

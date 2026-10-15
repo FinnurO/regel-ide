@@ -69,17 +69,20 @@ public class KompetanseleksikonTests
         Assert.Contains($"\"{Strukturkontrakt.Ukjent}\"", KiStrukturkonverterer.SystemInstruks);
     }
 
+    /// <summary>[ENDRET, issue #367 / #335] «Kongen» og «Kongen i statsråd» gir en SLUTNING (ikke_regulert + trolig_*), aldri et
+    /// tekstfunn; «X selv» er uttrykkelig forbudt; uten noe av dette avgjøres ingenting på sitatet.</summary>
     [Theory]
-    [InlineData("Kongen kan gi forskrift om tilsyn.", true)]
-    [InlineData("Kongen i statsråd kan gi forskrift om tilsyn.", false)]
-    [InlineData("Kommunestyret selv kan gi forskrift om gebyrer.", false)]
-    [InlineData("Departementet kan gi forskrift om gebyrer.", null)]
-    public void Delegerbar_avgjores_paa_sitatet(string tekst, bool? forventet)
+    [InlineData("Kongen kan gi forskrift om tilsyn.", "ikke_regulert", "trolig_delegerbar")]
+    [InlineData("Kongen i statsråd kan gi forskrift om tilsyn.", "ikke_regulert", "trolig_ikke_delegerbar")]
+    [InlineData("Kommunestyret selv kan gi forskrift om gebyrer.", "uttrykkelig_forbudt", null)]
+    [InlineData("Departementet kan gi forskrift om gebyrer.", null, null)]
+    public void Delegeringsadgang_avgjores_paa_sitatet(string tekst, string? adgang, string? slutning)
     {
         var d = new MonsterStrukturkonverterer().Konverter(new Strukturkonverteringsgrunnlag("test", "https://lovdata.no/eli/lov/test/nor",
             [new Strukturnode("test", "https://lovdata.no/eli/lov/test/nor", "https://lovdata.no/eli/lov/test/nor/§1/ledd-1", "ledd", null, tekst)]));
         var u = Assert.Single(d.Utsagn, x => x.Type == "normgivningskompetanse");
-        Assert.Equal(forventet, u.Delegerbar);
+        Assert.Equal((adgang, slutning), (u.Delegeringsadgang, u.DelegeringSlutning));
+        Assert.Equal("normalisering", u.Kunnskapsstatus); // [Ny, #367] mønsteret er den dokumenterte regelen
         Assert.Equal("forskrift", u.Normform);
     }
 

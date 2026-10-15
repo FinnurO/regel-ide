@@ -149,11 +149,11 @@ public class OmraderegisterSeedTests(EmbeddedPostgresFixture fixture)
         var domstolkanter = await db.Strukturkanter.Where(k => k.HjemmelRettskildeId == forskriftId).ToListAsync();
         Assert.All(domstolkanter, k => Assert.NotNull(k.HjemmelEid));
         // [Ny, #312, Johanns beslutning 2026-10-08] Tolket lovtekst er forslag med mønsteret som oppdagelseskilde.
-        Assert.All(domstolkanter, k => Assert.Equal("foreslatt_av_ai", k.Status));
+        Assert.All(domstolkanter, k => Assert.Equal("maskinelt_foreslatt", k.Status));
         // [ENDRET, #345] Alle er mønsterforslag: inndelingsmønstrene og navneregelen lagmannsrett → lagdømme.
         Assert.All(domstolkanter, k => Assert.True(k.OppdagelsesKilde.StartsWith("monster:inndeling-", StringComparison.Ordinal)
                                                    || k.OppdagelsesKilde == DomstolinndelingTolker.LagmannsrettOppdagelseskilde, k.OppdagelsesKilde));
-        Assert.False(await db.Strukturkanter.AnyAsync(k => k.KildeUtenforKorpusType == Strukturkanter.Register && k.Status != "validert"));
+        Assert.False(await db.Strukturkanter.AnyAsync(k => k.KildeUtenforKorpusType == Strukturkanter.Register && k.Status != "godkjent"));
         Assert.Equal(357, domstolkanter.Count(k => k.Typekode == "har_ansvarsomrade" && k.TilBegrepId != null
             && db.Begreper.Any(b => b.Id == k.TilBegrepId && b.Omradetype == Omradetyper.Kommune)));
 
@@ -250,7 +250,7 @@ public class OmraderegisterSeedTests(EmbeddedPostgresFixture fixture)
         Assert.Equal(LagmannsrettPerLagdomme.OrderBy(x => x.Key), kanter.ToDictionary(x => x.Lagdomme, x => x.Organisasjonsnummer!).OrderBy(x => x.Key));
         Assert.All(kanter, x =>
         {
-            Assert.Equal("foreslatt_av_ai", x.k.Status);
+            Assert.Equal("maskinelt_foreslatt", x.k.Status);
             Assert.Equal(DomstolinndelingTolker.LagmannsrettOppdagelseskilde, x.k.OppdagelsesKilde);
             Assert.Equal(forskriftId, x.k.HjemmelRettskildeId);
             Assert.Equal(ForskriftParagraf10Ledd1, x.k.HjemmelEid);
@@ -262,7 +262,7 @@ public class OmraderegisterSeedTests(EmbeddedPostgresFixture fixture)
         Assert.DoesNotContain(s.Forste.Hoppet, h => h.Contains("lagdømme", StringComparison.Ordinal));
         // Med i den samlede godkjenningen for forskriften (prefikset «monster:»).
         var perHjemmel = await new StrukturkantTjeneste(db).ForslagPerHjemmelAsync();
-        Assert.Equal(await db.Strukturkanter.CountAsync(k => k.HjemmelRettskildeId == forskriftId && k.Status == "foreslatt_av_ai"
+        Assert.Equal(await db.Strukturkanter.CountAsync(k => k.HjemmelRettskildeId == forskriftId && k.Status == "maskinelt_foreslatt"
                                                              && k.OppdagelsesKilde.StartsWith("monster:")),
             perHjemmel.Single(g => g.RettskildeId == forskriftId).Antall);
     }
@@ -286,7 +286,7 @@ public class OmraderegisterSeedTests(EmbeddedPostgresFixture fixture)
         {
             Assert.Equal(Strukturkanter.Ansvarsomrade, k.Kategori);
             Assert.True(lagsogn.ContainsKey(k.TilBegrepId!.Value));
-            Assert.Equal("foreslatt_av_ai", k.Status);
+            Assert.Equal("maskinelt_foreslatt", k.Status);
             Assert.Equal(OmraderegisterSeed.SognerTilOppdagelseskilde, k.OppdagelsesKilde);
             Assert.Equal(forskriftId, k.HjemmelRettskildeId);
             Assert.Matches(@"/§1[1-6]/ledd-([2-9]|\d\d)$", k.HjemmelEid); // et sogner-ledd, ikke «utgjør»-leddet
@@ -316,7 +316,7 @@ public class OmraderegisterSeedTests(EmbeddedPostgresFixture fixture)
         var gammel = await new StrukturkantTjeneste(db).OpprettAsync(new NyStrukturkant(Strukturkanter.Omradesammensetning, "bestar_av",
             Kantnode.Begrep(lagsognVestland.Id), Kantnode.Begrep(voss.Id), HjemmelRettskildeId: forskriftId,
             HjemmelEid: DomstolinndelingTolker.ForskriftEli + "/§13/ledd-2", Kommentar: "Via Hardanger og Voss tingrett (#342)",
-            Status: "foreslatt_av_ai", OppdagelsesKilde: "monster:inndeling-sogner"), OmraderegisterSeed.OpprettetAv);
+            Status: "maskinelt_foreslatt", OppdagelsesKilde: "monster:inndeling-sogner"), OmraderegisterSeed.OpprettetAv);
 
         await using var db2 = Ny(conn);
         var igjen = await KjorAsync(db2);
@@ -355,7 +355,7 @@ public class OmraderegisterSeedTests(EmbeddedPostgresFixture fixture)
         var etter = (await db2.Strukturkanter.ToListAsync()).Where(ErLagdommeTilLagsogn).ToList();
         Assert.Equal(15, etter.Count);
         Assert.All(etter, k => Assert.Equal(OmraderegisterSeed.UtgjorOppdagelseskilde, k.OppdagelsesKilde));
-        Assert.All(etter, k => Assert.Equal("foreslatt_av_ai", k.Status)); // bare etiketten er rørt
+        Assert.All(etter, k => Assert.Equal("maskinelt_foreslatt", k.Status)); // bare etiketten er rørt
     }
 
     [Fact]
@@ -408,14 +408,14 @@ public class OmraderegisterSeedTests(EmbeddedPostgresFixture fixture)
         Assert.Equal(467, antall);
 
         Assert.Equal(antall, await tjeneste.GodkjennAlleForHjemmelAsync(forskriftId, "monster:", "Kari Jurist"));
-        Assert.False(await db.Strukturkanter.AnyAsync(k => k.HjemmelRettskildeId == forskriftId && k.Status != "validert"));
+        Assert.False(await db.Strukturkanter.AnyAsync(k => k.HjemmelRettskildeId == forskriftId && k.Status != "godkjent"));
         Assert.Equal(antall, await db.Proveniens.CountAsync(p => p.EntitetType == StrukturkantTjeneste.ProveniensType
                                                                && p.Handling == "validert" && p.GodkjentAv == "Kari Jurist"));
         // En godkjent kant gjøres ikke om til forslag igjen ved neste oppstart.
         await using var db2 = Ny(conn);
         var igjen = await KjorAsync(db2);
         Assert.Equal(0, igjen.GjortTilForslag);
-        Assert.False(await db2.Strukturkanter.AnyAsync(k => k.HjemmelRettskildeId == forskriftId && k.Status != "validert"));
+        Assert.False(await db2.Strukturkanter.AnyAsync(k => k.HjemmelRettskildeId == forskriftId && k.Status != "godkjent"));
     }
 
     [Fact]

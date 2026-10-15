@@ -159,7 +159,12 @@ public static class UtsagnsstatusMigrering
         CREATE FUNCTION fn_strukturkanter_avledet_premiss() RETURNS trigger LANGUAGE plpgsql AS $fn$
         DECLARE v_kant uuid;
         BEGIN
-            v_kant := CASE WHEN TG_TABLE_NAME = 'strukturkanter' THEN NEW."Id" ELSE OLD.kant_id END;
+            -- IF, ikke CASE: plpgsql slår opp feltene i begge grenene, og NEW/OLD har ulike felt i de to tabellene.
+            IF TG_TABLE_NAME = 'strukturkanter' THEN
+                v_kant := NEW."Id";
+            ELSE
+                v_kant := OLD.kant_id;
+            END IF;
             IF EXISTS (SELECT 1 FROM strukturkanter k WHERE k."Id" = v_kant AND k.kunnskapsstatus = 'avledet')
                AND NOT EXISTS (SELECT 1 FROM strukturkant_premisser p WHERE p.kant_id = v_kant) THEN
                 RAISE EXCEPTION 'Kant % har kunnskapsstatus avledet uten premisser (issue #367: avledet krever minst én premiss).', v_kant

@@ -416,6 +416,21 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
         var gammel = await db.Strukturkanter.FirstOrDefaultAsync(k => k.Id == id, ct);
         if (gammel is null) return null;
         await using var tx = await db.Database.BeginTransactionAsync(ct);
+        try
+        {
+            return await ReviderITransaksjonAsync(gammel, ny, revidertAv, ct, tx);
+        }
+        catch
+        {
+            await tx.RollbackAsync(ct);
+            db.ChangeTracker.Clear(); // den gamle raden er merket foreldet i minnet — ingenting av det skal leve videre
+            throw;
+        }
+    }
+
+    private async Task<StrukturkantEntitet> ReviderITransaksjonAsync(StrukturkantEntitet gammel, NyStrukturkant ny, string revidertAv,
+        CancellationToken ct, Microsoft.EntityFrameworkCore.Storage.IDbContextTransaction tx)
+    {
         gammel.Entitetsstatus = Strukturkanter.Foreldet;
         gammel.SistEndretAv = revidertAv;
         gammel.SistEndretTidspunkt = DateTimeOffset.UtcNow;

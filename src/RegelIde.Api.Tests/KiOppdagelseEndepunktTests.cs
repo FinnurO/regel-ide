@@ -121,7 +121,7 @@ public class KiOppdagelseEndepunktTests
         {
             Id = Guid.NewGuid(), Kategori = Strukturkanter.Medlemskap, Typekode = Strukturkanter.MedlemAv,
             FraVirksomhetId = virksomhet.Id, TilBegrepId = gruppebegrep.Id, HjemmelRettskildeId = lov.Id,
-            Status = "foreslatt_av_ai", OppdagelsesKilde = "ki:stub-v1", OpprettetAv = "system-ki", OpprettetTidspunkt = DateTimeOffset.UtcNow,
+            Status = "maskinelt_foreslatt", OppdagelsesKilde = "ki:stub-v1", OpprettetAv = "system-ki", OpprettetTidspunkt = DateTimeOffset.UtcNow,
         });
         await db.SaveChangesAsync();
 
