@@ -143,8 +143,12 @@ public class MonsterStrukturkonvertererTests
 
         var krets = d.Aktorer.Single(a => a.Tekstform.StartsWith("Østre valgkrets", StringComparison.Ordinal));
         Assert.Equal(["Østre valgkrets", "Nuortaguovllu válgabiire"], krets.Varianter);
-        Assert.Equal(3, d.Utsagn.Count(u => u.Type == "bestar_av"));
-        Assert.Equal(3, d.Utsagn.Count(u => u.Type == "del_av"));
+        // [ENDRET, issue #378 C9] Kommune-i-fylke er nå «Finnmark fylke består av kommunen», ikke «kommunen del av fylket»:
+        // tre fra valgkretsen, tre fra fylket — alle bestar_av, ingen del_av.
+        Assert.Equal(6, d.Utsagn.Count(u => u.Type == "bestar_av"));
+        Assert.Equal(0, d.Utsagn.Count(u => u.Type == "del_av"));
+        var fylke = d.Aktorer.Single(a => a.Tekstform == "Finnmark fylke");
+        Assert.Equal(3, d.Utsagn.Count(u => u.Type == "bestar_av" && u.Fra == fylke.Id));
     }
 
     [Fact]

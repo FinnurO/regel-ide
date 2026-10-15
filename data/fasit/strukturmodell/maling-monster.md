@@ -70,9 +70,8 @@ Bokstaven følger `STD`-tabellen i `designtest.py`. `annet:*`-typer står i egen
 | F oppgave / kontrolloppgave | 1 | 0 | 0 | – | 0,0 % | – | 0,0 % |
 | F oppgave / forvaltningsoppgave | 4 | 1 | 0 | 0,0 % | 0,0 % | 0,0 % | 0,0 % |
 | A ansvarsomrade / har_sete_i | 65 | 62 | 62 | 100,0 % | 95,4 % | 100,0 % | 95,4 % |
-| O sammensetning_omrade / del_av | 69 | 47 | 39 | 83,0 % | 56,5 % | 100,0 % | 68,1 % |
+| O sammensetning_omrade / bestar_av | 177 | 122 | 109 | 89,3 % | 61,6 % | 98,4 % | 67,8 % |
 | A ansvarsomrade / har_ansvarsomrade | 379 | 357 | 357 | 100,0 % | 94,2 % | 100,0 % | 94,2 % |
-| O sammensetning_omrade / bestar_av | 108 | 75 | 70 | 93,3 % | 64,8 % | 97,3 % | 67,6 % |
 | annet ansvarsomrade / annet:sogner_til | 28 | 28 | 28 | 100,0 % | 100,0 % | 100,0 % | 100,0 % |
 
 ### Per kilde, K normgivningskompetanse — fasitens forskriftskompetanse før #341 (terskel ≥ 0,9 presisjon)
@@ -126,7 +125,7 @@ Stor avstand mellom presisjon og gjenkjent betyr at mønsteret finner riktig uts
 | `oppgave-pase` | kontrolloppgave | 0 | 0 | – | – | Ikke målt i docs/33 §1. Tatt inn etter juristrunden i #368 (barnehageloven § 10 «påse at» mot § 53 «fører tilsyn med»). |
 | `oppgave-forvalte` | forvaltningsoppgave | 1 | 0 | 0,0 % | 0,0 % | Ikke målt i docs/33 §1. Tatt inn etter #368 (folketrygdloven § 21-11 a: «Helsedirektoratet skal forvalte kapittel 5»). |
 | `har-sete-i` | har_sete_i | 1 | 1 | 100,0 % | 100,0 % | Ikke målt i docs/33 §1. Fast lovformulering for sete; Y tas slik den står («rikets hovedstad»), uten oppslag. |
-| `inndeling-kommune-i-fylke` | del_av | 47 | 39 | 83,0 % | 100,0 % | Ikke målt i docs/33 §1. Fylkestilhørigheten står eksplisitt i setningen. |
+| `inndeling-kommune-i-fylke` | bestar_av | 47 | 39 | 83,0 % | 100,0 % | Ikke målt i docs/33 §1. Fylkestilhørigheten står eksplisitt i setningen. |
 | `inndeling-rettskrets` | har_ansvarsomrade | 357 | 357 | 100,0 % | 100,0 % | docs/33 §1 nevner strukturerte kommunelister i inndelingsforskrifter som høypresisjonskilde (ikke tallfestet). |
 | `inndeling-rettssted` | har_sete_i | 61 | 61 | 100,0 % | 100,0 % | Samme kilde som inndeling-rettskrets. |
 | `inndeling-kommuneliste` | bestar_av | 56 | 56 | 100,0 % | 100,0 % | Strukturerte kommunelister (docs/33 §1, ikke tallfestet). Retnings- og komplementdefinisjoner kan ikke avgjøres uten et områderegister (#312). |
@@ -172,7 +171,7 @@ De 20 vanligste (én fra hver gruppe i tur, vanligste gruppe først):
 | # | Kilde | eId | Mønster | fra → til | Sitat |
 |---|---|---|---|---|---|
 | 1 | domstolloven | lov/1915/08/13/5/nor/§5/ledd-1 | `monster:vedtak-avgjores-av` | Høyesteretts ankeutvalg → null | I saker som etter lov skal avgjøres av Høyesteretts ankeutvalg, settes Høyesterett med tre dommere. |
-| 2 | sameloven | lov/1987/06/12/56/nor/§2-4/ledd-1/punkt-6 | `monster:inndeling-kommune-i-fylke` | Surnadal → Møre og Romsdal fylke | Surnadal |
+| 2 | sameloven | lov/1987/06/12/56/nor/§2-4/ledd-1/punkt-6 | `monster:inndeling-kommune-i-fylke` | Møre og Romsdal fylke → Surnadal | Surnadal |
 | 3 | domstolloven | lov/1915/08/13/5/nor/§105a/ledd-2 | `monster:plikt-dekkes-av` | det offentlige → null | Utgiftene dekkes av det offentlige. |
 | 4 | energiloven | lov/1990/06/29/50/nor/§2-4/ledd-1 | `monster:forskrift-gi` | Kongen → null | Kongen kan gi forskrift om at nærmere bestemte vedtak etter § 3-1 skal fattes av Kongen i statsråd. |
 | 5 | domstolloven | forskrift/2021/01/22/163/nor/§15/ledd-1 | `monster:inndeling-utgjor` | Borgarting lagdømme → Oslo | Oslo |
@@ -200,9 +199,8 @@ Gruppert på kategori/type. Typer mønsterlaget ikke har mønster for, er forven
 |---|---|---:|
 | K kompetanse / vedtakskompetanse | ja | 83 |
 | K kompetanse / oppnevningskompetanse | ja | 75 |
-| O sammensetning_omrade / bestar_av | ja | 38 |
+| O sammensetning_omrade / bestar_av | ja | 68 |
 | R relasjon / rapporterer_til | nei | 31 |
-| O sammensetning_omrade / del_av | ja | 30 |
 | M medlemskap / medlem_av | nei | 29 |
 | K kompetanse / normgivningskompetanse | ja | 25 |
 | F oppgave / sorge_for_ansvar | nei | 23 |
@@ -238,7 +236,8 @@ Gruppert på kategori/type. Typer mønsterlaget ikke har mønster for, er forven
 | annet kompetanse / annet:ikraftsettingskompetanse | nei | 6 |
 | annet konstituerende / annet:organisasjonsformkrav | nei | 6 |
 | F oppgave / oversiktsoppgave | ja | 6 |
-| … 157 typer til (alle `annet:*` eller ≤ 6 utsagn) | | 253 |
+| R relasjon / har_delegert_til | ja | 6 |
+| … 156 typer til (alle `annet:*` eller ≤ 5 utsagn) | | 247 |
 
 De 20 vanligste blant typene med mønster (én fra hver type i tur, vanligste type først):
 
@@ -247,23 +246,23 @@ De 20 vanligste blant typene med mønster (én fra hver type i tur, vanligste ty
 | 1 | domstolloven | lov/1915/08/13/5/nor/§13/ledd-1 | vedtakskompetanse | førstelagmann → null | Avgjørelser og andre forføyninger, som ikke gjelder de enkelte rettssaker, treffer førstelagmannen alene |
 | 2 | domstolloven | lov/1915/08/13/5/nor/§20/ledd-1 | oppnevningskompetanse | domstoladministrasjonen → null | Domstoladministrasjonen kan oppnevne en særskilt dommer |
 | 3 | domstolloven | lov/1915/08/13/5/nor/§16/ledd-1 | bestar_av | Rikets → lagdømmer | Rikets inddeling i lagdømmer |
-| 4 | domstolloven | forskrift/2021/01/22/163/nor/§2/ledd-1/punkt-3 | del_av | Finnsnes → Senja | Finnsnes |
-| 5 | domstolloven | lov/1915/08/13/5/nor/§48/ledd-4 | normgivningskompetanse | Kongen → null | ved regler, som Kongen gir |
-| 6 | domstolloven | lov/1915/08/13/5/nor/§16/ledd-1 | har_ansvarsomrade | lagmannsrettene → lagdømmer | lagdømmer for hver lagmandsret |
-| 7 | domstolloven | lov/1915/08/13/5/nor/§33/ledd-2 | instruksjonskompetanse | Stortinget → domstoladministrasjonen | Gjennom Stortingets behandling av budsjettproposisjonen gis årlige retningslinjer for domstoladministrasjonens virksomhet |
-| 8 | domstolloven | lov/1915/08/13/5/nor/§33a/ledd-4 | tilsynskompetanse | Riksrevisjonen → domstoladministrasjonen | kritikk fra Riksrevisjonen |
-| 9 | domstolloven | lov/1915/08/13/5/nor/§3/ledd-1 | har_medlemmer | Høyesterett → dommere | Retten skal ha en justitiarius og nitten andre dommere. |
-| 10 | domstolloven | lov/1915/08/13/5/nor/§33b/ledd-1 | klagekompetanse | Kongen → styre | for styrets vedtak Kongen i statsråd |
-| 11 | energiloven | kap-I/ledd-9 | samarbeidsplikt | Norges vassdrags- og energidirektorat → Departementet | Gjennomføring av rapportering etter energiloven § 10-1 tredje ledd annet punktum skal samordnes med departementet. |
-| 12 | domstolloven | lov/1915/08/13/5/nor/§217a/ledd-1 | informasjonsplikt | Domstolene → Advokattilsynet | varsle Advokattilsynet om avgjørelsen |
-| 13 | domstolloven | lov/1915/08/13/5/nor/§201/ledd-1 | beslutningskompetanse | den domstol som er nærmest overordnet → dommere | kan den paalægge den skyldige dommer helt eller delvis at utrede de økede omkostninger |
-| 14 | domstolloven | lov/1915/08/13/5/nor/§238/ledd-6 | delegeringskompetanse | Tilsynsutvalget for dommere → null | Tilsynsutvalget kan gi utvalgets leder eller et annet av utvalgets medlemmer myndighet til |
-| 15 | domstolloven | lov/1915/08/13/5/nor/§51a/ledd-1 | konsultasjonsplikt | Domstolene → EFTA-domstolen | forelegge tolkningsspørsmålet for EFTA-domstolen |
-| 16 | helse-og-omsorgstjenesteloven | lov/2011/06/24/30/nor/§5-3/ledd-3 | betalingsplikt | den kommunen som har bistandsbehovet → andre kommuner | Den kommunen som mottar bistand etter andre ledd, skal yte kommunen som bidrar med hjelp, kompensasjon |
-| 17 | helse-og-omsorgstjenesteloven | lov/2011/06/24/30/nor/§7-3/ledd-1 | veiledningsoppgave | koordinerende enhet → koordinator | og for oppnevning, opplæring og veiledning av koordinator og barnekoordinator |
-| 18 | helse-og-omsorgstjenesteloven | lov/2011/06/24/30/nor/§7-2a/ledd-2/punkt-2 | oversiktsoppgave | barnekoordinator → kommunen | bidra aktivt til å ivareta kommunens ansvar |
-| 19 | domstolloven | forskrift/2012/02/03/119/nor/punkt-1 | har_delegert_til | Kongen → Justisdepartementet | Delegeringen omfatter myndigheten til å endre og oppheve forskrift 11. oktober 1985 nr. 1810 om postforkynning fastsatt av Kongen. |
-| 20 | energiloven | lov/1990/06/29/50/nor/§9-1/ledd-5 | administrativt_underordnet | kraftforsyningen → Kraftforsyningens beredskapsorganisasjon (KBO) | Beredskapsmyndigheten kan under beredskap og i krig underlegge kraftforsyningen KBO. |
+| 4 | domstolloven | lov/1915/08/13/5/nor/§48/ledd-4 | normgivningskompetanse | Kongen → null | ved regler, som Kongen gir |
+| 5 | domstolloven | lov/1915/08/13/5/nor/§16/ledd-1 | har_ansvarsomrade | lagmannsrettene → lagdømmer | lagdømmer for hver lagmandsret |
+| 6 | domstolloven | lov/1915/08/13/5/nor/§33/ledd-2 | instruksjonskompetanse | Stortinget → domstoladministrasjonen | Gjennom Stortingets behandling av budsjettproposisjonen gis årlige retningslinjer for domstoladministrasjonens virksomhet |
+| 7 | domstolloven | lov/1915/08/13/5/nor/§33a/ledd-4 | tilsynskompetanse | Riksrevisjonen → domstoladministrasjonen | kritikk fra Riksrevisjonen |
+| 8 | domstolloven | lov/1915/08/13/5/nor/§3/ledd-1 | har_medlemmer | Høyesterett → dommere | Retten skal ha en justitiarius og nitten andre dommere. |
+| 9 | domstolloven | lov/1915/08/13/5/nor/§33b/ledd-1 | klagekompetanse | Kongen → styre | for styrets vedtak Kongen i statsråd |
+| 10 | energiloven | kap-I/ledd-9 | samarbeidsplikt | Norges vassdrags- og energidirektorat → Departementet | Gjennomføring av rapportering etter energiloven § 10-1 tredje ledd annet punktum skal samordnes med departementet. |
+| 11 | domstolloven | lov/1915/08/13/5/nor/§217a/ledd-1 | informasjonsplikt | Domstolene → Advokattilsynet | varsle Advokattilsynet om avgjørelsen |
+| 12 | domstolloven | lov/1915/08/13/5/nor/§201/ledd-1 | beslutningskompetanse | den domstol som er nærmest overordnet → dommere | kan den paalægge den skyldige dommer helt eller delvis at utrede de økede omkostninger |
+| 13 | domstolloven | lov/1915/08/13/5/nor/§238/ledd-6 | delegeringskompetanse | Tilsynsutvalget for dommere → null | Tilsynsutvalget kan gi utvalgets leder eller et annet av utvalgets medlemmer myndighet til |
+| 14 | domstolloven | lov/1915/08/13/5/nor/§51a/ledd-1 | konsultasjonsplikt | Domstolene → EFTA-domstolen | forelegge tolkningsspørsmålet for EFTA-domstolen |
+| 15 | helse-og-omsorgstjenesteloven | lov/2011/06/24/30/nor/§5-3/ledd-3 | betalingsplikt | den kommunen som har bistandsbehovet → andre kommuner | Den kommunen som mottar bistand etter andre ledd, skal yte kommunen som bidrar med hjelp, kompensasjon |
+| 16 | helse-og-omsorgstjenesteloven | lov/2011/06/24/30/nor/§7-3/ledd-1 | veiledningsoppgave | koordinerende enhet → koordinator | og for oppnevning, opplæring og veiledning av koordinator og barnekoordinator |
+| 17 | helse-og-omsorgstjenesteloven | lov/2011/06/24/30/nor/§7-2a/ledd-2/punkt-2 | oversiktsoppgave | barnekoordinator → kommunen | bidra aktivt til å ivareta kommunens ansvar |
+| 18 | domstolloven | forskrift/2012/02/03/119/nor/punkt-1 | har_delegert_til | Kongen → Justisdepartementet | Delegeringen omfatter myndigheten til å endre og oppheve forskrift 11. oktober 1985 nr. 1810 om postforkynning fastsatt av Kongen. |
+| 19 | energiloven | lov/1990/06/29/50/nor/§9-1/ledd-5 | administrativt_underordnet | kraftforsyningen → Kraftforsyningens beredskapsorganisasjon (KBO) | Beredskapsmyndigheten kan under beredskap og i krig underlegge kraftforsyningen KBO. |
+| 20 | domstolloven | lov/1915/08/13/5/nor/§33/ledd-1 | forvaltningsoppgave | domstoladministrasjonen → Domstolene | den sentrale administrasjonen av domstolene |
 
 ## Forkastede mønstre
 
