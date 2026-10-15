@@ -1466,7 +1466,25 @@ public static partial class LovdataHtmlParser
         ReferanseKontekst kontekst, List<RettskildeNode> noder, List<RettskildeReferanse> referanser, SorteringsTeller sortering)
     {
         var deling = DelVedLister(containere, kontekst);
-        var plainTekst = KollapsDobleMellomrom(string.Concat(deling.Innledning.Select(s => s.Tekst))).Trim();
+
+        // Uten noen avslutning (bare whitespace etter listene — det vanlige) får noden NØYAKTIG de samme
+        // segmentene som før #361: innledningen + ett mellomrom per liste + whitespace-en etter. Teksten
+        // blir den samme uansett (trimmes), men AKN-en skriver segmentene rått, og importen sammenligner
+        // AKN-XML for å avgjøre om et dokument er endret (RettskildeImportTjeneste). Uten dette ville et
+        // avsluttende mellomrom i <p> forsvunnet i alle ledd som slutter med en liste, og nær hele
+        // korpuset fått ny versjon ved neste resynk uten at noe i teksten var endret. Målt: se #361.
+        var harAvslutning = deling.Lister.Any(l => string.Concat(l.Etter.Select(s => s.Tekst)).Trim().Length > 0);
+        var egneSegmenter = deling.Innledning;
+        if (!harAvslutning && deling.Lister.Count > 0)
+        {
+            egneSegmenter = [.. deling.Innledning];
+            foreach (var del in deling.Lister)
+            {
+                egneSegmenter.Add(new TekstSegment(" ", null, false));
+                egneSegmenter.AddRange(del.Etter);
+            }
+        }
+        var plainTekst = KollapsDobleMellomrom(string.Concat(egneSegmenter.Select(s => s.Tekst))).Trim();
 
         noder.Add(new RettskildeNode
         {
@@ -1477,10 +1495,10 @@ public static partial class LovdataHtmlParser
             Nummer = nummer,
             Tekst = plainTekst,
             TekstHash = LovdataIdentifikatorer.BeregnTekstHash(plainTekst),
-            Segmenter = deling.Innledning,
+            Segmenter = egneSegmenter,
             SorteringsRekkefolge = sortering.Neste(),
         });
-        LeggTilReferanser(referanser, eid, deling.Innledning, plainTekst);
+        LeggTilReferanser(referanser, eid, egneSegmenter, plainTekst);
 
         var punktIndeks = 0;
         foreach (var del in deling.Lister)
