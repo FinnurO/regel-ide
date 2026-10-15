@@ -38,13 +38,13 @@ public class UtsagnsstatusMigreringTests
         return id;
     }
 
-    private static async Task<Guid> TaggAsync(RegelIdeDbContext db, Guid rettskilde, string eid, string tekst, Guid navneform, int start)
+    private static async Task<Guid> TaggAsync(RegelIdeDbContext db, Guid rettskilde, string eid, string tekst, Guid navneform, int start, Guid virksomhet)
     {
         var id = Guid.NewGuid();
         await db.Database.ExecuteSqlInterpolatedAsync($"""
             INSERT INTO tekst_tagger ("Id", rettskilde_id, node_eid, start_offset, end_offset, quote_prefix, quote_exact, quote_suffix,
-                node_tekst_hash, kind, ref_id, opprettet_av)
-            VALUES ({id}, {rettskilde}, {eid}, {start}, {start + tekst.Length}, '', {tekst}, '', 'h', 'virksomhet', {navneform}, 'test')
+                node_tekst_hash, kind, ref_id, opprettet_av, virksomhet_id)
+            VALUES ({id}, {rettskilde}, {eid}, {start}, {start + tekst.Length}, '', {tekst}, '', 'h', 'virksomhet', {navneform}, 'test', {virksomhet})
             """);
         return id;
     }
@@ -78,8 +78,8 @@ public class UtsagnsstatusMigreringTests
             kKongen = await KantAsync(db, kis, lov, ledd[1], "validert", true);
             kUavklart = await KantAsync(db, kis, lov, ledd[2], "validert", true);
             kForslag = await KantAsync(db, kis, lov, ledd[3], "foreslatt_av_ai", null);
-            tKongen = await TaggAsync(db, lov, ledd[1], "Kongen", kisForm, 0);
-            tKis = await TaggAsync(db, lov, ledd[0], "Kongen i statsråd", kisForm, 0);
+            tKongen = await TaggAsync(db, lov, ledd[1], "Kongen", kisForm, 0, kis);
+            tKis = await TaggAsync(db, lov, ledd[0], "Kongen i statsråd", kisForm, 0, kis);
         }
 
         await HistoriskSkjema.MigrerAsync(conn, null);

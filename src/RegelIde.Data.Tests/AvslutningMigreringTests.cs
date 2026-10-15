@@ -98,7 +98,7 @@ public class AvslutningMigreringTests
         {
             await rydd.Database.ExecuteSqlInterpolatedAsync($"DELETE FROM strukturkanter WHERE \"Id\" <> {valg}");
         }
-        await HistoriskSkjema.MigrerAsync(conn, HistoriskSkjema.PliktOgOrdning, leggTilSenereKolonner: false);
+        await HistoriskSkjema.MigrerAsync(conn, HistoriskSkjema.PliktOgOrdning, leggTilSenereKolonner: true); // [ENDRET, #367] dagens modell leser konfigurasjonen
 
         await using (var tilbake = new RegelIdeDbContext(HistoriskSkjema.Options(conn)))
         {
