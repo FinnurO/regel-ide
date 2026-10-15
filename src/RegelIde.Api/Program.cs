@@ -49,6 +49,9 @@ builder.Services.AddScoped<VirksomhetVisningsnavnTjeneste>();
 // [ENDRET, issue #311] MyndighetstildelingTjeneste og GruppeMedlemskapTjeneste (og
 // VirksomhetRelasjonregisterTjeneste under) er erstattet av ÉN skrivevei for alle strukturkanter.
 builder.Services.AddScoped<StrukturkantTjeneste>();
+// [Ny, issue #313] Forslagslasteren (konvertering → forslag) og KI-konverteringen den kan kjøre (#308).
+builder.Services.AddScoped<RegelIde.Data.Strukturkonvertering.StrukturforslagTjeneste>();
+builder.Services.AddScoped<RegelIde.Data.Strukturkonvertering.KiStrukturkonverterer>();
 // [Ny, issue #312 «områderegister»] «Gitt kommune X → fylke, tingrett, lagdømme, statsforvalter, RHF» (AC5).
 builder.Services.AddScoped<OmradeOppslagTjeneste>();
 builder.Services.AddScoped<VirksomhetWhereUsedTjeneste>();
@@ -1142,12 +1145,52 @@ rettskilder.MapGet("/{id:guid}/endringer", async (Guid id, RettskildeRepository 
 // («hvem forvalter loven, og i hvilken egenskap») kunne ikke stilles fra bestemmelsen den står i.
 // [ENDRET, issue #311] Var /{id}/virksomhetsrelasjoner (bare R-relasjoner). Nå alle kategorier — tildelinger,
 // medlemskap og kompetanse hjemlet i loven hører like mye hjemme her som relasjonene.
-rettskilder.MapGet("/{id:guid}/strukturkanter", async (Guid id, StrukturkantTjeneste tjeneste, CancellationToken ct) =>
-        Results.Ok((await tjeneste.HentForHjemmelRettskildeAsync(id, ct)).Select(StrukturkantDto.FraVisning)))
+rettskilder.MapGet("/{id:guid}/strukturkanter", async (Guid id, bool? visAvviste, StrukturkantTjeneste tjeneste, CancellationToken ct) =>
+        Results.Ok((await tjeneste.HentForHjemmelRettskildeAsync(id, ct, visAvviste ?? false)).Select(StrukturkantDto.FraVisning)))
     .WithOpenApi()
     .WithName("HentStrukturkanterHjemletIRettskilde")
     .WithSummary("Issue #311 — strukturkanter (alle kategorier) som denne rettskilden er oppgitt som hjemmel for. " +
-        "Kanter med bare kilde utenfor korpus er ikke med — de hører per definisjon ikke til noen rettskilde.");
+        "Kanter med bare kilde utenfor korpus er ikke med — de hører per definisjon ikke til noen rettskilde. " +
+        "[Ny, #313/#374] Avviste forslag er med bare med ?visAvviste=true.");
+
+// [Ny, issue #313 «Strukturmodell 8»] Last konverteringsresultatet for én rettskilde inn som forslag (maskinelt_foreslatt) gjennom den
+// felles skriveveien (StrukturkantTjeneste.OpprettAsync). Idempotent: en ny kjøring lager ingen duplikater og foreslår ikke avviste på nytt.
+rettskilder.MapPost("/{id:guid}/strukturforslag", async (Guid id, string? lag, HttpRequest request, RegelIdeDbContext db,
+        RegelIde.Data.Strukturkonvertering.StrukturforslagTjeneste laster, IServiceProvider tjenester, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var grunnlag = await laster.ByggGrunnlagAsync(id, ct);
+            switch (lag ?? "monster")
+            {
+                case "monster":
+                {
+                    var dok = new RegelIde.Data.Strukturkonvertering.MonsterStrukturkonverterer().Konverter(grunnlag);
+                    return Results.Ok(await laster.LastAsync(id, dok, "monster", "monster:ukjent", bruker.Navn, ct));
+                }
+                case "ki":
+                {
+                    var ki = tjenester.GetRequiredService<RegelIde.Data.Strukturkonvertering.KiStrukturkonverterer>();
+                    var res = await ki.KonverterMedRapportAsync(grunnlag, ct);
+                    var rapport = await laster.LastAsync(id, res.Dokument, "ki", ki.Oppdagelseskilde, bruker.Navn, ct);
+                    return Results.Ok(rapport with { KiInputTokens = res.InputTokens, KiOutputTokens = res.OutputTokens, KiKastedeRader = res.Kastet.Count });
+                }
+                default:
+                    return Results.BadRequest(new { feil = $"Ukjent lag '{lag}'. Gyldige verdier: monster, ki." });
+            }
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithOpenApi()
+    .WithName("LastStrukturforslag")
+    .WithSummary("Issue #313 — kjører strukturkonverteringen (?lag=monster [standard] | ki) på rettskildens gjeldende noder og laster " +
+        "utsagnene som forslag (status maskinelt_foreslatt, oppdagelseskilde monster:<id> | ki:<modell>). Aktører løses bare ved eksakt " +
+        "treff; ellers navnekandidat. Svarer med tall per kategori, utfall per utsagn og årsakene til det som ikke ble lastet.");
 
 rettskilder.MapGet("/{id:guid}/referert-av-tjenester", async (Guid id, RettskildeRepository repo) =>
         Results.Ok(await repo.ReferertAvTjenesterAsync(id)))
@@ -3480,7 +3523,7 @@ app.MapGet("/api/gruppebegrep", async (VirksomhetsbegrepTjeneste register, Cance
 var strukturkanter = app.MapGroup("/api/strukturkanter").WithOpenApi();
 
 strukturkanter.MapGet("/", async (Guid? virksomhetId, Guid? begrepId, string? kategori, string? status, bool? gjeldende,
-        string? familie, string? undertype, StrukturkantTjeneste tjeneste, CancellationToken ct) =>
+        string? familie, string? undertype, bool? visAvviste, Guid? hjemmelRettskildeId, StrukturkantTjeneste tjeneste, CancellationToken ct) =>
     {
         try
         {
@@ -3495,6 +3538,12 @@ strukturkanter.MapGet("/", async (Guid? virksomhetId, Guid? begrepId, string? ka
             {
                 return Results.BadRequest(new { feil = "Oppgi virksomhetId ELLER begrepId, ikke begge." });
             }
+            if (virksomhetId is null && begrepId is null && status == Strukturkanter.Avvist)
+            {
+                // [Ny, issue #313 / #374] «Vis avviste» i forslagskøen: de avviste, valgfritt for én hjemmel.
+                return Results.Ok((await tjeneste.HentAvvisteAsync(hjemmelRettskildeId, ct))
+                    .Where(v => kategori == null || v.Kategori == kategori).Select(StrukturkantDto.FraVisning));
+            }
             if (virksomhetId is null && begrepId is null)
             {
                 // [ENDRET, issue #367] status=forslag (alle ventende); foreslatt_av_ai/maskinelt_foreslatt godtas for bakoverkompatibilitet.
@@ -3504,11 +3553,12 @@ strukturkanter.MapGet("/", async (Guid? virksomhetId, Guid? begrepId, string? ka
                 }
                 var forslag = await tjeneste.HentForslagAsync(ct);
                 return Results.Ok(forslag.Where(v => (kategori == null || v.Kategori == kategori) && (familie == null || v.Familie == familie)
-                        && (undertype == null || v.Undertype == undertype))
+                        && (undertype == null || v.Undertype == undertype)
+                        && (hjemmelRettskildeId == null || v.HjemmelRettskildeId == hjemmelRettskildeId))
                     .Select(StrukturkantDto.FraVisning));
             }
             var node = virksomhetId is { } v ? Kantnode.Virksomhet(v) : Kantnode.Begrep(begrepId!.Value);
-            var kanter = await tjeneste.HentForNodeAsync(node, kategori, gjeldende ?? false, ct, familie);
+            var kanter = await tjeneste.HentForNodeAsync(node, kategori, gjeldende ?? false, ct, familie, visAvviste ?? false);
             return Results.Ok(kanter
                 .Where(k => (status == null || k.Status == status) && (undertype == null || k.Undertype == undertype))
                 .OrderBy(k => Array.IndexOf(Strukturkanter.Kategorier, k.Kategori))
@@ -3658,9 +3708,11 @@ strukturkanter.MapPost("/{id:guid}/avvis", async (Guid id, HttpRequest request, 
         if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         try
         {
-            return await tjeneste.AvvisAsync(id, ct)
-                ? Results.NoContent()
-                : Results.NotFound(new { feil = $"Ingen strukturkant med id '{id}'." });
+            // [ENDRET, issue #313 / #374] Kroppen er valgfri ({ begrunnelse }) — eldre klienter sender ingen.
+            var body = await LesValgfriAvvisningAsync(request, ct);
+            return await tjeneste.AvvisAsync(id, bruker.Navn, body?.Begrunnelse, ct) is null
+                ? Results.NotFound(new { feil = $"Ingen ventende strukturkant med id '{id}'." })
+                : Results.Ok(StrukturkantDto.FraVisning((await tjeneste.HentAsync(id, ct))!));
         }
         catch (ArgumentException ex)
         {
@@ -3668,7 +3720,16 @@ strukturkanter.MapPost("/{id:guid}/avvis", async (Guid id, HttpRequest request, 
         }
     })
     .WithName("AvvisStrukturkant")
-    .WithSummary("Issue #311 — avviser (sletter) et forslag. Bare forslag ([ENDRET #367] ikke godkjent); en godkjent kant slettes med DELETE.");
+    .WithSummary("Issue #311 — avviser et forslag. [ENDRET #313/#374] Setter status avvist med hvem, når og valgfri begrunnelse " +
+        "({ begrunnelse }); raden slettes ikke og vises bare med «vis avviste». Bare forslag; en godkjent kant slettes med DELETE.");
+
+// [Ny, issue #313 AC4] Forhåndsvisning: slik kanten blir seende ut på aktørsidene og rettskildesiden.
+strukturkanter.MapGet("/{id:guid}/forhandsvisning", async (Guid id, StrukturkantTjeneste tjeneste, CancellationToken ct) =>
+        await tjeneste.ForhandsvisAsync(id, ct) is { } f
+            ? Results.Ok(StrukturkantForhandsvisningDto.Fra(f))
+            : Results.NotFound(new { feil = $"Ingen strukturkant med id '{id}'." }))
+    .WithName("ForhandsvisStrukturkant")
+    .WithSummary("Issue #313 — visningsteksten fra fra-nodens side, til-nodens side og rettskildesiden (samme beregning som sidene).");
 
 // [Ny, issue #367 AC3, docs/34 §4] Revisjon: en ny rad som erstatter den gamle; den gamle blir foreldet (slettes ikke).
 strukturkanter.MapPost("/{id:guid}/revisjon", async (Guid id, HttpRequest request, StrukturkantRequest body, StrukturkantTjeneste tjeneste,
@@ -3726,6 +3787,19 @@ strukturkanter.MapPost("/godkjenn-alle", async (Guid hjemmelRettskildeId, string
     .WithName("GodkjennAlleStrukturkantForslagForHjemmel")
     .WithSummary("Issue #312 — godkjenner alle ventende forslag hjemlet i én rettskilde (valgfritt avgrenset til en " +
         "oppdagelseskilde-prefiks, f.eks. 'monster:'). Hver kant får sin egen proveniensrad.");
+
+strukturkanter.MapPost("/avvis-alle", async (Guid hjemmelRettskildeId, string? oppdagelseskildePrefiks, HttpRequest request,
+        StrukturkantTjeneste tjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        var body = await LesValgfriAvvisningAsync(request, ct);
+        var antall = await tjeneste.AvvisAlleForHjemmelAsync(hjemmelRettskildeId, oppdagelseskildePrefiks, bruker.Navn, body?.Begrunnelse, ct);
+        return Results.Ok(new { avvist = antall });
+    })
+    .WithName("AvvisAlleStrukturkantForslagForHjemmel")
+    .WithSummary("Issue #313 — avviser alle ventende maskinelle forslag hjemlet i én rettskilde (valgfritt én oppdagelseskilde-prefiks), " +
+        "med valgfri felles begrunnelse. Radene slettes ikke (#374).");
 
 strukturkanter.MapDelete("/{id:guid}", async (Guid id, HttpRequest request, StrukturkantTjeneste tjeneste,
         RegelIdeDbContext db, CancellationToken ct) =>
@@ -5655,6 +5729,14 @@ if (File.Exists(indeksfil))
     var indeksinnhold = Stiprefiks.SettBaseHref(File.ReadAllText(indeksfil), stiprefiks);
 
     app.MapFallback(() => Results.Content(indeksinnhold, "text/html", Encoding.UTF8));
+}
+
+// [Ny, issue #313 / #374] Kroppen til «avvis» er valgfri: eldre klienter sender ingen (og JsonContent sendes chunked, uten Content-Length).
+static async Task<AvvisStrukturkantRequest?> LesValgfriAvvisningAsync(HttpRequest request, CancellationToken ct)
+{
+    if (!request.HasJsonContentType()) return null;
+    try { return await request.ReadFromJsonAsync<AvvisStrukturkantRequest>(ct); }
+    catch (JsonException) { return null; }
 }
 
 app.Run();

@@ -2871,6 +2871,10 @@ namespace RegelIde.Data.Migrasjoner
                         .HasColumnType("text")
                         .HasColumnName("avgrensning_tekst");
 
+                    b.Property<string>("AvvisningBegrunnelse")
+                        .HasColumnType("text")
+                        .HasColumnName("avvisning_begrunnelse");
+
                     b.Property<string>("Begrunnelse")
                         .HasColumnType("text")
                         .HasColumnName("begrunnelse");
@@ -3071,6 +3075,10 @@ namespace RegelIde.Data.Migrasjoner
 
                     b.ToTable("strukturkanter", null, t =>
                         {
+                            t.HasCheckConstraint("ck_strukturkanter_avvisning_begrunnelse", "avvisning_begrunnelse IS NULL OR status = 'avvist'");
+
+                            t.HasCheckConstraint("ck_strukturkanter_avvist_hvem", "status <> 'avvist' OR (sist_endret_av IS NOT NULL AND sist_endret_tidspunkt IS NOT NULL)");
+
                             t.HasCheckConstraint("ck_strukturkanter_delegering_slutning", "delegering_slutning IS NULL OR (kategori = 'K' AND delegeringsadgang = 'ikke_regulert' AND delegering_slutning IN ('trolig_delegerbar', 'trolig_ikke_delegerbar'))");
 
                             t.HasCheckConstraint("ck_strukturkanter_delegeringsadgang", "delegeringsadgang IS NULL OR (kategori = 'K' AND delegeringsadgang IN ('uttrykkelig_tillatt', 'uttrykkelig_forbudt', 'ikke_regulert'))");

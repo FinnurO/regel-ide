@@ -562,14 +562,32 @@ public class StrukturkantTjenesteTests
         Assert.Equal("godkjent", godkjent!.Status);
         await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.GodkjennAsync(forslag.Kant.Id, "Kari Jurist"));
         // En validert kant avvises ikke — den slettes.
-        await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.AvvisAsync(forslag.Kant.Id));
+        await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.AvvisAsync(forslag.Kant.Id, "Kari Jurist"));
 
         var mønster = await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Kompetanse, "oppnevning",
             Kantnode.Virksomhet(a), Kantnode.Virksomhet(c), HjemmelRettskildeId: o.LovId,
             Status: "maskinelt_foreslatt", OppdagelsesKilde: "monster:oppnevnes-av"), "mønsterlaget");
         Assert.Equal("monster:oppnevnes-av", mønster.Kant.OppdagelsesKilde);
-        Assert.True(await tjeneste.AvvisAsync(mønster.Kant.Id));
-        Assert.False(await db.Strukturkanter.AnyAsync(k => k.Id == mønster.Kant.Id));
+        // [ENDRET, issue #313 / #374] Avvis setter status avvist med hvem/når/hvorfor — raden slettes ikke, men er skjult som standard.
+        var avvist = await tjeneste.AvvisAsync(mønster.Kant.Id, "Kari Jurist", "  Ikke oppnevning, men innstilling.  ");
+        Assert.Equal(("avvist", "Kari Jurist", "Ikke oppnevning, men innstilling."), (avvist!.Status, avvist.SistEndretAv, avvist.AvvisningBegrunnelse));
+        Assert.NotNull(avvist.SistEndretTidspunkt);
+        Assert.False(await db.Strukturkanter.AnyAsync(k => k.Id == mønster.Kant.Id));                 // skjult (global spørrefilter)
+        Assert.True(await tjeneste.GjeldendeInklAvviste.AnyAsync(k => k.Id == mønster.Kant.Id));      // men ikke slettet
+        Assert.Equal("avvist", (await db.Proveniens.Where(p => p.EntitetId == mønster.Kant.Id).OrderBy(p => p.Dato).LastAsync()).Handling);
+        Assert.DoesNotContain(await tjeneste.HentForNodeAsync(Kantnode.Virksomhet(a)), v => v.Id == mønster.Kant.Id);
+        Assert.Contains(await tjeneste.HentForNodeAsync(Kantnode.Virksomhet(a), visAvviste: true), v => v.Id == mønster.Kant.Id);
+        Assert.Contains(await tjeneste.HentAvvisteAsync(o.LovId), v => v.Id == mønster.Kant.Id && v.AvvisningBegrunnelse != null);
+        Assert.Null(await tjeneste.AvvisAsync(mønster.Kant.Id, "Kari Jurist")); // allerede avvist = ikke et ventende forslag
+        // Et identisk MASKINELT forslag foreslås ikke på nytt: den avviste raden kommer tilbake (VarNy = false).
+        var igjen = await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Kompetanse, "oppnevning",
+            Kantnode.Virksomhet(a), Kantnode.Virksomhet(c), HjemmelRettskildeId: o.LovId,
+            Status: "maskinelt_foreslatt", OppdagelsesKilde: "monster:oppnevnes-av"), "mønsterlaget");
+        Assert.Equal((false, mønster.Kant.Id, "avvist"), (igjen.VarNy, igjen.Kant.Id, igjen.Kant.Status));
+        // Et menneske som registrerer det samme, får en ny rad — avvisningen gjaldt forslaget.
+        var manuell = await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Kompetanse, "oppnevning",
+            Kantnode.Virksomhet(a), Kantnode.Virksomhet(c), HjemmelRettskildeId: o.LovId), "Kari Jurist");
+        Assert.True(manuell.VarNy);
     }
 
     [Fact]

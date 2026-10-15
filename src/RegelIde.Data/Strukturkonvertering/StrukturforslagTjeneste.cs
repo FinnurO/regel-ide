@@ -250,7 +250,7 @@ public sealed class StrukturforslagTjeneste(
                 ny.Undertype, ny.Normform, ny.Polaritet, ny.Modalitet);
             if (eksisterende.TryGetValue(nokkel, out var fantes))
             {
-                var utfall = settIKjoringen.Contains(nokkel) ? Forslagsutfall.DublettIKjoringen
+                var utfall = !settIKjoringen.Add(nokkel) ? Forslagsutfall.DublettIKjoringen
                     : fantes.Status == Strukturkanter.Avvist ? Forslagsutfall.TidligereAvvist
                     : Strukturkanter.Ventende.Contains(fantes.Status) ? Forslagsutfall.FantesSomForslag
                     : Forslagsutfall.FantesGodkjent;
