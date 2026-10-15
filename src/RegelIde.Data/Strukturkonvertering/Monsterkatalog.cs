@@ -233,9 +233,9 @@ internal static class Monsterkatalog
 
         Regex("samordning-samordne",
             "«X skal/kan samordne …», også sist i en oppramsing («skal planlegge, organisere, styre og samordne»). Passiv («skal samordnes med») tas ikke — den sier ikke hvem som har kompetansen.",
-            "Ikke målt i docs/33 §1. Tatt med etter Johanns beslutning 3 på #341 («samordne» → samordning).",
+            "Ikke målt i docs/33 §1. Tatt med etter Johanns beslutning 3 på #341 («samordne» → samordning). [ENDRET, #368] Gir samordningsOPPGAVE (F), ikke kompetanse — Johanns beslutning om F og juristrunden (energiloven u160); modaliteten fra modalverbet.",
             new RegexMonsteroppsett(KreverFra: true),
-            Start + Subjekt + Modal + @"(?:[^.;:]{0,60}?\s+og\s+)?(?<obj>samordne\b)"),
+            Start + Subjekt + PliktModal + @"(?:[^.;:]{0,60}?\s+og\s+)?(?<obj>samordne\b)"),
 
         // ---- [Ny, issue #353] P plikt overfor motpart (Johanns godkjenning 2026-10-08) -------------------------------
         // Modaliteten tas fra modalverbet (gruppen «modal», L14). Motparten er frasen etter «med/til/fra» fram til første

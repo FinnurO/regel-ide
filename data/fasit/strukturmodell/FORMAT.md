@@ -257,6 +257,19 @@ idempotent, også på `ki-utdata/`):
   Runde 2: kompetansen i selve fullmaktsleddet (sameloven u168) og et sitat med både «Kongen» og «Kongen i statsråd» (energiloven u14)
   får ingen verdi og listes.
 
+**[ENDRET, issue #368, Johanns beslutning 2026-10-15] Oppgave/funksjon** (`oppgave`, kategori F; docs/profil/02-begrepsmanual.md §F):
+- Et arbeidsfelt eller ansvar loven legger til en aktør uten at det gir myndighet (kompetanse) eller en plikt overfor en bestemt motpart
+  (plikt): «skal samordne», «skal sørge for at», «skal føre register over», «skal veilede om», «skal påse at», «forvaltningsansvaret
+  for». `fra` = aktøren, `objekt` = oppgaven (PÅKREVD), `til` = det oppgaven gjelder eller null (aldri = `fra`), `modalitet` bare ved
+  modalverb eller normativ presens av en handling (attributiv form: null). **Gir aldri kompetanse eller plikt i seg selv**, heller ikke
+  for en tredjepart («A skal sørge for at B …» gir ingen plikt for B).
+- «A er sekretariat for B» / «A skal være rådgiver for B» alene er relasjon (`sekretariat_for`/`radgir`); `sekretariatsfunksjon` legges
+  til bare når teksten sier hva funksjonen går ut på. «sørge for at X blir hørt» er konsultasjonsplikt, «sørge for at det inngås avtaler»
+  med en motpart avtaleplikt.
+- `kunnskapsstatus` `fortolkning` med `tolkningsargumenter` når leddet har et kompetanse- eller pliktsignal som måtte vurderes.
+- Konverteringen gjør bare det juristrunden avgjorde: `konvertering-368-oppgave.py` leser `juristrunde-368-oppgave.json` (fasit 1 802 →
+  1 825, 52 oppgaverader; KI-utdata 1 042 → 1 051, 29).
+
 Typer per kategori (bruk disse når de passer, ellers "annet:<x>"):
 - relasjon (aktør→aktør): `eies_av`, `ledes_av`, `sekretariat_for`, `rapporterer_til`, `etterfolger`,
   `representerer`, `har_delegert_til` (gjennomført delegering, når BÅDE fra og til er gitt),

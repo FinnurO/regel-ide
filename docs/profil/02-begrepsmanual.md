@@ -74,7 +74,7 @@ Et lite, lukket startsett. Nye typer er rader i typekonfigurasjonen, ikke kode, 
 | `sorge_for` | `sorge_for_ansvar` | Et resultatansvar: aktøren skal sørge for at noe skjer eller finnes, for et område eller en befolkning | «skal sørge for at», «har det overordnede ansvar for at», «skal ha ansvaret for» |
 | `oversikt` | `oversiktsoppgave` | Å føre registeret, fortegnelsen eller oversikten, eller følge med på en tilstand (ansvaret for registeret som ordning er forvaltning) | «skal føre oversikt over», «registeret føres av», «skal følge med på» |
 | `bistand` | `bistandsoppgave` | En generell oppgave å bidra til andres arbeid, uten en bestemt motpart som kan kreve det | «skal bidra i», «medvirke til» (uten motpart) |
-| `sekretariat` | `sekretariatsfunksjon` | Å være sekretariat for et organ eller utføre sekretariatsoppgaver | «er sekretariat for», «sekretariatet skal utføre de oppgavene som» |
+| `sekretariatsfunksjon` | `sekretariatsfunksjon` | Å være sekretariat for et organ eller utføre sekretariatsoppgaver | «er sekretariat for», «sekretariatet skal utføre de oppgavene som» |
 | `radgivning` | `radgivningsoppgave` | Å være rådgiver eller gi råd som fast funksjon | «skal være medisinskfaglig rådgiver for», «skal gi råd» |
 | `veiledning` | `veiledningsoppgave` | En særskilt lovbestemt veiledningsfunksjon overfor dem som skal etterleve eller bruke regelverket eller faget | «skal veilede om», «skal gi veiledning», «utvikle … retningslinjer og veiledere», «opplæring og veiledning av» |
 | `kontroll` | `kontrolloppgave` | Å påse at andre etterlever regelverket, uten egen hjemmel til å undersøke eller reagere | «skal påse at», «følge opp og kontrollere» |
@@ -101,7 +101,7 @@ løses opp (grunnlagsdokumentet §4.5)? Fasiten bruker i dag tekstens subjekt.
 | «Den systemansvarlige skal sørge for at det til enhver tid er momentan balanse» | energiloven u131 | `sorge_for`, objekt = «momentan balanse mellom produksjon og forbruk», skal |
 | «Kommunen skal sørge for at personer som oppholder seg i kommunen, tilbys nødvendige helse- og omsorgstjenester» | hotl. u9 | `sorge_for`, til = kommunen (området), skal. A `har_ansvarsomrade` står i tillegg |
 | «Fortegnelse over de valgte meddommere føres av kommunen» | domstolloven u171 | `oversikt`, objekt = «fortegnelse over valgte meddommere», skal (normativ presens) |
-| «Stiftelsesklagenemnda skal ha et sekretariat som foretar saksforberedelse» | stiftelsesloven § 7a (lokal base) | `sekretariat`, objekt «saksforberedelse» — teksten sier hva sekretariatet gjør. Ved siden av R `sekretariat_for` (begge); kunnskapsstatus `avledet` fordi at sekretariatet er KNS, kommer fra R-kanten |
+| «Stiftelsesklagenemnda skal ha et sekretariat som foretar saksforberedelse» | stiftelsesloven § 7a (lokal base) | `sekretariatsfunksjon`, objekt «saksforberedelse» — teksten sier hva sekretariatet gjør. Ved siden av R `sekretariat_for` (begge); kunnskapsstatus `avledet` fordi at sekretariatet er KNS, kommer fra R-kanten |
 | «Helsedirektoratet skal utvikle, formidle og vedlikeholde nasjonale faglige retningslinjer og veiledere» | hotl. u180 | `veiledning` (retningslinjene binder ikke) |
 | «Fortegnelse … føres av kommunen» / «Registeret over sidegjøremål føres av domstoladministrasjonen» | domstolloven u171, u198 | `oversikt`, skal (normativ presens) |
 

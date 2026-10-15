@@ -549,7 +549,8 @@ public static class Strukturkanter
         ("sorge_for", "sørge-for-ansvar", "sorge_for_ansvar"),
         ("oversikt", "oversiktsoppgave", "oversiktsoppgave"),
         ("bistand", "bistandsoppgave", "bistandsoppgave"),
-        ("sekretariat", "sekretariatsfunksjon", "sekretariatsfunksjon"),
+        // Koden er «sekretariatsfunksjon», ikke «sekretariat»: det var R-koden #330 fjernet (RelasjonskodeHarmonisering.GamleKoder).
+        ("sekretariatsfunksjon", "sekretariatsfunksjon", "sekretariatsfunksjon"),
         ("radgivning", "rådgivningsoppgave", "radgivningsoppgave"),
         ("veiledning", "veiledningsoppgave", "veiledningsoppgave"),
         // [Ny, issue #368, juristrunden] «skal påse at», «følge opp og kontrollere»: en kontrolloppgave uten egen hjemmel til å

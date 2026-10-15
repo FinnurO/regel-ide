@@ -20,11 +20,11 @@ samme eId + kategori + type + fra/til-tekstform som et mønsterutsagn. **Bare m�
 
 | Lag | Fasit | Predikert | Treff | Presisjon | Gjenfinning | Presisjon u/endepunkt | Gjenfinning u/endepunkt |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| Mønster | 1825 | 973 | 870 | 89,4 % | 47,7 % | 92,0 % | 49,0 % |
+| Mønster | 1825 | 973 | 872 | 89,6 % | 47,8 % | 92,3 % | 49,2 % |
 | KI | 1825 | 1051 | 398 | 37,9 % | 21,8 % | 45,3 % | 26,1 % |
-| Mønster ∪ KI | 1825 | 1762 | 1019 | 57,8 % | 55,8 % | 62,3 % | 60,1 % |
+| Mønster ∪ KI | 1825 | 1760 | 1019 | 57,9 % | 55,8 % | 62,4 % | 60,2 % |
 
-Av 1825 fasitutsagn traff bare mønsterlaget 624, bare KI-laget 152.
+Av 1825 fasitutsagn traff bare mønsterlaget 624, bare KI-laget 150.
 
 ## Per kategori (kanttype, `docs/33` §4.3)
 
@@ -33,9 +33,9 @@ P = presisjon, G = gjenfinning (med endepunktkrav).
 | Kategori | Fasit | Mønster pred. | Mønster P | Mønster G | KI pred. | KI P | KI G | Union P | Union G | Bare mønster | Bare KI |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | R | 104 | 4 | 75,0 % | 2,9 % | 81 | 33,3 % | 26,0 % | 32,5 % | 26,0 % | 0 | 24 |
-| K | 595 | 324 | 87,0 % | 47,4 % | 717 | 46,4 % | 56,0 % | 48,0 % | 64,0 % | 51 | 102 |
+| K | 595 | 321 | 87,9 % | 47,4 % | 717 | 46,4 % | 56,0 % | 48,2 % | 64,0 % | 51 | 102 |
 | P | 77 | 31 | 58,1 % | 23,4 % | 41 | 34,1 % | 18,2 % | 40,3 % | 35,1 % | 13 | 9 |
-| F | 52 | 39 | 17,9 % | 13,5 % | 29 | 51,7 % | 28,8 % | 29,5 % | 34,6 % | 3 | 11 |
+| F | 52 | 42 | 21,4 % | 17,3 % | 29 | 51,7 % | 28,8 % | 29,0 % | 34,6 % | 3 | 9 |
 | M | 47 | 0 | – | 0,0 % | 22 | 4,5 % | 2,1 % | 4,5 % | 2,1 % | 0 | 1 |
 | O | 177 | 122 | 89,3 % | 61,6 % | 11 | 0,0 % | 0,0 % | 82,0 % | 61,6 % | 109 | 0 |
 | A | 447 | 419 | 100,0 % | 93,7 % | 42 | 0,0 % | 0,0 % | 90,9 % | 93,7 % | 419 | 0 |
@@ -43,7 +43,7 @@ P = presisjon, G = gjenfinning (med endepunktkrav).
 | I | 0 | 0 | – | – | 0 | – | – | – | – | 0 | 0 |
 | T | 19 | 0 | – | 0,0 % | 14 | 14,3 % | 10,5 % | 14,3 % | 10,5 % | 0 | 2 |
 | annet | 262 | 28 | 100,0 % | 10,7 % | 53 | 1,9 % | 0,4 % | 35,8 % | 11,1 % | 28 | 1 |
-| **Alle** | 1825 | 973 | 89,4 % | 47,7 % | 1051 | 37,9 % | 21,8 % | 57,8 % | 55,8 % | 624 | 152 |
+| **Alle** | 1825 | 973 | 89,6 % | 47,8 % | 1051 | 37,9 % | 21,8 % | 57,9 % | 55,8 % | 624 | 150 |
 
 ### KI uten endepunktkrav (bare eId + kategori + type)
 
@@ -52,9 +52,9 @@ Avstanden til tabellen over er utsagn KI-en gjenkjente, men med feil eller mangl
 | Kategori | KI P u/endepunkt | KI G u/endepunkt | Mønster P u/endepunkt | Mønster G u/endepunkt |
 |---|---:|---:|---:|---:|
 | R | 46,9 % | 36,5 % | 75,0 % | 2,9 % |
-| K | 51,9 % | 62,5 % | 88,9 % | 48,4 % |
+| K | 51,9 % | 62,5 % | 89,7 % | 48,4 % |
 | P | 46,3 % | 24,7 % | 64,5 % | 26,0 % |
-| F | 65,5 % | 36,5 % | 28,2 % | 21,2 % |
+| F | 65,5 % | 36,5 % | 33,3 % | 26,9 % |
 | M | 13,6 % | 6,4 % | – | 0,0 % |
 | O | 81,8 % | 5,1 % | 98,4 % | 67,8 % |
 | A | 2,4 % | 0,2 % | 100,0 % | 93,7 % |
@@ -68,8 +68,8 @@ Avstanden til tabellen over er utsagn KI-en gjenkjente, men med feil eller mangl
 | Kilde | Fasit | Mønster pred. | Mønster P | Mønster G | KI pred. | KI P | KI G | Union P | Union G | Bare mønster | Bare KI |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | domstolloven | 779 | 543 | 95,4 % | 66,5 % | 344 | 18,3 % | 8,1 % | 63,9 % | 69,2 % | 476 | 21 |
-| energiloven | 242 | 121 | 91,7 % | 45,9 % | 211 | 59,7 % | 52,1 % | 62,0 % | 62,8 % | 27 | 42 |
-| helse-og-omsorgstjenesteloven | 200 | 71 | 74,6 % | 26,5 % | 136 | 55,1 % | 37,5 % | 49,7 % | 38,5 % | 4 | 26 |
+| energiloven | 242 | 121 | 92,6 % | 46,3 % | 211 | 59,7 % | 52,1 % | 62,3 % | 62,8 % | 27 | 41 |
+| helse-og-omsorgstjenesteloven | 200 | 71 | 76,1 % | 27,0 % | 136 | 55,1 % | 37,5 % | 50,0 % | 38,5 % | 4 | 25 |
 | sameloven | 288 | 135 | 87,4 % | 41,0 % | 70 | 30,0 % | 7,3 % | 68,3 % | 44,8 % | 108 | 11 |
 | spesialisthelsetjenesteloven | 316 | 103 | 68,0 % | 22,2 % | 290 | 39,0 % | 35,8 % | 37,0 % | 38,6 % | 9 | 52 |
 
@@ -111,7 +111,6 @@ Alle typer fra FORMAT.md-listene som står i fasiten eller som et av lagene pred
 | K kompetanse / samtykkekompetanse | 3 | 0 | – | 0,0 % | 0 | – | 0,0 % | – | 0,0 % | 0 | 0 |
 | K kompetanse / avviklingskompetanse | 1 | 0 | – | 0,0 % | 0 | – | 0,0 % | – | 0,0 % | 0 | 0 |
 | K kompetanse / revisjonskompetanse | 1 | 0 | – | 0,0 % | 0 | – | 0,0 % | – | 0,0 % | 0 | 0 |
-| K kompetanse / samordningskompetanse | 0 | 3 | 0,0 % | – | 0 | – | – | 0,0 % | – | 0 | 0 |
 | P plikt / samarbeidsplikt | 21 | 9 | 77,8 % | 33,3 % | 15 | 60,0 % | 42,9 % | 59,1 % | 61,9 % | 4 | 6 |
 | P plikt / betalingsplikt | 18 | 19 | 47,4 % | 50,0 % | 1 | 0,0 % | 0,0 % | 47,4 % | 50,0 % | 9 | 0 |
 | P plikt / informasjonsplikt | 13 | 0 | – | 0,0 % | 2 | 0,0 % | 0,0 % | 0,0 % | 0,0 % | 0 | 0 |
@@ -121,7 +120,7 @@ Alle typer fra FORMAT.md-listene som står i fasiten eller som et av lagene pred
 | F oppgave / sorge_for_ansvar | 23 | 36 | 13,9 % | 21,7 % | 18 | 27,8 % | 21,7 % | 14,6 % | 30,4 % | 2 | 2 |
 | F oppgave / oversiktsoppgave | 8 | 2 | 100,0 % | 25,0 % | 4 | 75,0 % | 37,5 % | 80,0 % | 50,0 % | 1 | 2 |
 | F oppgave / veiledningsoppgave | 8 | 0 | – | 0,0 % | 3 | 100,0 % | 37,5 % | 100,0 % | 37,5 % | 0 | 3 |
-| F oppgave / samordningsoppgave | 6 | 0 | – | 0,0 % | 4 | 100,0 % | 66,7 % | 100,0 % | 66,7 % | 0 | 4 |
+| F oppgave / samordningsoppgave | 6 | 3 | 66,7 % | 33,3 % | 4 | 100,0 % | 66,7 % | 80,0 % | 66,7 % | 0 | 2 |
 | F oppgave / forvaltningsoppgave | 4 | 1 | 0,0 % | 0,0 % | 0 | – | 0,0 % | 0,0 % | 0,0 % | 0 | 0 |
 | F oppgave / bistandsoppgave | 2 | 0 | – | 0,0 % | 0 | – | 0,0 % | – | 0,0 % | 0 | 0 |
 | F oppgave / kontrolloppgave | 1 | 0 | – | 0,0 % | 0 | – | 0,0 % | – | 0,0 % | 0 | 0 |

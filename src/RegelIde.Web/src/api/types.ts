@@ -483,7 +483,7 @@ export type Plikttype = 'samarbeid' | 'avtale' | 'betaling' | 'bistand' | 'infor
 
 /** [Ny, issue #368] F-typekodene — speilet av `Strukturkanter.Oppgavetyper`. */
 export type Oppgavetype =
-  'forvaltning' | 'samordning' | 'sorge_for' | 'oversikt' | 'bistand' | 'sekretariat' | 'radgivning' | 'veiledning' | 'kontroll';
+  'forvaltning' | 'samordning' | 'sorge_for' | 'oversikt' | 'bistand' | 'sekretariatsfunksjon' | 'radgivning' | 'veiledning' | 'kontroll';
 
 export interface StrukturkantDto {
   id: string;

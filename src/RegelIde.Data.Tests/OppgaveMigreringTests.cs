@@ -63,7 +63,7 @@ public class OppgaveMigreringTests
             Assert.Equal(4, await etter.Strukturkanter.CountAsync()); // 3 + én F fra «begge»
             Assert.Equal(3, await etter.Strukturkanter.CountAsync(k => k.Kategori == "R" && k.Typekode == "sekretariat_for"));
             var f = await etter.Strukturkanter.AsNoTracking().SingleAsync(k => k.Kategori == Strukturkanter.Oppgave);
-            Assert.Equal(("sekretariat", kns, nemnd, "skal"), (f.Typekode, f.FraVirksomhetId!.Value, f.TilVirksomhetId!.Value, f.Modalitet));
+            Assert.Equal(("sekretariatsfunksjon", kns, nemnd, "skal"), (f.Typekode, f.FraVirksomhetId!.Value, f.TilVirksomhetId!.Value, f.Modalitet));
             Assert.Equal((Strukturkanter.MaskineltForeslatt, OppgaveMigrering.Oppdagelseskilde, Strukturkanter.Avledet),
                 (f.Status, f.OppdagelsesKilde, f.Kunnskapsstatus));
             Assert.Equal("saksforberedelse", f.Objekt);

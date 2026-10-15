@@ -71,7 +71,7 @@ public static class OppgaveMigrering
                 (3, 'sorge_for', 'har sørge-for-ansvar {0}', '{0} har sørge-for-ansvar som gjelder denne'),
                 (4, 'oversikt', 'har oversiktsoppgave {0}', '{0} har oversiktsoppgave som gjelder denne'),
                 (5, 'bistand', 'har bistandsoppgave {0}', '{0} har bistandsoppgave som gjelder denne'),
-                (6, 'sekretariat', 'har sekretariatsfunksjon {0}', '{0} har sekretariatsfunksjon som gjelder denne'),
+                (6, 'sekretariatsfunksjon', 'har sekretariatsfunksjon {0}', '{0} har sekretariatsfunksjon som gjelder denne'),
                 (7, 'radgivning', 'har rådgivningsoppgave {0}', '{0} har rådgivningsoppgave som gjelder denne'),
                 (8, 'veiledning', 'har veiledningsoppgave {0}', '{0} har veiledningsoppgave som gjelder denne'),
                 (9, 'kontroll', 'har kontrolloppgave {0}', '{0} har kontrolloppgave som gjelder denne')
@@ -85,7 +85,7 @@ public static class OppgaveMigrering
             INSERT INTO oppgave_368 VALUES
                 ('12e28ad6-49cb-4eba-8408-93cf4b837e41', 'behold', NULL, NULL, NULL, NULL, NULL, NULL),
                 ('6d39745e-85e9-47a4-aadf-6046210aa3c6', 'behold', NULL, NULL, NULL, NULL, NULL, NULL),
-                ('6d5b8668-4a74-4bf1-b702-eaf0b332607d', 'begge', 'sekretariat', 'saksforberedelse', 'skal', 'avledet',
+                ('6d5b8668-4a74-4bf1-b702-eaf0b332607d', 'begge', 'sekretariatsfunksjon', 'saksforberedelse', 'skal', 'avledet',
                  'Avledet (juristrunden i #368): stiftelsesloven § 7a tredje ledd sier at Stiftelsesklagenemndas sekretariat foretar saksforberedelse — en stående funksjon for organet, ikke ett trinn i én sak. At sekretariatet er KLAGENEMNDSSEKRETARIATET, følger av premisset (R sekretariat_for med kilde utenfor korpus); kunnskapsstatus kan ikke være sterkere enn premisset.',
                  NULL),
                 ('0f407efc-4da0-4218-9ba7-97ca64ca8634', 'behold', NULL, NULL, NULL, NULL, NULL, NULL);
@@ -135,7 +135,7 @@ public static class OppgaveMigrering
             SELECT count(*) INTO v_endret FROM strukturkanter k JOIN oppgave_368 o ON o.kant_id = k."Id"
             WHERE k.kategori <> 'R' OR k.typekode <> 'sekretariat_for';
             SELECT count(*) INTO v_typer FROM relasjonstype_konfigurasjon WHERE kategori = 'F'
-              AND kode IN ('forvaltning', 'samordning', 'sorge_for', 'oversikt', 'bistand', 'sekretariat', 'radgivning', 'veiledning', 'kontroll');
+              AND kode IN ('forvaltning', 'samordning', 'sorge_for', 'oversikt', 'bistand', 'sekretariatsfunksjon', 'radgivning', 'veiledning', 'kontroll');
 
             IF v_totalt_etter <> v_totalt_for + v_nye OR v_nye <> v_aktuelle OR v_proveniens <> v_nye OR v_endret <> 0 OR v_typer <> 9 THEN
                 RAISE EXCEPTION 'Issue #368: avvik — % kanter før, % etter, % nye F-kanter av % aktuelle, % proveniensrader, % kandidater endret, % av 9 F-typer. Avbrutt.',
