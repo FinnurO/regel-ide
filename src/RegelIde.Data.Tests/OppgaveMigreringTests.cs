@@ -64,10 +64,11 @@ public class OppgaveMigreringTests
             Assert.Equal(3, await etter.Strukturkanter.CountAsync(k => k.Kategori == "R" && k.Typekode == "sekretariat_for"));
             var f = await etter.Strukturkanter.AsNoTracking().SingleAsync(k => k.Kategori == Strukturkanter.Oppgave);
             Assert.Equal(("sekretariat", kns, nemnd, "skal"), (f.Typekode, f.FraVirksomhetId!.Value, f.TilVirksomhetId!.Value, f.Modalitet));
-            Assert.Equal((Strukturkanter.MaskineltForeslatt, OppgaveMigrering.Oppdagelseskilde, Strukturkanter.Fortolkning),
+            Assert.Equal((Strukturkanter.MaskineltForeslatt, OppgaveMigrering.Oppdagelseskilde, Strukturkanter.Avledet),
                 (f.Status, f.OppdagelsesKilde, f.Kunnskapsstatus));
-            Assert.NotNull(f.Objekt);
-            Assert.NotEmpty(f.Tolkningsargumenter!);
+            Assert.Equal("saksforberedelse", f.Objekt);
+            // Avledet: premisset er R-kanten selv (KNS som sekretariat, kilde utenfor korpus).
+            Assert.Equal(begge, await etter.Database.SqlQuery<Guid>($"SELECT premiss_kant_id AS \"Value\" FROM strukturkant_premisser WHERE kant_id = {f.Id}").SingleAsync());
             Assert.False(string.IsNullOrWhiteSpace(f.Begrunnelse));
             // Ingen eksisterende kant er endret.
             Assert.False(await etter.Strukturkanter.AnyAsync(k => k.Kategori == "R" && k.SistEndretAv != null));

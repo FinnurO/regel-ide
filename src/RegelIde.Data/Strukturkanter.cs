@@ -539,8 +539,8 @@ public static class Strukturkanter
     /// <summary>
     /// [Ny, issue #368, <c>[LÅST]</c> til en ny type er begrunnet (grunnlagsdokumentet §4.7)] ÉN tabell over oppgavetypene, som
     /// <see cref="Plikttyper"/>: koden i databasen, ordet i visningen og typen i FORMAT.md/fasiten. Startsettet (F-radene) og
-    /// <see cref="OppgavetypeFraFasit"/> leses herfra. De sju første er docs/34 §6.1; <c>veiledning</c> er lagt til i #368 (barnehageloven
-    /// «veilede og påse», fvl. § 11) — se begrepsmanualen §F «Typer».
+    /// <see cref="OppgavetypeFraFasit"/> leses herfra. De sju første er docs/34 §6.1; <c>veiledning</c> og <c>kontroll</c> er lagt til i #368
+    /// (barnehageloven «veilede og påse», juristrunden) — se begrepsmanualen §F «Typer».
     /// </summary>
     public static readonly IReadOnlyList<(string Kode, string Substantiv, string FasitType)> Oppgavetyper =
     [
@@ -552,6 +552,9 @@ public static class Strukturkanter
         ("sekretariat", "sekretariatsfunksjon", "sekretariatsfunksjon"),
         ("radgivning", "rådgivningsoppgave", "radgivningsoppgave"),
         ("veiledning", "veiledningsoppgave", "veiledningsoppgave"),
+        // [Ny, issue #368, juristrunden] «skal påse at», «følge opp og kontrollere»: en kontrolloppgave uten egen hjemmel til å
+        // undersøke eller reagere. Aldri K tilsyn i seg selv (barnehageloven § 10 mot § 53). Grensen: begrepsmanualen §F.
+        ("kontroll", "kontrolloppgave", "kontrolloppgave"),
     ];
 
     /// <summary>[Ny, issue #368] FORMAT.md-typen («samordningsoppgave») → F-typekoden i databasen («samordning»).</summary>

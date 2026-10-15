@@ -431,7 +431,7 @@ export default function VirksomhetDetalj() {
         </Heading>
         <Metatekst style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
           Hva loven legger til virksomheten som arbeidsfelt eller ansvar — forvalte, samordne, sørge for, føre oversikt, bistå,
-          være sekretariat, gi råd, veilede — og oppgaver andre har som gjelder den (issue #368). En oppgave gir ikke myndighet
+          være sekretariat, gi råd, veilede, påse — og oppgaver andre har som gjelder den (issue #368). En oppgave gir ikke myndighet
           eller plikt overfor noen i seg selv; står det i teksten, er det egne utsagn i seksjonene over.
         </Metatekst>
         <StrukturkantTabell

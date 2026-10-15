@@ -21,6 +21,9 @@ REGLER
   O4. Kunnskapsstatus (bare fasiten — KI-utdataene får ingen, som i #367): F-radene får «fortolkning» med begrunnelse og
       tolkningsargumenter, eller «tekstfunn» når teksten selv bruker funksjonsordet («Forvaltningsansvaret for …»). Kunnskapsstatusen er
       juristrundens, ikke skriptets.
+  O6. «raden» på et kort: kunnskapsstatus, begrunnelse og tolkningsargumenter settes på SELVE raden (bare fasiten). Brukt der en K-rad
+      står ved siden av en F-rad fra samme ord (hotl. u91/u92, shl. u213: K oppnevning), så det synes at K-raden er en egen fortolkning
+      og ikke sluttet fra oppgaven (juristrunde 2).
   O5. Rader kandidatsøket ikke fant (kortet viser til en id som ikke finnes, eller sitatet stemmer ikke): skriptet stopper og lister dem
       — en gjettet plassering er verre enn ingen.
 """
@@ -75,6 +78,9 @@ def konverter(d, kort, er_fasit, logg):
         u = per_id.get(k["id"])
         if u is None or (k.get("sitat") and u.get("sitat") != k["sitat"]):
             raise SystemExit(f"O5: {k['nokkel']} finnes ikke (eller sitatet stemmer ikke) — avbrutt, ingenting skrevet.")
+        if k.get("raden") and er_fasit and u.get("kunnskapsstatus") != k["raden"]["kunnskapsstatus"]:
+            u.update(k["raden"])  # O6
+            logg["raden"] += 1
         if k["utfall"] == "behold":
             logg["behold"] += 1
             continue
@@ -108,12 +114,13 @@ def konverter(d, kort, er_fasit, logg):
 
 
 def main():
+    sys.stdout.reconfigure(encoding="utf-8")
     undermappe = sys.argv[1] if len(sys.argv) > 1 else None
     mappe = os.path.join(MAPPE, undermappe) if undermappe else MAPPE
     er_fasit = undermappe is None
     alle = json.load(open(BESLUTNINGER, encoding="utf-8"))["kort"]
     kilde = "fasit" if er_fasit else "ki"
-    logg = {"F": 0, "begge": 0, "behold": 0, "f_rader": 0, "alt_konvertert": 0}
+    logg = {"F": 0, "begge": 0, "behold": 0, "f_rader": 0, "alt_konvertert": 0, "raden": 0}
     for lov in sorted({k["lov"] for k in alle if k["kilde"] == kilde}):
         sti = os.path.join(mappe, f"{lov}.json")
         raw = open(sti, encoding="utf-8").read()
@@ -125,7 +132,7 @@ def main():
             f.write(json.dumps(d, ensure_ascii=False, indent=innrykk))
         print(f"{lov}: {for_antall} → {len(d['utsagn'])} utsagn")
     print(f"{kilde}: F {logg['F']}, begge {logg['begge']}, behold {logg['behold']}, F-rader skrevet {logg['f_rader']}, "
-          f"alt konvertert {logg['alt_konvertert']}")
+          f"alt konvertert {logg['alt_konvertert']}, kunnskapsstatus på raden {logg['raden']}")
 
 
 if __name__ == "__main__":

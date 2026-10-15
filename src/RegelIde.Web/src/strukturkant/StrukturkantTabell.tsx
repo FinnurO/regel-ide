@@ -34,7 +34,7 @@ export const STRUKTURKANT_KATEGORI_VISNING: Record<Strukturkantkategori, { tekst
   // [Ny, issue #353] Plikt overfor motpart — modaliteten («skal»/«kan»/«bør») står i utsagnsteksten, ingen egen tag (docs/09 §34).
   P: { tekst: 'Plikt', forklaring: 'Aktør (også en ordning), rolle eller klasse har en plikt, eventuelt overfor en motpart (samarbeid, avtale, betaling, bistand, informasjon, konsultasjon).' },
   // [Ny, issue #368] Oppgave/funksjon — en oppgave gir aldri kompetanse eller plikt overfor noen i seg selv (docs/09 §37).
-  F: { tekst: 'Oppgave', forklaring: 'Aktør, rolle eller klasse har en oppgave eller funksjon (forvaltning, samordning, sørge for, oversikt, bistand, sekretariat, rådgivning, veiledning). Gir ikke myndighet eller plikt overfor noen i seg selv.' },
+  F: { tekst: 'Oppgave', forklaring: 'Aktør, rolle eller klasse har en oppgave eller funksjon (forvaltning, samordning, sørge for, oversikt, bistand, sekretariat, rådgivning, veiledning, kontroll). Gir ikke myndighet eller plikt overfor noen i seg selv.' },
   M: { tekst: 'Medlemskap', forklaring: 'Aktør/klasse/område → klasse eller område. Det som gjelder klassen, gjelder medlemmet.' },
   O: { tekst: 'Områdesammensetning', forklaring: 'Område → område (består av).' },
   A: { tekst: 'Ansvarsområde', forklaring: 'Aktør → område (ansvarsområde, jurisdiksjon, sete).' },

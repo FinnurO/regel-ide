@@ -10056,17 +10056,24 @@
    "id": "u80",
    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§33/ledd-1",
    "sitat": "den sentrale administrasjonen av domstolene",
-   "kategori": "relasjon",
-   "type": "annet:administrerer",
+   "kategori": "oppgave",
+   "type": "forvaltningsoppgave",
    "fra": "da",
    "til": "domstolene",
-   "objekt": null,
+   "objekt": "den sentrale administrasjonen av domstolene",
    "polaritet": "positiv",
    "avgrensning": null,
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
-   "kommentar": "Sentral administrasjon av andre (uavhengige) organer — verken instruksjon, tilsyn eller overordning."
+   "kommentar": "[#368, juristrunden] var relasjon/annet:administrerer. Sentral administrasjon av andre (uavhengige) organer — verken instruksjon, tilsyn eller overordning.",
+   "modalitet": null,
+   "kunnskapsstatus": "fortolkning",
+   "begrunnelse": "Slutning fra kapitteloverskriften og § 33 tredje ledd: domstoladministrasjonen ER den sentrale administrasjonen av domstolene — en forvaltningsoppgave for et forvaltningsapparat, ikke myndighet over domstolene.",
+   "tolkningsargumenter": [
+    "ordlyd",
+    "kontekst_system"
+   ]
   },
   {
    "id": "u81",
@@ -11614,18 +11621,23 @@
    "id": "u171",
    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§69/ledd-1",
    "sitat": "Fortegnelse over de valgte meddommere føres av kommunen.",
-   "kategori": "kompetanse",
-   "type": "annet:registerforing",
+   "kategori": "oppgave",
+   "type": "oversiktsoppgave",
    "fra": "kommune",
    "til": null,
-   "objekt": "fortegnelse over meddommere",
+   "objekt": "fortegnelse over de valgte meddommere",
    "polaritet": "positiv",
    "avgrensning": null,
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
-   "delegeringsadgang": "ikke_regulert"
+   "kommentar": "[#368, juristrunden] var kompetanse/annet:registerforing.",
+   "modalitet": "skal",
+   "kunnskapsstatus": "fortolkning",
+   "begrunnelse": "Å føre en fortegnelse er å føre oversikt/register (type oversikt); normativ presens «føres av» = skal.",
+   "tolkningsargumenter": [
+    "ordlyd"
+   ]
   },
   {
    "id": "u172",
@@ -12076,18 +12088,23 @@
    "id": "u198",
    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§121f/ledd-1",
    "sitat": "Registeret over sidegjøremål føres av domstoladministrasjonen.",
-   "kategori": "kompetanse",
-   "type": "annet:registerforing",
+   "kategori": "oppgave",
+   "type": "oversiktsoppgave",
    "fra": "da",
    "til": null,
-   "objekt": "sidegjøremålsregisteret",
+   "objekt": "registeret over sidegjøremål",
    "polaritet": "positiv",
    "avgrensning": null,
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
-   "delegeringsadgang": "ikke_regulert"
+   "kommentar": "[#368, juristrunden] var kompetanse/annet:registerforing.",
+   "modalitet": "skal",
+   "kunnskapsstatus": "fortolkning",
+   "begrunnelse": "Registerføring er type oversikt; normativ presens = skal. Ingen myndighet over dommerne følger av setningen.",
+   "tolkningsargumenter": [
+    "ordlyd"
+   ]
   },
   {
    "id": "u199",
@@ -21964,6 +21981,29 @@
    "sikkerhet": "hoy",
    "kommentar": "[#356, juristrunden] § 213 første ledd første punktum: hovedregelen som de negative forliksrådsradene (u236 og raden for erstatning) er unntak fra. Straff er sanksjon og erstatning beslutning (kort nr. 61).",
    "delegeringsadgang": "ikke_regulert"
+  },
+  {
+   "id": "u864",
+   "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§33/ledd-1",
+   "sitat": "den sentrale administrasjonen av domstolene",
+   "kategori": "oppgave",
+   "type": "sorge_for_ansvar",
+   "fra": "da_styre",
+   "til": "domstolene",
+   "objekt": "at den sentrale administrasjonen av domstolene skjer på en forsvarlig og hensiktsmessig måte",
+   "modalitet": "skal",
+   "polaritet": "positiv",
+   "avgrensning": null,
+   "betinget": false,
+   "kilde_utenfor_korpus": false,
+   "sikkerhet": "middels",
+   "kommentar": "[#368, juristrunden] ny oppgaverad fra u80 (F).",
+   "kunnskapsstatus": "fortolkning",
+   "begrunnelse": "Aksepter. Domstoladministrasjonens egen administrasjonsfunksjon er en forvaltningsoppgave (et forvaltningsapparat, begrepsmanualen §F «forvaltning», presisert i r2).",
+   "tolkningsargumenter": [
+    "ordlyd",
+    "kontekst_system"
+   ]
   }
  ]
 }

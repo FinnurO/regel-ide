@@ -277,7 +277,7 @@ Typer per kategori (bruk disse når de passer, ellers "annet:<x>"):
   `bistandsplikt`, `informasjonsplikt` (gi opplysninger, varsle, utlevere informasjon), `konsultasjonsplikt` (konsultere, innhente
   uttalelse fra; [#355] forelegge for et organ som svarer rådgivende — modalitet kan/skal). [Ny, #353]
 - oppgave (aktør/rolle/klasse → område/klasse/aktør, valgfri; objekt PÅKREVD): `forvaltningsoppgave`, `samordningsoppgave`,
-  `sorge_for_ansvar`, `oversiktsoppgave`, `bistandsoppgave`, `sekretariatsfunksjon`, `radgivningsoppgave`, `veiledningsoppgave`.
+  `sorge_for_ansvar`, `oversiktsoppgave`, `bistandsoppgave`, `sekretariatsfunksjon`, `radgivningsoppgave`, `veiledningsoppgave`, `kontrolloppgave`.
   [Ny, #368] Gir aldri kompetanse eller plikt i seg selv (docs/profil/02-begrepsmanual.md §F).
 - medlemskap (aktør/klasse → klasse): `medlem_av`, `inngar_i`.
 - sammensetning_omrade (område → område): `bestar_av`, `del_av`.

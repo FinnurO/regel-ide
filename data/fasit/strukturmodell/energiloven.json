@@ -3236,18 +3236,23 @@
    "id": "u131",
    "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§6-1/ledd-2",
    "sitat": "Den systemansvarlige skal sørge for at det til enhver tid er momentan balanse",
-   "kategori": "kompetanse",
-   "type": "annet:oppgaveansvar",
+   "kategori": "oppgave",
+   "type": "sorge_for_ansvar",
    "fra": "a13",
    "til": null,
-   "objekt": "momentan balanse i kraftsystemet",
+   "objekt": "at det til enhver tid er momentan balanse mellom den samlede produksjon og den samlede bruk av kraft",
    "polaritet": "positiv",
-   "avgrensning": null,
+   "avgrensning": "hensett til kraftutvekslingen med tilknyttede utenlandske systemer",
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
-   "delegeringsadgang": "ikke_regulert"
+   "kommentar": "[#368, juristrunden] var kompetanse/annet:oppgaveansvar.",
+   "modalitet": "skal",
+   "kunnskapsstatus": "fortolkning",
+   "begrunnelse": "«skal sørge for at» er resultatansvar; myndigheten til å utøve systemansvaret tildeles i første punktum og står for seg.",
+   "tolkningsargumenter": [
+    "ordlyd"
+   ]
   },
   {
    "id": "u132",
@@ -3338,17 +3343,24 @@
    "id": "u137",
    "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§6-2/ledd-2",
    "sitat": "rasjoneringsmyndighet som er ansvarlig for planlegging og administrativ gjennomføring av tiltak i forbindelse med rasjonering",
-   "kategori": "kompetanse",
-   "type": "annet:oppgaveansvar",
+   "kategori": "oppgave",
+   "type": "sorge_for_ansvar",
    "fra": "a8",
    "til": null,
-   "objekt": "planlegging og gjennomføring av rasjonering",
+   "objekt": "planlegging og administrativ gjennomføring av tiltak i forbindelse med rasjonering",
    "polaritet": "positiv",
    "avgrensning": null,
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "[#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann)."
+   "kommentar": "[#368, juristrunden] var kompetanse/annet:oppgaveansvar. [#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann).",
+   "modalitet": null,
+   "kunnskapsstatus": "fortolkning",
+   "begrunnelse": "«er ansvarlig for» er typen sorge_for i begrepsmanualen; vedtaksmyndigheten står i andre rader (u138), så F-raden skal ikke bære den.",
+   "tolkningsargumenter": [
+    "ordlyd",
+    "kontekst_system"
+   ]
   },
   {
    "id": "u138",
@@ -3755,18 +3767,24 @@
    "id": "u160",
    "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§9-1/ledd-3",
    "sitat": "Beredskapsmyndigheten skal samordne beredskapsarbeid",
-   "kategori": "kompetanse",
-   "type": "samordningskompetanse",
+   "kategori": "oppgave",
+   "type": "samordningsoppgave",
    "fra": "a7",
    "til": null,
-   "objekt": "beredskapsarbeid i kraftforsyningen",
+   "objekt": "beredskapsarbeid",
    "polaritet": "positiv",
-   "avgrensning": null,
+   "avgrensning": "i kraftforsyningen (kapittel 9)",
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
-   "delegeringsadgang": "ikke_regulert"
+   "kommentar": "[#368, juristrunden] var kompetanse/samordningskompetanse.",
+   "modalitet": "skal",
+   "kunnskapsstatus": "fortolkning",
+   "begrunnelse": "Ingen tekst i leddet gir bindende virkning for de samordnede; der loven gir myndighet (u159, u161, u164), står den som egne K-rader.",
+   "tolkningsargumenter": [
+    "ordlyd",
+    "kontekst_system"
+   ]
   },
   {
    "id": "u161",
@@ -5146,35 +5164,64 @@
    "id": "u253",
    "eid": "https://lovdata.no/eli/forskrift/2024/12/20/3495/nor/ledd-1",
    "sitat": "Forvaltningsansvaret for energiloven § 4-4, med unntak av andre ledd",
-   "kategori": "kompetanse",
-   "type": "annet:forvaltningsansvar",
+   "kategori": "oppgave",
+   "type": "forvaltningsoppgave",
    "fra": "a23",
    "til": null,
-   "objekt": "energiloven § 4-4 (unntatt annet ledd) og forskrift om Energifondet",
+   "objekt": "energiloven § 4-4 og forskrift om innbetaling av påslag på nettariffen til Energifondet (forskrift om Energifondet)",
    "polaritet": "positiv",
-   "avgrensning": null,
+   "avgrensning": "med unntak av § 4-4 andre ledd; med virkning fra 1. januar 2025",
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Ressortansvar per bestemmelse/ledd.",
-   "delegeringsadgang": "ikke_regulert"
+   "kommentar": "[#368, juristrunden] var kompetanse/annet:forvaltningsansvar. Ressortansvar per bestemmelse/ledd.",
+   "modalitet": null,
+   "kunnskapsstatus": "tekstfunn"
   },
   {
    "id": "u254",
    "eid": "https://lovdata.no/eli/forskrift/2024/12/20/3495/nor/ledd-1",
    "sitat": "Forvaltningsansvaret for energiloven § 4-4, med unntak av andre ledd",
-   "kategori": "kompetanse",
-   "type": "annet:forvaltningsansvar",
+   "kategori": "oppgave",
+   "type": "forvaltningsoppgave",
    "fra": "a22",
    "til": null,
-   "objekt": "energiloven § 4-4 annet ledd (vedtekter for Energifondet)",
+   "objekt": "energiloven § 4-4 andre ledd",
    "polaritet": "positiv",
    "avgrensning": null,
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "lav",
-   "kommentar": "Antitetisk: annet ledd overføres ikke og blir antakelig værende hos Klima- og miljødepartementet.",
-   "delegeringsadgang": "ikke_regulert"
+   "kommentar": "[#368, juristrunden] var kompetanse/annet:forvaltningsansvar. Antitetisk: annet ledd overføres ikke og blir antakelig værende hos Klima- og miljødepartementet.",
+   "modalitet": null,
+   "kunnskapsstatus": "fortolkning",
+   "begrunnelse": "Teksten sier bare at andre ledd unntas fra overføringen; at ansvaret blir værende hos KLD er en antitetisk slutning med lav sikkerhet.",
+   "tolkningsargumenter": [
+    "antitetisk_analogisk",
+    "ordlyd"
+   ]
+  },
+  {
+   "id": "u255",
+   "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§4-3/ledd-2",
+   "sitat": "Myndighet etter regelverket som nevnt i første ledd til å koordinere måling og avregning av kraftomsetning",
+   "kategori": "oppgave",
+   "type": "sorge_for_ansvar",
+   "fra": "a14",
+   "til": null,
+   "objekt": "at all innmating og alt uttak av elektrisk energi blir korrekt avregnet slik at det oppnås økonomisk balanse i kraftmarkedet",
+   "modalitet": null,
+   "polaritet": "positiv",
+   "avgrensning": null,
+   "betinget": true,
+   "kilde_utenfor_korpus": false,
+   "sikkerhet": "hoy",
+   "kommentar": "[#368, juristrunden] ny oppgaverad fra u69 (begge).",
+   "kunnskapsstatus": "fortolkning",
+   "begrunnelse": "«skal sørge for at» er resultatansvar; setningen gir ingen myndighet utover den som første punktum gir.",
+   "tolkningsargumenter": [
+    "ordlyd"
+   ]
   }
  ]
 }

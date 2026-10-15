@@ -305,6 +305,13 @@ internal static class Monsterkatalog
             Start + Subjekt + PliktModal + @"(?:\p{L}+\s+og\s+)?(?<obj>(?:veilede|gi\s+(?:\p{L}+\s+)?veiledning)\b)",
             @"\b(?<modal>skal|kan|bør)\s+" + SubjektOmvendt + @"\s+(?:også\s+)?(?<obj>(?:veilede|gi\s+(?:\p{L}+\s+)?veiledning)\b)"),
 
+        Regex("oppgave-pase",
+            "«X skal påse at …», og omvendt ordstilling. En kontrolloppgave: aktøren skal følge med på at andre etterlever regelverket, uten at uttrykket selv gir hjemmel til å undersøke eller reagere (det er K tilsyn/pålegg med egen hjemmel).",
+            "Ikke målt i docs/33 §1. Tatt inn etter juristrunden i #368 (barnehageloven § 10 «påse at» mot § 53 «fører tilsyn med»).",
+            new RegexMonsteroppsett(KreverFra: true),
+            Start + Subjekt + PliktModal + @"(?:[\p{L}\s,]{0,60}?\s+og\s+)?påse\s+at\s+(?<obj>\S)",
+            @"\b(?<modal>skal|kan|bør)\s+" + SubjektOmvendt + @"\s+(?:også\s+)?påse\s+at\s+(?<obj>\S)"),
+
         Regex("oppgave-forvalte",
             "«X skal forvalte …» — ansvaret for å forvalte et regelverk, en ordning, et register eller et fond. Objektet er det som forvaltes. (En ORDNING som forvaltes, er i tillegg R forvaltes_av, #353 — det avgjøres ikke av ordlyden alene.)",
             "Ikke målt i docs/33 §1. Tatt inn etter #368 (folketrygdloven § 21-11 a: «Helsedirektoratet skal forvalte kapittel 5»).",

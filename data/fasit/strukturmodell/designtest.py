@@ -60,7 +60,8 @@ STD = {
     # [Ny, issue #368, 2026-10-15] Oppgave/funksjon (F) — det juristrunden i #368 flyttet fra K samordning, R sekretariat_for/radgir,
     # P bistand og annet:* med oppgaveordlyd (konvertering-368-oppgave.py). Dagens modell (91bfff8) kunne ikke lagre dem.
     **{t: ("nei", "ja", "F") for t in ["forvaltningsoppgave", "samordningsoppgave", "sorge_for_ansvar", "oversiktsoppgave",
-                                       "bistandsoppgave", "sekretariatsfunksjon", "radgivningsoppgave", "veiledningsoppgave"]},
+                                       "bistandsoppgave", "sekretariatsfunksjon", "radgivningsoppgave", "veiledningsoppgave",
+                                       "kontrolloppgave"]},
 }
 
 # --- annet:* — nøkkelordregler (første treff vinner). Hver regel er begrunnet i designnotatet §5. ----

@@ -7,7 +7,7 @@ namespace RegelIde.Data;
 /// <para>
 /// <b>Hva den gjør:</b>
 /// <list type="number">
-/// <item><b>Typekonfigurasjonen:</b> de åtte F-typene (<see cref="Strukturkanter.Oppgavetyper"/>) med visningsmaler, ON CONFLICT DO
+/// <item><b>Typekonfigurasjonen:</b> de ni F-typene (<see cref="Strukturkanter.Oppgavetyper"/>) med visningsmaler, ON CONFLICT DO
 /// NOTHING. Malene er de samme som <see cref="Strukturkanter.Startsett"/>.</item>
 /// <item><b>Bare det juristrunden avgjorde flyttes</b> (Johann: «ingenting flyttes automatisk før en juristrunde på kandidatene»). Lokalt
 /// fantes fire kandidater (R <c>sekretariat_for</c> fra KLAGENEMNDSSEKRETARIATET); utfallet per kant står i <see cref="Beslutninger"/>
@@ -15,7 +15,8 @@ namespace RegelIde.Data;
 /// røres ikke (et annet miljø, eller en rad som er endret siden runden) — og telles som «ikke funnet».
 /// <list type="bullet">
 /// <item><c>begge</c>: R-kanten står, og en NY F-kant legges til med samme ender, hjemmel og kilde, kunnskapsstatus fra runden
-/// (fortolkning med begrunnelse og tolkningsargumenter), status <c>maskinelt_foreslatt</c> og oppdagelseskilde
+/// (<c>avledet</c>, med R-kanten som premiss i <c>strukturkant_premisser</c>: teksten sier hva sekretariatet gjør, men ikke at det er
+/// KNS — det følger av R-kanten med kilde utenfor korpus), status <c>maskinelt_foreslatt</c> og oppdagelseskilde
 /// <c>ki:juristrunde-368</c> — den er en KI-juristrundes forslag og skal godkjennes av et menneske i forslagskøen (#313), ikke
 /// godkjent av migrasjonen.</item>
 /// <item><c>behold</c>: ingenting endres.</item>
@@ -24,7 +25,7 @@ namespace RegelIde.Data;
 /// </para>
 /// <para>
 /// <b>Tellingen</b> (samme mønster som #311/#330/#341/#352/#353): kanter etter = før + nye F-kanter; ingen eksisterende kant endret;
-/// én proveniensrad (<c>endret_av = 'migrasjon-368'</c>, handling <c>opprettet</c>) per ny kant med kildekanten; alle åtte F-typer finnes.
+/// én proveniensrad (<c>endret_av = 'migrasjon-368'</c>, handling <c>opprettet</c>) per ny kant med kildekanten; alle ni F-typer finnes.
 /// Avviker noe: RAISE EXCEPTION.
 /// </para>
 /// <para>
@@ -43,9 +44,9 @@ public static class OppgaveMigrering
     public static readonly IReadOnlyList<(Guid KantId, string Utfall)> Beslutninger =
     [
         (Guid.Parse("12e28ad6-49cb-4eba-8408-93cf4b837e41"), "behold"),
-        (Guid.Parse("6d39745e-85e9-47a4-aadf-6046210aa3c6"), "begge"),
-        (Guid.Parse("6d5b8668-4a74-4bf1-b702-eaf0b332607d"), "begge"),
-        (Guid.Parse("0f407efc-4da0-4218-9ba7-97ca64ca8634"), "begge"),
+        (Guid.Parse("6d39745e-85e9-47a4-aadf-6046210aa3c6"), "behold"), // «oppgavene som lederen pålegger» = henvisning, ingen F
+        (Guid.Parse("6d5b8668-4a74-4bf1-b702-eaf0b332607d"), "begge"),  // «sekretariat som foretar saksforberedelse»
+        (Guid.Parse("0f407efc-4da0-4218-9ba7-97ca64ca8634"), "behold"), // som Energiklagenemnda
     ];
 
     public const string UpSql = """
@@ -72,7 +73,8 @@ public static class OppgaveMigrering
                 (5, 'bistand', 'har bistandsoppgave {0}', '{0} har bistandsoppgave som gjelder denne'),
                 (6, 'sekretariat', 'har sekretariatsfunksjon {0}', '{0} har sekretariatsfunksjon som gjelder denne'),
                 (7, 'radgivning', 'har rådgivningsoppgave {0}', '{0} har rådgivningsoppgave som gjelder denne'),
-                (8, 'veiledning', 'har veiledningsoppgave {0}', '{0} har veiledningsoppgave som gjelder denne')
+                (8, 'veiledning', 'har veiledningsoppgave {0}', '{0} har veiledningsoppgave som gjelder denne'),
+                (9, 'kontroll', 'har kontrolloppgave {0}', '{0} har kontrolloppgave som gjelder denne')
             ) AS t(nr, kode, fra_mal, til_mal)
             ON CONFLICT (kategori, kode) DO NOTHING;
 
@@ -82,14 +84,11 @@ public static class OppgaveMigrering
                 kunnskapsstatus text, begrunnelse text, tolkningsargumenter text[]) ON COMMIT DROP;
             INSERT INTO oppgave_368 VALUES
                 ('12e28ad6-49cb-4eba-8408-93cf4b837e41', 'behold', NULL, NULL, NULL, NULL, NULL, NULL),
-                ('6d39745e-85e9-47a4-aadf-6046210aa3c6', 'begge', 'sekretariat',
-                 'de oppgavene som lederen pålegger, som fremgår av denne forskriften eller av instruks', 'skal', 'fortolkning',
-                 '[UTFALL FRA JURISTRUNDEN SETTES INN]', ARRAY['ordlyd', 'kontekst_system']),
-                ('6d5b8668-4a74-4bf1-b702-eaf0b332607d', 'begge', 'sekretariat', 'saksforberedelse', 'skal', 'fortolkning',
-                 '[UTFALL FRA JURISTRUNDEN SETTES INN]', ARRAY['ordlyd', 'kontekst_system']),
-                ('0f407efc-4da0-4218-9ba7-97ca64ca8634', 'begge', 'sekretariat',
-                 'de oppgavene som lederen pålegger, som er fastsatt i instruks eller som fremgår av forskrift etter denne lov', 'skal',
-                 'fortolkning', '[UTFALL FRA JURISTRUNDEN SETTES INN]', ARRAY['ordlyd', 'kontekst_system']);
+                ('6d39745e-85e9-47a4-aadf-6046210aa3c6', 'behold', NULL, NULL, NULL, NULL, NULL, NULL),
+                ('6d5b8668-4a74-4bf1-b702-eaf0b332607d', 'begge', 'sekretariat', 'saksforberedelse', 'skal', 'avledet',
+                 'Avledet (juristrunden i #368): stiftelsesloven § 7a tredje ledd sier at Stiftelsesklagenemndas sekretariat foretar saksforberedelse — en stående funksjon for organet, ikke ett trinn i én sak. At sekretariatet er KLAGENEMNDSSEKRETARIATET, følger av premisset (R sekretariat_for med kilde utenfor korpus); kunnskapsstatus kan ikke være sterkere enn premisset.',
+                 NULL),
+                ('0f407efc-4da0-4218-9ba7-97ca64ca8634', 'behold', NULL, NULL, NULL, NULL, NULL, NULL);
 
             -- ---- Før ----
             SELECT count(*) INTO v_totalt_for FROM strukturkanter;
@@ -120,6 +119,9 @@ public static class OppgaveMigrering
                 'arbeidsutkast-2026-10-09', 'gjeldende'
             FROM nye_368 n;
             SELECT count(*) INTO v_nye FROM nye_368;
+            -- Avledet krever premisset (constraint-triggeren tr_strukturkanter_avledet_premiss, #367): R-kanten selv.
+            INSERT INTO strukturkant_premisser (kant_id, premiss_kant_id)
+            SELECT n.ny_id, n.kant_id FROM nye_368 n WHERE n.kunnskapsstatus = 'avledet';
 
             INSERT INTO proveniens ("Id", entitet_type, entitet_id, endret_av, dato, handling, kilde_referanser)
             SELECT gen_random_uuid(), 'strukturkant', n.ny_id, 'migrasjon-368', now(), 'opprettet',
@@ -133,14 +135,14 @@ public static class OppgaveMigrering
             SELECT count(*) INTO v_endret FROM strukturkanter k JOIN oppgave_368 o ON o.kant_id = k."Id"
             WHERE k.kategori <> 'R' OR k.typekode <> 'sekretariat_for';
             SELECT count(*) INTO v_typer FROM relasjonstype_konfigurasjon WHERE kategori = 'F'
-              AND kode IN ('forvaltning', 'samordning', 'sorge_for', 'oversikt', 'bistand', 'sekretariat', 'radgivning', 'veiledning');
+              AND kode IN ('forvaltning', 'samordning', 'sorge_for', 'oversikt', 'bistand', 'sekretariat', 'radgivning', 'veiledning', 'kontroll');
 
-            IF v_totalt_etter <> v_totalt_for + v_nye OR v_nye <> v_aktuelle OR v_proveniens <> v_nye OR v_endret <> 0 OR v_typer <> 8 THEN
-                RAISE EXCEPTION 'Issue #368: avvik — % kanter før, % etter, % nye F-kanter av % aktuelle, % proveniensrader, % kandidater endret, % av 8 F-typer. Avbrutt.',
+            IF v_totalt_etter <> v_totalt_for + v_nye OR v_nye <> v_aktuelle OR v_proveniens <> v_nye OR v_endret <> 0 OR v_typer <> 9 THEN
+                RAISE EXCEPTION 'Issue #368: avvik — % kanter før, % etter, % nye F-kanter av % aktuelle, % proveniensrader, % kandidater endret, % av 9 F-typer. Avbrutt.',
                     v_totalt_for, v_totalt_etter, v_nye, v_aktuelle, v_proveniens, v_endret, v_typer;
             END IF;
 
-            RAISE NOTICE 'Issue #368: % kanter før, % etter; % nye F sekretariat (forslag) fra juristrundens «begge»; 0 kanter flyttet; 8 F-typer; ikke funnet (annet miljø): %.',
+            RAISE NOTICE 'Issue #368: % kanter før, % etter; % nye F sekretariat (forslag) fra juristrundens «begge»; 0 kanter flyttet; 9 F-typer; ikke funnet (annet miljø): %.',
                 v_totalt_for, v_totalt_etter, v_nye, coalesce(v_ikke_funnet, 'ingen');
         END
         $do$;
