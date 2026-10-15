@@ -1121,3 +1121,20 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
   mønsterforslag får ingen lapp. En klassifisering, ikke en advarsel (§21).
 - **Lasterapporten** viser tall per kategori (nye, fantes som forslag, fantes godkjent, tidligere avvist, dubletter, ikke lastet), årsakene
   til det som ikke ble lastet, aktørene som ble navnekandidater (lenke til veiviseren) og en `info`-melding om de tidligere avviste.
+
+## 37. Oppgave/funksjon (issue #368, 2026-10-15)
+
+- **Oppgavene har egen seksjon** «Oppgaver og funksjoner» i «Myndighet & relasjoner» på VirksomhetDetalj, rett etter «Plikter overfor
+  motpart»: en vanlig `StrukturkantTabell` (§31). F-kantene står aldri i kompetanse- eller pliktseksjonen og ikke i «Organtilhørighet og
+  andre strukturutsagn». Grunnen er regelen i begrepsmanualen (docs/profil/02 §F): en oppgave gir aldri kompetanse eller plikt overfor
+  noen i seg selv, og en leser som ser «samordning» i kompetansetabellen, leser det som myndighet.
+- **Rettskildesiden** har gruppen «Oppgaver hjemlet her» i relasjonspanelet, rett under «Strukturutsagn hjemlet her» (som ikke lenger
+  tar med F). Samme radform (`Oppgave: …`).
+- **Utsagnsteksten** har modaliteten i parentes og oppgaven (objektet), og det oppgaven gjelder etter tankestrek: «har samordningsoppgave
+  (skal) beredskapsarbeid», «har sekretariatsfunksjon (skal) sekretariat for forliksrådene — gjelder Forliksrådene». Ingen «overfor»: F
+  har ingen motpart. Fra den andre siden beholdes modalitet og objekt («Namsfogden har sekretariatsfunksjon (skal) … — gjelder denne»).
+- **Kategoritaggen** «Oppgave» er `neutral` (§31), som de andre kategoriene.
+- **Skjemaet** heter «Legg til relasjon, kompetanse, plikt eller oppgave». F-typene står i samme `Select` som «Oppgave — «har
+  samordningsoppgave …»». Velges en F-type: «Modalitet» (aldri forhåndsvalgt, som P) og «Oppgaven» (påkrevd — knappen er av til den er
+  fylt ut, samme krav som CHECK `ck_strukturkanter_oppgave_objekt`). «Oppgaven gjelder» (virksomhet) er valgfri. En ordning tilbys ikke
+  F (`typerForAktortype`).
