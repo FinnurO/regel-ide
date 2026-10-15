@@ -1210,6 +1210,17 @@ public sealed class RelasjonsTypeKonfigurasjonEntitet
     /// organets faste struktur.
     /// </summary>
     public bool Saksavhengig { get; set; }
+
+    /// <summary>
+    /// [Ny, issue #367 AC6, docs/34 §5, docs/profil/03 §8] Kategorier bundet til en lov får gyldighetstid: <see cref="FvlKategori"/> følger
+    /// definisjonene i <see cref="FvlKategoriHjemmel"/> (i dag forvaltningsloven 1967 § 2) fra <see cref="FvlKategoriGjelderFra"/> til
+    /// <see cref="FvlKategoriGjelderTil"/>. Den nye forvaltningsloven (LOV-2025-06-20-81 § 7) er ikke i kraft («Kongen bestemmer»); når den
+    /// trer i kraft, settes gjelder_til, og analyser som bygger på den gamle definisjonen, må vurderes på nytt. Migrasjonen satte
+    /// gjelder_fra fra rettskildens ikrafttredelse i korpuset (1970-01-01), ellers NULL.
+    /// </summary>
+    public string? FvlKategoriHjemmel { get; set; }
+    public DateOnly? FvlKategoriGjelderFra { get; set; }
+    public DateOnly? FvlKategoriGjelderTil { get; set; }
 }
 
 /// <summary>
@@ -1560,21 +1571,66 @@ public sealed class StrukturkantEntitet
     public string? Grunnlag { get; set; }
 
     /// <summary>
-    /// [Ny, issue #341 + #335 AC2, 2026-10-08] Kan kompetansen delegeres videre? <c>true</c> («Kongen …»), <c>false</c>
-    /// («Kongen i statsråd …», «kommunestyret selv»). Feltet hører til KOMPETANSEN (#335), ikke til aktøren — derfor
-    /// bare på K. NULL = ikke angitt; ingen migrert rad har fått en verdi. (Stod i docs/33 §4.3 som
-    /// <c>delegerbar = false</c>, men kom ikke med i #311.)
+    /// [ENDRET, issue #367 AC5 / #335, Johanns beslutning 2026-10-09] Erstatter <c>delegerbar</c> (bool, #341). Delegeringsadgangen
+    /// ETTER TEKSTEN: <c>uttrykkelig_tillatt</c> | <c>uttrykkelig_forbudt</c> | <c>ikke_regulert</c>
+    /// (<see cref="Strukturkanter.Delegeringsadganger"/>, CHECK <c>ck_strukturkanter_delegeringsadgang</c>). Bare på K. NULL = ikke vurdert.
+    /// Adgangen til å delegere (egenskap ved kompetansen) og den gjennomførte delegeringen (R <c>har_delegert_til</c>) er to ting.
     /// </summary>
-    public bool? Delegerbar { get; set; }
+    public string? Delegeringsadgang { get; set; }
+
+    /// <summary>
+    /// [Ny, issue #367 AC5 / #335] Antakelse etter alminnelige regler — ALLTID en slutning, aldri et tekstfunn: <c>trolig_delegerbar</c>
+    /// («Kongen» uten «i statsråd») | <c>trolig_ikke_delegerbar</c> («Kongen i statsråd»). Bare når <see cref="Delegeringsadgang"/> er
+    /// <c>ikke_regulert</c> (CHECK <c>ck_strukturkanter_delegering_slutning</c>). Vises «Kan trolig delegeres (slutning)».
+    /// </summary>
+    public string? DelegeringSlutning { get; set; }
+
+    // ---------------- [Ny, issue #367 «utsagnsstatus», docs/34 §3–5] ----------------
+
+    /// <summary>[Ny, issue #367 AC1] HVORDAN utsagnet er kommet fram (<see cref="Strukturkanter.Kunnskapsstatuser"/>, docs/profil/03 §5).
+    /// NULL = ikke vurdert; eksisterende rader fikk ingen verdi (CLAUDE.md §8). CHECK-ene: <c>eksternt_dokumentert</c> krever kilde
+    /// utenfor korpus, <c>tekstfunn</c>/<c>normalisering</c> hjemmel i korpus med eId, <c>fortolkning</c> begrunnelse og
+    /// tolkningsargumenter, <c>foreldet</c> entitetsstatus foreldet; <c>avledet</c> minst én premiss (constraint-trigger).</summary>
+    public string? Kunnskapsstatus { get; set; }
+
+    /// <summary>[Ny, issue #367 AC3] Begrunnelsen for klassifiseringen (påkrevd ved <c>fortolkning</c>; for <c>normalisering</c> regelen).</summary>
+    public string? Begrunnelse { get; set; }
+
+    /// <summary>[Ny, issue #367 AC3] Tolkningsargumentene (<see cref="Strukturkanter.Tolkningsargumenter"/>), minst ett ved
+    /// <c>fortolkning</c>. NULL = ingen.</summary>
+    public List<string>? Tolkningsargumenter { get; set; }
+
+    /// <summary>[Ny, issue #367 AC3] <c>gjeldende</c> | <c>foreldet</c>. En revisjon gir en ny rad (<see cref="ErstatterKantId"/>), og den
+    /// gamle blir foreldet — den slettes ikke. Identitetsregelen og oppslagene gjelder bare gjeldende rader.</summary>
+    public string Entitetsstatus { get; set; } = Strukturkanter.Gjeldende;
+
+    /// <summary>[Ny, issue #367 AC3] Raden denne revisjonen erstatter (PROV-O <c>wasRevisionOf</c>).</summary>
+    public Guid? ErstatterKantId { get; set; }
+
+    /// <summary>[Ny, issue #367 AC3] Profilversjonen analysen er gjort under (<see cref="Strukturkanter.Profilversjon"/>). NULL på rader
+    /// fra før #367 og på rader uten kunnskapsstatus.</summary>
+    public string? Profilversjon { get; set; }
+
+    /// <summary>
+    /// [Ny, issue #367 AC4, docs/34 §5] Den VERSJONERTE noden hjemmelen peker på (FK til <c>rettskilde_noder</c>), satt når kanten opprettes.
+    /// <see cref="HjemmelEid"/> beholdes som stabil, lesbar adresse (AKN <c>wId</c>). Migrerte rader fikk noden for eId-en i sin egen
+    /// hjemmel-rettskilde; NULL med hjemmel-eId = «hjemmelversjon ukjent» (synlig merknad i visningen).
+    /// </summary>
+    public Guid? HjemmelNodeId { get; set; }
+
+    /// <summary>[Ny, issue #367 AC4] Satt av Lovdata-resynken (eller håndbokrevisjonen) når teksten i hjemmelnoden er endret i en ny
+    /// versjon: «hjemmel endret, vurder på nytt». Ingenting annet endres automatisk; kunnskapsstatus og godkjenning står.</summary>
+    public DateTimeOffset? HjemmelEndretTidspunkt { get; set; }
 
     /// <summary>Kantens EGEN gyldighet, utover hjemmelens (docs/29 §Del B) — de fleste setter ingen.</summary>
     public DateOnly? GyldigFra { get; set; }
     public DateOnly? GyldigTil { get; set; }
 
-    /// <summary><c>'foreslatt_av_ai'</c> | <c>'validert'</c> — samme to verdier og samme betydning som de
-    /// tre gamle tabellene hadde (issue #285 AC5): et forslag regnes ikke som gjeldende før et menneske har
-    /// godkjent det (docs/33 §5.3).</summary>
-    public string Status { get; set; } = "validert";
+    /// <summary>[ENDRET, issue #367 AC2] GODKJENNING: <c>maskinelt_foreslatt</c> | <c>manuelt_foreslatt</c> | <c>faglig_vurdert</c> |
+    /// <c>godkjent</c> | <c>avvist</c> (<see cref="Strukturkanter.Statuser"/>). Før #367 <c>foreslatt_av_ai</c> (→ maskinelt_foreslatt) og
+    /// <c>validert</c> (→ godkjent). Et forslag regnes ikke som gjeldende før et menneske har godkjent det (docs/33 §5.3). Hvordan
+    /// utsagnet er kommet fram, står i <see cref="Kunnskapsstatus"/>.</summary>
+    public string Status { get; set; } = Strukturkanter.Godkjent;
 
     /// <summary><c>'manuell'</c> | <c>'monster:&lt;id&gt;'</c> | <c>'ki:&lt;modell&gt;'</c> (docs/33 §4.3) —
     /// hvilken mekanisme som fant utsagnet. Migrerte rader: <c>'ki:&lt;ai_forslag_versjon&gt;'</c> der
@@ -1591,6 +1647,17 @@ public sealed class StrukturkantEntitet
     public DateTimeOffset OpprettetTidspunkt { get; set; }
     public string? SistEndretAv { get; set; }
     public DateTimeOffset? SistEndretTidspunkt { get; set; }
+}
+
+/// <summary>
+/// [Ny, issue #367 AC3, docs/34 §4] Premissene for et AVLEDET utsagn (PROV-O <c>wasDerivedFrom</c>): kanten <see cref="KantId"/> følger av
+/// <see cref="PremissKantId"/>. En kant med kunnskapsstatus <c>avledet</c> må ha minst én (constraint-trigger
+/// <c>tr_strukturkanter_avledet_premiss</c>).
+/// </summary>
+public sealed class StrukturkantPremissEntitet
+{
+    public Guid KantId { get; set; }
+    public Guid PremissKantId { get; set; }
 }
 
 /// <summary>

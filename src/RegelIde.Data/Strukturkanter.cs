@@ -52,8 +52,93 @@ public static class Strukturkanter
 
     public static readonly string[] Polariteter = ["positiv", "negativ"];
 
-    /// <summary>Samme to-verdis vokabular de tre gamle tabellene hadde (issue #285 AC5, docs/20 §2.7).</summary>
-    public static readonly string[] Statuser = ["foreslatt_av_ai", "validert"];
+    // ---------------- Utsagnsstatus (issue #367, docs/34 §3–5, docs/profil/03 §5) ----------------
+
+    /// <summary>[ENDRET, issue #367 AC2] <c>status</c> er GODKJENNING (hvem har godkjent utsagnet), ikke metode. Speilet av CHECK
+    /// <c>ck_strukturkanter_status</c>. Før #367: <c>foreslatt_av_ai</c> (→ <see cref="MaskineltForeslatt"/>) og <c>validert</c>
+    /// (→ <see cref="Godkjent"/>).</summary>
+    public static readonly string[] Statuser = [MaskineltForeslatt, ManueltForeslatt, FagligVurdert, Godkjent, Avvist];
+    public const string MaskineltForeslatt = "maskinelt_foreslatt";
+    public const string ManueltForeslatt = "manuelt_foreslatt";
+    public const string FagligVurdert = "faglig_vurdert";
+    public const string Godkjent = "godkjent";
+    public const string Avvist = "avvist";
+
+    /// <summary>[Ny, issue #367] Statusene et menneske ennå ikke har godkjent — forslagskøen og <c>GodkjennAsync</c>.</summary>
+    public static readonly string[] Ventende = [MaskineltForeslatt, ManueltForeslatt, FagligVurdert];
+
+    /// <summary>
+    /// [Ny, issue #367 AC1, docs/profil/03 §5] HVORDAN utsagnet er kommet fram — speilet av CHECK <c>ck_strukturkanter_kunnskapsstatus</c>.
+    /// NULL = ikke vurdert. Eksisterende rader fikk ingen verdi i migrasjonen (CLAUDE.md §8).
+    /// </summary>
+    public static readonly string[] Kunnskapsstatuser =
+        [Tekstfunn, Normalisering, Fortolkning, Avledet, EksterntDokumentert, Uavklart, Omstridt, Foreldet];
+    public const string Tekstfunn = "tekstfunn";
+    public const string Normalisering = "normalisering";
+    public const string Fortolkning = "fortolkning";
+    public const string Avledet = "avledet";
+    public const string EksterntDokumentert = "eksternt_dokumentert";
+    public const string Uavklart = "uavklart";
+    public const string Omstridt = "omstridt";
+    public const string Foreldet = "foreldet";
+
+    /// <summary>[Ny, issue #367 AC3, docs/profil/03 §6] Tolkningsargumentene — lukket liste, speilet av CHECK
+    /// <c>ck_strukturkanter_tolkningsargumenter</c>. Minst ett kreves når kunnskapsstatus er <see cref="Fortolkning"/>.</summary>
+    public static readonly string[] Tolkningsargumenter =
+        ["ordlyd", "kontekst_system", "formal", "forarbeider", "praksis", "reelle_hensyn", "antitetisk_analogisk"];
+
+    /// <summary>[Ny, issue #367 AC3] Analysens livsløp (som <c>rettskilde_noder</c>): en revisjon gir en ny rad, den gamle blir
+    /// <c>foreldet</c> og slettes ikke.</summary>
+    public static readonly string[] Entitetsstatuser = ["gjeldende", "foreldet"];
+    public const string Gjeldende = "gjeldende";
+
+    /// <summary>[Ny, issue #367 AC3] Profilversjonen analysen er gjort under — settes på nye rader som får en kunnskapsstatus.
+    /// Profilen er et arbeidsutkast (docs/profil/00, «Revidert arbeidsutkast · 9. oktober 2026»).</summary>
+    public const string Profilversjon = "arbeidsutkast-2026-10-09";
+
+    /// <summary>
+    /// [Ny, issue #367 AC5 / #335, Johanns beslutning 2026-10-09] Delegeringsadgang ETTER TEKSTEN — speilet av CHECK
+    /// <c>ck_strukturkanter_delegeringsadgang</c>: «kan delegere» = <c>uttrykkelig_tillatt</c>, «kan ikke delegeres» / «X selv» =
+    /// <c>uttrykkelig_forbudt</c>, bestemmelsen sier ingenting = <c>ikke_regulert</c>. Bare på K. NULL = ikke vurdert.
+    /// </summary>
+    public static readonly string[] Delegeringsadganger = [UttrykkeligTillatt, UttrykkeligForbudt, IkkeRegulert];
+    public const string UttrykkeligTillatt = "uttrykkelig_tillatt";
+    public const string UttrykkeligForbudt = "uttrykkelig_forbudt";
+    public const string IkkeRegulert = "ikke_regulert";
+
+    /// <summary>
+    /// [Ny, issue #367 AC5 / #335] Antakelse etter alminnelige regler, ALLTID en slutning (aldri et tekstfunn): «Kongen» uten
+    /// «i statsråd» = <c>trolig_delegerbar</c>, «Kongen i statsråd» = <c>trolig_ikke_delegerbar</c> (juristrunden 2026-10-09, kort nr. 10:
+    /// en sterk lovteknisk konvensjon, ikke et uttrykkelig forbud). Bare når delegeringsadgangen er <c>ikke_regulert</c>.
+    /// </summary>
+    public static readonly string[] Delegeringsslutninger = [TroligDelegerbar, TroligIkkeDelegerbar];
+    public const string TroligDelegerbar = "trolig_delegerbar";
+    public const string TroligIkkeDelegerbar = "trolig_ikke_delegerbar";
+
+    /// <summary>
+    /// [Ny, issue #367 AC5 / #335] Delegeringsadgangen avgjort på SITATET (fasit, mønsterlaget): «kan ikke delegeres» eller
+    /// «&lt;fra&gt; selv» → uttrykkelig forbudt; «&lt;fra&gt; kan delegere» → uttrykkelig tillatt; «Kongen i statsråd» → ikke regulert +
+    /// trolig ikke delegerbar; fra «Kongen» → ikke regulert + trolig delegerbar. Alt annet: (null, null) — om bestemmelsen ellers
+    /// sier noe om delegering, avgjøres ikke av ett sitat. Samme regel som <c>konvertering-367-utsagnsstatus.py</c>.
+    /// </summary>
+    public static (string? Adgang, string? Slutning) DelegeringFraSitat(string? fra, string sitat)
+    {
+        if (fra is null) return (null, null);
+        if (sitat.Contains("kan ikke delegeres", StringComparison.OrdinalIgnoreCase)
+            || System.Text.RegularExpressions.Regex.IsMatch(sitat, System.Text.RegularExpressions.Regex.Escape(fra) + @"\s+selv\b(?!\s+om\b)",
+                System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.CultureInvariant))
+        {
+            return (UttrykkeligForbudt, null);
+        }
+        if (System.Text.RegularExpressions.Regex.IsMatch(sitat, System.Text.RegularExpressions.Regex.Escape(fra) + @"\s+kan\s+delegere\b",
+                System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.CultureInvariant))
+        {
+            return (UttrykkeligTillatt, null);
+        }
+        if (!fra.StartsWith("Kongen", StringComparison.OrdinalIgnoreCase)) return (null, null);
+        if (sitat.Contains("Kongen i statsråd", StringComparison.Ordinal)) return (IkkeRegulert, TroligIkkeDelegerbar);
+        return string.Equals(fra, "Kongen", StringComparison.OrdinalIgnoreCase) ? (IkkeRegulert, TroligDelegerbar) : (null, null);
+    }
 
     public static bool ErGyldigKategori(string? k) => k is not null && Kategorier.Contains(k);
 

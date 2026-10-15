@@ -118,7 +118,7 @@ public sealed class OmradeOppslagTjeneste(RegelIdeDbContext db, StrukturkantTjen
         // som «sogner til» et område: tingretten har ansvarsområde til kommunen (§§ 2–9) og sogner til lagsognet
         // (§§ 11–16), så kommunen inngår i lagsognet. Kjeden er kommune ← tingrett → lagsogn → lagdømme. Ingenting av
         // dette lagres som kant lagsogn → kommune; det er utledet her fra det forskriften faktisk sier.
-        var foreldrekanter = oKanter.Select(k => (Barn: k.TilBegrepId!.Value, Forelder: k.FraBegrepId!.Value, Validert: k.Status == "validert"))
+        var foreldrekanter = oKanter.Select(k => (Barn: k.TilBegrepId!.Value, Forelder: k.FraBegrepId!.Value, Validert: k.Status == Strukturkanter.Godkjent))
             .Concat(await AvledetGjennomSognerTilAsync(ct)).ToList();
         var foreldre = foreldrekanter.GroupBy(k => k.Barn).ToDictionary(g => g.Key, g => g.Select(k => k.Forelder).ToList());
         var overordnedeIder = new List<Guid>();
@@ -157,7 +157,7 @@ public sealed class OmradeOppslagTjeneste(RegelIdeDbContext db, StrukturkantTjen
         var visninger = (await kanttjeneste.ByggVisningerAsync(aKanter, perspektiv: null, ct)).ToDictionary(v => v.Id);
         var ansvarlige = aKanter
             .Select(k => new AnsvarligAktor(k.FraVirksomhetId!.Value, visninger[k.Id].Fra.Navn, k.Typekode, omrader[k.TilBegrepId!.Value], k.Id,
-                k.Status != "validert" || !validertSett.Contains(k.TilBegrepId!.Value)))
+                k.Status != Strukturkanter.Godkjent || !validertSett.Contains(k.TilBegrepId!.Value)))
             .OrderBy(a => a.Via.Omradetype == Omradetyper.Kommune ? 0 : 1).ThenBy(a => a.Navn, StringComparer.Ordinal)
             .ToList();
 
@@ -364,10 +364,10 @@ public sealed class OmradeOppslagTjeneste(RegelIdeDbContext db, StrukturkantTjen
             hull.Add($"«{domstol.Navn}» har ingen registrerte områder (ansvarsområde eller lagsogn) — en ankeinstans med ansvarsområde kan ikke pares.");
         }
         // [Ny, kaldtesten] Samme traversering over bare validerte kanter — områder som bare nås via et forslag.
-        var validerteForeldre = oKanter.Where(k => k.Status == "validert").GroupBy(k => k.TilBegrepId!.Value)
+        var validerteForeldre = oKanter.Where(k => k.Status == Strukturkanter.Godkjent).GroupBy(k => k.TilBegrepId!.Value)
             .ToDictionary(g => g.Key, g => g.Select(k => k.FraBegrepId!.Value).ToList());
         var validertDekker = new HashSet<Guid>();
-        var vko = new Queue<Guid>(egneA.Where(k => k.Status == "validert").Select(k => k.TilBegrepId!.Value));
+        var vko = new Queue<Guid>(egneA.Where(k => k.Status == Strukturkanter.Godkjent).Select(k => k.TilBegrepId!.Value));
         while (vko.Count > 0)
         {
             var o = vko.Dequeue();
@@ -417,14 +417,14 @@ public sealed class OmradeOppslagTjeneste(RegelIdeDbContext db, StrukturkantTjen
                 .Where(k => k.Kategori == Strukturkanter.Ansvarsomrade && k.Typekode == "har_ansvarsomrade"
                             && k.FraVirksomhetId != null && fraVirksomheter.Contains(k.FraVirksomhetId.Value) && k.TilBegrepId != null)
                 .ToListAsync(ct), ct))
-            .GroupBy(k => k.FraVirksomhetId!.Value).ToDictionary(g => g.Key, g => g.Select(k => (Omrade: k.TilBegrepId!.Value, Validert: k.Status == "validert")).ToList());
+            .GroupBy(k => k.FraVirksomhetId!.Value).ToDictionary(g => g.Key, g => g.Select(k => (Omrade: k.TilBegrepId!.Value, Validert: k.Status == Strukturkanter.Godkjent)).ToList());
         var visninger = (await kanttjeneste.ByggVisningerAsync(valgte.Select(v => v.Kant).ToList(), perspektiv: null, ct)).ToDictionary(v => v.Id);
         var treff = new List<AnkeinstansTreff>();
         foreach (var (kant, grunnlag) in valgte)
         {
             var visning = visninger[kant.Id];
             PliktMotpart? instans;
-            var forslag = kant.Status != "validert";
+            var forslag = kant.Status != Strukturkanter.Godkjent;
             if (kant.FraVirksomhetId is { } fv)
             {
                 var omr = fraAnsvar.GetValueOrDefault(fv)?.Select(x => x.Omrade).ToList();
@@ -532,7 +532,7 @@ public sealed class OmradeOppslagTjeneste(RegelIdeDbContext db, StrukturkantTjen
             .ToListAsync(ct), ct);
         var ansvarPerAktor = ansvar.GroupBy(k => k.FraVirksomhetId!.Value).ToDictionary(g => g.Key, g => g.ToList());
         return sogner.SelectMany(s => (ansvarPerAktor.GetValueOrDefault(s.FraVirksomhetId!.Value) ?? [])
-                .Select(a => (Barn: a.TilBegrepId!.Value, Forelder: s.TilBegrepId!.Value, Validert: s.Status == "validert" && a.Status == "validert")))
+                .Select(a => (Barn: a.TilBegrepId!.Value, Forelder: s.TilBegrepId!.Value, Validert: s.Status == Strukturkanter.Godkjent && a.Status == Strukturkanter.Godkjent)))
             .ToList();
     }
 }

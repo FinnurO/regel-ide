@@ -165,7 +165,8 @@ public sealed class KiStrukturkonverterer(
                     Undertype = r.Undertype,
                     Modalitet = r.Modalitet,
                     Grunnlag = r.Grunnlag,
-                    Delegerbar = r.Delegerbar,
+                    Delegeringsadgang = r.Delegeringsadgang,
+                    DelegeringSlutning = r.DelegeringSlutning,
                 });
             }
         }
@@ -202,6 +203,8 @@ public sealed class KiStrukturkonverterer(
     /// inn så neste live-kjøring ikke gjør samme feil: unntak i et delegeringsvedtak er avgrensning på har_delegert_til (ikke egne
     /// negative utsagn), «X kan opprette / treffer vedtak om å opprette» er opprettingskompetanse (oppretter/avvikler er hendelsen),
     /// og «kan ikke delegeres» gir delegerbar = false. De lagrede KI-utdataene er konvertert med skriptet, ikke kjørt på nytt.
+    /// [ENDRET, issue #367 / #335] «delegerbar» er erstattet av «delegeringsadgang» (etter teksten) og «delegering_slutning» (alltid
+    /// en slutning). De lagrede KI-utdataene er konvertert med konvertering-367-utsagnsstatus.py.
     /// </summary>
     public static string SystemInstruks { get; } = ByggSystemInstruks();
 
@@ -287,8 +290,10 @@ public sealed class KiStrukturkonverterer(
             - "modalitet": bare på plikt — "skal" (også «plikter», «har plikt til»), "kan" eller "bor" («bør»), når teksten har
               modalverbet; ellers utelat
             - "grunnlag": bare på kompetanse — "privatrettslig" når kompetansen følger av eierskap/selskapsrett, ellers utelat
-            - "delegerbar": bare på kompetanse — false for «Kongen i statsråd …», «X selv …» og når loven sier at myndigheten
-              «kan ikke delegeres», true for «Kongen …», ellers utelat
+            - "delegeringsadgang": bare på kompetanse — det TEKSTEN sier: "uttrykkelig_forbudt" («kan ikke delegeres», «X selv …»),
+              "uttrykkelig_tillatt" («X kan delegere …»), "ikke_regulert" (bestemmelsen sier ingenting om delegering); ellers utelat
+            - "delegering_slutning": bare når delegeringsadgang er "ikke_regulert" — en SLUTNING etter alminnelige regler, aldri et
+              tekstfunn: "trolig_delegerbar" («Kongen …» uten «i statsråd»), "trolig_ikke_delegerbar" («Kongen i statsråd …»); ellers utelat
             - "polaritet": "positiv" eller "negativ" — ALLTID med («kan ikke instruere» = negativ)
             - "avgrensning": paragraf/sakstype/vilkår som begrenser utsagnet
             - "betinget": true/false
@@ -567,7 +572,8 @@ public sealed class KiStrukturkonverterer(
             & Streng(u, "polaritet", out var polaritet) & Streng(u, "avgrensning", out var avgrensning)
             & Bool(u, "betinget", out var betinget) & Bool(u, "kilde_utenfor_korpus", out var utenfor)
             & Streng(u, "sikkerhet", out var sikkerhet) & Streng(u, "kommentar", out var kommentar)
-            & Streng(u, "normform", out var normform) & Streng(u, "grunnlag", out var grunnlag) & Bool(u, "delegerbar", out var delegerbar)
+            & Streng(u, "normform", out var normform) & Streng(u, "grunnlag", out var grunnlag) & Streng(u, "delegeringsadgang", out var delegeringsadgang)
+            & Streng(u, "delegering_slutning", out var delegeringSlutning)
             & Streng(u, "undertype", out var undertype) & Streng(u, "modalitet", out var modalitet);
 
         KastetRad Kast(string arsak, string detalj) =>
@@ -605,8 +611,12 @@ public sealed class KiStrukturkonverterer(
             return (null, Kast(KastetArsak.UgyldigFelt, $"normform = «{normform}» (bare på normgivningskompetanse)."));
         if (grunnlag is not null && (kategori != "kompetanse" || !Strukturkontrakt.Grunnlag.Contains(grunnlag)))
             return (null, Kast(KastetArsak.UgyldigFelt, $"grunnlag = «{grunnlag}» (bare på kompetanse)."));
-        if (delegerbar is not null && kategori != "kompetanse")
-            return (null, Kast(KastetArsak.UgyldigFelt, "delegerbar finnes bare på kompetanse."));
+        // [ENDRET, issue #367 / #335] delegerbar → delegeringsadgang + slutning (lukkede lister, slutning bare ved ikke_regulert).
+        if (delegeringsadgang is not null && (kategori != "kompetanse" || !RegelIde.Data.Strukturkanter.Delegeringsadganger.Contains(delegeringsadgang)))
+            return (null, Kast(KastetArsak.UgyldigFelt, $"delegeringsadgang = «{delegeringsadgang}» (bare på kompetanse, lukket liste)."));
+        if (delegeringSlutning is not null && (delegeringsadgang != RegelIde.Data.Strukturkanter.IkkeRegulert
+                || !RegelIde.Data.Strukturkanter.Delegeringsslutninger.Contains(delegeringSlutning)))
+            return (null, Kast(KastetArsak.UgyldigFelt, $"delegering_slutning = «{delegeringSlutning}» (bare ved delegeringsadgang ikke_regulert)."));
         // [Ny, issue #352] Undertypen: bare en undertype FORMAT.md-typen har (oppnevning: valg/ansettelse/utpeking/oppnevning;
         // overprøving: anke).
         if (undertype is not null && (kategori != "kompetanse" || !Strukturkontrakt.ErGyldigUndertype(type, undertype)))
@@ -616,7 +626,7 @@ public sealed class KiStrukturkonverterer(
             return (null, Kast(KastetArsak.UgyldigFelt, $"modalitet = «{modalitet}» (bare på plikt: skal, kan, bor)."));
 
         return (new KiRad(node.Eid, sitat, kategori, type, fraAktor, tilAktor, objekt, polaritet, avgrensning,
-            betinget, utenfor, sikkerhet, kommentar, normform, grunnlag, delegerbar, undertype, modalitet), null);
+            betinget, utenfor, sikkerhet, kommentar, normform, grunnlag, delegeringsadgang, delegeringSlutning, undertype, modalitet), null);
     }
 
     /// <summary>
@@ -867,7 +877,7 @@ internal sealed record KiRad(
     string Eid, string Sitat, string Kategori, string Type, KiAktor? Fra, KiAktor? Til, string? Objekt, string Polaritet,
     string? Avgrensning, bool? Betinget, bool? KildeUtenforKorpus, string? Sikkerhet, string? Kommentar,
     // [Ny, issue #341] Bare på kompetanse (normform bare på normgivning) — validert i TolkUtsagn.
-    string? Normform = null, string? Grunnlag = null, bool? Delegerbar = null,
+    string? Normform = null, string? Grunnlag = null, string? Delegeringsadgang = null, string? DelegeringSlutning = null,
     // [Ny, issue #352] Bare på oppnevnings-/overprøvingskompetanse — validert i TolkUtsagn.
     string? Undertype = null,
     // [Ny, issue #353] Bare på plikt — validert i TolkUtsagn.

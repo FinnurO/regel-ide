@@ -22,7 +22,7 @@ public sealed record Kantnode(Guid? VirksomhetId, Guid? BegrepId)
 /// oppdagelseskilde.
 /// </summary>
 /// <param name="Til">Null bare for K og T (<see cref="Strukturkanter.Noderegel.TilValgfri"/>).</param>
-/// <param name="AiForslagVersjon">Påkrevd sammen med <c>Status = "foreslatt_av_ai"</c> når
+/// <param name="AiForslagVersjon">Påkrevd sammen med <c>Status = "maskinelt_foreslatt"</c> når
 /// <paramref name="OppdagelsesKilde"/> ikke er oppgitt (samme regel som de gamle tjenestene hadde) — havner i
 /// Proveniens og avleder <c>OppdagelsesKilde = "ki:&lt;versjon&gt;"</c>.</param>
 public sealed record NyStrukturkant(
@@ -32,14 +32,19 @@ public sealed record NyStrukturkant(
     IReadOnlyList<ParagrafspennPar>? Paragrafspenn = null, string? AvgrensningTekst = null,
     string? Objekt = null, string Polaritet = "positiv",
     DateOnly? GyldigFra = null, DateOnly? GyldigTil = null, string? Kommentar = null,
-    string Status = "validert", string? AiForslagVersjon = null, string? OppdagelsesKilde = null,
+    string Status = Strukturkanter.Godkjent, string? AiForslagVersjon = null, string? OppdagelsesKilde = null,
     string? KildeUtenforKorpusType = null, string? KildeUtenforKorpusDokumentasjon = null,
-    // [Ny, issue #341, 2026-10-08] Bare på K — se StrukturkantEntitet.Normform/Grunnlag/Delegerbar. Null = ikke angitt.
-    string? Normform = null, string? Grunnlag = null, bool? Delegerbar = null,
+    // [Ny, issue #341, 2026-10-08] Bare på K — se StrukturkantEntitet.Normform/Grunnlag. Null = ikke angitt.
+    // [ENDRET, issue #367 / #335] delegerbar (bool) → delegeringsadgang + slutning (StrukturkantEntitet.Delegeringsadgang/DelegeringSlutning).
+    string? Normform = null, string? Grunnlag = null, string? Delegeringsadgang = null, string? DelegeringSlutning = null,
     // [Ny, issue #352] Bare på K oppnevning/overproving — se StrukturkantEntitet.Undertype. Null = ikke angitt. [ENDRET, #355] + avsetting og vedtak.
     string? Undertype = null,
     // [Ny, issue #353] Bare på P: skal | kan | bor — se StrukturkantEntitet.Modalitet. Null = ikke angitt.
-    string? Modalitet = null);
+    string? Modalitet = null,
+    // [Ny, issue #367] Utsagnsstatus: hvordan utsagnet er kommet fram, begrunnelsen, tolkningsargumentene og premissene (påkrevd ved
+    // avledet). Null = ikke vurdert. Se StrukturkantEntitet.Kunnskapsstatus.
+    string? Kunnskapsstatus = null, string? Begrunnelse = null, IReadOnlyList<string>? Tolkningsargumenter = null,
+    IReadOnlyList<Guid>? Premisser = null);
 
 /// <summary>Resultatet av <see cref="StrukturkantTjeneste.OpprettAsync"/> — <see cref="VarNy"/> = false betyr
 /// at et identisk utsagn alt fantes og ble returnert uendret (idempotens, se metoden).</summary>
@@ -67,14 +72,22 @@ public sealed record StrukturkantVisning(
     DateOnly? GyldigFra, DateOnly? GyldigTil, string Status, string OppdagelsesKilde, string? Kommentar,
     string OpprettetAv, DateTimeOffset OpprettetTidspunkt,
     // [Ny, issue #341] K-feltene. Selvregulering = normgivning der til = fra (avledet, Johanns beslutning P2).
-    string? Normform = null, string? Grunnlag = null, bool? Delegerbar = null, bool Selvregulering = false,
+    // [ENDRET, issue #367 / #335] delegerbar → delegeringsadgang (etter teksten) + slutning (alltid merket slutning).
+    string? Normform = null, string? Grunnlag = null, string? Delegeringsadgang = null, string? DelegeringSlutning = null,
+    bool Selvregulering = false,
     // [Ny, issue #341, Johanns hierarkibeslutning] Fra typekonfigurasjonen: familien og fvl-kategorien (for normgivning
     // avledet av normformen, Strukturkanter.FvlKategoriFor).
     string? Familie = null, string? FvlKategori = null,
     // [Ny, issue #352] Undertypen (valg/ansettelse/utpeking/oppnevning på oppnevning, anke på overprøving). Null = ikke angitt.
     string? Undertype = null,
     // [Ny, issue #353] Modaliteten på en plikt (skal/kan/bor). Null = ikke angitt.
-    string? Modalitet = null);
+    string? Modalitet = null,
+    // [Ny, issue #367] Utsagnsstatus. Status over er GODKJENNING; Kunnskapsstatus er metoden (null = ikke vurdert).
+    string? Kunnskapsstatus = null, string? Begrunnelse = null, IReadOnlyList<string>? Tolkningsargumenter = null,
+    IReadOnlyList<Guid>? PremissIder = null, string Entitetsstatus = "gjeldende", Guid? ErstatterKantId = null,
+    string? Profilversjon = null,
+    // [Ny, issue #367 AC4] Den versjonerte hjemmelnoden, merknaden når den mangler («hjemmelversjon ukjent») og resynk-flagget.
+    Guid? HjemmelNodeId = null, string? HjemmelVersjonMerknad = null, DateTimeOffset? HjemmelEndretTidspunkt = null);
 
 /// <summary>
 /// [Ny, issue #311 «Strukturmodell 6: én typestyrt kanttabell», 2026-10-07] Den ENESTE skriveveien til
@@ -109,7 +122,10 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
     /// PARET uansett hjemmel. Med avgrensning og polaritet på kanten er to kanter med ulik hjemmel/
     /// avgrensning to ulike utsagn — «klageinstans etter § 3» og «etter § 5» — og lagres hver for seg.)
     /// </summary>
-    public async Task<StrukturkantOpprettet> OpprettAsync(NyStrukturkant ny, string opprettetAv, CancellationToken ct = default)
+    public Task<StrukturkantOpprettet> OpprettAsync(NyStrukturkant ny, string opprettetAv, CancellationToken ct = default) =>
+        OpprettAsync(ny, opprettetAv, erstatter: null, ct);
+
+    private async Task<StrukturkantOpprettet> OpprettAsync(NyStrukturkant ny, string opprettetAv, StrukturkantEntitet? erstatter, CancellationToken ct)
     {
         // ---- Lukkede vokabular ----
         if (!Strukturkanter.ErGyldigKategori(ny.Kategori))
@@ -126,12 +142,12 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
             throw new ArgumentException($"Ugyldig status '{ny.Status}'. Gyldige verdier: {string.Join(", ", Strukturkanter.Statuser)}. Ingen gjettet fallback.");
         }
         var oppdagelsesKilde = ny.OppdagelsesKilde
-            ?? (ny.Status == "foreslatt_av_ai" && ny.AiForslagVersjon is not null ? $"ki:{ny.AiForslagVersjon}" : null)
-            ?? (ny.Status == "validert" ? "manuell" : null);
+            ?? (ny.Status == Strukturkanter.MaskineltForeslatt && ny.AiForslagVersjon is not null ? $"ki:{ny.AiForslagVersjon}" : null)
+            ?? (ny.Status != Strukturkanter.MaskineltForeslatt ? "manuell" : null);
         if (oppdagelsesKilde is null)
         {
             throw new ArgumentException(
-                "Et forslag (status 'foreslatt_av_ai') må ha aiForslagVersjon eller oppdagelsesKilde. Ingen gjettet fallback.");
+                "Et maskinelt forslag (status 'maskinelt_foreslatt') må ha aiForslagVersjon eller oppdagelsesKilde. Ingen gjettet fallback.");
         }
         if (!OppdagelsesKildeForm().IsMatch(oppdagelsesKilde))
         {
@@ -202,7 +218,8 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
         {
             throw new ArgumentException("En klassenivå-kant uten til-node må ha et objekt (f.eks. «kommunestyre»).");
         }
-        var (normform, grunnlag, undertype) = ValiderKompetansefelt(ny.Kategori, ny.Typekode, ny.Normform, ny.Grunnlag, ny.Delegerbar, ny.Undertype);
+        var (normform, grunnlag, undertype) = ValiderKompetansefelt(ny.Kategori, ny.Typekode, ny.Normform, ny.Grunnlag, ny.Undertype);
+        var (delegeringsadgang, delegeringSlutning) = ValiderDelegering(ny.Kategori, ny.Delegeringsadgang, ny.DelegeringSlutning); // [Ny, #367]
         var modalitet = ValiderModalitet(ny.Kategori, ny.Modalitet); // [Ny, issue #353]
 
         // ---- Kilde ----
@@ -265,6 +282,18 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
                     $"Fant ingen node med eId '{ny.HjemmelEid}' i hjemmelen. Ingen gjettet fallback.");
             }
         }
+        // [Ny, issue #367 AC4] Den versjonerte noden — bare ved nøyaktig én gjeldende node med eId-en (samme regel som migrasjonen).
+        Guid? hjemmelNodeId = null;
+        if (ny.HjemmelRettskildeId is { } hId && ny.HjemmelEid is not null)
+        {
+            var noder = await db.RettskildeNoder
+                .Where(n => n.RettskildeId == hId && n.Eid == ny.HjemmelEid && n.Entitetsstatus == "gjeldende")
+                .Select(n => n.Id).Take(2).ToListAsync(ct);
+            if (noder.Count == 1) hjemmelNodeId = noder[0];
+        }
+
+        // ---- [Ny, issue #367 AC1/AC3] Kunnskapsstatus og grunnlaget den krever (docs/profil/03 §5) ----
+        var (kunnskapsstatus, begrunnelse, argumenter, premisser) = await ValiderKunnskapsstatusAsync(ny, kildeTekst, ct);
 
         // ---- Hjemmelssted og avgrensning ----
         // [ENDRET, issue #341] M/I med hjemmel i korpus krever HVOR det står (hjemmel-eId), ikke et avgrensningsspenn —
@@ -289,7 +318,9 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
         // [ENDRET, issue #341] Hjemmelssted og normform er nå en del av utsagnets identitet («kan gi forskrift» og «kan gi
         // reglement» er to utsagn; samme tildeling hjemlet i § 1 og § 2 også). Delegerbar og grunnlag er det IKKE —
         // to rader som bare skiller seg der, er samme utsagn med motstridende opplysning, og det avvises under.
-        var eksisterende = await db.Strukturkanter.FirstOrDefaultAsync(k =>
+        // [ENDRET, issue #367 AC3] Gjelder bare gjeldende rader (global spørrefilter), og ikke for omstridte utsagn: to konkurrerende
+        // tolkninger av samme tekst skal kunne stå side om side.
+        var eksisterende = kunnskapsstatus == Strukturkanter.Omstridt ? null : await db.Strukturkanter.FirstOrDefaultAsync(k =>
             k.Kategori == ny.Kategori && k.Typekode == ny.Typekode
             && k.FraVirksomhetId == ny.Fra.VirksomhetId && k.FraBegrepId == ny.Fra.BegrepId
             && k.TilVirksomhetId == tilV && k.TilBegrepId == tilB
@@ -303,12 +334,14 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
             && k.AvgrensningParagrafspennJson == spennJson, ct);
         if (eksisterende is not null)
         {
-            if ((ny.Delegerbar is not null && eksisterende.Delegerbar is not null && ny.Delegerbar != eksisterende.Delegerbar)
-                || (grunnlag is not null && eksisterende.Grunnlag is not null && grunnlag != eksisterende.Grunnlag))
+            if ((delegeringsadgang is not null && eksisterende.Delegeringsadgang is not null && delegeringsadgang != eksisterende.Delegeringsadgang)
+                || (delegeringSlutning is not null && eksisterende.DelegeringSlutning is not null && delegeringSlutning != eksisterende.DelegeringSlutning)
+                || (grunnlag is not null && eksisterende.Grunnlag is not null && grunnlag != eksisterende.Grunnlag)
+                || (kunnskapsstatus is not null && eksisterende.Kunnskapsstatus is not null && kunnskapsstatus != eksisterende.Kunnskapsstatus))
             {
                 throw new ArgumentException(
-                    "Det finnes alt en identisk kompetansekant med en annen verdi for delegerbar/grunnlag. Rett den "
-                    + "eksisterende kanten i stedet — ingen gjettet sammenslåing.");
+                    "Det finnes alt en identisk kant med en annen verdi for delegeringsadgang/grunnlag/kunnskapsstatus. Revider den "
+                    + "eksisterende kanten i stedet (en revisjon gir en ny rad) — ingen gjettet sammenslåing.");
             }
             return new StrukturkantOpprettet(eksisterende, false);
         }
@@ -342,7 +375,14 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
             Undertype = undertype,
             Modalitet = modalitet,
             Grunnlag = grunnlag,
-            Delegerbar = ny.Delegerbar,
+            Delegeringsadgang = delegeringsadgang,
+            DelegeringSlutning = delegeringSlutning,
+            Kunnskapsstatus = kunnskapsstatus,
+            Begrunnelse = begrunnelse,
+            Tolkningsargumenter = argumenter,
+            Profilversjon = kunnskapsstatus is null ? null : Strukturkanter.Profilversjon,
+            ErstatterKantId = erstatter?.Id,
+            HjemmelNodeId = hjemmelNodeId,
             GyldigFra = ny.GyldigFra,
             GyldigTil = ny.GyldigTil,
             Status = ny.Status,
@@ -352,13 +392,44 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
             OpprettetTidspunkt = DateTimeOffset.UtcNow,
         };
         db.Strukturkanter.Add(kant);
+        foreach (var premiss in premisser)
+        {
+            db.StrukturkantPremisser.Add(new StrukturkantPremissEntitet { KantId = kant.Id, PremissKantId = premiss });
+        }
         // Delt, nasjonal referansedata — proveniensen er ikke attribuert til en virksomhet (samme som
         // myndighetstildeling før #311).
-        db.Proveniens.Add(ny.Status == "foreslatt_av_ai"
+        db.Proveniens.Add(ny.Status == Strukturkanter.MaskineltForeslatt
             ? ProveniensHjelper.NyForslagRad(ProveniensType, kant.Id, virksomhetId: null, opprettetAv, ny.AiForslagVersjon ?? oppdagelsesKilde)
             : ProveniensHjelper.NyRad(ProveniensType, kant.Id, virksomhetId: null, "opprettet", opprettetAv));
         await db.SaveChangesAsync(ct);
         return new StrukturkantOpprettet(kant, true);
+    }
+
+    /// <summary>
+    /// [Ny, issue #367 AC3, docs/34 §4] Reviderer en kant: <paramref name="ny"/> blir en NY rad med <c>erstatter_kant_id</c> = den gamle, og
+    /// den gamle blir <c>foreldet</c> — den slettes ikke (PROV-O <c>wasRevisionOf</c>). Samme validering som <see cref="OpprettAsync"/>;
+    /// feiler den, står den gamle raden uendret (én transaksjon). Bare en gjeldende kant kan revideres.
+    /// </summary>
+    /// <returns>Den nye raden, eller null hvis id-en ikke finnes blant de gjeldende kantene.</returns>
+    public async Task<StrukturkantEntitet?> ReviderAsync(Guid id, NyStrukturkant ny, string revidertAv, CancellationToken ct = default)
+    {
+        var gammel = await db.Strukturkanter.FirstOrDefaultAsync(k => k.Id == id, ct);
+        if (gammel is null) return null;
+        await using var tx = await db.Database.BeginTransactionAsync(ct);
+        gammel.Entitetsstatus = Strukturkanter.Foreldet;
+        gammel.SistEndretAv = revidertAv;
+        gammel.SistEndretTidspunkt = DateTimeOffset.UtcNow;
+        var prov = ProveniensHjelper.NyRad(ProveniensType, gammel.Id, virksomhetId: null, "endret", revidertAv);
+        prov.KildeReferanserJson = JsonSerializer.Serialize(new { felt = "entitetsstatus", issue = 367, nyStatus = Strukturkanter.Foreldet });
+        db.Proveniens.Add(prov);
+        await db.SaveChangesAsync(ct);
+        var ny2 = await OpprettAsync(ny, revidertAv, gammel, ct);
+        if (!ny2.VarNy)
+        {
+            throw new ArgumentException("Revisjonen er identisk med en annen gjeldende kant. Ingenting er endret.");
+        }
+        await tx.CommitAsync(ct);
+        return ny2.Kant;
     }
 
     /// <summary>
@@ -377,7 +448,7 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
         Guid virksomhetId, Guid begrepId, Guid hjemmelRettskildeId, string hjemmelEid,
         IReadOnlyList<ParagrafspennPar>? avgrensning, string? avgrensningTekst, string opprettetAv,
         DateOnly? gyldigFra = null, DateOnly? gyldigTil = null,
-        CancellationToken ct = default, string status = "validert", string? aiForslagVersjon = null)
+        CancellationToken ct = default, string status = Strukturkanter.Godkjent, string? aiForslagVersjon = null)
     {
         var (kategori, typekode) = await TildelingskategoriAsync(begrepId, ct);
         return await OpprettAsync(new NyStrukturkant(
@@ -469,17 +540,19 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
         return kant;
     }
 
-    /// <summary>Et menneske bekrefter et forslag (<c>foreslatt_av_ai</c> → <c>validert</c>) — samme mønster
-    /// som de gamle tjenestene (issue #285 AC6). En allerede validert kant har ingenting å godkjenne.</summary>
+    /// <summary>Et menneske bekrefter et forslag (et av <see cref="Strukturkanter.Ventende"/> → <c>godkjent</c>; før #367
+    /// <c>foreslatt_av_ai</c> → <c>validert</c>) — samme mønster som de gamle tjenestene (issue #285 AC6). En godkjent eller avvist
+    /// kant har ingenting å godkjenne.</summary>
     public async Task<StrukturkantEntitet?> GodkjennAsync(Guid id, string godkjentAv, CancellationToken ct = default)
     {
         var kant = await db.Strukturkanter.FirstOrDefaultAsync(k => k.Id == id, ct);
         if (kant is null) return null;
-        if (kant.Status != "foreslatt_av_ai")
+        if (!Strukturkanter.Ventende.Contains(kant.Status))
         {
-            throw new ArgumentException($"Kanten har status '{kant.Status}' — kun 'foreslatt_av_ai'-rader kan godkjennes.");
+            throw new ArgumentException(
+                $"Kanten har status '{kant.Status}' — bare forslag ({string.Join(", ", Strukturkanter.Ventende)}) kan godkjennes.");
         }
-        kant.Status = "validert";
+        kant.Status = Strukturkanter.Godkjent;
         kant.SistEndretAv = godkjentAv;
         kant.SistEndretTidspunkt = DateTimeOffset.UtcNow;
         var proveniens = ProveniensHjelper.NyRad(ProveniensType, kant.Id, virksomhetId: null, "validert", godkjentAv);
@@ -502,7 +575,7 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
         Guid hjemmelRettskildeId, string? oppdagelseskildePrefiks, string godkjentAv, CancellationToken ct = default)
     {
         var ider = await db.Strukturkanter
-            .Where(k => k.Status == "foreslatt_av_ai" && k.HjemmelRettskildeId == hjemmelRettskildeId
+            .Where(k => k.Status == Strukturkanter.MaskineltForeslatt && k.HjemmelRettskildeId == hjemmelRettskildeId
                         && (oppdagelseskildePrefiks == null || k.OppdagelsesKilde.StartsWith(oppdagelseskildePrefiks)))
             .Select(k => k.Id).ToListAsync(ct);
         foreach (var id in ider) await GodkjennAsync(id, godkjentAv, ct);
@@ -514,7 +587,7 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
     public async Task<List<(Guid RettskildeId, string Tittel, int Antall)>> ForslagPerHjemmelAsync(CancellationToken ct = default)
     {
         var grupper = await db.Strukturkanter
-            .Where(k => k.Status == "foreslatt_av_ai" && k.HjemmelRettskildeId != null)
+            .Where(k => k.Status == Strukturkanter.MaskineltForeslatt && k.HjemmelRettskildeId != null)
             .GroupBy(k => k.HjemmelRettskildeId!.Value)
             .Select(g => new { Id = g.Key, Antall = g.Count() }).ToListAsync(ct);
         var ider = grupper.Select(g => g.Id).ToList();
@@ -535,9 +608,9 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
     {
         var kant = await db.Strukturkanter.FirstOrDefaultAsync(k => k.Id == id, ct);
         if (kant is null) return null;
-        if (kant.Status != "validert")
+        if (kant.Status != Strukturkanter.Godkjent)
         {
-            throw new ArgumentException($"Kanten har status '{kant.Status}' — bare en validert kant kan gjøres om til forslag.");
+            throw new ArgumentException($"Kanten har status '{kant.Status}' — bare en godkjent kant kan gjøres om til forslag.");
         }
         if (!OppdagelsesKildeForm().IsMatch(oppdagelsesKilde))
         {
@@ -546,11 +619,11 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
         var proveniens = ProveniensHjelper.NyRad(ProveniensType, kant.Id, virksomhetId: null, "endret", endretAv);
         proveniens.KildeReferanserJson = JsonSerializer.Serialize(new
         {
-            felt = "status", forStatus = kant.Status, nyStatus = "foreslatt_av_ai",
+            felt = "status", forStatus = kant.Status, nyStatus = Strukturkanter.MaskineltForeslatt,
             forOppdagelsesKilde = kant.OppdagelsesKilde, nyOppdagelsesKilde = oppdagelsesKilde,
             grunn = "Maskinelt tolket lovtekst skal godkjennes av et menneske (Johann 2026-10-08, #312).",
         });
-        kant.Status = "foreslatt_av_ai";
+        kant.Status = Strukturkanter.MaskineltForeslatt;
         kant.OppdagelsesKilde = oppdagelsesKilde;
         kant.SistEndretAv = endretAv;
         kant.SistEndretTidspunkt = DateTimeOffset.UtcNow;
@@ -559,16 +632,16 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
         return kant;
     }
 
-    /// <summary>«Avvis» et forslag — ekte <c>Remove</c>, og BARE for <c>foreslatt_av_ai</c> (samme
+    /// <summary>«Avvis» et forslag — ekte <c>Remove</c>, og BARE for forslag (<see cref="Strukturkanter.Ventende"/>; samme
     /// avgrensning som før #311: avvisning er for egne, ubekreftede forslag; sletting av en validert kant er
     /// <see cref="SlettAsync"/>).</summary>
     public async Task<bool> AvvisAsync(Guid id, CancellationToken ct = default)
     {
         var kant = await db.Strukturkanter.FirstOrDefaultAsync(k => k.Id == id, ct);
         if (kant is null) return false;
-        if (kant.Status != "foreslatt_av_ai")
+        if (!Strukturkanter.Ventende.Contains(kant.Status))
         {
-            throw new ArgumentException($"Kanten har status '{kant.Status}' — kun 'foreslatt_av_ai'-rader kan avvises. Bruk slett.");
+            throw new ArgumentException($"Kanten har status '{kant.Status}' — bare forslag kan avvises. Bruk slett.");
         }
         db.Strukturkanter.Remove(kant);
         await db.SaveChangesAsync(ct);
@@ -657,10 +730,10 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
             .OrderBy(v => v.Kategori, StringComparer.Ordinal).ThenBy(v => v.Visningstekst, StringComparer.Ordinal).ToList();
     }
 
-    /// <summary>Alle ventende forslag (<c>foreslatt_av_ai</c>) — KI-forslag-køen (issue #285 AC6).</summary>
+    /// <summary>Alle ventende forslag (<see cref="Strukturkanter.Ventende"/>) — forslagskøen (issue #285 AC6, [ENDRET #367]).</summary>
     public async Task<List<StrukturkantVisning>> HentForslagAsync(CancellationToken ct = default)
     {
-        var kanter = await db.Strukturkanter.Where(k => k.Status == "foreslatt_av_ai").ToListAsync(ct);
+        var kanter = await db.Strukturkanter.Where(k => Strukturkanter.Ventende.Contains(k.Status)).ToListAsync(ct);
         return (await ByggVisningerAsync(kanter, perspektiv: null, ct)).OrderBy(v => v.OpprettetTidspunkt).ToList();
     }
 
@@ -731,6 +804,11 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
         var hjemmeltitler = await db.Rettskilder.Where(r => hjemmelIder.Contains(r.Id))
             .Select(r => new { r.Id, Tittel = r.Kortnavn ?? r.Tittel }).ToDictionaryAsync(r => r.Id, r => r.Tittel, ct);
 
+        // [Ny, issue #367] Premissene for avledede kanter, i ett oppslag.
+        var avledetIder = kanter.Where(k => k.Kunnskapsstatus == Strukturkanter.Avledet).Select(k => k.Id).ToList();
+        var premisser = avledetIder.Count == 0 ? [] : (await db.StrukturkantPremisser.Where(p => avledetIder.Contains(p.KantId)).ToListAsync(ct))
+            .GroupBy(p => p.KantId).ToDictionary(g => g.Key, g => (IReadOnlyList<Guid>)g.Select(p => p.PremissKantId).OrderBy(x => x).ToList());
+
         KantnodeVisning Node(Guid? virksomhetId, Guid? begrepId)
         {
             if (virksomhetId is { } v)
@@ -799,10 +877,16 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
                 k.HjemmelRettskildeId is { } h ? hjemmeltitler.GetValueOrDefault(h) : null, k.HjemmelEid,
                 k.KildeUtenforKorpusTekst, k.KildeUtenforKorpusLenke, k.KildeUtenforKorpusType, k.KildeUtenforKorpusDokumentasjon, k.GyldigFra, k.GyldigTil, k.Status,
                 k.OppdagelsesKilde, k.Kommentar, k.OpprettetAv, k.OpprettetTidspunkt,
-                k.Normform, k.Grunnlag, k.Delegerbar, selvregulering,
+                k.Normform, k.Grunnlag, k.Delegeringsadgang, k.DelegeringSlutning, selvregulering,
                 k.Kategori == Strukturkanter.Kompetanse ? type?.Familie : null,
                 k.Kategori == Strukturkanter.Kompetanse ? Strukturkanter.FvlKategoriFor(k.Typekode, k.Normform, k.Undertype, type?.FvlKategori) : null,
-                k.Undertype, k.Modalitet);
+                k.Undertype, k.Modalitet,
+                k.Kunnskapsstatus, k.Begrunnelse, k.Tolkningsargumenter, premisser.GetValueOrDefault(k.Id), k.Entitetsstatus, k.ErstatterKantId,
+                k.Profilversjon, k.HjemmelNodeId,
+                k.HjemmelEid is not null && k.HjemmelNodeId is null
+                    ? "Hjemmelversjon ukjent: kanten ble registrert før hjemmelen fikk versjon (#367), og noden kunne ikke slås entydig opp."
+                    : null,
+                k.HjemmelEndretTidspunkt);
         }).ToList();
     }
 
@@ -898,15 +982,102 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
     /// [Ny, issue #341] Normform, grunnlag og delegerbar finnes bare på K (CHECK-ene i RegelIdeDbContext); normformen bare
     /// på normgivning. Lukkede lister, ingen standardverdi. Returnerer de trimmede verdiene.
     /// </summary>
+    /// <summary>[Ny, issue #367 AC5 / #335] Delegeringsadgang og slutning: bare på K, lukkede lister, slutning bare når teksten ikke
+    /// regulerer delegeringen (<c>ikke_regulert</c>) — en slutning skal aldri stå ved siden av et tekstfunn.</summary>
+    private static (string? Adgang, string? Slutning) ValiderDelegering(string kategori, string? adgang, string? slutning)
+    {
+        var a = string.IsNullOrWhiteSpace(adgang) ? null : adgang.Trim();
+        var s = string.IsNullOrWhiteSpace(slutning) ? null : slutning.Trim();
+        if (kategori != Strukturkanter.Kompetanse && (a is not null || s is not null))
+        {
+            throw new ArgumentException(
+                $"Delegeringsadgang er en egenskap ved en KOMPETANSE (kategori K) — ikke ved {Strukturkanter.Visningsnavn(kategori)} (#335).");
+        }
+        if (a is not null && !Strukturkanter.Delegeringsadganger.Contains(a))
+        {
+            throw new ArgumentException(
+                $"Ukjent delegeringsadgang '{a}'. Gyldige verdier: {string.Join(", ", Strukturkanter.Delegeringsadganger)}. Ingen gjettet fallback.");
+        }
+        if (s is not null && !Strukturkanter.Delegeringsslutninger.Contains(s))
+        {
+            throw new ArgumentException(
+                $"Ukjent delegeringsslutning '{s}'. Gyldige verdier: {string.Join(", ", Strukturkanter.Delegeringsslutninger)}.");
+        }
+        if (s is not null && a != Strukturkanter.IkkeRegulert)
+        {
+            throw new ArgumentException(
+                "En slutning om delegering etter alminnelige regler gjelder bare når teksten ikke regulerer det (delegeringsadgang "
+                + "'ikke_regulert'). Står delegeringen i teksten, er det et tekstfunn, ikke en slutning (#335).");
+        }
+        return (a, s);
+    }
+
+    /// <summary>
+    /// [Ny, issue #367 AC1/AC3, docs/profil/03 §5] Kunnskapsstatusen og grunnlaget den krever — samme regler som CHECK-ene
+    /// (<c>ck_strukturkanter_kunnskapsstatus_grunnlag</c>, <c>ck_strukturkanter_fortolkning</c>) og constraint-triggeren for premisser,
+    /// her med en forklaring. <c>foreldet</c> settes ikke ved opprettelse: det er en revidert rad (<see cref="ReviderAsync"/>).
+    /// </summary>
+    private async Task<(string? Status, string? Begrunnelse, List<string>? Argumenter, List<Guid> Premisser)> ValiderKunnskapsstatusAsync(
+        NyStrukturkant ny, string? kildeTekst, CancellationToken ct)
+    {
+        var status = string.IsNullOrWhiteSpace(ny.Kunnskapsstatus) ? null : ny.Kunnskapsstatus.Trim();
+        var begrunnelse = string.IsNullOrWhiteSpace(ny.Begrunnelse) ? null : ny.Begrunnelse.Trim();
+        var argumenter = ny.Tolkningsargumenter is { Count: > 0 } liste ? liste.Select(a => a.Trim()).Distinct().ToList() : null;
+        var premisser = (ny.Premisser ?? []).Distinct().ToList();
+        if (status is not null && !Strukturkanter.Kunnskapsstatuser.Contains(status))
+        {
+            throw new ArgumentException(
+                $"Ukjent kunnskapsstatus '{status}'. Gyldige verdier: {string.Join(", ", Strukturkanter.Kunnskapsstatuser)} (eller utelat: ikke vurdert).");
+        }
+        if (argumenter?.FirstOrDefault(a => !Strukturkanter.Tolkningsargumenter.Contains(a)) is { } ukjent)
+        {
+            throw new ArgumentException(
+                $"Ukjent tolkningsargument '{ukjent}'. Gyldige verdier: {string.Join(", ", Strukturkanter.Tolkningsargumenter)}.");
+        }
+        switch (status)
+        {
+            case Strukturkanter.Foreldet:
+                throw new ArgumentException("Kunnskapsstatus 'foreldet' settes ikke ved opprettelse — en revisjon gjør den gamle raden foreldet.");
+            case Strukturkanter.EksterntDokumentert when kildeTekst is null:
+                throw new ArgumentException("Kunnskapsstatus 'eksternt_dokumentert' krever en kilde utenfor korpus (docs/profil/03 §5).");
+            case Strukturkanter.Tekstfunn or Strukturkanter.Normalisering when ny.HjemmelRettskildeId is null || ny.HjemmelEid is null:
+                throw new ArgumentException(
+                    $"Kunnskapsstatus '{status}' krever hjemmel i korpus med eId — tekstfragmentet utsagnet står i (docs/profil/03 §5).");
+            case Strukturkanter.Fortolkning when begrunnelse is null || argumenter is null:
+                throw new ArgumentException(
+                    "Kunnskapsstatus 'fortolkning' krever en begrunnelse og minst ett tolkningsargument "
+                    + $"({string.Join(", ", Strukturkanter.Tolkningsargumenter)}) (docs/profil/03 §5–6).");
+            case Strukturkanter.Avledet when premisser.Count == 0:
+                throw new ArgumentException("Kunnskapsstatus 'avledet' krever minst én premiss (id-en til kantene slutningen bygger på).");
+        }
+        if (premisser.Count > 0 && status != Strukturkanter.Avledet)
+        {
+            throw new ArgumentException("Premisser gjelder bare et avledet utsagn (kunnskapsstatus 'avledet').");
+        }
+        if (premisser.Count > 0)
+        {
+            var finnes = await db.Strukturkanter.CountAsync(k => premisser.Contains(k.Id), ct);
+            if (finnes != premisser.Count)
+            {
+                throw new ArgumentException("En eller flere premisser finnes ikke blant de gjeldende kantene. Ingen gjettet fallback.");
+            }
+        }
+        if (status is null && (begrunnelse is not null || argumenter is not null))
+        {
+            throw new ArgumentException("Begrunnelse og tolkningsargumenter hører til en vurdering — oppgi kunnskapsstatus.");
+        }
+        return (status, begrunnelse, argumenter, premisser);
+    }
+
     private static (string? Normform, string? Grunnlag, string? Undertype) ValiderKompetansefelt(
-        string kategori, string typekode, string? normform, string? grunnlag, bool? delegerbar, string? undertype)
+        string kategori, string typekode, string? normform, string? grunnlag, string? undertype)
     {
         var nf = string.IsNullOrWhiteSpace(normform) ? null : normform.Trim();
         var gr = string.IsNullOrWhiteSpace(grunnlag) ? null : grunnlag.Trim();
-        if (kategori != Strukturkanter.Kompetanse && (nf is not null || gr is not null || delegerbar is not null))
+        if (kategori != Strukturkanter.Kompetanse && (nf is not null || gr is not null))
         {
             throw new ArgumentException(
-                "Normform, grunnlag og delegerbar er egenskaper ved en KOMPETANSE (kategori K) — ikke ved "
+                "Normform og grunnlag er egenskaper ved en KOMPETANSE (kategori K) — ikke ved "
                 + $"{Strukturkanter.Visningsnavn(kategori)} (issue #341).");
         }
         if (nf is not null && typekode != Strukturkanter.Normgivning)
