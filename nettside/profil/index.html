@@ -72,6 +72,7 @@
     </div>
     <ul class="nytt-innhold" aria-label="Innhold på siden">
       <li><a href="#hva-det-er">Hva forslaget er</a></li>
+      <li><a href="#hvorfor">Hvorfor trengs dette?</a></li>
       <li><a href="#standardene">Standardene vi bygger på</a></li>
       <li><a href="#rettslig-metode">Rettslig metode</a></li>
       <li><a href="#kunnskapsstatus">Åtte statuser</a></li>
@@ -180,6 +181,40 @@
             <tr><th scope="row">06 Beslutningslogg</th><td>Når nye typer legges til, og hvorfor</td><td>Ikke skrevet</td></tr>
           </tbody>
         </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 1b. Hvorfor trengs dette ===================== -->
+  <section class="section" id="hvorfor">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Hvorfor trengs dette?</span>
+        <h2>Eksempel: Statens vegvesen ber markedet om det samme</h2>
+        <p>I oktober 2026 inviterte Statens vegvesen til markedsdialog om <em>digitalisert regelverk for veg- og transportsektoren</em>. Invitasjonen beskriver et behov som et felles begrepsapparat for maskinlesbar rett er laget for å dekke. Den viser at dette ikke bare er et forskningsspørsmål.</p>
+      </div>
+      <div class="prose">
+        <p>Statens vegvesen forvalter lover, forskrifter og vegnormaler med veiledninger, i tillegg til avtaler, retningslinjer og enkeltvedtak. Etaten skriver selv at den mangler et felles system for utvikling, forvaltning og tilgjengeliggjøring av regelverket. Regelverket ligger i dag i flere systemer: vegnormalene i et eget verktøy, lover og forskrifter i kontorstøtte og arkiv, og annen rettsinformasjon i arkiv, EUR-Lex og hos Standard Norge. Løsningen skal anskaffes i 2027.</p>
+      </div>
+      <div class="table-scroll">
+        <table class="ds-table struktur-tabell">
+          <thead>
+            <tr><th scope="col">Behov i invitasjonen</th><th scope="col">Hva forslaget til norsk profil svarer</th></tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">Regler med stabile ID-er, relasjoner, historikk og begrunnelse</th><td>Fast adresse for hver bestemmelse. Hvert utsagn er en egen analyse med historikk og begrunnelse.</td></tr>
+            <tr><th scope="row">Vite hvilken regel som gjaldt på et gitt tidspunkt, og hvor den kommer fra</th><td>Tre tidsdimensjoner: lovens, forholdets og analysens. Utsagnet peker på den versjonen av lovteksten det bygger på.</td></tr>
+            <tr><th scope="row">Bevare sammenhengen mellom regelteksten og den digitale representasjonen</th><td>«Kilden først»: hvert utsagn peker på et tekstfragment og viser om det står i loven, er en tolkning eller er en slutning.</td></tr>
+            <tr><th scope="row">Ikke alt kan gjøres maskinkjørbart: funksjonskrav, skjønn, behov for kontekst</th><td>Profilen skiller analysen fra regelkjøring, har skjønn som eget tema, og tvinger ikke frem en klassifisering.</td></tr>
+            <tr><th scope="row">Finne uklarheter, overlapp og motstrid i regelverket</th><td>Forslagene utfordres av en juristagent før et menneske avgjør. Motstrid løses ikke ut fra rekkefølge alene.</td></tr>
+            <tr><th scope="row">Transparente, forklarbare og sporbare resultater</th><td>Et avledet svar viser grunnlaget sitt. Eksempel: «Agder lagmannsrett er ankeinstans for Agder tingrett», regnet ut fra forskriften om rettskretser og lagdømmer.</td></tr>
+            <tr><th scope="row">Hvilke formater og standarder løsningen bør støtte</th><td>ELI og Akoma Ntoso for kildene, LegalRuleML for regellaget, UFO-L for myndighet, SHACL og PROV-O for kontroll og opphav. Se <a href="#standardene">standardene</a>.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="prose struktur-etter-tabell">
+        <p><strong>Hva det ikke dekker.</strong> Regelkjøring for prosjektering og beregninger, og et skriveverktøy for nye regler med høring og publisering, er ikke det DigRett gjør. DigRett analyserer gjeldende rettskilder. Profilen er grunnlaget av felles begreper og sporbarhet som både skriveverktøy og regelmotorer må bygge på.</p>
+        <p>Kilde: Statens vegvesen, <a href="https://innovativeanskaffelser.no/kalender/markedsdialog-digitalisert-regelverk-for-veg-og-transportsektoren/" target="_blank" rel="noopener">kunngjøring av markedsdialog</a> og <a href="https://innovativeanskaffelser.no/content/uploads/2026/10/261028-invitasjon-til-dialog-digitalisert-regelverk-for-veg-og-transportsektoren-2.pdf" target="_blank" rel="noopener">invitasjon til dialogkonferanse 28. oktober 2026</a> (PDF). Behovene over er gjengitt med egne ord.</p>
       </div>
     </div>
   </section>
