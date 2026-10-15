@@ -24,13 +24,14 @@ REGLER
          foreta konstitusjonen») → uttrykkelig_tillatt.
      D3b. [Juristrunden] En GENERELL delegeringsfullmakt for samme aktør i samme lov — positiv delegeringskompetanse der leddet sier
          «delegere myndighet» med forbeholdet «såfremt ikke annet fremgår» (sameloven § 2-12 tredje ledd) → uttrykkelig_tillatt
-         (unntakene i fjerde ledd er D2 og går foran).
+         (unntakene i fjerde ledd er D2 og går foran). [Juristrunde 2] Ikke kompetansen i selve fullmaktsleddet (u168): den listes.
      D4. Ellers: nevner en setning i bestemmelsen (samme paragraf, fra noder/<kilde>.json) både delegering («deleger») og fra-aktøren,
          kan det ikke avgjøres uten å lese den → INGEN verdi, raden listes for Johann. [Juristrunden] Gjelder delegeringen en annen
          aktør, regulerer bestemmelsen ikke denne kompetansen → D5.
      D5. Ellers → ikke_regulert («bestemmelsen sier ingenting»), og for en «Kongen»-aktør en SLUTNING på sitatet (#335, juristrunden
          2026-10-09 kort nr. 10): «Kongen i statsråd» eller «Grunnloven § 21» (embetsutnevnelse i statsråd, jf. Grl. § 28 — juristrunden
-         i #355, domstolloven u120) → trolig_ikke_delegerbar, ellers «Kongen» → trolig_delegerbar. Aldri et tekstfunn.
+         i #355, domstolloven u120) → trolig_ikke_delegerbar, ellers «Kongen» → trolig_delegerbar. Aldri et tekstfunn. [Juristrunde 2]
+         Står begge formene i sitatet (energiloven u14), avgjør ikke formen slutningen → ingen verdi, listes.
      Raden får en kommentar «[#367, D<n>] …» når verdien er satt eller avvik fra den gamle delegerbar-verdien må forklares.
      Den gamle verdien sjekkes: true må bli tillatt eller trolig_delegerbar, false må bli forbudt eller trolig_ikke_delegerbar. Avviker
      den, listes raden (ingen gammel verdi overstyres i stillhet).
@@ -94,6 +95,7 @@ def tilfoy(u, tekst):
 
 
 generell_fullmakt = {}
+fullmakt_ledd = set()
 
 
 def delegering(u, d, former, kongen, ptekst, negative_refs, ledd):
@@ -118,6 +120,10 @@ def delegering(u, d, former, kongen, ptekst, negative_refs, ledd):
         return "uttrykkelig_tillatt", None, "D3"
     # D3b (ny etter juristrunden): en GENERELL delegeringsfullmakt for samme aktør i samme lov — en positiv delegeringskompetanse
     # med «delegere myndighet» og forbeholdet «såfremt ikke annet fremgår» (sameloven § 2-12 tredje ledd); unntakene er D2.
+    # [Juristrunde 2] Ikke kompetansen i selve fullmaktsleddet (u168 «kan opprette de styrer …»): fullmakten gjelder organer som
+    # alt er opprettet, så opprettingen er grunnlaget for fullmakten, ikke noe den dekker → listes (D4).
+    if fra and u["eid"] in fullmakt_ledd:
+        return None, None, "D4"
     if fra and fra in generell_fullmakt.get(lov_par.split("§")[0], set()):
         return "uttrykkelig_tillatt", None, "D3b"
     # D4 (innsnevret etter juristrunden): bare når en setning i paragrafen som nevner delegering, også nevner fra-aktøren. Gjelder
@@ -126,6 +132,10 @@ def delegering(u, d, former, kongen, ptekst, negative_refs, ledd):
     if any(re.search(re.escape(f), s, re.I) for f in navn for s in setninger) or (setninger and not navn):
         return None, None, "D4"
     slutning = None
+    # [Juristrunde 2] Står både «Kongen» (uten «i statsråd») og «Kongen i statsråd» i sitatet (energiloven § 2-4 første ledd, u14),
+    # sier ikke aktørens form hvilken slutning som gjelder → listes (D4).
+    if fra in kongen and "Kongen i statsråd" in sitat and re.search(r"Kongen(?!\s+i\s+statsråd)", sitat):
+        return None, None, "D4"
     if fra in kongen:
         if "Kongen i statsråd" in sitat or re.search(r"Grunnloven\s+§\s*21\b", sitat):
             slutning = "trolig_ikke_delegerbar"
@@ -163,11 +173,13 @@ for kilde in KILDER:
     kongen = {a["id"] for a in d["aktorer"] if a["tekstform"].lower() == "kongen" or a["tekstform"].lower().startswith("kongen i statsr")}
     negative_refs = []
     generell_fullmakt.clear()
+    fullmakt_ledd.clear()
     for n in d["utsagn"]:
         if (n["kategori"], n["type"], n["polaritet"]) == ("kompetanse", "delegeringskompetanse", "positiv") and n.get("fra"):
             lt = ledd.get(n["eid"], "")
             if re.search(r"delegere\s+myndighet", lt, re.I) and re.search(r"såfremt\s+ikke\s+annet\s+fremgår", lt, re.I):
                 generell_fullmakt.setdefault(n["eid"].split("§")[0], set()).add(n["fra"])
+                fullmakt_ledd.add(n["eid"])
     for n in d["utsagn"]:
         if (n["kategori"], n["type"], n["polaritet"]) == ("kompetanse", "delegeringskompetanse", "negativ") \
                 and re.search(r"\bkan\s+ikke\s+delegeres\b", n["sitat"]) and n.get("fra"):

@@ -136,6 +136,9 @@ public static class Strukturkanter
             return (UttrykkeligTillatt, null);
         }
         if (!fra.StartsWith("Kongen", StringComparison.OrdinalIgnoreCase)) return (null, null);
+        // [Juristrunde 2, #367] Begge formene i samme sitat (energiloven § 2-4 første ledd): formen avgjør ikke slutningen.
+        if (sitat.Contains("Kongen i statsråd", StringComparison.Ordinal)
+            && System.Text.RegularExpressions.Regex.IsMatch(sitat, @"Kongen(?!\s+i\s+statsråd)")) return (null, null);
         // «Grunnloven § 21»: embetsutnevnelse skjer i statsråd (jf. Grl. § 28) — juristrunden i #355 (domstolloven u120).
         if (sitat.Contains("Kongen i statsråd", StringComparison.Ordinal)
             || System.Text.RegularExpressions.Regex.IsMatch(sitat, @"Grunnloven\s+§\s*21(?!\d)")) return (IkkeRegulert, TroligIkkeDelegerbar);

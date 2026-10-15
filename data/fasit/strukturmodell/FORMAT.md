@@ -249,9 +249,11 @@ idempotent, også på `ki-utdata/`):
 - `kunnskapsstatus` settes bare der regelen er sikker: `normalisering` når typen er avgjort av en RENT ORDFORMBASERT regel i
   kompetanseleksikonet (normgivning og plikt; uttrykket står i sitatet), med regelen i `begrunnelse`. Tekstfunn, fortolkning og avledet
   settes i juristrunder. KI-utdataene får ingen kunnskapsstatus; mønsterlaget setter `normalisering`.
-- Fasit, 668 kompetanseutsagn: D0 47, D1 5, D2 3, D3 4, D3b 16, D4 6 (listet), D5 589 (88 trolig delegerbar, 14 trolig ikke delegerbar).
-  150 utsagn fikk kunnskapsstatus normalisering. KI-utdata: D0 56, D1 7, D2 3, D3 4, D3b 5, D4 6, D5 661.
+- Fasit, 668 kompetanseutsagn: D0 47, D1 5, D2 3, D3 4, D3b 15, D4 8 (listet), D5 588 (88 trolig delegerbar, 13 trolig ikke delegerbar).
+  150 utsagn fikk kunnskapsstatus normalisering. KI-utdata: D0 56, D1 7, D2 3, D3 4, D3b 4, D4 9, D5 659.
 - Juristrunden (CLAUDE.md §23) endret reglene: D3b og D0 for negative rader er nye, D4 er innsnevret, K1 er avgrenset til ordformregler.
+  Runde 2: kompetansen i selve fullmaktsleddet (sameloven u168) og et sitat med både «Kongen» og «Kongen i statsråd» (energiloven u14)
+  får ingen verdi og listes.
 
 Typer per kategori (bruk disse når de passer, ellers "annet:<x>"):
 - relasjon (aktør→aktør): `eies_av`, `ledes_av`, `sekretariat_for`, `rapporterer_til`, `etterfolger`,

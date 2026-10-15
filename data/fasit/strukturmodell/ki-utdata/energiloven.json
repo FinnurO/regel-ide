@@ -961,11 +961,9 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
+      "kommentar": "[#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann). Før #367: delegerbar = false.",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift",
-      "delegeringsadgang": "ikke_regulert",
-      "delegering_slutning": "trolig_ikke_delegerbar"
+      "normform": "forskrift"
     },
     {
       "id": "u20",
@@ -4020,10 +4018,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
-      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "delegeringsadgang": "ikke_regulert",
-      "delegering_slutning": "trolig_ikke_delegerbar"
+      "kommentar": "[#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann). Før #367: delegerbar = false.",
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {
       "id": "u188",
