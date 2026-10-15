@@ -708,8 +708,8 @@ sekretariat og rådgiver er R alene når teksten bare sier relasjonen (F bare me
 fasiten); «sørge for at» avgjør ikke typen alene (P konsultasjon og P avtale i to kort); ny type `kontroll` for «påse at»; modalitet
 null ved attributiv form; K oppnevning ved siden av F «overordnet ansvar» står som egen fortolkning (hotl. u91/u92, shl. u213). Funn
 som ikke er F (R radgir som er P konsultasjon, P bistand som er informasjonsplikt, P samarbeid sluttet fra F i shl. u187/u188 m.fl.)
-er meldt som egen sak (#380). Åpne typevekstspørsmål til Johann: en type for innsats («arbeide for», «fremme»), og om en tjenestesektor kan
-bære en oppgave.
+er meldt som egen sak (#380). [Johanns beslutning på PR #381, 2026-10-16] Ingen ny type for innsats («arbeide for», «fremme») eller for en
+tjenestesektor som bærer; begge står som åpne spørsmål med eksempler i begrepsmanualen (§F) og avgjøres i barnehageloven-piloten (#375).
 
 **Fasiten** (`konvertering-368-oppgave.py`, deterministisk, idempotent, også på `ki-utdata/`): 1 802 → 1 825 utsagn, 52 oppgaverader
 (sorge_for 23, oversikt 8, veiledning 8, samordning 6, forvaltning 4, bistand 2, kontroll 1; fortolkning 50, tekstfunn 2). KI-utdata
@@ -723,28 +723,27 @@ premiss, status `maskinelt_foreslatt`, oppdagelseskilde `ki:juristrunde-368` —
 før/etter og avbryter ved avvik; `Down` sletter nøyaktig radene med `migrasjon-368`-proveniens og nekter når det finnes F-kanter
 registrert etter migrasjonen. **Målt mot lokal `regelide` 2026-10-16 (kjørt ved API-oppstart):** 1 303 → 1 304 kanter, typekonfigurasjonen +9 (F), 1 ny F-kant (KNS sekretariatsfunksjon «saksforberedelse» → Stiftelsesklagenemnda, avledet, premiss = R-kanten 6d5b8668…), 1 proveniensrad, 0 kanter flyttet. `Down` er prøvd i `OppgaveMigreringTests` (ikke mot lokal base).
 
-**Leksikonet** (2026-10-16.1) og mønsterlaget: `oppgave-sorge-for`, `oppgave-fore-oversikt`, `oppgave-veilede`, `oppgave-pase`,
-`oppgave-forvalte`, og `samordning-samordne` (fra #341) gir nå samordningsOPPGAVE, ikke samordningskompetanse: Johanns beslutning om F
+**Leksikonet** (2026-10-16.2) og mønsterlaget: `oppgave-fore-oversikt`, `oppgave-veilede`, `oppgave-pase`, `oppgave-forvalte`, og `samordning-samordne` (fra #341) gir nå samordningsOPPGAVE, ikke samordningskompetanse: Johanns beslutning om F
 og juristrunden (energiloven u160 «Beredskapsmyndigheten skal samordne beredskapsarbeid»). K samordning står i typologien for tekst som
 gir bindende virkning, men den kan ikke leses av ordet alene.
 
 | Måling (samme treffregel) | Før #368 | Etter #368 |
 |---|---:|---:|
 | Fasitutsagn / KI-utsagn | 1 802 / 1 042 | 1 825 / 1 051 |
-| Mønster alle: P / G | 92,5 / 47,9 % | 89,6 / 47,8 % |
+| Mønster alle: P / G | 92,5 / 47,9 % | 92,5 / 47,5 % |
 | Mønster K (fasit 596 → 595): P / G | 87,3 / 47,5 % | 87,9 / 47,4 % |
-| Mønster F (fasit 52): P / G | – | 21,4 / 17,3 % |
-| — oppgave-sorge-for / oppgave-fore-oversikt / samordning-samordne | – | 13,9 / 25,0 % · 100 / 100 % · 66,7 / 100 % |
+| Mønster F (fasit 52): P / G | – | 66,7 / 7,7 % |
+| — oppgave-fore-oversikt / samordning-samordne | – | 100 / 100 % · 66,7 / 100 % |
 | KI alle: P / G | 36,8 / 21,3 % | 37,9 / 21,8 % |
 | KI F: P / G | – | 51,7 / 28,8 % |
-| Union alle: P / G | 58,2 / 55,6 % | 57,9 / 55,8 % |
+| Union alle: P / G | 58,2 / 55,6 % | 58,8 / 55,7 % |
 | designtest.py revidert ja | 1 720 (95 %) | 1 745 (96 %), F 52 |
 
-Mønsterpresisjonen faller fordi `oppgave-sorge-for` treffer 36 setninger og bare 5 er F i fasiten: 27 står ikke i fasiten i det hele
-tatt (fasiten annoterte ikke «sørge for» før F fantes, og noen er saksbehandling: «Retten skal sørge for at dom i straffesak blir
-forkynt»), og juristrunden viste at «sørge for at» kan være P konsultasjon eller P avtale. Regelen er beholdt fordi saken ba om den og
-mønsterforslag bare er forslag (forslagskøen), men tallet er under terskelen andre mønstre er forkastet på — Johann avgjør om den skal
-stå. KI-tallene er de lagrede utdataene fra #308 konvertert med samme skript, ikke en ny kjøring.
+[ENDRET, Johanns beslutning på PR #381, 2026-10-16] **`oppgave-sorge-for` er fjernet fra mønsterlaget; typen `sorge_for` står.** Målt
+med regelen: 36 treff, 5 riktige (13,9 % presisjon), mønsterlaget alle 89,6 / 47,8 %. 27 treff hadde ingen rad i fasiten, blant dem
+saksbehandling («Retten skal sørge for at dom i straffesak blir forkynt»), og juristrunden viste at «sørge for at» også kan være P
+konsultasjon eller P avtale. Den står under «Forkastede mønstre» i maling-monster.md. F-gjenfinningen i mønsterlaget er derfor lav (7,7 %);
+sørge-for-ansvaret settes av juristrunder og KI-laget (KI F 51,7 / 28,8 %). KI-tallene er de lagrede utdataene fra #308 konvertert med samme skript, ikke en ny kjøring.
 
 ## 5. Automatisk konvertering
 

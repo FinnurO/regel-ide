@@ -284,12 +284,11 @@ internal static class Monsterkatalog
         // En oppgave gir aldri K eller P i seg selv. Modaliteten tas fra modalverbet (gruppen «modal»), objektet (oppgaven) er resten
         // av setningen fra oppgaveordet — påkrevd på F, så mønstrene krever et objekt. Det oppgaven gjelder (til) settes ikke: «for
         // personer som oppholder seg i kommunen» er en beskrivelse, ikke en node mønsterlaget kan slå opp.
-        Regex("oppgave-sorge-for",
-            "«X skal sørge for (at) …», «X skal sørgje for …», «X plikter å sørge for …», og omvendt ordstilling («skal kommunen sørge for …»). Objektet er det som skal sørges for.",
-            "Ikke målt i docs/33 §1. Tatt inn etter Johanns beslutning om F (#368) og juristrunden: «sørge for» er et resultatansvar (sørge-for-ansvar), ikke kompetanse — KI-laget hadde gjort det til vedtak, tilsyn eller instruksjon.",
-            new RegexMonsteroppsett(KreverFra: true),
-            Start + Subjekt + PliktModal + @"(?:\p{L}+\s+){0,2}?sørg(?:e|je)\s+for\s+(?:at\s+)?(?<obj>\S)",
-            @"\b(?<modal>skal|kan|bør)\s+" + SubjektOmvendt + @"\s+(?:også\s+)?sørg(?:e|je)\s+for\s+(?:at\s+)?(?<obj>\S)"),
+        // [FJERNET, issue #368, Johanns beslutning på PR #381 2026-10-16] «oppgave-sorge-for» («X skal sørge for (at) …» →
+        // sorge_for_ansvar). Målt mot fasiten: 36 treff, 5 riktige (13,9 % presisjon, 25 % gjenfinning) — 27 uten rad i fasiten,
+        // blant dem saksbehandling («Retten skal sørge for at dom i straffesak blir forkynt»), og juristrunden viste at «sørge for at»
+        // også kan være P konsultasjon eller P avtale. Typen sorge_for står; den settes av juristrunder og KI-laget, ikke av ordet alene.
+        // Står i «Forkastede mønstre» i maling-monster.md.
 
         Regex("oppgave-fore-oversikt",
             "«X skal føre (en) oversikt/register/fortegnelse over …», «X fører register over …», og passiv «Registeret/Fortegnelse(n) over … føres av X» (normativ presens = skal).",

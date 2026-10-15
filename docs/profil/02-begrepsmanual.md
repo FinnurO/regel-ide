@@ -88,10 +88,24 @@ spesialisthelsetjenesten råd, veiledning og opplysninger … som er påkrevd fo
 `kontroll` (juristrunden, prinsipp c): «skal påse at» er aldri K tilsyn i seg selv. Barnehageloven skiller: § 10 («påse at») er
 oppgaven, § 53 («fører tilsyn med», pålegg om retting, stenging) er K tilsyn og K pålegg med egen hjemmel — to rader.
 
-**Åpne spørsmål til Johann (typevekst, grunnlagsdokumentet §4.7):** (1) En type for innsats eller arbeidsfelt («arbeide for»,
-«fremme», «legge til rette for», sameloven u224); inntil videre brukes `sorge_for`, som da er videre enn resultatansvar. (2) Kan
-tekstens subjekt være en tjenestesektor («helse- og omsorgstjenestene skal bidra»), eller skal ansvarsbæreren (kommunen, RHF-et)
-løses opp (grunnlagsdokumentet §4.5)? Fasiten bruker i dag tekstens subjekt.
+### Åpne spørsmål — avgjøres i barnehageloven-piloten (#375)
+
+Johann besluttet på PR #381 (2026-10-16): **ingen ny type for noen av dem nå.** De står åpne med eksemplene, og avgjøres når
+barnehageloven er modellert (#375), der begge formene er vanlige.
+
+1. **Innsats eller arbeidsfelt** («arbeide for», «fremme», «legge til rette for»). Ingen av de ni typene passer: `sorge_for` er et
+   resultatansvar («sørge for at noe skjer eller finnes»), og innsatsen er mindre enn det. Eksempler fra fasiten:
+   - sameloven u224: «skal arbeide for vern og videre utvikling» (ført som `sorge_for` inntil videre, juristrunde 1 kort #81);
+   - juristens kort #80 og #167 i runde 1 («fremme», «legge til rette for»).
+   Inntil videre: `sorge_for` med objektet ordrett, slik at radene kan finnes og flyttes når typen er avgjort.
+2. **En tjenestesektor som bærer av oppgaven.** Tekstens subjekt er ofte sektoren, ikke rettssubjektet som har ansvaret
+   (grunnlagsdokumentet §4.5: tekstens subjekt er ikke nødvendigvis den juridiske ansvarsbæreren). Eksempler fra fasiten:
+   - helse- og omsorgstjenesteloven u21 (aktør a20, `annet:tjenestesektor`): «Helse- og omsorgstjenestene skal bidra i kommunens
+     folkehelsearbeid» — F bistand med sektoren som `fra`;
+   - spesialisthelsetjenesteloven (aktør a47, «spesialisthelsetjenesten»): «Spesialisthelsetjenesten skal bistå ved utformingen av
+     tiltakene» (hotl. u103/u109, P bistand overfor kommunen).
+   Spørsmålet er om `fra` skal være sektoren (tekstformen) eller ansvarsbæreren (kommunen, RHF-et) løst opp. Inntil videre: tekstens
+   subjekt, som fasiten gjør i dag.
 
 ### Positive eksempler (fra fasiten)
 
