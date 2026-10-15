@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link as RouterLink } from 'react-router';
-import { Alert, Button, Heading, Link, Paragraph, Spinner, Table } from '@digdir/designsystemet-react';
+import { Alert, Button, Heading, Link, Paragraph } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
-import { StrukturkantKategoriTag } from '../strukturkant/StrukturkantTabell';
-import type { KiForslagKoRadDto, KiOppdagelseKandidatUtfallDto, RettskildeSammendrag } from '../api/types';
+import { Strukturforslagsko } from '../strukturkant/Strukturforslagsko';
+import type { KiOppdagelseKandidatUtfallDto, RettskildeSammendrag } from '../api/types';
 import { RettskildeFlervalg } from '../rettskilde/RettskildeFlervalg';
 import { Metatekst } from '../entitet/Metatekst';
 
@@ -29,19 +29,8 @@ export default function KiOppdagelseKo() {
     kandidater: KiOppdagelseKandidatUtfallDto[]; inputTokens: number | null; outputTokens: number | null; meldinger: string[];
   } | null>(null);
 
-  const [ko, setKo] = useState<KiForslagKoRadDto[] | null>(null);
-  const [koFeil, setKoFeil] = useState<string | null>(null);
-  const [handlingKjorer, setHandlingKjorer] = useState<string | null>(null);
-
-  function lastKo() {
-    api.hentKiForslagKo()
-      .then(setKo)
-      .catch((e) => setKoFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved henting av kø.'));
-  }
-
   useEffect(() => {
     api.hentRettskilder().then(setRettskilder).catch(() => setRettskilder([]));
-    lastKo();
   }, []);
 
   async function kjorOppdagelse() {
@@ -51,7 +40,6 @@ export default function KiOppdagelseKo() {
     try {
       const respons = await api.kjorKiOppdagelse({ rettskildeIder: [...valgteRettskilder] });
       setSisteKjoring(respons);
-      lastKo();
     } catch (err) {
       setFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved kjøring av KI-oppdagelse.');
     } finally {
@@ -59,36 +47,10 @@ export default function KiOppdagelseKo() {
     }
   }
 
-  async function godkjenn(rad: KiForslagKoRadDto) {
-    setHandlingKjorer(rad.id);
-    try {
-      // [ENDRET, issue #311] Én kanttabell — ett endepunkt uansett kategori (var tre, ett per tabell).
-      await api.godkjennStrukturkant(rad.id);
-      lastKo();
-    } catch (err) {
-      setKoFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved godkjenning.');
-    } finally {
-      setHandlingKjorer(null);
-    }
-  }
-
-  async function avvis(rad: KiForslagKoRadDto) {
-    setHandlingKjorer(rad.id);
-    try {
-      await api.avvisStrukturkant(rad.id);
-      lastKo();
-    } catch (err) {
-      setKoFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved avvisning.');
-    } finally {
-      setHandlingKjorer(null);
-    }
-  }
-
-
   return (
     <>
       <Heading level={1} data-size="lg">
-        KI-oppdagelse: virksomheter, grupper, roller og relasjoner
+        KI-oppdagelse og forslagskø for strukturkanter
       </Heading>
       <Paragraph style={{ marginBottom: '1.5rem', maxWidth: '42rem' }}>
         Velg én eller flere rettskilder — agenten leser den faktiske, allerede importerte lovteksten
@@ -133,50 +95,9 @@ export default function KiOppdagelseKo() {
         </div>
       )}
 
-      <Heading level={2} data-size="sm" style={{ marginTop: '1rem' }}>
-        Ventende rolle-/relasjon-/gruppe-av-gruppe-forslag
-      </Heading>
-      <Paragraph style={{ marginBottom: '1rem', maxWidth: '42rem' }}>
-        Egen kø (issue #285 AC6) — disse radene er allerede skrevet til registeret med status
-        «foreslått av AI», men regnes IKKE som gjeldende før de godkjennes her. [Issue #311] Alle er
-        strukturkanter; kolonnen «Kategori» sier hva slags utsagn det er.
-      </Paragraph>
-      {koFeil && <Alert data-color="danger" style={{ marginBottom: '1rem' }}>{koFeil}</Alert>}
-      {!ko && <Spinner aria-label="Laster …" data-size="sm" />}
-      {ko && ko.length === 0 && <Paragraph>Ingen ventende KI-forslag.</Paragraph>}
-      {ko && ko.length > 0 && (
-        <Table border>
-          <Table.Head>
-            <Table.Row>
-              <Table.HeaderCell>Kategori</Table.HeaderCell>
-              <Table.HeaderCell>Forslag</Table.HeaderCell>
-              <Table.HeaderCell>Oppdaget av</Table.HeaderCell>
-              <Table.HeaderCell>Handlinger</Table.HeaderCell>
-            </Table.Row>
-          </Table.Head>
-          <Table.Body>
-            {ko.map((rad) => (
-              <Table.Row key={`${rad.type}-${rad.id}`}>
-                <Table.Cell><StrukturkantKategoriTag kategori={rad.type} /></Table.Cell>
-                <Table.Cell>{rad.visningstekst}</Table.Cell>
-                <Metatekst as={Table.Cell}>{rad.aiForslagVersjon ?? '—'}</Metatekst>
-                <Table.Cell>
-                  <div style={{ display: 'flex', gap: '0.4rem' }}>
-                    <Button
-                      variant="tertiary" data-size="sm" onClick={() => avvis(rad)} disabled={handlingKjorer === rad.id}
-                    >
-                      Avvis
-                    </Button>
-                    <Button data-size="sm" onClick={() => godkjenn(rad)} disabled={handlingKjorer === rad.id}>
-                      Godkjenn
-                    </Button>
-                  </div>
-                </Table.Cell>
-              </Table.Row>
-            ))}
-          </Table.Body>
-        </Table>
-      )}
+      {/* [ENDRET, issue #313] Den gamle lista over ventende KI-forslag er erstattet av den felles forslagskøen for strukturkanter —
+        * samme kø for mønster- og KI-forslag, med lasting per rettskilde, forhåndsvisning og avvisning som status (#374). */}
+      <Strukturforslagsko />
     </>
   );
 }

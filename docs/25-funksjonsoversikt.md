@@ -543,6 +543,18 @@ opprettes for å få eksempelet til å se komplett ut.
 `GET /api/gruppebegrep/{id}/medlemsgrupper|overordnede-grupper|tildelinger` står som lesefasader for
 nettside-eksporten; `POST /api/gruppemedlemskap` er fjernet.
 
+### Forslagskø for strukturkanter [NYTT, 2026-10-15, issue #313 / #374]
+
+Konverteringen av en rettskilde (mønsterlaget, eller KI) lastes inn som forslag: hvert utsagn blir en strukturkant med status «maskinelt
+foreslått» og oppdagelseskilden (`monster:<id>` / `ki:<modell>`), gjennom samme skrivevei som API-et. Aktører løses bare ved eksakt treff;
+resten blir navnekandidater. Rapporten viser tall per kategori og hva som ikke ble lastet, med årsak. En ny kjøring lager ingen
+duplikater. Køen grupperer forslagene per hjemmel: godkjenn eller avvis ett, de valgte eller alle per hjemmel, med forhåndsvisning av
+hvordan forslaget blir seende ut på aktørsidene og rettskildesiden. **Avvis sletter ikke:** forslaget blir stående som avvist med hvem,
+når og hvorfor, er skjult ellers i appen («vis avviste» viser dem), og foreslås ikke på nytt.
+
+*Hvor:* «Forslagskø: struktur og KI-oppdagelse» (`/ki-oppdagelse`); `POST /api/rettskilder/{id}/strukturforslag?lag=monster|ki`,
+`POST /api/strukturkanter/{id}/avvis`, `/avvis-alle`, `/{id}/forhandsvisning` (se `docs/04` §14). Detaljer: `docs/33` §5.3.
+
 ### KI-oppdagelse av virksomheter, grupper og roller [NYTT, 2026-10-01, issue #285]
 
 En KI-agent (`VirksomhetOgGruppeKiOppdagelseTjeneste`) leser valgte rettskilders tekst FRITT — ikke
@@ -554,7 +566,8 @@ HTTP-endepunktene selv bruker (ingen egen, parallell skrivevei). Hver opprettet 
 stedet for det vanlige `'validert'`, og vises i en egen kø adskilt fra menneske-opprettede rader — et
 menneske må eksplisitt godkjenne (sletter forslaget og setter `'validert'`) eller avvise (sletter
 raden) før den regnes som gjeldende. Rader opprettet av et menneske er fortsatt `'validert'` med én
-gang, uendret oppførsel.
+gang, uendret oppførsel. [ENDRET, #313] De ventende forslagene behandles nå i forslagskøen for strukturkanter over, og avvisning
+sletter ikke lenger (#374).
 
 *Hvor:* «KI-oppdagelse» (`/ki-oppdagelse`); `POST /api/ki-oppdagelse/kjor` (kjør for valgte
 rettskilder), `GET /api/ki-oppdagelse/ko` (samlet kø).

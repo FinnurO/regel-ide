@@ -594,7 +594,19 @@ public class StrukturkantEndepunktTests
         Assert.Equal(HttpStatusCode.BadRequest, (await _client.SendAsync(MedBruker(HttpMethod.Post, $"/api/strukturkanter/{godkjennes}/godkjenn", brukerId))).StatusCode);
         Assert.Equal(HttpStatusCode.BadRequest, (await _client.SendAsync(MedBruker(HttpMethod.Post, $"/api/strukturkanter/{godkjennes}/avvis", brukerId))).StatusCode);
 
-        Assert.Equal(HttpStatusCode.NoContent, (await _client.SendAsync(MedBruker(HttpMethod.Post, $"/api/strukturkanter/{avvises}/avvis", brukerId))).StatusCode);
+        // [ENDRET, issue #313 / #374] Avvis gir 200 med den avviste kanten (hvem, hvorfor) — raden slettes ikke.
+        var avvisSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, $"/api/strukturkanter/{avvises}/avvis", brukerId,
+            new { begrunnelse = "Feil retning." }));
+        Assert.Equal(HttpStatusCode.OK, avvisSvar.StatusCode);
+        var avvistDto = (await avvisSvar.Content.ReadFromJsonAsync<StrukturkantDto>(JsonInnstillinger))!;
+        Assert.Equal(("avvist", "Feil retning."), (avvistDto.Status, avvistDto.AvvisningBegrunnelse));
+        Assert.False(string.IsNullOrEmpty(avvistDto.SistEndretAv));
+        Assert.Equal(HttpStatusCode.OK, (await _client.GetAsync($"/api/strukturkanter/{avvises}")).StatusCode);
+        var avviste = await _client.GetFromJsonAsync<List<StrukturkantDto>>("/api/strukturkanter?status=avvist", JsonInnstillinger);
+        Assert.Contains(avviste!, r => r.Id == avvises);
+        var forhand = await _client.GetFromJsonAsync<StrukturkantForhandsvisningDto>($"/api/strukturkanter/{avvises}/forhandsvisning", JsonInnstillinger);
+        Assert.Equal(("fra", "til"), (forhand!.FraSide.Retning, forhand.TilSide!.Retning));
+        Assert.Null(forhand.Rettskildeside.Retning);
         Assert.Equal(HttpStatusCode.NoContent, (await _client.SendAsync(MedBruker(HttpMethod.Delete, $"/api/strukturkanter/{godkjennes}", brukerId))).StatusCode);
         Assert.Equal(HttpStatusCode.NotFound, (await _client.GetAsync($"/api/strukturkanter/{godkjennes}")).StatusCode);
         Assert.Equal(HttpStatusCode.NotFound, (await _client.SendAsync(MedBruker(HttpMethod.Post, $"/api/strukturkanter/{Guid.NewGuid()}/godkjenn", brukerId))).StatusCode);
