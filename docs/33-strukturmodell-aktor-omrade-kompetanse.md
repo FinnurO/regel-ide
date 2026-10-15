@@ -657,7 +657,7 @@ docs/34 §3–5 og metodenotatet (docs/profil/03 §5 og §8). Hvert felt på `st
 
 | Felt | Verdier | Regel |
 |---|---|---|
-| `status` = **godkjenning** | `maskinelt_foreslatt` \| `manuelt_foreslatt` \| `faglig_vurdert` \| `godkjent` \| `avvist` | Gamle verdier: `foreslatt_av_ai` → `maskinelt_foreslatt`, `validert` → `godkjent`. Forslagskøen og «godkjenn» gjelder de tre første. «Avvis» sletter fortsatt forslaget (uendret fra #311); `avvist` finnes i lista, men settes ikke av noen skrivevei ennå |
+| `status` = **godkjenning** | `maskinelt_foreslatt` \| `manuelt_foreslatt` \| `faglig_vurdert` \| `godkjent` \| `avvist` | Gamle verdier: `foreslatt_av_ai` → `maskinelt_foreslatt`, `validert` → `godkjent`. Forslagskøen og «godkjenn» gjelder de tre første. [ENDRET, #313/#374, Johanns beslutning 2026-10-15] «Avvis» setter `avvist` med `sist_endret_av`/`sist_endret_tidspunkt` og valgfri `avvisning_begrunnelse` (CHECK-er i migrasjonen `AvvistSomStatus`); raden slettes ikke. Avviste skjules av den globale spørrefilteren (som foreldede) og vises med «vis avviste» |
 | `kunnskapsstatus` = **metode** | `tekstfunn` \| `normalisering` \| `fortolkning` \| `avledet` \| `eksternt_dokumentert` \| `uavklart` \| `omstridt` \| `foreldet`; NULL = ikke vurdert | CHECK: eksternt dokumentert krever kilde utenfor korpus; tekstfunn og normalisering krever hjemmel i korpus med eId; fortolkning krever `begrunnelse` og minst ett av `tolkningsargumenter` (ordlyd, kontekst_system, formal, forarbeider, praksis, reelle_hensyn, antitetisk_analogisk); foreldet krever entitetsstatus foreldet. Avledet krever minst én rad i `strukturkant_premisser` (constraint-trigger, utsatt til commit). Ingen eksisterende rad fikk en verdi |
 | `entitetsstatus`, `erstatter_kant_id` | `gjeldende` \| `foreldet` | En revisjon (`POST /api/strukturkanter/{id}/revisjon`) gir en ny rad; den gamle blir foreldet, ikke slettet. Alle oppslag ser bare gjeldende rader (global spørrefilter). Identitetsregelen gjelder ikke når kunnskapsstatus er `omstridt` |
 | `profilversjon` | `arbeidsutkast-2026-10-09` | Settes på nye rader som får en kunnskapsstatus |
@@ -726,6 +726,36 @@ eget, senere steg som ikke bestemmer hvordan uttrekket virker.
 
 Uttrekket skrives aldri som `validert`. Det går inn som `foreslatt_av_ai` (eller `monster`-proveniens)
 i forslagskøen for strukturkanter, og et menneske godkjenner — samme prinsipp som `docs/20` §2.7.
+
+**Bygget i #313 (2026-10-15).** `StrukturforslagTjeneste` (`src/RegelIde.Data/Strukturkonvertering/`) og
+`POST /api/rettskilder/{id}/strukturforslag?lag=monster|ki`:
+
+- **Grunnlag:** rettskildens egne gjeldende, ikke opphevede noder. En ledsagende forskrift lastes som egen rettskilde, fordi et utsagn bare
+  har en eId.
+- **Skrivevei:** hvert utsagn går gjennom `StrukturkantTjeneste.OpprettAsync` med `status = maskinelt_foreslatt` og
+  `oppdagelses_kilde = monster:<id> | ki:<modell>`. Feltene følger med: objekt, polaritet, avgrensning, normform, undertype, modalitet,
+  grunnlag, delegeringsadgang/-slutning og kunnskapsstatus (mønsterlaget: `normalisering`, begrunnelse «Regel: monster:<id>»; KI: ingen).
+  `hjemmel_node_id` settes av skriveveien. Sitatet står i `kommentar` («…»). `betinget`, `sikkerhet` og `kilde_utenfor_korpus` har ingen
+  kolonne og følger ikke med.
+- **Typene:** kompetanse og plikt via `KompetansetypeFraFasit`/`PlikttypeFraFasit`; relasjon `del_av` → G; konstituerende `oppretter`/
+  `avvikler` → R, `skal_finnes` → T `skal_ha`; organsammensetning → G. Uten databasetype (ikke lastet, årsak `type_uten_typekode`):
+  `annet:*`, kompetanse `ukjent`, medlemskap `inngar_i` og områdesammensetning `del_av` (ingen O `del_av`; snus ikke til `bestar_av`).
+  KI-forslag om medlemskap sendes ikke (§5.5).
+- **Aktører:** bare eksakt treff (uten skille på store/små bokstaver) på tekstformen eller en variant: registernavn eller navneform
+  (`VirksomhetOppslagTjeneste`), eller termen til et gjeldende klasse-, rolle-, område- eller gruppebegrep. Ingen treff → navnekandidat
+  (kategori `gruppe`, oppdagelseskilde `strukturforslag`) og årsak `aktor_ikke_i_katalogen`; flere treff → `aktor_flertydig`. Et utsagn
+  uten fra → `fra_ikke_i_teksten`. Det skriveveien avviser, telles som `avvist_av_valideringen` med meldingen.
+- **Idempotens:** nøkkelen er hjemmel + eId + kategori + typekode + fra + til + undertype + normform, pluss polaritet og modalitet. Finnes
+  nøkkelen (forslag, godkjent eller avvist), lages ingen rad; utfallet blir `fantes_som_forslag`, `fantes_godkjent` eller
+  `tidligere_avvist`. Et avvist utsagn foreslås ikke på nytt (#374). `OpprettAsync` returnerer også selv den avviste raden for et identisk
+  maskinelt forslag; et menneske som registrerer det samme, får en ny rad.
+- **Kaldsjekk, domstolloven (mønsterlaget, lokal base 2026-10-15):** 954 noder, 77 utsagn. K 71: 42 nye forslag, 1 dublett i kjøringen,
+  28 ikke lastet. P 1, A 1 og G 4: ikke lastet. Ikke lastet med årsak: 32 `aktor_ikke_i_katalogen` (23 aktører, alle lagt i
+  navnekandidatkøen: blant annet «Høyesterett» (katalogen har «Norges Høyesterett»), «Innstillingsrådet», «domstollederen»,
+  «Tilsynsutvalget», «styret»), 2 `fra_ikke_i_teksten`. To godkjent og to avvist (én med begrunnelse) via API-et, aktørsiden viste de
+  godkjente og skjulte de avviste (2 med `visAvviste=true`). Ny kjøring: 0 nye, 38 fantes som forslag, 2 fantes godkjent, 2 tidligere
+  avvist, ingen nye rader. Testgodkjenningene og -avvisningene er tilbakestilt; de 42 forslagene og 23 navnekandidatene står igjen lokalt
+  som ordinære forslag. KI-laget er ikke kjørt i kaldsjekken.
 
 ### 5.4 Måling
 

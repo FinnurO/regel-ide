@@ -101,6 +101,10 @@ Tre ting kan vente:
 
 **Mapping:** PROV-O `wasDerivedFrom` (premisser) og `wasRevisionOf` (erstatter).
 
+**[Bygget, #313/#374, 2026-10-15] Avvisning er historikk:** «avvis» setter godkjenningen `avvist` med hvem, når og valgfri begrunnelse, og
+raden blir stående. Avviste skjules i alle oppslag som foreldede rader gjør, og et identisk maskinelt forslag foreslås ikke på nytt
+(docs/33 §5.3).
+
 ## 5. Punkt 3: Versjonert hjemmel
 
 **Problem:** `hjemmel_eid` peker på bestemmelsen, ikke på versjonen. Når teksten endres ved resynk, mister analysen grunnlaget sitt uten at det synes.

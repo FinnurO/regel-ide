@@ -25,7 +25,7 @@ ikke ny tekst.
 
 | Dok | Hva | Sist verifisert |
 |---|---|---|
-| [09-design-konvensjoner](09-design-konvensjoner.md) | UI-konvensjoner. Les FØR ny UI, oppdater ETTER designbeslutninger. §31 strukturkanter (#311). §35 tekst etter en punktliste (#361). | 2026-10-09 |
+| [09-design-konvensjoner](09-design-konvensjoner.md) | UI-konvensjoner. Les FØR ny UI, oppdater ETTER designbeslutninger. §31 strukturkanter (#311). §35 tekst etter en punktliste (#361). | 2026-10-15 |
 | [32-formal-roller-og-sporsmal](32-formal-roller-og-sporsmal.md) | Formålet, rollene, og §3 spørsmålene S1–S9 modellen skal kunne besvare (S8–S9 lagt til 2026-10-07, #317). | 2026-10-07 |
 | [../CLAUDE.md](../CLAUDE.md) | Arbeidsregler (§0 formålet, §13 slett grenen ved merge, §14 regex treffer prosaen). | 2026-09-10 |
 
@@ -33,11 +33,11 @@ ikke ny tekst.
 
 | Dok | Hva | Sist verifisert |
 |---|---|---|
-| [25-funksjonsoversikt](25-funksjonsoversikt.md) | Hva som faktisk finnes i appen i dag. Nærmeste ting til en sannhet om omfang. | 2026-10-07 |
+| [25-funksjonsoversikt](25-funksjonsoversikt.md) | Hva som faktisk finnes i appen i dag. Nærmeste ting til en sannhet om omfang. | 2026-10-15 |
 | [03-domenemodell](03-domenemodell.md) | Entitetene og feltene. §1.15a virksomhetskatalog og strukturkanter (#311). | 2026-10-07 |
 | [01-referansemodell](01-referansemodell.md) | Ontologien Vilkår/Regel/Unntak (låst 2026-07-23, nå implementert). | 2026-09-10 |
 | [02-produktkrav](02-produktkrav.md) | Kravspesifikasjonen. | 2026-08-02 |
-| [04-api-kontrakter](04-api-kontrakter.md) | API-formen. §14 strukturkanter (#311). | 2026-10-07 |
+| [04-api-kontrakter](04-api-kontrakter.md) | API-formen. §14 strukturkanter (#311). | 2026-10-15 |
 | [05-arkitektur-og-nfk](05-arkitektur-og-nfk.md) | Arkitektur og ikke-funksjonelle krav. | 2026-07-24 |
 | [06-veikart](06-veikart.md) | Byggestegene 1–6 og retningsbeslutningene. | 2026-08-11 |
 | [21-feltmapping-eksterne-kilder](21-feltmapping-eksterne-kilder.md) | Mapping fra eksterne kilder til våre felt. Ny kilde ⇒ ny seksjon her. | 2026-08-28 |
@@ -58,7 +58,7 @@ ikke ny tekst.
 | [14-byggesteg5-teknisk-design](14-byggesteg5-teknisk-design.md) | KI-agentene. Runde 1 bygget, resten er mal. Runde 5 (regelverksreferanseforslag + KI-oppdagelse) også bygget. | 2026-10-01 |
 | [15-handbok-dokumentgraf-notat](15-handbok-dokumentgraf-notat.md) | Håndbok-laget. Lag 1 (rå kilde) er bygget og brukes nå også for Lovdata. | 2026-08-13 |
 | [20-virksomhetskatalog-og-rollemodell](20-virksomhetskatalog-og-rollemodell.md) | Katalogen og rollene. §4/§7.2 låser at forvaltningsnivå aldri settes fra Brreg. §2.7/§2.8 (2026-10-01) dekker Status-feltet og veiviserens 6 mekanismer. §2.4/§7.2 (2026-10-07): nodetype-akse (klasse/rolle/område) og aktørtype på virksomhet (issue #310). | 2026-10-07 |
-| [33-strukturmodell-aktor-omrade-kompetanse](33-strukturmodell-aktor-omrade-kompetanse.md) | **Ny 2026-10-07.** Revidert strukturmodell (aktør/område/kompetanse/klasse/rolle), korpusmåling av hvilke relasjoner lovteksten faktisk uttrykker, fasit for fem rettskilder (`data/fasit/strukturmodell/`), designtest, og automatisk konvertering med fasit-formatet som kontrakt. Styrer strukturmodell-epicen. Lettlest innføring for lesere uten forkunnskap: [nettsiden](https://finnuro.github.io/regel-ide/strukturmodell/) (`nettside/strukturmodell/`, #325). §4.3 oppdatert med kompetansemodellen (#341) og restene (#352: oppnevningsfamilien, undertype, settes_med). §4.4 snudd og ny §4.5: plikt overfor motpart (kategori P, modalitet) og nodetypen ordning (#353). §4.3: avslutning speiler innsetting, forelegging etter rettsvirkning, ankeinstans avledet (#355). | 2026-10-09 |
+| [33-strukturmodell-aktor-omrade-kompetanse](33-strukturmodell-aktor-omrade-kompetanse.md) | **Ny 2026-10-07.** Revidert strukturmodell (aktør/område/kompetanse/klasse/rolle), korpusmåling av hvilke relasjoner lovteksten faktisk uttrykker, fasit for fem rettskilder (`data/fasit/strukturmodell/`), designtest, og automatisk konvertering med fasit-formatet som kontrakt. Styrer strukturmodell-epicen. Lettlest innføring for lesere uten forkunnskap: [nettsiden](https://finnuro.github.io/regel-ide/strukturmodell/) (`nettside/strukturmodell/`, #325). §4.3 oppdatert med kompetansemodellen (#341) og restene (#352: oppnevningsfamilien, undertype, settes_med). §4.4 snudd og ny §4.5: plikt overfor motpart (kategori P, modalitet) og nodetypen ordning (#353). §4.3: avslutning speiler innsetting, forelegging etter rettsvirkning, ankeinstans avledet (#355). | 2026-10-15 |
 | [34-arkitekturvurdering-norsk-profil](34-arkitekturvurdering-norsk-profil.md) | **Ny 2026-10-15.** Vurdering av hva Regel-IDE trenger for å være utprøvingsarena for forslaget til norsk profil (profil A–C): kunnskapsstatus og godkjenning, analysen som eget utsagn med historikk, versjonert hjemmel, oppgave/funksjon (kategori F), plikt ≠ kravsrett, eksport til RDF/PROV-O/SHACL. Ikke besluttet. Profildokumentene ligger i [profil/](profil/README.md). [ENDRET] Punkt 1–3 under bygging i #367 (docs/33 §4.6). | 2026-10-15 |
 
 ## Levert — designgrunnlag for noe som er bygget
