@@ -4350,8 +4350,7 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "delegeringsadgang": "ikke_regulert"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {
       "id": "u153",
@@ -5385,8 +5384,7 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "delegeringsadgang": "ikke_regulert"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {
       "id": "u211",
@@ -5403,8 +5401,7 @@
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "delegeringsadgang": "ikke_regulert"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {
       "id": "u212",
@@ -5857,8 +5854,7 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "delegeringsadgang": "ikke_regulert"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {
       "id": "u238",
@@ -5875,8 +5871,7 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "delegeringsadgang": "ikke_regulert"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {
       "id": "u239",
@@ -5910,8 +5905,7 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "delegeringsadgang": "ikke_regulert"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {
       "id": "u241",
@@ -6412,8 +6406,7 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "delegeringsadgang": "ikke_regulert"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {
       "id": "u269",
@@ -6575,8 +6568,7 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "delegeringsadgang": "ikke_regulert"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {
       "id": "u278",

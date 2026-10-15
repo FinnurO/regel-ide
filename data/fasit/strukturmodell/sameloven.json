@@ -2789,9 +2789,9 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#367, D3b] Delegering uttrykkelig tillatt: TEKSTFUNN — generell delegeringsfullmakt i loven («såfremt ikke annet fremgår»).",
       "normform": "forskrift",
-      "delegeringsadgang": "ikke_regulert",
+      "delegeringsadgang": "uttrykkelig_tillatt",
       "kunnskapsstatus": "normalisering",
       "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-i-ved: «X kan i/ved forskrift» → normgivningskompetanse"
     },
@@ -2825,7 +2825,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Initiativ-/uttalerett — ikke vedtakskompetanse. Viktig for Sametingets særstilling (rådgivende overfor hele forvaltningen). [#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann)."
+      "kommentar": "Initiativ-/uttalerett — ikke vedtakskompetanse. Viktig for Sametingets særstilling (rådgivende overfor hele forvaltningen). [#367, D3b] Delegering uttrykkelig tillatt: TEKSTFUNN — generell delegeringsfullmakt i loven («såfremt ikke annet fremgår»).",
+      "delegeringsadgang": "uttrykkelig_tillatt"
     },
     {
       "id": "u11",
@@ -2857,8 +2858,9 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Intern styringsrett (ikke forskrift) — også en styringsRELASJON departement→Sametinget som modellen bør kunne uttrykke. Departementets referent uavklart (delt forvaltningsansvar, se forskrift 2021/489). [#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann).",
-      "normform": "reglement"
+      "kommentar": "Intern styringsrett (ikke forskrift) — også en styringsRELASJON departement→Sametinget som modellen bør kunne uttrykke. Departementets referent uavklart (delt forvaltningsansvar, se forskrift 2021/489).",
+      "normform": "reglement",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u13",
@@ -2874,8 +2876,9 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "[#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann).",
+      "kommentar": "[#367, D3b] Delegering uttrykkelig tillatt: TEKSTFUNN — generell delegeringsfullmakt i loven («såfremt ikke annet fremgår»).",
       "normform": "forskrift",
+      "delegeringsadgang": "uttrykkelig_tillatt",
       "kunnskapsstatus": "normalisering",
       "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
     },
@@ -2893,9 +2896,8 @@
       "betinget": true,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": "Åpen henvisning — Sametingets vedtakskompetanse kan følge av andre lover, forskrifter eller delegeringsvedtak utenfor korpuset (f.eks. kulturminneloven, plan- og bygningsloven). [#356, R5] Teksten sier «beslutningsmyndighet» (#341: beslutningskompetanse); vedtakskompetanse betyr enkeltvedtak. Var vedtakskompetanse. [#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann).",
-      "kunnskapsstatus": "normalisering",
-      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel beslutning-beslutningsmyndighet: «X har beslutningsmyndighet» → beslutningskompetanse"
+      "kommentar": "Åpen henvisning — Sametingets vedtakskompetanse kan følge av andre lover, forskrifter eller delegeringsvedtak utenfor korpuset (f.eks. kulturminneloven, plan- og bygningsloven). [#356, R5] Teksten sier «beslutningsmyndighet» (#341: beslutningskompetanse); vedtakskompetanse betyr enkeltvedtak. Var vedtakskompetanse. [#367, D3b] Delegering uttrykkelig tillatt: TEKSTFUNN — generell delegeringsfullmakt i loven («såfremt ikke annet fremgår»).",
+      "delegeringsadgang": "uttrykkelig_tillatt"
     },
     {
       "id": "u15",
@@ -5060,8 +5062,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Kompetansen er implisitt (begjæringen rettes til Sametinget, som da avgjør den).",
-      "delegeringsadgang": "ikke_regulert"
+      "kommentar": "Kompetansen er implisitt (begjæringen rettes til Sametinget, som da avgjør den). [#367, D3b] Delegering uttrykkelig tillatt: TEKSTFUNN — generell delegeringsfullmakt i loven («såfremt ikke annet fremgår»).",
+      "delegeringsadgang": "uttrykkelig_tillatt"
     },
     {
       "id": "u150",
@@ -5077,8 +5079,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Registeransvar/registerfører — ingen standardtype.",
-      "delegeringsadgang": "ikke_regulert"
+      "kommentar": "Registeransvar/registerfører — ingen standardtype. [#367, D3b] Delegering uttrykkelig tillatt: TEKSTFUNN — generell delegeringsfullmakt i loven («såfremt ikke annet fremgår»).",
+      "delegeringsadgang": "uttrykkelig_tillatt"
     },
     {
       "id": "u151",
@@ -5142,8 +5144,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Kompetansen er implisitt ('søke Sametinget'), jf. 'Vedtak om registrering'.",
-      "delegeringsadgang": "ikke_regulert"
+      "kommentar": "Kompetansen er implisitt ('søke Sametinget'), jf. 'Vedtak om registrering'. [#367, D3b] Delegering uttrykkelig tillatt: TEKSTFUNN — generell delegeringsfullmakt i loven («såfremt ikke annet fremgår»).",
+      "delegeringsadgang": "uttrykkelig_tillatt"
     },
     {
       "id": "u155",
@@ -5159,8 +5161,7 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Negativt utsagn: ingen klageinstans for denne vedtakstypen. [#356, kort nr. 31] Motparten står i samme ledd («søke Sametinget om å bli registrert»): til = Sametinget (P1).",
-      "delegeringsadgang": "ikke_regulert"
+      "kommentar": "Negativt utsagn: ingen klageinstans for denne vedtakstypen. [#356, kort nr. 31] Motparten står i samme ledd («søke Sametinget om å bli registrert»): til = Sametinget (P1)."
     },
     {
       "id": "u156",
@@ -5345,8 +5346,9 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Arbeidsgiverfunksjon — ingen standardtype (oppnevningskompetanse dekker ikke ansettelse). [#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann).",
-      "undertype": "ansettelse"
+      "kommentar": "Arbeidsgiverfunksjon — ingen standardtype (oppnevningskompetanse dekker ikke ansettelse). [#367, D3b] Delegering uttrykkelig tillatt: TEKSTFUNN — generell delegeringsfullmakt i loven («såfremt ikke annet fremgår»).",
+      "undertype": "ansettelse",
+      "delegeringsadgang": "uttrykkelig_tillatt"
     },
     {
       "id": "u167",
@@ -5378,7 +5380,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Opprettelseskompetanse for en åpen klasse av underorganer. [#356, R1] Kompetanseordlyd i sitatet: kompetansen til å opprette (#352 beslutning 4). Var konstituerende/oppretter. [#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann)."
+      "kommentar": "Opprettelseskompetanse for en åpen klasse av underorganer. [#356, R1] Kompetanseordlyd i sitatet: kompetansen til å opprette (#352 beslutning 4). Var konstituerende/oppretter. [#367, D3b] Delegering uttrykkelig tillatt: TEKSTFUNN — generell delegeringsfullmakt i loven («såfremt ikke annet fremgår»).",
+      "delegeringsadgang": "uttrykkelig_tillatt"
     },
     {
       "id": "u169",
@@ -5442,8 +5445,9 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "[#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann).",
-      "undertype": "oppnevning"
+      "kommentar": "[#367, D3b] Delegering uttrykkelig tillatt: TEKSTFUNN — generell delegeringsfullmakt i loven («såfremt ikke annet fremgår»).",
+      "undertype": "oppnevning",
+      "delegeringsadgang": "uttrykkelig_tillatt"
     },
     {
       "id": "u173",
@@ -5459,7 +5463,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": "Klagereglene i forvaltningsloven gjelder. [#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann)."
+      "kommentar": "Klagereglene i forvaltningsloven gjelder. [#367, D3b] Delegering uttrykkelig tillatt: TEKSTFUNN — generell delegeringsfullmakt i loven («såfremt ikke annet fremgår»).",
+      "delegeringsadgang": "uttrykkelig_tillatt"
     },
     {
       "id": "u174",
@@ -5475,7 +5480,8 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Alternativ klageinstans — finnes bare hvis Sametinget oppretter den. [#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann)."
+      "kommentar": "Alternativ klageinstans — finnes bare hvis Sametinget oppretter den.",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u175",
@@ -5491,8 +5497,9 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "[#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann).",
-      "undertype": "oppnevning"
+      "kommentar": "[#367, D3b] Delegering uttrykkelig tillatt: TEKSTFUNN — generell delegeringsfullmakt i loven («såfremt ikke annet fremgår»).",
+      "undertype": "oppnevning",
+      "delegeringsadgang": "uttrykkelig_tillatt"
     },
     {
       "id": "u176",
@@ -6208,8 +6215,7 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Kompetansen rekker ikke organer med eget valggrunnlag eller som er felles for flere kommuner.",
-      "delegeringsadgang": "ikke_regulert"
+      "kommentar": "Kompetansen rekker ikke organer med eget valggrunnlag eller som er felles for flere kommuner."
     },
     {
       "id": "u219",
@@ -6325,8 +6331,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Også en finansieringsrelasjon Sametinget→kommuner/fylkeskommuner.",
-      "delegeringsadgang": "ikke_regulert"
+      "kommentar": "Også en finansieringsrelasjon Sametinget→kommuner/fylkeskommuner. [#367, D3b] Delegering uttrykkelig tillatt: TEKSTFUNN — generell delegeringsfullmakt i loven («såfremt ikke annet fremgår»).",
+      "delegeringsadgang": "uttrykkelig_tillatt"
     },
     {
       "id": "u226",
@@ -6427,8 +6433,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": "Kompetanse hjemlet utenfor korpuset (pbl.).",
-      "delegeringsadgang": "ikke_regulert"
+      "kommentar": "Kompetanse hjemlet utenfor korpuset (pbl.). [#367, D3b] Delegering uttrykkelig tillatt: TEKSTFUNN — generell delegeringsfullmakt i loven («såfremt ikke annet fremgår»).",
+      "delegeringsadgang": "uttrykkelig_tillatt"
     },
     {
       "id": "u232",
@@ -6444,8 +6450,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Medvirkningsrett overfor statlige myndigheter — strukturell relasjon Sametinget↔staten, ikke vedtakskompetanse.",
-      "delegeringsadgang": "ikke_regulert"
+      "kommentar": "Medvirkningsrett overfor statlige myndigheter — strukturell relasjon Sametinget↔staten, ikke vedtakskompetanse. [#367, D3b] Delegering uttrykkelig tillatt: TEKSTFUNN — generell delegeringsfullmakt i loven («såfremt ikke annet fremgår»).",
+      "delegeringsadgang": "uttrykkelig_tillatt"
     },
     {
       "id": "u233",
@@ -7337,8 +7343,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "[#356, kort nr. 28 og punkt 7] Sametinget kan samtykke til at andre får tilgang (§ 2-6 fjerde ledd).",
-      "delegeringsadgang": "ikke_regulert"
+      "kommentar": "[#356, kort nr. 28 og punkt 7] Sametinget kan samtykke til at andre får tilgang (§ 2-6 fjerde ledd). [#367, D3b] Delegering uttrykkelig tillatt: TEKSTFUNN — generell delegeringsfullmakt i loven («såfremt ikke annet fremgår»).",
+      "delegeringsadgang": "uttrykkelig_tillatt"
     }
   ]
 }

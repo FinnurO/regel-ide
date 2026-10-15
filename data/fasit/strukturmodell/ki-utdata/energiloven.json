@@ -1038,8 +1038,7 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "Forbud mot instruksjon fra enhver, ikke spesifisert aktør.",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "delegeringsadgang": "ikke_regulert"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {
       "id": "u24",
@@ -1074,8 +1073,7 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "Forbud mot instruksjon fra enhver.",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "delegeringsadgang": "ikke_regulert"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {
       "id": "u26",
@@ -1979,8 +1977,7 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "delegeringsadgang": "ikke_regulert"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {
       "id": "u76",
@@ -2426,8 +2423,7 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "delegeringsadgang": "ikke_regulert"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {
       "id": "u101",
@@ -2879,9 +2875,10 @@
       "betinget": false,
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
-      "kommentar": "[#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann).",
+      "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "undertype": "utpeking"
+      "undertype": "utpeking",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u126",
@@ -2914,9 +2911,10 @@
       "betinget": false,
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
-      "kommentar": "[#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann).",
+      "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u128",
@@ -3120,8 +3118,9 @@
       "betinget": true,
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
-      "kommentar": "[#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann).",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "kommentar": null,
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u139",
@@ -3967,8 +3966,7 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "delegeringsadgang": "ikke_regulert"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {
       "id": "u185",
@@ -4075,7 +4073,7 @@
       "betinget": null,
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
-      "kommentar": "Departementet beholder forskriftskompetansen, unntatt de angitte paragrafene. [#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann).",
+      "kommentar": "Departementet beholder forskriftskompetansen, unntatt de angitte paragrafene.",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
       "normform": "forskrift"
     },
@@ -4111,7 +4109,7 @@
       "betinget": null,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": "Reguleringsmyndighetens og klagenemndens myndighet er ikke delegert til NVE. [#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann).",
+      "kommentar": "Reguleringsmyndighetens og klagenemndens myndighet er ikke delegert til NVE.",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {
@@ -4128,7 +4126,7 @@
       "betinget": null,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": "Klagenemndens myndighet er ikke delegert. [#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann).",
+      "kommentar": "Klagenemndens myndighet er ikke delegert.",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {
@@ -4145,7 +4143,7 @@
       "betinget": null,
       "kilde_utenfor_korpus": null,
       "sikkerhet": "lav",
-      "kommentar": "Myndigheten unntatt fra delegering. [#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann).",
+      "kommentar": "Myndigheten unntatt fra delegering.",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
       "undertype": "utpeking"
     },
@@ -4163,7 +4161,7 @@
       "betinget": null,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "middels",
-      "kommentar": "Unntatt fra delegering; Kongen i statsråd beholder kompetansen. [#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann). Før #367: delegerbar = false.",
+      "kommentar": "Unntatt fra delegering; Kongen i statsråd beholder kompetansen.",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {
@@ -4180,7 +4178,7 @@
       "betinget": null,
       "kilde_utenfor_korpus": null,
       "sikkerhet": "lav",
-      "kommentar": "[#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann).",
+      "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {
@@ -4197,7 +4195,7 @@
       "betinget": null,
       "kilde_utenfor_korpus": null,
       "sikkerhet": "lav",
-      "kommentar": "[#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann).",
+      "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {
@@ -4214,7 +4212,7 @@
       "betinget": null,
       "kilde_utenfor_korpus": null,
       "sikkerhet": "lav",
-      "kommentar": "[#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann).",
+      "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {
@@ -4231,7 +4229,7 @@
       "betinget": null,
       "kilde_utenfor_korpus": null,
       "sikkerhet": "middels",
-      "kommentar": "[#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann).",
+      "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {
@@ -4248,7 +4246,7 @@
       "betinget": null,
       "kilde_utenfor_korpus": null,
       "sikkerhet": "lav",
-      "kommentar": "[#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann).",
+      "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {
@@ -4265,7 +4263,7 @@
       "betinget": null,
       "kilde_utenfor_korpus": null,
       "sikkerhet": "lav",
-      "kommentar": "[#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann).",
+      "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {
@@ -4282,7 +4280,7 @@
       "betinget": null,
       "kilde_utenfor_korpus": null,
       "sikkerhet": "middels",
-      "kommentar": "[#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann).",
+      "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {
@@ -4387,7 +4385,7 @@
       "betinget": null,
       "kilde_utenfor_korpus": null,
       "sikkerhet": "middels",
-      "kommentar": "[#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann).",
+      "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {

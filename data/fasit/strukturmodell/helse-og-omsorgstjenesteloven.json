@@ -1600,9 +1600,7 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "[#309, kort nr. 6] Skal-plikten og ventelisteplikten hører til regellaget (docs/33 §4.4).",
-      "delegeringsadgang": "ikke_regulert",
-      "kunnskapsstatus": "normalisering",
-      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel vedtak-treffe: «X kan/skal treffe/fatte (enkelt)vedtak» → vedtakskompetanse"
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u21",
@@ -4179,9 +4177,7 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "Flertall: kompetanse til en funksjon som deles av flere organer.",
-      "delegeringsadgang": "ikke_regulert",
-      "kunnskapsstatus": "normalisering",
-      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel vedtak-forvaltningsverb: «X kan gi pålegg/dispensasjon om» → vedtakskompetanse"
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u172",
@@ -4198,9 +4194,7 @@
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
       "kommentar": "",
-      "delegeringsadgang": "ikke_regulert",
-      "kunnskapsstatus": "normalisering",
-      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel vedtak-forvaltningsverb: «X kan gi pålegg/dispensasjon om» → vedtakskompetanse"
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u173",

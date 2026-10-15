@@ -2930,8 +2930,7 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "[#355, juristrunden] Unntaket fra avsettingen i forrige punktum («Dette» = avsettingen): undertype avsetting; fra = null som u93 («den som har valgt», saksforhold). Var fra = foretaksmøtet. [#356, v5 punkt 8] [slutning] Styremedlemmer etter §§ 22 og 23 velges av og blant de ansatte, så det er ikke foretaksmøtet som er avskåret; fra står som null fordi setningen ikke nevner de ansatte.",
-      "undertype": "avsetting",
-      "delegeringsadgang": "ikke_regulert"
+      "undertype": "avsetting"
     },
     {
       "id": "u95",
@@ -3102,9 +3101,7 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "Kompetanseforskyvning fra styret til eier (departementet).",
-      "delegeringsadgang": "ikke_regulert",
-      "kunnskapsstatus": "normalisering",
-      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel vedtak-treffe: «X treffer vedtak» → vedtakskompetanse"
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u105",
@@ -3402,8 +3399,7 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "[#356, v5 punkt 3] Intern foretaksbeslutning, ikke enkeltvedtak: beslutningskompetanse. Unntaket i samme ledd manglet. Var vedtakskompetanse.",
-      "delegeringsadgang": "ikke_regulert"
+      "kommentar": "[#356, v5 punkt 3] Intern foretaksbeslutning, ikke enkeltvedtak: beslutningskompetanse. Unntaket i samme ledd manglet. Var vedtakskompetanse."
     },
     {
       "id": "u123",
@@ -4776,8 +4772,7 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "[slutning] Instruksjonsforbudet er utledet av «uavhengig og selvstendig»; teksten nevner ingen avsender. [#356, v5 punkt 9, lærdom 5] Uavhengighetsutsagn: fra = null (enhver). Helseforetaket var tolket inn som avsender.",
-      "delegeringsadgang": "ikke_regulert"
+      "kommentar": "[slutning] Instruksjonsforbudet er utledet av «uavhengig og selvstendig»; teksten nevner ingen avsender. [#356, v5 punkt 9, lærdom 5] Uavhengighetsutsagn: fra = null (enhver). Helseforetaket var tolket inn som avsender."
     },
     {
       "id": "u204",
@@ -6318,9 +6313,7 @@
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
       "kommentar": "Hvem som er tilsynsmyndighet følger av helsetilsynsloven.",
-      "delegeringsadgang": "ikke_regulert",
-      "kunnskapsstatus": "normalisering",
-      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel vedtak-forvaltningsverb: «X kan gi pålegg/dispensasjon om» → vedtakskompetanse"
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u290",
@@ -6337,9 +6330,7 @@
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
       "kommentar": "",
-      "delegeringsadgang": "ikke_regulert",
-      "kunnskapsstatus": "normalisering",
-      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel vedtak-forvaltningsverb: «X kan gi pålegg/dispensasjon om» → vedtakskompetanse"
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u291",

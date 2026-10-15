@@ -14,15 +14,20 @@ REGLER
      i denne rekkefølgen, og den første som slår til gjelder:
      D0. delegeringskompetanse (positiv eller negativ) får ingen verdi: raden ER delegeringsregelen («X kan delegere …», «… kan ikke
          delegeres»), og adgangen er en egenskap ved kompetansen som delegeres (#335), ikke ved delegeringsregelen selv. Den gamle
-         verdien står i kommentaren.
+         verdien står i kommentaren. [Juristrunden 2026-10-15] Også en NEGATIV kompetanserad («kan ikke påklages», «gjelder ikke»):
+         det finnes ingen kompetanse å delegere.
      D1. Sitatet sier «kan ikke delegeres», eller fra-aktørens tekstform/variant står rett foran «selv» i sitatet eller i samme ledd
          («kommunestyret selv», ikke «selv om») → uttrykkelig_forbudt (tekstfunn, sameloven § 2-12 fjerde ledd, #356).
      D2. En negativ delegeringskompetanse med «kan ikke delegeres» og paragrafhenvisning gjelder raden (samme fra, eId i en av
          paragrafene — #356 R3) → uttrykkelig_forbudt.
      D3. Sitatet eller samme ledd sier at fra-aktøren «kan delegere» («Innstillingsrådet kan delegere til domstoladministrasjonen å
          foreta konstitusjonen») → uttrykkelig_tillatt.
-     D4. Ellers: nevner bestemmelsen (alle noder i samme paragraf, fra noder/<kilde>.json) delegering («deleger»), kan det ikke
-         avgjøres uten å lese den → INGEN verdi, raden listes for Johann.
+     D3b. [Juristrunden] En GENERELL delegeringsfullmakt for samme aktør i samme lov — positiv delegeringskompetanse der leddet sier
+         «delegere myndighet» med forbeholdet «såfremt ikke annet fremgår» (sameloven § 2-12 tredje ledd) → uttrykkelig_tillatt
+         (unntakene i fjerde ledd er D2 og går foran).
+     D4. Ellers: nevner en setning i bestemmelsen (samme paragraf, fra noder/<kilde>.json) både delegering («deleger») og fra-aktøren,
+         kan det ikke avgjøres uten å lese den → INGEN verdi, raden listes for Johann. [Juristrunden] Gjelder delegeringen en annen
+         aktør, regulerer bestemmelsen ikke denne kompetansen → D5.
      D5. Ellers → ikke_regulert («bestemmelsen sier ingenting»), og for en «Kongen»-aktør en SLUTNING på sitatet (#335, juristrunden
          2026-10-09 kort nr. 10): «Kongen i statsråd» eller «Grunnloven § 21» (embetsutnevnelse i statsråd, jf. Grl. § 28 — juristrunden
          i #355, domstolloven u120) → trolig_ikke_delegerbar, ellers «Kongen» → trolig_delegerbar. Aldri et tekstfunn.
@@ -31,10 +36,13 @@ REGLER
      den, listes raden (ingen gammel verdi overstyres i stillhet).
 
   K. kunnskapsstatus (bare fasiten — KI-utdataene får ingen: metoden er ikke dokumentert per rad, og godkjenningen er maskinell):
-     K1. normalisering når typen er avgjort av en regel i kompetanseleksikonet (src/RegelIde.Data/Strukturkonvertering/
+     K1. normalisering når typen er avgjort av en RENT ORDFORMBASERT regel i kompetanseleksikonet — [juristrunden] bare
+         normgivningsreglene (forskrift …) og pliktreglene; regler som bare er indisier («pålegg», «avgjør» → vedtak) krever en
+         vurdering (fvl. § 2) og gir ingen status — (src/RegelIde.Data/Strukturkonvertering/
          kompetanseleksikon.json): et av regelens uttrykk står i sitatet (mønsteret «X …» med valgfrie ledd i parentes og
          alternativer med «/»), og raden har regelens kategori og type. Begrunnelsen er regelen: «kompetanseleksikon <versjon>,
-         regel <id>: «<uttrykk>» → <type>». Fra/til er ikke vurdert av regelen.
+         regel <id>: «<uttrykk>» → <type>». Statusen gjelder hele utsagnet (docs/profil/03 §5); fra/til er ikke vurdert av regelen,
+         men i fasiten står aktøren i sitatet (normalisering av ordformen, ikke en ny påstand om hvem).
      Alt annet: ingen verdi (ikke vurdert). Tekstfunn, fortolkning og avledet settes i juristrunder, ikke av et skript (docs/34 §3).
 """
 import collections
@@ -85,23 +93,37 @@ def tilfoy(u, tekst):
         u["kommentar"] = (k + " " + tekst).strip()
 
 
+generell_fullmakt = {}
+
+
 def delegering(u, d, former, kongen, ptekst, negative_refs, ledd):
     """(adgang, slutning, regel) for én kompetanserad — se D1–D5."""
     sitat = u["sitat"]
-    if u["type"] == "delegeringskompetanse":
+    # D0 (utvidet etter juristrunden): også en NEGATIV kompetanserad («kan ikke påklages») — det finnes ingen kompetanse å delegere.
+    if u["type"] == "delegeringskompetanse" or u["polaritet"] == "negativ":
         return None, None, "D0"
-    tekster = (sitat, ledd.get(u["eid"], ""))
+    lov_par = paragraf(u["eid"])
+    ptekst_her = ptekst.get(lov_par, "")
+    tekster = (sitat, ledd.get(u["eid"], ""), ptekst_her)
     fra = u.get("fra")
     navn = former.get(fra, [])
     if re.search(r"\bkan\s+ikke\s+delegeres\b", sitat, re.I) or any(
-            re.search(re.escape(f) + r"\s+selv\b(?!\s+om\b)", t, re.I) for f in navn for t in tekster):
+            re.search(re.escape(f) + r"\s+selv\b(?!\s+om\b)", t, re.I) for f in navn for t in tekster[:2]):
         return "uttrykkelig_forbudt", None, "D1"
-    lov_par = paragraf(u["eid"])
     if fra and any(fra == nfra and lov_par in refs for nfra, refs in negative_refs):
         return "uttrykkelig_forbudt", None, "D2"
-    if any(re.search(re.escape(f) + r"\s+kan\s+delegere\b", t, re.I) for f in navn for t in tekster):
+    # D3: «X kan delegere» i sitatet eller leddet. Ikke paragrafen: «Styret kan delegere til direktøren å foreta ansettelser» (dl.
+    # § 33 b) gjelder ikke styrets klagekompetanse i samme paragraf — det fanges av D4 og listes.
+    if any(re.search(re.escape(f) + r"\s+kan\s+delegere\b", t, re.I) for f in navn for t in tekster[:2]):
         return "uttrykkelig_tillatt", None, "D3"
-    if re.search(r"deleger", ptekst.get(lov_par, ""), re.I):
+    # D3b (ny etter juristrunden): en GENERELL delegeringsfullmakt for samme aktør i samme lov — en positiv delegeringskompetanse
+    # med «delegere myndighet» og forbeholdet «såfremt ikke annet fremgår» (sameloven § 2-12 tredje ledd); unntakene er D2.
+    if fra and fra in generell_fullmakt.get(lov_par.split("§")[0], set()):
+        return "uttrykkelig_tillatt", None, "D3b"
+    # D4 (innsnevret etter juristrunden): bare når en setning i paragrafen som nevner delegering, også nevner fra-aktøren. Gjelder
+    # delegeringen en annen aktør, regulerer bestemmelsen ikke denne kompetansen (→ D5).
+    setninger = [s for s in re.split(r"(?<=[.;:])\s+", ptekst_her) if re.search(r"deleger", s, re.I)]
+    if any(re.search(re.escape(f), s, re.I) for f in navn for s in setninger) or (setninger and not navn):
         return None, None, "D4"
     slutning = None
     if fra in kongen:
@@ -114,6 +136,10 @@ def delegering(u, d, former, kongen, ptekst, negative_refs, ledd):
 
 def kunnskapsstatus(u):
     for r, uttrykk, rx in REGLER:
+        # K1 (innsnevret etter juristrunden): bare rene ordformregler — normgivning (forskrift …) og plikt. Regler som bare er indisier
+        # for typen («pålegg», «dispensasjon», «avgjør» → vedtak), krever en vurdering (fvl. § 2) og gir ingen status.
+        if r["type"] != "normgivningskompetanse" and r["kategori"] != "plikt":
+            continue
         if (u["kategori"], u["type"]) == (r["kategori"], r["type"]) and rx.search(u["sitat"]):
             return "normalisering", f"kompetanseleksikon {LEKSIKON['versjon']}, regel {r['id']}: «{uttrykk}» → {r['type']}"
     return None, None
@@ -136,6 +162,12 @@ for kilde in KILDER:
     former = {a["id"]: [a["tekstform"]] + list(a.get("varianter") or []) for a in d["aktorer"]}
     kongen = {a["id"] for a in d["aktorer"] if a["tekstform"].lower() == "kongen" or a["tekstform"].lower().startswith("kongen i statsr")}
     negative_refs = []
+    generell_fullmakt.clear()
+    for n in d["utsagn"]:
+        if (n["kategori"], n["type"], n["polaritet"]) == ("kompetanse", "delegeringskompetanse", "positiv") and n.get("fra"):
+            lt = ledd.get(n["eid"], "")
+            if re.search(r"delegere\s+myndighet", lt, re.I) and re.search(r"såfremt\s+ikke\s+annet\s+fremgår", lt, re.I):
+                generell_fullmakt.setdefault(n["eid"].split("§")[0], set()).add(n["fra"])
     for n in d["utsagn"]:
         if (n["kategori"], n["type"], n["polaritet"]) == ("kompetanse", "delegeringskompetanse", "negativ") \
                 and re.search(r"\bkan\s+ikke\s+delegeres\b", n["sitat"]) and n.get("fra"):
@@ -152,7 +184,10 @@ for kilde in KILDER:
                 or (gammel is False and (adgang == "uttrykkelig_forbudt" or slutning == "trolig_ikke_delegerbar"))
             if not ok:
                 avvik.append((kilde, u["id"], gammel, adgang, slutning, regel, u["sitat"][:90]))
-            if regel == "D0":
+            if regel == "D0" and u["type"] != "delegeringskompetanse":
+                u.pop("delegeringsadgang", None)
+                u.pop("delegering_slutning", None)
+            elif regel == "D0":
                 u.pop("delegeringsadgang", None)
                 u.pop("delegering_slutning", None)
                 if gammel is not None:
@@ -174,6 +209,7 @@ for kilde in KILDER:
                     u.pop("delegering_slutning", None)
                 if regel != "D5" or slutning:
                     tilfoy(u, f"[#367, {regel}] " + {
+                        "D3b": "Delegering uttrykkelig tillatt: TEKSTFUNN — generell delegeringsfullmakt i loven («såfremt ikke annet fremgår»).",
                         "D1": "Delegering uttrykkelig forbudt: TEKSTFUNN i sitatet.",
                         "D2": "Delegering uttrykkelig forbudt: TEKSTFUNN i en annen bestemmelse («kan ikke delegeres» med paragrafhenvisning).",
                         "D3": "Delegering uttrykkelig tillatt: TEKSTFUNN i sitatet.",

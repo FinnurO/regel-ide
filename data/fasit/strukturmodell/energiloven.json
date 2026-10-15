@@ -1050,9 +1050,7 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "Delegert til NVE (delegeringsvedtaket kap-I/ledd-2).",
-   "delegeringsadgang": "ikke_regulert",
-   "kunnskapsstatus": "normalisering",
-   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel vedtak-treffe: «X kan ved/i enkeltvedtak» → vedtakskompetanse"
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u7",
@@ -1086,9 +1084,7 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "delegeringsadgang": "ikke_regulert",
-   "kunnskapsstatus": "normalisering",
-   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel vedtak-treffe: «X kan ved/i enkeltvedtak» → vedtakskompetanse"
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u9",
@@ -1299,8 +1295,7 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Instruerende aktør ikke angitt – gjelder alle, herunder departementet og Kongen. Omgjøring (fvl. § 35) nevnes ikke i korpuset.",
-   "delegeringsadgang": "ikke_regulert"
+   "kommentar": "Instruerende aktør ikke angitt – gjelder alle, herunder departementet og Kongen. Omgjøring (fvl. § 35) nevnes ikke i korpuset."
   },
   {
    "id": "u21",
@@ -1316,8 +1311,7 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
-   "delegeringsadgang": "ikke_regulert"
+   "kommentar": ""
   },
   {
    "id": "u22",
@@ -1350,8 +1344,7 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
-   "kommentar": "[slutning] utledet av «bare» i u22: uten særregelen ville departementet vært klageinstans etter fvl. § 28 første ledd Tidligere kommentar: «Utledet av «bare»: departementet (ordinær overordnet) er IKKE klageinstans for RME.». [#309, kort nr. 35]",
-   "delegeringsadgang": "ikke_regulert"
+   "kommentar": "[slutning] utledet av «bare» i u22: uten særregelen ville departementet vært klageinstans etter fvl. § 28 første ledd Tidligere kommentar: «Utledet av «bare»: departementet (ordinær overordnet) er IKKE klageinstans for RME.». [#309, kort nr. 35]"
   },
   {
    "id": "u24",
@@ -1367,8 +1360,7 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
-   "delegeringsadgang": "ikke_regulert"
+   "kommentar": ""
   },
   {
    "id": "u25",
@@ -1384,8 +1376,7 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
-   "delegeringsadgang": "ikke_regulert"
+   "kommentar": ""
   },
   {
    "id": "u26",
@@ -1612,9 +1603,7 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "delegeringsadgang": "ikke_regulert",
-   "kunnskapsstatus": "normalisering",
-   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel vedtak-forvaltningsverb: «X kan dispensere fra» → vedtakskompetanse"
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u39",
@@ -1788,9 +1777,7 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "Unntatt fra delegering (kap-I/ledd-5).",
-   "delegeringsadgang": "ikke_regulert",
-   "kunnskapsstatus": "normalisering",
-   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel vedtak-treffe: «X kan/skal treffe/fatte (enkelt)vedtak» → vedtakskompetanse"
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u49",
@@ -1952,9 +1939,7 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "delegeringsadgang": "ikke_regulert",
-   "kunnskapsstatus": "normalisering",
-   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel vedtak-avgjor: «X avgjør (i tvilstilfelle)» → vedtakskompetanse"
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u58",
@@ -2004,9 +1989,7 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "delegeringsadgang": "ikke_regulert",
-   "kunnskapsstatus": "normalisering",
-   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel vedtak-forvaltningsverb: «X kan fastsette (ytterligere) vilkår» → vedtakskompetanse"
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u61",
@@ -2390,9 +2373,7 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "delegeringsadgang": "ikke_regulert",
-   "kunnskapsstatus": "normalisering",
-   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel vedtak-avgjor: «X avgjør (i tvilstilfelle)» → vedtakskompetanse"
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u83",
@@ -2480,9 +2461,7 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "delegeringsadgang": "ikke_regulert",
-   "kunnskapsstatus": "normalisering",
-   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel vedtak-treffe: «X kan ved/i enkeltvedtak» → vedtakskompetanse"
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u88",
@@ -2592,8 +2571,7 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
-   "kommentar": "Privatrettslig konsernrelasjon, ikke forvaltning – med for å teste om modellen skiller.",
-   "delegeringsadgang": "ikke_regulert"
+   "kommentar": "Privatrettslig konsernrelasjon, ikke forvaltning – med for å teste om modellen skiller."
   },
   {
    "id": "u94",
@@ -2647,9 +2625,7 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "delegeringsadgang": "ikke_regulert",
-   "kunnskapsstatus": "normalisering",
-   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel vedtak-treffe: «X kan/skal treffe/fatte (enkelt)vedtak» → vedtakskompetanse"
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u97",
@@ -3112,9 +3088,7 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "delegeringsadgang": "ikke_regulert",
-   "kunnskapsstatus": "normalisering",
-   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel vedtak-forvaltningsverb: «X kan gi pålegg/dispensasjon om» → vedtakskompetanse"
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u123",
@@ -3341,7 +3315,8 @@
    "betinget": true,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Unntatt fra delegering. [#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann)."
+   "kommentar": "Unntatt fra delegering.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u136",
@@ -3357,8 +3332,9 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Unntatt fra delegering, men utøvd i delegeringsvedtaket kap-I/ledd-7 (NVE). [#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann).",
-   "undertype": "utpeking"
+   "kommentar": "Unntatt fra delegering, men utøvd i delegeringsvedtaket kap-I/ledd-7 (NVE).",
+   "undertype": "utpeking",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u137",
@@ -3406,7 +3382,7 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
-   "kommentar": "Fvl. kap. VI gjelder ikke → ingen klageinstans. [#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann)."
+   "kommentar": "Fvl. kap. VI gjelder ikke → ingen klageinstans."
   },
   {
    "id": "u140",
@@ -3422,7 +3398,7 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
-   "kommentar": "[#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann)."
+   "kommentar": ""
   },
   {
    "id": "u141",
@@ -3438,7 +3414,7 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
-   "kommentar": "Forvaltningsloven kapittel VI gjelder ikke: verken vedtaksorganets egen omgjøring (§ 35 første ledd) eller omgjøring ved klageinstans eller overordnet organ (§ 35 annet og tredje ledd). [#309, kort nr. 39] Ulovfestet omgjøring er ikke regulert. [#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann)."
+   "kommentar": "Forvaltningsloven kapittel VI gjelder ikke: verken vedtaksorganets egen omgjøring (§ 35 første ledd) eller omgjøring ved klageinstans eller overordnet organ (§ 35 annet og tredje ledd). [#309, kort nr. 39] Ulovfestet omgjøring er ikke regulert."
   },
   {
    "id": "u142",
@@ -3454,7 +3430,7 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
-   "kommentar": "[#309, kort nr. 39] ulovfestet omgjøring er ikke regulert [#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann)."
+   "kommentar": "[#309, kort nr. 39] ulovfestet omgjøring er ikke regulert"
   },
   {
    "id": "u143",
@@ -3470,8 +3446,9 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "[#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann).",
+   "kommentar": "",
    "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
    "kunnskapsstatus": "normalisering",
    "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
   },
@@ -3603,9 +3580,7 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "delegeringsadgang": "ikke_regulert",
-   "kunnskapsstatus": "normalisering",
-   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel vedtak-treffe: «X kan ved/i enkeltvedtak» → vedtakskompetanse"
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u151",
@@ -3793,9 +3768,7 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "delegeringsadgang": "ikke_regulert",
-   "kunnskapsstatus": "normalisering",
-   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel samordning-samordne: «X skal/kan samordne» → samordningskompetanse"
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u161",
@@ -3933,9 +3906,7 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "delegeringsadgang": "ikke_regulert",
-   "kunnskapsstatus": "normalisering",
-   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel vedtak-treffe: «X kan/skal treffe/fatte (enkelt)vedtak» → vedtakskompetanse"
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u169",
@@ -4217,9 +4188,7 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "Klagenemndas eneste førsteinstanskompetanse i korpuset.",
-   "delegeringsadgang": "ikke_regulert",
-   "kunnskapsstatus": "normalisering",
-   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel vedtak-forvaltningsverb: «X kan gi pålegg/dispensasjon om» → vedtakskompetanse"
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u185",
@@ -4584,9 +4553,7 @@
    "sikkerhet": "hoy",
    "kommentar": "Parallell kompetanse; fordeling følger av hvem som ga tillatelsen (ikke uttrykt).",
    "undertype": "tilbakekall",
-   "delegeringsadgang": "ikke_regulert",
-   "kunnskapsstatus": "normalisering",
-   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel vedtak-forvaltningsverb: «X kan trekke tilbake/tilbakekalle» → vedtakskompetanse"
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u206",
@@ -4604,9 +4571,7 @@
    "sikkerhet": "hoy",
    "kommentar": "",
    "undertype": "tilbakekall",
-   "delegeringsadgang": "ikke_regulert",
-   "kunnskapsstatus": "normalisering",
-   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel vedtak-forvaltningsverb: «X kan trekke tilbake/tilbakekalle» → vedtakskompetanse"
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u207",
@@ -4840,9 +4805,7 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "Sanksjonskompetansen er fordelt mellom departement og RME ved uttømmende paragraflister.",
-   "delegeringsadgang": "ikke_regulert",
-   "kunnskapsstatus": "normalisering",
-   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel vedtak-forvaltningsverb: «X kan ilegge» → vedtakskompetanse"
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u220",
@@ -4859,9 +4822,7 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "delegeringsadgang": "ikke_regulert",
-   "kunnskapsstatus": "normalisering",
-   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel vedtak-forvaltningsverb: «X kan ilegge» → vedtakskompetanse"
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u221",
@@ -4878,9 +4839,7 @@
    "kilde_utenfor_korpus": true,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "delegeringsadgang": "ikke_regulert",
-   "kunnskapsstatus": "normalisering",
-   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel vedtak-forvaltningsverb: «X kan ilegge» → vedtakskompetanse"
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u222",

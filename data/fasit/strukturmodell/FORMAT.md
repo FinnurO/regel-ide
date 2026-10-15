@@ -240,15 +240,18 @@ idempotent, også på `ki-utdata/`):
 
 **[ENDRET, issue #367 / #335, 2026-10-15] Utsagnsstatus og delegeringsadgang** (`konvertering-367-utsagnsstatus.py`, deterministisk og
 idempotent, også på `ki-utdata/`):
-- `delegerbar` er erstattet av `delegeringsadgang` + `delegering_slutning` (D0–D5 i skriptet): D1 «kan ikke delegeres»/«X selv» i sitatet
-  eller samme ledd og D2 «kan ikke delegeres» med paragrafhenvisning → uttrykkelig_forbudt; D3 «X kan delegere» i sitatet eller samme ledd →
-  uttrykkelig_tillatt; D4 nevner paragrafen ellers delegering → ingen verdi, raden listes for Johann; D5 ellers ikke_regulert, og for
-  «Kongen»-aktøren en slutning på sitatet. D0: delegeringskompetansen selv får ingen verdi.
-- `kunnskapsstatus` settes bare der regelen er sikker: `normalisering` når typen er avgjort av en regel i kompetanseleksikonet (uttrykket
-  står i sitatet), med regelen i `begrunnelse`. Tekstfunn, fortolkning og avledet settes i juristrunder. KI-utdataene får ingen
-  kunnskapsstatus; mønsterlaget setter `normalisering` (mønsteret er regelen).
-- Fasit 668 kompetanseutsagn: D0 18, D1 5, D2 3, D3 4, D4 30 (listet), D5 610 (87 trolig delegerbar, 13 trolig ikke delegerbar).
-  176 utsagn fikk kunnskapsstatus normalisering. KI-utdata: D0 22, D1 7, D2 3, D3 4, D4 32, D5 674.
+- `delegerbar` er erstattet av `delegeringsadgang` + `delegering_slutning` (D0–D5 i skriptet): D0 delegeringskompetansen selv og negative
+  kompetanserader får ingen verdi; D1 «kan ikke delegeres»/«X selv» i sitatet eller samme ledd og D2 «kan ikke delegeres» med
+  paragrafhenvisning → uttrykkelig_forbudt; D3 «X kan delegere» i sitatet eller samme ledd og D3b en generell delegeringsfullmakt for
+  aktøren i loven («delegere myndighet … såfremt ikke annet fremgår», sameloven § 2-12 tredje ledd) → uttrykkelig_tillatt; D4 en setning i
+  paragrafen nevner både delegering og aktøren → ingen verdi, raden listes for Johann; D5 ellers ikke_regulert, og for «Kongen»-aktøren en
+  slutning på sitatet («Kongen i statsråd», «Grunnloven § 21» → trolig_ikke_delegerbar; «Kongen» → trolig_delegerbar).
+- `kunnskapsstatus` settes bare der regelen er sikker: `normalisering` når typen er avgjort av en RENT ORDFORMBASERT regel i
+  kompetanseleksikonet (normgivning og plikt; uttrykket står i sitatet), med regelen i `begrunnelse`. Tekstfunn, fortolkning og avledet
+  settes i juristrunder. KI-utdataene får ingen kunnskapsstatus; mønsterlaget setter `normalisering`.
+- Fasit, 668 kompetanseutsagn: D0 47, D1 5, D2 3, D3 4, D3b 16, D4 6 (listet), D5 589 (88 trolig delegerbar, 14 trolig ikke delegerbar).
+  150 utsagn fikk kunnskapsstatus normalisering. KI-utdata: D0 56, D1 7, D2 3, D3 4, D3b 5, D4 6, D5 661.
+- Juristrunden (CLAUDE.md §23) endret reglene: D3b og D0 for negative rader er nye, D4 er innsnevret, K1 er avgrenset til ordformregler.
 
 Typer per kategori (bruk disse når de passer, ellers "annet:<x>"):
 - relasjon (aktør→aktør): `eies_av`, `ledes_av`, `sekretariat_for`, `rapporterer_til`, `etterfolger`,
