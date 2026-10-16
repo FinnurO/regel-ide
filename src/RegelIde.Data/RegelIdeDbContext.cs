@@ -46,6 +46,8 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
     public DbSet<StrukturkantEntitet> Strukturkanter => Set<StrukturkantEntitet>();
     // [Ny, issue #367] Premissene for avledede utsagn — se StrukturkantPremissEntitet.
     public DbSet<StrukturkantPremissEntitet> StrukturkantPremisser => Set<StrukturkantPremissEntitet>();
+    // [Ny, issue #378] Hva en generisk navneform betyr per rettskilde — se NavneformBindingEntitet.
+    public DbSet<NavneformBindingEntitet> NavneformBindinger => Set<NavneformBindingEntitet>();
     public DbSet<VirksomhetKandidatEntitet> VirksomhetKandidater => Set<VirksomhetKandidatEntitet>();
     public DbSet<NavnekandidatEntitet> Navnekandidater => Set<NavnekandidatEntitet>();
     // [Ny, issue #203 pkt. 4] Korreksjonsregler (RettskildeId, opprinnelig tekst) → korrigert tekst.
@@ -354,6 +356,98 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             // rettskildevisningen eller i S-oppslagene. «Vis avviste» og forslagslasterens «tidligere avvist»-sjekk leser dem med
             // IgnoreQueryFilters() + entitetsstatus = gjeldende (StrukturkantTjeneste.GjeldendeInklAvviste).
             e.HasQueryFilter(x => x.Entitetsstatus == "gjeldende" && x.Status != "avvist");
+        });
+
+        // [Ny, issue #378 B5] Bindingen av en generisk navneform per rettskilde. Samme skranker som strukturkanter etter #367 der de
+        // gjelder: lukkede vokabular, hjemmel ELLER kilde utenfor korpus (strengt), kunnskapsstatus med grunnlag, godkjenning med hvem
+        // som avviste. Referenten er nøyaktig én av virksomhet og begrep. Unik: én gjeldende, ikke avvist binding per (navneform,
+        // rettskilde, paragrafspenn) — to bindinger med samme virkeområde og ulik referent er en motsigelse, ikke to opplysninger.
+        b.Entity<NavneformBindingEntitet>(e =>
+        {
+            e.ToTable("navneform_bindinger", t =>
+            {
+                t.HasCheckConstraint("ck_navneform_bindinger_referent_en", "(til_virksomhet_id IS NULL) <> (til_begrep_id IS NULL)");
+                t.HasCheckConstraint("ck_navneform_bindinger_status",
+                    "status IN ('maskinelt_foreslatt', 'manuelt_foreslatt', 'faglig_vurdert', 'godkjent', 'avvist')");
+                t.HasCheckConstraint("ck_navneform_bindinger_avvist_hvem",
+                    "status <> 'avvist' OR (sist_endret_av IS NOT NULL AND sist_endret_tidspunkt IS NOT NULL)");
+                t.HasCheckConstraint("ck_navneform_bindinger_avvisning_begrunnelse", "avvisning_begrunnelse IS NULL OR status = 'avvist'");
+                t.HasCheckConstraint("ck_navneform_bindinger_entitetsstatus", "entitetsstatus IN ('gjeldende', 'foreldet')");
+                t.HasCheckConstraint("ck_navneform_bindinger_kunnskapsstatus",
+                    "kunnskapsstatus IS NULL OR kunnskapsstatus IN ('tekstfunn', 'normalisering', 'fortolkning', 'avledet', "
+                    + "'eksternt_dokumentert', 'uavklart', 'omstridt', 'foreldet')");
+                t.HasCheckConstraint("ck_navneform_bindinger_kunnskapsstatus_grunnlag",
+                    "(kunnskapsstatus IS NULL OR kunnskapsstatus <> 'eksternt_dokumentert' OR kilde_utenfor_korpus_tekst IS NOT NULL) "
+                    + "AND (kunnskapsstatus IS NULL OR kunnskapsstatus NOT IN ('tekstfunn', 'normalisering') "
+                    + "OR (hjemmel_rettskilde_id IS NOT NULL AND hjemmel_eid IS NOT NULL)) "
+                    + "AND (kunnskapsstatus IS NULL OR kunnskapsstatus <> 'foreldet' OR entitetsstatus = 'foreldet')");
+                if (!sqlite)
+                {
+                    t.HasCheckConstraint("ck_navneform_bindinger_tolkningsargumenter",
+                        "tolkningsargumenter IS NULL OR tolkningsargumenter <@ ARRAY['ordlyd', 'kontekst_system', 'formal', 'forarbeider', "
+                        + "'praksis', 'reelle_hensyn', 'antitetisk_analogisk']::text[]");
+                    t.HasCheckConstraint("ck_navneform_bindinger_fortolkning",
+                        "kunnskapsstatus IS NULL OR kunnskapsstatus <> 'fortolkning' "
+                        + "OR (begrunnelse IS NOT NULL AND cardinality(tolkningsargumenter) > 0)");
+                }
+                t.HasCheckConstraint("ck_navneform_bindinger_kilde",
+                    "(hjemmel_rettskilde_id IS NOT NULL AND hjemmel_eid IS NOT NULL AND kilde_utenfor_korpus_tekst IS NULL "
+                    + "AND kilde_utenfor_korpus_lenke IS NULL AND kilde_utenfor_korpus_type IS NULL "
+                    + "AND kilde_utenfor_korpus_dokumentasjon IS NULL) "
+                    + "OR (hjemmel_rettskilde_id IS NULL AND hjemmel_eid IS NULL AND kilde_utenfor_korpus_tekst IS NOT NULL "
+                    + "AND kilde_utenfor_korpus_type IS NOT NULL AND kilde_utenfor_korpus_dokumentasjon IS NOT NULL)");
+                t.HasCheckConstraint("ck_navneform_bindinger_kilde_dokumentasjon",
+                    "kilde_utenfor_korpus_dokumentasjon IS NULL OR kilde_utenfor_korpus_dokumentasjon IN ('primaer', 'sekundaer')");
+                t.HasCheckConstraint("ck_navneform_bindinger_kilde_type",
+                    "kilde_utenfor_korpus_type IS NULL OR kilde_utenfor_korpus_type IN "
+                    + "('kgl_res', 'instruks', 'tildelingsbrev', 'vedtekter', 'styrevedtak', 'forarbeider', 'nettside_annet', 'register')");
+            });
+            e.HasKey(x => x.Id).HasName("navneform_bindinger_pkey");
+            e.Property(x => x.NavneformId).HasColumnName("navneform_id");
+            e.Property(x => x.RettskildeId).HasColumnName("rettskilde_id");
+            e.Property(x => x.ParagrafspennJson).HasColumnName("paragrafspenn_json").HasDefaultValue("[]");
+            e.Property(x => x.TilVirksomhetId).HasColumnName("til_virksomhet_id");
+            e.Property(x => x.TilBegrepId).HasColumnName("til_begrep_id");
+            e.Property(x => x.HjemmelRettskildeId).HasColumnName("hjemmel_rettskilde_id");
+            e.Property(x => x.HjemmelEid).HasColumnName("hjemmel_eid");
+            e.Property(x => x.HjemmelNodeId).HasColumnName("hjemmel_node_id");
+            e.Property(x => x.KildeUtenforKorpusTekst).HasColumnName("kilde_utenfor_korpus_tekst");
+            e.Property(x => x.KildeUtenforKorpusLenke).HasColumnName("kilde_utenfor_korpus_lenke");
+            e.Property(x => x.KildeUtenforKorpusType).HasColumnName("kilde_utenfor_korpus_type");
+            e.Property(x => x.KildeUtenforKorpusDokumentasjon).HasColumnName("kilde_utenfor_korpus_dokumentasjon");
+            e.Property(x => x.Kunnskapsstatus).HasColumnName("kunnskapsstatus");
+            e.Property(x => x.Begrunnelse).HasColumnName("begrunnelse");
+            e.Property(x => x.Tolkningsargumenter).HasColumnName("tolkningsargumenter");
+            e.Property(x => x.Profilversjon).HasColumnName("profilversjon");
+            e.Property(x => x.Status).HasColumnName("status").HasDefaultValue("manuelt_foreslatt");
+            e.Property(x => x.Entitetsstatus).HasColumnName("entitetsstatus").HasDefaultValue("gjeldende");
+            e.Property(x => x.ErstatterBindingId).HasColumnName("erstatter_binding_id");
+            e.Property(x => x.OppdagelsesKilde).HasColumnName("oppdagelses_kilde").HasDefaultValue("manuell");
+            e.Property(x => x.Kommentar).HasColumnName("kommentar");
+            e.Property(x => x.AvvisningBegrunnelse).HasColumnName("avvisning_begrunnelse");
+            e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
+            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
+            e.Property(x => x.SistEndretAv).HasColumnName("sist_endret_av");
+            e.Property(x => x.SistEndretTidspunkt).HasColumnName("sist_endret_tidspunkt");
+
+            // CASCADE fra navneformen, rettskilden og referenten: en binding uten noen av dem er ingen opplysning (samme valg som
+            // strukturkanter). Hjemmelen: CASCADE som strukturkanter (ellers ville ck_navneform_bindinger_kilde brytes).
+            e.HasOne<BegrepEntitet>().WithMany().HasForeignKey(x => x.NavneformId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<RettskildeEntitet>().WithMany().HasForeignKey(x => x.RettskildeId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<Virksomhet>().WithMany().HasForeignKey(x => x.TilVirksomhetId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<BegrepEntitet>().WithMany().HasForeignKey(x => x.TilBegrepId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<RettskildeEntitet>().WithMany().HasForeignKey(x => x.HjemmelRettskildeId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<RettskildeNodeEntitet>().WithMany().HasForeignKey(x => x.HjemmelNodeId).OnDelete(DeleteBehavior.SetNull);
+            e.HasOne<NavneformBindingEntitet>().WithMany().HasForeignKey(x => x.ErstatterBindingId).OnDelete(DeleteBehavior.SetNull);
+
+            e.HasIndex(x => new { x.NavneformId, x.RettskildeId, x.ParagrafspennJson }, "ux_navneform_bindinger_virkeomrade").IsUnique()
+                .HasFilter("entitetsstatus = 'gjeldende' AND status <> 'avvist'");
+            e.HasIndex(x => x.RettskildeId).HasDatabaseName("ix_navneform_bindinger_rettskilde");
+            e.HasIndex(x => x.TilVirksomhetId).HasDatabaseName("ix_navneform_bindinger_til_virksomhet");
+            e.HasIndex(x => x.TilBegrepId).HasDatabaseName("ix_navneform_bindinger_til_begrep");
+            e.HasIndex(x => x.HjemmelRettskildeId).HasDatabaseName("ix_navneform_bindinger_hjemmel");
+            e.HasIndex(x => x.HjemmelNodeId).HasDatabaseName("ix_navneform_bindinger_hjemmel_node");
+            e.HasIndex(x => x.ErstatterBindingId).HasDatabaseName("ix_navneform_bindinger_erstatter");
         });
 
         // [Ny, issue #367 AC3] Premissene for et avledet utsagn. CASCADE fra kanten; RESTRICT fra premisset — et premiss som slettes,
@@ -1209,7 +1303,12 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
                 t.HasCheckConstraint(
                     "ck_begreper_navneformgrunn",
                     "navneformgrunn IS NULL OR navneformgrunn IN "
-                    + "('gjeldende', 'utgatt', 'kortform', 'feilskriving', 'parallellnavn')");
+                    + "('gjeldende', 'utgatt', 'kortform', 'feilskriving', 'parallellnavn', 'generisk')");
+                // [ENDRET, issue #378 B4] + 'generisk' (én rad per term for hele korpuset). En generisk navneform peker ikke på én
+                // virksomhet — referenten bindes per rettskilde (navneform_bindinger).
+                t.HasCheckConstraint(
+                    "ck_begreper_generisk_uten_referanse",
+                    "navneformgrunn IS DISTINCT FROM 'generisk' OR (begrepskategori = 'virksomhet' AND virksomhet_referanse_id IS NULL)");
             });
             e.HasKey(x => x.Id).HasName("begreper_pkey");
             e.Property(x => x.VirksomhetId).HasColumnName("virksomhet_id");
@@ -1282,6 +1381,10 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             // unike indeks, scopet til NETTOPP den null-grenen, på Term alene.
             // [ENDRET, issue #310] Samme utvidelse/omdøping som indeksen over — «Den faste og den
             // lovspesifikke identiteten fra #298 gjelder alle tre» (issuens utforming).
+            // [Ny, issue #378 B4] Én generisk navneform per term for hele korpuset (termen lagres med små bokstaver, se
+            // GeneriskNavneformTjeneste).
+            e.HasIndex(x => x.Term, "ux_begreper_generisk_term").IsUnique()
+                .HasFilter("navneformgrunn = 'generisk' AND entitetsstatus = 'gjeldende'");
             e.HasIndex(x => x.Term, "ux_begreper_nodebegrep_fast_term").IsUnique()
                 .HasFilter("begrepskategori IN ('gruppe', 'klasse', 'rolle', 'omrade') AND entitetsstatus = 'gjeldende' AND lovkilde_id IS NULL AND omradetype IS NULL");
             // [Ny, issue #312] Identiteten til et registrert område med kode: «nummer innen gyldig inndeling» — én

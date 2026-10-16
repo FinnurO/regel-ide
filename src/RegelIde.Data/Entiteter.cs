@@ -1364,6 +1364,10 @@ public sealed class BegrepEntitet
     /// Nasjonalarkivet, Vernepliktsverket → Forsvarets personell- og vernepliktssenter).</item>
     /// <item><c>'kortform'</c> — kontekstavhengig kortform («Suldal» betyr Suldal kommune her).</item>
     /// <item><c>'feilskriving'</c> — skrivefeil i KILDETEKSTEN («Matilsynet» med én t).</item>
+    /// <item>[Ny, issue #378 B4] <c>'generisk'</c> — en generisk omtale («styret», «retten», «departementet»): én rad per term for
+    /// hele korpuset, UTEN <see cref="VirksomhetReferanseId"/>. Hva den betyr, bindes per rettskilde i
+    /// <see cref="NavneformBindingEntitet"/>. Settes bare av <see cref="GeneriskNavneformTjeneste"/>, aldri på en navneform for en
+    /// bestemt virksomhet.</item>
     /// </list>
     /// <para>
     /// NULL = uspesifisert, og er en fullt gyldig verdi: alle rader som fantes før denne runden
@@ -1666,6 +1670,77 @@ public sealed class StrukturkantPremissEntitet
 {
     public Guid KantId { get; set; }
     public Guid PremissKantId { get; set; }
+}
+
+/// <summary>
+/// [Ny, issue #378 B5, Johanns godkjenning 2026-10-15] Hva en GENERISK navneform («styret», «retten», «departementet») betyr i én
+/// rettskilde — eventuelt bare i et paragrafspenn av den. Kjeden er tagget tekst → navneform → referent (navneform-kjede-runden
+/// 2026-09-08); for en generisk navneform er siste ledd ikke fast, men bundet per rettskilde her.
+/// <para>
+/// <b>Navneformen</b> er én rad per term for hele korpuset: <see cref="BegrepEntitet"/> med kategori <c>'virksomhet'</c>,
+/// <see cref="BegrepEntitet.Navneformgrunn"/> = <c>'generisk'</c> og INGEN <see cref="BegrepEntitet.VirksomhetReferanseId"/>
+/// (CHECK <c>ck_begreper_generisk_uten_referanse</c>). <b>Referenten</b> er nøyaktig én av en virksomhet (aktør) eller et begrep med
+/// gruppefunksjon (klasse eller rolle) — CHECK <c>ck_navneform_bindinger_referent_en</c>.
+/// </para>
+/// <para>
+/// <b>Et modellutsagn</b> med samme egenskaper som en strukturkant etter #367 (docs/profil/03 §5): hjemmel i korpus ELLER kilde utenfor
+/// korpus, kunnskapsstatus (<c>tekstfunn</c> når loven selv definerer ordet, ellers typisk <c>fortolkning</c> med tolkningsargumenter, eller
+/// <c>eksternt_dokumentert</c> når betydningen står i en kgl.res. om ansvarsfordeling), og GODKJENNING. Bare godkjente bindinger oppløser en
+/// omtale (<see cref="GeneriskNavneformTjeneste"/>); et forslag vises, men brukes ikke.
+/// </para>
+/// <para>
+/// <b>Oppløsning</b> (CLAUDE.md §8): eksakt navneform først; deretter en godkjent binding for rettskilden der omtalen står, og det SMALESTE
+/// paragrafspennet som dekker noden vinner (tomt spenn = hele rettskilden). To like smale bindinger med ulik referent er flertydig; uten
+/// binding er omtalen <c>generisk</c> — ingen kobling, ingen gjetting. Hva omtalen betyr i den enkelte SAKEN (hvilken kommune) er #314.
+/// </para>
+/// </summary>
+public sealed class NavneformBindingEntitet
+{
+    public Guid Id { get; set; }
+
+    /// <summary>Den generiske navneformen (begreper, kategori virksomhet, navneformgrunn generisk).</summary>
+    public required Guid NavneformId { get; set; }
+
+    /// <summary>Rettskilden bindingen gjelder i — omtalen står her.</summary>
+    public required Guid RettskildeId { get; set; }
+
+    /// <summary>Valgfri avgrensning innenfor rettskilden: JSON-liste av <c>{ FraEid, TilEid? }</c>, samme form som
+    /// <see cref="StrukturkantEntitet.AvgrensningParagrafspennJson"/>. <c>"[]"</c> = hele rettskilden.</summary>
+    public string ParagrafspennJson { get; set; } = "[]";
+
+    public Guid? TilVirksomhetId { get; set; }
+    public Guid? TilBegrepId { get; set; }
+
+    public Guid? HjemmelRettskildeId { get; set; }
+    public string? HjemmelEid { get; set; }
+    /// <summary>Den versjonerte hjemmelnoden (som <see cref="StrukturkantEntitet.HjemmelNodeId"/>), satt ved opprettelse.</summary>
+    public Guid? HjemmelNodeId { get; set; }
+    public string? KildeUtenforKorpusTekst { get; set; }
+    public string? KildeUtenforKorpusLenke { get; set; }
+    /// <summary><see cref="Strukturkanter.KildeUtenforKorpusTyper"/>.</summary>
+    public string? KildeUtenforKorpusType { get; set; }
+    /// <summary><c>primaer</c> | <c>sekundaer</c>.</summary>
+    public string? KildeUtenforKorpusDokumentasjon { get; set; }
+
+    /// <summary><see cref="Strukturkanter.Kunnskapsstatuser"/>. NULL = ikke vurdert.</summary>
+    public string? Kunnskapsstatus { get; set; }
+    public string? Begrunnelse { get; set; }
+    public List<string>? Tolkningsargumenter { get; set; }
+    public string? Profilversjon { get; set; }
+
+    /// <summary>Godkjenning: <see cref="Strukturkanter.Statuser"/>. Bare <c>godkjent</c> oppløser.</summary>
+    public string Status { get; set; } = Strukturkanter.ManueltForeslatt;
+    public string Entitetsstatus { get; set; } = Strukturkanter.Gjeldende;
+    public Guid? ErstatterBindingId { get; set; }
+    /// <summary><c>manuell</c> | <c>ki:&lt;modell&gt;</c> — hvem/hva som foreslo bindingen.</summary>
+    public string OppdagelsesKilde { get; set; } = "manuell";
+    public string? Kommentar { get; set; }
+    public string? AvvisningBegrunnelse { get; set; }
+
+    public required string OpprettetAv { get; set; }
+    public DateTimeOffset OpprettetTidspunkt { get; set; }
+    public string? SistEndretAv { get; set; }
+    public DateTimeOffset? SistEndretTidspunkt { get; set; }
 }
 
 /// <summary>
