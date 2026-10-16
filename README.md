@@ -36,7 +36,8 @@ for lesere uten forkunnskap: [finnuro.github.io/regel-ide/strukturmodell/](https
 Hvert utsagn har (#367) en **kunnskapsstatus** (tekstfunn, normalisering, fortolkning, avledet …) atskilt fra **godkjenningen**,
 historikk (en revisjon gir en ny rad), og hjemmelen peker på den versjonerte noden, så resynken kan flagge «hjemmel endret».
 Konverteringen av en rettskilde lastes (#313) inn som forslag i en forslagskø: et menneske godkjenner eller avviser, og en avvisning
-blir stående som historikk i stedet for å slettes.
+blir stående som historikk i stedet for å slettes. Før forslagene kjøres et aktørsveip (#378) som viser hvilke aktører som er kjent,
+og generiske omtaler («styret», «departementet») er navneformer for hele korpuset der betydningen bindes per rettskilde.
 Spesifikasjonen og målingene: [`docs/33-strukturmodell-aktor-omrade-kompetanse.md`](docs/33-strukturmodell-aktor-omrade-kompetanse.md)
 (arbeidsplanen er epic #318).
 
