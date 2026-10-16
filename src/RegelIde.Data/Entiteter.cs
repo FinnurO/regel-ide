@@ -1438,6 +1438,36 @@ public sealed class BegrepEntitet
     /// </summary>
     public string? Kunnskapsstatus { get; set; }
 
+    /// <summary>
+    /// [Ny, issue #385 «aktøridentitet», 2026-10-16] Godkjenning av begrepet som modellutsagn — samme vokabular som strukturkantene
+    /// (<see cref="Strukturkanter.Statuser"/>). Brukes i dag for NAVNEFORMER: en navneform kan være et forslag (fra lovteksten, aktørsveipet
+    /// eller lasteren) som et menneske godkjenner. NULL = registrert før #385 (ingen godkjenningsakse fantes; raden var i bruk og regnes som
+    /// gjeldende — ingen gjettet status, samme prinsipp som <see cref="Kunnskapsstatus"/>). Bare NULL og <c>godkjent</c> gir visningsnavn
+    /// (<see cref="VirksomhetVisningsnavnTjeneste"/>). <c>avvist</c> settes sammen med <see cref="Entitetsstatus"/> = <c>arkivert</c>, så alle
+    /// oppslag som ser på gjeldende rader, slipper den uten egen filter; raden slettes ikke.
+    /// </summary>
+    public string? Godkjenning { get; set; }
+
+    /// <summary>[Ny, issue #385] Kilde utenfor korpus for begrepet (samme felt som strukturkantene, men med ÉN ELLER FLERE lenker i
+    /// <see cref="KildeUtenforKorpusLenker"/>). Hjemmel i korpus er <see cref="LovkildeId"/> + <see cref="LovreferanseEid"/>. Ingen av dem
+    /// og kunnskapsstatus <c>uavklart</c> = «hjemmel mangler», lagret som synlig hull.</summary>
+    public string? KildeUtenforKorpusTekst { get; set; }
+    /// <summary><see cref="Strukturkanter.KildeUtenforKorpusTyper"/>.</summary>
+    public string? KildeUtenforKorpusType { get; set; }
+    /// <summary><c>primaer</c> | <c>sekundaer</c>.</summary>
+    public string? KildeUtenforKorpusDokumentasjon { get; set; }
+    /// <summary>[Ny, issue #385 AC8] Én eller flere lenker til dokumentasjonen.</summary>
+    public List<string>? KildeUtenforKorpusLenker { get; set; }
+    /// <summary>[Ny, issue #385] Fritekst: hvorfor, hva som mangler (uavklart) eller regelen for normaliseringen.</summary>
+    public string? Begrunnelse { get; set; }
+    /// <summary>[Ny, issue #385] Påkrevd (minst ett) ved fortolkning — <see cref="Strukturkanter.Tolkningsargumenter"/>.</summary>
+    public List<string>? Tolkningsargumenter { get; set; }
+    /// <summary>[Ny, issue #385] Hvem/hva som foreslo raden: <c>veiviser</c>, <c>lovtekst:registernavn</c>, <c>aktorsveip:monster</c> …
+    /// NULL på eldre rader.</summary>
+    public string? OppdagelsesKilde { get; set; }
+    /// <summary>[Ny, issue #385] Valgfri begrunnelse ved avvisning (bare når <see cref="Godkjenning"/> er <c>avvist</c>).</summary>
+    public string? AvvisningBegrunnelse { get; set; }
+
     public required string Term { get; set; } // skos:prefLabel
     public string? Definisjon { get; set; } // skos:definition — påkrevd for Begrepskategori=NULL, se klassekommentaren
     public string? LovreferanseEid { get; set; } // dct:source — validert mot RettskildeNoder ved lagring
@@ -1541,6 +1571,9 @@ public sealed class StrukturkantEntitet
     /// <see cref="KildeUtenforKorpusLenke"/> er valgfri; teksten er påkrevd når det ikke finnes hjemmel.</summary>
     public string? KildeUtenforKorpusTekst { get; set; }
     public string? KildeUtenforKorpusLenke { get; set; }
+    /// <summary>[Ny, issue #385 AC8] Én eller flere lenker til dokumentasjonen. <see cref="KildeUtenforKorpusLenke"/> beholdes som den
+    /// første (eldre kode og rader leser den); migrasjonen <c>Aktoridentitet</c> kopierte den hit.</summary>
+    public List<string>? KildeUtenforKorpusLenker { get; set; }
 
     /// <summary>
     /// [Ny, issue #311, Johanns beslutning 2026-10-07] HVA slags kilde utenfor korpus: <c>kgl_res</c> |
@@ -1738,8 +1771,14 @@ public sealed class NavneformBindingEntitet
     public string? HjemmelEid { get; set; }
     /// <summary>Den versjonerte hjemmelnoden (som <see cref="StrukturkantEntitet.HjemmelNodeId"/>), satt ved opprettelse.</summary>
     public Guid? HjemmelNodeId { get; set; }
+    /// <summary>[Ny, issue #385 AC12] Satt av resynken når teksten i hjemmelen eller i paragrafspennet bindingen gjelder, er endret i en ny
+    /// versjon (<see cref="HjemmelEndretFlagg"/>). Ingenting annet endres: bindingen oppløser som før, men står i lista til faglig vurdering
+    /// til et menneske har godkjent den på nytt.</summary>
+    public DateTimeOffset? HjemmelEndretTidspunkt { get; set; }
     public string? KildeUtenforKorpusTekst { get; set; }
     public string? KildeUtenforKorpusLenke { get; set; }
+    /// <summary>[Ny, issue #385 AC8] Én eller flere lenker. <see cref="KildeUtenforKorpusLenke"/> er den første.</summary>
+    public List<string>? KildeUtenforKorpusLenker { get; set; }
     /// <summary><see cref="Strukturkanter.KildeUtenforKorpusTyper"/>.</summary>
     public string? KildeUtenforKorpusType { get; set; }
     /// <summary><c>primaer</c> | <c>sekundaer</c>.</summary>
@@ -2120,6 +2159,8 @@ public sealed class NavnekandidatEntitet
     public int EndOffset { get; set; }
 
     public string Status { get; set; } = "Venter"; // 'Venter' | 'Godkjent' | 'Avvist'
+    /// <summary>[Ny, issue #385 AC7] Hvorfor raden ble avvist («ikke en aktør»). Raden slettes ikke.</summary>
+    public string? AvvisningBegrunnelse { get; set; }
     public required string OpprettetAv { get; set; }
     public DateTimeOffset OpprettetTidspunkt { get; set; }
     public string? BehandletAv { get; set; }
@@ -3132,4 +3173,47 @@ public sealed class KildefeilEntitet
     public string Status { get; set; } = "Ny"; // 'Ny' | 'Kjent' | 'Rettet-hos-oss' | 'Venter-på-Lovdata'
     public required string OpprettetAv { get; set; }
     public DateTimeOffset OpprettetTidspunkt { get; set; }
+}
+
+/// <summary>
+/// [Ny, issue #385 «aktøridentitet», Johann 2026-10-16] Utsagnet «aktøren er et organ / rettssubjekt / en organisatorisk enhet / en ordning»,
+/// med grunnlag og status som strukturkantene etter #367. Aktørens identitet kommer fra rettskildene; registeret (orgnr, registernavn)
+/// er attributter. <see cref="Virksomhet.Aktortype"/> er den GODKJENTE verdien og settes bare når et slikt utsagn godkjennes (eller av den
+/// entydige KOMM/FYLK-regelen fra #310, eller direkte av et menneske på aktørsiden). Et forslag endrer ingenting på aktøren.
+/// <para>
+/// Hvorfor egen tabell og ikke felt på <see cref="Virksomhet"/>: et forslag må kunne stå ved siden av en godkjent verdi, avvises uten å
+/// slettes og ha sitt eget grunnlag. Det er et modellutsagn, ikke et attributt.
+/// </para>
+/// </summary>
+public sealed class AktortypeUtsagnEntitet
+{
+    public Guid Id { get; set; }
+    public required Guid VirksomhetId { get; set; }
+    /// <summary>rettssubjekt | organ | organisatorisk_enhet | ordning (CHECK <c>ck_virksomheter_aktortype</c>).</summary>
+    public required string Aktortype { get; set; }
+    /// <summary>Bare ved aktørtype <c>ordning</c>.</summary>
+    public string? Ordningstype { get; set; }
+
+    public Guid? HjemmelRettskildeId { get; set; }
+    public string? HjemmelEid { get; set; }
+    public string? KildeUtenforKorpusTekst { get; set; }
+    public string? KildeUtenforKorpusType { get; set; }
+    public string? KildeUtenforKorpusDokumentasjon { get; set; }
+    public List<string>? KildeUtenforKorpusLenker { get; set; }
+
+    /// <summary><see cref="Strukturkanter.Kunnskapsstatuser"/> (uten avledet/foreldet). NULL = ikke vurdert (maskinelle forslag).</summary>
+    public string? Kunnskapsstatus { get; set; }
+    public string? Begrunnelse { get; set; }
+    public List<string>? Tolkningsargumenter { get; set; }
+
+    /// <summary>Godkjenning: <see cref="Strukturkanter.Statuser"/>.</summary>
+    public string Status { get; set; } = Strukturkanter.ManueltForeslatt;
+    /// <summary><c>veiviser</c> | <c>aktorside</c> | <c>strukturforslag:ki:&lt;modell&gt;</c> …</summary>
+    public string OppdagelsesKilde { get; set; } = "manuell";
+    public string? AvvisningBegrunnelse { get; set; }
+
+    public required string OpprettetAv { get; set; }
+    public DateTimeOffset OpprettetTidspunkt { get; set; }
+    public string? SistEndretAv { get; set; }
+    public DateTimeOffset? SistEndretTidspunkt { get; set; }
 }
