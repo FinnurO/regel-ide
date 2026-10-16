@@ -35,7 +35,10 @@ public sealed record Treffidentitet(
         a.UlikSkrivemaate + b.UlikSkrivemaate, a.AktortypeForslag + b.AktortypeForslag);
 }
 
-public sealed record EtterfyllingRapport(bool Skrevet, int KantTreff, int Aktorer, Treffidentitet Tall);
+public sealed record EtterfyllingRapport(bool Skrevet, int KantTreff, int Aktorer, Treffidentitet Tall, IReadOnlyList<EtterfyllingRad> Rader);
+
+/// <summary>Én aktør i én rettskilde i etterfyllingen: hva treffene ga (bare rader der noe skjedde eller noe ble hoppet over).</summary>
+public sealed record EtterfyllingRad(Guid VirksomhetId, string Aktor, Guid RettskildeId, string RettskildeTittel, int Noder, Treffidentitet Tall);
 
 /// <summary>
 /// [Ny, issue #385 «aktøridentitet», Johann 2026-10-16] Aktørens identitet og primærnavn kommer fra rettskildene; orgnr og registernavn er
@@ -63,19 +66,29 @@ public sealed class AktoridentitetTjeneste(RegelIdeDbContext db, TekstTaggTjenes
 
     /// <summary>AC1. Forslag til gjeldende navneform fra lovteksten for alle aktører som mangler én. <paramref name="skriv"/> = false er en
     /// ren tørrkjøring.</summary>
-    public async Task<NavneformforslagRapport> ForeslaGjeldendeNavneformerAsync(bool skriv, string bruker, CancellationToken ct = default)
+    /// <param name="bare">Avgrens til disse aktørene (tester og enkeltaktører); null = alle.</param>
+    public async Task<NavneformforslagRapport> ForeslaGjeldendeNavneformerAsync(bool skriv, string bruker, CancellationToken ct = default,
+        IReadOnlyCollection<Guid>? bare = null)
     {
         var navneformer = await db.Begreper
             .Where(b => b.Begrepskategori == "virksomhet" && b.VirksomhetReferanseId != null)
             .Select(b => new { Vid = b.VirksomhetReferanseId!.Value, b.Id, b.Term, b.Navneformgrunn, b.Godkjenning, b.Entitetsstatus })
             .ToListAsync(ct);
-        var harGjeldende = navneformer.Where(n => n.Entitetsstatus == "gjeldende" && n.Navneformgrunn == "gjeldende").Select(n => n.Vid).ToHashSet();
-        var aktorer = await db.Virksomheter.Where(v => !harGjeldende.Contains(v.Id)).OrderBy(v => v.Navn)
+        // Bare en GODKJENT gjeldende navneform (eller en fra før #385) teller; et forslag som venter, rapporteres som «forslag finnes».
+        var harGjeldende = navneformer.Where(n => n.Entitetsstatus == "gjeldende" && n.Navneformgrunn == "gjeldende"
+            && (n.Godkjenning == null || n.Godkjenning == Strukturkanter.Godkjent)).Select(n => n.Vid).ToHashSet();
+        var aktorer = await db.Virksomheter.Where(v => !harGjeldende.Contains(v.Id) && (bare == null || bare.Contains(v.Id))).OrderBy(v => v.Navn)
             .Select(v => new { v.Id, v.Navn, v.Organisasjonsnummer }).ToListAsync(ct);
 
         var rader = new List<Navneformforslagrad>();
         foreach (var v in aktorer)
         {
+            if (navneformer.FirstOrDefault(n => n.Vid == v.Id && n.Entitetsstatus == "gjeldende" && n.Navneformgrunn == "gjeldende") is { } venter)
+            {
+                rader.Add(new Navneformforslagrad(v.Id, v.Navn, v.Organisasjonsnummer, Navneformforslagutfall.ForslagFinnes, venter.Term, null,
+                    null, null, null, 0, 0, [], venter.Id));
+                continue;
+            }
             var forekomster = await ForekomsterAsync(v.Navn, ct);
             var former = forekomster.Select(f => f.Form).Distinct(StringComparer.Ordinal).OrderBy(f => f, StringComparer.Ordinal).ToList();
             var egennavn = former.Where(ErEgennavnform).ToList();
@@ -533,9 +546,17 @@ public sealed class AktoridentitetTjeneste(RegelIdeDbContext db, TekstTaggTjenes
 
         await using var tx = db.Database.IsRelational() ? await db.Database.BeginTransactionAsync(ct) : null;
         var tall = new Treffidentitet();
+        var rader = new List<EtterfyllingRad>();
+        var navn = await new VirksomhetVisningsnavnTjeneste(db).AlleAsync(ct);
         foreach (var g in treff.GroupBy(t => (t.Virksomhet, t.Rettskilde)))
         {
-            tall += await SikreTreffAsync(g.Key.Virksomhet, g.Key.Rettskilde, g.Select(x => x.Eid), null, KildeEtterfylling, bruker, ct);
+            var t = await SikreTreffAsync(g.Key.Virksomhet, g.Key.Rettskilde, g.Select(x => x.Eid), null, KildeEtterfylling, bruker, ct);
+            tall += t;
+            if (t == new Treffidentitet(TaggerFantes: t.TaggerFantes)) continue; // ingenting nytt og ingenting hoppet over
+            var aktor = navn.GetValueOrDefault(g.Key.Virksomhet)
+                ?? await db.Virksomheter.Where(v => v.Id == g.Key.Virksomhet).Select(v => v.Navn).FirstAsync(ct);
+            var tittel = await db.Rettskilder.Where(r => r.Id == g.Key.Rettskilde).Select(r => r.Kortnavn ?? r.Tittel).FirstAsync(ct);
+            rader.Add(new EtterfyllingRad(g.Key.Virksomhet, aktor, g.Key.Rettskilde, tittel, g.Count(), t));
         }
         if (tx is not null)
         {
@@ -546,6 +567,7 @@ public sealed class AktoridentitetTjeneste(RegelIdeDbContext db, TekstTaggTjenes
                 db.ChangeTracker.Clear();
             }
         }
-        return new EtterfyllingRapport(skriv, treff.Count, treff.Select(t => t.Virksomhet).Distinct().Count(), tall);
+        return new EtterfyllingRapport(skriv, treff.Count, treff.Select(t => t.Virksomhet).Distinct().Count(), tall,
+            rader.OrderBy(r => r.Aktor, StringComparer.Ordinal).ThenBy(r => r.RettskildeTittel, StringComparer.Ordinal).ToList());
     }
 }
