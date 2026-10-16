@@ -807,10 +807,12 @@ i forslagskøen for strukturkanter, og et menneske godkjenner — samme prinsipp
   kolonne og følger ikke med.
 - **Typene:** kompetanse og plikt via `KompetansetypeFraFasit`/`PlikttypeFraFasit`; relasjon `del_av` → G; konstituerende `oppretter`/
   `avvikler` → R, `skal_finnes` → T `skal_ha`; organsammensetning → G. Uten databasetype (ikke lastet, årsak `type_uten_typekode`):
-  `annet:*`, kompetanse `ukjent`, medlemskap `inngar_i` og områdesammensetning `del_av` (ingen O `del_av`; snus ikke til `bestar_av`).
+  `annet:*`, kompetanse `ukjent` og medlemskap `inngar_i`. [ENDRET, #378 C9] Områdesammensetning `del_av` snus til O `bestar_av` med fra og til
+  byttet (`Strukturkontrakt.NormaliserOmradesammensetning`), og mønsteret `inndeling-kommune-i-fylke` gir nå selv «X fylke bestar_av kommunen».
   KI-forslag om medlemskap sendes ikke (§5.5).
 - **Aktører:** bare eksakt treff (uten skille på store/små bokstaver) på tekstformen eller en variant: registernavn eller navneform
-  (`VirksomhetOppslagTjeneste`), eller termen til et gjeldende klasse-, rolle-, område- eller gruppebegrep. Ingen treff → navnekandidat
+  (`VirksomhetOppslagTjeneste`), eller termen til et gjeldende klasse-, rolle-, område- eller gruppebegrep. [ENDRET, #378] Et lovspesifikt
+  begrep treffer bare i sin egen lov og i forskrifter med hjemmel i den, og en generisk navneform løses via bindingen (§5.7). Ingen treff → navnekandidat
   (kategori `gruppe`, oppdagelseskilde `strukturforslag`) og årsak `aktor_ikke_i_katalogen`; flere treff → `aktor_flertydig`. Et utsagn
   uten fra → `fra_ikke_i_teksten`. Det skriveveien avviser, telles som `avvist_av_valideringen` med meldingen.
 - **Idempotens:** nøkkelen er hjemmel + eId + kategori + typekode + fra + til + undertype + normform, pluss polaritet og modalitet. Finnes
@@ -1023,6 +1025,47 @@ Før tersklene settes, trengs to ting:
 - en ny KI-måling etter fasitgjennomgangen (#309)
 - en beslutning om KI-svar skal låses med strukturert utdata eller JSON-skjema hos leverandøren.
   Begge deler kan redusere `ugyldig_felt`/`ugyldig_aktor`.
+
+### 5.7 Aktørsveip og generiske navneformer (#378, bygget 2026-10-16)
+
+Johanns spørsmål 2026-10-15: navneformene skal kartlegges FØR forslagene, ikke samtidig (på domstolloven falt 34 av 77 utsagn bort fordi
+aktøren ikke var kjent), og generiske omtaler («styret», «retten», «departementet») skal bli navneformer for hele korpuset med betydningen
+bundet per rettskilde.
+
+**Steg 1 — aktørsveip** (`POST /api/rettskilder/{id}/aktorsveip?lag=monster|ki[&navnekandidater=true]`, knappen «1. Aktørsveip» i
+forslagskøen): samme konvertering som lasteren, men bare aktørene klassifiseres. Ingen forslag skrives. Statusene (`Aktorstatus`):
+
+| Status | Når |
+|---|---|
+| `kjent` | Eksakt treff på én node, eller en generisk navneform med godkjent binding for alle forekomstene |
+| `ny_navneform_for_kjent_aktor` | Ikke eksakt treff, men tekstformen står som hele ord inni et kjent registernavn eller en navneform («Høyesterett» i «Norges Høyesterett»). En kandidat, ikke en kobling |
+| `ny_aktor` | Verken treff eller kandidat |
+| `generisk` | Generisk navneform finnes, men minst én forekomst er ikke dekket av en godkjent binding |
+| `flertydig` | Flere eksakte treff, eller to like smale bindinger med ulik referent |
+
+Rekkefølgen er eksakt → generisk med binding → flertydig → kandidat → ny aktør. Med `navnekandidater=true` legges alle som ikke er kjent
+eller flertydige i navnekandidatkøen (oppdagelseskilde `strukturforslag`); uten er sveipet en ren tørrkjøring. Gjennomgangen skjer i den
+eksisterende veiviseren (docs/09 §38). **Steg 2** er lasteren (§5.3), som bruker samme klassifisering; lasterapporten viser aktørene per
+status, så den kan sammenlignes med sveipet før gjennomgangen. Ny årsak: `aktor_generisk_uten_binding`.
+
+**Generisk navneform:** `navneformgrunn = 'generisk'`, kategori `virksomhet`, ingen `virksomhet_referanse_id`
+(CHECK `ck_begreper_generisk_uten_referanse`), termen med små bokstaver, én per term for hele korpuset (`ux_begreper_generisk_term`). En
+term som alt er navneform for én virksomhet, kan ikke gjøres generisk (oppslaget ville blitt flertydig).
+
+**Binding** (`navneform_bindinger`, `NavneformBindingEntitet`): (navneform, rettskilde, valgfritt paragrafspenn) → referent (virksomhet,
+eller begrep av typen klasse eller rolle). Et modellutsagn med samme egenskaper som strukturkantene etter #367: hjemmel i korpus ELLER kilde
+utenfor korpus (type og dokumentasjon), kunnskapsstatus (docs/profil/03 §5: `tekstfunn` når loven definerer ordet, ellers `fortolkning` med
+tolkningsargumenter, eller `eksternt_dokumentert`; `avledet` og `foreldet` avvises), godkjenning, avvisning med hvem/hvorfor (slettes ikke).
+Bare godkjente bindinger oppløser; det smaleste spennet som dekker noden vinner (et spenn dekker nodene fra–til i dokumentrekkefølge og alt
+under dem; tomt = hele rettskilden). [ENDRET før merge, Johanns beslutning 2026-10-16 etter juristrunden B1] Bindingen har egen gyldighet
+(`gyldig_fra`/`gyldig_til`): «departementet» følger ressortfordelingen ved kgl.res., som kan endres uten at loven endres (docs/profil/03 §8).
+Oppslaget bruker bare bindinger som gjelder på datoen (standard i dag). Samme virkeområde kan ha bindinger etter hverandre i tid;
+overlappende gyldighet avvises i tjenesten (ingen unik indeks). Brukes av
+lasteren, taggvisningen (`GET /api/rettskilder/{id}/generiske-tagger`) og virksomhetens «brukt i». Oversikt (AC7):
+`GET /api/navneformer/generiske[?term=]` — hvor termen er tagget eller bundet, og hva den betyr i hver rettskilde. Hva en generisk omtale
+betyr i den enkelte SAKEN (hvilken kommune), er #314 og ikke bindingen.
+
+**Målt på barnehageloven og forskriftene (lokal base 2026-10-16, mønsterlaget, tørrkjøring — ingen forslag lastet):** se PR #383 og #378.
 
 ### 5.6 Konvertering av eksisterende data
 

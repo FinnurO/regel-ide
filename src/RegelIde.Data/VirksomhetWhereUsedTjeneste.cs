@@ -108,6 +108,35 @@ public sealed class VirksomhetWhereUsedTjeneste(RegelIdeDbContext db)
                 x.Tagg.StartOffset, x.Tagg.EndOffset))
             .ToListAsync(ct);
 
+        // [Ny, issue #378 B6] Generiske omtaler («departementet») som en GODKJENT binding sier betyr denne virksomheten i rettskilden der de
+        // står. Hver tagg slås opp på samme måte som lasteren (smaleste spenn vinner), så en tagg utenfor bindingens spenn — eller
+        // overstyrt av en smalere binding til noe annet — kommer ikke med.
+        var bindinger = await db.NavneformBindinger
+            .Where(b => b.TilVirksomhetId == virksomhetId && b.Status == Strukturkanter.Godkjent && b.Entitetsstatus == "gjeldende")
+            .Select(b => new { b.Id, b.NavneformId, b.RettskildeId }).ToListAsync(ct);
+        if (bindinger.Count > 0)
+        {
+            var generiske = new GeneriskNavneformTjeneste(db);
+            var ekstra = new List<NavneformForekomst>();
+            foreach (var b in bindinger)
+            {
+                var tagger = await db.TekstTagger
+                    .Where(t => t.Kind == "virksomhet" && t.Entitetsstatus == "gjeldende" && t.RefId == b.NavneformId && t.RettskildeId == b.RettskildeId)
+                    .Join(db.Begreper, t => t.RefId, n => n.Id, (t, n) => new { Tagg = t, n.Term, n.Navneformgrunn })
+                    .Join(db.Rettskilder, x => x.Tagg.RettskildeId, r => r.Id, (x, r) => new { x.Tagg, x.Term, x.Navneformgrunn, Tittel = r.Kortnavn ?? r.Tittel })
+                    .ToListAsync(ct);
+                foreach (var x in tagger)
+                {
+                    var o = await generiske.LosOppAsync(b.NavneformId, b.RettskildeId, x.Tagg.NodeEid, ct);
+                    if (o.Binding?.Id != b.Id) continue;
+                    ekstra.Add(new NavneformForekomst(b.NavneformId, x.Term, x.Navneformgrunn, x.Tagg.RettskildeId, x.Tittel, x.Tagg.NodeEid,
+                        x.Tagg.QuoteExact, x.Tagg.StartOffset, x.Tagg.EndOffset));
+                }
+            }
+            forekomster = forekomster.Concat(ekstra).OrderBy(f => f.Term, StringComparer.Ordinal).ThenBy(f => f.RettskildeTittel, StringComparer.Ordinal)
+                .ThenBy(f => f.NodeEid, StringComparer.Ordinal).ThenBy(f => f.StartOffset).ToList();
+        }
+
         // [ENDRET, issue #311] Tildelingene er nå M-/I-kanter fra virksomheten til et begrep med
         // gruppefunksjon (før: myndighetstildelinger). TildelingId = kantens id.
         var gruppetildelinger = await db.Strukturkanter

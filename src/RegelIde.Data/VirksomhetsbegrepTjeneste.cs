@@ -22,6 +22,14 @@ public sealed class VirksomhetsbegrepTjeneste(RegelIdeDbContext db)
     public static readonly IReadOnlySet<string> Navneformgrunner =
         new HashSet<string>(StringComparer.Ordinal) { "gjeldende", "utgatt", "kortform", "feilskriving", "parallellnavn" };
 
+    /// <summary>
+    /// [Ny, issue #378 B4] Grunnen på en GENERISK navneform («styret», «retten») — én rad per term for hele korpuset, uten virksomhet.
+    /// Står i CHECK-en <c>ck_begreper_navneformgrunn</c> (sammen med <see cref="Navneformgrunner"/>), men IKKE i <see cref="Navneformgrunner"/>:
+    /// den kan aldri settes på en navneform for en bestemt virksomhet (CHECK <c>ck_begreper_generisk_uten_referanse</c>), bare av
+    /// <see cref="GeneriskNavneformTjeneste"/>. <see cref="ErGyldigNavneformgrunn"/> avviser den derfor.
+    /// </summary>
+    public const string Generisk = "generisk";
+
     /// <summary>NULL er gyldig (uspesifisert — normaltilfellet for historiske rader); enhver annen
     /// verdi må stå i <see cref="Navneformgrunner"/>. Tom/blank streng er IKKE stille normalisert til
     /// NULL — en kaller som sender "" har en feil, og skal få vite det ("ingen gjettet fallback").</summary>
@@ -120,6 +128,11 @@ public sealed class VirksomhetsbegrepTjeneste(RegelIdeDbContext db)
         var navneform = await db.Begreper.FirstOrDefaultAsync(
             b => b.Id == id && b.Begrepskategori == "virksomhet", ct);
         if (navneform is null) return false;
+        // [Ny, issue #378] En generisk navneform har ingen virksomhet; grunnen kan ikke endres til en virksomhetsgrunn her.
+        if (navneform.Navneformgrunn == Generisk)
+        {
+            throw new ArgumentException($"«{navneform.Term}» er en generisk navneform — grunnen endres ikke her (issue #378).");
+        }
         navneform.Navneformgrunn = navneformgrunn;
         navneform.SistEndretAv = endretAv;
         navneform.SistEndretTidspunkt = DateTimeOffset.UtcNow;

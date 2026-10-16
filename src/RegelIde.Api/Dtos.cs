@@ -1802,3 +1802,31 @@ public sealed record TjenesteEksportDto(
     TjenesteDto Tjeneste, string VirksomhetNavn,
     IReadOnlyList<TjenesteRegelverksreferanseDto> Regelverksreferanser, IReadOnlyList<HendelseDto> Hendelser,
     IReadOnlyList<TjenesteavhengighetDto> Avhengigheter, DateTimeOffset EksportertTidspunkt);
+
+/// <summary>[Ny, issue #378 B5] En binding av en generisk navneform: referenten (nøyaktig én av virksomhet og begrep — klasse eller
+/// rolle), valgfritt paragrafspenn, hjemmel ELLER kilde utenfor korpus, kunnskapsstatus og godkjenning (standard
+/// <c>manuelt_foreslatt</c>). <c>NavneformId</c>/<c>RettskildeId</c> brukes bare av <c>POST /api/navneform-bindinger</c>; i veiviseren er
+/// de kandidatens.</summary>
+public sealed record NavneformBindingRequest(
+    Guid? NavneformId, Guid? RettskildeId, Guid? TilVirksomhetId, Guid? TilBegrepId, List<RegelIde.Data.ParagrafspennPar>? Paragrafspenn,
+    Guid? HjemmelRettskildeId, string? HjemmelEid,
+    string? KildeUtenforKorpusTekst, string? KildeUtenforKorpusLenke, string? KildeUtenforKorpusType, string? KildeUtenforKorpusDokumentasjon,
+    string? Kunnskapsstatus, string? Begrunnelse, List<string>? Tolkningsargumenter, string? Status, string? OppdagelsesKilde, string? Kommentar,
+    DateOnly? GyldigFra = null, DateOnly? GyldigTil = null)
+{
+    public RegelIde.Data.NyNavneformBinding TilNy(Guid navneformId, Guid rettskildeId) => new(
+        navneformId, rettskildeId, new RegelIde.Data.Kantnode(TilVirksomhetId, TilBegrepId), Paragrafspenn,
+        HjemmelRettskildeId, HjemmelEid, KildeUtenforKorpusTekst, KildeUtenforKorpusLenke, KildeUtenforKorpusType,
+        KildeUtenforKorpusDokumentasjon, Kunnskapsstatus, Begrunnelse, Tolkningsargumenter,
+        string.IsNullOrWhiteSpace(Status) ? RegelIde.Data.Strukturkanter.ManueltForeslatt : Status,
+        string.IsNullOrWhiteSpace(OppdagelsesKilde) ? "manuell" : OppdagelsesKilde, Kommentar, GyldigFra, GyldigTil);
+}
+
+/// <summary>[Ny, issue #378 A2] «Marker som generisk», valgfritt med binding for kandidatens rettskilde.</summary>
+public sealed record MarkerGeneriskRequest(NavneformBindingRequest? Binding);
+
+/// <summary>[Ny, issue #378] Avvisning av en binding — valgfri begrunnelse.</summary>
+public sealed record AvvisNavneformBindingRequest(string? Begrunnelse);
+
+/// <summary>[Ny, issue #378 B4] Opprett (eller finn) en generisk navneform for en term.</summary>
+public sealed record GeneriskNavneformRequest(string Term);

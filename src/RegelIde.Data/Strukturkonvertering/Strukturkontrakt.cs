@@ -58,6 +58,16 @@ public static partial class Strukturkontrakt
     /// <summary>[Ny, issue #341] Kompetansetypen når uttrykket ikke kan typebestemmes.</summary>
     public const string Ukjent = "ukjent";
 
+    /// <summary>
+    /// [Ny, issue #378 C9, Johann 2026-10-15] Områdesammensetning har ÉN retning: O <c>bestar_av</c> (helheten → delen, fylke → kommune).
+    /// Et utsagn <c>sammensetning_omrade / del_av</c> (delen → helheten) er det samme utsagnet sett fra den andre enden, og snus her til
+    /// <c>bestar_av</c> med fra og til byttet. Brukes av forslagslasteren (KI-laget og eldre utdata kan fortsatt gi <c>del_av</c>) og av
+    /// målingen mot fasiten, der sameloven og domstolloven har <c>del_av</c>-rader. Alt annet returneres uendret — også relasjon
+    /// <c>del_av</c> (organtilhørighet G, en helt annen ting).
+    /// </summary>
+    public static StrukturUtsagn NormaliserOmradesammensetning(StrukturUtsagn u) =>
+        u.Kategori == "sammensetning_omrade" && u.Type == "del_av" ? u with { Type = "bestar_av", Fra = u.Til, Til = u.Fra } : u;
+
     /// <summary>[Ny, issue #341] FORMAT.md <c>utsagn.normform</c> — samme liste som <see cref="Strukturkanter.Normformer"/>.</summary>
     public static IReadOnlyList<string> Normformer => Strukturkanter.Normformer;
 

@@ -126,8 +126,7 @@ Alle typer fra FORMAT.md-listene som står i fasiten eller som et av lagene pred
 | F oppgave / kontrolloppgave | 1 | 0 | – | 0,0 % | 0 | – | 0,0 % | – | 0,0 % | 0 | 0 |
 | M medlemskap / medlem_av | 29 | 0 | – | 0,0 % | 22 | 4,5 % | 3,4 % | 4,5 % | 3,4 % | 0 | 1 |
 | M medlemskap / inngar_i | 18 | 0 | – | 0,0 % | 0 | – | 0,0 % | – | 0,0 % | 0 | 0 |
-| O sammensetning_omrade / bestar_av | 108 | 75 | 93,3 % | 64,8 % | 11 | 0,0 % | 0,0 % | 81,4 % | 64,8 % | 70 | 0 |
-| O sammensetning_omrade / del_av | 69 | 47 | 83,0 % | 56,5 % | 0 | – | 0,0 % | 83,0 % | 56,5 % | 39 | 0 |
+| O sammensetning_omrade / bestar_av | 177 | 122 | 89,3 % | 61,6 % | 11 | 0,0 % | 0,0 % | 82,0 % | 61,6 % | 109 | 0 |
 | A ansvarsomrade / har_ansvarsomrade | 379 | 357 | 100,0 % | 94,2 % | 26 | 0,0 % | 0,0 % | 93,2 % | 94,2 % | 357 | 0 |
 | A ansvarsomrade / har_sete_i | 65 | 62 | 100,0 % | 95,4 % | 0 | – | 0,0 % | 100,0 % | 95,4 % | 62 | 0 |
 | A ansvarsomrade / har_jurisdiksjon | 3 | 0 | – | 0,0 % | 16 | 0,0 % | 0,0 % | 0,0 % | 0,0 % | 0 | 0 |
@@ -253,10 +252,9 @@ Eksempler (én fra hver kategori i tur, inntil 20):
 |---|---:|---:|---:|---:|
 | A ansvarsomrade / har_ansvarsomrade | 379 | 379 | 22 | 22 |
 | K kompetanse / normgivningskompetanse | 208 | 31 | 25 | 16 |
+| O sammensetning_omrade / bestar_av | 177 | 177 | 68 | 68 |
 | K kompetanse / vedtakskompetanse | 144 | 51 | 83 | 36 |
-| O sammensetning_omrade / bestar_av | 108 | 108 | 38 | 38 |
 | K kompetanse / oppnevningskompetanse | 82 | 64 | 75 | 59 |
-| O sammensetning_omrade / del_av | 69 | 69 | 30 | 30 |
 | A ansvarsomrade / har_sete_i | 65 | 65 | 3 | 3 |
 | R relasjon / rapporterer_til | 31 | 21 | 31 | 21 |
 | M medlemskap / medlem_av | 29 | 28 | 29 | 28 |
@@ -281,5 +279,6 @@ Eksempler (én fra hver kategori i tur, inntil 20):
 | G organsammensetning / har_organ | 10 | 8 | 10 | 8 |
 | P plikt / konsultasjonsplikt | 10 | 10 | 10 | 10 |
 | R relasjon / radgir | 10 | 8 | 10 | 8 |
-| … 168 typer til | 355 | | | |
+| annet kompetanse / annet:forkynningskompetanse | 9 | 9 | 9 | 9 |
+| … 167 typer til | 346 | | | |
 

@@ -568,9 +568,11 @@ export interface StrukturforslagRapport {
   rettskildeId: string; rettskildeTittel: string; lag: 'monster' | 'ki'; oppdagelseskilde: string; noderLest: number; utsagnTotalt: number;
   perKategori: ForslagKategoritall[];
   ikkeLastetPerArsak: { arsak: string; tekst: string; antall: number; eksempler: ForslagsutfallRad[] }[];
-  uloesteAktorer: { tekstform: string; arsak: string; antallUtsagn: number; navnekandidatId: string | null; treff: string[] }[];
+  uloesteAktorer: { tekstform: string; arsak: string; antallUtsagn: number; navnekandidatId: string | null; treff: string[]; status: Aktorstatus | null }[];
   rader: ForslagsutfallRad[];
   kiInputTokens: number | null; kiOutputTokens: number | null; kiKastedeRader: number | null;
+  /** [Ny, issue #378 A3] Aktørene per status — samme klassifisering som aktørsveipet. */
+  aktorerPerStatus: { status: Aktorstatus; antall: number }[];
 }
 
 /** [Ny, issue #367 AC2] Godkjenning (strukturkant.status). Før #367: 'foreslatt_av_ai' | 'validert'. */
@@ -785,7 +787,9 @@ export interface HardslettVirksomhetKandidaterResultatDto {
  * MERK skillet: dette forklarer en LEGITIM streng som faktisk står i lovteksten. En regex-ARTEFAKT
  * («Ø Suldal kommune») er et annet problem, som rettes med PATCH /api/navnekandidater/{id}.
  */
-export type Navneformgrunn = 'gjeldende' | 'utgatt' | 'kortform' | 'feilskriving' | 'parallellnavn';
+export type Navneformgrunn = 'gjeldende' | 'utgatt' | 'kortform' | 'feilskriving' | 'parallellnavn'
+  // [Ny, issue #378] Generisk omtale — én per term for hele korpuset, uten virksomhet. Velges aldri i NavneformgrunnVelger.
+  | 'generisk';
 
 /**
  * [Ny, issue #310 «nodetype-akse», 2026-10-07, docs/33 §4.1–4.2] Nodetypene et begrep med gruppefunksjon
@@ -2424,3 +2428,51 @@ export interface VisningsinnstillingInput {
 }
 
 
+
+// ---------- [Ny, issue #378] Aktørsveip, generiske navneformer og bindinger ----------
+
+/** [Ny, issue #378 A1] Aktørstatus i aktørsveipet og lasterapporten — speilet av `Aktorstatus` i RegelIde.Data. */
+export type Aktorstatus = 'kjent' | 'ny_navneform_for_kjent_aktor' | 'ny_aktor' | 'generisk' | 'flertydig';
+
+export interface AktorsveipRad {
+  aktorId: string; tekstform: string; varianter: string[]; status: Aktorstatus; forekomster: number; lastbareForekomster: number;
+  eidEksempel: string; treff: string[]; kandidater: string[]; antallKandidater: number; generiskNavneformId: string | null;
+  bundneForekomster: number; foreslatteBindinger: number; referent: StrukturnodeDto | null; navnekandidatId: string | null;
+}
+export interface AktorsveipRapport {
+  rettskildeId: string; rettskildeTittel: string; lag: 'monster' | 'ki'; noderLest: number; utsagnTotalt: number; aktorerTotalt: number;
+  perStatus: { status: Aktorstatus; antall: number }[]; aktorer: AktorsveipRad[]; navnekandidaterSkrevet: boolean;
+}
+
+/** [Ny, issue #378 B5] Én binding av en generisk navneform i én rettskilde. */
+export interface NavneformBindingDto {
+  id: string; navneformId: string; term: string; rettskildeId: string; rettskildeTittel: string;
+  paragrafspenn: ParagrafspennParDto[]; referent: StrukturnodeDto;
+  hjemmelRettskildeId: string | null; hjemmelEid: string | null;
+  kildeUtenforKorpusTekst: string | null; kildeUtenforKorpusLenke: string | null;
+  kildeUtenforKorpusType: KildeUtenforKorpusType | null; kildeUtenforKorpusDokumentasjon: KildeUtenforKorpusDokumentasjon | null;
+  kunnskapsstatus: Kunnskapsstatus | null; begrunnelse: string | null; tolkningsargumenter: Tolkningsargument[] | null;
+  status: Godkjenning; oppdagelsesKilde: string; kommentar: string | null; avvisningBegrunnelse: string | null;
+  opprettetAv: string; opprettetTidspunkt: string; sistEndretAv: string | null; sistEndretTidspunkt: string | null;
+  /** [Ny, issue #378, Johanns beslutning 2026-10-16] Bindingens egen gyldighet (ISO-dato). Null = åpen ende. */
+  gyldigFra: string | null; gyldigTil: string | null;
+}
+/** [Ny, issue #378 AC7] «Hvor brukes ‹styret›, og hva betyr det i hver rettskilde?» */
+export interface GeneriskNavneformOversikt {
+  navneformId: string; term: string; antallTagger: number;
+  rettskilder: { rettskildeId: string; rettskildeTittel: string; antallTagger: number; bindinger: NavneformBindingDto[] }[];
+}
+/** [Ny, issue #378 B6] Oppløsningen av én tagg mot en generisk navneform. */
+export interface GeneriskTaggOppslag {
+  taggId: string; navneformId: string; status: 'bundet' | 'ubundet' | 'flertydig'; bindingId: string | null; referent: StrukturnodeDto | null;
+}
+/** [Ny, issue #378 B5] Bindingen veiviseren og API-et sender. */
+export interface NavneformBindingRequest {
+  navneformId?: string; rettskildeId?: string; tilVirksomhetId: string | null; tilBegrepId: string | null;
+  paragrafspenn: ParagrafspennParDto[]; hjemmelRettskildeId: string | null; hjemmelEid: string | null;
+  kildeUtenforKorpusTekst: string | null; kildeUtenforKorpusLenke: string | null;
+  kildeUtenforKorpusType: KildeUtenforKorpusType | null; kildeUtenforKorpusDokumentasjon: KildeUtenforKorpusDokumentasjon | null;
+  kunnskapsstatus: Kunnskapsstatus | null; begrunnelse: string | null; tolkningsargumenter: Tolkningsargument[] | null;
+  status: Godkjenning; kommentar: string | null;
+  gyldigFra: string | null; gyldigTil: string | null;
+}

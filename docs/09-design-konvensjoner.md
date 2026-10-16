@@ -1122,6 +1122,23 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
 - **Lasterapporten** viser tall per kategori (nye, fantes som forslag, fantes godkjent, tidligere avvist, dubletter, ikke lastet), årsakene
   til det som ikke ble lastet, aktørene som ble navnekandidater (lenke til veiviseren) og en `info`-melding om de tidligere avviste.
 
+## 38. Aktørsveip og generisk omtale (issue #378, 2026-10-16)
+
+- **Ingen ny side** (#264). Aktørsveipet er knappen «1. Aktørsveip» ved siden av «2. Last forslag» i forslagskøen (§36). Rapporten viser
+  antall per status i en tabell og aktørene i en lukket `Details` med status (`Tag` `neutral` — en klassifisering, §31), treff, binding
+  eller kandidater og lenke til veiviseren. «Legg N i navnekandidatkøen» er et eget, eksplisitt klikk: sveipet i seg selv skriver ingenting.
+- **Veiviseren** får et femte valg i steg 2, «Generisk omtale — «styret», «retten», «departementet»» (`kandidater/GeneriskOmtale.tsx`).
+  Øverst vises hvor termen alt brukes og hva den betyr per rettskilde (AC7), med Godkjenn/Avvis på foreslåtte bindinger i kandidatens
+  rettskilde. Så «Bare marker som generisk» eller «Marker og bind for denne rettskilden»: referent (virksomhet, eller klasse/rolle), spenn
+  (kapittel/paragraf, tomt = hele rettskilden), egen gyldighet («Gjelder fra/til», valgfri — vises som «gjelder fra …» i oversikten), hvor betydningen kommer fra (bestemmelse eller kilde utenfor korpus, `KildeUtenforKorpusVelger`)
+  og kunnskapsstatus (`KUNNSKAPSSTATUS_VISNING`, med begrunnelse og tolkningsargumenter ved fortolkning). **Ingenting forhåndsvelges**
+  (CLAUDE.md §8). En binding registrert i veiviseren er en menneskelig avgjørelse og lagres som godkjent.
+- **`NavneformgrunnTag`** viser `generisk` som «Generisk omtale» i `brand1` — en klassifisering, ikke en status, og alle de andre rollene er
+  tatt (§15). Den finnes bare i visningen, ikke i `NavneformgrunnVelger`: en navneform for én virksomhet kan aldri være generisk.
+- **Taggen i løpeteksten** følger bindingen: «styret» → [Generisk omtale] → referenten for den rettskilden og paragrafen. Uten godkjent
+  binding står den ukoblet — ingen gjettet lenke. `resolveRef` i `TagTekst` har fått et valgfritt tredje argument, taggens id.
+- **Node-etiketter i velgere:** paragrafens `nummer` er alt «§ 10» (ikke prefiks på nytt); ledd vises med paragrafen foran («§ 10 ledd 1»).
+
 ## 37. Oppgave/funksjon (issue #368, 2026-10-15)
 
 - **Oppgavene har egen seksjon** «Oppgaver og funksjoner» i «Myndighet & relasjoner» på VirksomhetDetalj, rett etter «Plikter overfor

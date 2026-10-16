@@ -263,6 +263,10 @@ namespace RegelIde.Data.Migrasjoner
                     b.HasIndex("VirksomhetReferanseId")
                         .HasDatabaseName("ix_begreper_virksomhet_referanse");
 
+                    b.HasIndex(new[] { "Term" }, "ux_begreper_generisk_term")
+                        .IsUnique()
+                        .HasFilter("navneformgrunn = 'generisk' AND entitetsstatus = 'gjeldende'");
+
                     b.HasIndex(new[] { "Term" }, "ux_begreper_nodebegrep_fast_term")
                         .IsUnique()
                         .HasFilter("begrepskategori IN ('gruppe', 'klasse', 'rolle', 'omrade') AND entitetsstatus = 'gjeldende' AND lovkilde_id IS NULL AND omradetype IS NULL");
@@ -283,7 +287,9 @@ namespace RegelIde.Data.Migrasjoner
                         {
                             t.HasCheckConstraint("ck_begreper_begrepskategori", "begrepskategori IS NULL OR begrepskategori IN ('virksomhet', 'gruppe', 'klasse', 'rolle', 'omrade')");
 
-                            t.HasCheckConstraint("ck_begreper_navneformgrunn", "navneformgrunn IS NULL OR navneformgrunn IN ('gjeldende', 'utgatt', 'kortform', 'feilskriving', 'parallellnavn')");
+                            t.HasCheckConstraint("ck_begreper_generisk_uten_referanse", "navneformgrunn IS DISTINCT FROM 'generisk' OR (begrepskategori = 'virksomhet' AND virksomhet_referanse_id IS NULL)");
+
+                            t.HasCheckConstraint("ck_begreper_navneformgrunn", "navneformgrunn IS NULL OR navneformgrunn IN ('gjeldende', 'utgatt', 'kortform', 'feilskriving', 'parallellnavn', 'generisk')");
 
                             t.HasCheckConstraint("ck_begreper_omradekode", "omradekode IS NULL OR omradetype IS NOT NULL");
 
@@ -1806,6 +1812,192 @@ namespace RegelIde.Data.Migrasjoner
                         .HasDatabaseName("ix_lovdata_resynk_kjoringer_status");
 
                     b.ToTable("lovdata_resynk_kjoringer", (string)null);
+                });
+
+            modelBuilder.Entity("RegelIde.Data.NavneformBindingEntitet", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AvvisningBegrunnelse")
+                        .HasColumnType("text")
+                        .HasColumnName("avvisning_begrunnelse");
+
+                    b.Property<string>("Begrunnelse")
+                        .HasColumnType("text")
+                        .HasColumnName("begrunnelse");
+
+                    b.Property<string>("Entitetsstatus")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasDefaultValue("gjeldende")
+                        .HasColumnName("entitetsstatus");
+
+                    b.Property<Guid?>("ErstatterBindingId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("erstatter_binding_id");
+
+                    b.Property<DateOnly?>("GyldigFra")
+                        .HasColumnType("date")
+                        .HasColumnName("gyldig_fra");
+
+                    b.Property<DateOnly?>("GyldigTil")
+                        .HasColumnType("date")
+                        .HasColumnName("gyldig_til");
+
+                    b.Property<string>("HjemmelEid")
+                        .HasColumnType("text")
+                        .HasColumnName("hjemmel_eid");
+
+                    b.Property<Guid?>("HjemmelNodeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("hjemmel_node_id");
+
+                    b.Property<Guid?>("HjemmelRettskildeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("hjemmel_rettskilde_id");
+
+                    b.Property<string>("KildeUtenforKorpusDokumentasjon")
+                        .HasColumnType("text")
+                        .HasColumnName("kilde_utenfor_korpus_dokumentasjon");
+
+                    b.Property<string>("KildeUtenforKorpusLenke")
+                        .HasColumnType("text")
+                        .HasColumnName("kilde_utenfor_korpus_lenke");
+
+                    b.Property<string>("KildeUtenforKorpusTekst")
+                        .HasColumnType("text")
+                        .HasColumnName("kilde_utenfor_korpus_tekst");
+
+                    b.Property<string>("KildeUtenforKorpusType")
+                        .HasColumnType("text")
+                        .HasColumnName("kilde_utenfor_korpus_type");
+
+                    b.Property<string>("Kommentar")
+                        .HasColumnType("text")
+                        .HasColumnName("kommentar");
+
+                    b.Property<string>("Kunnskapsstatus")
+                        .HasColumnType("text")
+                        .HasColumnName("kunnskapsstatus");
+
+                    b.Property<Guid>("NavneformId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("navneform_id");
+
+                    b.Property<string>("OppdagelsesKilde")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasDefaultValue("manuell")
+                        .HasColumnName("oppdagelses_kilde");
+
+                    b.Property<string>("OpprettetAv")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("opprettet_av");
+
+                    b.Property<DateTimeOffset>("OpprettetTidspunkt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("opprettet_tidspunkt")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("ParagrafspennJson")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasDefaultValue("[]")
+                        .HasColumnName("paragrafspenn_json");
+
+                    b.Property<string>("Profilversjon")
+                        .HasColumnType("text")
+                        .HasColumnName("profilversjon");
+
+                    b.Property<Guid>("RettskildeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("rettskilde_id");
+
+                    b.Property<string>("SistEndretAv")
+                        .HasColumnType("text")
+                        .HasColumnName("sist_endret_av");
+
+                    b.Property<DateTimeOffset?>("SistEndretTidspunkt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("sist_endret_tidspunkt");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasDefaultValue("manuelt_foreslatt")
+                        .HasColumnName("status");
+
+                    b.Property<Guid?>("TilBegrepId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("til_begrep_id");
+
+                    b.Property<Guid?>("TilVirksomhetId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("til_virksomhet_id");
+
+                    b.PrimitiveCollection<List<string>>("Tolkningsargumenter")
+                        .HasColumnType("text[]")
+                        .HasColumnName("tolkningsargumenter");
+
+                    b.HasKey("Id")
+                        .HasName("navneform_bindinger_pkey");
+
+                    b.HasIndex("ErstatterBindingId")
+                        .HasDatabaseName("ix_navneform_bindinger_erstatter");
+
+                    b.HasIndex("HjemmelNodeId")
+                        .HasDatabaseName("ix_navneform_bindinger_hjemmel_node");
+
+                    b.HasIndex("HjemmelRettskildeId")
+                        .HasDatabaseName("ix_navneform_bindinger_hjemmel");
+
+                    b.HasIndex("RettskildeId")
+                        .HasDatabaseName("ix_navneform_bindinger_rettskilde");
+
+                    b.HasIndex("TilBegrepId")
+                        .HasDatabaseName("ix_navneform_bindinger_til_begrep");
+
+                    b.HasIndex("TilVirksomhetId")
+                        .HasDatabaseName("ix_navneform_bindinger_til_virksomhet");
+
+                    b.HasIndex(new[] { "NavneformId", "RettskildeId" }, "ix_navneform_bindinger_navneform_rettskilde");
+
+                    b.ToTable("navneform_bindinger", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_navneform_bindinger_avvisning_begrunnelse", "avvisning_begrunnelse IS NULL OR status = 'avvist'");
+
+                            t.HasCheckConstraint("ck_navneform_bindinger_avvist_hvem", "status <> 'avvist' OR (sist_endret_av IS NOT NULL AND sist_endret_tidspunkt IS NOT NULL)");
+
+                            t.HasCheckConstraint("ck_navneform_bindinger_entitetsstatus", "entitetsstatus IN ('gjeldende', 'foreldet')");
+
+                            t.HasCheckConstraint("ck_navneform_bindinger_fortolkning", "kunnskapsstatus IS NULL OR kunnskapsstatus <> 'fortolkning' OR (begrunnelse IS NOT NULL AND cardinality(tolkningsargumenter) > 0)");
+
+                            t.HasCheckConstraint("ck_navneform_bindinger_gyldighet", "gyldig_fra IS NULL OR gyldig_til IS NULL OR gyldig_fra <= gyldig_til");
+
+                            t.HasCheckConstraint("ck_navneform_bindinger_kilde", "(hjemmel_rettskilde_id IS NOT NULL AND hjemmel_eid IS NOT NULL AND kilde_utenfor_korpus_tekst IS NULL AND kilde_utenfor_korpus_lenke IS NULL AND kilde_utenfor_korpus_type IS NULL AND kilde_utenfor_korpus_dokumentasjon IS NULL) OR (hjemmel_rettskilde_id IS NULL AND hjemmel_eid IS NULL AND kilde_utenfor_korpus_tekst IS NOT NULL AND kilde_utenfor_korpus_type IS NOT NULL AND kilde_utenfor_korpus_dokumentasjon IS NOT NULL)");
+
+                            t.HasCheckConstraint("ck_navneform_bindinger_kilde_dokumentasjon", "kilde_utenfor_korpus_dokumentasjon IS NULL OR kilde_utenfor_korpus_dokumentasjon IN ('primaer', 'sekundaer')");
+
+                            t.HasCheckConstraint("ck_navneform_bindinger_kilde_type", "kilde_utenfor_korpus_type IS NULL OR kilde_utenfor_korpus_type IN ('kgl_res', 'instruks', 'tildelingsbrev', 'vedtekter', 'styrevedtak', 'forarbeider', 'nettside_annet', 'register')");
+
+                            t.HasCheckConstraint("ck_navneform_bindinger_kunnskapsstatus", "kunnskapsstatus IS NULL OR kunnskapsstatus IN ('tekstfunn', 'normalisering', 'fortolkning', 'avledet', 'eksternt_dokumentert', 'uavklart', 'omstridt', 'foreldet')");
+
+                            t.HasCheckConstraint("ck_navneform_bindinger_kunnskapsstatus_grunnlag", "(kunnskapsstatus IS NULL OR kunnskapsstatus <> 'eksternt_dokumentert' OR kilde_utenfor_korpus_tekst IS NOT NULL) AND (kunnskapsstatus IS NULL OR kunnskapsstatus NOT IN ('tekstfunn', 'normalisering') OR (hjemmel_rettskilde_id IS NOT NULL AND hjemmel_eid IS NOT NULL)) AND (kunnskapsstatus IS NULL OR kunnskapsstatus <> 'foreldet' OR entitetsstatus = 'foreldet')");
+
+                            t.HasCheckConstraint("ck_navneform_bindinger_referent_en", "(til_virksomhet_id IS NULL) <> (til_begrep_id IS NULL)");
+
+                            t.HasCheckConstraint("ck_navneform_bindinger_status", "status IN ('maskinelt_foreslatt', 'manuelt_foreslatt', 'faglig_vurdert', 'godkjent', 'avvist')");
+
+                            t.HasCheckConstraint("ck_navneform_bindinger_tolkningsargumenter", "tolkningsargumenter IS NULL OR tolkningsargumenter <@ ARRAY['ordlyd', 'kontekst_system', 'formal', 'forarbeider', 'praksis', 'reelle_hensyn', 'antitetisk_analogisk']::text[]");
+                        });
                 });
 
             modelBuilder.Entity("RegelIde.Data.NavnekandidatEntitet", b =>
@@ -4496,6 +4688,46 @@ namespace RegelIde.Data.Migrasjoner
                         .HasForeignKey("KjoringId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("RegelIde.Data.NavneformBindingEntitet", b =>
+                {
+                    b.HasOne("RegelIde.Data.NavneformBindingEntitet", null)
+                        .WithMany()
+                        .HasForeignKey("ErstatterBindingId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("RegelIde.Data.RettskildeNodeEntitet", null)
+                        .WithMany()
+                        .HasForeignKey("HjemmelNodeId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("RegelIde.Data.RettskildeEntitet", null)
+                        .WithMany()
+                        .HasForeignKey("HjemmelRettskildeId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("RegelIde.Data.BegrepEntitet", null)
+                        .WithMany()
+                        .HasForeignKey("NavneformId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("RegelIde.Data.RettskildeEntitet", null)
+                        .WithMany()
+                        .HasForeignKey("RettskildeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("RegelIde.Data.BegrepEntitet", null)
+                        .WithMany()
+                        .HasForeignKey("TilBegrepId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("RegelIde.Data.Virksomhet", null)
+                        .WithMany()
+                        .HasForeignKey("TilVirksomhetId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("RegelIde.Data.NavnekandidatEntitet", b =>

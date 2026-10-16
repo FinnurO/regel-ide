@@ -326,7 +326,7 @@ internal static class Monsterkatalog
 
         // ---- O bestar_av / del_av, A har_sete_i: strukturerte lister i inndelingsforskrifter -------
         Monster("inndeling-kommune-i-fylke",
-            "«kommunene A, B og C i X fylke» → hver kommune er del av X fylke. Samme listeregel som de andre inndelingsmønstrene; «fra og med …»-lister tas ikke.",
+            "«kommunene A, B og C i X fylke» → X fylke består av hver kommune ([ENDRET, #378 C9] var «hver kommune er del av X fylke»). Samme listeregel som de andre inndelingsmønstrene; «fra og med …»-lister tas ikke.",
             "Ikke målt i docs/33 §1. Fylkestilhørigheten står eksplisitt i setningen.",
             Inndeling.KommuneIFylke),
 

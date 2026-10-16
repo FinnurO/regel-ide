@@ -67,14 +67,17 @@ internal static class Inndeling
     private static readonly Regex KommuneIFylkeUttrykk = new(
         @"\bkommunene\s+(?!fra\s+og\s+med\b)(?<liste>\p{Lu}[^:;]*?)\s+i\s+(?<fylke>\p{Lu}[\p{L}\-]*(?:\s+og\s+\p{Lu}[\p{L}\-]*)?\s+fylke)\b", Valg);
 
-    /// <summary>[Ny, #307, 2026-10-07] «kommunene A, B og C i X fylke» → hver kommune <c>del_av</c> «X fylke».</summary>
+    /// <summary>[Ny, #307, 2026-10-07] «kommunene A, B og C i X fylke» → «X fylke» <c>bestar_av</c> hver kommune.
+    /// [ENDRET, issue #378 C9, Johann 2026-10-15] Var «hver kommune <c>del_av</c> X fylke». Områdesammensetningen uttrykkes nå i én
+    /// retning, O <c>bestar_av</c> (fylke → kommune), som i fasitregelen — <c>del_av</c> hadde ingen databasetype (#313) og falt bort ved
+    /// lasting. Samme liste og samme endepunkter; bare retningen og typen er snudd.</summary>
     public static IReadOnlyList<Monsterfunn> KommuneIFylke(string setning)
     {
         var funn = new List<Monsterfunn>();
         foreach (Match m in KommuneIFylkeUttrykk.Matches(setning))
         {
             var fylke = m.Groups["fylke"].Value;
-            funn.AddRange(Navneliste(m.Groups["liste"].Value).Select(k => new Monsterfunn(k, [k], [fylke], null, "positiv")));
+            funn.AddRange(Navneliste(m.Groups["liste"].Value).Select(k => new Monsterfunn(k, [fylke], [k], null, "positiv")));
         }
         return funn;
     }

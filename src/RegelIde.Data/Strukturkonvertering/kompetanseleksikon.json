@@ -36,7 +36,7 @@
     { "id": "oppgave-pase", "uttrykk": ["X skal påse at", "X skal veilede og påse at", "skal X påse at"], "kategori": "oppgave", "type": "kontrolloppgave", "familie": null, "merknad": "Ny i #368 (juristrunden, barnehageloven § 10). Tilsyn og pålegg med egen hjemmel er K (§ 53)." },
     { "id": "oppgave-forvalte", "uttrykk": ["X skal forvalte"], "kategori": "oppgave", "type": "forvaltningsoppgave", "familie": null, "merknad": "Ny i #368 (folketrygdloven § 21-11 a). En ordning som forvaltes er i tillegg R forvaltes_av (#353)." },
     { "id": "har-sete-i", "uttrykk": ["X har (sitt) sete i Y"], "kategori": "ansvarsomrade", "type": "har_sete_i" },
-    { "id": "inndeling-kommune-i-fylke", "uttrykk": ["kommunene A, B og C i X fylke"], "kategori": "sammensetning_omrade", "type": "del_av" },
+    { "id": "inndeling-kommune-i-fylke", "uttrykk": ["kommunene A, B og C i X fylke"], "kategori": "sammensetning_omrade", "type": "bestar_av" },
     { "id": "inndeling-rettskrets", "uttrykk": ["N tingrett … som dekker kommunene A, B og C"], "kategori": "ansvarsomrade", "type": "har_ansvarsomrade" },
     { "id": "inndeling-rettssted", "uttrykk": ["N tingrett, med rettssteder i A og B"], "kategori": "ansvarsomrade", "type": "har_sete_i" },
     { "id": "inndeling-kommuneliste", "uttrykk": ["Navn: kommunene A, B og C i X fylke"], "kategori": "sammensetning_omrade", "type": "bestar_av" },

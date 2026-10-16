@@ -33,8 +33,12 @@ internal static class Strukturmaling
         var fasitAktorer = fasit.Aktorer.ToDictionary(a => a.Id);
         var predAktorer = predikert.Aktorer.ToDictionary(a => a.Id);
 
-        var fasitRader = fasit.Utsagn.Select(u => new Rad(kilde, u, Aktor(fasitAktorer, u.Fra), Aktor(fasitAktorer, u.Til))).ToList();
-        var predRader = predikert.Utsagn.Select(u => new Rad(kilde, u, Aktor(predAktorer, u.Fra), Aktor(predAktorer, u.Til))).ToList();
+        // [ENDRET, issue #378 C9] Områdesammensetning sammenlignes i én retning (bestar_av): fasitens «kommune del_av fylke» er samme
+        // utsagn som mønsterlagets «fylke bestar_av kommune» (Strukturkontrakt.NormaliserOmradesammensetning). Fasitfilene er ikke endret.
+        var fasitRader = fasit.Utsagn.Select(Strukturkontrakt.NormaliserOmradesammensetning)
+            .Select(u => new Rad(kilde, u, Aktor(fasitAktorer, u.Fra), Aktor(fasitAktorer, u.Til))).ToList();
+        var predRader = predikert.Utsagn.Select(Strukturkontrakt.NormaliserOmradesammensetning)
+            .Select(u => new Rad(kilde, u, Aktor(predAktorer, u.Fra), Aktor(predAktorer, u.Til))).ToList();
 
         var fasitPerGruppe = fasitRader.ToLookup(r => r.Gruppe);
         var brukt = new HashSet<Rad>(ReferenceEqualityComparer.Instance);

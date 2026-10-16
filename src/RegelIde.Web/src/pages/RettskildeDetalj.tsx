@@ -5,6 +5,7 @@ import { ApiError, api } from '../api/client';
 import { STRUKTURKANT_KATEGORI_VISNING, nodeHref } from '../strukturkant/StrukturkantTabell';
 import type {
   BegrepDto,
+  GeneriskTaggOppslag,
   DokumentReferanseDto,
   HandbokRettskildeomfangDto,
   NettsideLenkeMedMalDto,
@@ -506,6 +507,13 @@ export default function RettskildeDetalj() {
   // kjeden (`resolveRef`) og som kandidatliste for «Koble til …» i virksomhet-laget.
   const [navneformPerId, setNavneformPerId] = useState<Map<string, BegrepDto>>(new Map());
   const [rotnodeId, setRotnodeId] = useState<string | undefined>(undefined);
+  // [Ny, issue #378 B6] Hva taggene mot GENERISKE navneformer («styret», «departementet») betyr i denne rettskilden — bindingen avgjør,
+  // per paragraf. Nøklet på taggens id. Tomt kart = ingen generiske tagger (eller ikke lastet ennå): taggen står da ukoblet.
+  const [generiskPerTagg, setGeneriskPerTagg] = useState<Map<string, GeneriskTaggOppslag>>(new Map());
+  useEffect(() => {
+    if (!id) return;
+    api.hentGeneriskeTagger(id).then((r) => setGeneriskPerTagg(new Map(r.map((o) => [o.taggId, o])))).catch(() => setGeneriskPerTagg(new Map()));
+  }, [id, tagger]);
   useEffect(() => {
     Promise.all([
       api.hentBegreper(), api.hentTjenester(), api.hentVilkarListe(), api.hentRegelnodeListe(),
@@ -561,6 +569,7 @@ export default function RettskildeDetalj() {
   function resolveRef(
     kind: TagKindId,
     ref: string,
+    taggId?: string,
   ):
     | { label: string; href: string; mellomledd?: ReactNode; mellomleddTekst?: string; titleTillegg?: string }
     | undefined {
@@ -580,6 +589,18 @@ export default function RettskildeDetalj() {
     // kortform og ikke virksomhetens offisielle navn.
     if (kind === 'virksomhet') {
       const navneform = navneformPerId.get(ref);
+      // [Ny, issue #378 B6] Generisk navneform: kjeden er «styret» → [Generisk omtale] → det bindingen sier for denne rettskilden og
+      // paragrafen. Uten godkjent binding står taggen ukoblet (ingen gjettet lenke).
+      if (navneform?.navneformgrunn === 'generisk') {
+        const o = taggId ? generiskPerTagg.get(taggId) : undefined;
+        if (!o?.referent) return undefined;
+        return {
+          label: o.referent.navn,
+          href: o.referent.type === 'virksomhet' ? `/virksomheter/${o.referent.id}` : `/begreper/${o.referent.id}`,
+          mellomledd: <NavneformgrunnTag grunn="generisk" />,
+          mellomleddTekst: `${navneform.term} (generisk omtale, bundet for denne rettskilden)`,
+        };
+      }
       if (!navneform?.virksomhetReferanseId) return undefined;
       // [ENDRET, tagg-synlig-runden, 2026-09-08] Hovedleddet er den GJELDENDE NAVNEFORMEN («Karasjok
       // kommune»), ikke virksomhetens tospråklige registernavn («Karasjoga gielda / Karasjok
