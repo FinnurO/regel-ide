@@ -37,7 +37,7 @@ public class KlasseKommuneMigreringTests
             Assert.Equal(begreperFor + 1, await etter.Begreper.CountAsync());
             Assert.Equal(proveniensFor + 1, await etter.Proveniens.CountAsync());
             var klasse = await etter.Begreper.SingleAsync(b => b.Medlemskapsregel != null);
-            Assert.Equal((Klasseregler.KommuneKlasseId, "kommune", Nodetyper.Klasse, Strukturkanter.Tekstfunn, Klasseregler.KommunelovenParagraf21Eid),
+            Assert.Equal((Klasseregler.KommuneKlasseId, "kommune", Nodetyper.Klasse, Strukturkanter.Tekstfunn, Klasseregler.KommunelovenInndelingEid),
                 (klasse.Id, klasse.Term, klasse.Begrepskategori, klasse.Kunnskapsstatus, klasse.LovreferanseEid));
             Assert.Null(klasse.LovkildeId);
         }

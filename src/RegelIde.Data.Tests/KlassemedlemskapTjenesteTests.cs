@@ -5,7 +5,7 @@ namespace RegelIde.Data.Tests;
 
 /// <summary>
 /// [Ny, issue #384, Johanns beslutning 2026-10-16] Den felles klassen «kommune» med utledet medlemskap, mot ekte embedded Postgres. Spørsmålene:
-/// finnes klassen etter migrasjonen, med hjemmel (kommuneloven § 2-1) og kunnskapsstatus? Hvem er medlem — og er svaret UTLEDET av
+/// finnes klassen etter migrasjonen, med hjemmel (kommuneloven § 2-1 første ledd) og kunnskapsstatus? Hvem er medlem — og er svaret UTLEDET av
 /// områderegisteret (ingen M-kanter lagret), med territoriekanten som premiss? Blir en tingrett med ansvarsområde til kommunen holdt utenfor,
 /// og blir en kommune uten (eller med flere) rettssubjekt et synlig hull, ikke et gjettet medlem? Og bruker pliktoppslaget medlemskapet?
 /// <para>Testbasen er delt: kommunenumrene er unike per test, og påstandene gjelder bare testens egne rader.</para>
@@ -55,7 +55,7 @@ public class KlassemedlemskapTjenesteTests
         Assert.NotNull(klasse);
         Assert.Equal(Klasseregler.KommuneKlasseId, klasse.Id);
         Assert.Equal(("kommune", Nodetyper.Klasse, (Guid?)null), (klasse.Term, klasse.Begrepskategori, klasse.LovkildeId));
-        Assert.Equal(Klasseregler.KommunelovenParagraf21Eid, klasse.LovreferanseEid);
+        Assert.Equal(Klasseregler.KommunelovenInndelingEid, klasse.LovreferanseEid);
         Assert.Equal(Strukturkanter.Tekstfunn, klasse.Kunnskapsstatus);
         Assert.Equal(1, await db.Proveniens.CountAsync(p => p.EntitetId == klasse.Id && p.EndretAv == KlasseKommuneMigrering.EndretAv));
 
@@ -99,7 +99,7 @@ public class KlassemedlemskapTjenesteTests
 
         var svar = await tjeneste.UtledAsync(Klasseregler.KommuneKlasseId);
         Assert.NotNull(svar);
-        Assert.Equal((Strukturkanter.Avledet, Strukturkanter.Tekstfunn, Klasseregler.KommunelovenParagraf21Eid),
+        Assert.Equal((Strukturkanter.Avledet, Strukturkanter.Tekstfunn, Klasseregler.KommunelovenInndelingEid),
             (svar.Kunnskapsstatus, svar.KlassensKunnskapsstatus, svar.Hjemmel));
         var medlem = Assert.Single(svar.Medlemmer, m => m.Kommunenummer == k1);
         Assert.Equal((kommune1, omr1, territorie1, true), (medlem.VirksomhetId, medlem.OmradeId, medlem.PremissKantId, medlem.Validert));

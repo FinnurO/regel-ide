@@ -1077,15 +1077,17 @@ håndhever. `rettskilde_id` på bindingen er versjonen den ble registrert og vur
 - **Alt som leser bindinger, ser hele verket:** oppslaget, konflikten «samme virkeområde», listen per rettskilde, oversikten (AC7) og
   virksomhetens «brukt i».
 - **En binding for hele rettskilden** følger verket uten videre.
-- **En binding med paragrafspenn** følger bare når spennet dekker nøyaktig de samme eId-ene i begge versjonene. Ellers er oppslaget
-  `spenn_endret` for navneformen i den versjonen. Da finnes ingen referent, og en bredere binding brukes heller ikke i stedet: teksten kan
-  være omnummerert (CLAUDE.md §8).
+- **En binding med paragrafspenn** følger bare når spennet dekker nøyaktig de samme eId-ene i begge versjonene. Ellers brukes den ikke i den
+  nye versjonen, og det gjettes ikke hvilke noder den nå skulle dekke (teksten kan være omnummerert, CLAUDE.md §8).
+- **[ENDRET, Johanns beslutning på PR #388] En binding som ikke kan flyttes, blokkerer bare seg selv.** De andre gyldige bindingene for
+  navneformen brukes som før (smaleste spenn vinner). Dekker ingen av dem noden, er oppslaget `spenn_endret` med den uflyttbare bindingen,
+  ikke `ubundet`.
 - **Bindinger som ikke kan flyttes, listes** (`GET /api/navneform-bindinger/ikke-flyttbare`). Et menneske registrerer dem på nytt: avvis
   den gamle, og opprett en ny mot den gjeldende versjonen.
 - **Lokalt 2026-10-16:** 0 bindinger, altså 0 å flytte og 0 på listen.
 
 **[Ny, issue #384] Den felles klassen «kommune»** er referenten for den generiske navneformen «kommunen». Klassen
-(`Klasseregler.KommuneKlasseId`) er hjemlet i kommuneloven § 2-1 med kunnskapsstatus `tekstfunn`, og migrasjonen
+(`Klasseregler.KommuneKlasseId`) er hjemlet i kommuneloven § 2-1 første ledd («Norge er inndelt i kommuner og fylkeskommuner …»; [ENDRET, Johanns beslutning på PR #388: leddet, ikke hele paragrafen]) med kunnskapsstatus `tekstfunn`, og migrasjonen
 `KlasseKommuneOgUtledetMedlemskap` oppretter den.
 - **Medlemskapet utledes og lagres ikke** (`begreper.medlemskapsregel = 'omraderegister_kommune'`, `KlassemedlemskapTjeneste`). Medlemmene
   er kommunene i områderegisteret med sitt rettssubjekt. Regelen er den samme som rubrikken «kommune» i tilhørighetsoppslaget (#312).

@@ -321,8 +321,9 @@ public class GeneriskNavneformTjenesteTests
 
     /// <summary>
     /// [Ny, issue #384 AC3] Ingen gjetting: er paragrafen i spennet borte i den nye versjonen (her: § 1-4a omnummerert til § 1-4b), kan
-    /// bindingen ikke flyttes entydig. Den brukes ikke i versjon 2 — og heller ikke den bredere bindingen i stedet (spenn_endret) — og den
-    /// listes. I versjon 1 gjelder den fortsatt. Når den er avvist, gjelder hele-rettskilden-bindingen igjen.
+    /// bindingen ikke flyttes entydig. Den brukes ikke i versjon 2, og den listes. I versjon 1 gjelder den fortsatt.
+    /// [ENDRET, Johanns beslutning på PR #388] Den blokkerer bare seg selv: hele-rettskilden-bindingen for samme navneform brukes i versjon 2,
+    /// også for nodene den smale dekket. En navneform som BARE hadde den smale bindingen, gir spenn_endret (ikke ubundet), uten referent.
     /// </summary>
     [Fact]
     public async Task Binding_med_spenn_som_ikke_finnes_i_ny_versjon_listes_og_gjettes_ikke()
@@ -344,6 +345,11 @@ public class GeneriskNavneformTjenesteTests
         var smal = await tjeneste.OpprettBindingAsync(new NyNavneformBinding(navneform.Id, v1, Kantnode.Virksomhet(b.Id),
             Paragrafspenn: [new ParagrafspennPar(p14a.Eid, null)], HjemmelRettskildeId: v1, HjemmelEid: p14a.Eid,
             Kunnskapsstatus: "tekstfunn", Status: "godkjent"), "Test");
+        // En annen navneform med BARE en smal binding på § 1-4a.
+        var (alene, _) = await tjeneste.OpprettEllerFinnAsync($"styret{Guid.NewGuid():N}", "Test");
+        var smalAlene = await tjeneste.OpprettBindingAsync(new NyNavneformBinding(alene.Id, v1, Kantnode.Virksomhet(b.Id),
+            Paragrafspenn: [new ParagrafspennPar(p14a.Eid, null)], HjemmelRettskildeId: v1, HjemmelEid: p14a.Eid,
+            Kunnskapsstatus: "tekstfunn", Status: "godkjent"), "Test");
 
         var resynk = await import.ImporterMedUtfallAsync(LovdataKonverterer.Konverter(Isolert(datokode, Omnummerert), new DateOnly(2026, 10, 16)));
         Assert.Equal(RettskildeImportUtfall.NyVersjon, resynk.Utfall);
@@ -351,15 +357,20 @@ public class GeneriskNavneformTjenesteTests
         Assert.False(await db.RettskildeNoder.AnyAsync(n => n.RettskildeId == v2 && n.Eid == p14a.Eid));
         var p14b = await db.RettskildeNoder.SingleAsync(n => n.RettskildeId == v2 && n.NodeType == "paragraf" && n.Eid.EndsWith("/§1-4b"));
 
-        // Versjon 2: ingen referent — verken den smale (spennet finnes ikke) eller den brede i stedet (teksten kan ha flyttet).
+        // Versjon 2: den smale brukes ikke, men den blokkerer bare seg selv — hele-rettskilden-bindingen gjelder overalt.
         foreach (var eid in new[] { p14b.Eid, forste.Eid })
         {
             var o = await tjeneste.LosOppAsync(navneform.Id, v2, eid);
-            Assert.Equal((GeneriskOppslagstatus.SpennEndret, smal.Id), (o.Status, o.Binding!.Id));
-            Assert.Null(o.Referent);
+            Assert.Equal((GeneriskOppslagstatus.Bundet, hele.Id, a.Id), (o.Status, o.Binding!.Id, o.Referent!.VirksomhetId!.Value));
         }
+        // Navneformen med bare den smale bindingen: spenn_endret, uten referent — ikke ubundet og ikke gjettet.
+        var aleneOppslag = await tjeneste.LosOppAsync(alene.Id, v2, p14b.Eid);
+        Assert.Equal((GeneriskOppslagstatus.SpennEndret, smalAlene.Id), (aleneOppslag.Status, aleneOppslag.Binding!.Id));
+        Assert.Null(aleneOppslag.Referent);
         // Versjon 1 (der den ble registrert): som før.
         Assert.Equal(b.Id, (await tjeneste.LosOppAsync(navneform.Id, v1, p14a.Eid)).Referent!.VirksomhetId);
+        Assert.Equal(b.Id, (await tjeneste.LosOppAsync(alene.Id, v1, p14a.Eid)).Referent!.VirksomhetId);
+        Assert.Contains(await tjeneste.IkkeFlyttbareAsync(), x => x.Binding.Id == smalAlene.Id);
         // Listen.
         var ikkeFlyttbar = Assert.Single(await tjeneste.IkkeFlyttbareAsync(), x => x.Binding.NavneformId == navneform.Id);
         Assert.Equal((smal.Id, v2, 2), (ikkeFlyttbar.Binding.Id, ikkeFlyttbar.GjeldendeRettskildeId, ikkeFlyttbar.GjeldendeVersjon));
@@ -370,5 +381,6 @@ public class GeneriskNavneformTjenesteTests
         var etter = await tjeneste.LosOppAsync(navneform.Id, v2, p14b.Eid);
         Assert.Equal((GeneriskOppslagstatus.Bundet, hele.Id), (etter.Status, etter.Binding!.Id));
         Assert.DoesNotContain(await tjeneste.IkkeFlyttbareAsync(), x => x.Binding.NavneformId == navneform.Id);
+        Assert.Contains(await tjeneste.IkkeFlyttbareAsync(), x => x.Binding.Id == smalAlene.Id);
     }
 }

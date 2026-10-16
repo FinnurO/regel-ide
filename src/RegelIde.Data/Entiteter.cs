@@ -1421,7 +1421,7 @@ public sealed class BegrepEntitet
     /// <c>begrepskategori = 'klasse'</c>. Én gjeldende klasse per regel (<c>ux_begreper_medlemskapsregel</c>): klassen finnes på
     /// regelen, ikke på navnet. NULL = medlemskapet registreres for hånd (M-kanter), som før.
     /// <para>
-    /// <c>omraderegister_kommune</c>: klassen «kommune» (kommuneloven § 2-1). Medlemmene er kommunene i områderegisteret (Kartverkets
+    /// <c>omraderegister_kommune</c>: klassen «kommune» (kommuneloven § 2-1 første ledd). Medlemmene er kommunene i områderegisteret (Kartverkets
     /// inndeling, docs/33 §4.1) med sitt rettssubjekt — beregnet av <see cref="KlassemedlemskapTjeneste"/> hver gang, aldri lagret
     /// (samme prinsipp som den avledede domstolkjeden i #345). Hvert medlemskap har kunnskapsstatus <c>avledet</c> med territoriekanten
     /// som premiss.

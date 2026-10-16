@@ -541,8 +541,8 @@ internal sealed class Aktorklassifiserer(
                 : await db.Begreper.Where(x => x.Id == r.BegrepId).Select(x => new KantnodeVisning("begrep", x.Id, x.Term, x.Begrepskategori)).FirstOrDefaultAsync(ct);
             return (Aktorstatus.Kjent, r, v, o.AntallForeslatteBindinger);
         }
-        // [ENDRET, issue #384] spenn_endret (en godkjent binding kunne ikke flyttes til denne versjonen) gir generisk: omtalen er ikke
-        // bundet her før bindingen er registrert på nytt.
+        // [ENDRET, issue #384] spenn_endret (ingen gyldig binding dekker noden, og en godkjent binding kunne ikke flyttes til denne
+        // versjonen) gir generisk: omtalen er ikke bundet her før bindingen er registrert på nytt.
         return (o.Status == GeneriskOppslagstatus.Flertydig ? Aktorstatus.Flertydig : Aktorstatus.Generisk, null, null, o.AntallForeslatteBindinger);
     }
 

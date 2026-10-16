@@ -15,7 +15,7 @@ import { usePaginering } from '../tabell/usePaginering';
  * med 357 medlemmer (CLAUDE.md §9: systemtilstand er ikke en påstand om verden).
  *
  * Følger GruppeMedlemmer (docs/09 §16): `Card` alltid rendret, `null` = laster ⇒ `Spinner`, kompakt tabell, paginert (§9). Kunnskapsstatus
- * vises med `KunnskapsstatusTag` (§35): klassen selv (tekstfunn, kommuneloven § 2-1) og hvert medlemskap (avledet). Kommuner som ikke
+ * vises med `KunnskapsstatusTag` (§35): klassen selv (tekstfunn, kommuneloven § 2-1 første ledd) og hvert medlemskap (avledet). Kommuner som ikke
  * kunne gjøres til medlem, står i en `warning`-`Alert` — de er ikke med i tabellen, og ingen er valgt for dem.
  */
 export function UtledetMedlemskap({ begrepId, rettskilder }: { begrepId: string; rettskilder: RettskildeSammendrag[] }) {
@@ -57,7 +57,7 @@ export function UtledetMedlemskap({ begrepId, rettskilder }: { begrepId: string;
               </Paragraph>
               <span title="Klassen selv">Klassen:</span> <KunnskapsstatusTag status={svar.klassensKunnskapsstatus} />
               {svar.hjemmel && (hjemmelLenke
-                ? <Link asChild><RouterLink to={hjemmelLenke}>kommuneloven § 2-1</RouterLink></Link>
+                ? <Link asChild><RouterLink to={hjemmelLenke}>kommuneloven § 2-1 første ledd</RouterLink></Link>
                 : <Metatekst as="span" style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>{svar.hjemmel}</Metatekst>)}
               <span title="Hvert medlemskap">Medlemskapet:</span> <KunnskapsstatusTag status={svar.kunnskapsstatus} />
             </div>

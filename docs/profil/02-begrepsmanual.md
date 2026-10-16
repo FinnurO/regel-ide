@@ -197,7 +197,7 @@ og målingen i docs/33 §4.7. Ingen reell uenighet gikk til Johann; de åpne sp�
 
 En klasse er **ekstensjonal** når medlemmene er listet med hjemmel, som M-kanter (docs/33 §4.2). Den er **utledet** når en kilde utenfor
 modellen alt sier hvem medlemmene er. «kommune» er den første utledede klassen. Kommunene i Norge er hver et eget rettssubjekt etter
-kommuneloven § 2-1. Hvilke kommuner som finnes, står i områderegisteret (Kartverkets inndeling, #312). Medlemskapet lagres derfor ikke en
+kommuneloven § 2-1 annet ledd. Landet er inndelt i kommuner etter første ledd, og det er hjemmelen for klassen. Hvilke kommuner som finnes, står i områderegisteret (Kartverkets inndeling, #312). Medlemskapet lagres derfor ikke en
 gang til. Det regnes ut, slik den avledede domstolkjeden i #345 gjør.
 
 ### Felt
@@ -205,7 +205,7 @@ gang til. Det regnes ut, slik den avledede domstolkjeden i #345 gjør.
 | Felt | Verdi | Merknad |
 |---|---|---|
 | `begrepskategori` | `klasse` | Fast, nasjonal (ingen lovkilde, #298) |
-| `lovreferanse_eid` | kommuneloven § 2-1 | Hjemmelen for klassen |
+| `lovreferanse_eid` | kommuneloven § 2-1 første ledd | Hjemmelen for klassen: «Norge er inndelt i kommuner og fylkeskommuner …» (Johann, PR #388) |
 | `kunnskapsstatus` | `tekstfunn` | Gjelder klassen selv. NULL på alle andre begreper (ikke vurdert) |
 | `medlemskapsregel` | `omraderegister_kommune` | Lukket vokabular. Én gjeldende klasse per regel |
 | medlemskapet | beregnet | Kunnskapsstatus `avledet`. Premisset er territoriekanten (A `har_ansvarsomrade` fra kommunen til eget område) |
@@ -233,7 +233,9 @@ bare én konsolidert versjon. `rettskilde_id` er versjonen bindingen ble registr
 
 - **Følger verket:** en binding for hele rettskilden. En binding med paragrafspenn følger når spennet dekker de samme eId-ene i den nye
   versjonen.
-- **Følger ikke, og listes:** et paragrafspenn som er borte, eller som dekker andre noder. Oppslaget gir `spenn_endret` uten referent. En
-  bredere binding brukes heller ikke i stedet. Et menneske registrerer bindingen på nytt.
+- **Følger ikke, og listes:** et paragrafspenn som er borte, eller som dekker andre noder. Bindingen brukes ikke i den nye versjonen, og et
+  menneske registrerer den på nytt.
+- **Blokkerer bare seg selv** (Johann, PR #388): de andre gyldige bindingene for navneformen brukes som før. Oppslaget gir `spenn_endret`,
+  uten referent, bare for en node ingen av dem dekker.
 - **Grense mot hjemmelen:** hjemmelen peker fortsatt på versjonen bindingen ble vurdert mot. Strukturkantene flagges med «hjemmel endret»
   (#367), men bindingene gjør ikke det ennå. Det hører ikke til #384.

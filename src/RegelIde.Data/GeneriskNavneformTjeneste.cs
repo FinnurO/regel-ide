@@ -28,7 +28,8 @@ public static class GeneriskOppslagstatus
     public const string Flertydig = "flertydig";
     /// <summary>[Ny, issue #384] En godkjent binding med paragrafspenn ble registrert mot en annen versjon av verket, og spennet dekker ikke
     /// de samme nodene i denne versjonen (en eId er borte, eller nodene i spennet er andre). Bindingen kan ikke flyttes entydig, og hva
-    /// den sa om de nodene, gjettes ikke — ingen referent for navneformen i denne versjonen før et menneske har registrert den på nytt.
+    /// den sa om de nodene, gjettes ikke. [ENDRET, Johanns beslutning på PR #388 2026-10-16] Den blokkerer bare seg selv: de andre gyldige
+    /// bindingene for navneformen brukes som før, og statusen gis bare for en node ingen av dem dekker.
     /// <see cref="GeneriskOppslag.Binding"/> er bindingen som ikke kunne flyttes.</summary>
     public const string SpennEndret = "spenn_endret";
 }
@@ -92,8 +93,9 @@ public sealed record GeneriskTaggOppslag(Guid TaggId, Guid NavneformId, string S
 /// </para>
 /// <para>
 /// <b>Ingen gjetting ved flytting:</b> en binding for hele rettskilden følger verket uten videre. En binding med paragrafspenn følger
-/// verket bare når spennet dekker nøyaktig de samme eId-ene i den nye versjonen. Ellers er den <see cref="GeneriskOppslagstatus.SpennEndret"/>
-/// i den versjonen, og den listes av <see cref="IkkeFlyttbareAsync"/>.
+/// verket bare når spennet dekker nøyaktig de samme eId-ene i den nye versjonen. Ellers brukes den ikke i den versjonen, og den listes av
+/// <see cref="IkkeFlyttbareAsync"/>. [ENDRET, Johanns beslutning på PR #388] Den blokkerer bare seg selv: de andre gyldige bindingene brukes,
+/// og <see cref="GeneriskOppslagstatus.SpennEndret"/> gis bare for en node ingen av dem dekker.
 /// </para>
 /// </summary>
 public sealed class GeneriskNavneformTjeneste(RegelIdeDbContext db)
@@ -489,9 +491,11 @@ public sealed class GeneriskNavneformTjeneste(RegelIdeDbContext db)
     /// (B6). Bare GODKJENTE bindinger teller; det smaleste spennet som dekker noden vinner. Like smale med ulik referent → flertydig.
     /// [ENDRET, issue #378, Johanns beslutning 2026-10-16] Bare bindinger som gjelder på <paramref name="dato"/> (standard: i dag) teller —
     /// også i tellingen av foreslåtte.
-    /// [ENDRET, issue #384] Bindingene for VERKET teller, uansett hvilken versjon de ble registrert mot. Kan en godkjent binding ikke flyttes
-    /// entydig til denne versjonen, er svaret <see cref="GeneriskOppslagstatus.SpennEndret"/> for hele versjonen: det den sa om nodene, kan
-    /// ha flyttet (omnummerering), så heller ikke en bredere binding brukes i stedet (CLAUDE.md §8).
+    /// [ENDRET, issue #384] Bindingene for VERKET teller, uansett hvilken versjon de ble registrert mot. En godkjent binding som ikke kan
+    /// flyttes entydig til denne versjonen, brukes ikke her. [ENDRET, Johanns beslutning på PR #388 2026-10-16] Den blokkerer bare seg selv:
+    /// de andre gyldige bindingene oppløser som før (smaleste spenn vinner). Dekker ingen av dem noden, er svaret
+    /// <see cref="GeneriskOppslagstatus.SpennEndret"/> med den uflyttbare bindingen — ikke <c>ubundet</c>, for da ville det sett ut som om
+    /// ingen hadde bundet navneformen her. Før rettingen blokkerte én slik binding navneformen i hele versjonen.
     /// </summary>
     public async Task<GeneriskOppslag> LosOppAsync(
         Guid navneformId, Guid rettskildeId, string? eid, CancellationToken ct = default, DateOnly? dato = null)
@@ -506,18 +510,23 @@ public sealed class GeneriskNavneformTjeneste(RegelIdeDbContext db)
         var foreslatte = bindinger.Count(b => b.Status != Strukturkanter.Godkjent);
         var godkjente = bindinger.Where(b => b.Status == Strukturkanter.Godkjent).ToList();
         if (godkjente.Count == 0) return new GeneriskOppslag(GeneriskOppslagstatus.Ubundet, null, null, foreslatte);
+        var gyldige = new List<NavneformBindingEntitet>();
+        NavneformBindingEntitet? ikkeFlyttet = null;
         foreach (var b in godkjente.OrderBy(b => b.Id))
         {
-            if (await IkkeFlyttbarGrunnAsync(b, rettskildeId, ct) is not null)
-            {
-                return new GeneriskOppslag(GeneriskOppslagstatus.SpennEndret, b, null, foreslatte);
-            }
+            if (await IkkeFlyttbarGrunnAsync(b, rettskildeId, ct) is null) gyldige.Add(b);
+            else ikkeFlyttet ??= b;
         }
         var tre = await NodetreAsync(rettskildeId, ct);
-        var dekkende = godkjente
+        var dekkende = gyldige
             .Select(b => (B: b, Bredde: Dekning(tre, LesSpenn(b.ParagrafspennJson), eid ?? "")))
             .Where(x => x.Bredde is not null).ToList();
-        if (dekkende.Count == 0) return new GeneriskOppslag(GeneriskOppslagstatus.Ubundet, null, null, foreslatte);
+        if (dekkende.Count == 0)
+        {
+            return ikkeFlyttet is not null
+                ? new GeneriskOppslag(GeneriskOppslagstatus.SpennEndret, ikkeFlyttet, null, foreslatte)
+                : new GeneriskOppslag(GeneriskOppslagstatus.Ubundet, null, null, foreslatte);
+        }
         var smalest = dekkende.Min(x => x.Bredde!.Value);
         var vinnere = dekkende.Where(x => x.Bredde == smalest).ToList();
         var referenter = vinnere.Select(x => (x.B.TilVirksomhetId, x.B.TilBegrepId)).Distinct().ToList();

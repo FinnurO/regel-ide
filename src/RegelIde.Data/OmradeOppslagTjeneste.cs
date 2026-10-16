@@ -277,7 +277,7 @@ public sealed class OmradeOppslagTjeneste(RegelIdeDbContext db, StrukturkantTjen
         var ko = new Queue<(Guid? V, Guid? B)>();
         if (kommuneVirksomhet is { } kv) ko.Enqueue((kv, null));
         ko.Enqueue((null, tilhorighet.Kommune.Id));
-        // [Ny, issue #384] Klasser med UTLEDET medlemskap («kommune», kommuneloven § 2-1): kommunens rettssubjekt er medlem når regelen sier
+        // [Ny, issue #384] Klasser med UTLEDET medlemskap («kommune», kommuneloven § 2-1 første ledd): kommunens rettssubjekt er medlem når regelen sier
         // det, og premisset er territoriekanten. Klassen går inn i køen som om medlemskapet var registrert, så en klasse «kommune» er
         // medlem av (M klasse → klasse) også nås.
         var utlededeKlasser = await klassemedlemskap.KlasserMedRegelAsync(ct);

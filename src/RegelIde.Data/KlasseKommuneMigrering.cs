@@ -2,7 +2,7 @@ namespace RegelIde.Data;
 
 /// <summary>
 /// [Ny, issue #384, Johanns beslutning 2026-10-16] Datadelen av migrasjonen <c>KlasseKommuneOgUtledetMedlemskap</c>: den felles klassen
-/// «kommune» (kommuneloven § 2-1) med utledet medlemskap fra områderegisteret. Skrevet her og ikke inline i migrasjonen, slik at testen
+/// «kommune» (kommuneloven § 2-1 første ledd) med utledet medlemskap fra områderegisteret. Skrevet her og ikke inline i migrasjonen, slik at testen
 /// (<c>KlasseKommuneMigreringTests</c>) og migrasjonen bruker nøyaktig samme SQL (samme mønster som <see cref="OppgaveMigrering"/>).
 /// <para>
 /// <b>Up</b> oppretter ÉN rad i <c>begreper</c> (kategori klasse, fast nasjonal — ingen lovkilde, #298) og én proveniensrad. Ingen
@@ -22,7 +22,8 @@ public static class KlasseKommuneMigrering
     public const string EndretAv = "migrasjon-384";
 
     public const string Definisjon =
-        "Kommunene i Norge, hver et eget rettssubjekt (kommuneloven § 2-1). Felles klasse for hele landet: medlemmene er kommunene i "
+        "Kommunene Norge er inndelt i (kommuneloven § 2-1 første ledd), hver et eget rettssubjekt (annet ledd). Felles klasse for hele "
+        + "landet: medlemmene er kommunene i "
         + "områderegisteret (Kartverkets inndeling) med sitt rettssubjekt, og utledes — de registreres ikke for hånd.";
 
     public static readonly string UpSql = $$"""
@@ -38,11 +39,11 @@ public static class KlasseKommuneMigrering
           ELSE
             INSERT INTO begreper ("Id", virksomhet_id, term, definisjon, lovreferanse_eid, gjelder_for, status, versjon, entitetsstatus,
                 opprettet_av, opprettet_tidspunkt, begrepskategori, lovkilde_id, medlemskapsregel, kunnskapsstatus)
-            VALUES ('{{Klasseregler.KommuneKlasseId}}', NULL, 'kommune', '{{Definisjon}}', '{{Klasseregler.KommunelovenParagraf21Eid}}', '{}',
+            VALUES ('{{Klasseregler.KommuneKlasseId}}', NULL, 'kommune', '{{Definisjon}}', '{{Klasseregler.KommunelovenInndelingEid}}', '{}',
                 'publisert', 1, 'gjeldende', '{{EndretAv}}', now(), 'klasse', NULL, '{{Klasseregler.OmraderegisterKommune}}', 'tekstfunn');
             INSERT INTO proveniens ("Id", entitet_type, entitet_id, endret_av, dato, handling, kilde_referanser)
             VALUES (gen_random_uuid(), 'begrep', '{{Klasseregler.KommuneKlasseId}}', '{{EndretAv}}', now(), 'opprettet',
-                jsonb_build_object('issue', 384, 'beslutning', 'Johann 2026-10-16', 'hjemmel', '{{Klasseregler.KommunelovenParagraf21Eid}}',
+                jsonb_build_object('issue', 384, 'beslutning', 'Johann 2026-10-16', 'hjemmel', '{{Klasseregler.KommunelovenInndelingEid}}',
                     'kunnskapsstatus', 'tekstfunn', 'medlemskapsregel', '{{Klasseregler.OmraderegisterKommune}}'));
           END IF;
           SELECT count(*) INTO v_etter FROM begreper;

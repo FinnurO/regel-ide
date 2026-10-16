@@ -19,9 +19,12 @@ public static class Klasseregler
     /// </summary>
     public static readonly Guid KommuneKlasseId = Guid.Parse("eb25cd79-007e-404d-9cd5-c85800b65272");
 
-    /// <summary>Hjemmelen for klassen «kommune»: kommuneloven § 2-1 (første ledd: «Norge er inndelt i kommuner …», annet ledd: «Hver
-    /// kommune … er et eget rettssubjekt»). eId-en er verksnivå (ELI-en til loven + bestemmelsen), ikke en bestemt versjon.</summary>
-    public const string KommunelovenParagraf21Eid = "https://lovdata.no/eli/lov/2018/06/22/83/nor/§2-1";
+    /// <summary>[ENDRET, Johanns beslutning på PR #388 2026-10-16] Hjemmelen for klassen «kommune»: kommuneloven § 2-1 FØRSTE LEDD, leddet
+    /// som deler landet inn i kommuner. Ordrett i korpus (lokal <c>regelide</c>, kommuneloven versjon 2, lest 2026-10-16): «Norge er inndelt i
+    /// kommuner og fylkeskommuner med en egen folkevalgt ledelse.» Annet ledd («Hver kommune og fylkeskommune er et eget rettssubjekt …»)
+    /// sier hva medlemmene er, ikke hvilke som finnes, og er derfor ikke hjemmelen for klassen. Før rettingen pekte hjemmelen på hele § 2-1.
+    /// eId-en er verksnivå (lovens ELI + bestemmelsen), ikke en bestemt versjon.</summary>
+    public const string KommunelovenInndelingEid = "https://lovdata.no/eli/lov/2018/06/22/83/nor/§2-1/ledd-1";
 }
 
 /// <summary>Ett utledet medlem: rettssubjektet, kommunen (området) det er rettssubjekt for, og territoriekanten som er premisset.</summary>
