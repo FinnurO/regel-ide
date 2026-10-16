@@ -629,7 +629,7 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
     public async Task<List<(Guid RettskildeId, string Tittel, int Antall)>> ForslagPerHjemmelAsync(CancellationToken ct = default)
     {
         var grupper = await db.Strukturkanter
-            .Where(k => k.Status == Strukturkanter.MaskineltForeslatt && k.HjemmelRettskildeId != null)
+            .Where(k => Strukturkanter.Ventende.Contains(k.Status) && k.HjemmelRettskildeId != null)
             .GroupBy(k => k.HjemmelRettskildeId!.Value)
             .Select(g => new { Id = g.Key, Antall = g.Count() }).ToListAsync(ct);
         var ider = grupper.Select(g => g.Id).ToList();
