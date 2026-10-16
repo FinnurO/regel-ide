@@ -116,6 +116,9 @@ public sealed record KommunePlikter(
 /// </summary>
 public sealed class OmradeOppslagTjeneste(RegelIdeDbContext db, StrukturkantTjeneste kanttjeneste)
 {
+    // [Ny, issue #384] Klasser med utledet medlemskap («kommune»): medlemskapet regnes ut av områderegisteret, ikke lest fra M-kanter.
+    private readonly KlassemedlemskapTjeneste klassemedlemskap = new(db, kanttjeneste);
+
     public async Task<KommuneTilhorighet?> ForKommunenummerAsync(string kommunenummer, CancellationToken ct = default)
     {
         var id = await db.Begreper
@@ -274,6 +277,20 @@ public sealed class OmradeOppslagTjeneste(RegelIdeDbContext db, StrukturkantTjen
         var ko = new Queue<(Guid? V, Guid? B)>();
         if (kommuneVirksomhet is { } kv) ko.Enqueue((kv, null));
         ko.Enqueue((null, tilhorighet.Kommune.Id));
+        // [Ny, issue #384] Klasser med UTLEDET medlemskap («kommune», kommuneloven § 2-1 første ledd): kommunens rettssubjekt er medlem når regelen sier
+        // det, og premisset er territoriekanten. Klassen går inn i køen som om medlemskapet var registrert, så en klasse «kommune» er
+        // medlem av (M klasse → klasse) også nås.
+        var utlededeKlasser = await klassemedlemskap.KlasserMedRegelAsync(ct);
+        if (kommuneVirksomhet is { } kvu)
+        {
+            foreach (var klasseId in utlededeKlasser.Keys)
+            {
+                var m = (await klassemedlemskap.UtledAsync(klasseId, kvu, ct))?.Medlemmer.FirstOrDefault();
+                if (m is null || !medlemAv.Add(klasseId)) continue;
+                medlemKant[klasseId] = (m.PremissKantId, null);
+                ko.Enqueue((null, klasseId));
+            }
+        }
         while (ko.Count > 0)
         {
             var (v, b) = ko.Dequeue();
@@ -298,6 +315,8 @@ public sealed class OmradeOppslagTjeneste(RegelIdeDbContext db, StrukturkantTjen
         // Klasser som er en ende i en P-kant: hvilke har ingen registrerte medlemmer?
         var klasser = pKanter.SelectMany(k => new[] { k.FraBegrepId, k.TilBegrepId }).Where(b => b != null).Select(b => b!.Value).Distinct().ToList();
         var klasserMedMedlemmer = mKanter.Where(k => klasser.Contains(k.TilBegrepId!.Value)).Select(k => k.TilBegrepId!.Value).ToHashSet();
+        // [Ny, issue #384] En klasse med utledet medlemskap har et avgjort medlemskap — den er ikke «uten registrert medlemskap».
+        klasserMedMedlemmer.UnionWith(utlededeKlasser.Keys);
         var klassekategori = await db.Begreper.Where(b => klasser.Contains(b.Id))
             .Select(b => new { b.Id, b.Begrepskategori }).ToDictionaryAsync(b => b.Id, b => b.Begrepskategori, ct);
 
@@ -439,6 +458,15 @@ public sealed class OmradeOppslagTjeneste(RegelIdeDbContext db, StrukturkantTjen
         var medlemAv = new HashSet<Guid>();
         var medlemPremisser = new HashSet<Guid>(); // [Ny, issue #367 AC7]
         var mko = new Queue<(Guid? V, Guid? B)>([(virksomhetId, null)]);
+        // [Ny, issue #384] Utledet medlemskap («kommune») regnes ut med samme regel som ellers; premisset er territoriekanten.
+        var utlededeKlasser = await klassemedlemskap.KlasserMedRegelAsync(ct);
+        foreach (var klasseId in utlededeKlasser.Keys)
+        {
+            var m = (await klassemedlemskap.UtledAsync(klasseId, virksomhetId, ct))?.Medlemmer.FirstOrDefault();
+            if (m is null || !medlemAv.Add(klasseId)) continue;
+            medlemPremisser.Add(m.PremissKantId);
+            mko.Enqueue((null, klasseId));
+        }
         while (mko.Count > 0)
         {
             var (v, b) = mko.Dequeue();
@@ -454,6 +482,8 @@ public sealed class OmradeOppslagTjeneste(RegelIdeDbContext db, StrukturkantTjen
             .ToListAsync(ct), ct);
         var tilKlasser = anker.Where(k => k.TilBegrepId != null).Select(k => k.TilBegrepId!.Value).Distinct().ToList();
         var klasserMedMedlemmer = mKanter.Where(k => tilKlasser.Contains(k.TilBegrepId!.Value)).Select(k => k.TilBegrepId!.Value).ToHashSet();
+        // [Ny, issue #384] En klasse med utledet medlemskap («kommune») har et avgjort medlemskap, og er ikke et hull.
+        klasserMedMedlemmer.UnionWith(utlededeKlasser.Keys);
         var klassekategori = await db.Begreper.Where(b => tilKlasser.Contains(b.Id))
             .Select(b => new { b.Id, b.Begrepskategori }).ToDictionaryAsync(b => b.Id, b => b.Begrepskategori, ct);
 
@@ -562,6 +592,14 @@ public sealed class OmradeOppslagTjeneste(RegelIdeDbContext db, StrukturkantTjen
             .Where(k => (k.Kategori == Strukturkanter.Medlemskap || k.Kategori == Strukturkanter.Rolleinnehav)
                         && k.TilBegrepId == tb && k.FraVirksomhetId != null).ToListAsync(ct), ct);
         var medlemmer = medlemskanter.Select(k => k.FraVirksomhetId!.Value).Distinct().ToList();
+        // [Ny, issue #384] Klasse med utledet medlemskap: medlemmene regnes ut, og premisset for hvert er territoriekanten.
+        var utledet = await klassemedlemskap.UtledAsync(tb, ct: ct);
+        var utledetPremiss = new Dictionary<Guid, Guid>();
+        if (utledet is not null)
+        {
+            foreach (var m in utledet.Medlemmer) utledetPremiss.TryAdd(m.VirksomhetId, m.PremissKantId);
+            medlemmer = medlemmer.Union(utledetPremiss.Keys).ToList();
+        }
         if (medlemmer.Count == 0)
         {
             return new PliktMotpart("mangler", [], [],
@@ -578,7 +616,8 @@ public sealed class OmradeOppslagTjeneste(RegelIdeDbContext db, StrukturkantTjen
         // [Ny, issue #367 AC7] Premissene for et entydig svar: medlemskapet/rolleinnehavet og ansvarsområdet til den ene.
         var kantIder = sortert.Count == 1
             ? medlemskanter.Where(k => k.FraVirksomhetId == sortert[0]).Select(k => k.Id)
-                .Concat(ansvar.Where(k => k.FraVirksomhetId == sortert[0]).Select(k => k.Id)).ToList()
+                .Concat(utledetPremiss.TryGetValue(sortert[0], out var up) ? [up] : [])
+                .Concat(ansvar.Where(k => k.FraVirksomhetId == sortert[0]).Select(k => k.Id)).Distinct().ToList()
             : [];
         return sortert.Count switch
         {

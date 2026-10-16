@@ -80,7 +80,8 @@ public class SamiskSprakforvaltningSeedTests
 
         // Ingenting oppfunnet: verken rettskilde, gruppebegrep, medlemskap eller virksomhet.
         Assert.Empty(await db.Rettskilder.ToListAsync());
-        Assert.Empty(await db.Begreper.ToListAsync());
+        // [ENDRET, issue #384] Klassen «kommune» legges inn av migrasjonen (KlasseKommuneOgUtledetMedlemskap), ikke av seeden.
+        Assert.Empty(await db.Begreper.Where(b => b.Id != Klasseregler.KommuneKlasseId).ToListAsync());
         Assert.Empty(await db.Strukturkanter.ToListAsync());
         // [ENDRET, issue #311] Migrasjonen InnforStrukturkanttabell oppretter de to organene (Stortinget og
         // «Kongen i statsråd») i ENHVER base — de er ikke seedens verk, og telles derfor ikke med her.

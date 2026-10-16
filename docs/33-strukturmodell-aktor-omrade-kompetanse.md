@@ -1067,6 +1067,39 @@ betyr i den enkelte SAKEN (hvilken kommune), er #314 og ikke bindingen.
 
 **Målt på barnehageloven og forskriftene (lokal base 2026-10-16, mønsterlaget, tørrkjøring — ingen forslag lastet):** se PR #383 og #378.
 
+**[Ny, issue #384, Johanns beslutning 2026-10-16] Bindingen følger verket, ikke versjonen.** En ny konsolidert versjon er en ny
+rettskilde-rad med ny id (§2.1), og før #384 falt bindingen da bort. Nå gjelder bindingen VERKET. Verket er (`virksomhet_id`, `eli`) på
+rettskilden: det samme paret importen bruker for å finne forrige versjon, og som de unike indeksene `ux_rettskilder_eli_gjeldende_*`
+håndhever. `rettskilde_id` på bindingen er versjonen den ble registrert og vurdert mot, så versjonen er registrert.
+- **Ingen ny kolonne og ingen migrasjon for dette.** ELI-en er målt lik over alle 1 113 versjonsoverganger i lokal `regelide`
+  (2026-10-16).
+- **Uten ELI er verket rettskilden selv.** Det gjelder 28 lokale virksomhetsdokumenter, og ingen av dem er versjonert.
+- **Alt som leser bindinger, ser hele verket:** oppslaget, konflikten «samme virkeområde», listen per rettskilde, oversikten (AC7) og
+  virksomhetens «brukt i».
+- **En binding for hele rettskilden** følger verket uten videre.
+- **En binding med paragrafspenn** følger bare når spennet dekker nøyaktig de samme eId-ene i begge versjonene. Ellers brukes den ikke i den
+  nye versjonen, og det gjettes ikke hvilke noder den nå skulle dekke (teksten kan være omnummerert, CLAUDE.md §8).
+- **[ENDRET, Johanns beslutning på PR #388] En binding som ikke kan flyttes, blokkerer bare seg selv.** De andre gyldige bindingene for
+  navneformen brukes som før (smaleste spenn vinner). Dekker ingen av dem noden, er oppslaget `spenn_endret` med den uflyttbare bindingen,
+  ikke `ubundet`.
+- **Bindinger som ikke kan flyttes, listes** (`GET /api/navneform-bindinger/ikke-flyttbare`). Et menneske registrerer dem på nytt: avvis
+  den gamle, og opprett en ny mot den gjeldende versjonen.
+- **Lokalt 2026-10-16:** 0 bindinger, altså 0 å flytte og 0 på listen.
+
+**[Ny, issue #384] Den felles klassen «kommune»** er referenten for den generiske navneformen «kommunen». Klassen
+(`Klasseregler.KommuneKlasseId`) er hjemlet i kommuneloven § 2-1 første ledd («Norge er inndelt i kommuner og fylkeskommuner …»; [ENDRET, Johanns beslutning på PR #388: leddet, ikke hele paragrafen]) med kunnskapsstatus `tekstfunn`, og migrasjonen
+`KlasseKommuneOgUtledetMedlemskap` oppretter den.
+- **Medlemskapet utledes og lagres ikke** (`begreper.medlemskapsregel = 'omraderegister_kommune'`, `KlassemedlemskapTjeneste`). Medlemmene
+  er kommunene i områderegisteret med sitt rettssubjekt. Regelen er den samme som rubrikken «kommune» i tilhørighetsoppslaget (#312).
+- **Hvert medlemskap er `avledet`**, med territoriekanten som premiss. Ingen eller flere kandidater for en kommune gir et hull, ikke et
+  medlem.
+- **Medlemmene vises i** `GET /api/gruppebegrep/{id}/utledet-medlemskap`.
+- **Lokalt 2026-10-16:** 357 av 357 kommuner er medlem, med 0 hull. Alle 357 premisser er godkjent.
+- **Pliktoppslaget (§4.5, S6) og ankeinstansoppslaget** bruker det utledede medlemskapet. En P-kant fra «kommune» gjelder kommune X med
+  grunnlaget `medlem_av` (avledet), ikke `klasse_uten_registrert_medlemskap`.
+- **Den lovspesifikke klassen «kommunene»** i reindriftsloven (§ 2 annet ledd) beholdes. Den henviser til den felles klassen med
+  `M medlem_av` «kommune», lagt inn som forslag (`manuelt_foreslatt`, tekstfunn) av `OmraderegisterSeed` steg 6.
+
 ### 5.6 Konvertering av eksisterende data
 
 | Fra | Til | Automatisk? |

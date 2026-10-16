@@ -1415,6 +1415,29 @@ public sealed class BegrepEntitet
     /// </summary>
     public string? Omradekode { get; set; }
 
+    /// <summary>
+    /// [Ny, issue #384, Johanns beslutning 2026-10-16] Regelen medlemskapet i en KLASSE utledes etter, når det ikke registreres med
+    /// M-kanter. Lukket vokabular (<see cref="Klasseregler.Alle"/>, CHECK <c>ck_begreper_medlemskapsregel</c>), og bare på
+    /// <c>begrepskategori = 'klasse'</c>. Én gjeldende klasse per regel (<c>ux_begreper_medlemskapsregel</c>): klassen finnes på
+    /// regelen, ikke på navnet. NULL = medlemskapet registreres for hånd (M-kanter), som før.
+    /// <para>
+    /// <c>omraderegister_kommune</c>: klassen «kommune» (kommuneloven § 2-1 første ledd). Medlemmene er kommunene i områderegisteret (Kartverkets
+    /// inndeling, docs/33 §4.1) med sitt rettssubjekt — beregnet av <see cref="KlassemedlemskapTjeneste"/> hver gang, aldri lagret
+    /// (samme prinsipp som den avledede domstolkjeden i #345). Hvert medlemskap har kunnskapsstatus <c>avledet</c> med territoriekanten
+    /// som premiss.
+    /// </para>
+    /// </summary>
+    public string? Medlemskapsregel { get; set; }
+
+    /// <summary>
+    /// [Ny, issue #384] Kunnskapsstatus (docs/profil/03 §5) for selve begrepet som modellutsagn — at klassen finnes og er hjemlet i
+    /// <see cref="LovreferanseEid"/>. NULL = ikke vurdert (alle eksisterende rader). CHECK <c>ck_begreper_kunnskapsstatus</c>:
+    /// <c>tekstfunn</c>/<c>normalisering</c> krever hjemmel (<see cref="LovreferanseEid"/>); <c>uavklart</c>/<c>omstridt</c> er lov uten.
+    /// <c>fortolkning</c>, <c>eksternt_dokumentert</c>, <c>avledet</c> og <c>foreldet</c> avvises: begrepet har ingen felt for
+    /// begrunnelse, tolkningsargumenter, kilde utenfor korpus eller premisser.
+    /// </summary>
+    public string? Kunnskapsstatus { get; set; }
+
     public required string Term { get; set; } // skos:prefLabel
     public string? Definisjon { get; set; } // skos:definition — påkrevd for Begrepskategori=NULL, se klassekommentaren
     public string? LovreferanseEid { get; set; } // dct:source — validert mot RettskildeNoder ved lagring

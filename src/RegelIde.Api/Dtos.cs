@@ -725,13 +725,15 @@ public sealed record BegrepDto(
     Guid Id, Guid? VirksomhetId, string? Begrepskategori, Guid? VirksomhetReferanseId, Guid? LovkildeId,
     string Term, string? Definisjon, string? LovreferanseEid, IReadOnlyList<string> GjelderFor,
     Guid? KodelisteReferanseId, string? SkosUrl, string? Begrepstype, string Status, int Versjon,
-    string? Navneformgrunn, string? Omradetype = null, string? Omradekode = null)
+    string? Navneformgrunn, string? Omradetype = null, string? Omradekode = null,
+    string? Medlemskapsregel = null, string? Kunnskapsstatus = null)
 {
     // [ENDRET, issue #312] Omradetype/Omradekode — BegrepDetalj viser sammensetning og tilhørighet for et registrert område.
+    // [ENDRET, issue #384] Medlemskapsregel/Kunnskapsstatus — BegrepDetalj viser at medlemskapet i «kommune» er utledet.
     public static BegrepDto FraEntitet(BegrepEntitet b) => new(
         b.Id, b.VirksomhetId, b.Begrepskategori, b.VirksomhetReferanseId, b.LovkildeId, b.Term,
         b.Definisjon, b.LovreferanseEid, b.GjelderFor, b.KodelisteReferanseId, b.SkosUrl, b.Begrepstype,
-        b.Status, b.Versjon, b.Navneformgrunn, b.Omradetype, b.Omradekode);
+        b.Status, b.Versjon, b.Navneformgrunn, b.Omradetype, b.Omradekode, b.Medlemskapsregel, b.Kunnskapsstatus);
 }
 
 /// <summary>[Ny, issue #312, AC5] Svaret på GET /api/omrader/kommuner/{kommunenummer}/tilhorighet.</summary>

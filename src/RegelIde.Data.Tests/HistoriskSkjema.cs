@@ -26,6 +26,7 @@ internal static class HistoriskSkjema
     public const string PliktOgOrdning = "20261009000135_PliktOgOrdning"; // [Ny, #355]
     public const string AvslutningSpeilerInnsetting = "20261009093903_AvslutningSpeilerInnsetting"; // [Ny, #367]
     public const string AvvistSomStatus = "20261015173308_AvvistSomStatus"; // [Ny, #368]
+    public const string GeneriskNavneformOgBinding = "20261016072936_GeneriskNavneformOgBinding"; // [Ny, #384]
 
     /// <summary>Oppretter en ny, tom database og migrerer den til <paramref name="tilMigrasjon"/> (null = siste).</summary>
     /// <param name="leggTilSenereKolonner">[Ny, #341] false for en test som selv migrerer videre til siste versjon
@@ -91,6 +92,22 @@ internal static class HistoriskSkjema
             + "ALTER TABLE relasjonstype_konfigurasjon ADD COLUMN IF NOT EXISTS fvl_kategori_gjelder_til date;");
         // [Ny, issue #313 / #374] strukturkanter.avvisning_begrunnelse (AvvistSomStatus).
         await db.Database.ExecuteSqlRawAsync("ALTER TABLE IF EXISTS strukturkanter ADD COLUMN IF NOT EXISTS avvisning_begrunnelse text;");
+        // [Ny, issue #384] begreper.medlemskapsregel og begreper.kunnskapsstatus (KlasseKommuneOgUtledetMedlemskap).
+        await db.Database.ExecuteSqlRawAsync("ALTER TABLE begreper ADD COLUMN IF NOT EXISTS medlemskapsregel text; "
+            + "ALTER TABLE begreper ADD COLUMN IF NOT EXISTS kunnskapsstatus text;");
+    }
+
+    /// <summary>
+    /// [Ny, issue #384] For en test som skriver begreper med DAGENS EF-modell mot et historisk skjema og så migrerer VIDERE til siste
+    /// versjon (<c>leggTilSenereKolonner: false</c>): kolonnene fra <c>KlasseKommuneOgUtledetMedlemskap</c> legges til før skrivingen
+    /// (<paramref name="leggTil"/> = true) og fjernes igjen før migreringen (false) — ellers ville migrasjonens AddColumn kollidert.
+    /// </summary>
+    public static async Task BegrepskolonnerFra384Async(string connString, bool leggTil)
+    {
+        await using var db = new RegelIdeDbContext(Options(connString));
+        await db.Database.ExecuteSqlRawAsync(leggTil
+            ? "ALTER TABLE begreper ADD COLUMN IF NOT EXISTS medlemskapsregel text; ALTER TABLE begreper ADD COLUMN IF NOT EXISTS kunnskapsstatus text;"
+            : "ALTER TABLE begreper DROP COLUMN IF EXISTS medlemskapsregel; ALTER TABLE begreper DROP COLUMN IF EXISTS kunnskapsstatus;");
     }
 
     /// <summary>

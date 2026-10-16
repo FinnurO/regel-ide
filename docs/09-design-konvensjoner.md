@@ -1155,3 +1155,16 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
   samordningsoppgave …»». Velges en F-type: «Modalitet» (aldri forhåndsvalgt, som P) og «Oppgaven» (påkrevd — knappen er av til den er
   fylt ut, samme krav som CHECK `ck_strukturkanter_oppgave_objekt`). «Oppgaven gjelder» (virksomhet) er valgfri. En ordning tilbys ikke
   F (`typerForAktortype`).
+
+## 39. Utledet medlemskap på begrepssiden (issue #384, 2026-10-16)
+
+- **Komponenten:** `begrep/UtledetMedlemskap.tsx`. `BegrepDetalj` viser den i fanen Relasjoner, over `GruppeMedlemmer`, når begrepet har
+  `medlemskapsregel`.
+- **Seksjonen** heter «Medlemmer (utledet av områderegisteret)». Den følger §16: `Card` er alltid rendret, `null` betyr at den laster og
+  gir `Spinner`, og tabellen er kompakt og paginert (§9).
+- **To kunnskapsstatuser, to merker (§35):** «Klassen:» viser tekstfunn, med lenke til hjemmelen. «Medlemskapet:» viser avledet. De to
+  slås ikke sammen.
+- **Hullene** er kommunene som ikke ble medlem. De står i en `warning`-`Alert` med en lukket `Details`, og aldri i tabellen.
+- **Tom-teksten i «Virksomheter i gruppen»** sier at medlemskapet er utledet når klassen har en regel. «Ingen virksomheter er tildelt»
+  ville vært en påstand om verden (CLAUDE.md §9).
+- **`spenn_endret`** fra taggoppslaget vises som en ukoblet tagg, slik `ubundet` gjør (§38). Den får ingen gjettet lenke.

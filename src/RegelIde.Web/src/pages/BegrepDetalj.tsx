@@ -4,6 +4,7 @@ import { Alert, Button, Card, Field, Heading, Label, Link, Paragraph, Select, Sp
 import { ApiError, api } from '../api/client';
 import { NavneformgrunnTag } from '../virksomhet/Navneformgrunn';
 import { GruppeMedlemmer } from '../virksomhet/GruppeMedlemmer';
+import { UtledetMedlemskap } from '../begrep/UtledetMedlemskap';
 import { finnRettskildeForEid, rettskildeLenke, rettskildeLenkeForId } from '../api/eidLenker';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 import type { BegrepBruktIRettskildeDto, BegrepDefinisjonRelasjonDto, BegrepDto, Begrepsnodetype, BegrepTaggetForekomstDto, RettskildeSammendrag, VilkarDto } from '../api/types';
@@ -268,8 +269,10 @@ export default function BegrepDetalj() {
         * det gruppen faktisk INNEHOLDER — begge nivåene (medlemsgrupper og konkrete virksomheter) og
         * retningen oppover. Uten denne var et gruppebegrep en blindvei: siden viste hva gruppen ER
         * hjemlet i, men aldri hvem som er i den. Se `GruppeMedlemmer` for hvorfor det er tre lister. */}
+      {/* [Ny, issue #384] Klasse med utledet medlemskap («kommune»): medlemmene regnes ut av områderegisteret, ikke M-kanter. */}
+      {begrep.medlemskapsregel && id && <UtledetMedlemskap begrepId={id} rettskilder={rettskilder} />}
       {harGruppefunksjon(begrep.begrepskategori) && id && (
-        <GruppeMedlemmer gruppeBegrepId={id} rettskilder={rettskilder} />
+        <GruppeMedlemmer gruppeBegrepId={id} rettskilder={rettskilder} utledet={!!begrep.medlemskapsregel} />
       )}
       </>
       )}

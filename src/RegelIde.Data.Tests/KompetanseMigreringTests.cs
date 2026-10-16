@@ -62,6 +62,7 @@ public class KompetanseMigreringTests
         Guid dep, nemnd, tilsyn, lov, forskrift, klasse, rolle;
         string lovEid, forskriftEid, forskriftEid2;
         Guid klage, instruks, forskriftK, sekretariat, mHjemmel, mAnnenLov, iHjemmel, mUtenSpenn;
+        await HistoriskSkjema.BegrepskolonnerFra384Async(conn, leggTil: true); // [Ny, #384] begrepene skrives med dagens EF-modell
         await using (var db = new RegelIdeDbContext(HistoriskSkjema.Options(conn)))
         {
             // Konfigurasjonen slik en kjørende base hadde den før #341 (oppstartsseeden fra #311/#330).
@@ -111,6 +112,7 @@ public class KompetanseMigreringTests
             mUtenSpenn = await KantAsync(db, "M", "medlem_av", dep, null, klasse, forskrift, null);
         }
 
+        await HistoriskSkjema.BegrepskolonnerFra384Async(conn, leggTil: false);
         await HistoriskSkjema.MigrerAsync(conn, null);
 
         await using (var etter = new RegelIdeDbContext(HistoriskSkjema.Options(conn)))

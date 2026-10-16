@@ -254,4 +254,133 @@ public class GeneriskNavneformTjenesteTests
         db2.TekstTagger.RemoveRange(await db2.TekstTagger.Where(t => t.RefId == r.Navneform.Id).ToListAsync());
         await db2.SaveChangesAsync();
     }
+
+    // ------------------------------------------------------------ [Ny, issue #384] Bindingen følger verket, ikke versjonen
+
+    /// <summary>Alkoholloven med egen datokode (eget verk, egen ELI), så en ny versjon ikke rører de andre testenes alkohollov.</summary>
+    private static string Isolert(string datokode, Func<string, string>? endring = null)
+    {
+        var html = Testdata.LesAlkoholloven().Replace("LOV-1989-06-02-27", datokode);
+        return endring is null ? html : endring(html);
+    }
+
+    private static string AnnenParagrafEndret(string html) => html.Replace("Lovens virkeområde.", "Lovens virkeområde og formål.");
+
+    /// <summary>
+    /// [Ny, issue #384 AC2] En resynk som gir en ny versjon (ny rettskilde-rad, ny id) skal ikke få bindingen til å falle bort. Bindingen er
+    /// registrert mot versjon 1 og står der (versjonen er registrert), men gjelder verket: både hele-rettskilden-bindingen og en binding med
+    /// paragrafspenn (uendret struktur) oppløser i versjon 2, og en ny binding med samme virkeområde mot versjon 2 er en motsigelse.
+    /// </summary>
+    [Fact]
+    public async Task Binding_overlever_resynk_med_ny_versjon()
+    {
+        await using var db = _fixture.NyDbContext();
+        var import = new RettskildeImportTjeneste(db);
+        const string datokode = "LOV-2098-08-04-384";
+        var v1 = (await import.ImporterMedUtfallAsync(LovdataKonverterer.Konverter(Isolert(datokode), new DateOnly(2026, 10, 1)))).RettskildeId;
+        var paragraf = await db.RettskildeNoder.Where(n => n.RettskildeId == v1 && n.NodeType == "paragraf")
+            .OrderBy(n => n.Sorteringsrekkefolge).Skip(2).FirstAsync();
+        var leddUnder = await db.RettskildeNoder.FirstAsync(n => n.ParentNodeId == paragraf.Id);
+        var forste = await db.RettskildeNoder.Where(n => n.RettskildeId == v1 && n.Tekst != null).OrderBy(n => n.Sorteringsrekkefolge).FirstAsync();
+        var a = await NyVirksomhetAsync(db, $"Verk A {Guid.NewGuid():N}");
+        var b = await NyVirksomhetAsync(db, $"Verk B {Guid.NewGuid():N}");
+        var tjeneste = new GeneriskNavneformTjeneste(db);
+        var (navneform, _) = await tjeneste.OpprettEllerFinnAsync($"kommunen{Guid.NewGuid():N}", "Test");
+        var hele = await tjeneste.OpprettBindingAsync(new NyNavneformBinding(navneform.Id, v1, Kantnode.Virksomhet(a.Id),
+            HjemmelRettskildeId: v1, HjemmelEid: forste.Eid, Kunnskapsstatus: "tekstfunn", Status: "godkjent"), "Test");
+        var smal = await tjeneste.OpprettBindingAsync(new NyNavneformBinding(navneform.Id, v1, Kantnode.Virksomhet(b.Id),
+            Paragrafspenn: [new ParagrafspennPar(paragraf.Eid, null)], HjemmelRettskildeId: v1, HjemmelEid: paragraf.Eid,
+            Kunnskapsstatus: "tekstfunn", Status: "godkjent"), "Test");
+
+        // Resynk: en annen paragraf er endret → ny versjon (ny id), som i RettskildeImportTjenesteTests.
+        var resynk = await import.ImporterMedUtfallAsync(LovdataKonverterer.Konverter(Isolert(datokode, AnnenParagrafEndret), new DateOnly(2026, 10, 16)));
+        Assert.Equal(RettskildeImportUtfall.NyVersjon, resynk.Utfall);
+        var v2 = resynk.RettskildeId;
+        Assert.NotEqual(v1, v2);
+        Assert.Equal("erstattet", (await db.Rettskilder.AsNoTracking().SingleAsync(r => r.Id == v1)).Entitetsstatus);
+
+        // Bindingene gjelder i den nye versjonen — smaleste spenn vinner som før.
+        var iSpennet = await tjeneste.LosOppAsync(navneform.Id, v2, leddUnder.Eid);
+        Assert.Equal((GeneriskOppslagstatus.Bundet, smal.Id, b.Id), (iSpennet.Status, iSpennet.Binding!.Id, iSpennet.Referent!.VirksomhetId!.Value));
+        var utenfor = await tjeneste.LosOppAsync(navneform.Id, v2, forste.Eid);
+        Assert.Equal((GeneriskOppslagstatus.Bundet, hele.Id), (utenfor.Status, utenfor.Binding!.Id));
+        // Versjonen bindingen ble registrert mot, står.
+        Assert.Equal(v1, (await db.NavneformBindinger.AsNoTracking().SingleAsync(x => x.Id == hele.Id)).RettskildeId);
+        // Listen for den nye versjonen har begge, med registrert versjon og gjeldende versjon; ingen er uflyttbar.
+        var liste = await tjeneste.HentBindingerAsync(navneformId: navneform.Id, rettskildeId: v2);
+        Assert.Equal(2, liste.Count);
+        Assert.All(liste, x => Assert.Equal((1, v2, "https://lovdata.no/eli/lov/2098/08/04/384/nor"), (x.RegistrertVersjon, x.GjeldendeRettskildeId, x.VerkEli)));
+        Assert.DoesNotContain(await tjeneste.IkkeFlyttbareAsync(), x => x.Binding.NavneformId == navneform.Id);
+        // Oversikten viser loven én gang, under den gjeldende versjonen.
+        var bruk = Assert.Single(Assert.Single(await tjeneste.OversiktAsync(navneform.Term)).Rettskilder);
+        Assert.Equal((v2, 2), (bruk.RettskildeId, bruk.Bindinger.Count));
+        // Samme virkeområde mot versjon 2 er en motsigelse med bindingen fra versjon 1.
+        await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettBindingAsync(new NyNavneformBinding(navneform.Id, v2,
+            Kantnode.Virksomhet(b.Id), HjemmelRettskildeId: v2, HjemmelEid: forste.Eid), "Test"));
+    }
+
+    /// <summary>
+    /// [Ny, issue #384 AC3] Ingen gjetting: er paragrafen i spennet borte i den nye versjonen (her: § 1-4a omnummerert til § 1-4b), kan
+    /// bindingen ikke flyttes entydig. Den brukes ikke i versjon 2, og den listes. I versjon 1 gjelder den fortsatt.
+    /// [ENDRET, Johanns beslutning på PR #388] Den blokkerer bare seg selv: hele-rettskilden-bindingen for samme navneform brukes i versjon 2,
+    /// også for nodene den smale dekket. En navneform som BARE hadde den smale bindingen, gir spenn_endret (ikke ubundet), uten referent.
+    /// </summary>
+    [Fact]
+    public async Task Binding_med_spenn_som_ikke_finnes_i_ny_versjon_listes_og_gjettes_ikke()
+    {
+        await using var db = _fixture.NyDbContext();
+        var import = new RettskildeImportTjeneste(db);
+        const string datokode = "LOV-2098-08-05-384";
+        static string Omnummerert(string html) =>
+            html.Replace("§1-4a\"", "§1-4b\"").Replace(">§ 1-4a<", ">§ 1-4b<"); // data-name og data-lovdata-URL (eId-en)
+        var v1 = (await import.ImporterMedUtfallAsync(LovdataKonverterer.Konverter(Isolert(datokode), new DateOnly(2026, 10, 1)))).RettskildeId;
+        var p14a = await db.RettskildeNoder.SingleAsync(n => n.RettskildeId == v1 && n.NodeType == "paragraf" && n.Eid.EndsWith("/§1-4a"));
+        var forste = await db.RettskildeNoder.Where(n => n.RettskildeId == v1 && n.Tekst != null).OrderBy(n => n.Sorteringsrekkefolge).FirstAsync();
+        var a = await NyVirksomhetAsync(db, $"Verk A {Guid.NewGuid():N}");
+        var b = await NyVirksomhetAsync(db, $"Verk B {Guid.NewGuid():N}");
+        var tjeneste = new GeneriskNavneformTjeneste(db);
+        var (navneform, _) = await tjeneste.OpprettEllerFinnAsync($"kommunen{Guid.NewGuid():N}", "Test");
+        var hele = await tjeneste.OpprettBindingAsync(new NyNavneformBinding(navneform.Id, v1, Kantnode.Virksomhet(a.Id),
+            HjemmelRettskildeId: v1, HjemmelEid: forste.Eid, Kunnskapsstatus: "tekstfunn", Status: "godkjent"), "Test");
+        var smal = await tjeneste.OpprettBindingAsync(new NyNavneformBinding(navneform.Id, v1, Kantnode.Virksomhet(b.Id),
+            Paragrafspenn: [new ParagrafspennPar(p14a.Eid, null)], HjemmelRettskildeId: v1, HjemmelEid: p14a.Eid,
+            Kunnskapsstatus: "tekstfunn", Status: "godkjent"), "Test");
+        // En annen navneform med BARE en smal binding på § 1-4a.
+        var (alene, _) = await tjeneste.OpprettEllerFinnAsync($"styret{Guid.NewGuid():N}", "Test");
+        var smalAlene = await tjeneste.OpprettBindingAsync(new NyNavneformBinding(alene.Id, v1, Kantnode.Virksomhet(b.Id),
+            Paragrafspenn: [new ParagrafspennPar(p14a.Eid, null)], HjemmelRettskildeId: v1, HjemmelEid: p14a.Eid,
+            Kunnskapsstatus: "tekstfunn", Status: "godkjent"), "Test");
+
+        var resynk = await import.ImporterMedUtfallAsync(LovdataKonverterer.Konverter(Isolert(datokode, Omnummerert), new DateOnly(2026, 10, 16)));
+        Assert.Equal(RettskildeImportUtfall.NyVersjon, resynk.Utfall);
+        var v2 = resynk.RettskildeId;
+        Assert.False(await db.RettskildeNoder.AnyAsync(n => n.RettskildeId == v2 && n.Eid == p14a.Eid));
+        var p14b = await db.RettskildeNoder.SingleAsync(n => n.RettskildeId == v2 && n.NodeType == "paragraf" && n.Eid.EndsWith("/§1-4b"));
+
+        // Versjon 2: den smale brukes ikke, men den blokkerer bare seg selv — hele-rettskilden-bindingen gjelder overalt.
+        foreach (var eid in new[] { p14b.Eid, forste.Eid })
+        {
+            var o = await tjeneste.LosOppAsync(navneform.Id, v2, eid);
+            Assert.Equal((GeneriskOppslagstatus.Bundet, hele.Id, a.Id), (o.Status, o.Binding!.Id, o.Referent!.VirksomhetId!.Value));
+        }
+        // Navneformen med bare den smale bindingen: spenn_endret, uten referent — ikke ubundet og ikke gjettet.
+        var aleneOppslag = await tjeneste.LosOppAsync(alene.Id, v2, p14b.Eid);
+        Assert.Equal((GeneriskOppslagstatus.SpennEndret, smalAlene.Id), (aleneOppslag.Status, aleneOppslag.Binding!.Id));
+        Assert.Null(aleneOppslag.Referent);
+        // Versjon 1 (der den ble registrert): som før.
+        Assert.Equal(b.Id, (await tjeneste.LosOppAsync(navneform.Id, v1, p14a.Eid)).Referent!.VirksomhetId);
+        Assert.Equal(b.Id, (await tjeneste.LosOppAsync(alene.Id, v1, p14a.Eid)).Referent!.VirksomhetId);
+        Assert.Contains(await tjeneste.IkkeFlyttbareAsync(), x => x.Binding.Id == smalAlene.Id);
+        // Listen.
+        var ikkeFlyttbar = Assert.Single(await tjeneste.IkkeFlyttbareAsync(), x => x.Binding.NavneformId == navneform.Id);
+        Assert.Equal((smal.Id, v2, 2), (ikkeFlyttbar.Binding.Id, ikkeFlyttbar.GjeldendeRettskildeId, ikkeFlyttbar.GjeldendeVersjon));
+        Assert.Contains("finnes ikke i denne versjonen", ikkeFlyttbar.Grunn);
+
+        // Et menneske avviser den: hele-rettskilden-bindingen gjelder igjen i versjon 2.
+        await tjeneste.AvvisAsync(smal.Id, "Kari Jurist", "§ 1-4a er omnummerert — registreres på nytt.");
+        var etter = await tjeneste.LosOppAsync(navneform.Id, v2, p14b.Eid);
+        Assert.Equal((GeneriskOppslagstatus.Bundet, hele.Id), (etter.Status, etter.Binding!.Id));
+        Assert.DoesNotContain(await tjeneste.IkkeFlyttbareAsync(), x => x.Binding.NavneformId == navneform.Id);
+        Assert.Contains(await tjeneste.IkkeFlyttbareAsync(), x => x.Binding.Id == smalAlene.Id);
+    }
 }
