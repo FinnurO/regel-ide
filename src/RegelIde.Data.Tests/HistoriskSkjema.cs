@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 
@@ -95,7 +95,16 @@ internal static class HistoriskSkjema
         // [Ny, issue #384] begreper.medlemskapsregel og begreper.kunnskapsstatus (KlasseKommuneOgUtledetMedlemskap).
         await db.Database.ExecuteSqlRawAsync("ALTER TABLE begreper ADD COLUMN IF NOT EXISTS medlemskapsregel text; "
             + "ALTER TABLE begreper ADD COLUMN IF NOT EXISTS kunnskapsstatus text;");
+        // [Ny, issue #385] Aktoridentitet: navneformen som modellutsagn, lenkelister, hjemmel endret på bindinger, avvisningsbegrunnelse.
+        await db.Database.ExecuteSqlRawAsync(Begrepskolonner385Legg
+            + "; ALTER TABLE IF EXISTS strukturkanter ADD COLUMN IF NOT EXISTS kilde_utenfor_korpus_lenker text[]"
+            + "; ALTER TABLE IF EXISTS navneform_bindinger ADD COLUMN IF NOT EXISTS kilde_utenfor_korpus_lenker text[]"
+            + "; ALTER TABLE IF EXISTS navneform_bindinger ADD COLUMN IF NOT EXISTS hjemmel_endret_tidspunkt timestamptz"
+            + "; ALTER TABLE navnekandidater ADD COLUMN IF NOT EXISTS avvisning_begrunnelse text;");
     }
+
+    private const string Begrepskolonner385Legg = "ALTER TABLE begreper ADD COLUMN IF NOT EXISTS godkjenning text; ALTER TABLE begreper ADD COLUMN IF NOT EXISTS kilde_utenfor_korpus_tekst text; ALTER TABLE begreper ADD COLUMN IF NOT EXISTS kilde_utenfor_korpus_type text; ALTER TABLE begreper ADD COLUMN IF NOT EXISTS kilde_utenfor_korpus_dokumentasjon text; ALTER TABLE begreper ADD COLUMN IF NOT EXISTS kilde_utenfor_korpus_lenker text[]; ALTER TABLE begreper ADD COLUMN IF NOT EXISTS begrunnelse text; ALTER TABLE begreper ADD COLUMN IF NOT EXISTS tolkningsargumenter text[]; ALTER TABLE begreper ADD COLUMN IF NOT EXISTS oppdagelses_kilde text; ALTER TABLE begreper ADD COLUMN IF NOT EXISTS avvisning_begrunnelse text";
+    private const string Begrepskolonner385Fjern = "ALTER TABLE begreper DROP COLUMN IF EXISTS godkjenning; ALTER TABLE begreper DROP COLUMN IF EXISTS kilde_utenfor_korpus_tekst; ALTER TABLE begreper DROP COLUMN IF EXISTS kilde_utenfor_korpus_type; ALTER TABLE begreper DROP COLUMN IF EXISTS kilde_utenfor_korpus_dokumentasjon; ALTER TABLE begreper DROP COLUMN IF EXISTS kilde_utenfor_korpus_lenker; ALTER TABLE begreper DROP COLUMN IF EXISTS begrunnelse; ALTER TABLE begreper DROP COLUMN IF EXISTS tolkningsargumenter; ALTER TABLE begreper DROP COLUMN IF EXISTS oppdagelses_kilde; ALTER TABLE begreper DROP COLUMN IF EXISTS avvisning_begrunnelse";
 
     /// <summary>
     /// [Ny, issue #384] For en test som skriver begreper med DAGENS EF-modell mot et historisk skjema og så migrerer VIDERE til siste
@@ -105,9 +114,12 @@ internal static class HistoriskSkjema
     public static async Task BegrepskolonnerFra384Async(string connString, bool leggTil)
     {
         await using var db = new RegelIdeDbContext(Options(connString));
+        // [ENDRET, issue #385] + kolonnene fra Aktoridentitet.
         await db.Database.ExecuteSqlRawAsync(leggTil
-            ? "ALTER TABLE begreper ADD COLUMN IF NOT EXISTS medlemskapsregel text; ALTER TABLE begreper ADD COLUMN IF NOT EXISTS kunnskapsstatus text;"
-            : "ALTER TABLE begreper DROP COLUMN IF EXISTS medlemskapsregel; ALTER TABLE begreper DROP COLUMN IF EXISTS kunnskapsstatus;");
+            ? "ALTER TABLE begreper ADD COLUMN IF NOT EXISTS medlemskapsregel text; ALTER TABLE begreper ADD COLUMN IF NOT EXISTS kunnskapsstatus text; "
+              + Begrepskolonner385Legg
+            : "ALTER TABLE begreper DROP COLUMN IF EXISTS medlemskapsregel; ALTER TABLE begreper DROP COLUMN IF EXISTS kunnskapsstatus; "
+              + Begrepskolonner385Fjern);
     }
 
     /// <summary>
