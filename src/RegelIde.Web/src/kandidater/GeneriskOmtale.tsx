@@ -86,8 +86,19 @@ export function GeneriskOmtale({
       .catch(() => setBegreper([]));
   }, [referentType, begreper]);
 
-  const paragrafer = (noder ?? []).filter((n) => n.nodeType === 'side' || (n.nodeType !== 'kapittel' && n.nummer));
-  const nodeTekst = (n: RettskildeNodeDto) => `${n.nodeType === 'side' ? 'Hele siden' : n.nummer}${n.overskrift ? ` — ${n.overskrift}` : ''}`;
+  // Spennet velges på kapittel- eller paragrafnivå (et kapittel dekker alt under det); hjemmelen kan også være et ledd. Ledd vises med
+  // paragrafen foran («§ 10 ledd 1»), ellers er «1» og «2» uleselige i en lang liste.
+  const perId = new Map((noder ?? []).map((n) => [n.id, n]));
+  const nodeTekst = (n: RettskildeNodeDto): string => {
+    const tittel = n.overskrift ? ` — ${n.overskrift}` : '';
+    if (n.nodeType === 'side') return 'Hele siden';
+    if (n.nodeType === 'kapittel') return `Kapittel ${n.nummer ?? n.eid}${tittel}`;
+    if (n.nodeType === 'paragraf') return `${n.nummer ?? n.eid}${tittel}`; // nummer er alt «§ 10»
+    const forelder = n.parentNodeId ? perId.get(n.parentNodeId) : undefined;
+    return `${forelder ? `${nodeTekst(forelder)} ` : ''}${n.nodeType} ${n.nummer ?? ''}`.trim();
+  };
+  const paragrafer = (noder ?? []).filter((n) => !n.opphevet && (n.nodeType === 'side' || n.nodeType === 'kapittel' || n.nodeType === 'paragraf'));
+  const hjemmelnoder = (noder ?? []).filter((n) => !n.opphevet && (n.nodeType === 'side' || n.nodeType === 'paragraf' || n.nodeType === 'ledd'));
   const herBindinger = oversikt?.rettskilder.find((r) => r.rettskildeId === kandidat.rettskildeId)?.bindinger ?? [];
 
   const referentKlar = (referentType === 'virksomhet' && virksomhetId !== '') || (referentType === 'begrep' && begrepId !== '');
@@ -252,7 +263,7 @@ export function GeneriskOmtale({
               <Label>Bestemmelsen</Label>
               <Select data-size="sm" value={hjemmelEid} onChange={(e) => setHjemmelEid(e.target.value)}>
                 <Select.Option value="">Velg …</Select.Option>
-                {paragrafer.map((n) => <Select.Option key={n.id} value={n.eid}>{nodeTekst(n)}</Select.Option>)}
+                {hjemmelnoder.map((n) => <Select.Option key={n.id} value={n.eid}>{nodeTekst(n)}</Select.Option>)}
               </Select>
             </Field>
           )}
