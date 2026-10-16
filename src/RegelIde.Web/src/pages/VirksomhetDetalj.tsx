@@ -13,6 +13,8 @@ import { paragrafEtikett } from '../rettskilde/paragrafEtikett';
 import { LeggTilVirksomhetRelasjonForm } from '../virksomhet/LeggTilVirksomhetRelasjonForm';
 import { Metatekst } from '../entitet/Metatekst';
 import { AktortypeTag, AktortypeVelger, OrdningstypeTag, OrdningstypeVelger } from '../begrep/Nodetype';
+import { AktoridentitetKort, erForslag, Registerdata, UtsagnKilde } from '../virksomhet/Aktoridentitet';
+import { GodkjenningTag, KunnskapsstatusTag } from '../strukturkant/Utsagnsstatus';
 
 /** [Ny, issue #157] Rad-etiketter for bekreftelsesdialogen — KUN de feltene som faktisk kan være > 0
  * for en reell virksomhet vises (0-rader skjules, se `SlettVirksomhetSeksjon` under). Rekkefølgen her
@@ -51,7 +53,9 @@ type Fane = 'grunndata' | 'navneformer' | 'myndighet' | 'rettskilder' | 'kandida
 export default function VirksomhetDetalj() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { virksomheter, virksomheterPerId, laster: virksomheterLaster } = useVirksomheter();
+  const { virksomheter, virksomheterPerId, laster: virksomheterLaster, oppdater: oppdaterVirksomheter } = useVirksomheter();
+  // [Ny, issue #385] Avviste navneforslag vises bare på forespørsel.
+  const [visAvvisteNavneformer, setVisAvvisteNavneformer] = useState(false);
   const [fane, setFane] = useState<Fane>('grunndata');
 
   const [begrep, setBegrep] = useState<VirksomhetsbegrepDto[] | null>(null);
@@ -152,7 +156,7 @@ export default function VirksomhetDetalj() {
 
   function lastAlt() {
     if (!id) return;
-    api.hentVirksomhetsbegrep(id).then(setBegrep)
+    api.hentVirksomhetsbegrep(id, visAvvisteNavneformer).then(setBegrep)
       .catch((e) => setFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved henting av begrep.'));
     api.hentStrukturkanter({ virksomhetId: id }).then(setKanter).catch(() => setKanter([]));
     api.hentVentendeKandidater(id).then(setKandidater).catch(() => setKandidater([]));
@@ -164,7 +168,8 @@ export default function VirksomhetDetalj() {
       .catch(() => setWhereUsed({ navneformForekomster: [], gruppetildelinger: [] }));
   }
 
-  useEffect(lastAlt, [id]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(lastAlt, [id, visAvvisteNavneformer]);
   // [FJERNET, issue #311] Nodehenting for tildelingenes/relasjonenes hjemler — StrukturkantTabell gjør det selv.
   // [Ny, navneform-kjede-runden, 2026-09-08] Nodene for rettskildene navneformene er TAGGET i, slik
   // at «Brukt i»-kolonnen kan vise «§ 1 — overskrift» i stedet for en rå eId — samme lazy-per-
@@ -284,6 +289,13 @@ export default function VirksomhetDetalj() {
           * detaljsiden er fraværet selve opplysningen (samme valg som NavneformgrunnTag visUspesifisert). */}
         <AktortypeTag aktortype={aktortype} visUavklart />
         {aktortype === 'ordning' && <OrdningstypeTag ordningstype={ordningstype} />}
+        {/* [Ny, issue #385 AC1/AC2] Overskriften er lovens navn (gjeldende navneform). Mangler den, står registernavnet — og det sies. */}
+        {virksomhet.navneformMangler && (
+          <Tag data-size="sm" data-color="neutral" variant="outline" title="Ingen godkjent gjeldende navneform: overskriften er registernavnet.">
+            Navneform mangler
+          </Tag>
+        )}
+        {begrep?.some((b) => erForslag(b.godkjenning)) && <Tag data-size="sm" data-color="info">Navneforslag venter</Tag>}
       </Paragraph>
 
       {feil && <Alert data-color="danger" style={{ marginBottom: '1rem' }}>{feil}</Alert>}
@@ -301,29 +313,15 @@ export default function VirksomhetDetalj() {
 
       {fane === 'grunndata' && (
       <section style={{ marginBottom: '2rem' }}>
-        <Card style={{ padding: '1rem' }}>
+        {/* [Ny, issue #385 «aktøridentitet»] Identiteten først (lovens navn og typen, med forslagene), så klassifiseringen, så
+          * registerdata som attributter. */}
+        <AktoridentitetKort virksomhet={virksomhet} navneformer={begrep} rettskilder={rettskilder}
+          onEndret={() => { lastAlt(); oppdaterVirksomheter(); setAktortypeOverstyrt(undefined); }} />
+        <Card style={{ padding: '1rem', marginBottom: '1rem' }}>
+          <Heading level={2} data-size="sm" style={{ marginBottom: '0.35rem' }}>Klassifisering</Heading>
           <Table>
             <Table.Body>
-              {/* [Ny, registernavn-runden, 2026-09-08] Registerets egen form, vist ORDRETT. Vises
-                  bare når den skiller seg fra visningsnavnet — for de fleste radene er de like, og en
-                  rad som gjentar overskriften ville vært ren støy. Ikke monospace: dette er prosa,
-                  ikke en kode (docs/09 §0 — monospace kun for kode/eId/organisasjonsnummer). */}
-              {virksomhet.navn !== virksomhet.visningsnavn && (
-                <Table.Row>
-                  <Table.HeaderCell>Registrert navn (Brreg)</Table.HeaderCell>
-                  <Table.Cell>
-                    {virksomhet.navn}
-                    <Metatekst as="span" style={{ display: 'block', color: 'var(--ds-color-neutral-text-subtle)' }}>
-                      Beholdes i registerets egen form (issue #158). Navnet som vises ellers i appen er
-                      virksomhetens gjeldende navneform.
-                    </Metatekst>
-                  </Table.Cell>
-                </Table.Row>
-              )}
-              <Table.Row>
-                <Table.HeaderCell>Organisasjonsnummer</Table.HeaderCell>
-                <Table.Cell style={{ fontFamily: 'monospace' }}>{virksomhet.organisasjonsnummer ?? '—'}</Table.Cell>
-              </Table.Row>
+              {/* [FJERNET herfra, issue #385] «Registrert navn (Brreg)» og organisasjonsnummer står nå under «Registerdata» (attributter). */}
               <Table.Row>
                 <Table.HeaderCell>Forvaltningsnivå</Table.HeaderCell>
                 <Table.Cell>
@@ -355,29 +353,11 @@ export default function VirksomhetDetalj() {
                   {aktortypeFeil && <Alert data-color="danger" style={{ marginTop: '0.25rem' }}>{aktortypeFeil}</Alert>}
                 </Table.Cell>
               </Table.Row>
-              <Table.Row>
-                <Table.HeaderCell>Organisasjonsform (Brreg)</Table.HeaderCell>
-                <Table.Cell>{virksomhet.organisasjonsformKode ?? '—'}</Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                <Table.HeaderCell>Sektorkode (Brreg)</Table.HeaderCell>
-                <Table.Cell>{virksomhet.sektorkode ?? '—'}</Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                <Table.HeaderCell>Overordnet enhet</Table.HeaderCell>
-                <Table.Cell>
-                  {virksomhet.overordnetEnhetId
-                    ? virksomheterPerId.get(virksomhet.overordnetEnhetId)?.visningsnavn ?? virksomhet.overordnetEnhetId
-                    : '—'}
-                </Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                <Table.HeaderCell>Sist synkronisert mot Brreg</Table.HeaderCell>
-                <Table.Cell>{virksomhet.sistBrregSynkronisert ?? 'Aldri (kun seedet)'}</Table.Cell>
-              </Table.Row>
             </Table.Body>
           </Table>
         </Card>
+        <Registerdata virksomhet={virksomhet}
+          overordnetNavn={virksomhet.overordnetEnhetId ? virksomheterPerId.get(virksomhet.overordnetEnhetId)?.visningsnavn ?? virksomhet.overordnetEnhetId : null} />
       </section>
       )}
 
@@ -484,7 +464,13 @@ export default function VirksomhetDetalj() {
         <Metatekst style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
           Alle navneformer under peker på samme virksomhet — synonymer (f.eks. «Fylkesmann»/«Statsforvalter») er bare flere rader, ingen egen mekanisme.
           «Brukt i» viser hvor navneformen faktisk er tagget i en rettskildetekst, med lenke til paragrafen.
+          «Kilde» er stedet navnet står (eller dokumentasjonen utenfor korpus); «Status» skiller forslag fra godkjente navneformer.
         </Metatekst>
+        <Paragraph data-size="sm" style={{ marginBottom: '0.5rem' }}>
+          <Button data-size="sm" variant="tertiary" onClick={() => setVisAvvisteNavneformer((v) => !v)}>
+            {visAvvisteNavneformer ? 'Skjul avviste forslag' : 'Vis avviste forslag'}
+          </Button>
+        </Paragraph>
         <Card style={{ padding: begrep && begrep.length > 0 ? 0 : '1rem', overflow: 'hidden', marginBottom: '0.75rem' }}>
           {!begrep && <Spinner aria-label="Laster …" data-size="sm" />}
           {begrep && begrep.length === 0 && <Paragraph style={{ margin: 0 }}>Ingen navneformer registrert ennå.</Paragraph>}
@@ -494,6 +480,7 @@ export default function VirksomhetDetalj() {
                 <Table.Row>
                   <Table.HeaderCell>Navneform</Table.HeaderCell>
                   <Table.HeaderCell>Grunn</Table.HeaderCell>
+                  <Table.HeaderCell>Status</Table.HeaderCell>
                   <Table.HeaderCell>Kilde</Table.HeaderCell>
                   <Table.HeaderCell>Brukt i</Table.HeaderCell>
                   <Table.HeaderCell>Handling</Table.HeaderCell>
@@ -508,16 +495,19 @@ export default function VirksomhetDetalj() {
                       * se Navneformgrunn.tsx for fargevalget. Tom celle for uspesifisert grunn
                       * (de fleste eksisterende radene), bevisst i stedet for «Uspesifisert»-støy. */}
                     <Table.Cell><NavneformgrunnTag grunn={b.navneformgrunn} /></Table.Cell>
+                    {/* [Ny, issue #385] Navneformen som modellutsagn: kunnskapsstatus og godkjenning (docs/09 §35). Eldre rader
+                      * (godkjenning null) har ingen godkjenningsmerke — de var i bruk før forslag fantes. */}
                     <Table.Cell>
-                      {/* [Ny, issue #194] Samme SNL-lenke-mønster som NavnekandidaterListe.tsx sin
-                       * BerikelseVisning — saksbehandler skal kunne åpne og selv verifisere
-                       * SNL-artikkelen bak en auto-opprettet navneform (Brreg-import ELLER manuell
-                       * "kun navn"-opprettelse, begge går nå gjennom samme SNL-oppslag). */}
-                      {b.skosUrl && (
-                        <Link href={b.skosUrl} target="_blank" rel="noopener noreferrer" data-size="sm">
-                          <Tag data-color="success" data-size="sm">SNL ↗</Tag>
-                        </Link>
-                      )}
+                      <span style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap' }}>
+                        {b.kunnskapsstatus && <KunnskapsstatusTag status={b.kunnskapsstatus} />}
+                        {b.godkjenning && <GodkjenningTag status={b.godkjenning} oppdagelsesKilde={b.oppdagelsesKilde ?? 'ukjent'} />}
+                      </span>
+                      {b.godkjenning === 'avvist' && b.avvisningBegrunnelse && <Metatekst as="span" style={{ display: 'block' }}>{b.avvisningBegrunnelse}</Metatekst>}
+                    </Table.Cell>
+                    <Table.Cell>
+                      {/* [ENDRET, issue #385] Kilden er hjemmelen der navnet står (rettskilde + paragraf), kilde utenfor korpus med
+                        * lenkene, SNL (issue #194), eller «Hjemmel mangler». Før #385 viste kolonnen bare SNL. */}
+                      <UtsagnKilde b={b} rettskilder={rettskilder} />
                     </Table.Cell>
                     {/* [Ny, navneform-kjede-runden, 2026-09-08] «Where used» per navneform — svarer
                       * på Johanns «jeg hadde forventet at man ser koblinger fra Virksomheten» og
@@ -560,6 +550,22 @@ export default function VirksomhetDetalj() {
                       * av en tabell. Samme «du får se hva som rammes»-prinsipp som
                       * slett-virksomhet-dialogen nederst på siden. */}
                     <Table.Cell>
+                      {/* [Ny, issue #385] Et forslag godkjennes eller avvises (avvist = arkivert, ikke slettet). */}
+                      {erForslag(b.godkjenning) && (
+                        <span style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap', marginBottom: '0.25rem' }}>
+                          <Button data-size="sm" variant="secondary" onClick={() => {
+                            setFeil(null);
+                            api.godkjennNavneform(b.id).then(() => { lastAlt(); oppdaterVirksomheter(); })
+                              .catch((e) => setFeil(e instanceof ApiError ? e.message : 'Kunne ikke godkjenne.'));
+                          }}>Godkjenn</Button>
+                          <Button data-size="sm" variant="tertiary" onClick={() => {
+                            setFeil(null);
+                            api.avvisNavneform(b.id, null).then(() => lastAlt())
+                              .catch((e) => setFeil(e instanceof ApiError ? e.message : 'Kunne ikke avvise.'));
+                          }}>Avvis</Button>
+                        </span>
+                      )}
+                      {b.godkjenning !== 'avvist' && (
                       <Button
                         data-size="sm"
                         variant="tertiary"
@@ -568,6 +574,7 @@ export default function VirksomhetDetalj() {
                       >
                         Fjern
                       </Button>
+                      )}
                     </Table.Cell>
                   </Table.Row>
                 ))}
