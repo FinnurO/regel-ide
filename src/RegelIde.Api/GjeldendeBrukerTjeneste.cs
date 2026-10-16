@@ -1,4 +1,4 @@
-using RegelIde.Api.Autentisering;
+﻿using RegelIde.Api.Autentisering;
 using RegelIde.Data;
 
 namespace RegelIde.Api;
@@ -90,7 +90,21 @@ public sealed record VirksomhetDto(
     public static VirksomhetDto FraEntitet(Virksomhet v, IReadOnlyDictionary<Guid, string> visningsnavn) => new(
         v.Id, v.Navn, v.Organisasjonsnummer, v.Aktiv, v.Forvaltningsniva, v.OrganisasjonsformKode,
         v.Sektorkode, v.OverordnetEnhetId, v.SistBrregSynkronisert,
-        visningsnavn.GetValueOrDefault(v.Id) ?? v.Navn, v.Aktortype, v.Ordningstype);
+        visningsnavn.GetValueOrDefault(v.Id) ?? v.Navn, v.Aktortype, v.Ordningstype)
+    {
+        NavneformMangler = !visningsnavn.ContainsKey(v.Id),
+    };
+
+    /// <summary>[Ny, issue #385 AC2] Én rad med visningsnavnet slått opp — for endepunktene som returnerer en nyopprettet eller endret aktør.</summary>
+    public static async Task<VirksomhetDto> FraEntitetAsync(Virksomhet v, RegelIdeDbContext db, CancellationToken ct)
+    {
+        var navn = await new VirksomhetVisningsnavnTjeneste(db).ForAsync(v.Id, ct);
+        return FraEntitet(v) with { Visningsnavn = navn ?? v.Navn, NavneformMangler = navn is null };
+    }
+
+    /// <summary>[Ny, issue #385 AC1/AC2] Sann når aktøren ikke har en godkjent gjeldende navneform — visningsnavnet er da registernavnet,
+    /// og siden viser «Navneform mangler». Null der det ikke er slått opp.</summary>
+    public bool? NavneformMangler { get; init; }
 }
 
 /// <summary>Brukerhåndteringssiden — se BrukerregisterTjeneste.GyldigeRoller for gyldige verdier.</summary>
