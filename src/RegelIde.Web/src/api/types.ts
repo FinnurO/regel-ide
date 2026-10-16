@@ -348,6 +348,8 @@ export interface VirksomhetDto {
   aktortype: Aktortype | null;
   /** [Ny, issue #353] trygdeordning | fond | tilskuddsordning — bare når aktørtypen er 'ordning'; null = ikke angitt. */
   ordningstype: Ordningstype | null;
+  /** [Ny, issue #385 AC1/AC2] Sann når aktøren ikke har en godkjent gjeldende navneform — `visningsnavn` er da registernavnet. */
+  navneformMangler?: boolean | null;
 }
 
 /** [Ny, 2026-08-30] Opprett en virksomhet med KUN navn — se POST /api/virksomheter. */
@@ -415,6 +417,19 @@ export interface VirksomhetsbegrepDto {
   status: string;
   /** Se `Navneformgrunn`. `null` = uspesifisert. */
   navneformgrunn: Navneformgrunn | null;
+  // [Ny, issue #385] Navneformen som modellutsagn. Hjemmel = lovkildeId + lovreferanseEid. godkjenning null = registrert før #385.
+  lovreferanseEid?: string | null;
+  kunnskapsstatus?: Kunnskapsstatus | null;
+  godkjenning?: Godkjenning | null;
+  kildeUtenforKorpusTekst?: string | null;
+  kildeUtenforKorpusType?: KildeUtenforKorpusType | null;
+  kildeUtenforKorpusDokumentasjon?: KildeUtenforKorpusDokumentasjon | null;
+  kildeUtenforKorpusLenker?: string[] | null;
+  begrunnelse?: string | null;
+  tolkningsargumenter?: Tolkningsargument[] | null;
+  oppdagelsesKilde?: string | null;
+  avvisningBegrunnelse?: string | null;
+  sistEndretAv?: string | null;
 }
 
 export interface ParagrafspennParDto {
@@ -573,6 +588,8 @@ export interface StrukturforslagRapport {
   kiInputTokens: number | null; kiOutputTokens: number | null; kiKastedeRader: number | null;
   /** [Ny, issue #378 A3] Aktørene per status — samme klassifisering som aktørsveipet. */
   aktorerPerStatus: { status: Aktorstatus; antall: number }[];
+  /** [Ny, issue #385 AC3] Hva navnetreffene ga. */
+  aktoridentitet?: Treffidentitet | null;
 }
 
 /** [Ny, issue #367 AC2] Godkjenning (strukturkant.status). Før #367: 'foreslatt_av_ai' | 'validert'. */
@@ -825,7 +842,7 @@ export interface OppdaterNavnekandidatRequest {
 export type Navnekandidatkategori = 'virksomhet' | 'gruppe' | Kandidatnodetype;
 
 /** [Ny, navnekandidat-wizard-runden, 2026-09-07] POST /api/navnekandidater/{id}/kobl-til-virksomhet. */
-export interface KoblNavnekandidatTilVirksomhetRequest {
+export interface KoblNavnekandidatTilVirksomhetRequest extends VeivisergrunnlagFelt {
   virksomhetId: string;
   navneformgrunn: Navneformgrunn | null;
 }
@@ -843,7 +860,7 @@ export interface NavnekandidatKoblingResultatDto {
 
 /** [Ny, gruppemedlemskap-runden, 2026-09-08] POST /api/navnekandidater/{id}/kobl-til-gruppemedlemskap.
  * Hjemmelen sendes IKKE — den er alltid kandidatens egen rettskilde (det er der navnet står). */
-export interface KoblNavnekandidatTilGruppemedlemskapRequest {
+export interface KoblNavnekandidatTilGruppemedlemskapRequest extends VeivisergrunnlagFelt {
   virksomhetId: string;
   gruppeBegrepId: string;
   navneformgrunn: Navneformgrunn | null;
@@ -908,7 +925,7 @@ export interface NavnekandidatManuellRequest {
  * {id}/kobl-til-myndighetstildeling — det valgfrie «Rolle tildelt her»-steget, for BÅDE virksomhet- og
  * gruppemedlem-slaget. `rolleBegrepId` er et FRITT valgt gruppebegrep, ikke gruppemedlem-sporets egen
  * gruppe. Hjemmelen sendes ikke — den er alltid kandidatens egen rettskilde. */
-export interface KoblNavnekandidatTilMyndighetstildelingRequest {
+export interface KoblNavnekandidatTilMyndighetstildelingRequest extends VeivisergrunnlagFelt {
   virksomhetId: string;
   rolleBegrepId: string;
   /** [Ny, issue #341] HVOR i kandidatens rettskilde rollen tildeles — null = kandidatens egen node. */
@@ -933,7 +950,7 @@ export interface NavnekandidatMyndighetstildelingResultatDto {
  * {id}/kobl-til-relasjon — det valgfrie «Relasjon til annen virksomhet»-steget. `hjemletHer=true`
  * hjemler relasjonen i kandidatens egen rettskilde/node (sendes ikke — settes server-side);
  * `false` lagrer kun `kommentar` som fritekst, uten hjemmel. */
-export interface KoblNavnekandidatTilRelasjonRequest {
+export interface KoblNavnekandidatTilRelasjonRequest extends VeivisergrunnlagFelt {
   virksomhetId: string;
   navneformgrunn: Navneformgrunn | null;
   motpartVirksomhetId: string;
@@ -2456,6 +2473,8 @@ export interface AktorsveipRad {
 export interface AktorsveipRapport {
   rettskildeId: string; rettskildeTittel: string; lag: 'monster' | 'ki'; noderLest: number; utsagnTotalt: number; aktorerTotalt: number;
   perStatus: { status: Aktorstatus; antall: number }[]; aktorer: AktorsveipRad[]; navnekandidaterSkrevet: boolean;
+  /** [Ny, issue #385 AC3] Hva navnetreffene ga når sveipet skrev (null i tørrkjøringen). */
+  aktoridentitet?: Treffidentitet | null;
 }
 
 /** [Ny, issue #378 B5] Én binding av en generisk navneform i én rettskilde. */
@@ -2472,6 +2491,10 @@ export interface NavneformBindingDto {
   gyldigFra: string | null; gyldigTil: string | null;
   /** [Ny, issue #384] Verket bindingen følger (ELI), versjonen den ble registrert mot, og den gjeldende versjonen av verket. */
   verkEli?: string | null; registrertVersjon?: number; gjeldendeRettskildeId?: string;
+  /** [Ny, issue #385 AC12] Satt når teksten i hjemmelen eller spennet er endret i en ny versjon. */
+  hjemmelEndretTidspunkt?: string | null;
+  /** [Ny, issue #385 AC8] Alle lenkene til dokumentasjonen. */
+  kildeUtenforKorpusLenker?: string[] | null;
 }
 /** [Ny, issue #378 AC7] «Hvor brukes ‹styret›, og hva betyr det i hver rettskilde?» */
 export interface GeneriskNavneformOversikt {
@@ -2492,4 +2515,55 @@ export interface NavneformBindingRequest {
   kunnskapsstatus: Kunnskapsstatus | null; begrunnelse: string | null; tolkningsargumenter: Tolkningsargument[] | null;
   status: Godkjenning; kommentar: string | null;
   gyldigFra: string | null; gyldigTil: string | null;
+  /** [Ny, issue #385 AC8] Én eller flere lenker. */
+  kildeUtenforKorpusLenker?: string[] | null;
+}
+
+// ---------- [Ny, issue #385] Aktøridentitet ----------
+
+/** «Hva bygger dette på?» */
+export type Grunnlagstype = 'hjemmel' | 'kilde' | 'mangler';
+
+/** Veiviserens to nye steg som ett objekt — speilet av `UtsagnsgrunnlagRequest` i API-et. */
+export interface UtsagnsgrunnlagRequest {
+  grunnlag: Grunnlagstype;
+  hjemmelRettskildeId: string | null; hjemmelEid: string | null;
+  kildeTekst: string | null; kildeType: KildeUtenforKorpusType | null; kildeDokumentasjon: KildeUtenforKorpusDokumentasjon | null;
+  kildeLenker: string[] | null;
+  kunnskapsstatus: Kunnskapsstatus | null; godkjenning: Godkjenning; begrunnelse: string | null; tolkningsargumenter: Tolkningsargument[] | null;
+}
+
+export interface Treffidentitet {
+  navneformForslag: number; kilderSatt: number; taggerOpprettet: number; taggerFantes: number; taggerUtenEier: number;
+  taggerKolliderer: number; ulikSkrivemaate: number; aktortypeForslag: number;
+}
+
+export type Navneformforslagutfall = 'foreslatt' | 'forslag_finnes' | 'tidligere_avvist' | 'navneform_finnes' | 'ingen_treff'
+  | 'ingen_egennavnform' | 'flere_former';
+export interface Navneformforslagrad {
+  virksomhetId: string; registernavn: string; organisasjonsnummer: string | null; utfall: Navneformforslagutfall; form: string | null;
+  kunnskapsstatus: Kunnskapsstatus | null; rettskildeId: string | null; rettskildeTittel: string | null; eid: string | null;
+  forekomster: number; rettskilder: number; former: string[]; navneformId: string | null;
+}
+export interface NavneformforslagRapport { skrevet: boolean; aktorerUtenGjeldendeNavneform: number; foreslatt: number; rader: Navneformforslagrad[] }
+export interface EtterfyllingRapport {
+  skrevet: boolean; kantTreff: number; aktorer: number; tall: Treffidentitet;
+  rader: { virksomhetId: string; aktor: string; rettskildeId: string; rettskildeTittel: string; noder: number; tall: Treffidentitet }[];
+}
+
+export interface AktortypeUtsagnDto {
+  id: string; virksomhetId: string; aktortype: Aktortype; ordningstype: Ordningstype | null;
+  hjemmelRettskildeId: string | null; hjemmelEid: string | null;
+  kildeUtenforKorpusTekst: string | null; kildeUtenforKorpusType: KildeUtenforKorpusType | null;
+  kildeUtenforKorpusDokumentasjon: KildeUtenforKorpusDokumentasjon | null; kildeUtenforKorpusLenker: string[] | null;
+  kunnskapsstatus: Kunnskapsstatus | null; begrunnelse: string | null; tolkningsargumenter: Tolkningsargument[] | null;
+  status: Godkjenning; oppdagelsesKilde: string; avvisningBegrunnelse: string | null;
+  opprettetAv: string; opprettetTidspunkt: string; sistEndretAv: string | null; sistEndretTidspunkt: string | null;
+}
+
+/** Felles tillegg til kobl-til-endepunktene (issue #385 AC6–AC10). Valgfrie. */
+export interface VeivisergrunnlagFelt {
+  grunnlag?: UtsagnsgrunnlagRequest | null;
+  aktortype?: Aktortype | null;
+  ordningstype?: Ordningstype | null;
 }
