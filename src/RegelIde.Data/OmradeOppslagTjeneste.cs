@@ -404,6 +404,8 @@ public sealed class OmradeOppslagTjeneste(RegelIdeDbContext db, StrukturkantTjen
     {
         var domstol = await db.Virksomheter.Where(v => v.Id == virksomhetId).Select(v => new { v.Id, v.Navn, v.Aktortype }).FirstOrDefaultAsync(ct);
         if (domstol is null) return null;
+        // [ENDRET, issue #385 AC2] Visningsnavnet (lovens navn), registernavnet bare som reserve.
+        domstol = domstol with { Navn = await new VirksomhetVisningsnavnTjeneste(db).ForAsync(domstol.Id, ct) ?? domstol.Navn };
         var hull = new List<string>();
 
         // (1) Domstolens områder: egne A-mål og deres O-forfedre.
@@ -611,7 +613,9 @@ public sealed class OmradeOppslagTjeneste(RegelIdeDbContext db, StrukturkantTjen
                         && k.FraVirksomhetId != null && medlemmer.Contains(k.FraVirksomhetId.Value)
                         && k.TilBegrepId != null && dekker.Contains(k.TilBegrepId.Value)).ToListAsync(ct), ct);
         var treffIder = ansvar.Select(k => k.FraVirksomhetId!.Value).Distinct().ToList();
-        var navn = await db.Virksomheter.Where(v => treffIder.Contains(v.Id)).Select(v => new { v.Id, v.Navn }).ToDictionaryAsync(v => v.Id, v => v.Navn, ct);
+        var visning = await new VirksomhetVisningsnavnTjeneste(db).AlleAsync(ct); // [ENDRET, issue #385 AC2]
+        var navn = await db.Virksomheter.Where(v => treffIder.Contains(v.Id)).Select(v => new { v.Id, v.Navn })
+            .ToDictionaryAsync(v => v.Id, v => visning.GetValueOrDefault(v.Id) ?? v.Navn, ct);
         var sortert = treffIder.OrderBy(i => navn.GetValueOrDefault(i), StringComparer.Ordinal).ToList();
         // [Ny, issue #367 AC7] Premissene for et entydig svar: medlemskapet/rolleinnehavet og ansvarsområdet til den ene.
         var kantIder = sortert.Count == 1

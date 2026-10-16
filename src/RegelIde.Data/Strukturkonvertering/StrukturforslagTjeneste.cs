@@ -83,7 +83,12 @@ public sealed record AktorstatusTall(string Status, int Antall);
 /// <see cref="NavnekandidaterSkrevet"/>.</summary>
 public sealed record AktorsveipRapport(
     Guid RettskildeId, string RettskildeTittel, string Lag, int NoderLest, int UtsagnTotalt, int AktorerTotalt,
-    IReadOnlyList<AktorstatusTall> PerStatus, IReadOnlyList<AktorsveipRad> Aktorer, bool NavnekandidaterSkrevet);
+    IReadOnlyList<AktorstatusTall> PerStatus, IReadOnlyList<AktorsveipRad> Aktorer, bool NavnekandidaterSkrevet)
+{
+    /// <summary>[Ny, issue #385 AC3] Hva navnetreffene ga når sveipet skrev: navneformforslag, kilder, tagger og aktørtypeforslag. Null i
+    /// tørrkjøringen.</summary>
+    public Treffidentitet? Aktoridentitet { get; init; }
+}
 
 /// <summary>Én rad i rapporten: hva som skjedde med ett utsagn.</summary>
 public sealed record ForslagsutfallRad(
@@ -114,6 +119,8 @@ public sealed record StrukturforslagRapport(
     /// <summary>[Ny, issue #378 A3] Aktørene i konverteringen per status, med samme klassifisering som aktørsveipet — slik at
     /// lasterapporten (steg 2) kan sammenlignes med sveipet før gjennomgangen (steg 1).</summary>
     public IReadOnlyList<AktorstatusTall> AktorerPerStatus { get; init; } = [];
+    /// <summary>[Ny, issue #385 AC3] Hva navnetreffene ga: navneformforslag, kilder, tagger og aktørtypeforslag.</summary>
+    public Treffidentitet? Aktoridentitet { get; init; }
 }
 
 /// <summary>
@@ -320,6 +327,9 @@ public sealed class StrukturforslagTjeneste(
             }
         }
 
+        // [Ny, issue #385 AC3] Navnetreffene: navneform, kilde, tagg og aktørtypeforslag.
+        var aktoridentitet = await SikreAktoridentitetAsync(rettskildeId, dokument, klassifiserer, $"strukturforslag:{standardOppdagelseskilde}", opprettetAv, ct);
+
         // Navnekandidater for aktørene som ikke fantes i katalogen (ikke for de flertydige: der finnes navnet, valget mangler).
         var uloesteAktorer = new List<UloestAktor>();
         foreach (var (aktorId, (arsak, antall, eid, treff)) in uloest)
@@ -352,6 +362,7 @@ public sealed class StrukturforslagTjeneste(
             uloesteAktorer.OrderByDescending(a => a.AntallUtsagn).ThenBy(a => a.Tekstform, StringComparer.Ordinal).ToList(), rader)
         {
             AktorerPerStatus = TellPerStatus(sveip),
+            Aktoridentitet = aktoridentitet,
         };
     }
 
@@ -392,8 +403,11 @@ public sealed class StrukturforslagTjeneste(
         dokument = dokument with { Utsagn = dokument.Utsagn.Select(Strukturkontrakt.NormaliserOmradesammensetning).ToList() };
         var klassifiserer = await NyKlassifisererAsync(rettskildeId, ct);
         var rader = await KlassifiserAktorerAsync(dokument, klassifiserer, ct);
+        Treffidentitet? identitet = null;
         if (skrivNavnekandidater)
         {
+            // [Ny, issue #385 AC3] Navnetreffene registreres: navneform (forslag ved treff via registernavnet), kilde og tagg.
+            identitet = await SikreAktoridentitetAsync(rettskildeId, dokument, klassifiserer, $"aktorsveip:{lag}", opprettetAv, ct);
             for (var i = 0; i < rader.Count; i++)
             {
                 var r = rader[i];
@@ -405,7 +419,37 @@ public sealed class StrukturforslagTjeneste(
             rader.Count, TellPerStatus(rader),
             rader.OrderBy(r => Array.IndexOf(Aktorstatus.Alle, r.Status)).ThenByDescending(r => r.Forekomster)
                 .ThenBy(r => r.Tekstform, StringComparer.Ordinal).ToList(),
-            skrivNavnekandidater);
+            skrivNavnekandidater) { Aktoridentitet = identitet };
+    }
+
+    /// <summary>
+    /// [Ny, issue #385 AC3 + Johanns presisering 2026-10-16] For hver aktør som er KJENT som én virksomhet: navneformen registreres (forslag
+    /// når treffet gikk via registernavnet), navneformen får kilde (rettskilde + eId der navnet står), og spennet tagges der teksten er
+    /// nøyaktig lik navneformen. Med konverteringens entitetstype foreslås aktørtypen når aktøren mangler den. Se
+    /// <see cref="AktoridentitetTjeneste.SikreTreffAsync"/>.
+    /// </summary>
+    private async Task<Treffidentitet> SikreAktoridentitetAsync(
+        Guid rettskildeId, Strukturdokument dokument, Aktorklassifiserer klassifiserer, string oppdagelseskilde, string bruker, CancellationToken ct)
+    {
+        var identitet = new AktoridentitetTjeneste(db, new TekstTaggTjeneste(db, virksomhetOppslag), virksomhetOppslag);
+        var eids = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
+        foreach (var u in dokument.Utsagn)
+        {
+            foreach (var id in new[] { u.Fra, u.Til }.OfType<string>())
+            {
+                if (!eids.TryGetValue(id, out var e)) eids[id] = e = new(StringComparer.Ordinal);
+                e.Add(u.Eid);
+            }
+        }
+        var tall = new Treffidentitet();
+        foreach (var aktor in dokument.Aktorer)
+        {
+            if (!eids.TryGetValue(aktor.Id, out var e)) continue;
+            var g = await klassifiserer.GrunnlagAsync(aktor, ct);
+            if (g.Status != Aktorstatus.Kjent || g.Node?.VirksomhetId is not { } vid) continue;
+            tall += await identitet.SikreTreffAsync(vid, rettskildeId, e, aktor.Entitetstype, oppdagelseskilde, bruker, ct);
+        }
+        return tall;
     }
 
     private async Task<List<AktorsveipRad>> KlassifiserAktorerAsync(Strukturdokument dokument, Aktorklassifiserer klassifiserer, CancellationToken ct)
@@ -537,7 +581,9 @@ internal sealed class Aktorklassifiserer(
         {
             var r = o.Referent!;
             KantnodeVisning? v = r.VirksomhetId is { } vid
+                // [ENDRET, issue #385 AC2] Visningsnavnet, ikke registernavnet.
                 ? await db.Virksomheter.Where(x => x.Id == vid).Select(x => new KantnodeVisning("virksomhet", x.Id, x.Navn, x.Aktortype)).FirstOrDefaultAsync(ct)
+                    is { } kv ? kv with { Navn = await new VirksomhetVisningsnavnTjeneste(db).ForAsync(kv.Id, ct) ?? kv.Navn } : null
                 : await db.Begreper.Where(x => x.Id == r.BegrepId).Select(x => new KantnodeVisning("begrep", x.Id, x.Term, x.Begrepskategori)).FirstOrDefaultAsync(ct);
             return (Aktorstatus.Kjent, r, v, o.AntallForeslatteBindinger);
         }
