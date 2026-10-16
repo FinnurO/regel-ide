@@ -128,6 +128,11 @@ public sealed class VirksomhetsbegrepTjeneste(RegelIdeDbContext db)
         var navneform = await db.Begreper.FirstOrDefaultAsync(
             b => b.Id == id && b.Begrepskategori == "virksomhet", ct);
         if (navneform is null) return false;
+        // [Ny, issue #378] En generisk navneform har ingen virksomhet; grunnen kan ikke endres til en virksomhetsgrunn her.
+        if (navneform.Navneformgrunn == Generisk)
+        {
+            throw new ArgumentException($"«{navneform.Term}» er en generisk navneform — grunnen endres ikke her (issue #378).");
+        }
         navneform.Navneformgrunn = navneformgrunn;
         navneform.SistEndretAv = endretAv;
         navneform.SistEndretTidspunkt = DateTimeOffset.UtcNow;
