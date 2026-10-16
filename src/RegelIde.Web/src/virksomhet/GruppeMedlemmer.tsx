@@ -55,6 +55,8 @@ export interface GruppeMedlemmerProps {
   gruppeBegrepId: string;
   /** Allerede hentet av kalleren — brukes til å vise hjemmelens TITTEL i stedet for en rå id. */
   rettskilder: RettskildeSammendrag[];
+  /** [Ny, issue #384] Klassen har utledet medlemskap (BegrepDto.medlemskapsregel) — tom-teksten for virksomheter sier da det. */
+  utledet?: boolean;
 }
 
 /** Halen av en eId etter rettskildens ELI — «§1/ledd-1» i stedet for hele URL-en. Kjenner vi ikke
@@ -133,7 +135,7 @@ function Gyldighet({ fra, til }: { fra: string | null; til: string | null }) {
   );
 }
 
-export function GruppeMedlemmer({ gruppeBegrepId, rettskilder }: GruppeMedlemmerProps) {
+export function GruppeMedlemmer({ gruppeBegrepId, rettskilder, utledet = false }: GruppeMedlemmerProps) {
   // `null` = ikke hentet ennå (docs/09 §15) — skilt fra `[]` = hentet, og faktisk tomt.
   const [kanter, setKanter] = useState<StrukturkantDto[] | null>(null);
   const [feil, setFeil] = useState<string | null>(null);
@@ -234,7 +236,10 @@ export function GruppeMedlemmer({ gruppeBegrepId, rettskilder }: GruppeMedlemmer
             <Spinner aria-label="Laster virksomheter i gruppen …" data-size="sm" />
           ) : tildelinger.length === 0 ? (
             <Paragraph style={{ margin: 0 }}>
-              Ingen virksomheter er tildelt denne gruppen ennå.
+              {/* [ENDRET, issue #384] For en klasse med utledet medlemskap er «ingen» feil — medlemmene står i seksjonen over. */}
+              {utledet
+                ? 'Ingen virksomheter er registrert med egen medlemskapskant. Medlemskapet er utledet — se «Medlemmer» over.'
+                : 'Ingen virksomheter er tildelt denne gruppen ennå.'}
             </Paragraph>
           ) : (
             <Table data-size="sm" data-density="compact" style={{ width: '100%' }}>

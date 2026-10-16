@@ -1636,6 +1636,20 @@ export interface BegrepDto {
   omradetype?: Omradetype | null;
   /** [Ny, issue #312] Kommune-/fylkesnummer (Kartverket) eller SSR-stedsnummer. Attributt, ikke identitet alene. */
   omradekode?: string | null;
+  /** [Ny, issue #384] Regelen medlemskapet i klassen utledes etter (null = registrert med M-kanter). */
+  medlemskapsregel?: 'omraderegister_kommune' | null;
+  /** [Ny, issue #384] Kunnskapsstatus for begrepet selv (null = ikke vurdert). */
+  kunnskapsstatus?: Kunnskapsstatus | null;
+}
+
+/** [Ny, issue #384] Ett utledet medlem: rettssubjektet, kommunen det er rettssubjekt for, og territoriekanten (premisset). */
+export interface UtledetMedlemDto {
+  virksomhetId: string; navn: string; kommunenummer: string; omradeId: string; omradenavn: string; premissKantId: string; validert: boolean;
+}
+/** [Ny, issue #384] GET /api/gruppebegrep/{id}/utledet-medlemskap — beregnet, ikke lagret. */
+export interface UtledetMedlemskapDto {
+  klasseId: string; term: string; regel: string; hjemmel: string | null; klassensKunnskapsstatus: Kunnskapsstatus | null;
+  kunnskapsstatus: Kunnskapsstatus; antallOmrader: number; medlemmer: UtledetMedlemDto[]; hull: string[];
 }
 
 /** [Ny, issue #312] Speilet av `Omradetyper.Alle` (CHECK ck_begreper_omradetype). */
@@ -2456,6 +2470,8 @@ export interface NavneformBindingDto {
   opprettetAv: string; opprettetTidspunkt: string; sistEndretAv: string | null; sistEndretTidspunkt: string | null;
   /** [Ny, issue #378, Johanns beslutning 2026-10-16] Bindingens egen gyldighet (ISO-dato). Null = åpen ende. */
   gyldigFra: string | null; gyldigTil: string | null;
+  /** [Ny, issue #384] Verket bindingen følger (ELI), versjonen den ble registrert mot, og den gjeldende versjonen av verket. */
+  verkEli?: string | null; registrertVersjon?: number; gjeldendeRettskildeId?: string;
 }
 /** [Ny, issue #378 AC7] «Hvor brukes ‹styret›, og hva betyr det i hver rettskilde?» */
 export interface GeneriskNavneformOversikt {
@@ -2464,7 +2480,8 @@ export interface GeneriskNavneformOversikt {
 }
 /** [Ny, issue #378 B6] Oppløsningen av én tagg mot en generisk navneform. */
 export interface GeneriskTaggOppslag {
-  taggId: string; navneformId: string; status: 'bundet' | 'ubundet' | 'flertydig'; bindingId: string | null; referent: StrukturnodeDto | null;
+  // [ENDRET, issue #384] + 'spenn_endret': en godkjent binding kunne ikke flyttes entydig til denne versjonen (ingen referent).
+  taggId: string; navneformId: string; status: 'bundet' | 'ubundet' | 'flertydig' | 'spenn_endret'; bindingId: string | null; referent: StrukturnodeDto | null;
 }
 /** [Ny, issue #378 B5] Bindingen veiviseren og API-et sender. */
 export interface NavneformBindingRequest {
