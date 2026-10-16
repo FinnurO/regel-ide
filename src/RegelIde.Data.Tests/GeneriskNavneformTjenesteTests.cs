@@ -215,5 +215,10 @@ public class GeneriskNavneformTjenesteTests
         Assert.NotNull(r);
         Assert.Equal(("Godkjent", "generisk", lovId), (r!.Kandidat.Status, r.Navneform.Navneformgrunn, r.Binding!.RettskildeId));
         Assert.Equal(dep.Id, (await new GeneriskNavneformTjeneste(db2).LosOppAsync(r.Navneform.Id, lovId, node.Eid)).Referent!.VirksomhetId);
+
+        // Taggen eies av alkohollovens ansvarlige departement og ville vist seg i TekstTaggTjenesteTests (samme database, samme lov) —
+        // fjernes etter testen.
+        db2.TekstTagger.RemoveRange(await db2.TekstTagger.Where(t => t.RefId == r.Navneform.Id).ToListAsync());
+        await db2.SaveChangesAsync();
     }
 }
