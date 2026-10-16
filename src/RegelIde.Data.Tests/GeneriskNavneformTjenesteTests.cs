@@ -118,6 +118,39 @@ public class GeneriskNavneformTjenesteTests
         Assert.Single(bruk.Bindinger); // den avviste vises ikke
     }
 
+    /// <summary>[Ny, issue #378, Johanns beslutning 2026-10-16 etter juristrunden B1] «departementet» følger ressortfordelingen: en binding
+    /// som er utløpt, brukes ikke i dag, men på en dato innenfor perioden; en etterfølgende binding med samme virkeområde er lov, en
+    /// overlappende er ikke.</summary>
+    [Fact]
+    public async Task Binding_brukes_bare_innenfor_sin_gyldighet()
+    {
+        await using var db = _fixture.NyDbContext();
+        var lovId = await ImporterAlkohollovenAsync(db);
+        var node = await db.RettskildeNoder.Where(n => n.RettskildeId == lovId && n.Tekst != null).OrderBy(n => n.Sorteringsrekkefolge).FirstAsync();
+        var gammelt = await NyVirksomhetAsync(db, $"Gammelt dep {Guid.NewGuid():N}");
+        var nytt = await NyVirksomhetAsync(db, $"Nytt dep {Guid.NewGuid():N}");
+        var tjeneste = new GeneriskNavneformTjeneste(db);
+        var (navneform, _) = await tjeneste.OpprettEllerFinnAsync($"departementet{Guid.NewGuid():N}", "Test");
+        var idag = DateOnly.FromDateTime(DateTime.Today);
+        NyNavneformBinding Binding(Guid referent, DateOnly? fra, DateOnly? til) => new(navneform.Id, lovId, Kantnode.Virksomhet(referent),
+            KildeUtenforKorpusTekst: "Kgl.res. om ressortfordeling", KildeUtenforKorpusType: "kgl_res", KildeUtenforKorpusDokumentasjon: "primaer",
+            Kunnskapsstatus: "eksternt_dokumentert", Status: "godkjent", GyldigFra: fra, GyldigTil: til);
+
+        await tjeneste.OpprettBindingAsync(Binding(gammelt.Id, null, idag.AddDays(-10)), "Test");
+        Assert.Equal(GeneriskOppslagstatus.Ubundet, (await tjeneste.LosOppAsync(navneform.Id, lovId, node.Eid)).Status); // utløpt i dag
+        Assert.Equal(gammelt.Id, (await tjeneste.LosOppAsync(navneform.Id, lovId, node.Eid, dato: idag.AddDays(-20))).Referent!.VirksomhetId);
+
+        // Etterfølgende binding med samme virkeområde: lov. Overlappende: avvist. Fra etter til: avvist.
+        await tjeneste.OpprettBindingAsync(Binding(nytt.Id, idag.AddDays(-9), null), "Test");
+        Assert.Equal(nytt.Id, (await tjeneste.LosOppAsync(navneform.Id, lovId, node.Eid)).Referent!.VirksomhetId);
+        Assert.Equal(gammelt.Id, (await tjeneste.LosOppAsync(navneform.Id, lovId, node.Eid, dato: idag.AddDays(-10))).Referent!.VirksomhetId);
+        await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettBindingAsync(Binding(gammelt.Id, idag, null), "Test"));
+        await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettBindingAsync(Binding(gammelt.Id, idag.AddDays(5), idag), "Test"));
+
+        var visning = (await tjeneste.HentBindingerAsync(navneform.Id)).OrderBy(b => b.GyldigFra ?? DateOnly.MinValue).ToList();
+        Assert.Equal([(null, idag.AddDays(-10)), (idag.AddDays(-9), null)], visning.Select(b => (b.GyldigFra, b.GyldigTil)).ToList());
+    }
+
     [Fact]
     public async Task Aktorsveip_klassifiserer_uten_aa_skrive_forslag_og_lasteren_bruker_bindingen()
     {

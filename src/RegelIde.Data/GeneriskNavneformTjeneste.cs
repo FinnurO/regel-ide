@@ -13,7 +13,9 @@ public sealed record NyNavneformBinding(
     string? KildeUtenforKorpusTekst = null, string? KildeUtenforKorpusLenke = null,
     string? KildeUtenforKorpusType = null, string? KildeUtenforKorpusDokumentasjon = null,
     string? Kunnskapsstatus = null, string? Begrunnelse = null, IReadOnlyList<string>? Tolkningsargumenter = null,
-    string Status = Strukturkanter.ManueltForeslatt, string OppdagelsesKilde = "manuell", string? Kommentar = null);
+    string Status = Strukturkanter.ManueltForeslatt, string OppdagelsesKilde = "manuell", string? Kommentar = null,
+    // [Ny, issue #378, Johanns beslutning 2026-10-16] Bindingens egen gyldighet. Null = åpen ende.
+    DateOnly? GyldigFra = null, DateOnly? GyldigTil = null);
 
 /// <summary>Utfallet av å slå opp en generisk omtale i én node.</summary>
 public static class GeneriskOppslagstatus
@@ -37,7 +39,8 @@ public sealed record NavneformBindingVisning(
     string? KildeUtenforKorpusTekst, string? KildeUtenforKorpusLenke, string? KildeUtenforKorpusType, string? KildeUtenforKorpusDokumentasjon,
     string? Kunnskapsstatus, string? Begrunnelse, IReadOnlyList<string>? Tolkningsargumenter,
     string Status, string OppdagelsesKilde, string? Kommentar, string? AvvisningBegrunnelse,
-    string OpprettetAv, DateTimeOffset OpprettetTidspunkt, string? SistEndretAv, DateTimeOffset? SistEndretTidspunkt);
+    string OpprettetAv, DateTimeOffset OpprettetTidspunkt, string? SistEndretAv, DateTimeOffset? SistEndretTidspunkt,
+    DateOnly? GyldigFra, DateOnly? GyldigTil);
 
 /// <summary>AC7: én rettskilde der en generisk navneform er tagget eller bundet.</summary>
 public sealed record GeneriskBrukIRettskilde(Guid RettskildeId, string RettskildeTittel, int AntallTagger, IReadOnlyList<NavneformBindingVisning> Bindinger);
@@ -229,18 +232,26 @@ public sealed class GeneriskNavneformTjeneste(RegelIdeDbContext db)
         {
             throw new ArgumentException($"Ukjent tolkningsargument '{ukjent}'. Gyldige: {string.Join(", ", Strukturkanter.Tolkningsargumenter)}.");
         }
+        if (ny.GyldigFra is { } gf && ny.GyldigTil is { } gt && gf > gt)
+        {
+            throw new ArgumentException("Gyldig fra kan ikke være etter gyldig til. Ingen gjettet fallback.");
+        }
         if (!Strukturkanter.Statuser.Contains(ny.Status) || ny.Status == Strukturkanter.Avvist)
         {
             throw new ArgumentException($"Ugyldig godkjenning '{ny.Status}' ved opprettelse.");
         }
 
+        // Samme virkeområde med OVERLAPPENDE gyldighet er en motsigelse. Etter hverandre i tid er det ikke (ressortendring, B1).
+        var nyFra = ny.GyldigFra ?? DateOnly.MinValue;
+        var nyTil = ny.GyldigTil ?? DateOnly.MaxValue;
         var konflikt = await db.NavneformBindinger.FirstOrDefaultAsync(b => b.NavneformId == ny.NavneformId && b.RettskildeId == ny.RettskildeId
-            && b.ParagrafspennJson == spennJson && b.Entitetsstatus == "gjeldende" && b.Status != Strukturkanter.Avvist, ct);
+            && b.ParagrafspennJson == spennJson && b.Entitetsstatus == "gjeldende" && b.Status != Strukturkanter.Avvist
+            && (b.GyldigFra == null || b.GyldigFra <= nyTil) && (b.GyldigTil == null || b.GyldigTil >= nyFra), ct);
         if (konflikt is not null)
         {
             throw new ArgumentException(
-                $"«{navneform.Term}» er alt bundet med samme virkeområde i denne rettskilden (binding {konflikt.Id}, status {konflikt.Status}). "
-                + "Avvis den først om betydningen skal endres — to bindinger med samme virkeområde er en motsigelse.");
+                $"«{navneform.Term}» er alt bundet med samme virkeområde og overlappende gyldighet i denne rettskilden (binding {konflikt.Id}, "
+                + $"status {konflikt.Status}). Avvis den, eller avgrens gyldigheten, om betydningen skal endres — to slike bindinger er en motsigelse.");
         }
 
         var binding = new NavneformBindingEntitet
@@ -262,6 +273,8 @@ public sealed class GeneriskNavneformTjeneste(RegelIdeDbContext db)
             Begrunnelse = begrunnelse,
             Tolkningsargumenter = argumenter,
             Profilversjon = status is null ? null : Strukturkanter.Profilversjon,
+            GyldigFra = ny.GyldigFra,
+            GyldigTil = ny.GyldigTil,
             Status = ny.Status,
             OppdagelsesKilde = string.IsNullOrWhiteSpace(ny.OppdagelsesKilde) ? "manuell" : ny.OppdagelsesKilde,
             Kommentar = string.IsNullOrWhiteSpace(ny.Kommentar) ? null : ny.Kommentar.Trim(),
@@ -358,12 +371,17 @@ public sealed class GeneriskNavneformTjeneste(RegelIdeDbContext db)
     /// <summary>
     /// Slår opp hva generisk navneform <paramref name="navneformId"/> betyr i noden <paramref name="eid"/> i <paramref name="rettskildeId"/>
     /// (B6). Bare GODKJENTE bindinger teller; det smaleste spennet som dekker noden vinner. Like smale med ulik referent → flertydig.
+    /// [ENDRET, issue #378, Johanns beslutning 2026-10-16] Bare bindinger som gjelder på <paramref name="dato"/> (standard: i dag) teller —
+    /// også i tellingen av foreslåtte.
     /// </summary>
-    public async Task<GeneriskOppslag> LosOppAsync(Guid navneformId, Guid rettskildeId, string? eid, CancellationToken ct = default)
+    public async Task<GeneriskOppslag> LosOppAsync(
+        Guid navneformId, Guid rettskildeId, string? eid, CancellationToken ct = default, DateOnly? dato = null)
     {
+        var d = dato ?? DateOnly.FromDateTime(DateTime.Today);
         var bindinger = await db.NavneformBindinger
             .Where(b => b.NavneformId == navneformId && b.RettskildeId == rettskildeId && b.Entitetsstatus == "gjeldende"
-                        && b.Status != Strukturkanter.Avvist)
+                        && b.Status != Strukturkanter.Avvist
+                        && (b.GyldigFra == null || b.GyldigFra <= d) && (b.GyldigTil == null || b.GyldigTil >= d))
             .ToListAsync(ct);
         var foreslatte = bindinger.Count(b => b.Status != Strukturkanter.Godkjent);
         var godkjente = bindinger.Where(b => b.Status == Strukturkanter.Godkjent).ToList();
@@ -445,7 +463,8 @@ public sealed class GeneriskNavneformTjeneste(RegelIdeDbContext db)
             ut.Add(new NavneformBindingVisning(b.Id, b.NavneformId, x.Term, b.RettskildeId, x.Tittel, LesSpenn(b.ParagrafspennJson), referent,
                 b.HjemmelRettskildeId, b.HjemmelEid, b.KildeUtenforKorpusTekst, b.KildeUtenforKorpusLenke, b.KildeUtenforKorpusType,
                 b.KildeUtenforKorpusDokumentasjon, b.Kunnskapsstatus, b.Begrunnelse, b.Tolkningsargumenter, b.Status, b.OppdagelsesKilde,
-                b.Kommentar, b.AvvisningBegrunnelse, b.OpprettetAv, b.OpprettetTidspunkt, b.SistEndretAv, b.SistEndretTidspunkt));
+                b.Kommentar, b.AvvisningBegrunnelse, b.OpprettetAv, b.OpprettetTidspunkt, b.SistEndretAv, b.SistEndretTidspunkt,
+                b.GyldigFra, b.GyldigTil));
         }
         return ut;
     }

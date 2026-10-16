@@ -12,6 +12,9 @@ namespace RegelIde.Data.Migrasjoner
     /// <item><c>ck_begreper_navneformgrunn</c> får <c>'generisk'</c>; ny <c>ck_begreper_generisk_uten_referanse</c> (en generisk navneform er
     /// kategori virksomhet uten virksomhet) og <c>ux_begreper_generisk_term</c> (én per term for hele korpuset).</item>
     /// <item>Ny tabell <c>navneform_bindinger</c> med skrankene strukturkanter har etter #367 (se <see cref="NavneformBindingEntitet"/>).</item>
+    /// <item>[ENDRET før merge, Johanns beslutning 2026-10-16 etter juristrunden B1] <c>gyldig_fra</c>/<c>gyldig_til</c> på bindingen
+    /// (CHECK <c>ck_navneform_bindinger_gyldighet</c>), og ingen unik indeks på virkeområdet — overlappende gyldighet avvises i tjenesten.
+    /// Migrasjonen ble rullet tilbake lokalt (0 bindinger, 0 generiske navneformer) og generert på nytt, i stedet for en ekstra migrasjon.</item>
     /// </list>
     /// Ingen datamigrering i <c>Up</c>: ingen eksisterende rad får <c>'generisk'</c> (det gjettes ikke hvilke navneformer som er generiske —
     /// det avgjøres i aktørsveipet, #378 A). <c>Up</c> skriver antallet navneformer per grunn før og etter (NOTICE) og avbryter hvis det endres.
@@ -51,6 +54,8 @@ namespace RegelIde.Data.Migrasjoner
                     begrunnelse = table.Column<string>(type: "text", nullable: true),
                     tolkningsargumenter = table.Column<List<string>>(type: "text[]", nullable: true),
                     profilversjon = table.Column<string>(type: "text", nullable: true),
+                    gyldig_fra = table.Column<DateOnly>(type: "date", nullable: true),
+                    gyldig_til = table.Column<DateOnly>(type: "date", nullable: true),
                     status = table.Column<string>(type: "text", nullable: false, defaultValue: "manuelt_foreslatt"),
                     entitetsstatus = table.Column<string>(type: "text", nullable: false, defaultValue: "gjeldende"),
                     erstatter_binding_id = table.Column<Guid>(type: "uuid", nullable: true),
@@ -69,6 +74,7 @@ namespace RegelIde.Data.Migrasjoner
                     table.CheckConstraint("ck_navneform_bindinger_avvist_hvem", "status <> 'avvist' OR (sist_endret_av IS NOT NULL AND sist_endret_tidspunkt IS NOT NULL)");
                     table.CheckConstraint("ck_navneform_bindinger_entitetsstatus", "entitetsstatus IN ('gjeldende', 'foreldet')");
                     table.CheckConstraint("ck_navneform_bindinger_fortolkning", "kunnskapsstatus IS NULL OR kunnskapsstatus <> 'fortolkning' OR (begrunnelse IS NOT NULL AND cardinality(tolkningsargumenter) > 0)");
+                    table.CheckConstraint("ck_navneform_bindinger_gyldighet", "gyldig_fra IS NULL OR gyldig_til IS NULL OR gyldig_fra <= gyldig_til");
                     table.CheckConstraint("ck_navneform_bindinger_kilde", "(hjemmel_rettskilde_id IS NOT NULL AND hjemmel_eid IS NOT NULL AND kilde_utenfor_korpus_tekst IS NULL AND kilde_utenfor_korpus_lenke IS NULL AND kilde_utenfor_korpus_type IS NULL AND kilde_utenfor_korpus_dokumentasjon IS NULL) OR (hjemmel_rettskilde_id IS NULL AND hjemmel_eid IS NULL AND kilde_utenfor_korpus_tekst IS NOT NULL AND kilde_utenfor_korpus_type IS NOT NULL AND kilde_utenfor_korpus_dokumentasjon IS NOT NULL)");
                     table.CheckConstraint("ck_navneform_bindinger_kilde_dokumentasjon", "kilde_utenfor_korpus_dokumentasjon IS NULL OR kilde_utenfor_korpus_dokumentasjon IN ('primaer', 'sekundaer')");
                     table.CheckConstraint("ck_navneform_bindinger_kilde_type", "kilde_utenfor_korpus_type IS NULL OR kilde_utenfor_korpus_type IN ('kgl_res', 'instruks', 'tildelingsbrev', 'vedtekter', 'styrevedtak', 'forarbeider', 'nettside_annet', 'register')");
@@ -154,6 +160,11 @@ namespace RegelIde.Data.Migrasjoner
                 column: "hjemmel_node_id");
 
             migrationBuilder.CreateIndex(
+                name: "ix_navneform_bindinger_navneform_rettskilde",
+                table: "navneform_bindinger",
+                columns: new[] { "navneform_id", "rettskilde_id" });
+
+            migrationBuilder.CreateIndex(
                 name: "ix_navneform_bindinger_rettskilde",
                 table: "navneform_bindinger",
                 column: "rettskilde_id");
@@ -167,13 +178,6 @@ namespace RegelIde.Data.Migrasjoner
                 name: "ix_navneform_bindinger_til_virksomhet",
                 table: "navneform_bindinger",
                 column: "til_virksomhet_id");
-
-            migrationBuilder.CreateIndex(
-                name: "ux_navneform_bindinger_virkeomrade",
-                table: "navneform_bindinger",
-                columns: new[] { "navneform_id", "rettskilde_id", "paragrafspenn_json" },
-                unique: true,
-                filter: "entitetsstatus = 'gjeldende' AND status <> 'avvist'");
 
             migrationBuilder.Sql(@"DO $$
 DECLARE r record; avvik int;

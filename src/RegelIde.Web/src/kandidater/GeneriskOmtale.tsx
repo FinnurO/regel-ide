@@ -28,6 +28,14 @@ const TOLKNINGSARGUMENTER: { verdi: Tolkningsargument; tekst: string }[] = [
 /** Statusene en binding kan få her. Avledet krever premisser (finnes ikke for bindinger), foreldet settes bare av en revisjon. */
 const BINDING_KUNNSKAPSSTATUSER: Kunnskapsstatus[] = ['tekstfunn', 'fortolkning', 'eksternt_dokumentert', 'uavklart', 'omstridt'];
 
+/** Perioden en binding gjelder, som tekst. Åpen periode i begge ender = «gjelder uten tidsavgrensning». */
+export function periodeTekst(fra: string | null, til: string | null): string {
+  const d = (s: string) => new Date(`${s}T00:00:00`).toLocaleDateString('nb-NO');
+  if (!fra && !til) return 'gjelder uten tidsavgrensning';
+  if (fra && til) return `gjelder ${d(fra)}–${d(til)}`;
+  return fra ? `gjelder fra ${d(fra)}` : `gjelder til ${d(til!)}`;
+}
+
 export interface GeneriskFerdig {
   term: string;
   varNyNavneform: boolean;
@@ -65,6 +73,8 @@ export function GeneriskOmtale({
   const [tilEid, setTilEid] = useState('');
   const [grunnlag, setGrunnlag] = useState<'hjemmel' | 'kilde' | null>(null);
   const [hjemmelEid, setHjemmelEid] = useState('');
+  const [gyldigFra, setGyldigFra] = useState('');
+  const [gyldigTil, setGyldigTil] = useState('');
   const [kildeTekst, setKildeTekst] = useState('');
   const [kildeLenke, setKildeLenke] = useState('');
   const [kildeType, setKildeType] = useState<KildeUtenforKorpusType | ''>('');
@@ -109,7 +119,8 @@ export function GeneriskOmtale({
     || (kunnskapsstatus === 'eksternt_dokumentert' && grunnlag === 'kilde')
     || (kunnskapsstatus === 'fortolkning' && begrunnelse.trim() !== '' && argumenter.length > 0)
     || kunnskapsstatus === 'uavklart' || kunnskapsstatus === 'omstridt';
-  const klar = bind === false || (bind === true && referentKlar && grunnlagKlart && statusKlar);
+  const periodeKlar = !gyldigFra || !gyldigTil || gyldigFra <= gyldigTil;
+  const klar = bind === false || (bind === true && referentKlar && grunnlagKlart && statusKlar && periodeKlar);
 
   async function fullfor() {
     setKjorer(true);
@@ -130,6 +141,8 @@ export function GeneriskOmtale({
         tolkningsargumenter: argumenter.length ? argumenter : null,
         status: 'godkjent',
         kommentar: null,
+        gyldigFra: gyldigFra || null,
+        gyldigTil: gyldigTil || null,
       } : null);
       onFerdig({ term: r.navneform.term, varNyNavneform: r.varNyNavneform, bundet: r.binding !== null, taggOpprettet: r.taggId !== null });
     } catch (e) {
@@ -186,6 +199,7 @@ export function GeneriskOmtale({
                           </RouterLink>
                         </Link>
                         {b.paragrafspenn.length > 0 && <Metatekst as="span">({b.paragrafspenn.length} spenn)</Metatekst>}
+                        <Metatekst as="span">{periodeTekst(b.gyldigFra, b.gyldigTil)}</Metatekst>
                         <KunnskapsstatusTag status={b.kunnskapsstatus} />
                         <GodkjenningTag status={b.status} oppdagelsesKilde={b.oppdagelsesKilde} />
                         {r.rettskildeId === kandidat.rettskildeId && b.status !== 'godkjent' && (
@@ -250,6 +264,14 @@ export function GeneriskOmtale({
               </Field>
             )}
           </div>
+
+          {/* [Ny, issue #378, Johanns beslutning 2026-10-16] Bindingens egen gyldighet — f.eks. til en ressortendring. Tomt = åpen ende.
+            * Oppslaget bruker bare bindinger som gjelder i dag. */}
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <Textfield data-size="sm" type="date" label="Gjelder fra (valgfritt)" value={gyldigFra} onChange={(e) => setGyldigFra(e.target.value)} />
+            <Textfield data-size="sm" type="date" label="Gjelder til (valgfritt)" value={gyldigTil} onChange={(e) => setGyldigTil(e.target.value)} />
+          </div>
+          {!periodeKlar && <Alert data-color="warning" data-size="sm">«Gjelder fra» kan ikke være etter «Gjelder til».</Alert>}
 
           <Field data-size="sm">
             <Label>Hvor betydningen kommer fra</Label>

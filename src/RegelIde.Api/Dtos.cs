@@ -1811,14 +1811,15 @@ public sealed record NavneformBindingRequest(
     Guid? NavneformId, Guid? RettskildeId, Guid? TilVirksomhetId, Guid? TilBegrepId, List<RegelIde.Data.ParagrafspennPar>? Paragrafspenn,
     Guid? HjemmelRettskildeId, string? HjemmelEid,
     string? KildeUtenforKorpusTekst, string? KildeUtenforKorpusLenke, string? KildeUtenforKorpusType, string? KildeUtenforKorpusDokumentasjon,
-    string? Kunnskapsstatus, string? Begrunnelse, List<string>? Tolkningsargumenter, string? Status, string? OppdagelsesKilde, string? Kommentar)
+    string? Kunnskapsstatus, string? Begrunnelse, List<string>? Tolkningsargumenter, string? Status, string? OppdagelsesKilde, string? Kommentar,
+    DateOnly? GyldigFra = null, DateOnly? GyldigTil = null)
 {
     public RegelIde.Data.NyNavneformBinding TilNy(Guid navneformId, Guid rettskildeId) => new(
         navneformId, rettskildeId, new RegelIde.Data.Kantnode(TilVirksomhetId, TilBegrepId), Paragrafspenn,
         HjemmelRettskildeId, HjemmelEid, KildeUtenforKorpusTekst, KildeUtenforKorpusLenke, KildeUtenforKorpusType,
         KildeUtenforKorpusDokumentasjon, Kunnskapsstatus, Begrunnelse, Tolkningsargumenter,
         string.IsNullOrWhiteSpace(Status) ? RegelIde.Data.Strukturkanter.ManueltForeslatt : Status,
-        string.IsNullOrWhiteSpace(OppdagelsesKilde) ? "manuell" : OppdagelsesKilde, Kommentar);
+        string.IsNullOrWhiteSpace(OppdagelsesKilde) ? "manuell" : OppdagelsesKilde, Kommentar, GyldigFra, GyldigTil);
 }
 
 /// <summary>[Ny, issue #378 A2] «Marker som generisk», valgfritt med binding for kandidatens rettskilde.</summary>

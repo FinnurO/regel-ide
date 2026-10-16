@@ -2454,6 +2454,8 @@ export interface NavneformBindingDto {
   kunnskapsstatus: Kunnskapsstatus | null; begrunnelse: string | null; tolkningsargumenter: Tolkningsargument[] | null;
   status: Godkjenning; oppdagelsesKilde: string; kommentar: string | null; avvisningBegrunnelse: string | null;
   opprettetAv: string; opprettetTidspunkt: string; sistEndretAv: string | null; sistEndretTidspunkt: string | null;
+  /** [Ny, issue #378, Johanns beslutning 2026-10-16] Bindingens egen gyldighet (ISO-dato). Null = åpen ende. */
+  gyldigFra: string | null; gyldigTil: string | null;
 }
 /** [Ny, issue #378 AC7] «Hvor brukes ‹styret›, og hva betyr det i hver rettskilde?» */
 export interface GeneriskNavneformOversikt {
@@ -2472,4 +2474,5 @@ export interface NavneformBindingRequest {
   kildeUtenforKorpusType: KildeUtenforKorpusType | null; kildeUtenforKorpusDokumentasjon: KildeUtenforKorpusDokumentasjon | null;
   kunnskapsstatus: Kunnskapsstatus | null; begrunnelse: string | null; tolkningsargumenter: Tolkningsargument[] | null;
   status: Godkjenning; kommentar: string | null;
+  gyldigFra: string | null; gyldigTil: string | null;
 }

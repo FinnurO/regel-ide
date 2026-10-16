@@ -1057,7 +1057,10 @@ eller begrep av typen klasse eller rolle). Et modellutsagn med samme egenskaper 
 utenfor korpus (type og dokumentasjon), kunnskapsstatus (docs/profil/03 §5: `tekstfunn` når loven definerer ordet, ellers `fortolkning` med
 tolkningsargumenter, eller `eksternt_dokumentert`; `avledet` og `foreldet` avvises), godkjenning, avvisning med hvem/hvorfor (slettes ikke).
 Bare godkjente bindinger oppløser; det smaleste spennet som dekker noden vinner (et spenn dekker nodene fra–til i dokumentrekkefølge og alt
-under dem; tomt = hele rettskilden). Én gjeldende, ikke avvist binding per virkeområde (`ux_navneform_bindinger_virkeomrade`). Brukes av
+under dem; tomt = hele rettskilden). [ENDRET før merge, Johanns beslutning 2026-10-16 etter juristrunden B1] Bindingen har egen gyldighet
+(`gyldig_fra`/`gyldig_til`): «departementet» følger ressortfordelingen ved kgl.res., som kan endres uten at loven endres (docs/profil/03 §8).
+Oppslaget bruker bare bindinger som gjelder på datoen (standard i dag). Samme virkeområde kan ha bindinger etter hverandre i tid;
+overlappende gyldighet avvises i tjenesten (ingen unik indeks). Brukes av
 lasteren, taggvisningen (`GET /api/rettskilder/{id}/generiske-tagger`) og virksomhetens «brukt i». Oversikt (AC7):
 `GET /api/navneformer/generiske[?term=]` — hvor termen er tagget eller bundet, og hva den betyr i hver rettskilde. Hva en generisk omtale
 betyr i den enkelte SAKEN (hvilken kommune), er #314 og ikke bindingen.

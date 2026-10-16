@@ -1130,7 +1130,7 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
 - **Veiviseren** får et femte valg i steg 2, «Generisk omtale — «styret», «retten», «departementet»» (`kandidater/GeneriskOmtale.tsx`).
   Øverst vises hvor termen alt brukes og hva den betyr per rettskilde (AC7), med Godkjenn/Avvis på foreslåtte bindinger i kandidatens
   rettskilde. Så «Bare marker som generisk» eller «Marker og bind for denne rettskilden»: referent (virksomhet, eller klasse/rolle), spenn
-  (kapittel/paragraf, tomt = hele rettskilden), hvor betydningen kommer fra (bestemmelse eller kilde utenfor korpus, `KildeUtenforKorpusVelger`)
+  (kapittel/paragraf, tomt = hele rettskilden), egen gyldighet («Gjelder fra/til», valgfri — vises som «gjelder fra …» i oversikten), hvor betydningen kommer fra (bestemmelse eller kilde utenfor korpus, `KildeUtenforKorpusVelger`)
   og kunnskapsstatus (`KUNNSKAPSSTATUS_VISNING`, med begrunnelse og tolkningsargumenter ved fortolkning). **Ingenting forhåndsvelges**
   (CLAUDE.md §8). En binding registrert i veiviseren er en menneskelig avgjørelse og lagres som godkjent.
 - **`NavneformgrunnTag`** viser `generisk` som «Generisk omtale» i `brand1` — en klassifisering, ikke en status, og alle de andre rollene er

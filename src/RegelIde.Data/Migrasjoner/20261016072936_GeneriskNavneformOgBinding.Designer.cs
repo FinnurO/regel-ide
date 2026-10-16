@@ -13,7 +13,7 @@ using RegelIde.Data;
 namespace RegelIde.Data.Migrasjoner
 {
     [DbContext(typeof(RegelIdeDbContext))]
-    [Migration("20261016033334_GeneriskNavneformOgBinding")]
+    [Migration("20261016072936_GeneriskNavneformOgBinding")]
     partial class GeneriskNavneformOgBinding
     {
         /// <inheritdoc />
@@ -1842,6 +1842,14 @@ namespace RegelIde.Data.Migrasjoner
                         .HasColumnType("uuid")
                         .HasColumnName("erstatter_binding_id");
 
+                    b.Property<DateOnly?>("GyldigFra")
+                        .HasColumnType("date")
+                        .HasColumnName("gyldig_fra");
+
+                    b.Property<DateOnly?>("GyldigTil")
+                        .HasColumnType("date")
+                        .HasColumnName("gyldig_til");
+
                     b.Property<string>("HjemmelEid")
                         .HasColumnType("text")
                         .HasColumnName("hjemmel_eid");
@@ -1963,9 +1971,7 @@ namespace RegelIde.Data.Migrasjoner
                     b.HasIndex("TilVirksomhetId")
                         .HasDatabaseName("ix_navneform_bindinger_til_virksomhet");
 
-                    b.HasIndex(new[] { "NavneformId", "RettskildeId", "ParagrafspennJson" }, "ux_navneform_bindinger_virkeomrade")
-                        .IsUnique()
-                        .HasFilter("entitetsstatus = 'gjeldende' AND status <> 'avvist'");
+                    b.HasIndex(new[] { "NavneformId", "RettskildeId" }, "ix_navneform_bindinger_navneform_rettskilde");
 
                     b.ToTable("navneform_bindinger", null, t =>
                         {
@@ -1976,6 +1982,8 @@ namespace RegelIde.Data.Migrasjoner
                             t.HasCheckConstraint("ck_navneform_bindinger_entitetsstatus", "entitetsstatus IN ('gjeldende', 'foreldet')");
 
                             t.HasCheckConstraint("ck_navneform_bindinger_fortolkning", "kunnskapsstatus IS NULL OR kunnskapsstatus <> 'fortolkning' OR (begrunnelse IS NOT NULL AND cardinality(tolkningsargumenter) > 0)");
+
+                            t.HasCheckConstraint("ck_navneform_bindinger_gyldighet", "gyldig_fra IS NULL OR gyldig_til IS NULL OR gyldig_fra <= gyldig_til");
 
                             t.HasCheckConstraint("ck_navneform_bindinger_kilde", "(hjemmel_rettskilde_id IS NOT NULL AND hjemmel_eid IS NOT NULL AND kilde_utenfor_korpus_tekst IS NULL AND kilde_utenfor_korpus_lenke IS NULL AND kilde_utenfor_korpus_type IS NULL AND kilde_utenfor_korpus_dokumentasjon IS NULL) OR (hjemmel_rettskilde_id IS NULL AND hjemmel_eid IS NULL AND kilde_utenfor_korpus_tekst IS NOT NULL AND kilde_utenfor_korpus_type IS NOT NULL AND kilde_utenfor_korpus_dokumentasjon IS NOT NULL)");
 

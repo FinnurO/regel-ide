@@ -360,13 +360,17 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
 
         // [Ny, issue #378 B5] Bindingen av en generisk navneform per rettskilde. Samme skranker som strukturkanter etter #367 der de
         // gjelder: lukkede vokabular, hjemmel ELLER kilde utenfor korpus (strengt), kunnskapsstatus med grunnlag, godkjenning med hvem
-        // som avviste. Referenten er nøyaktig én av virksomhet og begrep. Unik: én gjeldende, ikke avvist binding per (navneform,
-        // rettskilde, paragrafspenn) — to bindinger med samme virkeområde og ulik referent er en motsigelse, ikke to opplysninger.
+        // som avviste. Referenten er nøyaktig én av virksomhet og begrep. To gjeldende, ikke avviste bindinger med samme virkeområde (navneform,
+        // rettskilde, paragrafspenn) og OVERLAPPENDE gyldighet er en motsigelse; det avvises i GeneriskNavneformTjeneste.OpprettBindingAsync.
+        // [ENDRET, issue #378, Johanns beslutning 2026-10-16] Ikke lenger en unik indeks: med gyldig fra/til kan samme virkeområde ha to
+        // bindinger etter hverandre i tid (ressortendring), og overlapp kan ikke uttrykkes som en unik indeks over nullbare datoer.
         b.Entity<NavneformBindingEntitet>(e =>
         {
             e.ToTable("navneform_bindinger", t =>
             {
                 t.HasCheckConstraint("ck_navneform_bindinger_referent_en", "(til_virksomhet_id IS NULL) <> (til_begrep_id IS NULL)");
+                // [Ny, issue #378, Johanns beslutning 2026-10-16] Bindingens egen gyldighet.
+                t.HasCheckConstraint("ck_navneform_bindinger_gyldighet", "gyldig_fra IS NULL OR gyldig_til IS NULL OR gyldig_fra <= gyldig_til");
                 t.HasCheckConstraint("ck_navneform_bindinger_status",
                     "status IN ('maskinelt_foreslatt', 'manuelt_foreslatt', 'faglig_vurdert', 'godkjent', 'avvist')");
                 t.HasCheckConstraint("ck_navneform_bindinger_avvist_hvem",
@@ -419,6 +423,8 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.Begrunnelse).HasColumnName("begrunnelse");
             e.Property(x => x.Tolkningsargumenter).HasColumnName("tolkningsargumenter");
             e.Property(x => x.Profilversjon).HasColumnName("profilversjon");
+            e.Property(x => x.GyldigFra).HasColumnName("gyldig_fra");
+            e.Property(x => x.GyldigTil).HasColumnName("gyldig_til");
             e.Property(x => x.Status).HasColumnName("status").HasDefaultValue("manuelt_foreslatt");
             e.Property(x => x.Entitetsstatus).HasColumnName("entitetsstatus").HasDefaultValue("gjeldende");
             e.Property(x => x.ErstatterBindingId).HasColumnName("erstatter_binding_id");
@@ -440,8 +446,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.HasOne<RettskildeNodeEntitet>().WithMany().HasForeignKey(x => x.HjemmelNodeId).OnDelete(DeleteBehavior.SetNull);
             e.HasOne<NavneformBindingEntitet>().WithMany().HasForeignKey(x => x.ErstatterBindingId).OnDelete(DeleteBehavior.SetNull);
 
-            e.HasIndex(x => new { x.NavneformId, x.RettskildeId, x.ParagrafspennJson }, "ux_navneform_bindinger_virkeomrade").IsUnique()
-                .HasFilter("entitetsstatus = 'gjeldende' AND status <> 'avvist'");
+            e.HasIndex(x => new { x.NavneformId, x.RettskildeId }, "ix_navneform_bindinger_navneform_rettskilde");
             e.HasIndex(x => x.RettskildeId).HasDatabaseName("ix_navneform_bindinger_rettskilde");
             e.HasIndex(x => x.TilVirksomhetId).HasDatabaseName("ix_navneform_bindinger_til_virksomhet");
             e.HasIndex(x => x.TilBegrepId).HasDatabaseName("ix_navneform_bindinger_til_begrep");

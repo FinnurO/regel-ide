@@ -1728,6 +1728,14 @@ public sealed class NavneformBindingEntitet
     public List<string>? Tolkningsargumenter { get; set; }
     public string? Profilversjon { get; set; }
 
+    /// <summary>
+    /// [Ny, issue #378, Johanns beslutning 2026-10-16 etter juristrunden B1] Bindingens EGEN gyldighet. «Departementet» betyr
+    /// Kunnskapsdepartementet etter ressortfordelingen ved kgl.res., som kan endres uten at loven endres (docs/profil/03 §8). Oppslaget
+    /// bruker bare bindinger som gjelder på datoen det spørres for (standard: i dag). NULL = åpen ende.
+    /// </summary>
+    public DateOnly? GyldigFra { get; set; }
+    public DateOnly? GyldigTil { get; set; }
+
     /// <summary>Godkjenning: <see cref="Strukturkanter.Statuser"/>. Bare <c>godkjent</c> oppløser.</summary>
     public string Status { get; set; } = Strukturkanter.ManueltForeslatt;
     public string Entitetsstatus { get; set; } = Strukturkanter.Gjeldende;
