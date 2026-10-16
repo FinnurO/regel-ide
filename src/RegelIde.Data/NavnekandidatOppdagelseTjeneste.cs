@@ -2382,6 +2382,37 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     }
 
     /// <summary>
+    /// [Ny, issue #378 A2/B4, Johanns godkjenning 2026-10-15] «Marker som generisk» i veiviseren: kandidatens tekst er en generisk omtale
+    /// («styret», «departementet»), ikke et navn på én aktør. Finner eller oppretter den generiske navneformen (én per term for hele
+    /// korpuset), kobler taggen på kandidatens posisjon til den (laget «Virksomhet», samme kjede som en vanlig navneform) og godkjenner
+    /// kandidaten. Med <paramref name="binding"/> bindes navneformen i tillegg for kandidatens rettskilde (B5) — bindingen opprettes FØRST,
+    /// så en avvist binding ikke etterlater en halvbehandlet kandidat.
+    /// </summary>
+    /// <param name="binding">Valgfri binding; <see cref="NyNavneformBinding.NavneformId"/> og <see cref="NyNavneformBinding.RettskildeId"/>
+    /// settes her (navneformen og kandidatens rettskilde), og verdiene som sendes inn ignoreres.</param>
+    public async Task<NavnekandidatGeneriskResultat?> MarkerSomGeneriskAsync(
+        Guid id, NyNavneformBinding? binding, string behandletAv, CancellationToken ct = default)
+    {
+        var kandidat = await db.Navnekandidater.FirstOrDefaultAsync(k => k.Id == id, ct);
+        if (kandidat is null) return null;
+        var generiske = new GeneriskNavneformTjeneste(db);
+        await using var tx = db.Database.IsRelational() ? await db.Database.BeginTransactionAsync(ct) : null;
+        var (navneform, varNy) = await generiske.OpprettEllerFinnAsync(kandidat.ForeslattTekst, behandletAv, ct);
+        NavneformBindingEntitet? lagret = null;
+        if (binding is not null)
+        {
+            lagret = await generiske.OpprettBindingAsync(binding with { NavneformId = navneform.Id, RettskildeId = kandidat.RettskildeId }, behandletAv, ct);
+        }
+        var tagg = await OpprettEllerKobleVirksomhetTaggAsync(kandidat, navneform.Id, behandletAv, ct);
+        kandidat.Status = "Godkjent";
+        kandidat.BehandletAv = behandletAv;
+        kandidat.BehandletTidspunkt = DateTimeOffset.UtcNow;
+        await db.SaveChangesAsync(ct);
+        if (tx is not null) await tx.CommitAsync(ct);
+        return new NavnekandidatGeneriskResultat(kandidat, navneform, varNy, lagret, tagg?.Id, kandidat.NodeEid);
+    }
+
+    /// <summary>
     /// [Ny, 2026-08-30] Ekte sletting (<c>Remove</c>, IKKE soft-delete) av ÉN kandidatrad, uansett
     /// status. Til forskjell fra <see cref="VirksomhetKandidatTjeneste.HardslettAvvistAsync"/> (som KUN
     /// tillater hardsletting av <c>'Avvist'</c>-rader, docs/20 §2.6) er det HER ingen slik begrensning:
@@ -2496,6 +2527,12 @@ public sealed record NavnekandidatRelasjonResultat(
 /// </summary>
 public sealed record NavnekandidatGruppeAvGruppeResultat(
     NavnekandidatEntitet Kandidat, BegrepEntitet Gruppebegrep, StrukturkantEntitet Medlemskap);
+
+/// <summary>[Ny, issue #378] Utfallet av <see cref="NavnekandidatOppdagelseTjeneste.MarkerSomGeneriskAsync"/>: den generiske navneformen
+/// (ny eller gjenbrukt), bindingen (null når den ikke ble bedt om) og taggen (null ved samme dokumenterte degradering som
+/// <see cref="NavnekandidatKoblingResultat.TaggId"/>).</summary>
+public sealed record NavnekandidatGeneriskResultat(
+    NavnekandidatEntitet Kandidat, BegrepEntitet Navneform, bool VarNyNavneform, NavneformBindingEntitet? Binding, Guid? TaggId, string NodeEid);
 
 /// <summary>
 /// [Ny, issue #298 AC3] Utfallet av <see cref="NavnekandidatOppdagelseTjeneste.KoblTilFastGruppebegrepAsync"/>.

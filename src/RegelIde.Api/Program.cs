@@ -51,6 +51,7 @@ builder.Services.AddScoped<VirksomhetVisningsnavnTjeneste>();
 builder.Services.AddScoped<StrukturkantTjeneste>();
 // [Ny, issue #313] Forslagslasteren (konvertering → forslag) og KI-konverteringen den kan kjøre (#308).
 builder.Services.AddScoped<RegelIde.Data.Strukturkonvertering.StrukturforslagTjeneste>();
+builder.Services.AddScoped<GeneriskNavneformTjeneste>(); // [Ny, issue #378] generiske navneformer og bindingen per rettskilde
 builder.Services.AddScoped<RegelIde.Data.Strukturkonvertering.KiStrukturkonverterer>();
 // [Ny, issue #312 «områderegister»] «Gitt kommune X → fylke, tingrett, lagdømme, statsforvalter, RHF» (AC5).
 builder.Services.AddScoped<OmradeOppslagTjeneste>();
@@ -1191,6 +1192,50 @@ rettskilder.MapPost("/{id:guid}/strukturforslag", async (Guid id, string? lag, H
     .WithSummary("Issue #313 — kjører strukturkonverteringen (?lag=monster [standard] | ki) på rettskildens gjeldende noder og laster " +
         "utsagnene som forslag (status maskinelt_foreslatt, oppdagelseskilde monster:<id> | ki:<modell>). Aktører løses bare ved eksakt " +
         "treff; ellers navnekandidat. Svarer med tall per kategori, utfall per utsagn og årsakene til det som ikke ble lastet.");
+
+// [Ny, issue #378 A1, Johanns godkjenning 2026-10-15] Aktørsveipet — steg 1 før forslagene. Samme konvertering som /strukturforslag, men
+// bare aktørene klassifiseres (kjent | ny_navneform_for_kjent_aktor | ny_aktor | generisk | flertydig). Skriver ALDRI forslag.
+// ?navnekandidater=true legger aktørene som ikke er kjent i navnekandidatkøen (gjennomgang i veiviseren); uten er det en ren tørrkjøring.
+rettskilder.MapPost("/{id:guid}/aktorsveip", async (Guid id, string? lag, bool? navnekandidater, HttpRequest request, RegelIdeDbContext db,
+        RegelIde.Data.Strukturkonvertering.StrukturforslagTjeneste laster, IServiceProvider tjenester, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var grunnlag = await laster.ByggGrunnlagAsync(id, ct);
+            RegelIde.Data.Strukturkonvertering.Strukturdokument dok;
+            switch (lag ?? "monster")
+            {
+                case "monster":
+                    dok = new RegelIde.Data.Strukturkonvertering.MonsterStrukturkonverterer().Konverter(grunnlag);
+                    break;
+                case "ki":
+                    dok = (await tjenester.GetRequiredService<RegelIde.Data.Strukturkonvertering.KiStrukturkonverterer>()
+                        .KonverterMedRapportAsync(grunnlag, ct)).Dokument;
+                    break;
+                default:
+                    return Results.BadRequest(new { feil = $"Ukjent lag '{lag}'. Gyldige verdier: monster, ki." });
+            }
+            return Results.Ok(await laster.AktorsveipAsync(id, dok, lag ?? "monster", navnekandidater ?? false, bruker.Navn, ct));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithOpenApi()
+    .WithName("Aktorsveip")
+    .WithSummary("Issue #378 A1 — aktørsveip: alle tekstformer på aktørplass i konverteringen (?lag=monster|ki) med status kjent | " +
+        "ny_navneform_for_kjent_aktor | ny_aktor | generisk | flertydig. Skriver ingen forslag. ?navnekandidater=true legger aktørene som " +
+        "ikke er kjent (unntatt flertydige) i navnekandidatkøen.");
+
+// [Ny, issue #378 B6] Taggen bruker bindingen: for hver virksomhet-tagg i rettskilden som peker på en GENERISK navneform, hva den betyr der.
+rettskilder.MapGet("/{id:guid}/generiske-tagger", async (Guid id, GeneriskNavneformTjeneste generiske, CancellationToken ct) =>
+        Results.Ok(await generiske.LosOppTaggerAsync(id, ct)))
+    .WithOpenApi()
+    .WithName("HentGeneriskeTaggerIRettskilde")
+    .WithSummary("Issue #378 B6 — oppløsningen av tagger mot generiske navneformer i rettskilden: bundet (med referent), ubundet eller flertydig.");
 
 rettskilder.MapGet("/{id:guid}/referert-av-tjenester", async (Guid id, RettskildeRepository repo) =>
         Results.Ok(await repo.ReferertAvTjenesterAsync(id)))
@@ -4209,6 +4254,97 @@ app.MapGet("/api/ki-oppdagelse/ko", async (StrukturkantTjeneste tjeneste, Cancel
 // allerede kjent navneform), DENNE er en oppdagelsesmekanisme (ren regex-mønstergjenkjenning, foreslår
 // helt nye navn). Se NavnekandidatOppdagelseTjeneste for hele resonnementet.
 
+// ------------------------------------------------------------ [Ny, issue #378 B] Generiske navneformer og bindinger
+var navneformBindinger = app.MapGroup("/api/navneform-bindinger").WithOpenApi();
+
+app.MapGet("/api/navneformer/generiske", async (string? term, GeneriskNavneformTjeneste generiske, CancellationToken ct) =>
+        Results.Ok(await generiske.OversiktAsync(term, ct)))
+    .WithOpenApi()
+    .WithName("HentGeneriskeNavneformer")
+    .WithSummary("Issue #378 AC7 — «hvor brukes ‹styret›, og hva betyr det i hver rettskilde?»: hver generisk navneform (eller én, ?term=) " +
+        "med rettskildene der den er tagget eller bundet, antall tagger og bindingene.");
+
+app.MapPost("/api/navneformer/generiske", async (GeneriskNavneformRequest body, HttpRequest request, RegelIdeDbContext db,
+        GeneriskNavneformTjeneste generiske, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var (navneform, varNy) = await generiske.OpprettEllerFinnAsync(body.Term, bruker.Navn, ct);
+            return Results.Ok(new { navneform = BegrepDto.FraEntitet(navneform), varNy });
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithOpenApi()
+    .WithName("OpprettGeneriskNavneform")
+    .WithSummary("Issue #378 B4 — finner eller oppretter den generiske navneformen for termen (små bokstaver, én per term for hele korpuset).");
+
+navneformBindinger.MapGet("/", async (Guid? navneformId, Guid? rettskildeId, bool? visAvviste, GeneriskNavneformTjeneste generiske,
+        CancellationToken ct) => Results.Ok(await generiske.HentBindingerAsync(navneformId, rettskildeId, visAvviste ?? false, ct)))
+    .WithName("HentNavneformBindinger")
+    .WithSummary("Issue #378 B5 — bindinger av generiske navneformer, valgfritt for én navneform og/eller én rettskilde. Avviste bare med ?visAvviste=true.");
+
+navneformBindinger.MapPost("/", async (NavneformBindingRequest body, HttpRequest request, RegelIdeDbContext db,
+        GeneriskNavneformTjeneste generiske, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        if (body.NavneformId is not { } nid || body.RettskildeId is not { } rid)
+        {
+            return Results.BadRequest(new { feil = "navneformId og rettskildeId er påkrevd." });
+        }
+        try
+        {
+            return Results.Ok(await generiske.OpprettBindingAsync(body.TilNy(nid, rid), bruker.Navn, ct));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("OpprettNavneformBinding")
+    .WithSummary("Issue #378 B5 — binder en generisk navneform i én rettskilde (valgfritt paragrafspenn) til en virksomhet eller et klasse-/" +
+        "rollebegrep, med hjemmel eller kilde utenfor korpus, kunnskapsstatus og godkjenning (standard manuelt_foreslatt).");
+
+navneformBindinger.MapPost("/{id:guid}/godkjenn", async (Guid id, HttpRequest request, RegelIdeDbContext db,
+        GeneriskNavneformTjeneste generiske, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var b = await generiske.GodkjennAsync(id, bruker.Navn, ct);
+            return b is null ? Results.NotFound(new { feil = $"Ingen binding med id '{id}'." }) : Results.Ok(b);
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("GodkjennNavneformBinding");
+
+navneformBindinger.MapPost("/{id:guid}/avvis", async (Guid id, AvvisNavneformBindingRequest? body, HttpRequest request, RegelIdeDbContext db,
+        GeneriskNavneformTjeneste generiske, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var b = await generiske.AvvisAsync(id, bruker.Navn, body?.Begrunnelse, ct);
+            return b is null ? Results.NotFound(new { feil = $"Ingen binding med id '{id}'." }) : Results.Ok(b);
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("AvvisNavneformBinding")
+    .WithSummary("Issue #378 — avviser en binding (også en godkjent). Raden slettes ikke; hvem, når og begrunnelse lagres.");
+
 var navnekandidater = app.MapGroup("/api/navnekandidater").WithOpenApi();
 
 // [Ny, docs/31-navneform-berikelse-snl-ssr-spesifikasjon.md §5 punkt 5] Berikelse (SNL-alias/URL/orgnr,
@@ -4448,6 +4584,38 @@ navnekandidater.MapPost("/{id:guid}/kobl-til-virksomhet", async (Guid id, HttpRe
     })
     .WithName("KoblNavnekandidatTilVirksomhet")
     .WithSummary("Oppretter/gjenbruker navneformen med navneformgrunn, godkjenner raden, og kobler tekst-taggen til virksomheten.");
+
+// [Ny, issue #378 A2] «Marker som generisk» — valgfritt med binding for kandidatens rettskilde («bind generisk navneform for denne
+// rettskilden»). Se NavnekandidatOppdagelseTjeneste.MarkerSomGeneriskAsync.
+navnekandidater.MapPost("/{id:guid}/marker-generisk", async (Guid id, HttpRequest request, MarkerGeneriskRequest? body,
+        NavnekandidatOppdagelseTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var resultat = await register.MarkerSomGeneriskAsync(id, body?.Binding?.TilNy(Guid.Empty, Guid.Empty), bruker.Navn, ct);
+            return resultat is null
+                ? Results.NotFound(new { feil = $"Ingen kandidat med id '{id}'." })
+                : Results.Ok(new
+                {
+                    kandidat = NavnekandidatDto.FraEntitet(resultat.Kandidat),
+                    navneform = BegrepDto.FraEntitet(resultat.Navneform),
+                    resultat.VarNyNavneform,
+                    binding = resultat.Binding,
+                    resultat.TaggId,
+                    resultat.NodeEid,
+                });
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("MarkerNavnekandidatSomGenerisk")
+    .WithSummary("Issue #378 A2 — oppretter/gjenbruker den generiske navneformen for termen, kobler taggen til den og godkjenner kandidaten. " +
+        "Med binding: binder navneformen for kandidatens rettskilde (referent, valgfritt paragrafspenn, hjemmel eller kilde utenfor korpus, " +
+        "kunnskapsstatus, godkjenning).");
 
 // [Ny, gruppemedlemskap-runden, 2026-09-08, issue #164] Wizardens nye vei: kandidaten peker på en
 // virksomhet som er navngitt som MEDLEM av et eksisterende gruppebegrep. Gjør alt
