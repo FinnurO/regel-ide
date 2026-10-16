@@ -179,6 +179,10 @@ namespace RegelIde.Data.Migrasjoner
                         .HasColumnType("uuid")
                         .HasColumnName("kodeliste_referanse_id");
 
+                    b.Property<string>("Kunnskapsstatus")
+                        .HasColumnType("text")
+                        .HasColumnName("kunnskapsstatus");
+
                     b.Property<Guid?>("LovkildeId")
                         .HasColumnType("uuid")
                         .HasColumnName("lovkilde_id");
@@ -186,6 +190,10 @@ namespace RegelIde.Data.Migrasjoner
                     b.Property<string>("LovreferanseEid")
                         .HasColumnType("text")
                         .HasColumnName("lovreferanse_eid");
+
+                    b.Property<string>("Medlemskapsregel")
+                        .HasColumnType("text")
+                        .HasColumnName("medlemskapsregel");
 
                     b.Property<string>("Navneformgrunn")
                         .HasColumnType("text")
@@ -267,6 +275,10 @@ namespace RegelIde.Data.Migrasjoner
                         .IsUnique()
                         .HasFilter("navneformgrunn = 'generisk' AND entitetsstatus = 'gjeldende'");
 
+                    b.HasIndex(new[] { "Medlemskapsregel" }, "ux_begreper_medlemskapsregel")
+                        .IsUnique()
+                        .HasFilter("medlemskapsregel IS NOT NULL AND entitetsstatus = 'gjeldende'");
+
                     b.HasIndex(new[] { "Term" }, "ux_begreper_nodebegrep_fast_term")
                         .IsUnique()
                         .HasFilter("begrepskategori IN ('gruppe', 'klasse', 'rolle', 'omrade') AND entitetsstatus = 'gjeldende' AND lovkilde_id IS NULL AND omradetype IS NULL");
@@ -288,6 +300,10 @@ namespace RegelIde.Data.Migrasjoner
                             t.HasCheckConstraint("ck_begreper_begrepskategori", "begrepskategori IS NULL OR begrepskategori IN ('virksomhet', 'gruppe', 'klasse', 'rolle', 'omrade')");
 
                             t.HasCheckConstraint("ck_begreper_generisk_uten_referanse", "navneformgrunn IS DISTINCT FROM 'generisk' OR (begrepskategori = 'virksomhet' AND virksomhet_referanse_id IS NULL)");
+
+                            t.HasCheckConstraint("ck_begreper_kunnskapsstatus", "kunnskapsstatus IS NULL OR (kunnskapsstatus IN ('tekstfunn', 'normalisering') AND lovreferanse_eid IS NOT NULL) OR kunnskapsstatus IN ('uavklart', 'omstridt')");
+
+                            t.HasCheckConstraint("ck_begreper_medlemskapsregel", "medlemskapsregel IS NULL OR (begrepskategori = 'klasse' AND medlemskapsregel IN ('omraderegister_kommune'))");
 
                             t.HasCheckConstraint("ck_begreper_navneformgrunn", "navneformgrunn IS NULL OR navneformgrunn IN ('gjeldende', 'utgatt', 'kortform', 'feilskriving', 'parallellnavn', 'generisk')");
 

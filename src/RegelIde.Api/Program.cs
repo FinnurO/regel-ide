@@ -52,6 +52,7 @@ builder.Services.AddScoped<StrukturkantTjeneste>();
 // [Ny, issue #313] Forslagslasteren (konvertering → forslag) og KI-konverteringen den kan kjøre (#308).
 builder.Services.AddScoped<RegelIde.Data.Strukturkonvertering.StrukturforslagTjeneste>();
 builder.Services.AddScoped<GeneriskNavneformTjeneste>(); // [Ny, issue #378] generiske navneformer og bindingen per rettskilde
+builder.Services.AddScoped<KlassemedlemskapTjeneste>(); // [Ny, issue #384] utledet medlemskap («kommune» fra områderegisteret)
 builder.Services.AddScoped<RegelIde.Data.Strukturkonvertering.KiStrukturkonverterer>();
 // [Ny, issue #312 «områderegister»] «Gitt kommune X → fylke, tingrett, lagdømme, statsforvalter, RHF» (AC5).
 builder.Services.AddScoped<OmradeOppslagTjeneste>();
@@ -4017,6 +4018,18 @@ app.MapGet("/api/gruppebegrep/{id:guid}/overordnede-grupper", async (Guid id, Re
     .WithName("HentOverordnedeGrupperForGruppeBegrep")
     .WithSummary("Gruppene dette gruppebegrepet selv er MEDLEM av — motsatt retning av /medlemsgrupper.");
 
+// [Ny, issue #384, Johanns beslutning 2026-10-16] Medlemmene av en klasse med UTLEDET medlemskap («kommune»), regnet ut av områderegisteret
+// hver gang — de lagres ikke som M-kanter. Hvert medlemskap har kunnskapsstatus avledet og territoriekanten som premiss; kommuner som ikke
+// kunne gjøres til medlem, står i «hull».
+app.MapGet("/api/gruppebegrep/{id:guid}/utledet-medlemskap", async (Guid id, KlassemedlemskapTjeneste klassemedlemskap, CancellationToken ct) =>
+        await klassemedlemskap.UtledAsync(id, ct: ct) is { } m
+            ? Results.Ok(m)
+            : Results.NotFound(new { feil = $"Begrepet '{id}' er ikke en klasse med utledet medlemskap — medlemskapet er registrert (M-kanter)." }))
+    .WithOpenApi()
+    .WithName("HentUtledetMedlemskap")
+    .WithSummary("Issue #384 — medlemmene av en klasse med medlemskapsregel (klassen «kommune»: kommunene i områderegisteret med sitt " +
+        "rettssubjekt), med premiss per medlem og hullene. Beregnet, ikke lagret.");
+
 // [FJERNET, issue #311] VirksomhetRelasjon-endepunktene (GET/POST /api/virksomheter/{id}/relasjoner,
 // POST /api/virksomhet-relasjoner/{id}/godkjenn, DELETE /api/virksomhet-relasjoner/{id}). Relasjoner er
 // R-kanter: GET /api/strukturkanter?virksomhetId=…&kategori=R, POST /api/strukturkanter, og
@@ -4287,6 +4300,13 @@ navneformBindinger.MapGet("/", async (Guid? navneformId, Guid? rettskildeId, boo
         CancellationToken ct) => Results.Ok(await generiske.HentBindingerAsync(navneformId, rettskildeId, visAvviste ?? false, ct)))
     .WithName("HentNavneformBindinger")
     .WithSummary("Issue #378 B5 — bindinger av generiske navneformer, valgfritt for én navneform og/eller én rettskilde. Avviste bare med ?visAvviste=true.");
+
+// [Ny, issue #384] Bindinger som ikke kan flyttes entydig til den gjeldende versjonen av verket (paragrafspennet dekker andre noder der).
+navneformBindinger.MapGet("/ikke-flyttbare", async (GeneriskNavneformTjeneste generiske, CancellationToken ct) =>
+        Results.Ok(await generiske.IkkeFlyttbareAsync(ct)))
+    .WithName("HentIkkeFlyttbareNavneformBindinger")
+    .WithSummary("Issue #384 — bindingene registrert mot en eldre versjon av en rettskilde som ikke kan flyttes entydig til den gjeldende " +
+        "(et endepunkt i paragrafspennet er borte, eller spennet dekker andre noder). De brukes ikke i den nye versjonen; registrer dem på nytt.");
 
 navneformBindinger.MapPost("/", async (NavneformBindingRequest body, HttpRequest request, RegelIdeDbContext db,
         GeneriskNavneformTjeneste generiske, CancellationToken ct) =>

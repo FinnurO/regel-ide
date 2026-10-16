@@ -1314,8 +1314,20 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
                 t.HasCheckConstraint(
                     "ck_begreper_generisk_uten_referanse",
                     "navneformgrunn IS DISTINCT FROM 'generisk' OR (begrepskategori = 'virksomhet' AND virksomhet_referanse_id IS NULL)");
+                // [Ny, issue #384] Utledet medlemskap finnes bare på klasser, og regelen er lukket (Klasseregler.Alle).
+                t.HasCheckConstraint(
+                    "ck_begreper_medlemskapsregel",
+                    "medlemskapsregel IS NULL OR (begrepskategori = 'klasse' AND medlemskapsregel IN ('omraderegister_kommune'))");
+                // [Ny, issue #384] Kunnskapsstatus for begrepet selv. Tekstfunn og normalisering krever hjemmel; begrepet har ingen
+                // felt for det de andre statusene krever (BegrepEntitet.Kunnskapsstatus).
+                t.HasCheckConstraint(
+                    "ck_begreper_kunnskapsstatus",
+                    "kunnskapsstatus IS NULL OR (kunnskapsstatus IN ('tekstfunn', 'normalisering') AND lovreferanse_eid IS NOT NULL) "
+                    + "OR kunnskapsstatus IN ('uavklart', 'omstridt')");
             });
             e.HasKey(x => x.Id).HasName("begreper_pkey");
+            e.Property(x => x.Medlemskapsregel).HasColumnName("medlemskapsregel");
+            e.Property(x => x.Kunnskapsstatus).HasColumnName("kunnskapsstatus");
             e.Property(x => x.VirksomhetId).HasColumnName("virksomhet_id");
             e.Property(x => x.Begrepskategori).HasColumnName("begrepskategori");
             e.Property(x => x.VirksomhetReferanseId).HasColumnName("virksomhet_referanse_id");
@@ -1399,6 +1411,9 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             // [Ny, issue #312] Områder teksten navngir uten kode (lagsogn, lagdømme, helseregion): (type, term).
             e.HasIndex(x => new { x.Omradetype, x.Term }, "ux_begreper_omrade_type_term_ukodet").IsUnique()
                 .HasFilter("begrepskategori = 'omrade' AND entitetsstatus = 'gjeldende' AND gyldig_til IS NULL AND omradetype IS NOT NULL AND omradekode IS NULL");
+            // [Ny, issue #384] Én gjeldende klasse per medlemskapsregel — klassen «kommune» finnes på regelen, ikke på navnet.
+            e.HasIndex(x => x.Medlemskapsregel, "ux_begreper_medlemskapsregel").IsUnique()
+                .HasFilter("medlemskapsregel IS NOT NULL AND entitetsstatus = 'gjeldende'");
             // [FJERNET, issue #310] ux_begreper_administrativ_inndeling_term_lovkilde (issue #203 pkt. 2,
             // samme (Term, LovkildeId)-scoping som gruppebegrep) — 'administrativ_inndeling' er slått inn i
             // 'omrade', som dekkes av ux_begreper_nodebegrep_term_lovkilde over.

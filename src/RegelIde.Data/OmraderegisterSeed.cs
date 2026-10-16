@@ -164,6 +164,9 @@ public static class OmraderegisterSeed
         // ---- 5. Helseregioner ----
         await HelseregionerAsync(t, kilder, fylkePerNavn, fylkePerNummer, ct);
 
+        // ---- 6. [Ny, issue #384] «kommunene» i reindriftsloven henviser til den felles klassen «kommune» ----
+        await KommuneklasseHenvisningAsync(t, ct);
+
         return new Resultat(t.NyeOmrader, t.NyeKanter, t.NyeVirksomheter, t.KommunenummerFylt, t.Hoppet, t.Navneavvik,
             utenRettssubjekt, utenKommune,
             domstol?.Uloste ?? [], domstol?.DelteKommuner ?? new Dictionary<string, IReadOnlyList<string>>(),
@@ -535,6 +538,67 @@ public static class OmraderegisterSeed
     }
 
     // ------------------------------------------------------------------------------------------------
+
+    /// <summary>[Ny, issue #384] Reindriftsloven — verket (ELI) som den lovspesifikke klassen «kommunene» hører til.</summary>
+    public const string ReindriftslovenEli = "https://lovdata.no/eli/lov/2007/06/15/40/nor";
+
+    /// <summary>
+    /// [Ny, issue #384, Johanns beslutning 2026-10-16] Den lovspesifikke klassen «kommunene» i reindriftsloven beholdes, med en henvisning
+    /// til den felles klassen «kommune»: <c>M medlem_av</c> klasse → klasse (gruppe av gruppe, docs/33 §4.2 — hvert medlem av «kommunene» er
+    /// en kommune). Hjemmelen er stedet klassen står (§ 2 annet ledd: «reindrift i kommunene Meldal, Midtre Gauldal, …»), kunnskapsstatus
+    /// <c>tekstfunn</c>. Lagt inn som FORSLAG (<c>manuelt_foreslatt</c>, oppdagelseskilde <c>manuell</c> som de kuraterte kantene over —
+    /// vokabularet har ingen verdi for seed): beslutningen om å beholde klassen med en henvisning er Johanns, men kanten er en modellering
+    /// som et menneske godkjenner.
+    /// <para>
+    /// Bare denne ene klassen, funnet på stabil nøkkel (kategori klasse, term, lovkildens ELI) — ikke alle klasser som heter «kommunene»:
+    /// om en lovspesifikk «kommunene» er alle kommuner eller et utvalg, er en tolkning per lov (CLAUDE.md §8). Finnes det alt en slik kant
+    /// i noen status — også avvist —, gjøres ingenting: et menneske som har avvist den, skal ikke få den tilbake ved neste oppstart.
+    /// </para>
+    /// </summary>
+    private static async Task KommuneklasseHenvisningAsync(Tilstand t, CancellationToken ct)
+    {
+        var felles = await t.Db.Begreper.FirstOrDefaultAsync(
+            b => b.Medlemskapsregel == Klasseregler.OmraderegisterKommune && b.Entitetsstatus == "gjeldende", ct);
+        if (felles is null)
+        {
+            t.Hoppet.Add("Klassen «kommune» (#384) finnes ikke — henvisningen fra «kommunene» (reindriftsloven) er ikke lagt inn.");
+            return;
+        }
+        var lovspesifikke = await t.Db.Begreper
+            .Where(b => b.Begrepskategori == Nodetyper.Klasse && b.Term == "kommunene" && b.Entitetsstatus == "gjeldende" && b.LovkildeId != null)
+            .Join(t.Db.Rettskilder.Where(r => r.Eli == ReindriftslovenEli && r.VirksomhetId == null), b => b.LovkildeId, r => r.Id, (b, r) => b)
+            .ToListAsync(ct);
+        if (lovspesifikke.Count != 1)
+        {
+            // 0 er normalt i en base der klassen ikke er registrert (testbasen); flere er en dublett et menneske må rydde.
+            if (lovspesifikke.Count > 1)
+            {
+                t.Hoppet.Add($"«kommunene» (reindriftsloven) finnes {lovspesifikke.Count} ganger — henvisningen til «kommune» er ikke lagt inn.");
+            }
+            return;
+        }
+        var kommunene = lovspesifikke[0];
+        if (await t.Db.Strukturkanter.IgnoreQueryFilters().AnyAsync(k => k.Kategori == Strukturkanter.Medlemskap
+                && k.FraBegrepId == kommunene.Id && k.TilBegrepId == felles.Id, ct))
+        {
+            return;
+        }
+        var hjemmel = await t.Db.Rettskilder.Where(r => r.Eli == ReindriftslovenEli && r.VirksomhetId == null && r.Entitetsstatus == "gjeldende")
+            .Select(r => r.Id).ToListAsync(ct);
+        if (hjemmel.Count != 1 || kommunene.LovreferanseEid is null)
+        {
+            t.Hoppet.Add($"«kommunene» (reindriftsloven): {hjemmel.Count} gjeldende versjoner av loven, hjemmelsted "
+                         + $"{kommunene.LovreferanseEid ?? "mangler"} — henvisningen til «kommune» er ikke lagt inn.");
+            return;
+        }
+        var opprettet = await t.Kanter.OpprettAsync(new NyStrukturkant(Strukturkanter.Medlemskap, Strukturkanter.MedlemAv,
+            Kantnode.Begrep(kommunene.Id), Kantnode.Begrep(felles.Id),
+            HjemmelRettskildeId: hjemmel[0], HjemmelEid: kommunene.LovreferanseEid,
+            Kommentar: "Den lovspesifikke klassen «kommunene» henviser til den felles klassen «kommune» (issue #384, Johann 2026-10-16).",
+            Status: Strukturkanter.ManueltForeslatt, OppdagelsesKilde: "manuell",
+            Kunnskapsstatus: Strukturkanter.Tekstfunn), OpprettetAv, ct);
+        if (opprettet.VarNy) t.NyeKanter++;
+    }
 
     /// <summary>Finn-eller-opprett på stabil nøkkel: (type, kode) eller, uten kode, (type, term).</summary>
     private static async Task<BegrepEntitet> OmradeAsync(Tilstand t, string type, string? kode, string term, string definisjon, CancellationToken ct)

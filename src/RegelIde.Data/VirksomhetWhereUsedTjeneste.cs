@@ -120,15 +120,18 @@ public sealed class VirksomhetWhereUsedTjeneste(RegelIdeDbContext db)
             var ekstra = new List<NavneformForekomst>();
             foreach (var b in bindinger)
             {
+                // [ENDRET, issue #384] Bindingen følger verket: taggene står i den versjonen de er flyttet til ved resynk, ikke nødvendigvis i
+                // versjonen bindingen ble registrert mot.
+                var versjoner = await generiske.VersjonerAvVerketAsync(b.RettskildeId, ct);
                 var tagger = await db.TekstTagger
-                    .Where(t => t.Kind == "virksomhet" && t.Entitetsstatus == "gjeldende" && t.RefId == b.NavneformId && t.RettskildeId == b.RettskildeId)
+                    .Where(t => t.Kind == "virksomhet" && t.Entitetsstatus == "gjeldende" && t.RefId == b.NavneformId && versjoner.Contains(t.RettskildeId))
                     .Join(db.Begreper, t => t.RefId, n => n.Id, (t, n) => new { Tagg = t, n.Term, n.Navneformgrunn })
                     .Join(db.Rettskilder, x => x.Tagg.RettskildeId, r => r.Id, (x, r) => new { x.Tagg, x.Term, x.Navneformgrunn, Tittel = r.Kortnavn ?? r.Tittel })
                     .ToListAsync(ct);
                 foreach (var x in tagger)
                 {
-                    var o = await generiske.LosOppAsync(b.NavneformId, b.RettskildeId, x.Tagg.NodeEid, ct);
-                    if (o.Binding?.Id != b.Id) continue;
+                    var o = await generiske.LosOppAsync(b.NavneformId, x.Tagg.RettskildeId, x.Tagg.NodeEid, ct);
+                    if (o.Status != GeneriskOppslagstatus.Bundet || o.Binding?.Id != b.Id) continue;
                     ekstra.Add(new NavneformForekomst(b.NavneformId, x.Term, x.Navneformgrunn, x.Tagg.RettskildeId, x.Tittel, x.Tagg.NodeEid,
                         x.Tagg.QuoteExact, x.Tagg.StartOffset, x.Tagg.EndOffset));
                 }

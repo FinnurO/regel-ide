@@ -26,6 +26,11 @@ public static class GeneriskOppslagstatus
     public const string Ubundet = "ubundet";
     /// <summary>To like smale godkjente bindinger dekker noden med ulik referent — ingen valgt.</summary>
     public const string Flertydig = "flertydig";
+    /// <summary>[Ny, issue #384] En godkjent binding med paragrafspenn ble registrert mot en annen versjon av verket, og spennet dekker ikke
+    /// de samme nodene i denne versjonen (en eId er borte, eller nodene i spennet er andre). Bindingen kan ikke flyttes entydig, og hva
+    /// den sa om de nodene, gjettes ikke — ingen referent for navneformen i denne versjonen før et menneske har registrert den på nytt.
+    /// <see cref="GeneriskOppslag.Binding"/> er bindingen som ikke kunne flyttes.</summary>
+    public const string SpennEndret = "spenn_endret";
 }
 
 /// <summary>Resultatet av et oppslag: status, bindingen som vant (ved <c>bundet</c>) og referenten.</summary>
@@ -40,7 +45,24 @@ public sealed record NavneformBindingVisning(
     string? Kunnskapsstatus, string? Begrunnelse, IReadOnlyList<string>? Tolkningsargumenter,
     string Status, string OppdagelsesKilde, string? Kommentar, string? AvvisningBegrunnelse,
     string OpprettetAv, DateTimeOffset OpprettetTidspunkt, string? SistEndretAv, DateTimeOffset? SistEndretTidspunkt,
-    DateOnly? GyldigFra, DateOnly? GyldigTil);
+    DateOnly? GyldigFra, DateOnly? GyldigTil)
+{
+    /// <summary>[Ny, issue #384] Verket bindingen gjelder: ELI-en til rettskilden (null for en lokal kilde uten ELI — da er verket den ene
+    /// rettskilden). Bindingen følger verket over nye versjoner.</summary>
+    public string? VerkEli { get; init; }
+    /// <summary>[Ny, issue #384] Versjonsnummeret til rettskilden bindingen ble registrert (og vurdert) mot — <see cref="RettskildeId"/>.</summary>
+    public int RegistrertVersjon { get; init; }
+    /// <summary>[Ny, issue #384] Den gjeldende versjonen av verket (lik <see cref="RettskildeId"/> når bindingen er registrert mot den).</summary>
+    public Guid GjeldendeRettskildeId { get; init; }
+}
+
+/// <summary>[Ny, issue #384] En binding som ikke kan flyttes entydig til den gjeldende versjonen av verket, og hvorfor.</summary>
+public sealed record IkkeFlyttbarBinding(NavneformBindingVisning Binding, Guid GjeldendeRettskildeId, int GjeldendeVersjon, string Grunn);
+
+/// <summary>[Ny, issue #384] Verket en rettskilde-versjon hører til: (virksomhet, ELI) — samme par som importen bruker for å finne forrige
+/// versjon (<see cref="RettskildeImportTjeneste"/>) og som de unike indeksene <c>ux_rettskilder_eli_gjeldende_*</c> håndhever. Uten ELI er
+/// verket rettskilden selv.</summary>
+public sealed record Rettskildeverk(Guid RettskildeId, Guid? VirksomhetId, string? Eli, int Versjon);
 
 /// <summary>AC7: én rettskilde der en generisk navneform er tagget eller bundet.</summary>
 public sealed record GeneriskBrukIRettskilde(Guid RettskildeId, string RettskildeTittel, int AntallTagger, IReadOnlyList<NavneformBindingVisning> Bindinger);
@@ -59,6 +81,19 @@ public sealed record GeneriskTaggOppslag(Guid TaggId, Guid NavneformId, string S
 /// <para>
 /// <b>Termen lagres med små bokstaver.</b> En generisk omtale er et fellesnavn; stor forbokstav i «Styret skal …» er rettskrivning
 /// (setningsstart), ikke en del av navnet. Én rad per term for hele korpuset (unik indeks <c>ux_begreper_generisk_term</c>).
+/// </para>
+/// <para>
+/// <b>[ENDRET, issue #384, Johanns beslutning 2026-10-16] Bindingen følger verket, ikke versjonen.</b> En ny konsolidert versjon er en ny
+/// rettskilde-rad med ny id (<see cref="RettskildeImportTjeneste"/>, §2.1), og før #384 falt bindingen da bort. Nå er verket
+/// (<see cref="Rettskildeverk"/>: virksomhet + ELI, det paret importen alt bruker for å finne forrige versjon) identiteten bindingen gjelder
+/// for, og <see cref="NavneformBindingEntitet.RettskildeId"/> er versjonen den ble registrert og vurdert mot. Ingen ny kolonne: ELI-en står
+/// på hver versjon, og er målt lik over alle 1 113 versjonsoverganger i den lokale basen (2026-10-16). En lokal kilde uten ELI har ikke
+/// noe verk å følge; der er verket rettskilden selv (ingen slike er versjonert, målt samme dag).
+/// </para>
+/// <para>
+/// <b>Ingen gjetting ved flytting:</b> en binding for hele rettskilden følger verket uten videre. En binding med paragrafspenn følger
+/// verket bare når spennet dekker nøyaktig de samme eId-ene i den nye versjonen. Ellers er den <see cref="GeneriskOppslagstatus.SpennEndret"/>
+/// i den versjonen, og den listes av <see cref="IkkeFlyttbareAsync"/>.
 /// </para>
 /// </summary>
 public sealed class GeneriskNavneformTjeneste(RegelIdeDbContext db)
@@ -244,13 +279,15 @@ public sealed class GeneriskNavneformTjeneste(RegelIdeDbContext db)
         // Samme virkeområde med OVERLAPPENDE gyldighet er en motsigelse. Etter hverandre i tid er det ikke (ressortendring, B1).
         var nyFra = ny.GyldigFra ?? DateOnly.MinValue;
         var nyTil = ny.GyldigTil ?? DateOnly.MaxValue;
-        var konflikt = await db.NavneformBindinger.FirstOrDefaultAsync(b => b.NavneformId == ny.NavneformId && b.RettskildeId == ny.RettskildeId
+        // [ENDRET, issue #384] Virkeområdet er VERKET: en binding registrert mot forrige versjon gjelder også her.
+        var verk = await VerkAsync(ny.RettskildeId, ct);
+        var konflikt = await IVerket(verk).FirstOrDefaultAsync(b => b.NavneformId == ny.NavneformId
             && b.ParagrafspennJson == spennJson && b.Entitetsstatus == "gjeldende" && b.Status != Strukturkanter.Avvist
             && (b.GyldigFra == null || b.GyldigFra <= nyTil) && (b.GyldigTil == null || b.GyldigTil >= nyFra), ct);
         if (konflikt is not null)
         {
             throw new ArgumentException(
-                $"«{navneform.Term}» er alt bundet med samme virkeområde og overlappende gyldighet i denne rettskilden (binding {konflikt.Id}, "
+                $"«{navneform.Term}» er alt bundet med samme virkeområde og overlappende gyldighet i denne rettskilden, eller en annen versjon av den (binding {konflikt.Id}, "
                 + $"status {konflikt.Status}). Avvis den, eller avgrens gyldigheten, om betydningen skal endres — to slike bindinger er en motsigelse.");
         }
 
@@ -368,24 +405,114 @@ public sealed class GeneriskNavneformTjeneste(RegelIdeDbContext db)
         return dekket ? bredde : null;
     }
 
+    /// <summary>[Ny, issue #384] Nodene (eId-er) spennet dekker i treet, eller null når et endepunkt ikke finnes der. Samme dekning som
+    /// <see cref="Dekning"/>; brukes for å avgjøre om et spenn betyr det samme i to versjoner.</summary>
+    private static HashSet<string>? Dekningssett(Nodetre tre, IReadOnlyList<ParagrafspennPar> spenn)
+    {
+        var sett = new HashSet<string>(StringComparer.Ordinal);
+        var eidPerId = tre.PerEid.ToDictionary(x => x.Value.Id, x => x.Key);
+        foreach (var par in spenn)
+        {
+            if (!tre.PerEid.TryGetValue(par.FraEid, out var fra)) return null;
+            var til = fra;
+            if (par.TilEid is not null && !tre.PerEid.TryGetValue(par.TilEid, out til)) return null;
+            var (lo, hi) = (Math.Min(fra.Sortering, til.Sortering), Math.Max(fra.Sortering, til.Sortering));
+            var røtter = tre.PerEid.Values.Where(v => v.Sortering >= lo && v.Sortering <= hi).Select(v => v.Id).ToHashSet();
+            foreach (var id in eidPerId.Keys)
+            {
+                for (Guid? cur = id; cur is { } c; cur = tre.Forelder.GetValueOrDefault(c))
+                {
+                    if (røtter.Contains(c)) { sett.Add(eidPerId[id]); break; }
+                }
+            }
+        }
+        return sett;
+    }
+
+    /// <summary>[Ny, issue #384] Verket rettskilde-versjonen hører til (se <see cref="Rettskildeverk"/>).</summary>
+    public async Task<Rettskildeverk> VerkAsync(Guid rettskildeId, CancellationToken ct = default) =>
+        await db.Rettskilder.Where(r => r.Id == rettskildeId).Select(r => new Rettskildeverk(r.Id, r.VirksomhetId, r.Eli, r.Versjon))
+            .FirstOrDefaultAsync(ct)
+        ?? throw new ArgumentException($"Fant ingen rettskilde med id '{rettskildeId}'. Ingen gjettet fallback.");
+
+    /// <summary>[Ny, issue #384] Bindingene som gjelder verket: registrert mot en hvilken som helst versjon med samme (virksomhet, ELI), eller
+    /// mot rettskilden selv når den ikke har ELI.</summary>
+    private IQueryable<NavneformBindingEntitet> IVerket(Rettskildeverk verk) => verk.Eli is null
+        ? db.NavneformBindinger.Where(b => b.RettskildeId == verk.RettskildeId)
+        : db.NavneformBindinger.Where(b => db.Rettskilder.Any(r => r.Id == b.RettskildeId && r.Eli == verk.Eli && r.VirksomhetId == verk.VirksomhetId));
+
+    /// <summary>[Ny, issue #384] Alle versjonene av verket (id-er), eldste først — for oppslag som må se tagger i alle versjoner.</summary>
+    public async Task<List<Guid>> VersjonerAvVerketAsync(Guid rettskildeId, CancellationToken ct = default)
+    {
+        var verk = await VerkAsync(rettskildeId, ct);
+        if (verk.Eli is null) return [rettskildeId];
+        return await db.Rettskilder.Where(r => r.Eli == verk.Eli && r.VirksomhetId == verk.VirksomhetId)
+            .OrderBy(r => r.Versjon).Select(r => r.Id).ToListAsync(ct);
+    }
+
+    /// <summary>[Ny, issue #384] Den gjeldende versjonen av verket, eller rettskilden selv når den ikke har ELI eller ikke nøyaktig én
+    /// versjon er gjeldende.</summary>
+    private async Task<(Guid Id, int Versjon)> GjeldendeVersjonAsync(Rettskildeverk verk, CancellationToken ct)
+    {
+        if (verk.Eli is null) return (verk.RettskildeId, verk.Versjon);
+        var g = await db.Rettskilder.Where(r => r.Eli == verk.Eli && r.VirksomhetId == verk.VirksomhetId && r.Entitetsstatus == "gjeldende")
+            .Select(r => new { r.Id, r.Versjon }).ToListAsync(ct);
+        return g.Count == 1 ? (g[0].Id, g[0].Versjon) : (verk.RettskildeId, verk.Versjon);
+    }
+
+    /// <summary>
+    /// [Ny, issue #384] Null når bindingen kan brukes i versjonen <paramref name="iVersjon"/>; ellers hvorfor ikke. En binding uten spenn
+    /// gjelder hele verket. Med spenn må spennet dekke nøyaktig de samme eId-ene i versjonen den ble registrert mot og i denne.
+    /// </summary>
+    private async Task<string?> IkkeFlyttbarGrunnAsync(NavneformBindingEntitet b, Guid iVersjon, CancellationToken ct)
+    {
+        if (b.RettskildeId == iVersjon) return null;
+        var spenn = LesSpenn(b.ParagrafspennJson);
+        if (spenn.Count == 0) return null;
+        var registrert = Dekningssett(await NodetreAsync(b.RettskildeId, ct), spenn);
+        var her = Dekningssett(await NodetreAsync(iVersjon, ct), spenn);
+        if (her is null)
+        {
+            return "Et endepunkt i paragrafspennet (" + string.Join(", ", spenn.Select(p => p.TilEid is null ? p.FraEid : $"{p.FraEid}–{p.TilEid}"))
+                + ") finnes ikke i denne versjonen.";
+        }
+        if (registrert is null || !registrert.SetEquals(her))
+        {
+            return $"Paragrafspennet dekker andre noder i denne versjonen ({her.Count} noder) enn i versjonen bindingen ble registrert mot "
+                + $"({registrert?.Count.ToString() ?? "ukjent antall"} noder).";
+        }
+        return null;
+    }
+
     /// <summary>
     /// Slår opp hva generisk navneform <paramref name="navneformId"/> betyr i noden <paramref name="eid"/> i <paramref name="rettskildeId"/>
     /// (B6). Bare GODKJENTE bindinger teller; det smaleste spennet som dekker noden vinner. Like smale med ulik referent → flertydig.
     /// [ENDRET, issue #378, Johanns beslutning 2026-10-16] Bare bindinger som gjelder på <paramref name="dato"/> (standard: i dag) teller —
     /// også i tellingen av foreslåtte.
+    /// [ENDRET, issue #384] Bindingene for VERKET teller, uansett hvilken versjon de ble registrert mot. Kan en godkjent binding ikke flyttes
+    /// entydig til denne versjonen, er svaret <see cref="GeneriskOppslagstatus.SpennEndret"/> for hele versjonen: det den sa om nodene, kan
+    /// ha flyttet (omnummerering), så heller ikke en bredere binding brukes i stedet (CLAUDE.md §8).
     /// </summary>
     public async Task<GeneriskOppslag> LosOppAsync(
         Guid navneformId, Guid rettskildeId, string? eid, CancellationToken ct = default, DateOnly? dato = null)
     {
         var d = dato ?? DateOnly.FromDateTime(DateTime.Today);
-        var bindinger = await db.NavneformBindinger
-            .Where(b => b.NavneformId == navneformId && b.RettskildeId == rettskildeId && b.Entitetsstatus == "gjeldende"
+        var verk = await VerkAsync(rettskildeId, ct);
+        var bindinger = await IVerket(verk)
+            .Where(b => b.NavneformId == navneformId && b.Entitetsstatus == "gjeldende"
                         && b.Status != Strukturkanter.Avvist
                         && (b.GyldigFra == null || b.GyldigFra <= d) && (b.GyldigTil == null || b.GyldigTil >= d))
             .ToListAsync(ct);
         var foreslatte = bindinger.Count(b => b.Status != Strukturkanter.Godkjent);
         var godkjente = bindinger.Where(b => b.Status == Strukturkanter.Godkjent).ToList();
         if (godkjente.Count == 0) return new GeneriskOppslag(GeneriskOppslagstatus.Ubundet, null, null, foreslatte);
+        foreach (var b in godkjente.OrderBy(b => b.Id))
+        {
+            if (await IkkeFlyttbarGrunnAsync(b, rettskildeId, ct) is not null)
+            {
+                return new GeneriskOppslag(GeneriskOppslagstatus.SpennEndret, b, null, foreslatte);
+            }
+        }
         var tre = await NodetreAsync(rettskildeId, ct);
         var dekkende = godkjente
             .Select(b => (B: b, Bredde: Dekning(tre, LesSpenn(b.ParagrafspennJson), eid ?? "")))
@@ -397,6 +524,28 @@ public sealed class GeneriskNavneformTjeneste(RegelIdeDbContext db)
         if (referenter.Count > 1) return new GeneriskOppslag(GeneriskOppslagstatus.Flertydig, null, null, foreslatte);
         var vinner = vinnere[0].B;
         return new GeneriskOppslag(GeneriskOppslagstatus.Bundet, vinner, new Kantnode(vinner.TilVirksomhetId, vinner.TilBegrepId), foreslatte);
+    }
+
+    /// <summary>
+    /// [Ny, issue #384, AC «bindinger som ikke kan flyttes entydig, listes»] De gjeldende, ikke avviste bindingene som er registrert mot en
+    /// annen versjon enn den gjeldende av verket, og som IKKE kan flyttes entydig dit (<see cref="IkkeFlyttbarGrunnAsync"/>). Det som står
+    /// her, må registreres på nytt mot den gjeldende versjonen av et menneske (avvis den gamle, opprett en ny).
+    /// </summary>
+    public async Task<List<IkkeFlyttbarBinding>> IkkeFlyttbareAsync(CancellationToken ct = default)
+    {
+        var kandidater = await db.NavneformBindinger
+            .Where(b => b.Entitetsstatus == "gjeldende" && b.Status != Strukturkanter.Avvist && b.ParagrafspennJson != "[]")
+            .ToListAsync(ct);
+        var ut = new List<IkkeFlyttbarBinding>();
+        foreach (var b in kandidater)
+        {
+            var (gjeldende, versjon) = await GjeldendeVersjonAsync(await VerkAsync(b.RettskildeId, ct), ct);
+            if (gjeldende == b.RettskildeId) continue;
+            if (await IkkeFlyttbarGrunnAsync(b, gjeldende, ct) is not { } grunn) continue;
+            var visning = (await HentBindingerAsync(ider: [b.Id], visAvviste: true, ct: ct)).Single();
+            ut.Add(new IkkeFlyttbarBinding(visning, gjeldende, versjon, grunn));
+        }
+        return ut;
     }
 
     public static IReadOnlyList<ParagrafspennPar> LesSpenn(string json) =>
@@ -444,15 +593,21 @@ public sealed class GeneriskNavneformTjeneste(RegelIdeDbContext db)
         return null;
     }
 
-    /// <summary>Bindingene, med navn — for én navneform, én rettskilde, eller alle. Avviste bare med <paramref name="visAvviste"/>.</summary>
+    /// <summary>Bindingene, med navn — for én navneform, én rettskilde, eller alle. Avviste bare med <paramref name="visAvviste"/>.
+    /// [ENDRET, issue #384] <paramref name="rettskildeId"/> betyr VERKET den versjonen hører til: bindinger registrert mot en tidligere versjon
+    /// er med. <paramref name="ider"/> avgrenser til bestemte bindinger.</summary>
     public async Task<List<NavneformBindingVisning>> HentBindingerAsync(
-        Guid? navneformId = null, Guid? rettskildeId = null, bool visAvviste = false, CancellationToken ct = default)
+        Guid? navneformId = null, Guid? rettskildeId = null, bool visAvviste = false, CancellationToken ct = default,
+        IReadOnlyCollection<Guid>? ider = null)
     {
-        var rader = await db.NavneformBindinger
+        var kilde = rettskildeId is { } rid ? IVerket(await VerkAsync(rid, ct)) : db.NavneformBindinger;
+        if (ider is not null) kilde = kilde.Where(b => ider.Contains(b.Id));
+        var rader = await kilde
             .Where(b => b.Entitetsstatus == "gjeldende" && (visAvviste || b.Status != Strukturkanter.Avvist)
-                        && (navneformId == null || b.NavneformId == navneformId) && (rettskildeId == null || b.RettskildeId == rettskildeId))
+                        && (navneformId == null || b.NavneformId == navneformId))
             .Join(db.Begreper, b => b.NavneformId, n => n.Id, (b, n) => new { B = b, n.Term })
-            .Join(db.Rettskilder, x => x.B.RettskildeId, r => r.Id, (x, r) => new { x.B, x.Term, Tittel = r.Kortnavn ?? r.Tittel })
+            .Join(db.Rettskilder, x => x.B.RettskildeId, r => r.Id,
+                (x, r) => new { x.B, x.Term, Tittel = r.Kortnavn ?? r.Tittel, r.Eli, r.VirksomhetId, r.Versjon })
             .OrderBy(x => x.Term).ThenBy(x => x.Tittel).ToListAsync(ct);
         var ut = new List<NavneformBindingVisning>();
         foreach (var x in rader)
@@ -460,11 +615,17 @@ public sealed class GeneriskNavneformTjeneste(RegelIdeDbContext db)
             var b = x.B;
             var referent = await VisningAsync(new Kantnode(b.TilVirksomhetId, b.TilBegrepId), ct)
                 ?? new KantnodeVisning(b.TilVirksomhetId is null ? "begrep" : "virksomhet", b.TilVirksomhetId ?? b.TilBegrepId!.Value, "(ukjent)", null);
+            var (gjeldende, _) = await GjeldendeVersjonAsync(new Rettskildeverk(b.RettskildeId, x.VirksomhetId, x.Eli, x.Versjon), ct);
             ut.Add(new NavneformBindingVisning(b.Id, b.NavneformId, x.Term, b.RettskildeId, x.Tittel, LesSpenn(b.ParagrafspennJson), referent,
                 b.HjemmelRettskildeId, b.HjemmelEid, b.KildeUtenforKorpusTekst, b.KildeUtenforKorpusLenke, b.KildeUtenforKorpusType,
                 b.KildeUtenforKorpusDokumentasjon, b.Kunnskapsstatus, b.Begrunnelse, b.Tolkningsargumenter, b.Status, b.OppdagelsesKilde,
                 b.Kommentar, b.AvvisningBegrunnelse, b.OpprettetAv, b.OpprettetTidspunkt, b.SistEndretAv, b.SistEndretTidspunkt,
-                b.GyldigFra, b.GyldigTil));
+                b.GyldigFra, b.GyldigTil)
+            {
+                VerkEli = x.Eli,
+                RegistrertVersjon = x.Versjon,
+                GjeldendeRettskildeId = gjeldende,
+            });
         }
         return ut;
     }
@@ -472,6 +633,8 @@ public sealed class GeneriskNavneformTjeneste(RegelIdeDbContext db)
     /// <summary>
     /// AC7: «hvor brukes ‹styret›, og hva betyr det i hver rettskilde?» — for hver generisk navneform (eller én, med
     /// <paramref name="term"/>): rettskildene der den er tagget eller bundet, antall tagger og bindingene der.
+    /// [ENDRET, issue #384] En binding står under den GJELDENDE versjonen av verket sitt (der taggene er flyttet ved resynk), ikke under
+    /// versjonen den ble registrert mot — ellers ville samme lov stått to ganger.
     /// </summary>
     public async Task<List<GeneriskNavneformOversikt>> OversiktAsync(string? term = null, CancellationToken ct = default)
     {
@@ -485,16 +648,16 @@ public sealed class GeneriskNavneformTjeneste(RegelIdeDbContext db)
             .GroupBy(x => new { NavneformId = x.RefId!.Value, x.RettskildeId })
             .Select(g => new { g.Key.NavneformId, g.Key.RettskildeId, Antall = g.Count() }).ToListAsync(ct);
         var bindinger = await HentBindingerAsync(ct: ct);
-        var rettskildeIder = tagger.Select(x => x.RettskildeId).Concat(bindinger.Select(b => b.RettskildeId)).Distinct().ToList();
+        var rettskildeIder = tagger.Select(x => x.RettskildeId).Concat(bindinger.Select(b => b.GjeldendeRettskildeId)).Distinct().ToList();
         var titler = await db.Rettskilder.Where(r => rettskildeIder.Contains(r.Id))
             .Select(r => new { r.Id, Tittel = r.Kortnavn ?? r.Tittel }).ToDictionaryAsync(r => r.Id, r => r.Tittel, ct);
         return navneformer.Select(n =>
         {
             var perRettskilde = tagger.Where(x => x.NavneformId == n.Id).Select(x => x.RettskildeId)
-                .Concat(bindinger.Where(b => b.NavneformId == n.Id).Select(b => b.RettskildeId)).Distinct()
+                .Concat(bindinger.Where(b => b.NavneformId == n.Id).Select(b => b.GjeldendeRettskildeId)).Distinct()
                 .Select(r => new GeneriskBrukIRettskilde(r, titler.GetValueOrDefault(r) ?? "(ukjent)",
                     tagger.Where(x => x.NavneformId == n.Id && x.RettskildeId == r).Sum(x => x.Antall),
-                    bindinger.Where(b => b.NavneformId == n.Id && b.RettskildeId == r).ToList()))
+                    bindinger.Where(b => b.NavneformId == n.Id && b.GjeldendeRettskildeId == r).ToList()))
                 .OrderBy(r => r.RettskildeTittel, StringComparer.Ordinal).ToList();
             return new GeneriskNavneformOversikt(n.Id, n.Term, perRettskilde.Sum(r => r.AntallTagger), perRettskilde);
         }).ToList();
