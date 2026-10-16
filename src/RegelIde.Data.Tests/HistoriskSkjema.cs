@@ -98,6 +98,19 @@ internal static class HistoriskSkjema
     }
 
     /// <summary>
+    /// [Ny, issue #384] For en test som skriver begreper med DAGENS EF-modell mot et historisk skjema og så migrerer VIDERE til siste
+    /// versjon (<c>leggTilSenereKolonner: false</c>): kolonnene fra <c>KlasseKommuneOgUtledetMedlemskap</c> legges til før skrivingen
+    /// (<paramref name="leggTil"/> = true) og fjernes igjen før migreringen (false) — ellers ville migrasjonens AddColumn kollidert.
+    /// </summary>
+    public static async Task BegrepskolonnerFra384Async(string connString, bool leggTil)
+    {
+        await using var db = new RegelIdeDbContext(Options(connString));
+        await db.Database.ExecuteSqlRawAsync(leggTil
+            ? "ALTER TABLE begreper ADD COLUMN IF NOT EXISTS medlemskapsregel text; ALTER TABLE begreper ADD COLUMN IF NOT EXISTS kunnskapsstatus text;"
+            : "ALTER TABLE begreper DROP COLUMN IF EXISTS medlemskapsregel; ALTER TABLE begreper DROP COLUMN IF EXISTS kunnskapsstatus;");
+    }
+
+    /// <summary>
     /// [Ny, issue #353, 2026-10-09] En virksomhet med rå SQL, for testene som migrerer VIDERE til siste versjon
     /// (<c>leggTilSenereKolonner: false</c>): fra #353 har <see cref="Virksomhet"/> kolonnen <c>ordningstype</c>, som det historiske
     /// skjemaet ikke har, så en EF-innsetting med dagens modell velter («column does not exist»). Samme grunn som kantene i de
