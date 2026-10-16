@@ -148,6 +148,7 @@ import type {
   VirksomhetSlettOversiktDto,
   BrregEnhetDto,
   VirksomhetsbegrepDto,
+  NavneformforslagRapport, EtterfyllingRapport, AktortypeUtsagnDto,
   VirksomhetWhereUsedDto,
   KiOppdagelseRequest,
   KiOppdagelseSamletResultatDto,
@@ -375,8 +376,29 @@ export const api = {
 
   hentVirksomheter: () => kall<VirksomhetDto[]>('/api/virksomheter'),
 
-  hentVirksomhetsbegrep: (virksomhetId: string) =>
-    kall<VirksomhetsbegrepDto[]>(`/api/virksomheter/${virksomhetId}/begrep`),
+  // [ENDRET, issue #385] visAvviste tar med avviste navneforslag.
+  hentVirksomhetsbegrep: (virksomhetId: string, visAvviste = false) =>
+    kall<VirksomhetsbegrepDto[]>(`/api/virksomheter/${virksomhetId}/begrep${visAvviste ? '?visAvviste=true' : ''}`),
+
+  // ---------- [Ny, issue #385] Aktøridentitet ----------
+  /** AC1: forslag til gjeldende navneform fra lovteksten. `skriv` = lagre forslagene; ellers tørrkjøring. */
+  foreslaNavneformer: (skriv: boolean) =>
+    kall<NavneformforslagRapport>(`/api/aktorer/navneformforslag?skriv=${skriv}`, { method: 'POST' }),
+  /** Johanns presisering: kilde og tagg for treff som alt finnes (strukturkanter). */
+  etterfyllKildeOgTagger: (skriv: boolean) =>
+    kall<EtterfyllingRapport>(`/api/aktorer/etterfyll-kilde-og-tagger?skriv=${skriv}`, { method: 'POST' }),
+  godkjennNavneform: (id: string) => kall<VirksomhetsbegrepDto>(`/api/virksomhetsbegrep/${id}/godkjenn`, { method: 'POST' }),
+  avvisNavneform: (id: string, begrunnelse: string | null) =>
+    kall<{ antallTaggerSlettet: number }>(`/api/virksomhetsbegrep/${id}/avvis`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ begrunnelse }),
+    }),
+  hentAktortypeUtsagn: (virksomhetId: string, visAvviste = false) =>
+    kall<AktortypeUtsagnDto[]>(`/api/virksomheter/${virksomhetId}/aktortype-utsagn${visAvviste ? '?visAvviste=true' : ''}`),
+  godkjennAktortypeUtsagn: (id: string) => kall<AktortypeUtsagnDto>(`/api/aktortype-utsagn/${id}/godkjenn`, { method: 'POST' }),
+  avvisAktortypeUtsagn: (id: string, begrunnelse: string | null) =>
+    kall<AktortypeUtsagnDto>(`/api/aktortype-utsagn/${id}/avvis`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ begrunnelse }),
+    }),
 
   /** [Ny, navneform-kjede-runden, 2026-09-08] «Where used» for én virksomhet i ETT kall — hvor
    * navneformene er tagget, og hvilket gruppebegrep hver myndighetstildeling gjelder. Bulk framfor ett
@@ -638,8 +660,11 @@ export const api = {
       `/api/navnekandidater/${id}/godkjenn-som-fast-gruppebegrep${nodetype ? `?nodetype=${nodetype}` : ''}`,
       { method: 'POST' }),
 
-  avvisNavnekandidat: (id: string) =>
-    kall<NavnekandidatDto>(`/api/navnekandidater/${id}/avvis`, { method: 'POST' }),
+  // [ENDRET, issue #385 AC7] Valgfri begrunnelse («ikke en aktør, fordi …»).
+  avvisNavnekandidat: (id: string, begrunnelse?: string | null) =>
+    kall<NavnekandidatDto>(`/api/navnekandidater/${id}/avvis`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ begrunnelse: begrunnelse ?? null }),
+    }),
 
   godkjennNavnekandidaterBatch: (request: NavnekandidatBatchRequest) =>
     kall<NavnekandidatBatchResultatDto>('/api/navnekandidater/godkjenn-batch', {

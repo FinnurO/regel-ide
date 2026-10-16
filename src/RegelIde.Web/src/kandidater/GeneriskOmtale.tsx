@@ -1,32 +1,18 @@
 import { useEffect, useState } from 'react';
 import { Link as RouterLink } from 'react-router';
 import {
-  Alert, Button, Checkbox, Divider, Field, Heading, Label, Link, Paragraph, Radio, Select, Spinner, Table, Textfield,
+  Alert, Button, Divider, Field, Heading, Label, Link, Radio, Select, Spinner, Table, Tag, Textfield,
 } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type {
-  GeneriskNavneformOversikt, KildeUtenforKorpusDokumentasjon, KildeUtenforKorpusType, Kunnskapsstatus, NavneformBindingDto,
-  NavnekandidatDto, RettskildeNodeDto, Tolkningsargument, VirksomhetDto, VirksomhetsbegrepDto,
+  GeneriskNavneformOversikt, NavneformBindingDto, NavneformBindingRequest, NavnekandidatDto, RettskildeNodeDto,
+  UtsagnsgrunnlagRequest, VirksomhetDto, VirksomhetsbegrepDto,
 } from '../api/types';
 import { Metatekst } from '../entitet/Metatekst';
-import { KildeUtenforKorpusVelger } from '../strukturkant/KildeUtenforKorpus';
-import { GodkjenningTag, KunnskapsstatusTag, KUNNSKAPSSTATUS_VISNING } from '../strukturkant/Utsagnsstatus';
+import { GodkjenningTag, KunnskapsstatusTag } from '../strukturkant/Utsagnsstatus';
 import { GruppebegrepVelger } from '../virksomhet/GruppebegrepVelger';
 import { VirksomhetVelger } from '../virksomhet/VirksomhetVelger';
-
-/** Tolkningsargumentene (docs/profil/03 §6) — speilet av `Strukturkanter.Tolkningsargumenter`. */
-const TOLKNINGSARGUMENTER: { verdi: Tolkningsargument; tekst: string }[] = [
-  { verdi: 'ordlyd', tekst: 'Ordlyd' },
-  { verdi: 'kontekst_system', tekst: 'Kontekst og system' },
-  { verdi: 'formal', tekst: 'Formål' },
-  { verdi: 'forarbeider', tekst: 'Forarbeider' },
-  { verdi: 'praksis', tekst: 'Praksis' },
-  { verdi: 'reelle_hensyn', tekst: 'Reelle hensyn' },
-  { verdi: 'antitetisk_analogisk', tekst: 'Antitetisk eller analogisk' },
-];
-
-/** Statusene en binding kan få her. Avledet krever premisser (finnes ikke for bindinger), foreldet settes bare av en revisjon. */
-const BINDING_KUNNSKAPSSTATUSER: Kunnskapsstatus[] = ['tekstfunn', 'fortolkning', 'eksternt_dokumentert', 'uavklart', 'omstridt'];
+import { nodeEtikett } from './Utsagnssteg';
 
 /** Perioden en binding gjelder, som tekst. Åpen periode i begge ender = «gjelder uten tidsavgrensning». */
 export function periodeTekst(fra: string | null, til: string | null): string {
@@ -36,54 +22,82 @@ export function periodeTekst(fra: string | null, til: string | null): string {
   return fra ? `gjelder fra ${d(fra)}` : `gjelder til ${d(til!)}`;
 }
 
-export interface GeneriskFerdig {
-  term: string;
-  varNyNavneform: boolean;
-  bundet: boolean;
-  taggOpprettet: boolean;
+/** Det veiviseren trenger fra «Hva betyr den her?»-steget. `bind` null = ikke valgt. */
+export interface GeneriskValg {
+  bind: boolean | null;
+  referentType: 'virksomhet' | 'begrep' | null;
+  virksomhetId: string;
+  begrepId: string;
+  fraEid: string;
+  tilEid: string;
+  gyldigFra: string;
+  gyldigTil: string;
+}
+
+export const TOMT_GENERISK_VALG: GeneriskValg = {
+  bind: null, referentType: null, virksomhetId: '', begrepId: '', fraEid: '', tilEid: '', gyldigFra: '', gyldigTil: '',
+};
+
+/** Null når valget er fullstendig; ellers hva som mangler. */
+export function generiskFeil(v: GeneriskValg): string | null {
+  if (v.bind === null) return 'Velg om omtalen bare skal markeres, eller også bindes.';
+  if (!v.bind) return null;
+  if (!((v.referentType === 'virksomhet' && v.virksomhetId) || (v.referentType === 'begrep' && v.begrepId))) return 'Velg hva den betyr her.';
+  if (v.gyldigFra && v.gyldigTil && v.gyldigFra > v.gyldigTil) return '«Gjelder fra» kan ikke være etter «Gjelder til».';
+  return null;
 }
 
 /**
- * [Ny, issue #378 A2/B5/AC7, Johanns godkjenning 2026-10-15] Veiviserens «Generisk omtale»-spor. Ingen ny side (#264): steg 2 i den
- * eksisterende navnekandidatveiviseren. Viser først hvor termen alt brukes og hva den betyr i hver rettskilde (AC7), og lar
- * saksbehandleren:
- * - **markere som generisk** — den generiske navneformen (én per term for hele korpuset) og taggen, ingen binding; eller
- * - **binde for denne rettskilden** — referent (virksomhet, klasse eller rolle), valgfritt paragrafspenn, hjemmel i rettskilden ELLER kilde
- *   utenfor korpus, og kunnskapsstatus (docs/profil/03 §5: `tekstfunn` når loven definerer ordet, ellers `fortolkning` med argumenter).
- *   En binding registrert her er en menneskelig avgjørelse og lagres som godkjent.
+ * Bindingen veiviseren sender: referent, spenn og periode herfra, grunnlag og status fra de to felles stegene (issue #385 AC8–AC10).
+ * «Godkjent» gjør bindingen gjeldende; «faglig vurdert» lar den stå som forslag.
+ */
+export function tilBinding(v: GeneriskValg, g: UtsagnsgrunnlagRequest): NavneformBindingRequest {
+  return {
+    tilVirksomhetId: v.referentType === 'virksomhet' ? v.virksomhetId : null,
+    tilBegrepId: v.referentType === 'begrep' ? v.begrepId : null,
+    paragrafspenn: v.fraEid ? [{ fraEid: v.fraEid, tilEid: v.tilEid || null }] : [],
+    hjemmelRettskildeId: g.hjemmelRettskildeId,
+    hjemmelEid: g.hjemmelEid,
+    kildeUtenforKorpusTekst: g.kildeTekst,
+    kildeUtenforKorpusLenke: g.kildeLenker?.[0] ?? null,
+    kildeUtenforKorpusLenker: g.kildeLenker,
+    kildeUtenforKorpusType: g.kildeType,
+    kildeUtenforKorpusDokumentasjon: g.kildeDokumentasjon,
+    kunnskapsstatus: g.kunnskapsstatus,
+    begrunnelse: g.begrunnelse,
+    tolkningsargumenter: g.tolkningsargumenter,
+    status: g.godkjenning,
+    kommentar: null,
+    gyldigFra: v.gyldigFra || null,
+    gyldigTil: v.gyldigTil || null,
+  };
+}
+
+/**
+ * [Ny, issue #378 A2/B5/AC7, Johanns godkjenning 2026-10-15] Veiviserens «Generisk omtale»-spor. Viser først hvor termen alt brukes og
+ * hva den betyr i hver rettskilde (AC7), med Godkjenn/Avvis på foreslåtte bindinger i kandidatens rettskilde.
  *
- * Ingenting forhåndsvelges (CLAUDE.md §8, docs/09 §31): referent, grunnlag og kunnskapsstatus er tomme til saksbehandleren velger.
+ * [ENDRET, issue #385 AC8–AC10] Kontrollert komponent for steget «Hva betyr den her?»: bare markere, eller binde — referent, spenn og
+ * egen gyldighet. HVA bindingen bygger på og HVOR SIKKER den er, velges i veiviserens to felles steg, som for navneform, aktør og
+ * medlemskap; før #385 hadde dette sporet sine egne felt for det, og en binding herfra ble alltid lagret som godkjent.
+ *
+ * Ingenting forhåndsvelges (CLAUDE.md §8, docs/09 §31).
  */
 export function GeneriskOmtale({
-  kandidat, noder, virksomheter, onFerdig,
+  kandidat, noder, virksomheter, verdi, onEndre, disabled,
 }: {
   kandidat: NavnekandidatDto;
   noder: RettskildeNodeDto[] | null;
   virksomheter: VirksomhetDto[];
-  onFerdig: (f: GeneriskFerdig) => void;
+  verdi: GeneriskValg;
+  onEndre: (v: GeneriskValg) => void;
+  disabled: boolean;
 }) {
   const term = kandidat.foreslattTekst.trim().toLowerCase();
   const [oversikt, setOversikt] = useState<GeneriskNavneformOversikt | null | undefined>(undefined);
-  const [bind, setBind] = useState<boolean | null>(null);
-  const [referentType, setReferentType] = useState<'virksomhet' | 'begrep' | null>(null);
-  const [virksomhetId, setVirksomhetId] = useState('');
   const [begreper, setBegreper] = useState<VirksomhetsbegrepDto[] | null>(null);
-  const [begrepId, setBegrepId] = useState('');
-  const [fraEid, setFraEid] = useState('');
-  const [tilEid, setTilEid] = useState('');
-  const [grunnlag, setGrunnlag] = useState<'hjemmel' | 'kilde' | null>(null);
-  const [hjemmelEid, setHjemmelEid] = useState('');
-  const [gyldigFra, setGyldigFra] = useState('');
-  const [gyldigTil, setGyldigTil] = useState('');
-  const [kildeTekst, setKildeTekst] = useState('');
-  const [kildeLenke, setKildeLenke] = useState('');
-  const [kildeType, setKildeType] = useState<KildeUtenforKorpusType | ''>('');
-  const [kildeDok, setKildeDok] = useState<KildeUtenforKorpusDokumentasjon | ''>('');
-  const [kunnskapsstatus, setKunnskapsstatus] = useState<Kunnskapsstatus | ''>('');
-  const [begrunnelse, setBegrunnelse] = useState('');
-  const [argumenter, setArgumenter] = useState<Tolkningsargument[]>([]);
-  const [kjorer, setKjorer] = useState(false);
   const [feil, setFeil] = useState<string | null>(null);
+  const sett = (endring: Partial<GeneriskValg>) => onEndre({ ...verdi, ...endring });
 
   function lastOversikt() {
     api.hentGeneriskeNavneformer(term).then((r) => setOversikt(r[0] ?? null)).catch(() => setOversikt(null));
@@ -91,66 +105,14 @@ export function GeneriskOmtale({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(lastOversikt, [term]);
   useEffect(() => {
-    if (referentType !== 'begrep' || begreper !== null) return;
+    if (verdi.referentType !== 'begrep' || begreper !== null) return;
     api.hentGruppebegrep().then((b) => setBegreper(b.filter((x) => x.begrepskategori === 'klasse' || x.begrepskategori === 'rolle')))
       .catch(() => setBegreper([]));
-  }, [referentType, begreper]);
+  }, [verdi.referentType, begreper]);
 
-  // Spennet velges på kapittel- eller paragrafnivå (et kapittel dekker alt under det); hjemmelen kan også være et ledd. Ledd vises med
-  // paragrafen foran («§ 10 ledd 1»), ellers er «1» og «2» uleselige i en lang liste.
   const perId = new Map((noder ?? []).map((n) => [n.id, n]));
-  const nodeTekst = (n: RettskildeNodeDto): string => {
-    const tittel = n.overskrift ? ` — ${n.overskrift}` : '';
-    if (n.nodeType === 'side') return 'Hele siden';
-    if (n.nodeType === 'kapittel') return `Kapittel ${n.nummer ?? n.eid}${tittel}`;
-    if (n.nodeType === 'paragraf') return `${n.nummer ?? n.eid}${tittel}`; // nummer er alt «§ 10»
-    const forelder = n.parentNodeId ? perId.get(n.parentNodeId) : undefined;
-    return `${forelder ? `${nodeTekst(forelder)} ` : ''}${n.nodeType} ${n.nummer ?? ''}`.trim();
-  };
   const paragrafer = (noder ?? []).filter((n) => !n.opphevet && (n.nodeType === 'side' || n.nodeType === 'kapittel' || n.nodeType === 'paragraf'));
-  const hjemmelnoder = (noder ?? []).filter((n) => !n.opphevet && (n.nodeType === 'side' || n.nodeType === 'paragraf' || n.nodeType === 'ledd'));
   const herBindinger = oversikt?.rettskilder.find((r) => r.rettskildeId === kandidat.rettskildeId)?.bindinger ?? [];
-
-  const referentKlar = (referentType === 'virksomhet' && virksomhetId !== '') || (referentType === 'begrep' && begrepId !== '');
-  const grunnlagKlart = (grunnlag === 'hjemmel' && hjemmelEid !== '')
-    || (grunnlag === 'kilde' && kildeTekst.trim() !== '' && !!kildeType && !!kildeDok);
-  const statusKlar = kunnskapsstatus === ''
-    || (kunnskapsstatus === 'tekstfunn' && grunnlag === 'hjemmel')
-    || (kunnskapsstatus === 'eksternt_dokumentert' && grunnlag === 'kilde')
-    || (kunnskapsstatus === 'fortolkning' && begrunnelse.trim() !== '' && argumenter.length > 0)
-    || kunnskapsstatus === 'uavklart' || kunnskapsstatus === 'omstridt';
-  const periodeKlar = !gyldigFra || !gyldigTil || gyldigFra <= gyldigTil;
-  const klar = bind === false || (bind === true && referentKlar && grunnlagKlart && statusKlar && periodeKlar);
-
-  async function fullfor() {
-    setKjorer(true);
-    setFeil(null);
-    try {
-      const r = await api.markerNavnekandidatSomGenerisk(kandidat.id, bind ? {
-        tilVirksomhetId: referentType === 'virksomhet' ? virksomhetId : null,
-        tilBegrepId: referentType === 'begrep' ? begrepId : null,
-        paragrafspenn: fraEid ? [{ fraEid, tilEid: tilEid || null }] : [],
-        hjemmelRettskildeId: grunnlag === 'hjemmel' ? kandidat.rettskildeId : null,
-        hjemmelEid: grunnlag === 'hjemmel' ? hjemmelEid : null,
-        kildeUtenforKorpusTekst: grunnlag === 'kilde' ? kildeTekst.trim() : null,
-        kildeUtenforKorpusLenke: grunnlag === 'kilde' && kildeLenke.trim() ? kildeLenke.trim() : null,
-        kildeUtenforKorpusType: grunnlag === 'kilde' && kildeType ? kildeType : null,
-        kildeUtenforKorpusDokumentasjon: grunnlag === 'kilde' && kildeDok ? kildeDok : null,
-        kunnskapsstatus: kunnskapsstatus || null,
-        begrunnelse: begrunnelse.trim() || null,
-        tolkningsargumenter: argumenter.length ? argumenter : null,
-        status: 'godkjent',
-        kommentar: null,
-        gyldigFra: gyldigFra || null,
-        gyldigTil: gyldigTil || null,
-      } : null);
-      onFerdig({ term: r.navneform.term, varNyNavneform: r.varNyNavneform, bundet: r.binding !== null, taggOpprettet: r.taggId !== null });
-    } catch (e) {
-      setFeil(e instanceof ApiError ? e.message : 'Kunne ikke markere som generisk.');
-    } finally {
-      setKjorer(false);
-    }
-  }
 
   async function behandleBinding(b: NavneformBindingDto, handling: 'godkjenn' | 'avvis') {
     setFeil(null);
@@ -165,7 +127,6 @@ export function GeneriskOmtale({
 
   return (
     <div style={{ marginBottom: '0.75rem' }}>
-      <Divider style={{ margin: '0.75rem 0' }} />
       <Heading level={3} data-size="xs" style={{ marginBottom: '0.35rem' }}>«{term}» i korpuset</Heading>
       {oversikt === undefined ? <Spinner aria-label="Laster …" data-size="sm" /> : oversikt === null ? (
         <Metatekst>«{term}» er ikke registrert som generisk omtale ennå — den blir det når du fullfører.</Metatekst>
@@ -202,7 +163,9 @@ export function GeneriskOmtale({
                         <Metatekst as="span">{periodeTekst(b.gyldigFra, b.gyldigTil)}</Metatekst>
                         <KunnskapsstatusTag status={b.kunnskapsstatus} />
                         <GodkjenningTag status={b.status} oppdagelsesKilde={b.oppdagelsesKilde} />
-                        {r.rettskildeId === kandidat.rettskildeId && b.status !== 'godkjent' && (
+                        {/* [Ny, issue #385 AC12] Som strukturkantene (docs/09 §35). */}
+                        {b.hjemmelEndretTidspunkt && <Tag data-size="sm" data-color="warning">Hjemmel endret – vurder på nytt</Tag>}
+                        {r.rettskildeId === kandidat.rettskildeId && (b.status !== 'godkjent' || b.hjemmelEndretTidspunkt) && !disabled && (
                           <>
                             <Button data-size="sm" variant="secondary" onClick={() => behandleBinding(b, 'godkjenn')}>Godkjenn</Button>
                             <Button data-size="sm" variant="tertiary" onClick={() => behandleBinding(b, 'avvis')}>Avvis</Button>
@@ -218,123 +181,68 @@ export function GeneriskOmtale({
         </>
       )}
 
+      <Divider style={{ margin: '0.75rem 0' }} />
       <Field data-size="sm" style={{ marginBottom: '0.5rem' }}>
-        <Radio name="generiskBind" label="Bare marker som generisk" value="nei"
+        <Radio name="generiskBind" label="Bare marker som generisk" value="nei" disabled={disabled}
           description="Omtalen kobles til den generiske navneformen, uten betydning for denne rettskilden ennå. Den står da som «generisk» i aktørsveipet."
-          checked={bind === false} onChange={() => setBind(false)} />
-        <Radio name="generiskBind" label="Marker og bind for denne rettskilden"
-          description={herBindinger.length > 0 ? 'Det finnes alt en binding her — en ny må ha et annet paragrafspenn.' : 'Hva «' + term + '» betyr her.'}
-          value="ja" checked={bind === true} onChange={() => setBind(true)} />
+          checked={verdi.bind === false} onChange={() => sett({ bind: false })} />
+        <Radio name="generiskBind" label="Marker og bind for denne rettskilden" value="ja" disabled={disabled}
+          description={herBindinger.length > 0 ? 'Det finnes alt en binding her — en ny må ha et annet paragrafspenn eller en annen periode.' : `Hva «${term}» betyr her.`}
+          checked={verdi.bind === true} onChange={() => sett({ bind: true })} />
       </Field>
 
-      {bind && (
+      {verdi.bind && (
         <div style={{ display: 'grid', gap: '0.6rem', marginBottom: '0.6rem' }}>
           <Field data-size="sm">
-            <Radio name="referentType" label="En virksomhet" value="virksomhet" checked={referentType === 'virksomhet'}
-              onChange={() => setReferentType('virksomhet')} />
-            <Radio name="referentType" label="En klasse eller rolle («kommunen» som barnehagemyndighet)" value="begrep"
-              checked={referentType === 'begrep'} onChange={() => setReferentType('begrep')} />
+            <Radio name="referentType" label="En aktør" value="virksomhet" checked={verdi.referentType === 'virksomhet'} disabled={disabled}
+              onChange={() => sett({ referentType: 'virksomhet' })} />
+            <Radio name="referentType" label="En klasse eller rolle («kommunen» som barnehagemyndighet)" value="begrep" disabled={disabled}
+              checked={verdi.referentType === 'begrep'} onChange={() => sett({ referentType: 'begrep' })} />
           </Field>
-          {referentType === 'virksomhet' && (
-            <VirksomhetVelger virksomheter={virksomheter} value={virksomhetId} onChange={setVirksomhetId} label="Betyr virksomheten"
-              tomValgTekst="Velg virksomhet …" style={{ maxWidth: '28rem' }} />
+          {verdi.referentType === 'virksomhet' && (
+            <VirksomhetVelger virksomheter={virksomheter} value={verdi.virksomhetId} onChange={(virksomhetId) => sett({ virksomhetId })}
+              label="Betyr aktøren" tomValgTekst="Velg aktør …" style={{ maxWidth: '28rem' }} />
           )}
-          {referentType === 'begrep' && (begreper === null ? <Spinner aria-label="Laster …" data-size="sm" /> : begreper.length === 0 ? (
+          {verdi.referentType === 'begrep' && (begreper === null ? <Spinner aria-label="Laster …" data-size="sm" /> : begreper.length === 0 ? (
             <Alert data-color="warning" data-size="sm">Det finnes ingen klasse- eller rollebegrep. Opprett begrepet først.</Alert>
           ) : (
-            <GruppebegrepVelger gruppebegrep={begreper} value={begrepId} onChange={setBegrepId} label="Betyr klassen/rollen"
+            <GruppebegrepVelger gruppebegrep={begreper} value={verdi.begrepId} onChange={(begrepId) => sett({ begrepId })} label="Betyr klassen/rollen"
               tomValgTekst="Velg klasse eller rolle …" style={{ maxWidth: '28rem' }} />
           ))}
 
           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
             <Field data-size="sm" style={{ maxWidth: '16rem' }}>
-              <Label>Gjelder fra (valgfritt — tomt = hele rettskilden)</Label>
-              <Select data-size="sm" value={fraEid} onChange={(e) => setFraEid(e.target.value)}>
+              <Label>Gjelder i (valgfritt — tomt = hele rettskilden)</Label>
+              <Select data-size="sm" value={verdi.fraEid} disabled={disabled} onChange={(e) => sett({ fraEid: e.target.value })}>
                 <Select.Option value="">Hele rettskilden</Select.Option>
-                {paragrafer.map((n) => <Select.Option key={n.id} value={n.eid}>{nodeTekst(n)}</Select.Option>)}
+                {paragrafer.map((n) => <Select.Option key={n.id} value={n.eid}>{nodeEtikett(n, perId)}</Select.Option>)}
               </Select>
             </Field>
-            {fraEid && (
+            {verdi.fraEid && (
               <Field data-size="sm" style={{ maxWidth: '16rem' }}>
                 <Label>Til og med (valgfritt)</Label>
-                <Select data-size="sm" value={tilEid} onChange={(e) => setTilEid(e.target.value)}>
+                <Select data-size="sm" value={verdi.tilEid} disabled={disabled} onChange={(e) => sett({ tilEid: e.target.value })}>
                   <Select.Option value="">Bare denne</Select.Option>
-                  {paragrafer.map((n) => <Select.Option key={n.id} value={n.eid}>{nodeTekst(n)}</Select.Option>)}
+                  {paragrafer.map((n) => <Select.Option key={n.id} value={n.eid}>{nodeEtikett(n, perId)}</Select.Option>)}
                 </Select>
               </Field>
             )}
           </div>
 
-          {/* [Ny, issue #378, Johanns beslutning 2026-10-16] Bindingens egen gyldighet — f.eks. til en ressortendring. Tomt = åpen ende.
-            * Oppslaget bruker bare bindinger som gjelder i dag. */}
+          {/* [Ny, issue #378, Johanns beslutning 2026-10-16] Bindingens egen gyldighet — f.eks. til en ressortendring. Tomt = åpen ende. */}
           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-            <Textfield data-size="sm" type="date" label="Gjelder fra (valgfritt)" value={gyldigFra} onChange={(e) => setGyldigFra(e.target.value)} />
-            <Textfield data-size="sm" type="date" label="Gjelder til (valgfritt)" value={gyldigTil} onChange={(e) => setGyldigTil(e.target.value)} />
+            <Textfield data-size="sm" type="date" label="Gjelder fra (valgfritt)" value={verdi.gyldigFra} readOnly={disabled}
+              onChange={(e) => sett({ gyldigFra: e.target.value })} />
+            <Textfield data-size="sm" type="date" label="Gjelder til (valgfritt)" value={verdi.gyldigTil} readOnly={disabled}
+              onChange={(e) => sett({ gyldigTil: e.target.value })} />
           </div>
-          {!periodeKlar && <Alert data-color="warning" data-size="sm">«Gjelder fra» kan ikke være etter «Gjelder til».</Alert>}
-
-          <Field data-size="sm">
-            <Label>Hvor betydningen kommer fra</Label>
-            <Radio name="grunnlag" label="Bestemmelse i denne rettskilden (loven definerer eller forutsetter ordet)" value="hjemmel"
-              checked={grunnlag === 'hjemmel'} onChange={() => setGrunnlag('hjemmel')} />
-            <Radio name="grunnlag" label="Kilde utenfor korpus (f.eks. kgl.res. om ansvarsfordeling)" value="kilde"
-              checked={grunnlag === 'kilde'} onChange={() => setGrunnlag('kilde')} />
-          </Field>
-          {grunnlag === 'hjemmel' && (
-            <Field data-size="sm" style={{ maxWidth: '28rem' }}>
-              <Label>Bestemmelsen</Label>
-              <Select data-size="sm" value={hjemmelEid} onChange={(e) => setHjemmelEid(e.target.value)}>
-                <Select.Option value="">Velg …</Select.Option>
-                {hjemmelnoder.map((n) => <Select.Option key={n.id} value={n.eid}>{nodeTekst(n)}</Select.Option>)}
-              </Select>
-            </Field>
-          )}
-          {grunnlag === 'kilde' && (
-            <>
-              <Textfield data-size="sm" label="Kilden" value={kildeTekst} onChange={(e) => setKildeTekst(e.target.value)} style={{ maxWidth: '36rem' }} />
-              <Textfield data-size="sm" label="Lenke (valgfri)" value={kildeLenke} onChange={(e) => setKildeLenke(e.target.value)} style={{ maxWidth: '36rem' }} />
-              <KildeUtenforKorpusVelger type={kildeType} dokumentasjon={kildeDok} onType={setKildeType} onDokumentasjon={setKildeDok} />
-            </>
-          )}
-
-          <Field data-size="sm" style={{ maxWidth: '22rem' }}>
-            <Label>Kunnskapsstatus</Label>
-            <Select data-size="sm" value={kunnskapsstatus} onChange={(e) => setKunnskapsstatus(e.target.value as Kunnskapsstatus | '')}>
-              <Select.Option value="">Ikke vurdert</Select.Option>
-              {BINDING_KUNNSKAPSSTATUSER.map((k) => <Select.Option key={k} value={k}>{KUNNSKAPSSTATUS_VISNING[k].tekst}</Select.Option>)}
-            </Select>
-          </Field>
-          {kunnskapsstatus && <Metatekst>{KUNNSKAPSSTATUS_VISNING[kunnskapsstatus].forklaring}</Metatekst>}
-          {kunnskapsstatus === 'tekstfunn' && grunnlag !== 'hjemmel' && (
-            <Alert data-color="warning" data-size="sm">Tekstfunn krever en bestemmelse i rettskilden.</Alert>
-          )}
-          {kunnskapsstatus === 'eksternt_dokumentert' && grunnlag !== 'kilde' && (
-            <Alert data-color="warning" data-size="sm">Eksternt dokumentert krever kilde utenfor korpus.</Alert>
-          )}
-          {(kunnskapsstatus === 'fortolkning' || kunnskapsstatus === 'omstridt' || kunnskapsstatus === 'uavklart') && (
-            <Textfield data-size="sm" label={kunnskapsstatus === 'fortolkning' ? 'Begrunnelse' : 'Begrunnelse (valgfri)'} value={begrunnelse}
-              onChange={(e) => setBegrunnelse(e.target.value)} style={{ maxWidth: '36rem' }} />
-          )}
-          {kunnskapsstatus === 'fortolkning' && (
-            <Field data-size="sm">
-              <Label>Tolkningsargumenter (minst ett)</Label>
-              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                {TOLKNINGSARGUMENTER.map((a) => (
-                  <Checkbox key={a.verdi} data-size="sm" label={a.tekst} checked={argumenter.includes(a.verdi)}
-                    onChange={(e) => setArgumenter((x) => (e.target.checked ? [...x, a.verdi] : x.filter((y) => y !== a.verdi)))} />
-                ))}
-              </div>
-            </Field>
+          {verdi.gyldigFra && verdi.gyldigTil && verdi.gyldigFra > verdi.gyldigTil && (
+            <Alert data-color="warning" data-size="sm">«Gjelder fra» kan ikke være etter «Gjelder til».</Alert>
           )}
         </div>
       )}
 
       {feil && <Alert data-color="danger" data-size="sm" style={{ marginBottom: '0.5rem' }}>{feil}</Alert>}
-      <Paragraph data-size="sm" style={{ margin: 0 }}>
-        <Button data-size="sm" onClick={fullfor} disabled={!klar || kjorer}>
-          {kjorer ? 'Lagrer …' : bind ? 'Marker som generisk og bind' : 'Marker som generisk'}
-        </Button>
-      </Paragraph>
     </div>
   );
 }
