@@ -100,8 +100,10 @@ public sealed class KlassemedlemskapTjeneste(RegelIdeDbContext db, StrukturkantT
                         && k.TilBegrepId != null && kommuneIder.Contains(k.TilBegrepId.Value))
             .ToListAsync(ct), ct);
         var aktorIder = kanter.Select(k => k.FraVirksomhetId!.Value).Distinct().ToList();
-        var aktorer = await db.Virksomheter.Where(v => aktorIder.Contains(v.Id))
-            .Select(v => new { v.Id, v.Navn, v.Kommunenummer }).ToDictionaryAsync(v => v.Id, ct);
+        var visning = await new VirksomhetVisningsnavnTjeneste(db).AlleAsync(ct); // [ENDRET, issue #385 AC2] visningsnavnet, ikke registernavnet
+        var aktorer = (await db.Virksomheter.Where(v => aktorIder.Contains(v.Id))
+            .Select(v => new { v.Id, v.Navn, v.Kommunenummer }).ToListAsync(ct))
+            .Select(v => v with { Navn = visning.GetValueOrDefault(v.Id) ?? v.Navn }).ToDictionary(v => v.Id);
         var perKommune = kanter.GroupBy(k => k.TilBegrepId!.Value).ToDictionary(g => g.Key, g => g.ToList());
 
         var medlemmer = new List<UtledetMedlem>();

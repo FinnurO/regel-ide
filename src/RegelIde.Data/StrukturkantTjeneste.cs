@@ -881,6 +881,8 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
             .Where(b => b.Begrepskategori == "virksomhet"
                         && b.Navneformgrunn == VirksomhetVisningsnavnTjeneste.VisningsGrunn
                         && b.Entitetsstatus == "gjeldende"
+                        // [ENDRET, issue #385] Et forslag til navneform er ikke aktørens navn før det er godkjent.
+                        && (b.Godkjenning == null || b.Godkjenning == Strukturkanter.Godkjent)
                         && b.VirksomhetReferanseId != null
                         && virksomhetIder.Contains(b.VirksomhetReferanseId.Value))
             .Select(b => new { VirksomhetId = b.VirksomhetReferanseId!.Value, b.Term })

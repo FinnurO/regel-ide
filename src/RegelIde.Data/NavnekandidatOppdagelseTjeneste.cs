@@ -1818,7 +1818,7 @@ public sealed class NavnekandidatOppdagelseTjeneste(
         await OppdaterAsync(id, null, kategori, behandletAv, ct);
     }
 
-    public async Task<NavnekandidatEntitet?> AvvisAsync(Guid id, string behandletAv, CancellationToken ct = default)
+    public async Task<NavnekandidatEntitet?> AvvisAsync(Guid id, string behandletAv, CancellationToken ct = default, string? begrunnelse = null)
     {
         var kandidat = await db.Navnekandidater.FirstOrDefaultAsync(k => k.Id == id, ct);
         if (kandidat is null) return null;
@@ -1828,6 +1828,8 @@ public sealed class NavnekandidatOppdagelseTjeneste(
                 $"Kandidaten har status '{kandidat.Status}' — kan kun avvise kandidater med status 'Venter'.");
         }
         kandidat.Status = "Avvist";
+        // [Ny, issue #385 AC7] «Ikke en aktør» avvises med begrunnelse; raden slettes ikke.
+        kandidat.AvvisningBegrunnelse = string.IsNullOrWhiteSpace(begrunnelse) ? null : begrunnelse.Trim();
         kandidat.BehandletAv = behandletAv;
         kandidat.BehandletTidspunkt = DateTimeOffset.UtcNow;
         await db.SaveChangesAsync(ct);
@@ -1954,7 +1956,8 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// </para>
     /// </summary>
     public async Task<NavnekandidatKoblingResultat?> KoblTilVirksomhetAsync(
-        Guid id, Guid virksomhetId, string? navneformgrunn, string behandletAv, CancellationToken ct = default)
+        Guid id, Guid virksomhetId, string? navneformgrunn, string behandletAv, CancellationToken ct = default,
+        Veivisergrunnlag? veiviser = null)
     {
         var kandidat = await db.Navnekandidater.FirstOrDefaultAsync(k => k.Id == id, ct);
         if (kandidat is null) return null;
@@ -1969,7 +1972,8 @@ public sealed class NavnekandidatOppdagelseTjeneste(
         // fast i blindveien med en ubundet tagg — å nekte den her ville gjort de eksisterende,
         // halvbehandlede radene umulige å redde, som er hele poenget med denne runden. Kallet er
         // idempotent (se OpprettEllerKobleVirksomhetTaggAsync), så en gjentakelse er ufarlig.
-        return await LukkKjedenMotVirksomhetAsync(kandidat, virksomhetId, navneformgrunn, behandletAv, ct);
+        await ValiderVeiviserAsync(veiviser, ct);
+        return await LukkKjedenMotVirksomhetAsync(kandidat, virksomhetId, navneformgrunn, behandletAv, ct, veiviser);
     }
 
     /// <summary>
@@ -2003,7 +2007,7 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// </summary>
     public async Task<NavnekandidatGruppemedlemskapResultat?> KoblTilGruppemedlemskapAsync(
         Guid id, Guid virksomhetId, Guid gruppeBegrepId, string? navneformgrunn, string behandletAv,
-        CancellationToken ct = default)
+        CancellationToken ct = default, Veivisergrunnlag? veiviser = null)
     {
         var kandidat = await db.Navnekandidater.FirstOrDefaultAsync(k => k.Id == id, ct);
         if (kandidat is null) return null;
@@ -2016,15 +2020,21 @@ public sealed class NavnekandidatOppdagelseTjeneste(
         }
         ValiderNavneformgrunn(navneformgrunn);
 
+        await ValiderVeiviserAsync(veiviser, ct);
+
         // Steg 1 (se metodekommentaren om rekkefølgen): medlemskapet.
-        var tildeling = await FinnTildelingAsync(virksomhetId, gruppeBegrepId, kandidat.RettskildeId, ct)
+        var fantes = await FinnTildelingAsync(virksomhetId, gruppeBegrepId, kandidat.RettskildeId, ct);
+        var tildeling = fantes
             ?? (await strukturkanter.OpprettTildelingAsync(
                 virksomhetId, gruppeBegrepId, kandidat.RettskildeId,
                 // [ENDRET, issue #341] Kandidatens node er HVOR medlemskapet står (hjemmel-eId), ikke en avgrensning.
                 kandidat.NodeEid, avgrensning: null, avgrensningTekst: null, behandletAv, ct: ct)).Kant;
+        // [Ny, issue #385 AC10] Medlemskapet får veiviserens status. Hjemmelen er alltid kandidatens node (det er der navnet står), så
+        // kunnskapsstatusen bæres med bare når den passer en hjemlet kant (ikke eksternt dokumentert, som krever kilde utenfor korpus).
+        if (fantes is null && veiviser is not null) await SkrivStatusPaaKantAsync(tildeling, veiviser.Grunnlag, behandletAv, ct);
 
         // Steg 2: nøyaktig samme kjedelukking som virksomhet-veien.
-        var kobling = await LukkKjedenMotVirksomhetAsync(kandidat, virksomhetId, navneformgrunn, behandletAv, ct);
+        var kobling = await LukkKjedenMotVirksomhetAsync(kandidat, virksomhetId, navneformgrunn, behandletAv, ct, veiviser);
         return new NavnekandidatGruppemedlemskapResultat(
             kobling!.Kandidat, kobling.Navneform, kobling.TaggId, kobling.NodeEid, tildeling);
     }
@@ -2046,7 +2056,7 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// myndigheten etter energiloven § 3-1»). Tom = ikke angitt.</param>
     public async Task<NavnekandidatMyndighetstildelingResultat?> KoblTilMyndighetstildelingAsync(
         Guid id, Guid virksomhetId, Guid rolleBegrepId, string? hjemmelEid, IReadOnlyList<ParagrafspennPar>? avgrensning,
-        string? vilkaar, string? navneformgrunn, string behandletAv, CancellationToken ct = default)
+        string? vilkaar, string? navneformgrunn, string behandletAv, CancellationToken ct = default, Veivisergrunnlag? veiviser = null)
     {
         var kandidat = await db.Navnekandidater.FirstOrDefaultAsync(k => k.Id == id, ct);
         if (kandidat is null) return null;
@@ -2057,6 +2067,7 @@ public sealed class NavnekandidatOppdagelseTjeneste(
                 + "rolletildeling her.");
         }
         ValiderNavneformgrunn(navneformgrunn);
+        await ValiderVeiviserAsync(veiviser, ct);
 
         // Idempotent — samme (rolle, virksomhet, hjemmel) skal ikke gi en duplikat-rad ved gjentatt kall.
         // [ENDRET, issue #311] Vilkåret er kantens AvgrensningTekst.
@@ -2065,7 +2076,7 @@ public sealed class NavnekandidatOppdagelseTjeneste(
                 virksomhetId, rolleBegrepId, kandidat.RettskildeId, string.IsNullOrWhiteSpace(hjemmelEid) ? kandidat.NodeEid : hjemmelEid.Trim(),
                 avgrensning, vilkaar, behandletAv, ct: ct)).Kant;
 
-        var kobling = await LukkKjedenMotVirksomhetAsync(kandidat, virksomhetId, navneformgrunn, behandletAv, ct);
+        var kobling = await LukkKjedenMotVirksomhetAsync(kandidat, virksomhetId, navneformgrunn, behandletAv, ct, veiviser);
         return new NavnekandidatMyndighetstildelingResultat(
             kobling!.Kandidat, kobling.Navneform, kobling.TaggId, kobling.NodeEid, tildeling);
     }
@@ -2091,8 +2102,9 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     public async Task<NavnekandidatRelasjonResultat?> KoblTilRelasjonAsync(
         Guid id, Guid virksomhetId, string? navneformgrunn, Guid motpartVirksomhetId, string relasjonsType,
         bool hjemletHer, string? kommentar, string behandletAv, CancellationToken ct = default,
-        string? kildeUtenforKorpusType = null, string? kildeUtenforKorpusDokumentasjon = null)
+        string? kildeUtenforKorpusType = null, string? kildeUtenforKorpusDokumentasjon = null, Veivisergrunnlag? veiviser = null)
     {
+        await ValiderVeiviserAsync(veiviser, ct);
         var kandidat = await db.Navnekandidater.FirstOrDefaultAsync(k => k.Id == id, ct);
         if (kandidat is null) return null;
         if (kandidat.Kategori != "virksomhet")
@@ -2122,7 +2134,7 @@ public sealed class NavnekandidatOppdagelseTjeneste(
             KildeUtenforKorpusType: hjemletHer ? null : kildeUtenforKorpusType,
             KildeUtenforKorpusDokumentasjon: hjemletHer ? null : kildeUtenforKorpusDokumentasjon), behandletAv, ct)).Kant;
 
-        var kobling = await LukkKjedenMotVirksomhetAsync(kandidat, virksomhetId, navneformgrunn, behandletAv, ct);
+        var kobling = await LukkKjedenMotVirksomhetAsync(kandidat, virksomhetId, navneformgrunn, behandletAv, ct, veiviser);
         return new NavnekandidatRelasjonResultat(
             kobling!.Kandidat, kobling.Navneform, kobling.TaggId, kobling.NodeEid, relasjon);
     }
@@ -2246,6 +2258,38 @@ public sealed class NavnekandidatOppdagelseTjeneste(
         }
     }
 
+    /// <summary>[Ny, issue #385] Grunnlaget valideres FØR noe skrives, så en ugyldig verdi ikke etterlater en halvbehandlet kandidat.</summary>
+    private async Task ValiderVeiviserAsync(Veivisergrunnlag? veiviser, CancellationToken ct)
+    {
+        if (veiviser is null) return;
+        await new AktoridentitetTjeneste(db, tekstTaggTjeneste, virksomhetOppslag).ValiderAsync(veiviser.Grunnlag, ct);
+        if (veiviser.Aktortype is not null && !Nodetyper.Aktortyper.Contains(veiviser.Aktortype))
+        {
+            throw new ArgumentException($"Ukjent aktørtype '{veiviser.Aktortype}'. Gyldige: {string.Join(", ", Nodetyper.Aktortyper)}.");
+        }
+        if (!Nodetyper.ErGyldigOrdningstype(veiviser.Aktortype, veiviser.Ordningstype))
+        {
+            throw new ArgumentException($"Ordningstype '{veiviser.Ordningstype}' er bare gyldig på en ordning.");
+        }
+    }
+
+    /// <summary>[Ny, issue #385 AC10] Veiviserens godkjenning, og kunnskapsstatusen når den passer en kant hjemlet i kandidatens node.</summary>
+    private async Task SkrivStatusPaaKantAsync(StrukturkantEntitet kant, Utsagnsgrunnlag g, string behandletAv, CancellationToken ct)
+    {
+        kant.Status = g.Godkjenning;
+        if (g.Kunnskapsstatus is Strukturkanter.Tekstfunn or Strukturkanter.Normalisering or Strukturkanter.Fortolkning
+            or Strukturkanter.Uavklart or Strukturkanter.Omstridt)
+        {
+            kant.Kunnskapsstatus = g.Kunnskapsstatus;
+            kant.Begrunnelse = g.RenBegrunnelse;
+            kant.Tolkningsargumenter = g.RenArgumenter;
+            kant.Profilversjon = Strukturkanter.Profilversjon;
+        }
+        kant.SistEndretAv = behandletAv;
+        kant.SistEndretTidspunkt = DateTimeOffset.UtcNow;
+        await db.SaveChangesAsync(ct);
+    }
+
     /// <summary>
     /// [Utskilt, gruppemedlemskap-runden, 2026-09-08] Den DELTE kjedelukkingen bak både
     /// <see cref="KoblTilVirksomhetAsync"/> og <see cref="KoblTilGruppemedlemskapAsync"/>: navneform
@@ -2256,7 +2300,7 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// </summary>
     private async Task<NavnekandidatKoblingResultat?> LukkKjedenMotVirksomhetAsync(
         NavnekandidatEntitet kandidat, Guid virksomhetId, string? navneformgrunn, string behandletAv,
-        CancellationToken ct)
+        CancellationToken ct, Veivisergrunnlag? veiviser = null)
     {
         ValiderNavneformgrunn(navneformgrunn);
 
@@ -2272,6 +2316,7 @@ public sealed class NavnekandidatOppdagelseTjeneste(
         var navneform = await db.Begreper.FirstOrDefaultAsync(
             b => b.Begrepskategori == "virksomhet" && b.VirksomhetReferanseId == virksomhetId
                  && b.Term.ToLower() == termLower && b.Entitetsstatus == "gjeldende", ct);
+        var varNy = navneform is null;
         if (navneform is null)
         {
             navneform = await virksomhetsbegrep.OpprettVirksomhetsbegrepAsync(
@@ -2289,6 +2334,19 @@ public sealed class NavnekandidatOppdagelseTjeneste(
         // (rett over) er nettopp det som gjør dette mulig uten noen ny rekkefølge her: vi har alt
         // raden taggen skal peke på.
         var tagg = await OpprettEllerKobleVirksomhetTaggAsync(kandidat, navneform.Id, behandletAv, ct);
+
+        // [Ny, issue #385 AC8–AC10] Veiviserens grunnlag og status på navneformen (ny, eller et forslag som nå er vurdert) og
+        // aktørtypen som eget utsagn. En eldre eller alt godkjent navneform røres ikke (AktoridentitetTjeneste.SkrivGrunnlagPaaNavneformAsync).
+        if (veiviser is not null)
+        {
+            var identitet = new AktoridentitetTjeneste(db, tekstTaggTjeneste, virksomhetOppslag);
+            await identitet.SkrivGrunnlagPaaNavneformAsync(navneform, veiviser.Grunnlag, varNy, behandletAv, ct);
+            if (veiviser.Aktortype is not null)
+            {
+                await identitet.RegistrerAktortypeAsync(virksomhetId, veiviser.Aktortype, veiviser.Ordningstype, veiviser.Grunnlag,
+                    "veiviser", behandletAv, ct);
+            }
+        }
 
         kandidat.Status = "Godkjent";
         kandidat.BehandletAv = behandletAv;
@@ -2552,3 +2610,7 @@ public sealed record NavnekandidatFastGruppebegrepResultat(
 /// (samme "egen, parallell type fremfor en delt generisk" -linje som resten av filen).
 /// </summary>
 public sealed record NavnekandidatGruppeBatchRad(Guid Id, bool Ok, string? Feil, NavnekandidatEntitet? Resultat);
+
+/// <summary>[Ny, issue #385 AC8–AC10] Veiviserens to nye steg — «Hva bygger dette på?» og «Hvor sikkert er det?» — og aktørtypen fra steg 2
+/// («navngitt aktør, med valg av type»). Valgfri for bakoverkompatibilitet: uten den oppfører kobl-til-endepunktene seg som før.</summary>
+public sealed record Veivisergrunnlag(Utsagnsgrunnlag Grunnlag, string? Aktortype = null, string? Ordningstype = null);
