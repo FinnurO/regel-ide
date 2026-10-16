@@ -140,6 +140,9 @@ export interface TagTekstProps {
   resolveRef?: (
     kind: TagKindId,
     ref: string,
+    /** [Ny, issue #378 B6] Taggens id — en GENERISK navneform betyr noe ulikt per rettskilde og paragraf, så kjeden kan ikke
+     * resolves på `ref` alene. Valgfri: kallere som ikke trenger den, ignorerer den. */
+    taggId?: string,
   ) => {
     label: string;
     href: string;
@@ -427,7 +430,7 @@ function Tekstflate({
           </Link>
         ) : s.kind ? (
           (() => {
-            const lenke = s.ref ? resolveRef?.(s.kind, s.ref) : undefined;
+            const lenke = s.ref ? resolveRef?.(s.kind, s.ref, s.tagId) : undefined;
             const lagNavn = kindById[s.kind]?.label ?? s.kind;
             return (
               <TaggetSegment
@@ -852,7 +855,7 @@ export function TagTekst({
                   </span>
                   {t.ref &&
                     (() => {
-                      const lenke = resolveRef?.(t.kind, t.ref);
+                      const lenke = resolveRef?.(t.kind, t.ref, t.id);
                       if (!lenke) return ` → ${t.ref}`;
                       return (
                         <>

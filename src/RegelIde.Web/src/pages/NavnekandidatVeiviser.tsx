@@ -19,6 +19,7 @@ import { VirksomhetVelger } from '../virksomhet/VirksomhetVelger';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 import { KonfidensTag, konfidensGrunnTekst } from '../kandidater/KonfidensTag';
 import { Metatekst } from '../entitet/Metatekst';
+import { GeneriskOmtale } from '../kandidater/GeneriskOmtale';
 import { KANDIDATNODETYPER, NODETYPE_VISNING, NodetypeVelger } from '../begrep/Nodetype';
 import type { Kandidatnodetype } from '../api/types';
 
@@ -89,7 +90,9 @@ import type { Kandidatnodetype } from '../api/types';
 
 /** Steg 2 sitt valg. `null` = ikke valgt ennå. `gruppemedlem` er
  * [ny, gruppemedlemskap-runden, 2026-09-08] — se filkommentaren. */
-type Slag = 'virksomhet' | 'gruppemedlem' | 'gruppe' | 'irrelevant';
+type Slag = 'virksomhet' | 'gruppemedlem' | 'gruppe' | 'irrelevant'
+  // [Ny, issue #378 A2] Generisk omtale («styret», «departementet») — se kandidater/GeneriskOmtale.tsx.
+  | 'generisk';
 
 /** De to `Slag`-verdiene som går videre til steg 3 (virksomhetsvalget) og steg 4 (tillegget under). Skilt
  * ut som en egen predikatfunksjon fordi den brukes på flere steder — steg-titlene, steg 3s
@@ -1001,6 +1004,16 @@ export default function NavnekandidatVeiviser() {
                   onChange={() => setSlag('gruppe')}
                   disabled={steg !== 2}
                 />
+                {/* [Ny, issue #378 A2] Generisk omtale: én navneform per term for hele korpuset, betydningen bindes per rettskilde. */}
+                <Radio
+                  name="slag"
+                  label="Generisk omtale — «styret», «retten», «departementet»"
+                  description="Ikke et navn på én aktør, men et fellesnavn som betyr noe bestemt i hver lov. Markeres som generisk, og kan bindes til det det betyr i denne rettskilden."
+                  value="generisk"
+                  checked={slag === 'generisk'}
+                  onChange={() => setSlag('generisk')}
+                  disabled={steg !== 2}
+                />
                 <Radio
                   name="slag"
                   label="Ikke relevant"
@@ -1097,6 +1110,30 @@ export default function NavnekandidatVeiviser() {
                     )
                   )}
                 </div>
+              )}
+
+              {slag === 'generisk' && steg === 2 && (
+                <GeneriskOmtale kandidat={kandidat} noder={noder} virksomheter={virksomheter} onFerdig={(f) => setFerdig({
+                  tittel: f.bundet
+                    ? `«${f.term}» er markert som generisk omtale og bundet for denne rettskilden.`
+                    : `«${f.term}» er markert som generisk omtale.`,
+                  detaljer: [
+                    f.varNyNavneform
+                      ? 'Den generiske navneformen er opprettet — én for hele korpuset.'
+                      : 'Den generiske navneformen fantes alt og er gjenbrukt.',
+                    f.bundet
+                      ? 'Bindingen er lagret som godkjent: omtalen oppløses til referenten i denne rettskilden (smaleste paragrafspenn vinner).'
+                      : 'Ingen binding: omtalen står som generisk, uten kobling, til noen binder den.',
+                    f.taggOpprettet ? 'Taggen på forekomsten peker på den generiske navneformen.' : 'Ingen tagg kunne opprettes (se rettskildens ansvarlige departement).',
+                    'Navnekandidaten er satt til «Godkjent».',
+                  ],
+                  rettskildeLenke: rettskildeLenkeForId(kandidat.rettskildeId, kandidat.nodeEid),
+                  taggLag: f.taggOpprettet ? 'Virksomhet' : null,
+                  virksomhetLenke: null,
+                  virksomhetForSveip: null,
+                  gruppeLenke: null,
+                  advarsel: null,
+                })} />
               )}
 
               {steg === 2 && (

@@ -49,7 +49,19 @@ export const NAVNEFORMGRUNN_VALG: ReadonlyArray<{
   },
 ];
 
-const PER_VERDI = new Map(NAVNEFORMGRUNN_VALG.map((v) => [v.verdi, v]));
+/**
+ * [Ny, issue #378] `generisk` VISES, men VELGES aldri her: en generisk navneform («styret», «departementet») har ingen virksomhet — den
+ * bindes per rettskilde i veiviseren («Generisk omtale»). Fargen er `brand1`: en klassifisering, ikke en status (alle statusfargene og
+ * `accent` er tatt over, og `neutral` er «Uspesifisert grunn»). docs/09 §15.
+ */
+const GENERISK_VISNING = {
+  verdi: 'generisk' as const, label: 'Generisk omtale', farge: 'brand1' as const,
+  hjelp: 'Generisk omtale som «styret» eller «departementet» — hva den betyr, bindes per rettskilde.',
+};
+
+const PER_VERDI = new Map<string, { label: string; hjelp: string; farge: 'success' | 'info' | 'warning' | 'danger' | 'accent' | 'brand1' }>(
+  [...NAVNEFORMGRUNN_VALG, GENERISK_VISNING].map((v) => [v.verdi, v]),
+);
 
 /**
  * Navneformgrunnen som en `Tag`, til bruk der navneformer LISTES. Returnerer `null` for en

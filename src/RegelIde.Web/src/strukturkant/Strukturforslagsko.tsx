@@ -4,13 +4,15 @@ import {
   Alert, Button, Card, Checkbox, Details, Field, Heading, Label, Link, Paragraph, Select, Spinner, Switch, Table, Tag, Textfield,
 } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
-import type { RettskildeSammendrag, StrukturforslagRapport, StrukturkantDto, StrukturkantForhandsvisningDto } from '../api/types';
+import type {
+  AktorsveipRapport, RettskildeSammendrag, StrukturforslagRapport, StrukturkantDto, StrukturkantForhandsvisningDto,
+} from '../api/types';
 import { RettskildeVelger } from '../rettskilde/RettskildeVelger';
 import { Metatekst } from '../entitet/Metatekst';
 import { Massehandlingsrad } from '../kandidater/Massehandlingsrad';
 import { useKandidatvalg } from '../kandidater/useKandidatvalg';
 import { STRUKTURKANT_KATEGORI_VISNING, StrukturkantTabell } from './StrukturkantTabell';
-import { avvisningstekst, grupperPerHjemmel, tillitFor, UTFALL_VISNING, type Hjemmelgruppe } from './forslagsko';
+import { AKTORSTATUS_VISNING, avvisningstekst, grupperPerHjemmel, tillitFor, UTFALL_VISNING, type Hjemmelgruppe } from './forslagsko';
 
 /**
  * [Ny, issue #313 «Strukturmodell 8», 2026-10-15] Forslagskøen for strukturkanter — ÉN kø for alle maskinelle forslag (mønster og KI),
@@ -30,6 +32,8 @@ export function Strukturforslagsko() {
   const [laster, setLaster] = useState(false);
   const [rapport, setRapport] = useState<StrukturforslagRapport | null>(null);
   const [lastFeil, setLastFeil] = useState<string | null>(null);
+  // [Ny, issue #378 A1] Aktørsveipet (steg 1): klassifiserer aktørene uten å skrive forslag.
+  const [sveip, setSveip] = useState<AktorsveipRapport | null>(null);
 
   const [forslag, setForslag] = useState<StrukturkantDto[] | null>(null);
   const [visAvviste, setVisAvviste] = useState(false);
@@ -53,6 +57,18 @@ export function Strukturforslagsko() {
   useEffect(lastKo, [visAvviste]);
 
   const grupper = useMemo(() => grupperPerHjemmel(forslag ?? []), [forslag]);
+
+  async function kjorAktorsveip(navnekandidater: boolean) {
+    setLastFeil(null);
+    setLaster(true);
+    try {
+      setSveip(await api.aktorsveip(rettskildeId, lag, navnekandidater));
+    } catch (e) {
+      setLastFeil(e instanceof ApiError ? e.message : 'Ukjent feil i aktørsveipet.');
+    } finally {
+      setLaster(false);
+    }
+  }
 
   async function lastForslag() {
     setLastFeil(null);
@@ -174,15 +190,20 @@ export function Strukturforslagsko() {
               <Select.Option value="ki">KI (lav tillit utenom forskrift)</Select.Option>
             </Select>
           </Field>
+          <Button data-size="sm" variant="secondary" onClick={() => kjorAktorsveip(false)} disabled={laster || !rettskildeId}>
+            1. Aktørsveip
+          </Button>
           <Button data-size="sm" onClick={lastForslag} disabled={laster || !rettskildeId}>
-            {laster ? 'Laster forslag …' : 'Last forslag'}
+            {laster ? 'Kjører …' : '2. Last forslag'}
           </Button>
         </div>
         <Metatekst>
-          En ny kjøring på samme rettskilde lager ingen duplikater. Aktører løses bare ved eksakt treff på navneform, område, klasse eller
-          rolle — resten blir navnekandidater.
+          Steg 1 (aktørsveip) viser hvilke aktører konverteringen finner og om de er kjent, uten å skrive forslag. Behandle de ukjente i
+          navnekandidatveiviseren — koble til en aktør, opprett en, eller marker som generisk og bind for rettskilden — og last så forslagene
+          (steg 2). En ny kjøring på samme rettskilde lager ingen duplikater. Aktører løses bare ved eksakt treff eller en godkjent binding.
         </Metatekst>
         {lastFeil && <Alert data-color="danger" style={{ marginTop: '0.5rem' }}>{lastFeil}</Alert>}
+        {sveip && <Aktorsveiprapport rapport={sveip} kjorer={laster} onSkrivKandidater={() => kjorAktorsveip(true)} />}
         {rapport && <Lasterapport rapport={rapport} />}
       </Card>
 
@@ -252,6 +273,83 @@ export function Strukturforslagsko() {
   );
 }
 
+/** [Ny, issue #378 A1] Aktørsveipets rapport: antall per status og hver aktør med status, treff/kandidater og navnekandidat. */
+function Aktorsveiprapport({ rapport, kjorer, onSkrivKandidater }: {
+  rapport: AktorsveipRapport; kjorer: boolean; onSkrivKandidater: () => void;
+}) {
+  const ukjente = rapport.aktorer.filter((a) => a.status !== 'kjent' && a.status !== 'flertydig');
+  function detalj(a: AktorsveipRapport['aktorer'][number]): string {
+    const deler: string[] = [];
+    if (a.referent) deler.push(`Bundet: ${a.referent.navn}`);
+    else if (a.generiskNavneformId) deler.push(`Generisk — ${a.bundneForekomster} av ${a.forekomster} bundet`);
+    if (a.foreslatteBindinger > 0) deler.push(`${a.foreslatteBindinger} foreslått binding venter`);
+    if (a.treff.length > 0 && !a.referent) deler.push(a.treff.join(', '));
+    if (a.kandidater.length > 0) {
+      const flere = a.antallKandidater > a.kandidater.length ? ` (+${a.antallKandidater - a.kandidater.length})` : '';
+      deler.push(`Står i: ${a.kandidater.join('; ')}${flere}`);
+    }
+    return deler.join(' · ');
+  }
+  return (
+    <div style={{ marginTop: '0.75rem' }}>
+      <Paragraph>
+        Aktørsveip, {rapport.rettskildeTittel}: {rapport.aktorerTotalt} aktører i {rapport.utsagnTotalt} utsagn fra {rapport.noderLest} noder.
+        Ingen forslag er skrevet.
+      </Paragraph>
+      <Table data-density="compact" border>
+        <Table.Head>
+          <Table.Row>{rapport.perStatus.map((p) => <Table.HeaderCell key={p.status}>{AKTORSTATUS_VISNING[p.status]}</Table.HeaderCell>)}</Table.Row>
+        </Table.Head>
+        <Table.Body>
+          <Table.Row>{rapport.perStatus.map((p) => <Table.Cell key={p.status}>{p.antall}</Table.Cell>)}</Table.Row>
+        </Table.Body>
+      </Table>
+      {!rapport.navnekandidaterSkrevet && ukjente.length > 0 && (
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginTop: '0.5rem', flexWrap: 'wrap' }}>
+          <Button data-size="sm" variant="secondary" disabled={kjorer} onClick={onSkrivKandidater}>
+            Legg {ukjente.length} i navnekandidatkøen
+          </Button>
+          <Metatekst as="span" style={{ margin: 0 }}>Ny aktør, ny navneform og generisk uten binding. Flertydige får ingen kandidat.</Metatekst>
+        </div>
+      )}
+      <Details style={{ marginTop: '0.5rem' }}>
+        <Details.Summary>Aktørene ({rapport.aktorer.length})</Details.Summary>
+        <Details.Content>
+          <Table data-density="compact" border>
+            <Table.Head>
+              <Table.Row>
+                <Table.HeaderCell>Tekstform</Table.HeaderCell>
+                <Table.HeaderCell>Status</Table.HeaderCell>
+                <Table.HeaderCell>Utsagn</Table.HeaderCell>
+                <Table.HeaderCell>Treff, binding eller kandidater</Table.HeaderCell>
+                <Table.HeaderCell>Behandle</Table.HeaderCell>
+              </Table.Row>
+            </Table.Head>
+            <Table.Body>
+              {rapport.aktorer.map((a) => (
+                <Table.Row key={a.aktorId}>
+                  <Table.Cell>«{a.tekstform}»</Table.Cell>
+                  <Table.Cell><Tag data-size="sm" data-color="neutral">{AKTORSTATUS_VISNING[a.status]}</Tag></Table.Cell>
+                  <Table.Cell>
+                    {a.forekomster}
+                    {a.lastbareForekomster !== a.forekomster && <Metatekst as="span"> ({a.lastbareForekomster} lastbare)</Metatekst>}
+                  </Table.Cell>
+                  <Table.Cell><Metatekst as="span" style={{ margin: 0 }}>{detalj(a)}</Metatekst></Table.Cell>
+                  <Table.Cell>
+                    {a.navnekandidatId && (
+                      <Link asChild><RouterLink to={`/navnekandidater/${a.navnekandidatId}/behandle`}>Behandle</RouterLink></Link>
+                    )}
+                  </Table.Cell>
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </Table>
+        </Details.Content>
+      </Details>
+    </div>
+  );
+}
+
 function Lasterapport({ rapport }: { rapport: StrukturforslagRapport }) {
   const tidligereAvvist = rapport.rader.filter((r) => r.utfall === 'tidligere_avvist');
   return (
@@ -289,6 +387,12 @@ function Lasterapport({ rapport }: { rapport: StrukturforslagRapport }) {
           ))}
         </Table.Body>
       </Table>
+      {rapport.aktorerPerStatus.length > 0 && (
+        <Metatekst style={{ marginTop: '0.5rem' }}>
+          Aktører nå: {rapport.aktorerPerStatus.filter((p) => p.antall > 0).map((p) => `${AKTORSTATUS_VISNING[p.status]} ${p.antall}`).join(' · ')}
+          {' '}— sammenlign med aktørsveipet før gjennomgangen.
+        </Metatekst>
+      )}
       {rapport.ikkeLastetPerArsak.length > 0 && (
         <>
           <Heading level={4} data-size="2xs" style={{ marginTop: '0.75rem' }}>Ikke lastet, med årsak</Heading>

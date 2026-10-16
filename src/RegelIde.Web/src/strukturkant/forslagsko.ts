@@ -53,3 +53,12 @@ export const UTFALL_VISNING: Record<string, string> = {
   dublett_i_kjoringen: 'Dublett i kjøringen',
   ikke_lastet: 'Ikke lastet',
 };
+
+/** [Ny, issue #378 A1] Aktørstatusene i aktørsveipet og lasterapporten — tekst for visning. */
+export const AKTORSTATUS_VISNING: Record<string, string> = {
+  kjent: 'Kjent',
+  ny_navneform_for_kjent_aktor: 'Ny navneform for kjent aktør (kandidat)',
+  ny_aktor: 'Ny aktør',
+  generisk: 'Generisk, ikke bundet',
+  flertydig: 'Flertydig',
+};

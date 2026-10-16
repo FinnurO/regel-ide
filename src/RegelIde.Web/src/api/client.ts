@@ -170,6 +170,7 @@ import type {
   NavnekandidatGruppeBatchRequest,
   SlettNavnekandidaterResultatDto,
   VisningsinnstillingInput,
+  AktorsveipRapport, GeneriskNavneformOversikt, GeneriskTaggOppslag, NavneformBindingRequest,
 } from './types';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5187';
@@ -1139,6 +1140,32 @@ export const api = {
   /** [Ny, issue #313] Kjører konverteringen (mønster eller KI) på én rettskilde og laster utsagnene som forslag. */
   lastStrukturforslag: (rettskildeId: string, lag: 'monster' | 'ki') =>
     kall<StrukturforslagRapport>(`/api/rettskilder/${rettskildeId}/strukturforslag?lag=${lag}`, { method: 'POST' }),
+
+  /** [Ny, issue #378 A1] Aktørsveipet: klassifiserer aktørene i konverteringen, skriver aldri forslag. `navnekandidater` = legg
+   * aktørene som ikke er kjent i navnekandidatkøen. */
+  aktorsveip: (rettskildeId: string, lag: 'monster' | 'ki', navnekandidater: boolean) =>
+    kall<AktorsveipRapport>(`/api/rettskilder/${rettskildeId}/aktorsveip?lag=${lag}&navnekandidater=${navnekandidater}`, { method: 'POST' }),
+
+  /** [Ny, issue #378 AC7] Generiske navneformer med bruk og bindinger per rettskilde (valgfritt én term). */
+  hentGeneriskeNavneformer: (term?: string) =>
+    kall<GeneriskNavneformOversikt[]>(`/api/navneformer/generiske${term ? `?term=${encodeURIComponent(term)}` : ''}`),
+
+  /** [Ny, issue #378 A2] «Marker som generisk», valgfritt med binding for kandidatens rettskilde. */
+  markerNavnekandidatSomGenerisk: (id: string, binding: NavneformBindingRequest | null) =>
+    kall<{ kandidat: NavnekandidatDto; navneform: BegrepDto; varNyNavneform: boolean; binding: { id: string } | null; taggId: string | null; nodeEid: string }>(
+      `/api/navnekandidater/${id}/marker-generisk`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ binding }),
+      }),
+
+  /** [Ny, issue #378] Godkjenn / avvis en binding. */
+  godkjennNavneformBinding: (id: string) => kall<unknown>(`/api/navneform-bindinger/${id}/godkjenn`, { method: 'POST' }),
+  avvisNavneformBinding: (id: string, begrunnelse?: string) =>
+    kall<unknown>(`/api/navneform-bindinger/${id}/avvis`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ begrunnelse: begrunnelse ?? null }),
+    }),
+
+  /** [Ny, issue #378 B6] Hva taggene mot generiske navneformer betyr i rettskilden. */
+  hentGeneriskeTagger: (rettskildeId: string) => kall<GeneriskTaggOppslag[]>(`/api/rettskilder/${rettskildeId}/generiske-tagger`),
 
   /** [Ny, issue #313 AC4] Slik kanten blir seende ut på aktørsidene og rettskildesiden. */
   forhandsvisStrukturkant: (id: string) =>
