@@ -48,6 +48,8 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
     public DbSet<StrukturkantPremissEntitet> StrukturkantPremisser => Set<StrukturkantPremissEntitet>();
     // [Ny, issue #378] Hva en generisk navneform betyr per rettskilde — se NavneformBindingEntitet.
     public DbSet<NavneformBindingEntitet> NavneformBindinger => Set<NavneformBindingEntitet>();
+    /// <summary>[Ny, issue #385] Aktørtype som modellutsagn (forslag, grunnlag, godkjenning).</summary>
+    public DbSet<AktortypeUtsagnEntitet> AktortypeUtsagn => Set<AktortypeUtsagnEntitet>();
     public DbSet<VirksomhetKandidatEntitet> VirksomhetKandidater => Set<VirksomhetKandidatEntitet>();
     public DbSet<NavnekandidatEntitet> Navnekandidater => Set<NavnekandidatEntitet>();
     // [Ny, issue #203 pkt. 4] Korreksjonsregler (RettskildeId, opprinnelig tekst) → korrigert tekst.
@@ -297,6 +299,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.HjemmelEid).HasColumnName("hjemmel_eid");
             e.Property(x => x.KildeUtenforKorpusTekst).HasColumnName("kilde_utenfor_korpus_tekst");
             e.Property(x => x.KildeUtenforKorpusLenke).HasColumnName("kilde_utenfor_korpus_lenke");
+            e.Property(x => x.KildeUtenforKorpusLenker).HasColumnName("kilde_utenfor_korpus_lenker"); // [Ny, #385]
             e.Property(x => x.KildeUtenforKorpusType).HasColumnName("kilde_utenfor_korpus_type");
             e.Property(x => x.KildeUtenforKorpusDokumentasjon).HasColumnName("kilde_utenfor_korpus_dokumentasjon");
             e.Property(x => x.Normform).HasColumnName("normform");
@@ -358,6 +361,71 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.HasQueryFilter(x => x.Entitetsstatus == "gjeldende" && x.Status != "avvist");
         });
 
+        // [Ny, issue #385 «aktøridentitet»] Aktørtypen som modellutsagn. Samme skranker som navneform_bindinger der de gjelder: lukkede
+        // vokabular, hjemmel ELLER kilde utenfor korpus ELLER «hjemmel mangler» (bare som uavklart), kunnskapsstatus med grunnlag, godkjenning
+        // med hvem som avviste. Virksomheter.aktortype er den godkjente verdien (AktoridentitetTjeneste.GodkjennAktortypeAsync).
+        b.Entity<AktortypeUtsagnEntitet>(e =>
+        {
+            e.ToTable("aktortype_utsagn", t =>
+            {
+                t.HasCheckConstraint("ck_aktortype_utsagn_aktortype",
+                    "aktortype IN ('rettssubjekt', 'organ', 'organisatorisk_enhet', 'ordning')");
+                t.HasCheckConstraint("ck_aktortype_utsagn_ordningstype",
+                    "ordningstype IS NULL OR (aktortype = 'ordning' AND ordningstype IN ('trygdeordning', 'fond', 'tilskuddsordning'))");
+                t.HasCheckConstraint("ck_aktortype_utsagn_status",
+                    "status IN ('maskinelt_foreslatt', 'manuelt_foreslatt', 'faglig_vurdert', 'godkjent', 'avvist')");
+                t.HasCheckConstraint("ck_aktortype_utsagn_avvist_hvem",
+                    "status <> 'avvist' OR (sist_endret_av IS NOT NULL AND sist_endret_tidspunkt IS NOT NULL)");
+                t.HasCheckConstraint("ck_aktortype_utsagn_avvisning_begrunnelse", "avvisning_begrunnelse IS NULL OR status = 'avvist'");
+                t.HasCheckConstraint("ck_aktortype_utsagn_kunnskapsstatus",
+                    "kunnskapsstatus IS NULL "
+                    + "OR (kunnskapsstatus IN ('tekstfunn', 'normalisering') AND hjemmel_rettskilde_id IS NOT NULL AND hjemmel_eid IS NOT NULL) "
+                    + "OR (kunnskapsstatus = 'eksternt_dokumentert' AND kilde_utenfor_korpus_tekst IS NOT NULL) "
+                    + (sqlite ? "OR (kunnskapsstatus = 'fortolkning' AND begrunnelse IS NOT NULL) "
+                              : "OR (kunnskapsstatus = 'fortolkning' AND begrunnelse IS NOT NULL AND cardinality(tolkningsargumenter) > 0) ")
+                    + "OR kunnskapsstatus IN ('uavklart', 'omstridt')");
+                t.HasCheckConstraint("ck_aktortype_utsagn_kilde",
+                    "(hjemmel_rettskilde_id IS NOT NULL AND hjemmel_eid IS NOT NULL AND kilde_utenfor_korpus_tekst IS NULL "
+                    + "AND kilde_utenfor_korpus_type IS NULL AND kilde_utenfor_korpus_dokumentasjon IS NULL) "
+                    + "OR (hjemmel_rettskilde_id IS NULL AND hjemmel_eid IS NULL AND kilde_utenfor_korpus_tekst IS NOT NULL "
+                    + "AND kilde_utenfor_korpus_type IN ('kgl_res', 'instruks', 'tildelingsbrev', 'vedtekter', 'styrevedtak', 'forarbeider', "
+                    + "'nettside_annet', 'register') AND kilde_utenfor_korpus_dokumentasjon IN ('primaer', 'sekundaer')) "
+                    + "OR (hjemmel_rettskilde_id IS NULL AND hjemmel_eid IS NULL AND kilde_utenfor_korpus_tekst IS NULL "
+                    + "AND kilde_utenfor_korpus_type IS NULL AND kilde_utenfor_korpus_dokumentasjon IS NULL "
+                    + "AND (kunnskapsstatus IS NULL OR (kunnskapsstatus = 'uavklart' AND begrunnelse IS NOT NULL)))");
+                if (!sqlite)
+                {
+                    t.HasCheckConstraint("ck_aktortype_utsagn_tolkningsargumenter",
+                        "tolkningsargumenter IS NULL OR tolkningsargumenter <@ ARRAY['ordlyd', 'kontekst_system', 'formal', 'forarbeider', "
+                        + "'praksis', 'reelle_hensyn', 'antitetisk_analogisk']::text[]");
+                }
+            });
+            e.HasKey(x => x.Id).HasName("aktortype_utsagn_pkey");
+            e.Property(x => x.VirksomhetId).HasColumnName("virksomhet_id");
+            e.Property(x => x.Aktortype).HasColumnName("aktortype");
+            e.Property(x => x.Ordningstype).HasColumnName("ordningstype");
+            e.Property(x => x.HjemmelRettskildeId).HasColumnName("hjemmel_rettskilde_id");
+            e.Property(x => x.HjemmelEid).HasColumnName("hjemmel_eid");
+            e.Property(x => x.KildeUtenforKorpusTekst).HasColumnName("kilde_utenfor_korpus_tekst");
+            e.Property(x => x.KildeUtenforKorpusType).HasColumnName("kilde_utenfor_korpus_type");
+            e.Property(x => x.KildeUtenforKorpusDokumentasjon).HasColumnName("kilde_utenfor_korpus_dokumentasjon");
+            e.Property(x => x.KildeUtenforKorpusLenker).HasColumnName("kilde_utenfor_korpus_lenker");
+            e.Property(x => x.Kunnskapsstatus).HasColumnName("kunnskapsstatus");
+            e.Property(x => x.Begrunnelse).HasColumnName("begrunnelse");
+            e.Property(x => x.Tolkningsargumenter).HasColumnName("tolkningsargumenter");
+            e.Property(x => x.Status).HasColumnName("status").HasDefaultValue("manuelt_foreslatt");
+            e.Property(x => x.OppdagelsesKilde).HasColumnName("oppdagelses_kilde").HasDefaultValue("manuell");
+            e.Property(x => x.AvvisningBegrunnelse).HasColumnName("avvisning_begrunnelse");
+            e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
+            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
+            e.Property(x => x.SistEndretAv).HasColumnName("sist_endret_av");
+            e.Property(x => x.SistEndretTidspunkt).HasColumnName("sist_endret_tidspunkt");
+            e.HasOne<Virksomhet>().WithMany().HasForeignKey(x => x.VirksomhetId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<RettskildeEntitet>().WithMany().HasForeignKey(x => x.HjemmelRettskildeId).OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(x => x.VirksomhetId).HasDatabaseName("ix_aktortype_utsagn_virksomhet");
+            e.HasIndex(x => x.HjemmelRettskildeId).HasDatabaseName("ix_aktortype_utsagn_hjemmel");
+        });
+
         // [Ny, issue #378 B5] Bindingen av en generisk navneform per rettskilde. Samme skranker som strukturkanter etter #367 der de
         // gjelder: lukkede vokabular, hjemmel ELLER kilde utenfor korpus (strengt), kunnskapsstatus med grunnlag, godkjenning med hvem
         // som avviste. Referenten er nøyaktig én av virksomhet og begrep. To gjeldende, ikke avviste bindinger med samme virkeområde (navneform,
@@ -399,7 +467,12 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
                     + "AND kilde_utenfor_korpus_lenke IS NULL AND kilde_utenfor_korpus_type IS NULL "
                     + "AND kilde_utenfor_korpus_dokumentasjon IS NULL) "
                     + "OR (hjemmel_rettskilde_id IS NULL AND hjemmel_eid IS NULL AND kilde_utenfor_korpus_tekst IS NOT NULL "
-                    + "AND kilde_utenfor_korpus_type IS NOT NULL AND kilde_utenfor_korpus_dokumentasjon IS NOT NULL)");
+                    + "AND kilde_utenfor_korpus_type IS NOT NULL AND kilde_utenfor_korpus_dokumentasjon IS NOT NULL) "
+                    // [ENDRET, issue #385 AC8] «Hjemmel mangler»: ingen hjemmel og ingen kilde er lov bare som uavklart (docs/profil/03 §5:
+                    // grunnlaget for uavklart er «hva som mangler», som står i begrunnelsen). Et synlig hull, ikke et tomt felt.
+                    + "OR (hjemmel_rettskilde_id IS NULL AND hjemmel_eid IS NULL AND kilde_utenfor_korpus_tekst IS NULL "
+                    + "AND kilde_utenfor_korpus_lenke IS NULL AND kilde_utenfor_korpus_type IS NULL "
+                    + "AND kilde_utenfor_korpus_dokumentasjon IS NULL AND kunnskapsstatus = 'uavklart' AND begrunnelse IS NOT NULL)");
                 t.HasCheckConstraint("ck_navneform_bindinger_kilde_dokumentasjon",
                     "kilde_utenfor_korpus_dokumentasjon IS NULL OR kilde_utenfor_korpus_dokumentasjon IN ('primaer', 'sekundaer')");
                 t.HasCheckConstraint("ck_navneform_bindinger_kilde_type",
@@ -417,6 +490,8 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.HjemmelNodeId).HasColumnName("hjemmel_node_id");
             e.Property(x => x.KildeUtenforKorpusTekst).HasColumnName("kilde_utenfor_korpus_tekst");
             e.Property(x => x.KildeUtenforKorpusLenke).HasColumnName("kilde_utenfor_korpus_lenke");
+            e.Property(x => x.KildeUtenforKorpusLenker).HasColumnName("kilde_utenfor_korpus_lenker"); // [Ny, #385]
+            e.Property(x => x.HjemmelEndretTidspunkt).HasColumnName("hjemmel_endret_tidspunkt"); // [Ny, #385 AC12]
             e.Property(x => x.KildeUtenforKorpusType).HasColumnName("kilde_utenfor_korpus_type");
             e.Property(x => x.KildeUtenforKorpusDokumentasjon).HasColumnName("kilde_utenfor_korpus_dokumentasjon");
             e.Property(x => x.Kunnskapsstatus).HasColumnName("kunnskapsstatus");
@@ -536,6 +611,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             // [Ny, konfidens-runden, 2026-09-09] Se NavnekandidatEntitet.Konfidens/KonfidensGrunn.
             e.Property(x => x.Konfidens).HasColumnName("konfidens");
             e.Property(x => x.KonfidensGrunn).HasColumnName("konfidens_grunn");
+            e.Property(x => x.AvvisningBegrunnelse).HasColumnName("avvisning_begrunnelse"); // [Ny, #385 AC7]
             e.HasOne<RettskildeEntitet>().WithMany().HasForeignKey(x => x.RettskildeId).OnDelete(DeleteBehavior.Cascade);
             e.HasIndex(x => x.RettskildeId).HasDatabaseName("ix_navnekandidater_rettskilde");
             // Samme idempotens-nøkkel-resonnement som ux_virksomhet_kandidater_virksomhet_node_start
@@ -1320,15 +1396,40 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
                     "medlemskapsregel IS NULL OR (begrepskategori = 'klasse' AND medlemskapsregel IN ('omraderegister_kommune'))");
                 // [Ny, issue #384] Kunnskapsstatus for begrepet selv. Tekstfunn og normalisering krever hjemmel; begrepet har ingen
                 // felt for det de andre statusene krever (BegrepEntitet.Kunnskapsstatus).
+                // [ENDRET, issue #385] + fortolkning (begrunnelse og minst ett tolkningsargument) og eksternt dokumentert (kilde utenfor
+                // korpus) — begrepet har nå feltene de krever. Avledet og foreldet avvises fortsatt (ingen premisser, ingen revisjon).
                 t.HasCheckConstraint(
                     "ck_begreper_kunnskapsstatus",
                     "kunnskapsstatus IS NULL OR (kunnskapsstatus IN ('tekstfunn', 'normalisering') AND lovreferanse_eid IS NOT NULL) "
+                    + "OR (kunnskapsstatus = 'eksternt_dokumentert' AND kilde_utenfor_korpus_tekst IS NOT NULL) "
+                    + (sqlite ? "OR (kunnskapsstatus = 'fortolkning' AND begrunnelse IS NOT NULL) "
+                              : "OR (kunnskapsstatus = 'fortolkning' AND begrunnelse IS NOT NULL AND cardinality(tolkningsargumenter) > 0) ")
                     + "OR kunnskapsstatus IN ('uavklart', 'omstridt')");
+                // [Ny, issue #385] Godkjenning (BegrepEntitet.Godkjenning). NULL = registrert før #385.
+                t.HasCheckConstraint("ck_begreper_godkjenning",
+                    "godkjenning IS NULL OR godkjenning IN ('maskinelt_foreslatt', 'manuelt_foreslatt', 'faglig_vurdert', 'godkjent', 'avvist')");
+                t.HasCheckConstraint("ck_begreper_avvisning_begrunnelse", "avvisning_begrunnelse IS NULL OR godkjenning = 'avvist'");
+                // [Ny, issue #385] Kilde utenfor korpus som strukturkantene: type og dokumentasjon fra de lukkede listene, teksten påkrevd,
+                // og aldri samtidig med en hjemmel-eId (ELLER i streng forstand, Johanns beslutning 2026-10-07).
+                t.HasCheckConstraint("ck_begreper_kilde",
+                    "kilde_utenfor_korpus_type IS NULL OR (lovreferanse_eid IS NULL AND kilde_utenfor_korpus_tekst IS NOT NULL "
+                    + "AND kilde_utenfor_korpus_dokumentasjon IN ('primaer', 'sekundaer') AND kilde_utenfor_korpus_type IN "
+                    + "('kgl_res', 'instruks', 'tildelingsbrev', 'vedtekter', 'styrevedtak', 'forarbeider', 'nettside_annet', 'register'))");
             });
             e.HasKey(x => x.Id).HasName("begreper_pkey");
             e.Property(x => x.Medlemskapsregel).HasColumnName("medlemskapsregel");
             e.Property(x => x.Kunnskapsstatus).HasColumnName("kunnskapsstatus");
             e.Property(x => x.VirksomhetId).HasColumnName("virksomhet_id");
+            // [Ny, issue #385] Navneformen som modellutsagn — se BegrepEntitet.Godkjenning.
+            e.Property(x => x.Godkjenning).HasColumnName("godkjenning");
+            e.Property(x => x.KildeUtenforKorpusTekst).HasColumnName("kilde_utenfor_korpus_tekst");
+            e.Property(x => x.KildeUtenforKorpusType).HasColumnName("kilde_utenfor_korpus_type");
+            e.Property(x => x.KildeUtenforKorpusDokumentasjon).HasColumnName("kilde_utenfor_korpus_dokumentasjon");
+            e.Property(x => x.KildeUtenforKorpusLenker).HasColumnName("kilde_utenfor_korpus_lenker");
+            e.Property(x => x.Begrunnelse).HasColumnName("begrunnelse");
+            e.Property(x => x.Tolkningsargumenter).HasColumnName("tolkningsargumenter");
+            e.Property(x => x.OppdagelsesKilde).HasColumnName("oppdagelses_kilde");
+            e.Property(x => x.AvvisningBegrunnelse).HasColumnName("avvisning_begrunnelse");
             e.Property(x => x.Begrepskategori).HasColumnName("begrepskategori");
             e.Property(x => x.VirksomhetReferanseId).HasColumnName("virksomhet_referanse_id");
             e.Property(x => x.Navneformgrunn).HasColumnName("navneformgrunn");
