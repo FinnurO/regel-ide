@@ -186,3 +186,54 @@ og målingen i docs/33 §4.7. Ingen reell uenighet gikk til Johann; de åpne sp�
 - Fasiten: `kategori: "oppgave"`, `type` = fasittypen i tabellen over, `objekt` påkrevd, `modalitet`.
 - Appen: egen seksjon «Oppgaver» på aktørsiden og rettskildesiden, ved siden av kompetanse og plikt, aldri inni dem.
 - Standardene: LKIF `Function` (role.owl) er nært beslektet (docs/profil/04). UFO-L og LegalRuleML har ingen motpart.
+
+---
+
+## Klasse med utledet medlemskap: «kommune» (issue #384)
+
+**Status:** besluttet av Johann 2026-10-16 (issue #384). Bygget i `KlasseKommuneOgUtledetMedlemskap` og `KlassemedlemskapTjeneste`.
+
+### Definisjon
+
+En klasse er **ekstensjonal** når medlemmene er listet med hjemmel, som M-kanter (docs/33 §4.2). Den er **utledet** når en kilde utenfor
+modellen alt sier hvem medlemmene er. «kommune» er den første utledede klassen. Kommunene i Norge er hver et eget rettssubjekt etter
+kommuneloven § 2-1. Hvilke kommuner som finnes, står i områderegisteret (Kartverkets inndeling, #312). Medlemskapet lagres derfor ikke en
+gang til. Det regnes ut, slik den avledede domstolkjeden i #345 gjør.
+
+### Felt
+
+| Felt | Verdi | Merknad |
+|---|---|---|
+| `begrepskategori` | `klasse` | Fast, nasjonal (ingen lovkilde, #298) |
+| `lovreferanse_eid` | kommuneloven § 2-1 | Hjemmelen for klassen |
+| `kunnskapsstatus` | `tekstfunn` | Gjelder klassen selv. NULL på alle andre begreper (ikke vurdert) |
+| `medlemskapsregel` | `omraderegister_kommune` | Lukket vokabular. Én gjeldende klasse per regel |
+| medlemskapet | beregnet | Kunnskapsstatus `avledet`. Premisset er territoriekanten (A `har_ansvarsomrade` fra kommunen til eget område) |
+
+### Eksempler og grenser
+
+- **Medlem:** Alta kommune (5601). Den har ansvarsområde til området Alta og samme kommunenummer.
+- **Ikke medlem:** en tingrett. Den har ansvarsområde til kommunen, men et annet kommunenummer.
+- **Hull, ikke medlem:** et kommuneområde uten aktør med samme kommunenummer, eller med flere. Det listes, og ingen velges (CLAUDE.md §8).
+- **Lovspesifikk klasse:** «kommunene» i reindriftsloven § 2 annet ledd er ikke den felles klassen. Den gjelder sju navngitte kommuner.
+  Den beholdes, og henviser til den felles klassen med `M medlem_av` «kommune»: hvert medlem er en kommune.
+- **Ikke gjettet:** en lovspesifikk «kommunene» kan være alle kommuner eller et utvalg. Det avgjøres for hver lov.
+
+### Hvordan det tegnes i modellen
+
+- Den generiske navneformen «kommunen» bindes til klassen for hver rettskilde (docs/33 §5.7).
+- Hvilken kommune omtalen gjelder i den enkelte saken, avgjøres ikke av klassen. Det er #314.
+- **Appen:** begrepssiden viser seksjonen «Medlemmer (utledet av områderegisteret)». Den har antallet, kunnskapsstatus for klassen og for
+  medlemskapet, og hullene.
+
+## Binding av en generisk navneform følger verket (issue #384)
+
+En binding sier hva en generisk omtale betyr i en **rettskilde som verk**: en lov eller forskrift, identifisert ved ELI. Den gjelder ikke
+bare én konsolidert versjon. `rettskilde_id` er versjonen bindingen ble registrert og vurdert mot.
+
+- **Følger verket:** en binding for hele rettskilden. En binding med paragrafspenn følger når spennet dekker de samme eId-ene i den nye
+  versjonen.
+- **Følger ikke, og listes:** et paragrafspenn som er borte, eller som dekker andre noder. Oppslaget gir `spenn_endret` uten referent. En
+  bredere binding brukes heller ikke i stedet. Et menneske registrerer bindingen på nytt.
+- **Grense mot hjemmelen:** hjemmelen peker fortsatt på versjonen bindingen ble vurdert mot. Strukturkantene flagges med «hjemmel endret»
+  (#367), men bindingene gjør ikke det ennå. Det hører ikke til #384.
