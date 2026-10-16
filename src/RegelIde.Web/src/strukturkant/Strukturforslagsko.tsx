@@ -9,6 +9,7 @@ import type {
 } from '../api/types';
 import { RettskildeVelger } from '../rettskilde/RettskildeVelger';
 import { Metatekst } from '../entitet/Metatekst';
+import { TreffidentitetTekst } from '../virksomhet/AktoridentitetVerktoy';
 import { Massehandlingsrad } from '../kandidater/Massehandlingsrad';
 import { useKandidatvalg } from '../kandidater/useKandidatvalg';
 import { STRUKTURKANT_KATEGORI_VISNING, StrukturkantTabell } from './StrukturkantTabell';
@@ -309,8 +310,14 @@ function Aktorsveiprapport({ rapport, kjorer, onSkrivKandidater }: {
           <Button data-size="sm" variant="secondary" disabled={kjorer} onClick={onSkrivKandidater}>
             Legg {ukjente.length} i navnekandidatkøen
           </Button>
-          <Metatekst as="span" style={{ margin: 0 }}>Ny aktør, ny navneform og generisk uten binding. Flertydige får ingen kandidat.</Metatekst>
+          <Metatekst as="span" style={{ margin: 0 }}>
+            Ny aktør, ny navneform og generisk uten binding. Flertydige får ingen kandidat. [#385] For de kjente aktørene registreres samtidig
+            navneformen (forslag ved treff via registernavnet), kilden der navnet står og taggen på nøyaktig spenn.
+          </Metatekst>
         </div>
+      )}
+      {rapport.aktoridentitet && (
+        <Metatekst style={{ marginTop: '0.5rem' }}>Navnetreffene: <TreffidentitetTekst t={rapport.aktoridentitet} /></Metatekst>
       )}
       <Details style={{ marginTop: '0.5rem' }}>
         <Details.Summary>Aktørene ({rapport.aktorer.length})</Details.Summary>
@@ -392,6 +399,9 @@ function Lasterapport({ rapport }: { rapport: StrukturforslagRapport }) {
           Aktører nå: {rapport.aktorerPerStatus.filter((p) => p.antall > 0).map((p) => `${AKTORSTATUS_VISNING[p.status]} ${p.antall}`).join(' · ')}
           {' '}— sammenlign med aktørsveipet før gjennomgangen.
         </Metatekst>
+      )}
+      {rapport.aktoridentitet && (
+        <Metatekst style={{ marginTop: '0.25rem' }}>Navnetreffene (#385): <TreffidentitetTekst t={rapport.aktoridentitet} /></Metatekst>
       )}
       {rapport.ikkeLastetPerArsak.length > 0 && (
         <>
