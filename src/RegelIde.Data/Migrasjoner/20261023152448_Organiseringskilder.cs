@@ -11,17 +11,11 @@ namespace RegelIde.Data.Migrasjoner
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<string>(
-                name: "objekt_eli",
-                table: "strukturkanter",
-                type: "text",
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "kildeform",
-                table: "rettskilder",
-                type: "text",
-                nullable: true);
+            // [ENDRET, issue #395] IF NOT EXISTS i stedet for AddColumn: migrasjonstestene (HistoriskSkjema) leser og skriver rettskilder og
+            // strukturkanter med DAGENS modell mot et historisk skjema og legger derfor kolonnene til på forhånd — også de testene som
+            // migrerer videre til siste versjon etterpå. Med AddColumn ville den migreringen kollidert. Samme resultat i en vanlig base.
+            migrationBuilder.Sql("ALTER TABLE strukturkanter ADD COLUMN IF NOT EXISTS objekt_eli text;");
+            migrationBuilder.Sql("ALTER TABLE rettskilder ADD COLUMN IF NOT EXISTS kildeform text;");
 
             migrationBuilder.CreateTable(
                 name: "rettskilde_disposisjonstyper",
