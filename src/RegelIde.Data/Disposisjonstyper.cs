@@ -100,7 +100,7 @@ public static partial class Disposisjonstyper
     [GeneratedRegex(@"\b(?i:nedleggelse|nedlegging|nedlegginga|avvikling|avviklingen) av (?i:et |en |ei )?\p{Lu}|(?i:\blegges ned\b|\bnedlegges\b)", RegexOptions.CultureInvariant)]
     private static partial Regex TNedleggelse();
 
-    [GeneratedRegex(@"\bnavneendring\w*|\bendring av navn\b|\bnytt navn\b(?! på (loven|lova|forskriften|forskrifta))|\bnamneendring\w*|\bnytt namn\b|\bnavn(et)? endres\b|\bendrer navn\b|\bskifter navn\b", Opt)]
+    [GeneratedRegex(@"\bnavneendring\w*|\bendring av navn\b(?! på (forskrift|forskriften|lov|loven|lova)\b)|\bnytt navn\b(?! på (loven|lova|forskriften|forskrifta))|\bnamneendring\w*|\bnytt namn\b|\bnavn(et)? endres\b|\bendrer navn\b|\bskifter navn\b", Opt)]
     private static partial Regex TNavneendring();
 
     // [RETTET 2026-10-23] «departements?struktur», ikke «departements?truktur»: den første versjonen traff bare skrivefeilen

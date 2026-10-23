@@ -35,12 +35,20 @@ public class OrganiseringskilderMonstreTests
     [InlineData("Forskrift om endring i forskrift om sikkerhet ved leketøy (leketøyforskriften)")]
     [InlineData("Lov om endringer i skatteloven")]
     [InlineData("Stortingsvedtak om fastsetting av finansskatt på lønn for 2025")]
+    // Navnet på en forskrift er ikke et organ (funnet ved kaldsjekken 2026-10-23).
+    [InlineData("Endring av navn på forskrift om distriktsinndelinger mv. i politi- og lensmannsetaten")]
     public void Uten_regel_som_slaar_til_er_kilden_uklassifisert(string tittel) => Assert.Empty(Typer(tittel));
 
     [Fact]
     public void Opprettelse_av_noe_som_ikke_er_et_organ_er_ikke_organisering() =>
         // Objektet har liten forbokstav: et område, ikke et organ. Tittelen har regelverksform og blir en vanlig regulering.
         Assert.Equal(["regulering"], Typer("Forskrift om opprettelse av et permanent restriksjonsområde over Jan Mayen mv."));
+
+    [Theory]
+    // Juristrunden 2026-10-23 (K01–K03): anledningen i tittelen er ikke disposisjonen.
+    [InlineData("Endring i forskrifter som følge av oppretting av Miljødirektoratet")]
+    [InlineData("Overføring av myndighet fra Arbeids- og administrasjonsdepartementet og Barne- og familiedepartementet til Justis- og politidepartementet i forbindelse med etableringen av Direktoratet for samfunnssikkerhet og beredskap.")]
+    public void Anledningen_i_tittelen_gir_ikke_oppretting(string tittel) => Assert.DoesNotContain("oppretting", Typer(tittel));
 
     [Fact]
     public void Instruksen_som_objekt_midt_i_tittelen_er_ikke_en_instruks() =>
