@@ -94,6 +94,20 @@ public sealed class Virksomhet
     /// rader ingen seed rører, slik at ingenting existing forsvinner stille fra en velger.
     /// </summary>
     public bool Aktiv { get; set; } = true;
+
+    /// <summary>
+    /// [Ny, issue #395, Johanns avgjørelse M5 2026-10-23] <c>'nedlagt'</c> for en aktør som ikke finnes lenger, men som er identifisert av
+    /// vedtakene som opprettet og nedla den (et nedlagt departement). NULL = ikke angitt (normaltilfellet: aktøren finnes, eller det er ikke
+    /// vurdert). En nedlagt aktør har ingen registerkobling (<see cref="Organisasjonsnummer"/> er NULL), er ikke valgbar for nytt arbeid
+    /// (<see cref="Aktiv"/> = false), og treffes ALDRI av navneoppslagene som svarer for i dag (<see cref="VirksomhetOppslagTjeneste"/>):
+    /// navn gjenbrukes (Barne- og familiedepartementet fantes til 2006 og igjen fra 2019). CHECK <c>ck_virksomheter_livsstatus</c>.
+    /// </summary>
+    public string? Livsstatus { get; set; }
+
+    /// <summary>[Ny, issue #395] Når aktøren fantes, etter vedtakene (opprettelsen og nedleggelsen; dagen før nedleggelsen er siste dag).
+    /// NULL = ikke kjent fra vedtakene (en aktør som fantes før det eldste vedtaket i korpuset). Hjemmelen står på R oppretter/R avvikler.</summary>
+    public DateOnly? GyldigFra { get; set; }
+    public DateOnly? GyldigTil { get; set; }
 }
 
 /// <summary>
@@ -276,6 +290,18 @@ public sealed class RettskildeEntitet
     /// Sveipene bruker den sammen med disposisjonstypen som filter (<see cref="Sveipeutvalg"/>).
     /// </summary>
     public string? Kildeform { get; set; }
+
+    /// <summary>
+    /// [Ny, issue #395, Johanns avgjørelse 6 2026-10-23] Markøren for et RENT endringsvedtak: dokumentet endrer andre dokumenter og gjør
+    /// ingenting annet. <c>true</c> = markert; NULL = ikke markert (vurdert og ikke rent endringsvedtak, eller ikke vurdert). Ikke en
+    /// disposisjonstype: den lukkede listen er uendret. Settes av <see cref="DisposisjonstypeTjeneste"/> med regelen i
+    /// <see cref="RentEndringsvedtakGrunnlag"/>, og sveipene (<see cref="Sveipeutvalg"/>) hopper over markerte dokumenter uten å lese tittelen.
+    /// </summary>
+    public bool? RentEndringsvedtak { get; set; }
+
+    /// <summary>[Ny, issue #395] Regelen og signalene som satte markøren, f.eks. «endrer 3 dokumenter (changesToDocuments); tittelform
+    /// «Forskrift om endring i …»; ingen organiseringstype».</summary>
+    public string? RentEndringsvedtakGrunnlag { get; set; }
 
     /// <summary>
     /// [Ny, fastsatt-av-runden, 2026-09-10, issue #215] Organet som FASTSATTE forskriften, slik det

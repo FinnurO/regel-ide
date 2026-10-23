@@ -157,6 +157,11 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.OverordnetEnhetId).HasColumnName("overordnet_enhet_id");
             e.Property(x => x.SistBrregSynkronisert).HasColumnName("sist_brreg_synkronisert");
             e.Property(x => x.Aktiv).HasColumnName("aktiv").HasDefaultValue(true);
+            // [Ny, issue #395, M5] Nedlagte aktører. Se Virksomhet.Livsstatus.
+            e.Property(x => x.Livsstatus).HasColumnName("livsstatus");
+            e.Property(x => x.GyldigFra).HasColumnName("gyldig_fra");
+            e.Property(x => x.GyldigTil).HasColumnName("gyldig_til");
+            e.ToTable("virksomheter", t => t.HasCheckConstraint("ck_virksomheter_livsstatus", "livsstatus IS NULL OR livsstatus = 'nedlagt'"));
             e.HasOne<Virksomhet>().WithMany().HasForeignKey(x => x.OverordnetEnhetId);
             e.HasIndex(x => x.Organisasjonsnummer).IsUnique().HasDatabaseName("ux_virksomheter_organisasjonsnummer")
                 .HasFilter("organisasjonsnummer IS NOT NULL");
@@ -738,6 +743,8 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.SisteRettelse).HasColumnName("siste_rettelse");
             // [Ny, issue #395] konsolidert | kunngjort, NULL = ukjent. Se RettskildeEntitet.Kildeform.
             e.Property(x => x.Kildeform).HasColumnName("kildeform");
+            e.Property(x => x.RentEndringsvedtak).HasColumnName("rent_endringsvedtak"); // [Ny, issue #395, avgjørelse 6]
+            e.Property(x => x.RentEndringsvedtakGrunnlag).HasColumnName("rent_endringsvedtak_grunnlag");
             e.ToTable("rettskilder", t => t.HasCheckConstraint(
                 "ck_rettskilder_kildeform", "kildeform IS NULL OR kildeform IN ('konsolidert', 'kunngjort')"));
             // [Ny, fastsatt-av-runden, 2026-09-10, issue #215] Fastsetteren. Se entitetskommentaren

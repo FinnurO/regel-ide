@@ -34,7 +34,10 @@ public sealed class VirksomhetOppslagTjeneste(RegelIdeDbContext db)
     public Task<Guid?> FinnVirksomhetIdForNavnAsync(string navn)
     {
         var navnLower = navn.ToLower();
-        return db.Virksomheter.Where(v => v.Navn.ToLower() == navnLower).Select(v => (Guid?)v.Id).FirstOrDefaultAsync();
+        // [ENDRET, issue #395 M5] En NEDLAGT aktør treffes aldri: oppslaget svarer for i dag, og navn gjenbrukes (Barne- og
+        // familiedepartementet til 2006 og fra 2019). Uten dette kunne et historisk departement tatt over lenken fra Lovdatas
+        // «Ansvarlig departement».
+        return db.Virksomheter.Where(v => v.Navn.ToLower() == navnLower && v.Livsstatus == null).Select(v => (Guid?)v.Id).FirstOrDefaultAsync();
     }
 
     /// <summary>
@@ -74,6 +77,8 @@ public sealed class VirksomhetOppslagTjeneste(RegelIdeDbContext db)
                         && b.Entitetsstatus == "gjeldende"
                         && b.VirksomhetReferanseId != null
                         && b.Term.ToLower() == navnLower)
+            // [ENDRET, issue #395 M5] Ikke navneformene til en nedlagt aktør (se over).
+            .Where(b => db.Virksomheter.Any(v => v.Id == b.VirksomhetReferanseId && v.Livsstatus == null))
             .Select(b => b.VirksomhetReferanseId!.Value)
             .Distinct()
             .Take(2)

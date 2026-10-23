@@ -9,7 +9,7 @@ namespace RegelIde.Data;
 /// eller endrer en annen kilde, og treffene der er dubletter av treffene i kilden det gjelder.
 /// <para>
 /// Regelen er smal med vilje: en kilde hoppes over bare når ALLE disposisjonstypene den har er <c>ikrafttredelse</c>, eller når den er
-/// kunngjort (Lovtidend) med tittelen til et rent endringsvedtak og ingen organiseringstype. «Ikrafttredelse av lov … Delegering av
+/// markert som rent endringsvedtak (<see cref="RettskildeEntitet.RentEndringsvedtak"/>, satt av <see cref="DisposisjonstypeTjeneste"/>). «Ikrafttredelse av lov … Delegering av
 /// myndighet» er også et delegeringsvedtak og blir med. En uklassifisert kilde blir alltid med — uklassifisert er ikke det samme som
 /// ikrafttredelse (§8). Velger en kaller én bestemt rettskilde, gjelder ikke filteret: det eksplisitte valget vinner.
 /// </para>
@@ -29,15 +29,8 @@ public static class Sveipeutvalg
 
         var utelatt = perKilde.Where(p => p.Value.All(t => t == Disposisjonstyper.Ikrafttredelse)).Select(p => p.Key).ToHashSet();
 
-        var kunngjorte = await db.Rettskilder
-            .Where(r => r.Kildeform == "kunngjort")
-            .Select(r => new { r.Id, r.Tittel })
-            .ToListAsync(ct);
-        foreach (var k in kunngjorte)
-        {
-            var harOrganiseringstype = perKilde.TryGetValue(k.Id, out var t) && t.Overlaps(Disposisjonstyper.Organiseringstyper);
-            if (!harOrganiseringstype && Disposisjonstyper.ErRentEndringsvedtak(k.Tittel)) utelatt.Add(k.Id);
-        }
+        // [ENDRET, issue #395 avgjørelse 6] Rene endringsvedtak leses av markøren (rettskilder.rent_endringsvedtak), ikke av tittelen.
+        foreach (var id in await db.Rettskilder.Where(r => r.RentEndringsvedtak == true).Select(r => r.Id).ToListAsync(ct)) utelatt.Add(id);
         return utelatt;
     }
 }

@@ -9,7 +9,7 @@ public sealed record DisposisjonstypeRad(Guid RettskildeId, string Tittel, strin
 /// er kildene uten noen type. <see cref="Rader"/> er bare med når kalleren ba om dem.</summary>
 public sealed record DisposisjonstypeRapport(
     bool Skrevet, int Kilder, int Uklassifisert, IReadOnlyDictionary<string, int> PerType, IReadOnlyDictionary<string, int> PerKilde,
-    int RaderLagtTil, int RaderFjernet, IReadOnlyList<DisposisjonstypeRad> Rader);
+    int RaderLagtTil, int RaderFjernet, IReadOnlyList<DisposisjonstypeRad> Rader, int ReneEndringsvedtak = 0);
 
 /// <summary>
 /// [Ny, issue #395 del 1, 2026-10-23] Klassifiserer rettskildene etter disposisjonstype med de deterministiske reglene i
@@ -34,6 +34,11 @@ public sealed class DisposisjonstypeTjeneste(RegelIdeDbContext db)
             .Where(r => rettskildeId == null || r.Id == rettskildeId)
             .Select(r => new { r.Id, r.Tittel, r.Kildeform })
             .ToListAsync(ct);
+        // [Ny, issue #395 avgjørelse 6] Hvor mange dokumenter hver kilde endrer (changesToDocuments), for markøren for rene endringsvedtak.
+        var endrer = (await db.RettskildeEndringer.Where(e => rettskildeId == null || e.RettskildeId == rettskildeId)
+                .GroupBy(e => e.RettskildeId).Select(g => new { g.Key, Antall = g.Count() }).ToListAsync(ct))
+            .ToDictionary(x => x.Key, x => x.Antall);
+        var reneEndringer = 0;
         if (rettskildeId is not null && kilder.Count == 0)
         {
             throw new ArgumentException($"Fant ingen gjeldende, primær, delt lov eller forskrift med id '{rettskildeId}'. Ingen gjettet fallback.");
@@ -57,6 +62,21 @@ public sealed class DisposisjonstypeTjeneste(RegelIdeDbContext db)
             foreach (var type in treff.Select(t => t.Disposisjonstype).Distinct()) perType[type]++;
             foreach (var t in treff) perKilde[t.Kilde]++;
             if (medRader) rader.Add(new DisposisjonstypeRad(k.Id, k.Tittel, k.Kildeform, treff));
+
+            // [Ny, issue #395 avgjørelse 6] Rent endringsvedtak: BÅDE hodet sier at kilden endrer andre dokumenter, OG tittelen har formen
+            // «Forskrift/Lov om endring(er) i …», OG ingen organiseringstype slo til. To uavhengige signaler fra kilden; tittelen alene er ikke nok.
+            var antallEndret = endrer.GetValueOrDefault(k.Id);
+            var erRen = antallEndret > 0 && Disposisjonstyper.ErRentEndringsvedtak(k.Tittel)
+                && !treff.Any(t => Disposisjonstyper.Organiseringstyper.Contains(t.Disposisjonstype));
+            if (erRen) reneEndringer++;
+            if (skriv)
+            {
+                var rk = await db.Rettskilder.FirstAsync(r => r.Id == k.Id, ct);
+                rk.RentEndringsvedtak = erRen ? true : null;
+                rk.RentEndringsvedtakGrunnlag = erRen
+                    ? $"Regel: rent-endringsvedtak. Endrer {antallEndret} dokument(er) (changesToDocuments); tittelform «… om endring(er) i …»; ingen organiseringstype."
+                    : null;
+            }
 
             var gamle = eksisterendePerKilde.GetValueOrDefault(k.Id) ?? [];
             foreach (var g in gamle.Where(g => !treff.Any(t => t.Disposisjonstype == g.Disposisjonstype && t.Kilde == g.Kilde)))
@@ -88,7 +108,7 @@ public sealed class DisposisjonstypeTjeneste(RegelIdeDbContext db)
         }
         if (skriv) await db.SaveChangesAsync(ct);
 
-        return new DisposisjonstypeRapport(skriv, kilder.Count, uklassifisert, perType, perKilde, lagtTil, fjernet, rader);
+        return new DisposisjonstypeRapport(skriv, kilder.Count, uklassifisert, perType, perKilde, lagtTil, fjernet, rader, reneEndringer);
     }
 
     /// <summary>Tittelreglene, og innholdsmønstrene der tittelen ikke avgjør (<see cref="Disposisjonstyper.SkalKjoreInnholdsmonstre"/>).</summary>

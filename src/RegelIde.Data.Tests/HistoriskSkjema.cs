@@ -152,7 +152,13 @@ internal static class HistoriskSkjema
         {
             await using var db = new RegelIdeDbContext(Options(connString));
             await db.Database.ExecuteSqlRawAsync("ALTER TABLE rettskilder ADD COLUMN IF NOT EXISTS kildeform text; "
-                + "ALTER TABLE IF EXISTS strukturkanter ADD COLUMN IF NOT EXISTS objekt_eli text;");
+                + "ALTER TABLE IF EXISTS strukturkanter ADD COLUMN IF NOT EXISTS objekt_eli text; "
+                // NedlagteAktorerOgEndringsmarkor (samme IF NOT EXISTS-mønster).
+                + "ALTER TABLE virksomheter ADD COLUMN IF NOT EXISTS livsstatus text; "
+                + "ALTER TABLE virksomheter ADD COLUMN IF NOT EXISTS gyldig_fra date; "
+                + "ALTER TABLE virksomheter ADD COLUMN IF NOT EXISTS gyldig_til date; "
+                + "ALTER TABLE rettskilder ADD COLUMN IF NOT EXISTS rent_endringsvedtak boolean; "
+                + "ALTER TABLE rettskilder ADD COLUMN IF NOT EXISTS rent_endringsvedtak_grunnlag text;");
         }
     }
 

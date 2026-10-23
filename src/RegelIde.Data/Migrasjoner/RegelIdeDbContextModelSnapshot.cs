@@ -3002,6 +3002,14 @@ namespace RegelIde.Data.Migrasjoner
                         .HasColumnType("text")
                         .HasColumnName("ref_id");
 
+                    b.Property<bool?>("RentEndringsvedtak")
+                        .HasColumnType("boolean")
+                        .HasColumnName("rent_endringsvedtak");
+
+                    b.Property<string>("RentEndringsvedtakGrunnlag")
+                        .HasColumnType("text")
+                        .HasColumnName("rent_endringsvedtak_grunnlag");
+
                     b.Property<string>("Rettsomrade")
                         .HasColumnType("text")
                         .HasColumnName("rettsomrade");
@@ -4520,9 +4528,21 @@ namespace RegelIde.Data.Migrasjoner
                         .HasColumnType("text")
                         .HasColumnName("forvaltningsniva");
 
+                    b.Property<DateOnly?>("GyldigFra")
+                        .HasColumnType("date")
+                        .HasColumnName("gyldig_fra");
+
+                    b.Property<DateOnly?>("GyldigTil")
+                        .HasColumnType("date")
+                        .HasColumnName("gyldig_til");
+
                     b.Property<string>("Kommunenummer")
                         .HasColumnType("text")
                         .HasColumnName("kommunenummer");
+
+                    b.Property<string>("Livsstatus")
+                        .HasColumnType("text")
+                        .HasColumnName("livsstatus");
 
                     b.Property<string>("Navn")
                         .IsRequired()
@@ -4572,6 +4592,8 @@ namespace RegelIde.Data.Migrasjoner
                     b.ToTable("virksomheter", null, t =>
                         {
                             t.HasCheckConstraint("ck_virksomheter_aktortype", "aktortype IS NULL OR aktortype IN ('rettssubjekt', 'organ', 'organisatorisk_enhet', 'ordning')");
+
+                            t.HasCheckConstraint("ck_virksomheter_livsstatus", "livsstatus IS NULL OR livsstatus = 'nedlagt'");
 
                             t.HasCheckConstraint("ck_virksomheter_ordningstype", "ordningstype IS NULL OR (aktortype = 'ordning' AND ordningstype IN ('trygdeordning', 'fond', 'tilskuddsordning'))");
                         });
