@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using RegelIde.Kildekonvertering;
 
 namespace RegelIde.Data.Tests;
@@ -169,7 +169,10 @@ public class TekstTaggTjenesteTests
         await tjeneste.OpprettAsync(rettskildeId, virksomhetA, "Bruker A", node.Eid, 0, 4, "", node.Tekst![..4], node.Tekst[4..], "begrep");
         await tjeneste.OpprettAsync(rettskildeId, virksomhetB, "Bruker B", node.Eid, 0, 4, "", node.Tekst[..4], node.Tekst[4..], "vilkar");
 
-        var taggerForA = await tjeneste.ListerForAsync(rettskildeId, virksomhetA);
+        // [ENDRET, issue #385] Bare taggene denne testen lagde, telles: alkoholloven deles av testsamlingen, og lasteren tagger nå
+        // navnetreff (eid av ansvarlig departement, som ListerForAsync viser for alle). Påstanden er den samme: A ser sin egen, ikke B sin.
+        var taggerForA = (await tjeneste.ListerForAsync(rettskildeId, virksomhetA))
+            .Where(t => t.VirksomhetId == virksomhetA || t.VirksomhetId == virksomhetB).ToList();
 
         Assert.Single(taggerForA);
         Assert.Equal("begrep", taggerForA[0].Kind);
@@ -193,7 +196,8 @@ public class TekstTaggTjenesteTests
         Assert.Equal(SlettResultat.Ok, resultat);
         var radI_db = await db.TekstTagger.SingleAsync(t => t.Id == tagg.Id); // fortsatt i tabellen
         Assert.Equal("arkivert", radI_db.Entitetsstatus);
-        var egneTagger = await tjeneste.ListerForAsync(rettskildeId, virksomhet);
+        // [ENDRET, issue #385] Bare virksomhetens egne tagger telles (se testen over: departementets tagger i den delte lovteksten).
+        var egneTagger = (await tjeneste.ListerForAsync(rettskildeId, virksomhet)).Where(t => t.VirksomhetId == virksomhet).ToList();
         Assert.Empty(egneTagger); // men filtreres bort av lesing (kun 'gjeldende')
     }
 
