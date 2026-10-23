@@ -52,6 +52,9 @@ builder.Services.AddScoped<StrukturkantTjeneste>();
 // [Ny, issue #313] Forslagslasteren (konvertering → forslag) og KI-konverteringen den kan kjøre (#308).
 builder.Services.AddScoped<RegelIde.Data.Strukturkonvertering.StrukturforslagTjeneste>();
 builder.Services.AddScoped<GeneriskNavneformTjeneste>(); // [Ny, issue #378] generiske navneformer og bindingen per rettskilde
+// [Ny, issue #385] Aktøridentitet: forslag til gjeldende navneform og aktørtype, navnetreff → kilde og tagg. Skriver bare via endepunkt
+// (ingen oppstartsjobb, CLAUDE.md §4).
+builder.Services.AddScoped<AktoridentitetTjeneste>();
 builder.Services.AddScoped<KlassemedlemskapTjeneste>(); // [Ny, issue #384] utledet medlemskap («kommune» fra områderegisteret)
 builder.Services.AddScoped<RegelIde.Data.Strukturkonvertering.KiStrukturkonverterer>();
 // [Ny, issue #312 «områderegister»] «Gitt kommune X → fylke, tingrett, lagdømme, statsforvalter, RHF» (AC5).
@@ -717,7 +720,7 @@ app.MapPost("/api/virksomheter", async (
                 navneformgrunn: "gjeldende", ct: ct);
         }
 
-        return Results.Created($"/api/virksomheter/{virksomhet.Id}", VirksomhetDto.FraEntitet(virksomhet));
+        return Results.Created($"/api/virksomheter/{virksomhet.Id}", await VirksomhetDto.FraEntitetAsync(virksomhet, db, ct));
     })
     .WithOpenApi()
     .WithName("OpprettVirksomhet")
@@ -750,7 +753,7 @@ app.MapPut("/api/virksomheter/{id:guid}/forvaltningsniva", async (Guid id, SettF
 
         virksomhet.Forvaltningsniva = body.Forvaltningsniva;
         await db.SaveChangesAsync(ct);
-        return Results.Ok(VirksomhetDto.FraEntitet(virksomhet));
+        return Results.Ok(await VirksomhetDto.FraEntitetAsync(virksomhet, db, ct));
     })
     .WithOpenApi()
     .WithName("SettVirksomhetForvaltningsniva")
@@ -784,7 +787,7 @@ app.MapPut("/api/virksomheter/{id:guid}/aktortype", async (Guid id, SettAktortyp
         virksomhet.Aktortype = body.Aktortype;
         virksomhet.Ordningstype = body.Ordningstype;
         await db.SaveChangesAsync(ct);
-        return Results.Ok(VirksomhetDto.FraEntitet(virksomhet));
+        return Results.Ok(await VirksomhetDto.FraEntitetAsync(virksomhet, db, ct));
     })
     .WithOpenApi()
     .WithName("SettVirksomhetAktortype")
@@ -865,7 +868,7 @@ app.MapPost("/api/virksomheter/fra-brreg", async (
                 navneformgrunn: "gjeldende", ct: ct);
         }
 
-        return Results.Created($"/api/virksomheter/{virksomhet.Id}", VirksomhetDto.FraEntitet(virksomhet));
+        return Results.Created($"/api/virksomheter/{virksomhet.Id}", await VirksomhetDto.FraEntitetAsync(virksomhet, db, ct));
     })
     .WithOpenApi()
     .WithName("OpprettVirksomhetFraBrreg")
@@ -3453,8 +3456,11 @@ app.MapPost("/api/virksomhetsbegrep", async (HttpRequest request, Virksomhetsbeg
     .WithName("OpprettVirksomhetsbegrep")
     .WithSummary("Navneform brukt om en virksomhet i rettskildetekst (docs/20 §2.3) — f.eks. 'Mattilsynet'.");
 
-app.MapGet("/api/virksomheter/{id:guid}/begrep", async (Guid id, VirksomhetsbegrepTjeneste register, CancellationToken ct) =>
-        Results.Ok((await register.AlleVirksomhetsbegrepForAsync(id, ct)).Select(BegrepDto.FraEntitet)))
+app.MapGet("/api/virksomheter/{id:guid}/begrep", async (Guid id, bool? visAvviste, VirksomhetsbegrepTjeneste register,
+        AktoridentitetTjeneste identitet, CancellationToken ct) =>
+        // [ENDRET, issue #385] ?visAvviste=true tar med avviste navneforslag (arkivert, med hvem og hvorfor).
+        Results.Ok((await register.AlleVirksomhetsbegrepForAsync(id, ct))
+            .Concat(visAvviste == true ? await identitet.AvvisteNavneformerAsync(id, ct) : []).Select(BegrepDto.FraEntitet)))
     .WithOpenApi()
     .WithName("HentVirksomhetsbegrepForVirksomhet")
     .WithSummary("Lister navneformer (inkl. synonymer) brukt om denne virksomheten i rettskildetekst.");
@@ -4268,6 +4274,137 @@ app.MapGet("/api/ki-oppdagelse/ko", async (StrukturkantTjeneste tjeneste, Cancel
 // helt nye navn). Se NavnekandidatOppdagelseTjeneste for hele resonnementet.
 
 // ------------------------------------------------------------ [Ny, issue #378 B] Generiske navneformer og bindinger
+// ---------------------------------------------------------------- [Ny, issue #385 «aktøridentitet», Johann 2026-10-16]
+// Aktørens identitet og primærnavn kommer fra rettskildene; orgnr og registernavn er attributter. Alt maskinen finner, er FORSLAG som et
+// menneske godkjenner. Se AktoridentitetTjeneste.
+
+app.MapPost("/api/aktorer/navneformforslag", async (bool? skriv, HttpRequest request, RegelIdeDbContext db, AktoridentitetTjeneste identitet,
+        CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        return Results.Ok(await identitet.ForeslaGjeldendeNavneformerAsync(skriv ?? false, bruker.Navn, ct));
+    })
+    .WithOpenApi()
+    .WithName("ForeslaGjeldendeNavneformer")
+    .WithSummary("Issue #385 AC1 — for hver aktør uten gjeldende navneform: registernavnet slås opp i lovteksten (hele ord, uten skille på " +
+        "store/små bokstaver), og den ene egennavnformen loven bruker foreslås (tekstfunn når den er lik registernavnet, ellers normalisering). " +
+        "?skriv=true lagrer forslagene (maskinelt_foreslatt); uten er det en tørrkjøring.");
+
+app.MapPost("/api/aktorer/etterfyll-kilde-og-tagger", async (bool? skriv, HttpRequest request, RegelIdeDbContext db,
+        AktoridentitetTjeneste identitet, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        return Results.Ok(await identitet.EtterfyllKildeOgTaggerAsync(skriv ?? false, bruker.Navn, ct));
+    })
+    .WithOpenApi()
+    .WithName("EtterfyllKildeOgTagger")
+    .WithSummary("Issue #385, Johanns presisering 2026-10-16 — for treff som alt finnes (strukturkanter med hjemmel-eId og en aktør i en " +
+        "ende): navneformen får kilde der navnet står, spennet tagges der teksten er nøyaktig lik navneformen, og et treff via registernavnet " +
+        "gir et navneformforslag. Med proveniens. ?skriv=true lagrer; uten rulles alt tilbake (tørrkjøring med de samme tallene).");
+
+app.MapPost("/api/virksomhetsbegrep/{id:guid}/godkjenn", async (Guid id, HttpRequest request, RegelIdeDbContext db,
+        AktoridentitetTjeneste identitet, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var b = await identitet.GodkjennNavneformAsync(id, bruker.Navn, ct);
+            return b is null ? Results.NotFound(new { feil = $"Ingen navneform med id '{id}'." }) : Results.Ok(BegrepDto.FraEntitet(b));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithOpenApi()
+    .WithName("GodkjennNavneform")
+    .WithSummary("Issue #385 — godkjenner et navneformforslag. En gjeldende navneform kan ikke godkjennes mens aktøren har en annen godkjent.");
+
+app.MapPost("/api/virksomhetsbegrep/{id:guid}/avvis", async (Guid id, AvvisForslagRequest? body, HttpRequest request, RegelIdeDbContext db,
+        AktoridentitetTjeneste identitet, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var r = await identitet.AvvisNavneformAsync(id, body?.Begrunnelse, bruker.Navn, ct);
+            return r is null ? Results.NotFound(new { feil = $"Ingen navneform med id '{id}'." })
+                : Results.Ok(new { navneform = BegrepDto.FraEntitet(r.Value.Navneform), antallTaggerSlettet = r.Value.TaggerSlettet });
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithOpenApi()
+    .WithName("AvvisNavneform")
+    .WithSummary("Issue #385 — avviser et navneformforslag. Raden arkiveres med hvem og hvorfor (slettes ikke); taggene som pekte på den, slettes.");
+
+app.MapGet("/api/virksomheter/{id:guid}/aktortype-utsagn", async (Guid id, bool? visAvviste, AktoridentitetTjeneste identitet, CancellationToken ct) =>
+        Results.Ok((await identitet.AktortypeUtsagnForAsync(id, visAvviste ?? false, ct)).Select(AktortypeUtsagnDto.FraEntitet)))
+    .WithOpenApi()
+    .WithName("HentAktortypeUtsagn")
+    .WithSummary("Issue #385 AC4 — aktørtypen som modellutsagn: forslag og godkjente, med grunnlag (avviste med ?visAvviste=true).");
+
+app.MapPost("/api/virksomheter/{id:guid}/aktortype-utsagn", async (Guid id, AktortypeUtsagnRequest body, HttpRequest request, RegelIdeDbContext db,
+        AktoridentitetTjeneste identitet, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var u = await identitet.RegistrerAktortypeAsync(id, body.Aktortype, body.Ordningstype, body.Grunnlag.TilGrunnlag(), "aktorside",
+                bruker.Navn, ct);
+            return u is null ? Results.BadRequest(new { feil = "Utsagnet er avvist tidligere." }) : Results.Ok(AktortypeUtsagnDto.FraEntitet(u));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithOpenApi()
+    .WithName("RegistrerAktortypeUtsagn")
+    .WithSummary("Issue #385 AC4 — registrerer aktørtypen med grunnlag og status. Godkjent setter aktørens aktørtype; et forslag endrer den ikke.");
+
+app.MapPost("/api/aktortype-utsagn/{id:guid}/godkjenn", async (Guid id, HttpRequest request, RegelIdeDbContext db,
+        AktoridentitetTjeneste identitet, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var u = await identitet.GodkjennAktortypeAsync(id, bruker.Navn, ct);
+            return u is null ? Results.NotFound(new { feil = $"Intet aktørtype-utsagn med id '{id}'." }) : Results.Ok(AktortypeUtsagnDto.FraEntitet(u));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithOpenApi()
+    .WithName("GodkjennAktortypeUtsagn");
+
+app.MapPost("/api/aktortype-utsagn/{id:guid}/avvis", async (Guid id, AvvisForslagRequest? body, HttpRequest request, RegelIdeDbContext db,
+        AktoridentitetTjeneste identitet, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var u = await identitet.AvvisAktortypeAsync(id, body?.Begrunnelse, bruker.Navn, ct);
+            return u is null ? Results.NotFound(new { feil = $"Intet aktørtype-utsagn med id '{id}'." }) : Results.Ok(AktortypeUtsagnDto.FraEntitet(u));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithOpenApi()
+    .WithName("AvvisAktortypeUtsagn");
+
 var navneformBindinger = app.MapGroup("/api/navneform-bindinger").WithOpenApi();
 
 app.MapGet("/api/navneformer/generiske", async (string? term, GeneriskNavneformTjeneste generiske, CancellationToken ct) =>
@@ -4296,8 +4433,9 @@ app.MapPost("/api/navneformer/generiske", async (GeneriskNavneformRequest body, 
     .WithName("OpprettGeneriskNavneform")
     .WithSummary("Issue #378 B4 — finner eller oppretter den generiske navneformen for termen (små bokstaver, én per term for hele korpuset).");
 
-navneformBindinger.MapGet("/", async (Guid? navneformId, Guid? rettskildeId, bool? visAvviste, GeneriskNavneformTjeneste generiske,
-        CancellationToken ct) => Results.Ok(await generiske.HentBindingerAsync(navneformId, rettskildeId, visAvviste ?? false, ct)))
+navneformBindinger.MapGet("/", async (Guid? navneformId, Guid? rettskildeId, bool? visAvviste, bool? hjemmelEndret, GeneriskNavneformTjeneste generiske,
+        CancellationToken ct) => Results.Ok(await generiske.HentBindingerAsync(navneformId, rettskildeId, visAvviste ?? false, ct,
+            bareHjemmelEndret: hjemmelEndret ?? false)))
     .WithName("HentNavneformBindinger")
     .WithSummary("Issue #378 B5 — bindinger av generiske navneformer, valgfritt for én navneform og/eller én rettskilde. Avviste bare med ?visAvviste=true.");
 
@@ -4524,14 +4662,15 @@ navnekandidater.MapPost("/{id:guid}/godkjenn", async (Guid id, string? nodetype,
         "?nodetype=klasse|rolle|omrade (issue #310 — typen gjettes ikke). " +
         "'virksomhet': setter kun status — selve virksomhetskoblingen skjer manuelt via VirksomhetDetalj.");
 
-navnekandidater.MapPost("/{id:guid}/avvis", async (Guid id, HttpRequest request,
+navnekandidater.MapPost("/{id:guid}/avvis", async (Guid id, HttpRequest request, AvvisNavnekandidatRequest? body,
         NavnekandidatOppdagelseTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
     {
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         try
         {
-            var oppdatert = await register.AvvisAsync(id, bruker.Navn, ct);
+            // [ENDRET, issue #385 AC7] Valgfri begrunnelse («ikke en aktør, fordi …»). Raden slettes ikke.
+            var oppdatert = await register.AvvisAsync(id, bruker.Navn, ct, body?.Begrunnelse);
             return oppdatert is null ? Results.NotFound(new { feil = $"Ingen kandidat med id '{id}'." }) : Results.Ok(NavnekandidatDto.FraEntitet(oppdatert));
         }
         catch (ArgumentException ex)
@@ -4592,7 +4731,7 @@ navnekandidater.MapPost("/{id:guid}/kobl-til-virksomhet", async (Guid id, HttpRe
         try
         {
             var resultat = await register.KoblTilVirksomhetAsync(
-                id, body.VirksomhetId, body.Navneformgrunn, bruker.Navn, ct);
+                id, body.VirksomhetId, body.Navneformgrunn, bruker.Navn, ct, body.Veiviser());
             return resultat is null
                 ? Results.NotFound(new { feil = $"Ingen kandidat med id '{id}'." })
                 : Results.Ok(NavnekandidatKoblingResultatDto.FraResultat(resultat));
@@ -4650,7 +4789,7 @@ navnekandidater.MapPost("/{id:guid}/kobl-til-gruppemedlemskap", async (Guid id, 
         try
         {
             var resultat = await register.KoblTilGruppemedlemskapAsync(
-                id, body.VirksomhetId, body.GruppeBegrepId, body.Navneformgrunn, bruker.Navn, ct);
+                id, body.VirksomhetId, body.GruppeBegrepId, body.Navneformgrunn, bruker.Navn, ct, body.Veiviser());
             return resultat is null
                 ? Results.NotFound(new { feil = $"Ingen kandidat med id '{id}'." })
                 : Results.Ok(NavnekandidatGruppemedlemskapResultatDto.FraResultat(resultat));
@@ -4680,7 +4819,7 @@ navnekandidater.MapPost("/{id:guid}/kobl-til-myndighetstildeling", async (Guid i
             var resultat = await register.KoblTilMyndighetstildelingAsync(
                 id, body.VirksomhetId, body.RolleBegrepId, body.HjemmelEid,
                 body.Paragrafspenn?.Select(p => new ParagrafspennPar(p.FraEid, p.TilEid)).ToList(),
-                body.Vilkaar, body.Navneformgrunn, bruker.Navn, ct);
+                body.Vilkaar, body.Navneformgrunn, bruker.Navn, ct, body.Veiviser());
             return resultat is null
                 ? Results.NotFound(new { feil = $"Ingen kandidat med id '{id}'." })
                 : Results.Ok(NavnekandidatMyndighetstildelingResultatDto.FraResultat(resultat));
@@ -4709,7 +4848,7 @@ navnekandidater.MapPost("/{id:guid}/kobl-til-relasjon", async (Guid id, HttpRequ
             var resultat = await register.KoblTilRelasjonAsync(
                 id, body.VirksomhetId, body.Navneformgrunn, body.MotpartVirksomhetId, body.RelasjonsType,
                 body.HjemletHer, body.Kommentar, bruker.Navn, ct, body.KildeUtenforKorpusType,
-                body.KildeUtenforKorpusDokumentasjon);
+                body.KildeUtenforKorpusDokumentasjon, body.Veiviser());
             return resultat is null
                 ? Results.NotFound(new { feil = $"Ingen kandidat med id '{id}'." })
                 : Results.Ok(NavnekandidatRelasjonResultatDto.FraResultat(resultat));

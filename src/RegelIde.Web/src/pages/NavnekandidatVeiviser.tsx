@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link as RouterLink, useNavigate, useParams } from 'react-router';
 import {
   Alert, Breadcrumbs, Button, Card, Divider, Field, Heading, Label, Link, Paragraph, Radio, Search,
-  Select, Spinner, Table, Tag, Textfield,
+  Select, Spinner, Table, Tag, Textarea, Textfield,
 } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import { KildeUtenforKorpusVelger } from '../strukturkant/KildeUtenforKorpus';
@@ -19,9 +19,16 @@ import { VirksomhetVelger } from '../virksomhet/VirksomhetVelger';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 import { KonfidensTag, konfidensGrunnTekst } from '../kandidater/KonfidensTag';
 import { Metatekst } from '../entitet/Metatekst';
-import { GeneriskOmtale } from '../kandidater/GeneriskOmtale';
-import { KANDIDATNODETYPER, NODETYPE_VISNING, NodetypeVelger } from '../begrep/Nodetype';
-import type { Kandidatnodetype } from '../api/types';
+import { GeneriskOmtale, generiskFeil, tilBinding, TOMT_GENERISK_VALG, type GeneriskValg } from '../kandidater/GeneriskOmtale';
+import { AKTORTYPE_VISNING, KANDIDATNODETYPER, NODETYPE_VISNING, NodetypeVelger, ORDNINGSTYPE_VISNING } from '../begrep/Nodetype';
+import type { Aktortype, Kandidatnodetype, Ordningstype } from '../api/types';
+import { GrunnlagSteg, SikkerhetSteg } from '../kandidater/Utsagnssteg';
+import {
+  grunnlagFeil, rensedeLenker, sikkerhetFeil, tilRequest, TOM_SIKKERHET, TOMT_GRUNNLAG, type GrunnlagUtkast, type SikkerhetUtkast,
+} from '../kandidater/utsagnsgrunnlag';
+import { KILDETYPE_VISNING } from '../strukturkant/KildeUtenforKorpus';
+import { KUNNSKAPSSTATUS_VISNING } from '../strukturkant/Utsagnsstatus';
+import { eidKort } from '../virksomhet/Aktoridentitet';
 
 /**
  * [Ny, navnekandidat-wizard-runden, 2026-09-07] Behandling av ÉN navnekandidat, ende til ende.
@@ -81,6 +88,15 @@ import type { Kandidatnodetype } from '../api/types';
  * alle tre endepunktene (godkjenn, fast, gruppe-av-gruppe). «Administrativ inndeling» er slått inn i
  * Område — derfor er merknaden om at den «ikke er med i denne runden» fjernet.
  *
+ * <h3>[ENDRET, issue #385 «aktøridentitet», Johann 2026-10-16] Aktør, ikke virksomhet — og to nye steg</h3>
+ * Grensesnittet sier «aktør» (rettssubjekt / organ / organisatorisk enhet / ordning, docs/33 §4.1); tabellen heter fortsatt
+ * `virksomheter`. Steg 2 har fem valg: navngitt aktør (med type), navngitt aktør som medlem av en klasse, klasse/rolle/område, generisk
+ * omtale (binding per rettskilde med gyldighet) og «ikke en aktør» (avvist med begrunnelse, ikke slettet). Alt veiviseren oppretter —
+ * navneform, aktørtype, medlemskap og binding — får to nye steg: «Hva bygger dette på?» (hjemmel i korpus, kilde utenfor korpus med én
+ * eller flere lenker, eller «hjemmel mangler» som synlig hull) og «Hvor sikkert er det?» (kunnskapsstatus, godkjenning faglig vurdert /
+ * godkjent, begrunnelse). Samme felt som strukturkantene etter #367 (`kandidater/Utsagnssteg.tsx`, `kandidater/utsagnsgrunnlag.ts`).
+ * Stegene er nøkler, ikke faste numre (`stegFor`): aktørsporet har sju steg, generisk omtale seks, de andre to.
+ *
  * <h3>Designmønster</h3>
  * Ny side, så den følger saksbehandler-mønsteret fra dag én (docs/09 §14): brødsmulesti,
  * `data-size="sm"` gjennomgående, `Card` ALLTID rendret med tom-tilstand som `Paragraph` inni, og
@@ -109,24 +125,26 @@ function harVirksomhetssteg(slag: Slag | null): boolean {
  */
 type Tillegg = 'ingen' | 'rolle' | 'relasjon';
 
-/** Steg-titlene. Steg 3 sin tittel avhenger av `Slag`: gruppemedlem-veien velger BÅDE virksomhet og
- * gruppe i det steget, og en tittel som bare sa «Hvilken virksomhet?» ville underrapportert hva
- * steget faktisk krever av saksbehandleren.
- * <p>[ENDRET, «alle mekanismer»-runden, 2026-09-21, issue #283 AC5] Fem elementer (ikke fire) for
- * `virksomhet`/`gruppemedlem`-sporet — det nye steg 4 («Utover navneform?») er satt inn FØR «Bekreft»,
- * som dermed rykker fra indeks 3 til indeks 4. Andre `Slag`-verdier (`gruppe`/`irrelevant`/`null`)
- * bruker fortsatt bare fire — de når aldri forbi steg 2 i det hele tatt.</p>
- * <p>[Rettet samtidig] Indeksene er FAKTISK «steg-nummer minus 1» nå (kommentaren under sa alltid
- * det, men steg 3-kortet leste tidligere indeks 3 — «Bekreft» — i stedet for indeks 2. Usynlig fordi
- * teksten der aldri ble vist alene, kun sammen med et hardkodet «3. »-prefiks.)</p> */
-function stegTitler(slag: Slag | null): readonly string[] {
-  // [ENDRET 2026-09-09] «Kontekst» er ikke lenger et steg — se `steg`-tilstanden i komponenten.
-  // Indeks i denne listen er derfor steg-nummer MINUS 1.
-  const virksomhetTittel = slag === 'gruppemedlem' ? 'Hvilken virksomhet og gruppe?' : 'Hvilken virksomhet?';
+/** [ENDRET, issue #385] Stegene som NØKLER. Før #385 var steget et fast nummer (`stegTitler`, fire eller fem titler, med kommentarer om
+ * indekser som var forskjøvet med én). Med to nye steg for aktørsporet og et eget steg for generisk omtale ble faste numre en
+ * feilkilde; nå er nummeret posisjonen i lista for det valgte sporet (`nr` i komponenten). */
+type Stegnokkel = 'tekst' | 'slag' | 'aktor' | 'tillegg' | 'generisk' | 'grunnlag' | 'sikkerhet' | 'bekreft';
+
+function stegFor(slag: Slag | null, bind: boolean | null): { nokkel: Stegnokkel; tittel: string }[] {
+  const start: { nokkel: Stegnokkel; tittel: string }[] = [
+    { nokkel: 'tekst', tittel: 'Er teksten riktig?' }, { nokkel: 'slag', tittel: 'Hva slags ting er dette?' },
+  ];
+  const utsagn: { nokkel: Stegnokkel; tittel: string }[] = [
+    { nokkel: 'grunnlag', tittel: 'Hva bygger dette på?' }, { nokkel: 'sikkerhet', tittel: 'Hvor sikkert er det?' },
+    { nokkel: 'bekreft', tittel: 'Bekreft' },
+  ];
   if (harVirksomhetssteg(slag)) {
-    return ['Er teksten riktig?', 'Hva slags ting er dette?', virksomhetTittel, 'Utover navneform?', 'Bekreft'];
+    return [...start, { nokkel: 'aktor', tittel: slag === 'gruppemedlem' ? 'Hvilken aktør og klasse?' : 'Hvilken aktør?' },
+      { nokkel: 'tillegg', tittel: 'Utover navneform?' }, ...utsagn];
   }
-  return ['Er teksten riktig?', 'Hva slags ting er dette?', virksomhetTittel, 'Bekreft'];
+  // «Bare marker som generisk» lager ingen binding, og har derfor ikke de to stegene.
+  if (slag === 'generisk') return [...start, { nokkel: 'generisk', tittel: 'Hva betyr den her?' }, ...(bind === false ? [] : utsagn)];
+  return start;
 }
 
 /** Steg 3 sin gren: koble til en som finnes, eller opprette en ny (fra Brreg, eller kun navn). */
@@ -257,7 +275,18 @@ export default function NavnekandidatVeiviser() {
   // [Ny, issue #310] Nodetypen begrep-sporet oppretter. `null` = ikke valgt — knappen er da sperret.
   const [nodetype, setNodetype] = useState<Kandidatnodetype | null>(null);
 
-  // Steg 5 / avslutning
+  // [Ny, issue #385 AC6/AC7] Aktørtypen i steg 2 («navngitt aktør, med valg av type»). null = ikke valgt; 'uavklart' = et eksplisitt
+  // valg om å la typen stå åpen (da registreres ingen aktørtype). Ingenting forhåndsvelges.
+  const [aktortypeValg, setAktortypeValg] = useState<Aktortype | 'uavklart' | null>(null);
+  const [ordningstype, setOrdningstype] = useState<Ordningstype | ''>('');
+  // [Ny, issue #385 AC7] «Ikke en aktør» avvises med begrunnelse.
+  const [avvisBegrunnelse, setAvvisBegrunnelse] = useState('');
+  // [Ny, issue #385 AC8/AC9] De to nye stegene, og generisk omtale som eget steg.
+  const [grunnlagUtkast, setGrunnlagUtkast] = useState<GrunnlagUtkast>(TOMT_GRUNNLAG);
+  const [sikkerhetUtkast, setSikkerhetUtkast] = useState<SikkerhetUtkast>(TOM_SIKKERHET);
+  const [generiskValg, setGeneriskValg] = useState<GeneriskValg>(TOMT_GENERISK_VALG);
+
+  // Bekreft / avslutning
   const [fullfører, setFullfører] = useState(false);
   const [feil, setFeil] = useState<string | null>(null);
   const [ferdig, setFerdig] = useState<{
@@ -455,7 +484,7 @@ export default function NavnekandidatVeiviser() {
       setValgtVirksomhetId(ny.id);
       setVei('eksisterende'); // den er nå nettopp det — en eksisterende, valgt virksomhet.
     } catch (e) {
-      setFeil(e instanceof ApiError ? e.message : 'Kunne ikke opprette virksomheten.');
+      setFeil(e instanceof ApiError ? e.message : 'Kunne ikke opprette aktøren.');
     } finally {
       setOppretterVirksomhet(false);
     }
@@ -551,10 +580,14 @@ export default function NavnekandidatVeiviser() {
           advarsel: null,
         });
       } else {
-        await api.avvisNavnekandidat(id);
+        // [ENDRET, issue #385 AC7] Med begrunnelse. Raden slettes ikke.
+        await api.avvisNavnekandidat(id, avvisBegrunnelse.trim());
         setFerdig({
-          tittel: `«${kandidat.foreslattTekst}» er avvist.`,
-          detaljer: ['Navnekandidaten er satt til «Avvist», og det er ikke opprettet noe innhold.'],
+          tittel: `«${kandidat.foreslattTekst}» er avvist som «ikke en aktør».`,
+          detaljer: [
+            'Navnekandidaten er satt til «Avvist» med begrunnelsen din. Den er ikke slettet, og det er ikke opprettet noe innhold.',
+            `Begrunnelse: ${avvisBegrunnelse.trim()}`,
+          ],
           rettskildeLenke: null,
           taggLag: null,
           virksomhetLenke: null,
@@ -584,20 +617,31 @@ export default function NavnekandidatVeiviser() {
   async function fullførVirksomhet() {
     if (!id || !kandidat || !valgtVirksomhetId) return;
     if (slag === 'gruppemedlem' && !valgtGruppeBegrepId) return;
-    if (!tilleggKlart) return;
+    if (!tilleggKlart || !utsagnKlart) return;
     setFullfører(true);
     setFeil(null);
     try {
+      // [Ny, issue #385] Grunnlaget og statusen fra de to nye stegene, og aktørtypen fra steg 2 — likt for alle kobl-til-kallene.
+      const veiviser = {
+        grunnlag: tilRequest(grunnlagUtkast, sikkerhetUtkast, kandidat.rettskildeId),
+        aktortype: aktortypeValg && aktortypeValg !== 'uavklart' ? aktortypeValg : null,
+        ordningstype: aktortypeValg === 'ordning' && ordningstype ? ordningstype : null,
+      };
+      // [Ny, issue #385] Kandidater fra aktørsveipet har kategorien «gruppe» (uavklart). Kobl-til-endepunktene krever «virksomhet»,
+      // så kategorien rettes først — det er saksbehandlerens valg i steg 2, ikke en gjetning.
+      if (kandidat.kategori !== 'virksomhet') await api.oppdaterNavnekandidat(id, { kategori: 'virksomhet' });
       const primær = slag === 'gruppemedlem'
         ? await api.koblNavnekandidatTilGruppemedlemskap(id, {
           virksomhetId: valgtVirksomhetId,
           gruppeBegrepId: valgtGruppeBegrepId,
           navneformgrunn,
+          ...veiviser,
         })
         : tillegg === 'ingen'
           ? await api.koblNavnekandidatTilVirksomhet(id, {
             virksomhetId: valgtVirksomhetId,
             navneformgrunn,
+            ...veiviser,
           })
           : null;
 
@@ -611,6 +655,7 @@ export default function NavnekandidatVeiviser() {
           paragrafspenn: rolleTilEid.trim() ? [{ fraEid: rolleTilEid.trim(), tilEid: null }] : [],
           vilkaar: rolleVilkaar.trim() || null,
           navneformgrunn,
+          ...veiviser,
         })
         : null;
 
@@ -624,6 +669,7 @@ export default function NavnekandidatVeiviser() {
           kommentar: relasjonHjemletHer ? null : (relasjonKommentar.trim() || null),
           kildeUtenforKorpusType: relasjonHjemletHer ? null : (relasjonKildeType || null),
           kildeUtenforKorpusDokumentasjon: relasjonHjemletHer ? null : (relasjonKildeDok || null),
+          ...veiviser,
         })
         : null;
 
@@ -634,13 +680,23 @@ export default function NavnekandidatVeiviser() {
       const resultat = primær ?? rolleResultat ?? relasjonResultat;
       if (!resultat) return; // uoppnåelig gitt guardene over — TS krever likevel en eksplisitt sjekk.
 
-      const virksomhetNavn = virksomheter.find((v) => v.id === valgtVirksomhetId)?.visningsnavn ?? 'virksomheten';
+      const virksomhetNavn = virksomheter.find((v) => v.id === valgtVirksomhetId)?.visningsnavn ?? 'aktøren';
+      const g = veiviser.grunnlag;
       setFerdig({
         tittel: `«${resultat.navneform.term}» er nå en navneform for ${virksomhetNavn}.`,
         detaljer: [
+          // [Ny, issue #385] Det som faktisk ble lagret om grunnlag og status — følger utfallet (docs/09 §15).
+          `Grunnlag: ${grunnlagTekst(grunnlagUtkast)}. Kunnskapsstatus: ${g.kunnskapsstatus ? KUNNSKAPSSTATUS_VISNING[g.kunnskapsstatus].tekst : 'ikke vurdert'}. `
+            + `Godkjenning: ${g.godkjenning === 'godkjent' ? 'godkjent' : 'faglig vurdert (står som forslag til noen godkjenner)'}.`,
+          ...(veiviser.aktortype
+            ? [g.godkjenning === 'godkjent'
+              ? `Aktørtypen er satt til «${AKTORTYPE_VISNING[veiviser.aktortype].tekst}».`
+              : `Aktørtypen «${AKTORTYPE_VISNING[veiviser.aktortype].tekst}» er registrert som faglig vurdert — den settes på aktøren først når den godkjennes.`]
+            : ['Aktørtypen er ikke registrert (uavklart).']),
+          ...(slag === 'gruppemedlem' ? [`Medlemskapet har samme godkjenning (${g.godkjenning === 'godkjent' ? 'godkjent' : 'faglig vurdert'}).`] : []),
           navneformgrunn
             ? `Begrunnelsen er lagret som «${navneformgrunn}».`
-            : 'Ingen begrunnelse er satt (uspesifisert) — den kan settes senere på virksomhetens side.',
+            : 'Ingen begrunnelse er satt (uspesifisert) — den kan settes senere på aktørsiden.',
           ...(slag === 'gruppemedlem' && valgtGruppe
             ? [
               `${virksomhetNavn} er registrert som medlem av «${valgtGruppe.term}», hjemlet i `
@@ -683,12 +739,67 @@ export default function NavnekandidatVeiviser() {
         advarsel: resultat.taggId
           ? null
           : 'Navneformen er koblet, men det ble ikke opprettet noen tagg i rettskildeteksten. Det skjer '
-            + 'når rettskilden ikke har et ansvarlig departement som finnes i virksomhetskatalogen (en tagg '
+            + 'når rettskilden ikke har et ansvarlig departement som finnes i aktørkatalogen (en tagg '
             + 'må eies av en virksomhet), eller når tegnposisjonene ikke lenger stemmer fordi rettskilden er '
             + 'endret siden sveipet.',
       });
     } catch (e) {
       setFeil(e instanceof ApiError ? e.message : 'Kunne ikke fullføre koblingen.');
+    } finally {
+      setFullfører(false);
+    }
+  }
+
+  /** [Ny, issue #385] Steg «Hva bygger dette på?» i klartekst — til bekreftelsen og «dette skjedde». */
+  function grunnlagTekst(g: GrunnlagUtkast): string {
+    if (g.grunnlag === 'hjemmel') {
+      return `hjemmel i ${rettskilde?.tittel ?? 'rettskilden'}, ${eidKort(g.hjemmelEid)}${g.hjemmelEid === kandidat?.nodeEid ? ' (der navnet står)' : ''}`;
+    }
+    if (g.grunnlag === 'kilde') {
+      const lenker = rensedeLenker(g);
+      return `kilde utenfor korpus: ${g.kildeTekst.trim()} (${g.kildeType ? KILDETYPE_VISNING[g.kildeType] : '—'}, `
+        + `${g.kildeDokumentasjon === 'primaer' ? 'primær' : 'sekundær'}), ${lenker.length} lenke${lenker.length === 1 ? '' : 'r'}`;
+    }
+    if (g.grunnlag === 'mangler') return 'hjemmel mangler (synlig hull)';
+    return '—';
+  }
+
+  /** [ENDRET, issue #385] Generisk omtale fullføres her (før: inne i GeneriskOmtale). Med binding får den grunnlaget og statusen fra de
+   * to nye stegene — «faglig vurdert» står som forslag; før #385 ble en binding herfra alltid lagret som godkjent. */
+  async function fullførGenerisk(bind: boolean) {
+    if (!id || !kandidat) return;
+    if (bind && (generiskFeil(generiskValg) !== null || !utsagnKlart)) return;
+    setFullfører(true);
+    setFeil(null);
+    try {
+      const binding = bind ? tilBinding(generiskValg, tilRequest(grunnlagUtkast, sikkerhetUtkast, kandidat.rettskildeId)) : null;
+      const r = await api.markerNavnekandidatSomGenerisk(id, binding);
+      setFerdig({
+        tittel: r.binding
+          ? `«${r.navneform.term}» er markert som generisk omtale og bundet for denne rettskilden.`
+          : `«${r.navneform.term}» er markert som generisk omtale.`,
+        detaljer: [
+          r.varNyNavneform
+            ? 'Den generiske navneformen er opprettet — én for hele korpuset.'
+            : 'Den generiske navneformen fantes alt og er gjenbrukt.',
+          r.binding
+            ? (sikkerhetUtkast.godkjenning === 'godkjent'
+              ? 'Bindingen er godkjent: omtalen oppløses til referenten i denne rettskilden (smaleste paragrafspenn vinner).'
+              : 'Bindingen er faglig vurdert og står som forslag — omtalen oppløses først når den er godkjent.')
+              + ` Grunnlag: ${grunnlagTekst(grunnlagUtkast)}.`
+            : 'Ingen binding: omtalen står som generisk, uten kobling, til noen binder den.',
+          r.taggId ? 'Taggen på forekomsten peker på den generiske navneformen.' : 'Ingen tagg kunne opprettes (se rettskildens ansvarlige departement).',
+          'Navnekandidaten er satt til «Godkjent».',
+        ],
+        rettskildeLenke: rettskildeLenkeForId(kandidat.rettskildeId, kandidat.nodeEid),
+        taggLag: r.taggId ? 'Virksomhet' : null,
+        virksomhetLenke: null,
+        virksomhetForSveip: null,
+        gruppeLenke: null,
+        advarsel: null,
+      });
+    } catch (e) {
+      setFeil(e instanceof ApiError ? e.message : 'Kunne ikke markere som generisk.');
     } finally {
       setFullfører(false);
     }
@@ -720,6 +831,15 @@ export default function NavnekandidatVeiviser() {
     || (tillegg === 'relasjon' && motpartVirksomhetId !== '' && relasjonsType !== ''
         && (relasjonHjemletHer || (relasjonKommentar.trim() !== '' && !!relasjonKildeType && !!relasjonKildeDok)));
 
+  // [Ny, issue #385] Stegene for det valgte sporet, og nummeret til et steg (0 = ikke i dette sporet).
+  const stegliste = stegFor(slag, generiskValg.bind);
+  const nr = (k: Stegnokkel) => stegliste.findIndex((x) => x.nokkel === k) + 1;
+  const vis = (k: Stegnokkel) => nr(k) > 0 && steg >= nr(k);
+  const aktiv = (k: Stegnokkel) => nr(k) > 0 && steg === nr(k);
+  const grunnlagKlart = grunnlagFeil(grunnlagUtkast) === null;
+  const utsagnKlart = grunnlagKlart && sikkerhetFeil(grunnlagUtkast, sikkerhetUtkast) === null;
+  const aktortypeKlar = aktortypeValg !== null;
+
   return (
     <>
       <Breadcrumbs data-size="sm" style={{ marginBottom: '0.75rem' }}>
@@ -746,7 +866,7 @@ export default function NavnekandidatVeiviser() {
       {/* Steg-indikator — samme Tag-rekke-idiom som StatusStepper (docs/09 §14), men egen, siden
         * StatusStepper er bundet til den 6-trinns entitets-statusmodellen. */}
       <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', alignItems: 'center', marginBottom: '1rem' }}>
-        {stegTitler(slag).map((tittel, i) => (
+        {stegliste.map(({ tittel }, i) => (
           <Tag
             key={tittel}
             data-size="sm"
@@ -778,7 +898,7 @@ export default function NavnekandidatVeiviser() {
             )}
             {ferdig.virksomhetLenke && (
               <Button data-size="sm" variant="secondary" asChild>
-                <RouterLink to={ferdig.virksomhetLenke}>Se virksomheten ↗</RouterLink>
+                <RouterLink to={ferdig.virksomhetLenke}>Se aktøren ↗</RouterLink>
               </Button>
             )}
             {ferdig.gruppeLenke && (
@@ -801,9 +921,9 @@ export default function NavnekandidatVeiviser() {
                 Neste: finn de øvrige forekomstene
               </Heading>
               <Paragraph data-size="sm" style={{ marginBottom: '0.6rem' }}>
-                Nå er ÉN forekomst tagget — den kandidaten ble funnet i. Et virksomhetssveip leter
+                Nå er ÉN forekomst tagget — den kandidaten ble funnet i. Et aktørsveip etter navneformene leter
                 gjennom hele korpuset etter alle navneformene til {ferdig.virksomhetForSveip.navn} og
-                legger hvert treff i virksomhetskandidat-køen, der du kan massegodkjenne dem.
+                legger hvert treff i kandidatkøen for aktøren, der du kan massegodkjenne dem.
               </Paragraph>
               {sveipFeil && <Alert data-color="danger" style={{ marginBottom: '0.6rem' }}>{sveipFeil}</Alert>}
               {sveipResultat && (
@@ -818,7 +938,7 @@ export default function NavnekandidatVeiviser() {
                   disabled={sveiper}
                   onClick={() => kjorVirksomhetssveip(ferdig.virksomhetForSveip!.id)}
                 >
-                  {sveiper ? 'Sveiper …' : 'Kjør virksomhetssveip'}
+                  {sveiper ? 'Sveiper …' : 'Kjør sveip etter navneformene'}
                 </Button>
                 <Button data-size="sm" variant="secondary" asChild>
                   <RouterLink to={`/virksomhet-kandidater?virksomhetId=${ferdig.virksomhetForSveip.id}`}>
@@ -976,8 +1096,8 @@ export default function NavnekandidatVeiviser() {
               <Field data-size="sm" style={{ marginBottom: '0.75rem' }}>
                 <Radio
                   name="slag"
-                  label="Konkret virksomhet"
-                  description="Ett navngitt organ/aktør, f.eks. Arkivverket eller Suldal kommune."
+                  label="Navngitt aktør"
+                  description="Én navngitt aktør — rettssubjekt, organ, organisatorisk enhet eller ordning, f.eks. Domstoladministrasjonen, Suldal kommune eller Folketrygden."
                   value="virksomhet"
                   checked={slag === 'virksomhet'}
                   onChange={() => setSlag('virksomhet')}
@@ -988,8 +1108,8 @@ export default function NavnekandidatVeiviser() {
                   * denne veien fantes — den er en virksomhet OG et gruppemedlemskap, ikke ett av dem. */}
                 <Radio
                   name="slag"
-                  label="Konkret virksomhet, navngitt som medlem av en gruppe"
-                  description="Teksten navngir en virksomhet i egenskap av å tilhøre en gruppe loven har definert — f.eks. «Karasjok» som språkutviklingskommune. Oppretter både navneformen og medlemskapet."
+                  label="Navngitt aktør som medlem av en klasse"
+                  description="Teksten navngir en aktør i egenskap av å tilhøre en klasse loven har definert — f.eks. «Karasjok» som språkutviklingskommune. Oppretter både navneformen og medlemskapet."
                   value="gruppemedlem"
                   checked={slag === 'gruppemedlem'}
                   onChange={() => setSlag('gruppemedlem')}
@@ -997,7 +1117,7 @@ export default function NavnekandidatVeiviser() {
                 />
                 <Radio
                   name="slag"
-                  label="Begrep loven definerer — klasse, rolle eller område"
+                  label="Klasse, rolle eller område"
                   description="Ikke én navngitt aktør, men en mengde («kommunene»), en funksjon («reguleringsmyndighet») eller et område («forvaltningsområdet for samiske språk»)."
                   value="gruppe"
                   checked={slag === 'gruppe'}
@@ -1008,7 +1128,7 @@ export default function NavnekandidatVeiviser() {
                 <Radio
                   name="slag"
                   label="Generisk omtale — «styret», «retten», «departementet»"
-                  description="Ikke et navn på én aktør, men et fellesnavn som betyr noe bestemt i hver lov. Markeres som generisk, og kan bindes til det det betyr i denne rettskilden."
+                  description="Ikke et navn på én aktør, men et fellesnavn som betyr noe bestemt i hver lov. Markeres som generisk, og kan bindes til det det betyr i denne rettskilden, med gyldighetsperiode."
                   value="generisk"
                   checked={slag === 'generisk'}
                   onChange={() => setSlag('generisk')}
@@ -1016,8 +1136,8 @@ export default function NavnekandidatVeiviser() {
                 />
                 <Radio
                   name="slag"
-                  label="Ikke relevant"
-                  description="Ikke en aktør — eller noe denne runden ikke håndterer. Raden avvises."
+                  label="Ikke en aktør"
+                  description="Teksten er ikke en aktør, klasse, rolle eller område. Raden avvises med begrunnelse — den slettes ikke."
                   value="irrelevant"
                   checked={slag === 'irrelevant'}
                   onChange={() => setSlag('irrelevant')}
@@ -1112,34 +1232,53 @@ export default function NavnekandidatVeiviser() {
                 </div>
               )}
 
-              {slag === 'generisk' && steg === 2 && (
-                <GeneriskOmtale kandidat={kandidat} noder={noder} virksomheter={virksomheter} onFerdig={(f) => setFerdig({
-                  tittel: f.bundet
-                    ? `«${f.term}» er markert som generisk omtale og bundet for denne rettskilden.`
-                    : `«${f.term}» er markert som generisk omtale.`,
-                  detaljer: [
-                    f.varNyNavneform
-                      ? 'Den generiske navneformen er opprettet — én for hele korpuset.'
-                      : 'Den generiske navneformen fantes alt og er gjenbrukt.',
-                    f.bundet
-                      ? 'Bindingen er lagret som godkjent: omtalen oppløses til referenten i denne rettskilden (smaleste paragrafspenn vinner).'
-                      : 'Ingen binding: omtalen står som generisk, uten kobling, til noen binder den.',
-                    f.taggOpprettet ? 'Taggen på forekomsten peker på den generiske navneformen.' : 'Ingen tagg kunne opprettes (se rettskildens ansvarlige departement).',
-                    'Navnekandidaten er satt til «Godkjent».',
-                  ],
-                  rettskildeLenke: rettskildeLenkeForId(kandidat.rettskildeId, kandidat.nodeEid),
-                  taggLag: f.taggOpprettet ? 'Virksomhet' : null,
-                  virksomhetLenke: null,
-                  virksomhetForSveip: null,
-                  gruppeLenke: null,
-                  advarsel: null,
-                })} />
+              {/* [Ny, issue #385 AC6/AC7] «Navngitt aktør, med valg av type» (docs/33 §4.1). «Uavklart» er et eget, eksplisitt valg —
+                * da registreres ingen aktørtype. Ingenting forhåndsvelges. */}
+              {harVirksomhetssteg(slag) && (
+                <div style={{ marginBottom: '0.75rem' }}>
+                  <Divider style={{ margin: '0.75rem 0' }} />
+                  <Heading level={3} data-size="xs" style={{ marginBottom: '0.35rem' }}>Hva slags aktør?</Heading>
+                  <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.5rem' }}>
+                    Typen registreres som et eget utsagn med grunnlaget og statusen fra de to siste stegene. Velg «Vet ikke» om kilden ikke
+                    avgjør det — da står typen som uavklart.
+                  </Metatekst>
+                  <Field data-size="sm">
+                    {(Object.keys(AKTORTYPE_VISNING) as Aktortype[]).map((a) => (
+                      <Radio key={a} name="aktortype" label={AKTORTYPE_VISNING[a].tekst} description={AKTORTYPE_VISNING[a].forklaring} value={a}
+                        checked={aktortypeValg === a} onChange={() => setAktortypeValg(a)} disabled={steg !== 2} />
+                    ))}
+                    <Radio name="aktortype" label="Vet ikke — la typen stå uavklart" value="uavklart"
+                      checked={aktortypeValg === 'uavklart'} onChange={() => setAktortypeValg('uavklart')} disabled={steg !== 2} />
+                  </Field>
+                  {aktortypeValg === 'ordning' && (
+                    <Field data-size="sm" style={{ maxWidth: '16rem', marginTop: '0.5rem' }}>
+                      <Label>Ordningstype</Label>
+                      <Select data-size="sm" value={ordningstype} disabled={steg !== 2} onChange={(e) => setOrdningstype(e.target.value as Ordningstype | '')}>
+                        <Select.Option value="">Ikke angitt</Select.Option>
+                        {(Object.keys(ORDNINGSTYPE_VISNING) as Ordningstype[]).map((o) => (
+                          <Select.Option key={o} value={o}>{ORDNINGSTYPE_VISNING[o]}</Select.Option>
+                        ))}
+                      </Select>
+                    </Field>
+                  )}
+                </div>
+              )}
+
+              {slag === 'irrelevant' && (
+                <Textarea data-size="sm" aria-label="Begrunnelse for avvisningen" placeholder="Hvorfor er dette ikke en aktør? (påkrevd)"
+                  value={avvisBegrunnelse} readOnly={steg !== 2} rows={2} onChange={(e) => setAvvisBegrunnelse(e.target.value)}
+                  style={{ maxWidth: '36rem', marginBottom: '0.75rem' }} />
               )}
 
               {steg === 2 && (
                 <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                   {harVirksomhetssteg(slag) && (
-                    <Button data-size="sm" onClick={() => setSteg(3)}>Neste</Button>
+                    <Button data-size="sm" onClick={() => setSteg(nr('aktor'))} disabled={!aktortypeKlar}>
+                      {aktortypeKlar ? 'Neste' : 'Velg aktørtype først'}
+                    </Button>
+                  )}
+                  {slag === 'generisk' && (
+                    <Button data-size="sm" onClick={() => setSteg(nr('generisk'))}>Neste</Button>
                   )}
                   {slag === 'gruppe' && (
                     <Button
@@ -1156,8 +1295,9 @@ export default function NavnekandidatVeiviser() {
                     </Button>
                   )}
                   {slag === 'irrelevant' && (
-                    <Button data-size="sm" data-color="danger" onClick={() => fullførIkkeVirksomhet('irrelevant')} disabled={fullfører}>
-                      {fullfører ? 'Avviser …' : 'Avvis kandidaten'}
+                    <Button data-size="sm" data-color="danger" onClick={() => fullførIkkeVirksomhet('irrelevant')}
+                      disabled={fullfører || !avvisBegrunnelse.trim()}>
+                      {fullfører ? 'Avviser …' : avvisBegrunnelse.trim() ? 'Avvis: ikke en aktør' : 'Skriv begrunnelsen først'}
                     </Button>
                   )}
                   <Button data-size="sm" variant="tertiary" onClick={() => setSteg(1)}>Tilbake</Button>
@@ -1166,30 +1306,30 @@ export default function NavnekandidatVeiviser() {
             </Card>
           )}
 
-          {/* ---------------- Steg 3: Hvilken virksomhet? ---------------- */}
-          {steg >= 3 && (
+          {/* ---------------- Hvilken aktør? ---------------- */}
+          {vis('aktor') && (
             <Card style={{ padding: '1rem', marginBottom: '1rem' }}>
               {/* [Rettet, «alle mekanismer»-runden, 2026-09-21] Leste tidligere indeks [3] («Bekreft»)
                 * i stedet for [2] (virksomhet-tittelen) — usynlig fordi teksten aldri ble vist alene,
                 * kun sammen med det hardkodede «3. »-prefikset. Se `stegTitler`s kommentar. */}
               <Heading level={2} data-size="sm" style={{ marginBottom: '0.35rem' }}>
-                3. {stegTitler(slag)[2]}
+                {nr('aktor')}. {stegliste[nr('aktor') - 1].tittel}
               </Heading>
               <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
-                Finn virksomheten i katalogen, eller opprett den — fra Brønnøysundregisteret hvis den
-                er registrert der, ellers med bare navnet.
+                Finn aktøren i katalogen, eller opprett den — fra Brønnøysundregistrene hvis den er registrert der (orgnr og
+                registernavn blir attributter under «Registerdata»), ellers med bare navnet.
                 {slag === 'gruppemedlem'
-                  && ' Velg deretter hvilken gruppe teksten navngir den som medlem av.'}
+                  && ' Velg deretter hvilken klasse teksten navngir den som medlem av.'}
               </Metatekst>
 
               <Field data-size="sm" style={{ marginBottom: '0.75rem' }}>
                 <Radio name="vei" label="Velg fra katalogen" value="eksisterende"
-                  checked={vei === 'eksisterende'} onChange={() => setVei('eksisterende')} disabled={steg !== 3} />
+                  checked={vei === 'eksisterende'} onChange={() => setVei('eksisterende')} disabled={!aktiv('aktor')} />
                 <Radio name="vei" label="Søk i Brønnøysundregisteret og opprett" value="brreg"
-                  checked={vei === 'brreg'} onChange={() => setVei('brreg')} disabled={steg !== 3} />
-                <Radio name="vei" label="Opprett med bare navn" value="kunNavn"
-                  description="For aktører uten egen Brreg-registrering, f.eks. Kystvakten som del av Forsvaret."
-                  checked={vei === 'kunNavn'} onChange={() => setVei('kunNavn')} disabled={steg !== 3} />
+                  checked={vei === 'brreg'} onChange={() => setVei('brreg')} disabled={!aktiv('aktor')} />
+                <Radio name="vei" label="Opprett aktør med bare navn" value="kunNavn"
+                  description="For aktører uten egen Brreg-registrering, f.eks. Tilsynsutvalget for dommere eller Kystvakten som del av Forsvaret."
+                  checked={vei === 'kunNavn'} onChange={() => setVei('kunNavn')} disabled={!aktiv('aktor')} />
               </Field>
 
               {vei === 'eksisterende' && (
@@ -1197,13 +1337,13 @@ export default function NavnekandidatVeiviser() {
                   virksomheter={virksomheter}
                   value={valgtVirksomhetId}
                   onChange={setValgtVirksomhetId}
-                  label="Virksomhet"
-                  tomValgTekst="Velg virksomhet …"
+                  label="Aktør"
+                  tomValgTekst="Velg aktør …"
                   style={{ marginBottom: '0.75rem', maxWidth: '28rem' }}
                 />
               )}
 
-              {vei === 'brreg' && steg === 3 && (
+              {vei === 'brreg' && aktiv('aktor') && (
                 <div style={{ marginBottom: '0.75rem' }}>
                   <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', marginBottom: '0.5rem', maxWidth: '28rem' }}>
                     <Search data-size="sm" style={{ flex: 1 }}>
@@ -1260,11 +1400,11 @@ export default function NavnekandidatVeiviser() {
                 </div>
               )}
 
-              {vei === 'kunNavn' && steg === 3 && (
+              {vei === 'kunNavn' && aktiv('aktor') && (
                 <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
                   <Textfield
                     data-size="sm"
-                    label="Navn på virksomheten"
+                    label="Navn på aktøren (lovens navn)"
                     value={nyttNavn}
                     onChange={(e) => setNyttNavn(e.target.value)}
                   />
@@ -1276,8 +1416,15 @@ export default function NavnekandidatVeiviser() {
 
               {valgtVirksomhet && (
                 <Alert data-color="info" data-size="sm" style={{ marginBottom: '0.75rem' }}>
-                  Valgt virksomhet: <strong>{valgtVirksomhet.navn}</strong>
-                  {valgtVirksomhet.organisasjonsnummer ? ` (org.nr. ${valgtVirksomhet.organisasjonsnummer})` : ''}
+                  {/* [ENDRET, issue #385 AC2] Visningsnavnet (lovens navn); registernavn og orgnr er attributter. */}
+                  Valgt aktør: <strong>{valgtVirksomhet.visningsnavn}</strong>
+                  {valgtVirksomhet.organisasjonsnummer
+                    ? ` — registerdata: ${valgtVirksomhet.navn !== valgtVirksomhet.visningsnavn ? `«${valgtVirksomhet.navn}», ` : ''}org.nr. ${valgtVirksomhet.organisasjonsnummer}`
+                    : ''}
+                  {valgtVirksomhet.aktortype && aktortypeValg && aktortypeValg !== 'uavklart' && valgtVirksomhet.aktortype !== aktortypeValg && (
+                    <> — <strong>har i dag aktørtypen «{AKTORTYPE_VISNING[valgtVirksomhet.aktortype].tekst}»</strong>. Godkjenner du
+                      «{AKTORTYPE_VISNING[aktortypeValg].tekst}», endres den.</>
+                  )}
                 </Alert>
               )}
 
@@ -1286,7 +1433,7 @@ export default function NavnekandidatVeiviser() {
                 <>
                   <Divider style={{ margin: '0.75rem 0' }} />
                   <Heading level={3} data-size="xs" style={{ marginBottom: '0.35rem' }}>
-                    Hvilken gruppe navngir teksten den som medlem av?
+                    Hvilken klasse navngir teksten den som medlem av?
                   </Heading>
                   <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.5rem' }}>
                     Gruppen må finnes som gruppebegrep fra før — den er definert i en LOV, mens denne
@@ -1325,7 +1472,7 @@ export default function NavnekandidatVeiviser() {
               <Divider style={{ margin: '0.75rem 0' }} />
 
               <Heading level={3} data-size="xs" style={{ marginBottom: '0.35rem' }}>
-                Hvorfor peker «{kandidat.foreslattTekst}» på denne virksomheten?
+                Hvorfor peker «{kandidat.foreslattTekst}» på denne aktøren?
               </Heading>
               <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.5rem' }}>
                 Dette er stedet for legitime strenger som ikke er det offisielle navnet — et utgått
@@ -1338,9 +1485,9 @@ export default function NavnekandidatVeiviser() {
                 style={{ marginBottom: '0.75rem', maxWidth: '28rem' }}
               />
 
-              {steg === 3 && (
+              {aktiv('aktor') && (
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <Button data-size="sm" onClick={() => setSteg(4)} disabled={!steg3Klart}>Neste</Button>
+                  <Button data-size="sm" onClick={() => setSteg(nr('tillegg'))} disabled={!steg3Klart}>Neste</Button>
                   <Button data-size="sm" variant="tertiary" onClick={() => setSteg(2)}>Tilbake</Button>
                 </div>
               )}
@@ -1348,20 +1495,20 @@ export default function NavnekandidatVeiviser() {
           )}
 
           {/* ---------------- Steg 4: Utover navneform? (Ny, issue #283 AC5/AC6/AC7) ---------------- */}
-          {steg >= 4 && harVirksomhetssteg(slag) && (
+          {vis('tillegg') && (
             <Card style={{ padding: '1rem', marginBottom: '1rem' }}>
               <Heading level={2} data-size="sm" style={{ marginBottom: '0.35rem' }}>
-                4. {stegTitler(slag)[3]}
+                {nr('tillegg')}. {stegliste[nr('tillegg') - 1].tittel}
               </Heading>
               <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
                 Valgfritt — de aller fleste treff er BARE en navneform. Velg ett av de to under KUN
                 når denne KONKRETE forekomsten selv sier noe mer: at stedet HAR en rolle her, eller at
-                det står i et organisatorisk forhold til en annen, navngitt virksomhet.
+                det står i et organisatorisk forhold til en annen, navngitt aktør.
               </Metatekst>
 
               <Field data-size="sm" style={{ marginBottom: '0.75rem' }}>
                 <Radio name="tillegg" label="Ingen" value="ingen"
-                  checked={tillegg === 'ingen'} onChange={() => setTillegg('ingen')} disabled={steg !== 4} />
+                  checked={tillegg === 'ingen'} onChange={() => setTillegg('ingen')} disabled={!aktiv('tillegg')} />
                 <Radio
                   name="tillegg"
                   label="Rolle tildelt her"
@@ -1369,16 +1516,16 @@ export default function NavnekandidatVeiviser() {
                   value="rolle"
                   checked={tillegg === 'rolle'}
                   onChange={() => { setTillegg('rolle'); if (!rolleFraEid) setRolleFraEid(kandidat.nodeEid); }}
-                  disabled={steg !== 4}
+                  disabled={!aktiv('tillegg')}
                 />
                 <Radio
                   name="tillegg"
-                  label="Relasjon til annen virksomhet"
-                  description="Teksten beskriver et forhold til en annen, navngitt virksomhet — en relasjon (sekretariat for, eies av) eller en kompetanse overfor den (klagekompetanse, instruksjon, oppnevning)."
+                  label="Relasjon til annen aktør"
+                  description="Teksten beskriver et forhold til en annen, navngitt aktør — en relasjon (sekretariat for, eies av) eller en kompetanse overfor den (klagekompetanse, instruksjon, oppnevning)."
                   value="relasjon"
                   checked={tillegg === 'relasjon'}
                   onChange={() => setTillegg('relasjon')}
-                  disabled={steg !== 4}
+                  disabled={!aktiv('tillegg')}
                 />
               </Field>
 
@@ -1468,8 +1615,8 @@ export default function NavnekandidatVeiviser() {
                     virksomheter={virksomheter.filter((v) => v.id !== valgtVirksomhetId)}
                     value={motpartVirksomhetId}
                     onChange={setMotpartVirksomhetId}
-                    label="Motpart (annen virksomhet)"
-                    tomValgTekst="Velg virksomhet …"
+                    label="Motpart (annen aktør)"
+                    tomValgTekst="Velg aktør …"
                     style={{ marginBottom: '0.75rem', maxWidth: '28rem' }}
                   />
                   <Field data-size="sm" style={{ marginBottom: '0.75rem' }}>
@@ -1488,25 +1635,90 @@ export default function NavnekandidatVeiviser() {
                   {!relasjonHjemletHer && (
                     <div style={{ marginBottom: '0.75rem' }}>
                       <KildeUtenforKorpusVelger type={relasjonKildeType} dokumentasjon={relasjonKildeDok}
-                        onType={setRelasjonKildeType} onDokumentasjon={setRelasjonKildeDok} disabled={steg !== 4} />
+                        onType={setRelasjonKildeType} onDokumentasjon={setRelasjonKildeDok} disabled={!aktiv('tillegg')} />
                     </div>
                   )}
                 </>
               )}
 
-              {steg === 4 && (
+              {aktiv('tillegg') && (
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <Button data-size="sm" onClick={() => setSteg(5)} disabled={!tilleggKlart}>Neste</Button>
-                  <Button data-size="sm" variant="tertiary" onClick={() => setSteg(3)}>Tilbake</Button>
+                  <Button data-size="sm" onClick={() => setSteg(nr('grunnlag'))} disabled={!tilleggKlart}>Neste</Button>
+                  <Button data-size="sm" variant="tertiary" onClick={() => setSteg(nr('aktor'))}>Tilbake</Button>
                 </div>
               )}
             </Card>
           )}
 
-          {/* ---------------- Steg 5: Bekreft ---------------- */}
-          {steg >= 5 && (
+          {/* ---------------- [Ny, issue #385] Generisk omtale: «Hva betyr den her?» ---------------- */}
+          {vis('generisk') && (
             <Card style={{ padding: '1rem', marginBottom: '1rem' }}>
-              <Heading level={2} data-size="sm" style={{ marginBottom: '0.35rem' }}>5. Bekreft</Heading>
+              <Heading level={2} data-size="sm" style={{ marginBottom: '0.35rem' }}>{nr('generisk')}. Hva betyr den her?</Heading>
+              <GeneriskOmtale kandidat={kandidat} noder={noder} virksomheter={virksomheter} verdi={generiskValg} onEndre={setGeneriskValg}
+                disabled={!aktiv('generisk')} />
+              {aktiv('generisk') && (
+                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  {generiskValg.bind === false ? (
+                    <Button data-size="sm" onClick={() => fullførGenerisk(false)} disabled={fullfører}>
+                      {fullfører ? 'Lagrer …' : 'Marker som generisk'}
+                    </Button>
+                  ) : (
+                    <Button data-size="sm" onClick={() => setSteg(nr('grunnlag'))} disabled={generiskFeil(generiskValg) !== null}>Neste</Button>
+                  )}
+                  <Button data-size="sm" variant="tertiary" onClick={() => setSteg(2)}>Tilbake</Button>
+                </div>
+              )}
+              {aktiv('generisk') && generiskFeil(generiskValg) && generiskValg.bind !== null && <Metatekst>{generiskFeil(generiskValg)}</Metatekst>}
+            </Card>
+          )}
+
+          {/* ---------------- [Ny, issue #385 AC8] Hva bygger dette på? ---------------- */}
+          {vis('grunnlag') && (
+            <Card style={{ padding: '1rem', marginBottom: '1rem' }}>
+              <Heading level={2} data-size="sm" style={{ marginBottom: '0.35rem' }}>{nr('grunnlag')}. Hva bygger dette på?</Heading>
+              <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
+                {slag === 'generisk'
+                  ? 'Hvor betydningen kommer fra — en bestemmelse som definerer eller forutsetter ordet, eller en kilde utenfor korpus (f.eks. kgl.res. om ansvarsfordeling).'
+                  : 'Kilden for navneformen og aktørtypen. Navnet står i teksten over; det gjør ikke alltid typen.'
+                    + (slag === 'gruppemedlem' ? ' Medlemskapet er alltid hjemlet der navnet står.' : '')}
+              </Metatekst>
+              <GrunnlagSteg verdi={grunnlagUtkast} onEndre={setGrunnlagUtkast} noder={noder} kandidatEid={kandidat.nodeEid}
+                disabled={!aktiv('grunnlag')} />
+              {aktiv('grunnlag') && (
+                <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem' }}>
+                  <Button data-size="sm" onClick={() => {
+                    // «Hjemmel mangler» er uavklart — det følger av valget, og forhåndsutfylles derfor (ikke en gjetning).
+                    if (grunnlagUtkast.grunnlag === 'mangler') setSikkerhetUtkast((s) => ({ ...s, kunnskapsstatus: 'uavklart' }));
+                    setSteg(nr('sikkerhet'));
+                  }} disabled={!grunnlagKlart}>Neste</Button>
+                  <Button data-size="sm" variant="tertiary" onClick={() => setSteg(nr(slag === 'generisk' ? 'generisk' : 'tillegg'))}>Tilbake</Button>
+                </div>
+              )}
+            </Card>
+          )}
+
+          {/* ---------------- [Ny, issue #385 AC9] Hvor sikkert er det? ---------------- */}
+          {vis('sikkerhet') && (
+            <Card style={{ padding: '1rem', marginBottom: '1rem' }}>
+              <Heading level={2} data-size="sm" style={{ marginBottom: '0.35rem' }}>{nr('sikkerhet')}. Hvor sikkert er det?</Heading>
+              <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
+                Hvordan det er kommet fram (kunnskapsstatus, docs/profil/03 §5) og hvem som står bak (godkjenning). Samme felt som
+                strukturkantene.
+              </Metatekst>
+              <SikkerhetSteg grunnlag={grunnlagUtkast} verdi={sikkerhetUtkast} onEndre={setSikkerhetUtkast} disabled={!aktiv('sikkerhet')} />
+              {aktiv('sikkerhet') && (
+                <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem' }}>
+                  <Button data-size="sm" onClick={() => setSteg(nr('bekreft'))} disabled={!utsagnKlart}>Neste</Button>
+                  <Button data-size="sm" variant="tertiary" onClick={() => setSteg(nr('grunnlag'))}>Tilbake</Button>
+                </div>
+              )}
+            </Card>
+          )}
+
+          {/* ---------------- Bekreft ---------------- */}
+          {vis('bekreft') && (
+            <Card style={{ padding: '1rem', marginBottom: '1rem' }}>
+              <Heading level={2} data-size="sm" style={{ marginBottom: '0.35rem' }}>{nr('bekreft')}. Bekreft</Heading>
               <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
                 Dette blir opprettet eller endret når du fullfører:
               </Metatekst>
@@ -1516,9 +1728,50 @@ export default function NavnekandidatVeiviser() {
                     <Table.HeaderCell scope="row">Navneform</Table.HeaderCell>
                     <Table.Cell>«{kandidat.foreslattTekst}»</Table.Cell>
                   </Table.Row>
+                  {slag === 'generisk' ? (
+                    <Table.Row>
+                      <Table.HeaderCell scope="row">Generisk omtale, bundet til</Table.HeaderCell>
+                      <Table.Cell>
+                        {generiskValg.referentType === 'virksomhet'
+                          ? virksomheter.find((v) => v.id === generiskValg.virksomhetId)?.visningsnavn ?? '—'
+                          : 'den valgte klassen eller rollen'}
+                        <Metatekst as="span" style={{ display: 'block', color: 'var(--ds-color-neutral-text-subtle)' }}>
+                          {generiskValg.fraEid ? 'I det valgte paragrafspennet' : 'I hele rettskilden'}
+                          {generiskValg.gyldigFra || generiskValg.gyldigTil ? `, gyldig ${generiskValg.gyldigFra || '…'}–${generiskValg.gyldigTil || '…'}` : ''}.
+                        </Metatekst>
+                      </Table.Cell>
+                    </Table.Row>
+                  ) : (
+                    <>
+                      <Table.Row>
+                        <Table.HeaderCell scope="row">Peker på aktør</Table.HeaderCell>
+                        <Table.Cell>{valgtVirksomhet?.visningsnavn ?? '—'}</Table.Cell>
+                      </Table.Row>
+                      <Table.Row>
+                        <Table.HeaderCell scope="row">Aktørtype</Table.HeaderCell>
+                        <Table.Cell>
+                          {aktortypeValg && aktortypeValg !== 'uavklart' ? AKTORTYPE_VISNING[aktortypeValg].tekst : 'Uavklart — ingen aktørtype registreres'}
+                          {aktortypeValg === 'ordning' && ordningstype ? ` (${ORDNINGSTYPE_VISNING[ordningstype]})` : ''}
+                        </Table.Cell>
+                      </Table.Row>
+                    </>
+                  )}
+                  {/* [Ny, issue #385 AC8/AC9] De to nye stegene. */}
                   <Table.Row>
-                    <Table.HeaderCell scope="row">Peker på virksomhet</Table.HeaderCell>
-                    <Table.Cell>{valgtVirksomhet?.navn ?? '—'}</Table.Cell>
+                    <Table.HeaderCell scope="row">Bygger på</Table.HeaderCell>
+                    <Table.Cell>{grunnlagTekst(grunnlagUtkast)}</Table.Cell>
+                  </Table.Row>
+                  <Table.Row>
+                    <Table.HeaderCell scope="row">Kunnskapsstatus og godkjenning</Table.HeaderCell>
+                    <Table.Cell>
+                      {sikkerhetUtkast.kunnskapsstatus ? KUNNSKAPSSTATUS_VISNING[sikkerhetUtkast.kunnskapsstatus].tekst : 'Ikke vurdert'}
+                      {' · '}{sikkerhetUtkast.godkjenning === 'godkjent' ? 'Godkjent' : 'Faglig vurdert (forslag)'}
+                      {sikkerhetUtkast.begrunnelse.trim() && (
+                        <Metatekst as="span" style={{ display: 'block', color: 'var(--ds-color-neutral-text-subtle)' }}>
+                          {sikkerhetUtkast.begrunnelse.trim()}
+                        </Metatekst>
+                      )}
+                    </Table.Cell>
                   </Table.Row>
                   {slag === 'gruppemedlem' && (
                     <Table.Row>
@@ -1547,7 +1800,7 @@ export default function NavnekandidatVeiviser() {
                   )}
                   {tillegg === 'relasjon' && (
                     <Table.Row>
-                      <Table.HeaderCell scope="row">Relasjon til annen virksomhet</Table.HeaderCell>
+                      <Table.HeaderCell scope="row">Relasjon til annen aktør</Table.HeaderCell>
                       <Table.Cell>
                         {valgtMotpart && relasjonsType ? `${relasjonsType} — ${valgtMotpart.visningsnavn}` : '—'}
                         <Metatekst as="span" style={{ display: 'block', color: 'var(--ds-color-neutral-text-subtle)' }}>
@@ -1558,10 +1811,14 @@ export default function NavnekandidatVeiviser() {
                       </Table.Cell>
                     </Table.Row>
                   )}
-                  <Table.Row>
-                    <Table.HeaderCell scope="row">Begrunnelse</Table.HeaderCell>
-                    <Table.Cell>{navneformgrunn ?? 'Uspesifisert'}</Table.Cell>
-                  </Table.Row>
+                  {/* [ENDRET, issue #385] «Navneformgrunn», ikke «Begrunnelse» — begrunnelsen står nå i «Hvor sikkert er det?». Ikke for
+                    * generisk omtale, som ikke har en navneformgrunn for én aktør. */}
+                  {slag !== 'generisk' && (
+                    <Table.Row>
+                      <Table.HeaderCell scope="row">Navneformgrunn</Table.HeaderCell>
+                      <Table.Cell>{navneformgrunn ?? 'Uspesifisert'}</Table.Cell>
+                    </Table.Row>
+                  )}
                   <Table.Row>
                     <Table.HeaderCell scope="row">Navnekandidat</Table.HeaderCell>
                     <Table.Cell>Settes til «Godkjent»</Table.Cell>
@@ -1574,18 +1831,18 @@ export default function NavnekandidatVeiviser() {
                       * stemmer med det den faktisk gjør. Oppsummeringen ETTER fullføring var alt
                       * rettet; denne forhåndsvisningen sto igjen med den gamle påstanden. */}
                     <Table.Cell>
-                      Kobles til navneformen over, i laget «Virksomhet» — virksomheten nås gjennom
-                      den. En eventuell ubundet tagg på samme sted gjenbrukes i stedet for at en ny
+                      Kobles til navneformen over, i laget «Virksomhet» — {slag === 'generisk' ? 'betydningen i denne rettskilden følger bindingen' : 'aktøren nås gjennom den'}. En eventuell ubundet tagg på samme sted gjenbrukes i stedet for at en ny
                       opprettes.
                     </Table.Cell>
                   </Table.Row>
                 </Table.Body>
               </Table>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <Button data-size="sm" onClick={fullførVirksomhet} disabled={fullfører || !steg3Klart || !tilleggKlart}>
+                <Button data-size="sm" onClick={() => (slag === 'generisk' ? fullførGenerisk(true) : fullførVirksomhet())}
+                  disabled={fullfører || !utsagnKlart || (slag !== 'generisk' && (!steg3Klart || !tilleggKlart))}>
                   {fullfører ? 'Fullfører …' : 'Fullfør'}
                 </Button>
-                <Button data-size="sm" variant="tertiary" onClick={() => setSteg(harVirksomhetssteg(slag) ? 4 : 3)}>Tilbake</Button>
+                <Button data-size="sm" variant="tertiary" onClick={() => setSteg(nr('sikkerhet'))}>Tilbake</Button>
               </div>
             </Card>
           )}

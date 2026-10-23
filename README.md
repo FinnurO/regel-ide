@@ -38,6 +38,9 @@ historikk (en revisjon gir en ny rad), og hjemmelen peker på den versjonerte no
 Konverteringen av en rettskilde lastes (#313) inn som forslag i en forslagskø: et menneske godkjenner eller avviser, og en avvisning
 blir stående som historikk i stedet for å slettes. Før forslagene kjøres et aktørsveip (#378) som viser hvilke aktører som er kjent,
 og generiske omtaler («styret», «departementet») er navneformer for hele korpuset der betydningen bindes per rettskilde.
+En aktørs identitet (#385) er lovens navn — den gjeldende navneformen — og aktørtypen, begge modellutsagn med grunnlag og godkjenning;
+organisasjonsnummer og registernavn fra Enhetsregisteret er attributter. Navneformer foreslås fra lovteksten, og et navnetreff gir
+navneformen en kilde og en tagg på nøyaktig spenn.
 Spesifikasjonen og målingene: [`docs/33-strukturmodell-aktor-omrade-kompetanse.md`](docs/33-strukturmodell-aktor-omrade-kompetanse.md)
 (arbeidsplanen er epic #318).
 

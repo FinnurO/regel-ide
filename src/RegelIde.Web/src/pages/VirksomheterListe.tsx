@@ -9,6 +9,7 @@ import { VirksomhetVelger } from '../virksomhet/VirksomhetVelger';
 import { NavneformgrunnVelger } from '../virksomhet/Navneformgrunn';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 import { Metatekst } from '../entitet/Metatekst';
+import { AktoridentitetVerktoy } from '../virksomhet/AktoridentitetVerktoy';
 
 type Sorteringskolonne = 'navn' | 'organisasjonsnummer' | 'forvaltningsniva' | 'aktiv';
 type LeggTilFane = 'brreg' | 'navn' | 'koble';
@@ -109,6 +110,11 @@ export default function VirksomheterListe() {
           <Button data-size="sm" onClick={() => setLeggTilApen(true)}>+ Legg til virksomhet</Button>
         </div>
 
+        {/* [Ny, issue #385] Forslag til gjeldende navneform og kilde/tagger fra lovteksten. Lukket som standard. */}
+        <div style={{ padding: '0.5rem 1rem', borderBottom: '1px solid var(--ds-color-neutral-border-subtle)' }}>
+          <AktoridentitetVerktoy onEndret={oppdater} />
+        </div>
+
         <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid var(--ds-color-neutral-border-subtle)' }}>
           <Textfield
             label="Filtrer"
@@ -157,6 +163,10 @@ export default function VirksomheterListe() {
                       <Link asChild>
                         <RouterLink to={`/virksomheter/${v.id}`}>{v.visningsnavn}</RouterLink>
                       </Link>
+                      {/* [Ny, issue #385] Navnet er registernavnet til en gjeldende navneform er godkjent — det skal sies. */}
+                      {v.navneformMangler && (
+                        <Tag data-size="sm" data-color="neutral" variant="outline" style={{ marginLeft: '0.4rem' }}>Navneform mangler</Tag>
+                      )}
                     </Table.Cell>
                     <Table.Cell style={{ fontFamily: 'monospace' }}>{v.organisasjonsnummer ?? '—'}</Table.Cell>
                     <Table.Cell>

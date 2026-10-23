@@ -268,6 +268,11 @@ sann og nyttig opplysning som bare ikke skal være HOVEDleddet. Finnes ingen gje
 faller hovedleddet tilbake til registernavnet — det som faktisk finnes; ingenting utledes av
 kortformen.
 
+[ENDRET, issue #385, 2026-10-23] **Bare en godkjent gjeldende navneform er hovedleddet.** Et forslag til gjeldende navneform — fra
+lovteksten, der registernavnet er normalisert til lovens skrivemåte — er ikke navnet før et menneske har godkjent det. Avsnittet over om at
+navnet ikke utledes av registernavnet «ved strengmanipulasjon», står: forslaget bygger på en tekst som viser skrivemåten, ikke på en regel
+for store og små bokstaver, og det godkjennes. Se docs/33 §5.8.
+
 [FIKSET, tagg-synlig, 2026-09-08] **Teksten er faktisk markert når siden åpnes.** Aktivt tagg-lag
 ble forhåndsvalgt til det første konfigurerte laget («Begrep») uten å se på nodens innhold. Åpnet
 man forskrift 2005-06-17-657 § 1 ledd-1, som kun har `virksomhet`-tagger, listet tagg-tabellen 14

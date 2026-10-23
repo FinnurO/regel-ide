@@ -1168,3 +1168,30 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
 - **Tom-teksten i «Virksomheter i gruppen»** sier at medlemskapet er utledet når klassen har en regel. «Ingen virksomheter er tildelt»
   ville vært en påstand om verden (CLAUDE.md §9).
 - **`spenn_endret`** fra taggoppslaget vises som en ukoblet tagg, slik `ubundet` gjør (§38). Den får ingen gjettet lenke.
+
+## 40. Aktøridentitet og veiviserens to nye steg (issue #385, 2026-10-16/23)
+
+- **Lovens navn er overskriften, registeret er attributter.** VirksomhetDetalj sin fane Grunndata har tre kort i fast rekkefølge:
+  «Identitet» (`virksomhet/Aktoridentitet.tsx`: gjeldende navneform med kunnskapsstatus og kilde, forslag til navneform og aktørtype
+  med Godkjenn/Avvis), «Klassifisering» (forvaltningsnivå, aktørtype) og «Registerdata» (registernavn, orgnr, organisasjonsform,
+  sektorkode, overordnet enhet, sist synkronisert). Registernavnet vises alltid under Registerdata, aldri som overskrift når det finnes
+  en godkjent gjeldende navneform.
+- **«Navneform mangler»** (`neutral` `outline`, som «Aktørtype uavklart») står ved overskriften og i aktørlisten når aktøren ikke har en
+  godkjent gjeldende navneform. Overskriften er da registernavnet — det som finnes — og merket sier det. Et forslag er aldri navnet:
+  «Navneforslag venter» er `info`.
+- **Navneformer-fanen:** kolonnen «Status» viser kunnskapsstatus og godkjenning (§35-merkene; eldre rader uten godkjenning har ingen
+  merke), «Kilde» viser hjemmelen der navnet står (rettskilde + «§ 2 ledd 1 punkt 1»), kilde utenfor korpus med alle lenkene, SNL, eller
+  «Hjemmel mangler» (`warning`). Forslag har Godkjenn/Avvis; avviste vises med «Vis avviste forslag».
+- **Veiviseren** (`pages/NavnekandidatVeiviser.tsx`) sier «aktør», ikke «virksomhet». Stegene er nøkler (`stegFor`), ikke faste numre:
+  aktørsporet har sju steg (tekst, slag, aktør, utover navneform, «Hva bygger dette på?», «Hvor sikkert er det?», bekreft), generisk
+  omtale seks («Hva betyr den her?» i stedet for aktør/tillegg; «Bare marker som generisk» fullfører i steg 3), klasse/rolle/område og
+  «Ikke en aktør» to. Aktørtypen velges i steg 2 som radioknapper med «Vet ikke — la typen stå uavklart» som eget, eksplisitt valg.
+  «Ikke en aktør» krever begrunnelse.
+- **De to nye stegene er delte komponenter** (`kandidater/Utsagnssteg.tsx`, regler i `kandidater/utsagnsgrunnlag.ts` med tester):
+  hjemmel i korpus (bestemmelsen der navnet står er merket «(her står navnet)», men forhåndsvelges ikke), kilde utenfor korpus (beskrivelse,
+  `KildeUtenforKorpusVelger`, én eller flere lenker med «+ Legg til lenke») eller «Hjemmel mangler» (`warning`-`Alert`: lagres som
+  uavklart med det som mangler). «Hvor sikkert er det?»: kunnskapsstatus (Select, «Ikke vurdert» først), godkjenning som radio
+  (Faglig vurdert / Godkjent, ingen forhåndsvalgt) og begrunnelse (`Textarea`). Feilmeldingen står som `Metatekst` under steget, og
+  «Neste» er av til steget er fullstendig.
+- **Aktørlisten** har en lukket `Details` «Aktøridentitet: navneform og kilde fra lovteksten» (`virksomhet/AktoridentitetVerktoy.tsx`):
+  tørrkjøring først, «Lagre …» som eget klikk, og en tabell med utfallet per aktør (samme mønster som aktørsveipet, §38).

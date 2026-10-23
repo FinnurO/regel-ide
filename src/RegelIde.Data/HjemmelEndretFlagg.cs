@@ -31,7 +31,9 @@ public static class HjemmelEndretFlagg
             .Where(k => k.HjemmelNodeId != null && k.HjemmelEndretTidspunkt == null
                         && db.RettskildeNoder.Any(n => n.Id == k.HjemmelNodeId && n.RettskildeId == gammelRettskildeId))
             .ToListAsync(ct);
-        if (kanter.Count == 0) return 0;
+        // [Ny, issue #385 AC12] Bindingene til generiske navneformer flagges etter samme regel.
+        var bindinger = await FlaggBindingerAsync(db, gammelRettskildeId, nyeNoder, endretAv, ct);
+        if (kanter.Count == 0) return bindinger;
         var gamle = await db.RettskildeNoder.Where(n => n.RettskildeId == gammelRettskildeId)
             .Select(n => new { n.Id, n.Eid, n.Overskrift, n.TekstHash }).ToListAsync(ct);
         var gammelEid = gamle.ToDictionary(n => n.Id, n => n.Eid);
@@ -42,6 +44,74 @@ public static class HjemmelEndretFlagg
             var eid = gammelEid[kant.HjemmelNodeId!.Value];
             if (Deltre(gamleAvtrykk, eid).SequenceEqual(Deltre(nyeNoder, eid))) continue;
             Flagg(db, kant, endretAv, eid);
+            antall++;
+        }
+        return antall + bindinger;
+    }
+
+    /// <summary>
+    /// [Ny, issue #385 AC12, Johann 2026-10-16] «Hjemmel endret» på bindingene (<see cref="NavneformBindingEntitet"/>), som strukturkantene:
+    /// en binding som gjelder VERKET den gamle versjonen hører til (#384), flagges når teksten i hjemmelen eller i paragrafspennet den
+    /// gjelder, er endret i den nye versjonen. Et tomt spenn er hele rettskilden: da flagger enhver tekstendring i rettskilden (den
+    /// bokstavelige lesningen av saken — betydningen kan ha endret seg hvor som helst; se PR-en for avveiningen). Ingenting annet endres:
+    /// bindingen oppløser som før og står i lista til faglig vurdering til den godkjennes på nytt.
+    /// </summary>
+    private static async Task<int> FlaggBindingerAsync(
+        RegelIdeDbContext db, Guid gammelRettskildeId, IReadOnlyList<Nodeavtrykk> nyeNoder, string endretAv, CancellationToken ct)
+    {
+        var gammel = await db.Rettskilder.Where(r => r.Id == gammelRettskildeId).Select(r => new { r.Eli, r.VirksomhetId }).FirstOrDefaultAsync(ct);
+        if (gammel is null) return 0;
+        var iVerket = gammel.Eli is null
+            ? db.NavneformBindinger.Where(b => b.RettskildeId == gammelRettskildeId)
+            : db.NavneformBindinger.Where(b => db.Rettskilder.Any(r => r.Id == b.RettskildeId && r.Eli == gammel.Eli && r.VirksomhetId == gammel.VirksomhetId));
+        var bindinger = await iVerket.Where(b => b.Entitetsstatus == "gjeldende" && b.Status != Strukturkanter.Avvist && b.HjemmelEndretTidspunkt == null)
+            .ToListAsync(ct);
+        if (bindinger.Count == 0) return 0;
+        var gamle = await db.RettskildeNoder.Where(n => n.RettskildeId == gammelRettskildeId)
+            .OrderBy(n => n.Sorteringsrekkefolge).Select(n => new { n.Eid, n.Overskrift, n.TekstHash, n.Sorteringsrekkefolge }).ToListAsync(ct);
+        var gamleAvtrykk = gamle.Select(n => new Nodeavtrykk(n.Eid, n.Overskrift, n.TekstHash)).ToList();
+        bool Endret(string eid) => !Deltre(gamleAvtrykk, eid).SequenceEqual(Deltre(nyeNoder, eid));
+        var helEndret = !gamleAvtrykk.OrderBy(n => n.Eid, StringComparer.Ordinal).SequenceEqual(nyeNoder.OrderBy(n => n.Eid, StringComparer.Ordinal));
+        var hjemmelIVerket = await db.Rettskilder.Where(r => r.Id == gammelRettskildeId || (gammel.Eli != null && r.Eli == gammel.Eli
+            && r.VirksomhetId == gammel.VirksomhetId)).Select(r => r.Id).ToListAsync(ct);
+
+        var antall = 0;
+        foreach (var b in bindinger)
+        {
+            string? hvorfor = null;
+            if (b.HjemmelEid is { } heid && b.HjemmelRettskildeId is { } hid && hjemmelIVerket.Contains(hid) && Endret(heid))
+            {
+                hvorfor = heid;
+            }
+            else
+            {
+                var spenn = JsonSerializer.Deserialize<List<ParagrafspennPar>>(b.ParagrafspennJson, JsonSerialiseringHjelper.Innstillinger) ?? [];
+                if (spenn.Count == 0)
+                {
+                    if (helEndret) hvorfor = "hele rettskilden";
+                }
+                else
+                {
+                    foreach (var par in spenn)
+                    {
+                        var fra = gamle.FindIndex(n => n.Eid == par.FraEid);
+                        var til = par.TilEid is null ? fra : gamle.FindIndex(n => n.Eid == par.TilEid);
+                        if (fra < 0 || til < 0) { hvorfor = par.FraEid; break; }
+                        var (lo, hi) = (Math.Min(fra, til), Math.Max(fra, til));
+                        var endret = gamle.Skip(lo).Take(hi - lo + 1).Select(n => n.Eid).FirstOrDefault(Endret);
+                        if (endret is not null) { hvorfor = endret; break; }
+                    }
+                }
+            }
+            if (hvorfor is null) continue;
+            b.HjemmelEndretTidspunkt = DateTimeOffset.UtcNow;
+            var prov = ProveniensHjelper.NyRad("navneform_binding", b.Id, virksomhetId: null, "endret", endretAv);
+            prov.KildeReferanserJson = JsonSerializer.Serialize(new
+            {
+                felt = "hjemmel_endret", issue = 385, endretI = hvorfor,
+                merknad = "Teksten i hjemmelen eller paragrafspennet er endret i en ny versjon — vurder bindingen på nytt. Ingenting annet er endret.",
+            });
+            db.Proveniens.Add(prov);
             antall++;
         }
         return antall;

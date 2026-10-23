@@ -15,7 +15,9 @@ public sealed record NyNavneformBinding(
     string? Kunnskapsstatus = null, string? Begrunnelse = null, IReadOnlyList<string>? Tolkningsargumenter = null,
     string Status = Strukturkanter.ManueltForeslatt, string OppdagelsesKilde = "manuell", string? Kommentar = null,
     // [Ny, issue #378, Johanns beslutning 2026-10-16] Bindingens egen gyldighet. Null = åpen ende.
-    DateOnly? GyldigFra = null, DateOnly? GyldigTil = null);
+    DateOnly? GyldigFra = null, DateOnly? GyldigTil = null,
+    // [Ny, issue #385 AC8] Én eller flere lenker til dokumentasjonen; den første lagres også i KildeUtenforKorpusLenke.
+    IReadOnlyList<string>? KildeUtenforKorpusLenker = null);
 
 /// <summary>Utfallet av å slå opp en generisk omtale i én node.</summary>
 public static class GeneriskOppslagstatus
@@ -55,6 +57,10 @@ public sealed record NavneformBindingVisning(
     public int RegistrertVersjon { get; init; }
     /// <summary>[Ny, issue #384] Den gjeldende versjonen av verket (lik <see cref="RettskildeId"/> når bindingen er registrert mot den).</summary>
     public Guid GjeldendeRettskildeId { get; init; }
+    /// <summary>[Ny, issue #385 AC12] Satt når teksten i hjemmelen eller spennet er endret i en ny versjon — «vurder på nytt».</summary>
+    public DateTimeOffset? HjemmelEndretTidspunkt { get; init; }
+    /// <summary>[Ny, issue #385 AC8] Alle lenkene til dokumentasjonen.</summary>
+    public IReadOnlyList<string>? KildeUtenforKorpusLenker { get; init; }
 }
 
 /// <summary>[Ny, issue #384] En binding som ikke kan flyttes entydig til den gjeldende versjonen av verket, og hvorfor.</summary>
@@ -205,7 +211,9 @@ public sealed class GeneriskNavneformTjeneste(RegelIdeDbContext db)
 
         // Hjemmel ELLER kilde utenfor korpus — streng, som ck_navneform_bindinger_kilde.
         var kildeTekst = string.IsNullOrWhiteSpace(ny.KildeUtenforKorpusTekst) ? null : ny.KildeUtenforKorpusTekst.Trim();
-        var kildeLenke = string.IsNullOrWhiteSpace(ny.KildeUtenforKorpusLenke) ? null : ny.KildeUtenforKorpusLenke.Trim();
+        var lenker = (ny.KildeUtenforKorpusLenker ?? []).Where(l => !string.IsNullOrWhiteSpace(l)).Select(l => l.Trim())
+            .Prepend(ny.KildeUtenforKorpusLenke?.Trim() ?? "").Where(l => l != "").Distinct(StringComparer.Ordinal).ToList();
+        var kildeLenke = lenker.FirstOrDefault();
         Guid? hjemmelNodeId = null;
         if (ny.HjemmelRettskildeId is { } hId)
         {
@@ -223,17 +231,26 @@ public sealed class GeneriskNavneformTjeneste(RegelIdeDbContext db)
         else
         {
             if (ny.HjemmelEid is not null) throw new ArgumentException("Hjemmel-eId uten hjemmel-rettskilde.");
-            if (kildeTekst is null || ny.KildeUtenforKorpusType is null || ny.KildeUtenforKorpusDokumentasjon is null)
+            // [Ny, issue #385 AC8] «Hjemmel mangler»: ingen hjemmel og ingen kilde, lagret som uavklart med det som mangler i begrunnelsen
+            // (ck_navneform_bindinger_kilde). Et synlig hull — bindingen oppløser bare når den er godkjent, som alle andre.
+            var mangler = kildeTekst is null && kildeLenke is null && ny.KildeUtenforKorpusType is null && ny.KildeUtenforKorpusDokumentasjon is null;
+            if (mangler && (ny.Kunnskapsstatus != Strukturkanter.Uavklart || string.IsNullOrWhiteSpace(ny.Begrunnelse)))
+            {
+                throw new ArgumentException(
+                    "Uten hjemmel og uten kilde utenfor korpus lagres bindingen som «hjemmel mangler»: kunnskapsstatus uavklart og en "
+                    + "begrunnelse som sier hva som mangler (docs/profil/03 §5). Ingen gjettet fallback.");
+            }
+            if (!mangler && (kildeTekst is null || ny.KildeUtenforKorpusType is null || ny.KildeUtenforKorpusDokumentasjon is null))
             {
                 throw new ArgumentException(
                     "Uten hjemmel i korpus må bindingen si hvor betydningen kommer fra: kilde utenfor korpus med tekst, type og "
                     + "dokumentasjon (primær/sekundær). Ingen gjettet fallback.");
             }
-            if (!Strukturkanter.KildeUtenforKorpusTyper.Contains(ny.KildeUtenforKorpusType))
+            if (!mangler && !Strukturkanter.KildeUtenforKorpusTyper.Contains(ny.KildeUtenforKorpusType!))
             {
                 throw new ArgumentException($"Ukjent kildetype '{ny.KildeUtenforKorpusType}'. Gyldige: {string.Join(", ", Strukturkanter.KildeUtenforKorpusTyper)}.");
             }
-            if (!Strukturkanter.KildeDokumentasjoner.Contains(ny.KildeUtenforKorpusDokumentasjon))
+            if (!mangler && !Strukturkanter.KildeDokumentasjoner.Contains(ny.KildeUtenforKorpusDokumentasjon!))
             {
                 throw new ArgumentException($"Ukjent dokumentasjon '{ny.KildeUtenforKorpusDokumentasjon}'. Gyldige: primaer, sekundaer.");
             }
@@ -306,6 +323,7 @@ public sealed class GeneriskNavneformTjeneste(RegelIdeDbContext db)
             HjemmelNodeId = hjemmelNodeId,
             KildeUtenforKorpusTekst = ny.HjemmelRettskildeId is null ? kildeTekst : null,
             KildeUtenforKorpusLenke = ny.HjemmelRettskildeId is null ? kildeLenke : null,
+            KildeUtenforKorpusLenker = ny.HjemmelRettskildeId is null && lenker.Count > 0 ? lenker : null,
             KildeUtenforKorpusType = ny.HjemmelRettskildeId is null ? ny.KildeUtenforKorpusType : null,
             KildeUtenforKorpusDokumentasjon = ny.HjemmelRettskildeId is null ? ny.KildeUtenforKorpusDokumentasjon : null,
             Kunnskapsstatus = status,
@@ -331,8 +349,13 @@ public sealed class GeneriskNavneformTjeneste(RegelIdeDbContext db)
     {
         var b = await db.NavneformBindinger.FirstOrDefaultAsync(x => x.Id == id && x.Entitetsstatus == "gjeldende", ct);
         if (b is null) return null;
-        if (!Strukturkanter.Ventende.Contains(b.Status)) throw new ArgumentException($"Bindingen har status '{b.Status}' — bare forslag kan godkjennes.");
+        // [ENDRET, issue #385 AC12] En godkjent binding med «hjemmel endret» godkjennes på nytt etter faglig vurdering: flagget fjernes.
+        if (!Strukturkanter.Ventende.Contains(b.Status) && b.HjemmelEndretTidspunkt is null)
+        {
+            throw new ArgumentException($"Bindingen har status '{b.Status}' — bare forslag (eller en binding med «hjemmel endret») kan godkjennes.");
+        }
         b.Status = Strukturkanter.Godkjent;
+        b.HjemmelEndretTidspunkt = null;
         b.SistEndretAv = godkjentAv;
         b.SistEndretTidspunkt = DateTimeOffset.UtcNow;
         var p = ProveniensHjelper.NyRad(ProveniensType, b.Id, virksomhetId: null, "validert", godkjentAv);
@@ -591,8 +614,10 @@ public sealed class GeneriskNavneformTjeneste(RegelIdeDbContext db)
     {
         if (node.VirksomhetId is { } v)
         {
-            return await db.Virksomheter.Where(x => x.Id == v).Select(x => new KantnodeVisning("virksomhet", x.Id, x.Navn, x.Aktortype))
-                .FirstOrDefaultAsync(ct);
+            // [ENDRET, issue #385 AC2] Visningsnavnet (godkjent gjeldende navneform), ikke registernavnet.
+            var rad = await db.Virksomheter.Where(x => x.Id == v).Select(x => new { x.Id, x.Navn, x.Aktortype }).FirstOrDefaultAsync(ct);
+            return rad is null ? null
+                : new KantnodeVisning("virksomhet", rad.Id, await new VirksomhetVisningsnavnTjeneste(db).ForAsync(rad.Id, ct) ?? rad.Navn, rad.Aktortype);
         }
         if (node.BegrepId is { } b)
         {
@@ -607,10 +632,12 @@ public sealed class GeneriskNavneformTjeneste(RegelIdeDbContext db)
     /// er med. <paramref name="ider"/> avgrenser til bestemte bindinger.</summary>
     public async Task<List<NavneformBindingVisning>> HentBindingerAsync(
         Guid? navneformId = null, Guid? rettskildeId = null, bool visAvviste = false, CancellationToken ct = default,
-        IReadOnlyCollection<Guid>? ider = null)
+        IReadOnlyCollection<Guid>? ider = null, bool bareHjemmelEndret = false)
     {
         var kilde = rettskildeId is { } rid ? IVerket(await VerkAsync(rid, ct)) : db.NavneformBindinger;
         if (ider is not null) kilde = kilde.Where(b => ider.Contains(b.Id));
+        // [Ny, issue #385 AC12] Lista til faglig vurdering: bindingene resynken har flagget.
+        if (bareHjemmelEndret) kilde = kilde.Where(b => b.HjemmelEndretTidspunkt != null);
         var rader = await kilde
             .Where(b => b.Entitetsstatus == "gjeldende" && (visAvviste || b.Status != Strukturkanter.Avvist)
                         && (navneformId == null || b.NavneformId == navneformId))
@@ -634,6 +661,8 @@ public sealed class GeneriskNavneformTjeneste(RegelIdeDbContext db)
                 VerkEli = x.Eli,
                 RegistrertVersjon = x.Versjon,
                 GjeldendeRettskildeId = gjeldende,
+                HjemmelEndretTidspunkt = b.HjemmelEndretTidspunkt,
+                KildeUtenforKorpusLenker = b.KildeUtenforKorpusLenker,
             });
         }
         return ut;

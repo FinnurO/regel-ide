@@ -728,12 +728,30 @@ public sealed record BegrepDto(
     string? Navneformgrunn, string? Omradetype = null, string? Omradekode = null,
     string? Medlemskapsregel = null, string? Kunnskapsstatus = null)
 {
+    // [Ny, issue #385] Navneformen som modellutsagn: godkjenning, kilde utenfor korpus med lenker, begrunnelse, oppdagelseskilde.
+    public string? Godkjenning { get; init; }
+    public string? KildeUtenforKorpusTekst { get; init; }
+    public string? KildeUtenforKorpusType { get; init; }
+    public string? KildeUtenforKorpusDokumentasjon { get; init; }
+    public IReadOnlyList<string>? KildeUtenforKorpusLenker { get; init; }
+    public string? Begrunnelse { get; init; }
+    public IReadOnlyList<string>? Tolkningsargumenter { get; init; }
+    public string? OppdagelsesKilde { get; init; }
+    public string? AvvisningBegrunnelse { get; init; }
+    public string? SistEndretAv { get; init; }
+
     // [ENDRET, issue #312] Omradetype/Omradekode — BegrepDetalj viser sammensetning og tilhørighet for et registrert område.
     // [ENDRET, issue #384] Medlemskapsregel/Kunnskapsstatus — BegrepDetalj viser at medlemskapet i «kommune» er utledet.
     public static BegrepDto FraEntitet(BegrepEntitet b) => new(
         b.Id, b.VirksomhetId, b.Begrepskategori, b.VirksomhetReferanseId, b.LovkildeId, b.Term,
         b.Definisjon, b.LovreferanseEid, b.GjelderFor, b.KodelisteReferanseId, b.SkosUrl, b.Begrepstype,
-        b.Status, b.Versjon, b.Navneformgrunn, b.Omradetype, b.Omradekode, b.Medlemskapsregel, b.Kunnskapsstatus);
+        b.Status, b.Versjon, b.Navneformgrunn, b.Omradetype, b.Omradekode, b.Medlemskapsregel, b.Kunnskapsstatus)
+    {
+        Godkjenning = b.Godkjenning, KildeUtenforKorpusTekst = b.KildeUtenforKorpusTekst, KildeUtenforKorpusType = b.KildeUtenforKorpusType,
+        KildeUtenforKorpusDokumentasjon = b.KildeUtenforKorpusDokumentasjon, KildeUtenforKorpusLenker = b.KildeUtenforKorpusLenker,
+        Begrunnelse = b.Begrunnelse, Tolkningsargumenter = b.Tolkningsargumenter, OppdagelsesKilde = b.OppdagelsesKilde,
+        AvvisningBegrunnelse = b.AvvisningBegrunnelse, SistEndretAv = b.SistEndretAv,
+    };
 }
 
 /// <summary>[Ny, issue #312, AC5] Svaret på GET /api/omrader/kommuner/{kommunenummer}/tilhorighet.</summary>
@@ -1061,7 +1079,61 @@ public sealed record OppdaterNavnekandidatRequest(string? ForeslattTekst, string
 /// <summary>[Ny, navnekandidat-wizard-runden, 2026-09-07] Forespørsel for
 /// POST /api/navnekandidater/{id}/kobl-til-virksomhet. <c>Navneformgrunn</c> er valgfri (null =
 /// uspesifisert) — se <see cref="BegrepEntitet.Navneformgrunn"/>.</summary>
-public sealed record KoblNavnekandidatTilVirksomhetRequest(Guid VirksomhetId, string? Navneformgrunn);
+public sealed record KoblNavnekandidatTilVirksomhetRequest(Guid VirksomhetId, string? Navneformgrunn,
+    // [Ny, issue #385 AC6–AC10] Veiviserens grunnlag og status, og aktørtypen fra steg 2. Valgfrie (uten dem: som før).
+    UtsagnsgrunnlagRequest? Grunnlag = null, string? Aktortype = null, string? Ordningstype = null)
+{
+    public Veivisergrunnlag? Veiviser() => UtsagnsgrunnlagRequest.Veiviser(Grunnlag, Aktortype, Ordningstype);
+}
+
+/// <summary>
+/// [Ny, issue #385 AC8–AC10] Veiviserens to nye steg som ett objekt: «Hva bygger dette på?» (<c>grunnlag</c> = hjemmel | kilde | mangler) og
+/// «Hvor sikkert er det?» (kunnskapsstatus, godkjenning faglig_vurdert | godkjent, begrunnelse). Se <see cref="Utsagnsgrunnlag"/> for reglene.
+/// </summary>
+public sealed record UtsagnsgrunnlagRequest(
+    string Grunnlag, Guid? HjemmelRettskildeId, string? HjemmelEid,
+    string? KildeTekst, string? KildeType, string? KildeDokumentasjon, List<string>? KildeLenker,
+    string? Kunnskapsstatus, string Godkjenning, string? Begrunnelse, List<string>? Tolkningsargumenter)
+{
+    public Utsagnsgrunnlag TilGrunnlag() => new()
+    {
+        Grunnlag = Grunnlag, HjemmelRettskildeId = HjemmelRettskildeId, HjemmelEid = HjemmelEid,
+        KildeTekst = string.IsNullOrWhiteSpace(KildeTekst) ? null : KildeTekst, KildeType = KildeType, KildeDokumentasjon = KildeDokumentasjon,
+        KildeLenker = KildeLenker, Kunnskapsstatus = Kunnskapsstatus, Godkjenning = Godkjenning, Begrunnelse = Begrunnelse,
+        Tolkningsargumenter = Tolkningsargumenter,
+    };
+
+    /// <summary>Null når verken grunnlag eller aktørtype er sendt. En aktørtype krever et grunnlag (CLAUDE.md §8: ingen type uten kilde).</summary>
+    public static Veivisergrunnlag? Veiviser(UtsagnsgrunnlagRequest? g, string? aktortype, string? ordningstype)
+    {
+        if (g is null && aktortype is null) return null;
+        if (g is null) throw new ArgumentException("En aktørtype må ha et grunnlag («Hva bygger dette på?») og en status («Hvor sikkert er det?»).");
+        return new Veivisergrunnlag(g.TilGrunnlag(), aktortype, ordningstype);
+    }
+}
+
+/// <summary>[Ny, issue #385 AC7] «Ikke en aktør» — avvisning med begrunnelse.</summary>
+public sealed record AvvisNavnekandidatRequest(string? Begrunnelse);
+
+/// <summary>[Ny, issue #385] Avvisning av et forslag (navneform eller aktørtype) — valgfri begrunnelse.</summary>
+public sealed record AvvisForslagRequest(string? Begrunnelse);
+
+/// <summary>[Ny, issue #385 AC4] Et forslag til aktørtype fra aktørsiden, med grunnlag og status.</summary>
+public sealed record AktortypeUtsagnRequest(string Aktortype, string? Ordningstype, UtsagnsgrunnlagRequest Grunnlag);
+
+/// <summary>[Ny, issue #385 AC4] Aktørtype som modellutsagn.</summary>
+public sealed record AktortypeUtsagnDto(
+    Guid Id, Guid VirksomhetId, string Aktortype, string? Ordningstype, Guid? HjemmelRettskildeId, string? HjemmelEid,
+    string? KildeUtenforKorpusTekst, string? KildeUtenforKorpusType, string? KildeUtenforKorpusDokumentasjon, IReadOnlyList<string>? KildeUtenforKorpusLenker,
+    string? Kunnskapsstatus, string? Begrunnelse, IReadOnlyList<string>? Tolkningsargumenter, string Status, string OppdagelsesKilde,
+    string? AvvisningBegrunnelse, string OpprettetAv, DateTimeOffset OpprettetTidspunkt, string? SistEndretAv, DateTimeOffset? SistEndretTidspunkt)
+{
+    public static AktortypeUtsagnDto FraEntitet(AktortypeUtsagnEntitet a) => new(
+        a.Id, a.VirksomhetId, a.Aktortype, a.Ordningstype, a.HjemmelRettskildeId, a.HjemmelEid, a.KildeUtenforKorpusTekst,
+        a.KildeUtenforKorpusType, a.KildeUtenforKorpusDokumentasjon, a.KildeUtenforKorpusLenker, a.Kunnskapsstatus, a.Begrunnelse,
+        a.Tolkningsargumenter, a.Status, a.OppdagelsesKilde, a.AvvisningBegrunnelse, a.OpprettetAv, a.OpprettetTidspunkt, a.SistEndretAv,
+        a.SistEndretTidspunkt);
+}
 
 /// <summary>
 /// [Ny, navnekandidat-wizard-runden, 2026-09-07] Svaret fra
@@ -1090,7 +1162,11 @@ public sealed record NavnekandidatKoblingResultatDto(
 /// settes til noe annet av en klient.
 /// </summary>
 public sealed record KoblNavnekandidatTilGruppemedlemskapRequest(
-    Guid VirksomhetId, Guid GruppeBegrepId, string? Navneformgrunn);
+    Guid VirksomhetId, Guid GruppeBegrepId, string? Navneformgrunn,
+    UtsagnsgrunnlagRequest? Grunnlag = null, string? Aktortype = null, string? Ordningstype = null) // [Ny, issue #385]
+{
+    public Veivisergrunnlag? Veiviser() => UtsagnsgrunnlagRequest.Veiviser(Grunnlag, Aktortype, Ordningstype);
+}
 
 /// <summary>
 /// [Ny, gruppemedlemskap-runden, 2026-09-08] Som <see cref="NavnekandidatKoblingResultatDto"/>, pluss
@@ -1129,7 +1205,11 @@ public sealed record NavnekandidatManuellRequest(
 /// Før #341 var dette hjemmelsstedet, og det ble lagret som avgrensning (se Strukturkanter.KreverHjemmelsted).</param>
 public sealed record KoblNavnekandidatTilMyndighetstildelingRequest(
     Guid VirksomhetId, Guid RolleBegrepId, string? HjemmelEid, IReadOnlyList<ParagrafspennParDto>? Paragrafspenn,
-    string? Vilkaar, string? Navneformgrunn);
+    string? Vilkaar, string? Navneformgrunn,
+    UtsagnsgrunnlagRequest? Grunnlag = null, string? Aktortype = null, string? Ordningstype = null) // [Ny, issue #385]
+{
+    public Veivisergrunnlag? Veiviser() => UtsagnsgrunnlagRequest.Veiviser(Grunnlag, Aktortype, Ordningstype);
+}
 
 /// <summary>Som <see cref="NavnekandidatGruppemedlemskapResultatDto"/>, men <c>Tildeling</c> gjelder et
 /// fritt valgt rollebegrep — se <see cref="NavnekandidatMyndighetstildelingResultat"/>.</summary>
@@ -1154,7 +1234,11 @@ public sealed record KoblNavnekandidatTilRelasjonRequest(
     Guid VirksomhetId, string? Navneformgrunn, Guid MotpartVirksomhetId, string RelasjonsType,
     bool HjemletHer, string? Kommentar,
     // [Ny, issue #311 / Johanns beslutning 2026-10-07] Begge påkrevd når HjemletHer er false.
-    string? KildeUtenforKorpusType = null, string? KildeUtenforKorpusDokumentasjon = null);
+    string? KildeUtenforKorpusType = null, string? KildeUtenforKorpusDokumentasjon = null,
+    UtsagnsgrunnlagRequest? Grunnlag = null, string? Aktortype = null, string? Ordningstype = null) // [Ny, issue #385]
+{
+    public Veivisergrunnlag? Veiviser() => UtsagnsgrunnlagRequest.Veiviser(Grunnlag, Aktortype, Ordningstype);
+}
 
 // [FJERNET, issue #311] NavnekandidatRelasjonDto — erstattet av StrukturkantRadDto (R-kanten).
 
@@ -1814,14 +1898,15 @@ public sealed record NavneformBindingRequest(
     Guid? HjemmelRettskildeId, string? HjemmelEid,
     string? KildeUtenforKorpusTekst, string? KildeUtenforKorpusLenke, string? KildeUtenforKorpusType, string? KildeUtenforKorpusDokumentasjon,
     string? Kunnskapsstatus, string? Begrunnelse, List<string>? Tolkningsargumenter, string? Status, string? OppdagelsesKilde, string? Kommentar,
-    DateOnly? GyldigFra = null, DateOnly? GyldigTil = null)
+    DateOnly? GyldigFra = null, DateOnly? GyldigTil = null,
+    List<string>? KildeUtenforKorpusLenker = null) // [Ny, issue #385 AC8]
 {
     public RegelIde.Data.NyNavneformBinding TilNy(Guid navneformId, Guid rettskildeId) => new(
         navneformId, rettskildeId, new RegelIde.Data.Kantnode(TilVirksomhetId, TilBegrepId), Paragrafspenn,
         HjemmelRettskildeId, HjemmelEid, KildeUtenforKorpusTekst, KildeUtenforKorpusLenke, KildeUtenforKorpusType,
         KildeUtenforKorpusDokumentasjon, Kunnskapsstatus, Begrunnelse, Tolkningsargumenter,
         string.IsNullOrWhiteSpace(Status) ? RegelIde.Data.Strukturkanter.ManueltForeslatt : Status,
-        string.IsNullOrWhiteSpace(OppdagelsesKilde) ? "manuell" : OppdagelsesKilde, Kommentar, GyldigFra, GyldigTil);
+        string.IsNullOrWhiteSpace(OppdagelsesKilde) ? "manuell" : OppdagelsesKilde, Kommentar, GyldigFra, GyldigTil, KildeUtenforKorpusLenker);
 }
 
 /// <summary>[Ny, issue #378 A2] «Marker som generisk», valgfritt med binding for kandidatens rettskilde.</summary>

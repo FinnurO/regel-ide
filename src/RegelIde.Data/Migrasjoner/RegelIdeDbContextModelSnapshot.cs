@@ -23,6 +23,127 @@ namespace RegelIde.Data.Migrasjoner
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("RegelIde.Data.AktortypeUtsagnEntitet", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Aktortype")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("aktortype");
+
+                    b.Property<string>("AvvisningBegrunnelse")
+                        .HasColumnType("text")
+                        .HasColumnName("avvisning_begrunnelse");
+
+                    b.Property<string>("Begrunnelse")
+                        .HasColumnType("text")
+                        .HasColumnName("begrunnelse");
+
+                    b.Property<string>("HjemmelEid")
+                        .HasColumnType("text")
+                        .HasColumnName("hjemmel_eid");
+
+                    b.Property<Guid?>("HjemmelRettskildeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("hjemmel_rettskilde_id");
+
+                    b.Property<string>("KildeUtenforKorpusDokumentasjon")
+                        .HasColumnType("text")
+                        .HasColumnName("kilde_utenfor_korpus_dokumentasjon");
+
+                    b.PrimitiveCollection<List<string>>("KildeUtenforKorpusLenker")
+                        .HasColumnType("text[]")
+                        .HasColumnName("kilde_utenfor_korpus_lenker");
+
+                    b.Property<string>("KildeUtenforKorpusTekst")
+                        .HasColumnType("text")
+                        .HasColumnName("kilde_utenfor_korpus_tekst");
+
+                    b.Property<string>("KildeUtenforKorpusType")
+                        .HasColumnType("text")
+                        .HasColumnName("kilde_utenfor_korpus_type");
+
+                    b.Property<string>("Kunnskapsstatus")
+                        .HasColumnType("text")
+                        .HasColumnName("kunnskapsstatus");
+
+                    b.Property<string>("OppdagelsesKilde")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasDefaultValue("manuell")
+                        .HasColumnName("oppdagelses_kilde");
+
+                    b.Property<string>("OpprettetAv")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("opprettet_av");
+
+                    b.Property<DateTimeOffset>("OpprettetTidspunkt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("opprettet_tidspunkt")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("Ordningstype")
+                        .HasColumnType("text")
+                        .HasColumnName("ordningstype");
+
+                    b.Property<string>("SistEndretAv")
+                        .HasColumnType("text")
+                        .HasColumnName("sist_endret_av");
+
+                    b.Property<DateTimeOffset?>("SistEndretTidspunkt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("sist_endret_tidspunkt");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasDefaultValue("manuelt_foreslatt")
+                        .HasColumnName("status");
+
+                    b.PrimitiveCollection<List<string>>("Tolkningsargumenter")
+                        .HasColumnType("text[]")
+                        .HasColumnName("tolkningsargumenter");
+
+                    b.Property<Guid>("VirksomhetId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("virksomhet_id");
+
+                    b.HasKey("Id")
+                        .HasName("aktortype_utsagn_pkey");
+
+                    b.HasIndex("HjemmelRettskildeId")
+                        .HasDatabaseName("ix_aktortype_utsagn_hjemmel");
+
+                    b.HasIndex("VirksomhetId")
+                        .HasDatabaseName("ix_aktortype_utsagn_virksomhet");
+
+                    b.ToTable("aktortype_utsagn", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_aktortype_utsagn_aktortype", "aktortype IN ('rettssubjekt', 'organ', 'organisatorisk_enhet', 'ordning')");
+
+                            t.HasCheckConstraint("ck_aktortype_utsagn_avvisning_begrunnelse", "avvisning_begrunnelse IS NULL OR status = 'avvist'");
+
+                            t.HasCheckConstraint("ck_aktortype_utsagn_avvist_hvem", "status <> 'avvist' OR (sist_endret_av IS NOT NULL AND sist_endret_tidspunkt IS NOT NULL)");
+
+                            t.HasCheckConstraint("ck_aktortype_utsagn_kilde", "(hjemmel_rettskilde_id IS NOT NULL AND hjemmel_eid IS NOT NULL AND kilde_utenfor_korpus_tekst IS NULL AND kilde_utenfor_korpus_type IS NULL AND kilde_utenfor_korpus_dokumentasjon IS NULL) OR (hjemmel_rettskilde_id IS NULL AND hjemmel_eid IS NULL AND kilde_utenfor_korpus_tekst IS NOT NULL AND kilde_utenfor_korpus_type IN ('kgl_res', 'instruks', 'tildelingsbrev', 'vedtekter', 'styrevedtak', 'forarbeider', 'nettside_annet', 'register') AND kilde_utenfor_korpus_dokumentasjon IN ('primaer', 'sekundaer')) OR (hjemmel_rettskilde_id IS NULL AND hjemmel_eid IS NULL AND kilde_utenfor_korpus_tekst IS NULL AND kilde_utenfor_korpus_type IS NULL AND kilde_utenfor_korpus_dokumentasjon IS NULL AND (kunnskapsstatus IS NULL OR (kunnskapsstatus = 'uavklart' AND begrunnelse IS NOT NULL)))");
+
+                            t.HasCheckConstraint("ck_aktortype_utsagn_kunnskapsstatus", "kunnskapsstatus IS NULL OR (kunnskapsstatus IN ('tekstfunn', 'normalisering') AND hjemmel_rettskilde_id IS NOT NULL AND hjemmel_eid IS NOT NULL) OR (kunnskapsstatus = 'eksternt_dokumentert' AND kilde_utenfor_korpus_tekst IS NOT NULL) OR (kunnskapsstatus = 'fortolkning' AND begrunnelse IS NOT NULL AND cardinality(tolkningsargumenter) > 0) OR kunnskapsstatus IN ('uavklart', 'omstridt')");
+
+                            t.HasCheckConstraint("ck_aktortype_utsagn_ordningstype", "ordningstype IS NULL OR (aktortype = 'ordning' AND ordningstype IN ('trygdeordning', 'fond', 'tilskuddsordning'))");
+
+                            t.HasCheckConstraint("ck_aktortype_utsagn_status", "status IN ('maskinelt_foreslatt', 'manuelt_foreslatt', 'faglig_vurdert', 'godkjent', 'avvist')");
+
+                            t.HasCheckConstraint("ck_aktortype_utsagn_tolkningsargumenter", "tolkningsargumenter IS NULL OR tolkningsargumenter <@ ARRAY['ordlyd', 'kontekst_system', 'formal', 'forarbeider', 'praksis', 'reelle_hensyn', 'antitetisk_analogisk']::text[]");
+                        });
+                });
+
             modelBuilder.Entity("RegelIde.Data.BegrepDefinisjonRelasjonEntitet", b =>
                 {
                     b.Property<Guid>("Id")
@@ -139,6 +260,10 @@ namespace RegelIde.Data.Migrasjoner
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("AvvisningBegrunnelse")
+                        .HasColumnType("text")
+                        .HasColumnName("avvisning_begrunnelse");
+
                     b.Property<string>("Begrepskategori")
                         .HasColumnType("text")
                         .HasColumnName("begrepskategori");
@@ -146,6 +271,10 @@ namespace RegelIde.Data.Migrasjoner
                     b.Property<string>("Begrepstype")
                         .HasColumnType("text")
                         .HasColumnName("begrepstype");
+
+                    b.Property<string>("Begrunnelse")
+                        .HasColumnType("text")
+                        .HasColumnName("begrunnelse");
 
                     b.Property<string>("Definisjon")
                         .HasColumnType("text")
@@ -167,6 +296,10 @@ namespace RegelIde.Data.Migrasjoner
                         .HasColumnType("text[]")
                         .HasColumnName("gjelder_for");
 
+                    b.Property<string>("Godkjenning")
+                        .HasColumnType("text")
+                        .HasColumnName("godkjenning");
+
                     b.Property<DateOnly?>("GyldigFra")
                         .HasColumnType("date")
                         .HasColumnName("gyldig_fra");
@@ -174,6 +307,22 @@ namespace RegelIde.Data.Migrasjoner
                     b.Property<DateOnly?>("GyldigTil")
                         .HasColumnType("date")
                         .HasColumnName("gyldig_til");
+
+                    b.Property<string>("KildeUtenforKorpusDokumentasjon")
+                        .HasColumnType("text")
+                        .HasColumnName("kilde_utenfor_korpus_dokumentasjon");
+
+                    b.PrimitiveCollection<List<string>>("KildeUtenforKorpusLenker")
+                        .HasColumnType("text[]")
+                        .HasColumnName("kilde_utenfor_korpus_lenker");
+
+                    b.Property<string>("KildeUtenforKorpusTekst")
+                        .HasColumnType("text")
+                        .HasColumnName("kilde_utenfor_korpus_tekst");
+
+                    b.Property<string>("KildeUtenforKorpusType")
+                        .HasColumnType("text")
+                        .HasColumnName("kilde_utenfor_korpus_type");
 
                     b.Property<Guid?>("KodelisteReferanseId")
                         .HasColumnType("uuid")
@@ -206,6 +355,10 @@ namespace RegelIde.Data.Migrasjoner
                     b.Property<string>("Omradetype")
                         .HasColumnType("text")
                         .HasColumnName("omradetype");
+
+                    b.Property<string>("OppdagelsesKilde")
+                        .HasColumnType("text")
+                        .HasColumnName("oppdagelses_kilde");
 
                     b.Property<string>("OpprettetAv")
                         .IsRequired()
@@ -241,6 +394,10 @@ namespace RegelIde.Data.Migrasjoner
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("term");
+
+                    b.PrimitiveCollection<List<string>>("Tolkningsargumenter")
+                        .HasColumnType("text[]")
+                        .HasColumnName("tolkningsargumenter");
 
                     b.Property<int>("Versjon")
                         .ValueGeneratedOnAdd()
@@ -297,11 +454,17 @@ namespace RegelIde.Data.Migrasjoner
 
                     b.ToTable("begreper", null, t =>
                         {
+                            t.HasCheckConstraint("ck_begreper_avvisning_begrunnelse", "avvisning_begrunnelse IS NULL OR godkjenning = 'avvist'");
+
                             t.HasCheckConstraint("ck_begreper_begrepskategori", "begrepskategori IS NULL OR begrepskategori IN ('virksomhet', 'gruppe', 'klasse', 'rolle', 'omrade')");
 
                             t.HasCheckConstraint("ck_begreper_generisk_uten_referanse", "navneformgrunn IS DISTINCT FROM 'generisk' OR (begrepskategori = 'virksomhet' AND virksomhet_referanse_id IS NULL)");
 
-                            t.HasCheckConstraint("ck_begreper_kunnskapsstatus", "kunnskapsstatus IS NULL OR (kunnskapsstatus IN ('tekstfunn', 'normalisering') AND lovreferanse_eid IS NOT NULL) OR kunnskapsstatus IN ('uavklart', 'omstridt')");
+                            t.HasCheckConstraint("ck_begreper_godkjenning", "godkjenning IS NULL OR godkjenning IN ('maskinelt_foreslatt', 'manuelt_foreslatt', 'faglig_vurdert', 'godkjent', 'avvist')");
+
+                            t.HasCheckConstraint("ck_begreper_kilde", "kilde_utenfor_korpus_type IS NULL OR (lovreferanse_eid IS NULL AND kilde_utenfor_korpus_tekst IS NOT NULL AND kilde_utenfor_korpus_dokumentasjon IN ('primaer', 'sekundaer') AND kilde_utenfor_korpus_type IN ('kgl_res', 'instruks', 'tildelingsbrev', 'vedtekter', 'styrevedtak', 'forarbeider', 'nettside_annet', 'register'))");
+
+                            t.HasCheckConstraint("ck_begreper_kunnskapsstatus", "kunnskapsstatus IS NULL OR (kunnskapsstatus IN ('tekstfunn', 'normalisering') AND lovreferanse_eid IS NOT NULL) OR (kunnskapsstatus = 'eksternt_dokumentert' AND kilde_utenfor_korpus_tekst IS NOT NULL) OR (kunnskapsstatus = 'fortolkning' AND begrunnelse IS NOT NULL AND cardinality(tolkningsargumenter) > 0) OR kunnskapsstatus IN ('uavklart', 'omstridt')");
 
                             t.HasCheckConstraint("ck_begreper_medlemskapsregel", "medlemskapsregel IS NULL OR (begrepskategori = 'klasse' AND medlemskapsregel IN ('omraderegister_kommune'))");
 
@@ -1867,6 +2030,10 @@ namespace RegelIde.Data.Migrasjoner
                         .HasColumnType("text")
                         .HasColumnName("hjemmel_eid");
 
+                    b.Property<DateTimeOffset?>("HjemmelEndretTidspunkt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("hjemmel_endret_tidspunkt");
+
                     b.Property<Guid?>("HjemmelNodeId")
                         .HasColumnType("uuid")
                         .HasColumnName("hjemmel_node_id");
@@ -1882,6 +2049,10 @@ namespace RegelIde.Data.Migrasjoner
                     b.Property<string>("KildeUtenforKorpusLenke")
                         .HasColumnType("text")
                         .HasColumnName("kilde_utenfor_korpus_lenke");
+
+                    b.PrimitiveCollection<List<string>>("KildeUtenforKorpusLenker")
+                        .HasColumnType("text[]")
+                        .HasColumnName("kilde_utenfor_korpus_lenker");
 
                     b.Property<string>("KildeUtenforKorpusTekst")
                         .HasColumnType("text")
@@ -1998,7 +2169,7 @@ namespace RegelIde.Data.Migrasjoner
 
                             t.HasCheckConstraint("ck_navneform_bindinger_gyldighet", "gyldig_fra IS NULL OR gyldig_til IS NULL OR gyldig_fra <= gyldig_til");
 
-                            t.HasCheckConstraint("ck_navneform_bindinger_kilde", "(hjemmel_rettskilde_id IS NOT NULL AND hjemmel_eid IS NOT NULL AND kilde_utenfor_korpus_tekst IS NULL AND kilde_utenfor_korpus_lenke IS NULL AND kilde_utenfor_korpus_type IS NULL AND kilde_utenfor_korpus_dokumentasjon IS NULL) OR (hjemmel_rettskilde_id IS NULL AND hjemmel_eid IS NULL AND kilde_utenfor_korpus_tekst IS NOT NULL AND kilde_utenfor_korpus_type IS NOT NULL AND kilde_utenfor_korpus_dokumentasjon IS NOT NULL)");
+                            t.HasCheckConstraint("ck_navneform_bindinger_kilde", "(hjemmel_rettskilde_id IS NOT NULL AND hjemmel_eid IS NOT NULL AND kilde_utenfor_korpus_tekst IS NULL AND kilde_utenfor_korpus_lenke IS NULL AND kilde_utenfor_korpus_type IS NULL AND kilde_utenfor_korpus_dokumentasjon IS NULL) OR (hjemmel_rettskilde_id IS NULL AND hjemmel_eid IS NULL AND kilde_utenfor_korpus_tekst IS NOT NULL AND kilde_utenfor_korpus_type IS NOT NULL AND kilde_utenfor_korpus_dokumentasjon IS NOT NULL) OR (hjemmel_rettskilde_id IS NULL AND hjemmel_eid IS NULL AND kilde_utenfor_korpus_tekst IS NULL AND kilde_utenfor_korpus_lenke IS NULL AND kilde_utenfor_korpus_type IS NULL AND kilde_utenfor_korpus_dokumentasjon IS NULL AND kunnskapsstatus = 'uavklart' AND begrunnelse IS NOT NULL)");
 
                             t.HasCheckConstraint("ck_navneform_bindinger_kilde_dokumentasjon", "kilde_utenfor_korpus_dokumentasjon IS NULL OR kilde_utenfor_korpus_dokumentasjon IN ('primaer', 'sekundaer')");
 
@@ -2021,6 +2192,10 @@ namespace RegelIde.Data.Migrasjoner
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("AvvisningBegrunnelse")
+                        .HasColumnType("text")
+                        .HasColumnName("avvisning_begrunnelse");
 
                     b.Property<string>("BehandletAv")
                         .HasColumnType("text")
@@ -3154,6 +3329,10 @@ namespace RegelIde.Data.Migrasjoner
                     b.Property<string>("KildeUtenforKorpusLenke")
                         .HasColumnType("text")
                         .HasColumnName("kilde_utenfor_korpus_lenke");
+
+                    b.PrimitiveCollection<List<string>>("KildeUtenforKorpusLenker")
+                        .HasColumnType("text[]")
+                        .HasColumnName("kilde_utenfor_korpus_lenker");
 
                     b.Property<string>("KildeUtenforKorpusTekst")
                         .HasColumnType("text")
@@ -4425,6 +4604,20 @@ namespace RegelIde.Data.Migrasjoner
                         {
                             t.HasCheckConstraint("ck_virksomhet_nettsider_type", "type IN ('Hovedside', 'Ovrig')");
                         });
+                });
+
+            modelBuilder.Entity("RegelIde.Data.AktortypeUtsagnEntitet", b =>
+                {
+                    b.HasOne("RegelIde.Data.RettskildeEntitet", null)
+                        .WithMany()
+                        .HasForeignKey("HjemmelRettskildeId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("RegelIde.Data.Virksomhet", null)
+                        .WithMany()
+                        .HasForeignKey("VirksomhetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("RegelIde.Data.BegrepDefinisjonRelasjonEntitet", b =>

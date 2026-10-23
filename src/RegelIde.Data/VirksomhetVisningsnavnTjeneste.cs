@@ -35,6 +35,11 @@ namespace RegelIde.Data;
 /// dekker «maks én gjeldende per virksomhet». Skulle det oppstå, velges den alfabetisk første, slik at
 /// visningen er DETERMINISTISK mellom kall i stedet for å hoppe med databasens radrekkefølge.
 /// </para>
+/// <para>
+/// [ENDRET, issue #385 «aktøridentitet»] Bare en GODKJENT gjeldende navneform (eller en registrert før #385, godkjenning NULL) er
+/// visningsnavnet. Et forslag (fra lovteksten, aktørsveipet eller lasteren) vises som forslag på aktørsiden til et menneske har godkjent
+/// det; til da står registernavnet — det som faktisk finnes — med merket «Navneform mangler».
+/// </para>
 /// </summary>
 public sealed class VirksomhetVisningsnavnTjeneste(RegelIdeDbContext db)
 {
@@ -53,6 +58,7 @@ public sealed class VirksomhetVisningsnavnTjeneste(RegelIdeDbContext db)
             .Where(b => b.Begrepskategori == "virksomhet"
                         && b.Navneformgrunn == VisningsGrunn
                         && b.Entitetsstatus == "gjeldende"
+                        && (b.Godkjenning == null || b.Godkjenning == Strukturkanter.Godkjent)
                         && b.VirksomhetReferanseId != null)
             .Select(b => new { VirksomhetId = b.VirksomhetReferanseId!.Value, b.Term })
             .ToListAsync(ct);
@@ -70,6 +76,7 @@ public sealed class VirksomhetVisningsnavnTjeneste(RegelIdeDbContext db)
             .Where(b => b.Begrepskategori == "virksomhet"
                         && b.Navneformgrunn == VisningsGrunn
                         && b.Entitetsstatus == "gjeldende"
+                        && (b.Godkjenning == null || b.Godkjenning == Strukturkanter.Godkjent)
                         && b.VirksomhetReferanseId == virksomhetId)
             .Select(b => b.Term)
             .ToListAsync(ct);
