@@ -36,7 +36,7 @@ public sealed class EmbeddedPostgresApiFixture : IAsyncLifetime
         // og startet tidligere embedded Postgres på samme FASTE port — trygt sekvensielt (se
         // AssemblyInfo.cs: DisableTestParallelization), men en fast port delt mellom dem kolliderte
         // uansett pga. SharpCompress/Windows sin porttildeling-timing. Auto-portvalg unngår dette,
-        // og er trygt mot RegelIde.Data.Tests (egen prosess, fast port 55432) siden OS-en uansett
+        // og er trygt mot RegelIde.Data.Tests (egen prosess, fast port 15432, overstyrbar med REGELIDE_TEST_PG_PORT) siden OS-en uansett
         // ikke gir ut en port som allerede er bundet av en annen prosess.
         _server = new PgServer("15.4.0", instanceId: Guid.NewGuid(), clearInstanceDirOnStop: true);
         await Task.Run(() => _server.Start());

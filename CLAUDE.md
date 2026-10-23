@@ -110,7 +110,8 @@ dotnet test src/RegelIde.Data.Tests --nologo --filter "FullyQualifiedName~Strukt
    Endringer i `Program.cs` sin DI-/oppstartsdel er et unntak (§4). Kjør Api-testene lokalt straks.
 3. **Embedded Postgres kolliderer på port** når prosjektene kjører samtidig på samme maskin (issue #10).
    Lokalt: ett prosjekt om gangen, i forgrunnen. Sjekk `tasklist` for gjenglemte postgres-prosesser
-   først.
+   først. Data-testene bruker port 15432 (overstyr med `REGELIDE_TEST_PG_PORT` hvis Windows har reservert
+   den. Se `netsh interface ipv4 show excludedportrange protocol=tcp`).
 4. **Kaldsjekk med API-et først** (`curl`). Nettleseren brukes bare når synlig UI er endret, og da til én
    kort kontroll, ikke en rundtur. Kaldsjekk er fortsatt påkrevd (§9).
 5. **Hengende tester:** CI har `--blame-hang-timeout 10m`. En test som henger lokalt, stoppes og
