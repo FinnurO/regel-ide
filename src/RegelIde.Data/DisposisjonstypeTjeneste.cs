@@ -102,6 +102,8 @@ public sealed class DisposisjonstypeTjeneste(RegelIdeDbContext db)
             .OrderBy(n => n.Sorteringsrekkefolge)
             .Select(n => new { n.Eid, n.Tekst })
             .ToListAsync(ct);
+        // En uklassifisert tittel får innholdsmønstrene bare når kilden er kort (se Disposisjonstyper.MaksNoderForInnholdsmonstre).
+        if (tittelTreff.Count == 0 && noder.Count > Disposisjonstyper.MaksNoderForInnholdsmonstre) return tittelTreff;
         var innhold = Disposisjonstyper.KlassifiserInnhold(noder.Select(n => (n.Eid, n.Tekst!)));
         return [.. tittelTreff, .. innhold.Where(i => tittelTreff.All(t => t.Disposisjonstype != i.Disposisjonstype))];
     }

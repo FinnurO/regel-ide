@@ -2,6 +2,10 @@ namespace RegelIde.Data.Tests;
 
 internal static class Testdata
 {
+    /// <summary>[Ny, issue #395] Kunngjort tekst fra Norsk Lovtidend avd. I (dokid LTI/), se data/kilder/README.md.</summary>
+    public static string LesOmorganisering2004() =>
+        File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Testdata", "Lovtidend", "omorganisering-FOR-2004-10-01-1304.html"));
+
     public static string LesAlkoholloven() =>
         File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Testdata", "alkoholloven-LOV-1989-06-02-27.html"));
 

@@ -406,10 +406,8 @@ public static partial class LovdataHtmlParser
         var presiseringer = HentHjemmelPresiseringer(header);
         var hjemler = new List<RettskildeHjemmel>();
         var sortering = 0;
-        foreach (var a in dd.SelectNodes(".//a") ?? Enumerable.Empty<HtmlNode>())
+        foreach (var href in Lenkemaal(dd, "Hjemmel"))
         {
-            var href = a.Attributes["href"]?.Value
-                ?? throw new FormatException("Hjemmel-lenke mangler href-attributt. Ingen gjettet fallback (§3.3).");
             var tolket = LovdataHrefTolker.TolkLøpetekstHref(href)
                 ?? throw new FormatException(
                     $"Hjemmel-lenke '{href}' matcher ikke kjent lov/forskrift-href-mønster. Ingen gjettet fallback (§3.3).");
@@ -543,6 +541,31 @@ public static partial class LovdataHtmlParser
     /// ("lov/1927-04-05", "forskrift/1997-12-11-1292") — en (ubekreftet) Endrer-lenke MED
     /// paragrafnummer kaster derfor her, i motsetning til Hjemmel-feltet der det motsatte gjelder.
     /// </summary>
+    /// <summary>
+    /// [Ny, issue #395, 2026-10-23] Målene i et hode-felt med lenkeliste (<c>basedOn</c>, <c>changesToDocuments</c>). I gjeldende-uttrekket
+    /// er hvert mål en lenke (<c>&lt;a href="lov/1814-05-17/§12"&gt;</c>). I Lovtidend-uttrekket er de SAMME målene ren tekst i
+    /// lista (<c>&lt;li&gt;lov/1814-05-17/§12&lt;/li&gt;</c>, bekreftet i lti/2004/sf-20041001-1304.xml 2026-10-23), uten lenke. Teksten har
+    /// nøyaktig href-formen og tolkes av samme <see cref="LovdataHrefTolker"/>. Har feltet minst én lenke, brukes bare lenkene, som før.
+    /// </summary>
+    private static IEnumerable<string> Lenkemaal(HtmlNode dd, string felt)
+    {
+        var lenker = dd.SelectNodes(".//a");
+        if (lenker is { Count: > 0 })
+        {
+            foreach (var a in lenker)
+            {
+                yield return a.Attributes["href"]?.Value
+                    ?? throw new FormatException($"{felt}-lenke mangler href-attributt. Ingen gjettet fallback (§3.3).");
+            }
+            yield break;
+        }
+        foreach (var li in dd.SelectNodes(".//li") ?? Enumerable.Empty<HtmlNode>())
+        {
+            var tekst = HtmlEntity.DeEntitize(li.InnerText).Trim();
+            if (tekst.Length > 0) yield return tekst;
+        }
+    }
+
     private static IReadOnlyList<RettskildeEndring> HentEndringer(HtmlNode header)
     {
         var dd = header.SelectSingleNode(".//dd[@class='changesToDocuments']");
@@ -550,10 +573,8 @@ public static partial class LovdataHtmlParser
 
         var endringer = new List<RettskildeEndring>();
         var sortering = 0;
-        foreach (var a in dd.SelectNodes(".//a") ?? Enumerable.Empty<HtmlNode>())
+        foreach (var href in Lenkemaal(dd, "Endrer"))
         {
-            var href = a.Attributes["href"]?.Value
-                ?? throw new FormatException("Endrer-lenke mangler href-attributt. Ingen gjettet fallback (§3.3).");
             var tolket = LovdataHrefTolker.TolkLøpetekstHref(href)
                 ?? throw new FormatException(
                     $"Endrer-lenke '{href}' matcher ikke kjent lov/forskrift-href-mønster. Ingen gjettet fallback (§3.3).");

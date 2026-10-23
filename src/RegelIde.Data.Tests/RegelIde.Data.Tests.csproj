@@ -43,6 +43,10 @@
       <Link>Testdata\%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="..\..\data\kilder\raw-lovtidend\*.html">
+      <Link>Testdata\Lovtidend\%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="..\..\data\kilder\raw-handbok\*.txt">
       <Link>Testdata\Handbok\%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

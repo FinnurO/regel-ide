@@ -397,7 +397,9 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
                     && b.Term.ToLower() == n.Navn.ToLower(), ct);
                 if (finnes) { nFantes++; continue; }
                 var h = n.Endret!;
-                var ordrett = h.Tekst.Contains(n.Navn, StringComparison.Ordinal);
+                // Hele ord: «Landbruksdepartementets» (genitiv) inneholder «Landbruksdepartementet», men er ikke ordrett.
+                var ordrett = System.Text.RegularExpressions.Regex.IsMatch(h.Tekst,
+                    $@"(?<!\p{{L}}){System.Text.RegularExpressions.Regex.Escape(n.Navn)}(?!\p{{L}})");
                 var b = new BegrepEntitet
                 {
                     Id = Guid.NewGuid(),

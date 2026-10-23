@@ -67,7 +67,9 @@ public static partial class Disposisjonstyper
     [GeneratedRegex(@"\bikraft\w*", Opt)] private static partial Regex TIkraft();
 
     // «Delegering av myndighet», «delegasjon», «delegert», «Del. av fullmakt» (Lovdatas forkortelse i eldre titler).
-    [GeneratedRegex(@"\bdelegering\w*|\bdelegasjon\w*|\bdelegert\w*|\bdelegere\w*|\bDel\. av fullmakt", Opt)] private static partial Regex TDelegering();
+    // [ENDRET etter måling 2026-10-23] + «Tildeling av myndighet …», «Bemyndigelse …» og «Fullmakt til …» først i tittelen.
+    [GeneratedRegex(@"\bdelegering\w*|\bdelegasjon\w*|\bdelegert\w*|\bdelegere\w*|\bDel\. av fullmakt|\btildeling av (myndighet|kompetanse)\b|\bbemyndig\w*|^fullmakt\b", Opt)]
+    private static partial Regex TDelegering();
 
     // «Overføring av myndighet til X etter lov …» UTEN «fra»: myndighet legges fra Kongen (implisitt) til et organ — en delegering.
     [GeneratedRegex(@"\boverføring av (myndighet|kompetanse|fullmakt)\b(?!.*\bfra\b)", Opt)] private static partial Regex TOverforingUtenFra();
@@ -76,14 +78,20 @@ public static partial class Disposisjonstyper
     [GeneratedRegex(@"\boverføring av\b.*\bfra\b.*\btil\b|\bforvaltningsansvar\w*|\bressortfordeling\w*|\bfordeling av (ansvar|forvaltningsansvar)\w*|\bansvarsfordeling\w*|\boverføring av (ansvar|lovansvar|oppgaver|ansvarsområde)\w*", Opt)]
     private static partial Regex TOverforing();
 
-    [GeneratedRegex(@"\binstruks\w*", Opt)] private static partial Regex TInstruks();
+    // [ENDRET etter måling 2026-10-23] + sammensatt ord FØRST i tittelen («Våpeninstruks for politiet»), men ikke midt i («… fastsettelse av
+    // styreinstruks» i et delegeringsvedtak er ikke en instruks).
+    // [ENDRET igjen etter måling 2026-10-23] Bare FØRST i tittelen: midt i tittelen er instruksen objektet for et annet vedtak
+    // («Delegering av myndighet til å endre instruksen for …», «… og om opphevelse av instruks for Statens helsetilsyn»,
+    // «instruksjonsmyndighet»). «Vedtak om endring i instruks for Regjeringsadvokaten» er et instruksvedtak og er med.
+    [GeneratedRegex(@"^(vedtak om |forskrift om )?(endring(er)? i |utfyllande |utfyllende )?\p{L}*instruks(en)?\b", Opt)] private static partial Regex TInstruks();
 
     // Oppretting av et ORGAN: objektet er et egennavn (stor forbokstav), eventuelt etter «et/en/ei» og «ny/nytt». «Opprettelse av et permanent
     // restriksjonsområde» og «et harmonisert europeisk rapporteringssystem» er ikke organisering og treffer ikke. «opprettholdelse» treffer ikke.
-    [GeneratedRegex(@"\b(opprettelse|oppretting|opprettinga|etablering|etableringen) av (et |en |ei )?(ny |nytt |nye )?\p{Lu}", RegexOptions.CultureInvariant)]
+    // Nøkkelordet uten skille på store og små bokstaver («Opprettelse av …» først i tittelen), forbokstaven i objektet MED.
+    [GeneratedRegex(@"\b(?i:opprettelse|oppretting|opprettinga|etablering|etableringen) av (?i:et |en |ei )?(?i:ny |nytt |nye )?\p{Lu}", RegexOptions.CultureInvariant)]
     private static partial Regex TOpprettingStorForbokstav();
 
-    [GeneratedRegex(@"\b(nedleggelse|nedlegging|nedlegginga|avvikling|avviklingen) av (et |en |ei )?\p{Lu}|\blegges ned\b|\bnedlegges\b", RegexOptions.CultureInvariant)]
+    [GeneratedRegex(@"\b(?i:nedleggelse|nedlegging|nedlegginga|avvikling|avviklingen) av (?i:et |en |ei )?\p{Lu}|(?i:\blegges ned\b|\bnedlegges\b)", RegexOptions.CultureInvariant)]
     private static partial Regex TNedleggelse();
 
     [GeneratedRegex(@"\bnavneendring\w*|\bendring av navn\b|\bnytt navn\b|\bnamneendring\w*|\bnytt namn\b|\bnavn(et)? endres\b|\bendrer navn\b|\bskifter navn\b", Opt)]
@@ -136,7 +144,9 @@ public static partial class Disposisjonstyper
     [GeneratedRegex(@"^\s*(opprettelse|oppretting|etablering) av\b|\bDet opprettes\b|\bopprettes (et|en|ei) \p{Lu}|\bopprettes som\b", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase)]
     private static partial Regex MOppretting();
     [GeneratedRegex(@"^\s*(nedleggelse|nedlegging|avvikling) av\b|\blegges ned\b|\bnedlegges\b", Opt)] private static partial Regex MNedleggelse();
-    [GeneratedRegex(@"\bnavn(et)? endres til\b|\bendrer navn til\b|\bskifter navn til\b|\bfår (nytt )?navnet\b|\bnamn(et)? vert endra til\b|\bendrar namn til\b", Opt)]
+    // [ENDRET etter måling 2026-10-23] + omvendt ordstilling etter et adverbial: «Med virkning fra 1. januar 2024 endrer Olje- og
+    // energidepartementet navn til Energidepartementet» (FOR-2023-10-16-1668).
+    [GeneratedRegex(@"\bnavn(et)? endres( fra [^.]{1,40}?)? til\b|\b(endrer|skifter)\b[^.]{0,120}?\bnavn til\b|\bfår (nytt )?navnet\b|\bnamn(et)? vert endra til\b|\bendrar namn til\b", Opt)]
     private static partial Regex MNavneendring();
     [GeneratedRegex(@"\bforvaltningsansvaret for\b|^\s*overføring av (ansvaret|forvaltningsansvaret|myndighet|ansvar)\b|\boverføres fra\b|\bblir overført fra\b", Opt)]
     private static partial Regex MOverforing();
@@ -145,8 +155,13 @@ public static partial class Disposisjonstyper
 
     /// <summary>Om innholdsmønstrene skal kjøres for en kilde med disse tittelreglene: bare når tittelen ikke avgjorde, eller bare ga
     /// paraplytypen <c>omorganisering</c>. Se klassekommentaren.</summary>
+    /// <para>[ENDRET etter måling 2026-10-23] For en uklassifisert tittel bare når kilden er kort (høyst <see cref="MaksNoderForInnholdsmonstre"/>
+    /// noder): et organiseringsvedtak er noen få punkter. Uten grensen ga Grunnloven («nedlegges eden»), Bestemmelser om økonomistyring i
+    /// staten og Kirkeordningen treff på nedleggelse og delegering.</para>
     public static bool SkalKjoreInnholdsmonstre(IReadOnlyList<Disposisjonstreff> tittelTreff) =>
         tittelTreff.Count == 0 || tittelTreff.All(t => t.Disposisjonstype == Omorganisering);
+
+    public const int MaksNoderForInnholdsmonstre = 30;
 
     /// <summary>Innholdsmønstrene over nodenes tekst. Første treff per type vinner (eId og ledd står i raden).</summary>
     public static IReadOnlyList<Disposisjonstreff> KlassifiserInnhold(IEnumerable<(string Eid, string Tekst)> noder)

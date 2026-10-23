@@ -55,6 +55,9 @@ public static partial class DepartementLivslopMonstre
     private static partial Regex NavnEndresRegex();
     [GeneratedRegex(@"(?<fra>" + Dept + @")\s+(?:endrer|skifter)\s+navn\s+(?:fra\s+\d{1,2}\.\s+\p{Ll}+\s+\d{4}\s+)?til\s+(?<til>" + Dept + ")", RegexOptions.CultureInvariant)]
     private static partial Regex EndrerNavnRegex();
+    // Omvendt ordstilling etter et adverbial: «Med virkning fra 1. januar 2024 endrer Olje- og energidepartementet navn til Energidepartementet».
+    [GeneratedRegex(@"\b(?:endrer|skifter)\s+(?<fra>" + Dept + @")\s+navn\s+til\s+(?<til>" + Dept + ")", RegexOptions.CultureInvariant)]
+    private static partial Regex EndrerXNavnRegex();
 
     [GeneratedRegex(@"[Ff]orvaltningsansvaret for (?<obj>.+?) (?:overføres|overførast) fra (?<fra>" + Dept + @") til (?<til>" + Dept + ")", RegexOptions.CultureInvariant)]
     private static partial Regex OverforesRegex();
@@ -135,7 +138,8 @@ public static partial class DepartementLivslopMonstre
             else ulest = "nedleggelse: lista inneholder annet enn departementsnavn";
         }
         var utsatt = UtsattRegex().IsMatch(tekst);
-        foreach (var (r, regel) in new[] { (NavnEndresRegex(), "monster:livslop-navn-endres-til"), (EndrerNavnRegex(), "monster:livslop-endrer-navn-til") })
+        foreach (var (r, regel) in new[] { (NavnEndresRegex(), "monster:livslop-navn-endres-til"), (EndrerNavnRegex(), "monster:livslop-endrer-navn-til"),
+                     (EndrerXNavnRegex(), "monster:livslop-endrer-x-navn-til") })
         {
             foreach (Match m in r.Matches(tekst))
             {
@@ -149,7 +153,7 @@ public static partial class DepartementLivslopMonstre
             h.Add(new(Overforing, [], (Normaliser(m.Groups["fra"].Value), m.Groups["fra"].Value),
                 (Normaliser(m.Groups["til"].Value), m.Groups["til"].Value), m.Groups["obj"].Value.Trim(), Regel: "monster:livslop-forvaltningsansvaret-overfores"));
         }
-        if (h.Count == 0 && ulest is null && Regex.IsMatch(tekst, @"\bnavn\b.*\b(endres|endrer|skifter)\b") && tekst.Contains("departement"))
+        if (h.Count == 0 && ulest is null && Regex.IsMatch(tekst, @"\bnavn\b.*\b(endres|endrer|skifter)\b|\b(endrer|skifter)\b.*\bnavn\b") && tekst.Contains("departement"))
         {
             ulest = "navnebytte: ordlyden har navn og departement, men ikke et lesbart «X endrer navn til Y»";
         }
