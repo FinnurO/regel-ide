@@ -28,6 +28,7 @@ import {
 } from '../kandidater/utsagnsgrunnlag';
 import { KILDETYPE_VISNING } from '../strukturkant/KildeUtenforKorpus';
 import { KUNNSKAPSSTATUS_VISNING } from '../strukturkant/Utsagnsstatus';
+import { eidKort } from '../virksomhet/Aktoridentitet';
 
 /**
  * [Ny, navnekandidat-wizard-runden, 2026-09-07] Behandling av ÉN navnekandidat, ende til ende.
@@ -752,8 +753,7 @@ export default function NavnekandidatVeiviser() {
   /** [Ny, issue #385] Steg «Hva bygger dette på?» i klartekst — til bekreftelsen og «dette skjedde». */
   function grunnlagTekst(g: GrunnlagUtkast): string {
     if (g.grunnlag === 'hjemmel') {
-      const n = noder?.find((x) => x.eid === g.hjemmelEid);
-      return `hjemmel i ${rettskilde?.tittel ?? 'rettskilden'}${n?.nummer ? `, ${n.nummer}` : ''}${g.hjemmelEid === kandidat?.nodeEid ? ' (der navnet står)' : ''}`;
+      return `hjemmel i ${rettskilde?.tittel ?? 'rettskilden'}, ${eidKort(g.hjemmelEid)}${g.hjemmelEid === kandidat?.nodeEid ? ' (der navnet står)' : ''}`;
     }
     if (g.grunnlag === 'kilde') {
       const lenker = rensedeLenker(g);
@@ -1811,10 +1811,14 @@ export default function NavnekandidatVeiviser() {
                       </Table.Cell>
                     </Table.Row>
                   )}
-                  <Table.Row>
-                    <Table.HeaderCell scope="row">Begrunnelse</Table.HeaderCell>
-                    <Table.Cell>{navneformgrunn ?? 'Uspesifisert'}</Table.Cell>
-                  </Table.Row>
+                  {/* [ENDRET, issue #385] «Navneformgrunn», ikke «Begrunnelse» — begrunnelsen står nå i «Hvor sikkert er det?». Ikke for
+                    * generisk omtale, som ikke har en navneformgrunn for én aktør. */}
+                  {slag !== 'generisk' && (
+                    <Table.Row>
+                      <Table.HeaderCell scope="row">Navneformgrunn</Table.HeaderCell>
+                      <Table.Cell>{navneformgrunn ?? 'Uspesifisert'}</Table.Cell>
+                    </Table.Row>
+                  )}
                   <Table.Row>
                     <Table.HeaderCell scope="row">Navnekandidat</Table.HeaderCell>
                     <Table.Cell>Settes til «Godkjent»</Table.Cell>
@@ -1827,8 +1831,7 @@ export default function NavnekandidatVeiviser() {
                       * stemmer med det den faktisk gjør. Oppsummeringen ETTER fullføring var alt
                       * rettet; denne forhåndsvisningen sto igjen med den gamle påstanden. */}
                     <Table.Cell>
-                      Kobles til navneformen over, i laget «Virksomhet» — virksomheten nås gjennom
-                      den. En eventuell ubundet tagg på samme sted gjenbrukes i stedet for at en ny
+                      Kobles til navneformen over, i laget «Virksomhet» — {slag === 'generisk' ? 'betydningen i denne rettskilden følger bindingen' : 'aktøren nås gjennom den'}. En eventuell ubundet tagg på samme sted gjenbrukes i stedet for at en ny
                       opprettes.
                     </Table.Cell>
                   </Table.Row>

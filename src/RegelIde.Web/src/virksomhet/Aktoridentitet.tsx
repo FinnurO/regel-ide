@@ -26,7 +26,7 @@ type Grunnlagsbaerer = Pick<VirksomhetsbegrepDto, 'lovkildeId' | 'lovreferanseEi
 export function UtsagnKilde({ b, rettskilder }: { b: Grunnlagsbaerer; rettskilder: RettskildeSammendrag[] }) {
   if (b.lovkildeId && b.lovreferanseEid) {
     const tittel = rettskilder.find((r) => r.id === b.lovkildeId)?.kortnavn ?? rettskilder.find((r) => r.id === b.lovkildeId)?.tittel ?? 'Rettskilden';
-    const paragraf = b.lovreferanseEid.split('/nor/')[1]?.replaceAll('/', ' ') ?? b.lovreferanseEid;
+    const paragraf = eidKort(b.lovreferanseEid);
     return (
       <Link asChild>
         <RouterLink to={rettskildeLenkeForId(b.lovkildeId, b.lovreferanseEid)}>{tittel} {paragraf}</RouterLink>
@@ -55,6 +55,13 @@ export function UtsagnKilde({ b, rettskilder }: { b: Grunnlagsbaerer; rettskilde
   }
   if (b.kunnskapsstatus === 'uavklart') return <Tag data-size="sm" data-color="warning">Hjemmel mangler</Tag>;
   return <Metatekst as="span" style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>Ikke registrert</Metatekst>;
+}
+
+/** «…/nor/§2/ledd-1/punkt-1» → «§ 2 ledd 1 punkt 1». Rå eId når formen er ukjent (ingen gjettet etikett). */
+export function eidKort(eid: string): string {
+  const hale = eid.split('/nor/')[1];
+  if (!hale) return eid;
+  return hale.split('/').map((d) => d.replace(/^§/, '§ ').replace(/^(ledd|punkt|kap)-/, '$1 ').replace(/^avslutning/, 'tekst etter punktene')).join(' ');
 }
 
 export function erForslag(godkjenning: string | null | undefined): boolean {
