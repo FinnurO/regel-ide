@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link as RouterLink } from 'react-router';
 import {
-  Alert, Button, Card, Checkbox, Heading, Link, Paragraph, Spinner, Table, Tabs, Tag, Textfield,
+  Alert, Button, Card, Checkbox, Field, Heading, Label, Link, Paragraph, Select, Spinner, Table, Tabs, Tag, Textfield,
 } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { LovdataImportstatusDto, RettskildeHjemmelRelasjonDto, RettskildeSammendrag } from '../api/types';
@@ -12,6 +12,7 @@ import { usePaginering } from '../tabell/usePaginering';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 import { byggDepartementOppslag, departementVirksomhetId } from '../virksomhet/departementLenke';
 import { Metatekst } from '../entitet/Metatekst';
+import { DISPOSISJONSTYPER, DisposisjonstypeTagger, KildeformTag } from '../rettskilde/Disposisjonstype';
 
 // 'departement' lagt til (issue #193) — se AnsvarligDepartement. Sorteringsnøkkelen for en rad med
 // FLERE departementer (fler-verdi-departement, 2026-09-04) er den alfabetisk LAVESTE av dem, se
@@ -82,6 +83,9 @@ export default function RettskilderListe() {
   const [kunMine, setKunMine] = useState(false);
   const [fane, setFane] = useState<Fane>('aktive');
   const [filterTekst, setFilterTekst] = useState('');
+  // [Ny, issue #395] Kildeform og disposisjonstype som filter. '' = alle; 'ukjent'/'uklassifisert' = feltet mangler (ingen gjetting).
+  const [kildeformFilter, setKildeformFilter] = useState('');
+  const [disposisjonFilter, setDisposisjonFilter] = useState('');
   const [sortKolonne, setSortKolonne] = useState<Sorteringskolonne>('tittel');
   const [sortStigende, setSortStigende] = useState(true);
   const { gjeldendeBruker } = useBruker();
@@ -198,15 +202,23 @@ export default function RettskilderListe() {
     // Grunn-kolonnen i den fanen).
     const grunnlag =
       fane === 'aktive' ? rettskilder.filter(erAktivRettskilde) : rettskilder.filter((r) => !erAktivRettskilde(r));
+    const etterKlassifisering = grunnlag.filter(
+      (r) =>
+        (kildeformFilter === '' || (kildeformFilter === 'ukjent' ? !r.kildeform : r.kildeform === kildeformFilter)) &&
+        (disposisjonFilter === '' ||
+          (disposisjonFilter === 'uklassifisert'
+            ? (r.disposisjonstyper?.length ?? 0) === 0
+            : (r.disposisjonstyper ?? []).includes(disposisjonFilter))),
+    );
     const filtrert = tekst
-      ? grunnlag.filter(
+      ? etterKlassifisering.filter(
           (r) =>
             r.tittel.toLowerCase().includes(tekst) ||
             (r.kortnavn?.toLowerCase().includes(tekst) ?? false) ||
             r.kildetype.toLowerCase().includes(tekst) ||
             visEier(r.virksomhetId).toLowerCase().includes(tekst),
         )
-      : grunnlag;
+      : etterKlassifisering;
 
     const sortnokkel = (r: RettskildeSammendrag) =>
       sortKolonne === 'tittel'
@@ -221,7 +233,7 @@ export default function RettskilderListe() {
       const cmp = sortnokkel(a).localeCompare(sortnokkel(b), 'nb');
       return sortStigende ? cmp : -cmp;
     });
-  }, [rettskilder, filterTekst, sortKolonne, sortStigende, visEier, fane]);
+  }, [rettskilder, filterTekst, sortKolonne, sortStigende, visEier, fane, kildeformFilter, disposisjonFilter]);
 
   // [Ny, issue #193] Grunnlaget for departement→lov→forskrift-hierarkiet — SAMME «aktiv»-avgrensning
   // som 'aktive'-fanens flate liste (erAktivRettskilde over), slik at hierarkiet og listevisningen alltid
@@ -309,6 +321,29 @@ export default function RettskilderListe() {
           onChange={(e) => setFilterTekst(e.target.value)}
           style={{ maxWidth: '20rem' }}
         />
+        {fane !== 'hierarki' && (
+          <>
+            <Field style={{ minWidth: '11rem' }}>
+              <Label>Kildeform</Label>
+              <Select data-size="sm" value={kildeformFilter} onChange={(e) => setKildeformFilter(e.target.value)}>
+                <Select.Option value="">Alle</Select.Option>
+                <Select.Option value="konsolidert">Konsolidert</Select.Option>
+                <Select.Option value="kunngjort">Kunngjort (Lovtidend)</Select.Option>
+                <Select.Option value="ukjent">Ukjent</Select.Option>
+              </Select>
+            </Field>
+            <Field style={{ minWidth: '14rem' }}>
+              <Label>Disposisjonstype</Label>
+              <Select data-size="sm" value={disposisjonFilter} onChange={(e) => setDisposisjonFilter(e.target.value)}>
+                <Select.Option value="">Alle</Select.Option>
+                {DISPOSISJONSTYPER.map((t) => (
+                  <Select.Option key={t.kode} value={t.kode}>{t.navn}</Select.Option>
+                ))}
+                <Select.Option value="uklassifisert">Uklassifisert</Select.Option>
+              </Select>
+            </Field>
+          </>
+        )}
       </div>
 
       {feil && <Alert data-color="danger" style={{ marginBottom: '1rem' }}>{feil}</Alert>}
@@ -359,6 +394,7 @@ export default function RettskilderListe() {
                   Eier{sorteringsindikator('eier')}
                 </button>
               </Table.HeaderCell>
+              <Table.HeaderCell>Disposisjon</Table.HeaderCell>
             </Table.Row>
           </Table.Head>
           <Table.Body>
@@ -400,6 +436,12 @@ export default function RettskilderListe() {
                     })}
                 </Table.Cell>
                 <Table.Cell>{visEier(r.virksomhetId)}</Table.Cell>
+                <Table.Cell>
+                  <span style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
+                    <KildeformTag kildeform={r.kildeform} />
+                    <DisposisjonstypeTagger typer={r.disposisjonstyper} />
+                  </span>
+                </Table.Cell>
               </Table.Row>
             ))}
           </Table.Body>

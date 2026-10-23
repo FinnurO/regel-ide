@@ -67,8 +67,15 @@ public static partial class DepartementLivslopMonstre
     [GeneratedRegex(@"\biverksettes fra det tidspunkt\b", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase)]
     private static partial Regex UtsattRegex();
 
-    [GeneratedRegex(@"Oversikt over lover (?<d>" + Dept + @") skal ha (?:forvaltningsansvaret|ansvaret|ansvar) for", RegexOptions.CultureInvariant)]
+    // [ENDRET etter måling 2026-10-23] Overskriftene i korpusets omorganiseringsvedtak 1990–2024 har flere former (alle målt):
+    // «Oversikt over lover (som) X skal ha (overført) forvaltningsansvaret for», «Oversikter over lover …», «Oversikt over lover som X har
+    // forvaltningsansvar for etter endringene», «Lover X skal ha forvaltningsansvaret for», og overføringsformen «Overføring av
+    // forvaltningsansvaret for lover til X», «Lover som overføres fra A til X», «Forvaltningsansvaret for følgende lover overføres fra A til X».
+    // Overskrifter uten departement («Overføring av forvaltningen av lover, myndighet, fullmakter …», «Lover») gir ingen tildeling.
+    [GeneratedRegex(@"(?:Oversikter? over lover (?:som )?|^\s*(?:Vedlegg[^.]*\.\s*)?Lover (?:som )?)(?<d>" + Dept + @") (?:skal ha|har)\s+(?:overført\s+)?(?:forvaltningsansvaret|forvaltningsansvar|ansvaret|ansvar)\b", RegexOptions.CultureInvariant)]
     private static partial Regex VedleggRegex();
+    [GeneratedRegex(@"(?:[Ff]orvaltningsansvaret for (?:følgende )?lover|^\s*Lover som overføres|[Ll]over[^.]*?som overføres)\b[^.]*?\btil (?:det nye )?(?<d>" + Dept + ")", RegexOptions.CultureInvariant)]
+    private static partial Regex VedleggOverforingRegex();
 
     // «Lov 17. juli 1925 nr. 11 om Svalbard», «lov av 3. juni 1994 nr. 15», «Midlertidig lov 29. juni 1951 nr. 34», «Lov 3. mai 1957 om …» (uten nr).
     [GeneratedRegex(@"\b[Ll]ov(?:\s+av)?\s+(?<d>\d{1,2})\.\s*(?<m>januar|februar|mars|april|mai|juni|juli|august|september|oktober|november|desember)\s+(?<y>\d{4})(?:\.?\s*nr\.?\s*(?<n>\d+))?", RegexOptions.CultureInvariant)]
@@ -168,10 +175,14 @@ public static partial class DepartementLivslopMonstre
             : null;
 
     /// <summary>Departementet i en vedleggsoverskrift, og om overskriften bruker funksjonsordet «forvaltningsansvaret».</summary>
-    public static (string Navn, string Raa, bool Funksjonsord)? LesVedleggsoverskrift(string overskrift) =>
-        VedleggRegex().Match(overskrift) is { Success: true } m
-            ? (Normaliser(m.Groups["d"].Value), m.Groups["d"].Value, overskrift.Contains("forvaltningsansvaret", StringComparison.Ordinal))
+    public static (string Navn, string Raa, bool Funksjonsord)? LesVedleggsoverskrift(string overskrift)
+    {
+        var m = VedleggRegex().Match(overskrift);
+        if (!m.Success) m = VedleggOverforingRegex().Match(overskrift);
+        return m.Success
+            ? (Normaliser(m.Groups["d"].Value), m.Groups["d"].Value, overskrift.Contains("forvaltningsansvar", StringComparison.OrdinalIgnoreCase))
             : null;
+    }
 
     /// <summary>Datokoden til den FØRSTE loven teksten nevner med dato (og nummer når det står), f.eks. «LOV-1925-07-17-11». Null når
     /// teksten ikke nevner en lov med dato — da settes ingen ELI.</summary>

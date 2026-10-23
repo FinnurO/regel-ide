@@ -40,7 +40,7 @@ public sealed record LivslopSkriving(int OpprettetNye, int OpprettetFantes, int 
 public sealed record LivslopRapport(
     bool Skrevet, int Vedtak, IReadOnlyList<LivslopIdentitet> Identiteter, IReadOnlyList<LivslopRessort> Ressortfordeling,
     IReadOnlyList<RessortAvvik> Avvik, IReadOnlyDictionary<string, int> AvvikPerUtfall, IReadOnlyList<EtterfolgerKandidat> EtterfolgerKandidater,
-    IReadOnlyList<LivslopUlest> Ulest, IReadOnlyList<string> Utsatt, LivslopSkriving Skriving);
+    IReadOnlyList<LivslopUlest> Ulest, IReadOnlyList<string> Utsatt, IReadOnlyList<string> Merknader, LivslopSkriving Skriving);
 
 /// <summary>
 /// [Ny, issue #395 del 3, 2026-10-23] Departementenes livsløp (pilot), satt sammen av organiseringsvedtakene i korpuset — konsoliderte og
@@ -164,16 +164,18 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
 
         // ---- Identitetene i tidsrekkefølge ----
         var identiteter = new List<Identitet>();
+        var lopenr = 0; // løpenummer i rapporten; ikke Count + 1, fordi sammenslåtte identiteter fjernes
         var levende = new Dictionary<string, Identitet>(StringComparer.Ordinal);
         var tildelinger = new List<Tildeling>();
         var etterfolgere = new List<EtterfolgerKandidat>();
+        var merknader = new List<string>();
         var opprettetKanter = new List<(Identitet Id, DateOnly Dato, LivslopHjemmel H, bool Normalisert)>();
 
         Identitet Hent(string navn, LivslopHjemmel h)
         {
             if (levende.TryGetValue(navn, out var i)) return i;
             // Navnet var i bruk før det eldste vedtaket vi har: en identitet uten kjent start.
-            i = new Identitet { Nr = identiteter.Count + 1 };
+            i = new Identitet { Nr = ++lopenr };
             i.Navn.Add((navn, null, null, null, null, null));
             identiteter.Add(i);
             levende[navn] = i;
@@ -208,6 +210,22 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
                     continue; // allerede gjennomført av et tidligere vedtak med samme navnebytte
                 }
                 var i = Hent(fra, h);
+                // Et KONSOLIDERT vedtak fra før navnebyttet kan bruke det nye navnet: Lovdata oppdaterer departementsnavn i konsoliderte
+                // tekster (FOR-2017-03-31-417 sier «til Energidepartementet» om et vedtak fra 2017; navnet kom 2024). Finnes det nye navnet
+                // alt som en identitet uten kjent start, opprettelse eller nedleggelse, er det samme departement — det slås sammen, og det
+                // står i merknadene. Et navn som er GJENBRUKT (Arbeids- og sosialdepartementet 2004 og 2014) har opprettelse/nedleggelse og
+                // slås aldri sammen her.
+                if (levende.TryGetValue(til, out var forut) && forut != i && forut.Opprettet is null && forut.Nedlagt is null && forut.Navn.Count == 1)
+                {
+                    for (var x = 0; x < tildelinger.Count; x++)
+                    {
+                        if (tildelinger[x].Id == forut) tildelinger[x] = tildelinger[x] with { Id = i };
+                    }
+                    identiteter.Remove(forut);
+                    levende.Remove(til);
+                    merknader.Add($"«{til}» er brukt i vedtak fra før navnebyttet «{fraRaa}» → «{tilRaa}» ({v.Tittel}, {v.Dato:yyyy-MM-dd}). " +
+                        "Lest som samme departement: konsoliderte tekster bruker gjeldende navn.");
+                }
                 i.Navn[^1] = i.Navn[^1] with { Til = v.Dato.AddDays(-1), Endret = h };
                 i.Navn.Add((til, v.Dato, null, h, null, tilRaa));
                 levende.Remove(fra);
@@ -222,7 +240,7 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
                         ulest.Add(new(h, $"«{navn}» opprettes, men et departement med samme navn finnes fra før uten å være nedlagt"));
                         continue;
                     }
-                    var i = new Identitet { Nr = identiteter.Count + 1, Opprettet = v.Dato, OpprettetVed = h };
+                    var i = new Identitet { Nr = ++lopenr, Opprettet = v.Dato, OpprettetVed = h };
                     i.Navn.Add((navn, v.Dato, null, h, null, raa));
                     identiteter.Add(i);
                     levende[navn] = i;
@@ -321,12 +339,15 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
             tildelinger.Count(t => t.Id == i))).ToList();
 
         return new LivslopRapport(skriv, vedtak.Count, identitetRader, ressortRader, avvik,
-            avvik.GroupBy(a => a.Utfall).ToDictionary(g => g.Key, g => g.Count()), etterfolgere, ulest, utsatt, skriving);
+            avvik.GroupBy(a => a.Utfall).ToDictionary(g => g.Key, g => g.Count()), etterfolgere, ulest, utsatt, merknader, skriving);
     }
 
     /// <summary>Hele loven, ikke enkeltparagrafer eller kapitler («Lov 17. juli 1925 nr. 11 om Svalbard, § 4» er en del).</summary>
+    // [ENDRET etter måling 2026-10-23] + «bestemmelser»/«følgende»: «følgende bestemmelser i lov 22. mars 2019 nr. 7 …» er en del.
     private static bool ErHeleLoven(string objekt) =>
-        !objekt.Contains('§') && !objekt.Contains("kapittel", StringComparison.OrdinalIgnoreCase) && !objekt.Contains("kap.", StringComparison.OrdinalIgnoreCase);
+        !objekt.Contains('§') && !objekt.Contains("kapittel", StringComparison.OrdinalIgnoreCase) && !objekt.Contains("kap.", StringComparison.OrdinalIgnoreCase)
+        && !objekt.Contains("bestemmelse", StringComparison.OrdinalIgnoreCase) && !objekt.Contains("følgende", StringComparison.OrdinalIgnoreCase)
+        && !objekt.Contains("deler av", StringComparison.OrdinalIgnoreCase);
 
     /// <summary>Nøyaktig én aktør med dette registernavnet (uten skille på store og små bokstaver), ellers nøyaktig én aktør med det som
     /// GJELDENDE navneform. Utgåtte navneformer telles ikke: de er nettopp de navnene som kan ha vært brukt om et annet departement.</summary>

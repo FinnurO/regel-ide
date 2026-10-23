@@ -97,7 +97,9 @@ public static partial class Disposisjonstyper
     [GeneratedRegex(@"\bnavneendring\w*|\bendring av navn\b|\bnytt navn\b|\bnamneendring\w*|\bnytt namn\b|\bnavn(et)? endres\b|\bendrer navn\b|\bskifter navn\b", Opt)]
     private static partial Regex TNavneendring();
 
-    [GeneratedRegex(@"\bomorganis\w*|\breorganis\w*|\bdepartements?truktur\w*|\bsammenslåing\w*|\bsamanslåing\w*|\bslås sammen\b|\bslås saman\b", Opt)]
+    // [RETTET 2026-10-23] «departements?struktur», ikke «departements?truktur»: den første versjonen traff bare skrivefeilen
+    // «departementstrukturen» (FOR-2009-12-18-1582) og bommet på «departementsstrukturen» (FOR-2021-12-22-3828), funnet i livsløpet.
+    [GeneratedRegex(@"\bomorganis\w*|\breorganis\w*|\bdepartements?struktur\w*|\bsammenslåing\w*|\bsamanslåing\w*|\bslås sammen\b|\bslås saman\b", Opt)]
     private static partial Regex TOmorganisering();
 
     // Regelverkets form. «Midlertidig forskrift», «Forskrifter om», «Reglement for», «Vedtekter for», «Regulativ».
