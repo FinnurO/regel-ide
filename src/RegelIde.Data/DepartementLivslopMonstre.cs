@@ -72,7 +72,7 @@ public static partial class DepartementLivslopMonstre
     // forvaltningsansvar for etter endringene», «Lover X skal ha forvaltningsansvaret for», og overføringsformen «Overføring av
     // forvaltningsansvaret for lover til X», «Lover som overføres fra A til X», «Forvaltningsansvaret for følgende lover overføres fra A til X».
     // Overskrifter uten departement («Overføring av forvaltningen av lover, myndighet, fullmakter …», «Lover») gir ingen tildeling.
-    [GeneratedRegex(@"(?:Oversikter? over lover (?:som )?|^\s*(?:Vedlegg[^.]*\.\s*)?Lover (?:som )?)(?<d>" + Dept + @") (?:skal ha|har)\s+(?:overført\s+)?(?:forvaltningsansvaret|forvaltningsansvar|ansvaret|ansvar)\b", RegexOptions.CultureInvariant)]
+    [GeneratedRegex(@"(?:Oversikt(?:er)? over lover (?:som )?|^\s*(?:Vedlegg[^.]*\.\s*)?Lover (?:som )?)(?<d>" + Dept + @") (?:skal ha|har)\s+(?:overført\s+)?(?:forvaltningsansvaret|forvaltningsansvar|ansvaret|ansvar)\b", RegexOptions.CultureInvariant)]
     private static partial Regex VedleggRegex();
     [GeneratedRegex(@"(?:[Ff]orvaltningsansvaret for (?:følgende )?lover|^\s*Lover som overføres|[Ll]over[^.]*?som overføres)\b[^.]*?\btil (?:det nye )?(?<d>" + Dept + ")", RegexOptions.CultureInvariant)]
     private static partial Regex VedleggOverforingRegex();

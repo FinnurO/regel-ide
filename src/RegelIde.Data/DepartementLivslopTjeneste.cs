@@ -16,7 +16,7 @@ public sealed record LivslopNavn(string Navn, DateOnly? Fra, DateOnly? Til, Livs
 /// nøyaktig én aktør i katalogen.</summary>
 public sealed record LivslopIdentitet(
     int Nr, IReadOnlyList<LivslopNavn> Navn, DateOnly? Opprettet, LivslopHjemmel? OpprettetVed, DateOnly? Nedlagt, LivslopHjemmel? NedlagtVed,
-    Guid? KatalogVirksomhetId, string? KatalogNavn, int Ressortlover);
+    Guid? KatalogVirksomhetId, string? KatalogNavn, int Ressortlover, string? GjeldendeNavneformHjemmel = null);
 
 /// <summary>Én lov ett departement fikk forvaltningsansvaret for, med vedtaket og gyldighetstiden.</summary>
 public sealed record LivslopRessort(int IdentitetNr, string Departement, string Objekt, string? Eli, bool HeleLoven, DateOnly Fra, DateOnly? Til,
@@ -105,7 +105,7 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
         var ulest = new List<LivslopUlest>();
         var utsatt = new List<string>();
         var vedtak = new List<(DateOnly Dato, Guid Id, string Tittel, string? Kildeform, bool KglRes, List<(LivslopHjemmel H, Livslopshendelse E)> Hendelser,
-            List<(LivslopHjemmel H, string Dept, string Raa, bool Funksjonsord)> Vedlegg)>();
+            List<(LivslopHjemmel H, string Dept, string Raa, bool Funksjonsord, bool HarUnderpunkter)> Vedlegg)>();
 
         foreach (var k in kilder)
         {
@@ -116,7 +116,9 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
                 .Select(n => new { n.Id, n.ParentNodeId, n.Eid, n.NodeType, n.Overskrift, n.Tekst })
                 .ToListAsync(ct);
             var hendelser = new List<(LivslopHjemmel, Livslopshendelse)>();
-            var vedlegg = new List<(LivslopHjemmel, string, string, bool)>();
+            var vedlegg = new List<(LivslopHjemmel, string, string, bool, bool)>();
+            // Et lovpunkt med underpunkter («Lov … om vern mot forurensninger» → «§ 44») gir bare ansvaret for underpunktene: en del, ikke hele loven.
+            var harBarn = noder.Where(x => x.ParentNodeId is not null).Select(x => x.ParentNodeId!.Value).ToHashSet();
             var vedleggskapitler = new Dictionary<Guid, (string Dept, string Raa, bool F)>();
 
             foreach (var n in noder)
@@ -137,7 +139,7 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
                 }
                 if (kap is { } kv)
                 {
-                    if (DepartementLivslopMonstre.LovDatokode(n.Tekst) is not null) vedlegg.Add((h, kv.Dept, kv.Raa, kv.F));
+                    if (DepartementLivslopMonstre.LovDatokode(n.Tekst) is not null) vedlegg.Add((h, kv.Dept, kv.Raa, kv.F, harBarn.Contains(n.Id)));
                     continue;
                 }
                 var lest = DepartementLivslopMonstre.LesLedd(n.Tekst, out var grunn);
@@ -259,12 +261,12 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
                 tildelinger.Add(new Tildeling(til, e.Til.Value.Navn, e.Objekt!, datokode is null ? null : LovdataIdentifikatorer.AvledEliFraDatokode(datokode, out _),
                     ErHeleLoven(e.Objekt!), v.Dato, h, Funksjonsord: true));
             }
-            foreach (var (h, dept, _, funksjonsord) in v.Vedlegg)
+            foreach (var (h, dept, _, funksjonsord, harUnderpunkter) in v.Vedlegg)
             {
                 var i = Hent(dept, h);
                 var datokode = DepartementLivslopMonstre.LovDatokode(h.Tekst)!;
                 tildelinger.Add(new Tildeling(i, dept, h.Tekst.Trim(), LovdataIdentifikatorer.AvledEliFraDatokode(datokode, out _),
-                    ErHeleLoven(h.Tekst), v.Dato, h, funksjonsord));
+                    ErHeleLoven(h.Tekst) && !harUnderpunkter, v.Dato, h, funksjonsord));
             }
         }
 
@@ -287,6 +289,21 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
         foreach (var i in identiteter.Where(i => i.Nedlagt is null))
         {
             if (await FinnAktorAsync(i.Gjeldende, ct) is { } a) katalog[i] = a;
+        }
+
+        // ---- [Ny etter juristrunden 2026-10-23] Hjemmelen den gjeldende navneformen har i dag, ved siden av navnevedtaket (Navn[^1].GittVed).
+        // Del 4 (AC9) skal la navneformen få hjemmel i navnevedtaket; her står bare begge, slik at forskjellen synes (LMD har i dag
+        // «Forskrift om avlsfremmende tiltak på bier» § 3 som hjemmel for navnet sitt).
+        var navneformHjemmel = new Dictionary<Identitet, string>();
+        foreach (var (i, a) in katalog)
+        {
+            var lower = i.Gjeldende.ToLower();
+            var nf = await db.Begreper.Where(b => b.Begrepskategori == "virksomhet" && b.VirksomhetReferanseId == a.Id && b.Entitetsstatus == "gjeldende"
+                    && b.Term.ToLower() == lower)
+                .Select(b => new { b.LovkildeId, b.LovreferanseEid }).FirstOrDefaultAsync(ct);
+            if (nf is null) { navneformHjemmel[i] = "(ingen navneform med dette navnet)"; continue; }
+            var tittel = nf.LovkildeId is null ? null : await db.Rettskilder.Where(r => r.Id == nf.LovkildeId).Select(r => r.Tittel).FirstOrDefaultAsync(ct);
+            navneformHjemmel[i] = tittel is null ? "(uten hjemmel)" : $"{tittel} ({nf.LovreferanseEid})";
         }
 
         // ---- AC7: Lovdatas «Ansvarlig departement» mot siste ressortvedtak for hele loven ----
@@ -336,7 +353,7 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
         var identitetRader = identiteter.Select(i => new LivslopIdentitet(i.Nr,
             i.Navn.Select(n => new LivslopNavn(n.Navn, n.Fra, n.Til, n.Gitt, n.Endret)).ToList(), i.Opprettet, i.OpprettetVed, i.Nedlagt, i.NedlagtVed,
             katalog.TryGetValue(i, out var kv) ? kv.Id : null, katalog.TryGetValue(i, out var kv2) ? kv2.Navn : null,
-            tildelinger.Count(t => t.Id == i))).ToList();
+            tildelinger.Count(t => t.Id == i), navneformHjemmel.GetValueOrDefault(i))).ToList();
 
         return new LivslopRapport(skriv, vedtak.Count, identitetRader, ressortRader, avvik,
             avvik.GroupBy(a => a.Utfall).ToDictionary(g => g.Key, g => g.Count()), etterfolgere, ulest, utsatt, merknader, skriving);
@@ -346,8 +363,12 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
     // [ENDRET etter måling 2026-10-23] + «bestemmelser»/«følgende»: «følgende bestemmelser i lov 22. mars 2019 nr. 7 …» er en del.
     private static bool ErHeleLoven(string objekt) =>
         !objekt.Contains('§') && !objekt.Contains("kapittel", StringComparison.OrdinalIgnoreCase) && !objekt.Contains("kap.", StringComparison.OrdinalIgnoreCase)
-        && !objekt.Contains("bestemmelse", StringComparison.OrdinalIgnoreCase) && !objekt.Contains("følgende", StringComparison.OrdinalIgnoreCase)
-        && !objekt.Contains("deler av", StringComparison.OrdinalIgnoreCase);
+        // [ENDRET etter juristrunden 2026-10-23, L16/L19/L21] + avgrensninger i punktteksten («Gjelder for petroleumsvirksomhet på
+        // landanleggene …», «Anden Bog», «for så vidt gjelder», «med unntak av»). «bestemmelse» alene er for vidt: «… indeholdende visse
+        // Bestemmelser» er en lovtittel.
+        && !System.Text.RegularExpressions.Regex.IsMatch(objekt,
+            @"\b(følgende|enkelte|visse av)\s+bestemmelse|\bbestemmelsene i\b|\bfølgende\b|\bdeler av\b|\bgjelder\b|\bbog\b|\bbok\b|\bfor så vidt\b|\bunntak\b|\bunntatt\b",
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase);
 
     /// <summary>Nøyaktig én aktør med dette registernavnet (uten skille på store og små bokstaver), ellers nøyaktig én aktør med det som
     /// GJELDENDE navneform. Utgåtte navneformer telles ikke: de er nettopp de navnene som kan ha vært brukt om et annet departement.</summary>
@@ -404,8 +425,14 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
                 Kommentar: $"«{Avkort(h.Tekst)}»", Status: Strukturkanter.MaskineltForeslatt, OppdagelsesKilde: OppdagelsesKilde,
                 // Kongen i statsråd følger av «Fastsatt ved kgl.res.», og ubestemt form («et Helse- og omsorgsdepartement») er normalisert.
                 Kunnskapsstatus: Strukturkanter.Normalisering,
+                // [ENDRET etter juristrunden 2026-10-23, L12/L13/L15] Navnekjeden står i begrunnelsen: kanten går til dagens aktør, men vedtaket
+                // oppretter departementet under det navnet det hadde da («Opprettelse av Arbeidsdepartementet», 2010).
                 Begrunnelse: "Regel: monster:livslop-opprettelse-av. Vedtaket er fastsatt ved kgl.res. (fra = Kongen i statsråd)"
-                    + (normalisert ? "; navnet står i ubestemt form i vedtaket og er gjort bestemt." : ".")),
+                    + (normalisert ? "; navnet står i ubestemt form i vedtaket og er gjort bestemt" : "")
+                    + (i.Navn.Count > 1
+                        ? $". Opprettet som «{i.Navn[0].Navn}»; dagens navn etter navnebytte: " + string.Join(" → ",
+                            i.Navn.Skip(1).Select(n => $"«{n.Navn}» fra {n.Fra:yyyy-MM-dd} ({n.Gitt?.Tittel})")) + "."
+                        : ".")),
                 () => oNye++, () => oFantes++);
         }
 
@@ -456,17 +483,28 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
             await Opprett(new NyStrukturkant(Strukturkanter.Oppgave, "forvaltning", Kantnode.Virksomhet(katalog[t.Id].Id), null,
                 HjemmelRettskildeId: t.Hjemmel.RettskildeId, HjemmelEid: t.Hjemmel.Eid, Objekt: t.Objekt, ObjektEli: t.Eli,
                 GyldigFra: t.Fra, GyldigTil: gyldigTil is { } g && g >= t.Fra ? g : null,
-                Kommentar: $"«{Avkort(t.Hjemmel.Tekst)}» (departementet het {t.NavnDaVedtaket} i vedtaket)",
+                // [ENDRET etter juristrunden 2026-10-23, M4] Kommentaren sier hvor gyldig-til kommer fra: neste vedtak som gir samme hele lov til
+                // et annet departement, eller nedleggelsen av departementet.
+                Kommentar: $"«{Avkort(t.Hjemmel.Tekst)}» (departementet het {t.NavnDaVedtaket} i vedtaket)"
+                    + (gyldigTil is null ? "" : TilGrunn(t, gyldigTil.Value)),
                 Status: Strukturkanter.MaskineltForeslatt, OppdagelsesKilde: OppdagelsesKilde,
                 Kunnskapsstatus: t.Funksjonsord ? Strukturkanter.Tekstfunn : Strukturkanter.Normalisering,
-                Begrunnelse: t.Funksjonsord
+                // Modalitet null: en ressortfordeling er en TILDELING av ansvar, ikke en plikt til å utføre noe («skal ha» er tildelingens form).
+                Begrunnelse: (t.Funksjonsord
                     ? "Regel: monster:livslop-ressortfordeling. Vedtaket bruker funksjonsordet «forvaltningsansvaret» (begrepsmanualen §F)."
-                    : "Regel: monster:livslop-ressortfordeling. «Oversikt over lover X skal ha ansvaret for» er lest som forvaltningsansvar (begrepsmanualen §F)."),
+                    : "Regel: monster:livslop-ressortfordeling. «… skal ha ansvaret for» lover er lest som forvaltningsansvar fordi objektet er et "
+                      + "regelverk og vedtaket overfører ansvaret for lover (begrepsmanualen §F).")
+                    + " Modalitet er ikke satt: vedtaket tildeler ansvaret, det pålegger ingen plikt."),
                 () => rNye++, () => rFantes++);
         }
 
         return new LivslopSkriving(oNye, oFantes, nNye, nFantes, rNye, rFantes, avvist, feil);
     }
+
+    private static string TilGrunn(Tildeling t, DateOnly til) =>
+        t.Id.Nedlagt is { } nd && til == nd.AddDays(-1)
+            ? $" Gyldig til {til:yyyy-MM-dd}: departementet ble nedlagt ({t.Id.NedlagtVed?.Tittel})."
+            : $" Gyldig til {til:yyyy-MM-dd}: et senere vedtak gir hele loven til et annet departement.";
 
     private static string Avkort(string s) => s.Length <= 240 ? s.Trim() : s[..240].Trim() + "…";
 }

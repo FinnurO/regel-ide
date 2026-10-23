@@ -129,6 +129,23 @@ public class OrganiseringskilderMonstreTests
         Assert.NotNull(ulest);
     }
 
+    [Theory]
+    // Overskriftsformene i korpusets omorganiseringsvedtak (målt 2026-10-23).
+    [InlineData("Vedlegg 1. Oversikt over lover Arbeidsdepartementet skal ha ansvaret for", "Arbeidsdepartementet")]
+    [InlineData("Vedlegg 2. Oversikter over lover Utdannings- og forskningsdepartementet skal ha forvaltningsansvaret for:", "Utdannings- og forskningsdepartementet")]
+    [InlineData("Vedlegg 5. Oversikt over lover som Kommunal- og moderniseringsdepartementet skal ha forvaltningsansvaret for", "Kommunal- og moderniseringsdepartementet")]
+    [InlineData("Vedlegg. Oversikt over lover som Justis- og beredskapsdepartementet skal ha overført forvaltningsansvaret for", "Justis- og beredskapsdepartementet")]
+    [InlineData("Oversikt over lover som Nærings- og fiskeridepartementet har forvaltningsansvar for etter endringene:", "Nærings- og fiskeridepartementet")]
+    [InlineData("Lover Kommunal- og regionaldepartementet skal ha forvaltningsansvaret for:", "Kommunal- og regionaldepartementet")]
+    [InlineData("Vedlegg 4. Overføring av forvaltningsansvaret for lover til Helse- og omsorgsdepartementet", "Helse- og omsorgsdepartementet")]
+    [InlineData("Lover som overføres fra Nærings- og energidepartementet til Olje- og energidepartementet pr. 1. januar 1997:", "Olje- og energidepartementet")]
+    public void Vedleggsoverskriftene_gir_departementet(string overskrift, string departement) =>
+        Assert.Equal(departement, DepartementLivslopMonstre.LesVedleggsoverskrift(overskrift)!.Value.Navn);
+
+    [Fact]
+    public void Vedleggsoverskrift_uten_departement_gir_ingen_tildeling() =>
+        Assert.Null(DepartementLivslopMonstre.LesVedleggsoverskrift("Overføring av forvaltningen av lover, myndighet, fullmakter, ansvar for utvalg, råd m.v."));
+
     [Fact]
     public void Overforing_og_vedlegg_gir_lovens_datokode()
     {
