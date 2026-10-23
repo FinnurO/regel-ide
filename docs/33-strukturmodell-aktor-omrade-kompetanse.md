@@ -1128,6 +1128,45 @@ rettskildene. Migrasjonen `Aktoridentitet`:
   «gjeldende», 7 uten treff, 6 med flere skrivemåter. Etterfyllingen: 133 kanttreff for 61 aktører → 53 kilder, 103 nye tagger (27
   fantes), 3 ikke tagget (annen skrivemåte), 0 uten eier.
 
+### 5.9 Organiseringskildene og departementenes livsløp (#395, bygget 2026-10-23)
+
+**Disposisjonstype** (`rettskilde_disposisjonstyper`, `Disposisjonstyper.cs`): lukket liste `oppretting`, `navneendring`, `nedleggelse`,
+`omorganisering`, `overforing_ressortfordeling`, `delegering`, `instruks`, `ikrafttredelse`, `regulering`. En kilde kan ha flere. Hver rad har
+metode (`tittel` | `monster` | `ki` | `manuell`), regel, treff og kunnskapsstatus `normalisering`. Ingen rad = uklassifisert. Tittelregler
+først; innholdsmønstrene kjøres når tittelen ikke ga noen type (bare for kilder med høyst 30 noder) eller bare organiseringstyper.
+Anledningen i tittelen («som følge av oppretting av …», «i forbindelse med etableringen av …», parenteser) gir ikke type. KI-laget er ikke
+bygget. Hjemmelen for en tittelrad er dokumentet selv (dokumentnivå); livsløpet bruker aldri en tittelrad som hjemmel, bare noden der
+hendelsen står. `POST /api/rettskilder/disposisjonstyper/klassifiser[?skriv=true]` erstatter bare maskinens egne rader. Rettskildelista har
+filter på kildeform og disposisjonstype (docs/09 §41).
+
+**Sveipefilter** (`Sveipeutvalg`): begreps- og navnekandidatsveipet over hele korpuset hopper som standard over kilder der alle typene er
+`ikrafttredelse`, og kunngjorte rene endringsvedtak uten organiseringstype; `?inkluderIkrafttredelseOgEndring=true` tar dem med.
+Uklassifisert er ikke ikrafttredelse og blir alltid med.
+
+**Livsløpet** (`DepartementLivslopTjeneste`, `POST /api/departementer/livslop[?skriv=true]`) bygger departementene som identiteter over tid
+fra organiseringsvedtakene (konsoliderte og kunngjorte): opprettelse gir en ny identitet, navnebytte fører samme identitet videre,
+nedleggelse avslutter den. Navn gjenbrukes (Arbeids- og sosialdepartementet 2004–2005 og 2014–2021), så et vedtak kobles aldri til katalogen
+på navnet alene: bare en identitet som lever i dag, og bare på sitt nåværende navn. Konsoliderte tekster kan bruke dagens departementsnavn om
+eldre vedtak (Lovdata oppdaterer dem); en slik identitet slås sammen ved navnebyttet og står i merknadene. Alt skrives som forslag
+(`maskinelt_foreslatt`, `oppdagelses_kilde = monster:livslop`):
+- **R oppretter** fra Kongen i statsråd (vedtaket er fastsatt ved kgl.res.) til departementet, med navnekjeden i begrunnelsen. K oppretting
+  (kompetansen, Grl. § 12) skrives ikke: vedtaket sier den ikke.
+- **Navneform `utgatt`** for hvert tidligere navn, med gyldig fra/til og hjemmel i navnevedtaket (genitiv → `normalisering`, ordrett →
+  `tekstfunn`). [Avvik fra AK 5, juristrunden M1] Et navnebytte er samme aktør, ikke R etterfolger (det ville vært en kant til seg selv).
+- **F forvaltning** (ressortfordeling) per lov i vedleggene («Oversikt over lover X skal ha forvaltningsansvaret for», åtte målte former) og
+  i enkeltoverføringene, med `objekt_eli` (lovens ELI fra dato og nummer), gyldig fra vedtaket og til neste vedtak som gir samme HELE lov til
+  et annet departement, eller til nedleggelsen. Modalitet er ikke satt: en ressortfordeling tildeler ansvar, den pålegger ingen plikt.
+- **Ikke skrevet:** R avvikler og R etterfolger. Nedlagte departementer finnes ikke i katalogen (juristrundens M5, prinsipiell; Johanns
+  beslutning). AK 5 er derfor ikke oppfylt for nedlagte departementer. Opprettelser og nedleggelser i samme vedtak står som kandidater i
+  rapporten.
+- **Sekundær kontroll:** siste ressortvedtak for hele loven mot Lovdatas «Ansvarlig departement»; avvik listes, ingenting rettes.
+
+**Målt 2026-10-23 (lokal base):** 45 vedtak, 34 identiteter (16 lever og er i katalogen, 16 nedlagt), 829 ressorttildelinger. Skrevet:
+7 R oppretter, 11 navneformer `utgatt`, 503 F forvaltning. Mot Lovdata: 221 samsvar, 9 avvik, 4 der siste ressortvedtak gjelder et nedlagt
+departement, 178 lover som ikke er i korpuset. 6 ledd ble ikke lest (bl.a. skrivefeilen «regionaldepartementel» i FOR-2013-12-13-1455).
+13 av 16 levende departementer har i dag en gjeldende navneform uten hjemmel eller med en tilfeldig hjemmel (Landbruks- og
+matdepartementet: «Forskrift om avlsfremmende tiltak på bier» § 3), mens navnevedtaket står i rapporten — grunnlaget for del 4 (AK 9).
+
 ### 5.6 Konvertering av eksisterende data
 
 | Fra | Til | Automatisk? |

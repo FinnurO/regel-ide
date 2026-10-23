@@ -1195,3 +1195,14 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
   «Neste» er av til steget er fullstendig.
 - **Aktørlisten** har en lukket `Details` «Aktøridentitet: navneform og kilde fra lovteksten» (`virksomhet/AktoridentitetVerktoy.tsx`):
   tørrkjøring først, «Lagre …» som eget klikk, og en tabell med utfallet per aktør (samme mønster som aktørsveipet, §38).
+
+## 41. Kildeform og disposisjonstype på rettskildelista (issue #395, 2026-10-23)
+
+- **Én delt kilde:** `rettskilde/Disposisjonstype.tsx` (`DISPOSISJONSTYPER`, `DisposisjonstypeTagger`, `KildeformTag`). Ikke lag en lokal
+  variant.
+- **Fargeroller (låst):** disposisjonstypene er `neutral` — de sier hva slags vedtak kilden er, ikke om noe er riktig eller galt.
+  Kildeformen vises bare når den er `kunngjort`, som `info` («Kunngjort»): konsolidert er normaltilfellet og får ingen merkelapp.
+  Uklassifisert gir ingen merkelapp (tom celle), som en uspesifisert navneformgrunn (§15).
+- **Filter:** to `Select` ved fritekstfilteret (Kildeform: Alle / Konsolidert / Kunngjort / Ukjent; Disposisjonstype: Alle / de ni / Uklassifisert),
+  på fanene «Aktive rettskilder» og «Utenfor korpuset». «Ukjent» og «Uklassifisert» betyr at feltet mangler — ikke en gjettet verdi.
+

@@ -41,6 +41,10 @@ og generiske omtaler («styret», «departementet») er navneformer for hele kor
 En aktørs identitet (#385) er lovens navn — den gjeldende navneformen — og aktørtypen, begge modellutsagn med grunnlag og godkjenning;
 organisasjonsnummer og registernavn fra Enhetsregisteret er attributter. Navneformer foreslås fra lovteksten, og et navnetreff gir
 navneformen en kilde og en tagg på nøyaktig spenn.
+Organiseringskildene (#395): rettskildene er klassifisert etter disposisjonstype (oppretting, navneendring, nedleggelse, omorganisering,
+overføring/ressortfordeling, delegering, instruks, ikrafttredelse, regulering) og kildeform (konsolidert eller kunngjort), og kunngjorte
+organiseringsvedtak fra Norsk Lovtidend avd. I (2001–) er importert gjennom samme parser. Av dem bygges departementenes livsløp —
+opprettelse, navnebytter med utgåtte navneformer, og ressortfordelingen (hvilket departement som forvalter hvilken lov) — som forslag.
 Spesifikasjonen og målingene: [`docs/33-strukturmodell-aktor-omrade-kompetanse.md`](docs/33-strukturmodell-aktor-omrade-kompetanse.md)
 (arbeidsplanen er epic #318).
 
