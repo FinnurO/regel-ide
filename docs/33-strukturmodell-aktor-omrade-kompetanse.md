@@ -1100,6 +1100,34 @@ håndhever. `rettskilde_id` på bindingen er versjonen den ble registrert og vur
 - **Den lovspesifikke klassen «kommunene»** i reindriftsloven (§ 2 annet ledd) beholdes. Den henviser til den felles klassen med
   `M medlem_av` «kommune», lagt inn som forslag (`manuelt_foreslatt`, tekstfunn) av `OmraderegisterSeed` steg 6.
 
+### 5.8 Aktøridentitet: lovens navn er primært, registeret er attributt (#385, bygget 2026-10-16/23)
+
+Johann 2026-10-16: «Strengt tatt så er orgnummer og orgnavnet i Brreg kun attributter.» Aktørens identitet og primærnavn kommer fra
+rettskildene. Migrasjonen `Aktoridentitet`:
+- **Navneformen er et modellutsagn** (`begreper`): `godkjenning` (vokabularet fra §4.6; NULL = registrert før #385, regnes som gjeldende,
+  ingen gjettet status), hjemmel = `lovkilde_id` + `lovreferanse_eid`, kilde utenfor korpus med `kilde_utenfor_korpus_lenker` (én eller
+  flere), `begrunnelse`, `tolkningsargumenter`, `oppdagelses_kilde`, `avvisning_begrunnelse`. Avvist = `godkjenning avvist` +
+  `entitetsstatus arkivert` (slettes ikke; taggene som pekte på forslaget, slettes). `ck_begreper_kunnskapsstatus` tar nå også
+  fortolkning og eksternt dokumentert.
+- **Visningsnavnet** er bare en GODKJENT gjeldende navneform (`VirksomhetVisningsnavnTjeneste`, `StrukturkantTjeneste`); ellers
+  registernavnet, merket «Navneform mangler». Brukes også i S-oppslagene (ankeinstans, kommunens ansvarlige), utledet medlemskap,
+  bindingens referent og aktørsveipets referent.
+- **Aktørtypen er et modellutsagn** (`aktortype_utsagn`): forslag med grunnlag og status. `virksomheter.aktortype` settes først ved
+  godkjenning (eller av KOMM/FYLK-regelen fra #310, eller direkte av et menneske på aktørsiden).
+- **Forslag til gjeldende navneform** (`POST /api/aktorer/navneformforslag`, AC1): registernavnet slås opp i lovteksten (hele ord, uten
+  skille på store/små bokstaver). Én egennavnform (stor forbokstav, ikke bare versaler) gir forslag: `tekstfunn` når den er lik
+  registernavnet, ellers `normalisering` med regelen i begrunnelsen. Flere skrivemåter («Norges Bank»/«Norges bank») gir ingen.
+  Registernavnet normaliseres ALDRI uten en tekst som viser skrivemåten.
+- **Navnetreff** (AC3 og Johanns presisering 2026-10-16): når aktørsveipet (skrivemodus) eller lasteren finner en kjent aktør, registreres
+  navneformen som forslag når treffet gikk via registernavnet, navneformen får kilden der navnet står, og spennet tagges der teksten er
+  NØYAKTIG lik navneformen. Konverteringens entitetstype gir et aktørtypeforslag (`maskinelt_foreslatt`, kunnskapsstatus ikke vurdert).
+  Treff som alt finnes (strukturkanter med hjemmel-eId og en aktør i en ende) etterfylles med `POST /api/aktorer/etterfyll-kilde-og-tagger`.
+- **Bindingene** har «hjemmel endret» (AC12) etter samme regel som kantene: hjemmelen eller spennet har annen tekst i den nye versjonen av
+  verket. Et tomt spenn (hele rettskilden) flagges ved enhver tekstendring. «Hjemmel mangler» er lov som uavklart med begrunnelse.
+- **Målt på en kopi av lokal `regelide` 2026-10-23:** 55 aktører uten gjeldende navneform → 31 forslag, 11 har navneformen uten grunnen
+  «gjeldende», 7 uten treff, 6 med flere skrivemåter. Etterfyllingen: 133 kanttreff for 61 aktører → 53 kilder, 103 nye tagger (27
+  fantes), 3 ikke tagget (annen skrivemåte), 0 uten eier.
+
 ### 5.6 Konvertering av eksisterende data
 
 | Fra | Til | Automatisk? |

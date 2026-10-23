@@ -286,6 +286,14 @@ alle bygget på den eksisterende wizard-arkitekturen i stedet for egne skjermer:
    — valgfritt tillegg på gruppe-sporet. `POST /api/navnekandidater/{id}/kobl-til-gruppe-av-gruppe`
    oppretter gruppebegrepet OG medlemskapet atomisk.
 
+### 2.9 Aktøridentitet (issue #385, 2026-10-16/23)
+
+§0 og §1 sier «virksomheter identifisert ved organisasjonsnummer». [ENDRET, Johann 2026-10-16, #385] Identiteten er lovens navn (den
+gjeldende navneformen) og aktørtypen; orgnr og registernavn er attributter (CLAUDE.md §0, «loven definerer, registeret beskriver»).
+Datamodellen er uendret på dette punktet: `Virksomhet.Id` er fortsatt nøkkelen, og orgnr er fortsatt unikt der det finnes. Det som er
+endret, er at en navneform og en aktørtype nå er modellutsagn med grunnlag og godkjenning, og at UI-et viser registerdata som attributter.
+Se docs/33 §5.8 og docs/09 §40. Veiviserens «Hvilken aktør?» (§2.8) er utvidet med «Hva bygger dette på?» og «Hvor sikkert er det?».
+
 ## 3. Aggregerte visninger (beregnet, ikke lagret)
 
 Uendret fra kravspekens §3 — beregnes ved lesing, aldri lagret som egen fakta:
