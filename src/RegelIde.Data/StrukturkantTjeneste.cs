@@ -44,7 +44,9 @@ public sealed record NyStrukturkant(
     // [Ny, issue #367] Utsagnsstatus: hvordan utsagnet er kommet fram, begrunnelsen, tolkningsargumentene og premissene (påkrevd ved
     // avledet). Null = ikke vurdert. Se StrukturkantEntitet.Kunnskapsstatus.
     string? Kunnskapsstatus = null, string? Begrunnelse = null, IReadOnlyList<string>? Tolkningsargumenter = null,
-    IReadOnlyList<Guid>? Premisser = null);
+    IReadOnlyList<Guid>? Premisser = null,
+    // [Ny, issue #395] ELI-en til loven når objektet er en lov (ressortfordelingen). Se StrukturkantEntitet.ObjektEli.
+    string? ObjektEli = null);
 
 /// <summary>Resultatet av <see cref="StrukturkantTjeneste.OpprettAsync"/> — <see cref="VarNy"/> = false betyr
 /// at et identisk utsagn alt fantes og ble returnert uendret (idempotens, se metoden).</summary>
@@ -389,6 +391,7 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
             TilVirksomhetId = tilV,
             TilBegrepId = tilB,
             Objekt = objekt,
+            ObjektEli = string.IsNullOrWhiteSpace(ny.ObjektEli) ? null : ny.ObjektEli.Trim(), // [Ny, issue #395]
             AvgrensningParagrafspennJson = spennJson,
             AvgrensningTekst = avgrensningTekst,
             Polaritet = ny.Polaritet,
