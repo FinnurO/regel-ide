@@ -236,7 +236,10 @@ public sealed class BegrepsoppdagelseSveipTjeneste(RegelIdeDbContext db, Begreps
     /// mer enn det faktisk endrer treffsettet — markør-kravet under er den reelle presisjons-vokteren).</summary>
     private const int M11MaksOverskriftLengde = 60;
 
-    public async Task<BegrepsoppdagelseSveipResultat> SveipAsync(Guid? rettskildeId, string opprettetAv, CancellationToken ct = default)
+    /// <param name="inkluderIkrafttredelseOgEndring">[Ny, issue #395] Som standard hoppes ikrafttredelsesvedtak og rene endringsvedtak over
+    /// når hele korpuset sveipes (<see cref="Sveipeutvalg"/>). Gjelder ikke når én bestemt rettskilde er valgt.</param>
+    public async Task<BegrepsoppdagelseSveipResultat> SveipAsync(Guid? rettskildeId, string opprettetAv, CancellationToken ct = default,
+        bool inkluderIkrafttredelseOgEndring = false)
     {
         if (rettskildeId is not null && !await db.Rettskilder.AnyAsync(
                 r => r.Id == rettskildeId && r.VirksomhetId == null && r.Entitetsstatus == "gjeldende", ct))
@@ -249,6 +252,11 @@ public sealed class BegrepsoppdagelseSveipTjeneste(RegelIdeDbContext db, Begreps
             ? [rettskildeId.Value]
             : await db.Rettskilder.Where(r => r.VirksomhetId == null && r.Entitetsstatus == "gjeldende")
                 .Select(r => r.Id).ToListAsync(ct);
+        if (rettskildeId is null && !inkluderIkrafttredelseOgEndring)
+        {
+            var utelatt = await Sveipeutvalg.StandardUtelattAsync(db, ct); // [Ny, issue #395]
+            rettskildeIder = rettskildeIder.Where(id => !utelatt.Contains(id)).ToList();
+        }
 
         var antallTreff = 0;
         var antallNyeForekomster = 0;

@@ -271,6 +271,7 @@ public static partial class LovdataHtmlParser
             PublisertI = publisertI,
             AnnetOmDokumentet = annetOmDokumentet,
             SisteRettelse = sisteRettelse,
+            Kildeform = RettskildeMetadata.AvledKildeform(dokumentId), // [Ny, issue #395]
         };
     }
 

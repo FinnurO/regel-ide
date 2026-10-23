@@ -2722,6 +2722,75 @@ namespace RegelIde.Data.Migrasjoner
                         });
                 });
 
+            modelBuilder.Entity("RegelIde.Data.RettskildeDisposisjonstypeEntitet", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Disposisjonstype")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("disposisjonstype");
+
+                    b.Property<string>("Kilde")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("kilde");
+
+                    b.Property<string>("Kunnskapsstatus")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("kunnskapsstatus");
+
+                    b.Property<string>("NodeEid")
+                        .HasColumnType("text")
+                        .HasColumnName("node_eid");
+
+                    b.Property<string>("OpprettetAv")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("opprettet_av");
+
+                    b.Property<DateTimeOffset>("OpprettetTidspunkt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("opprettet_tidspunkt")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("Regel")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("regel");
+
+                    b.Property<Guid>("RettskildeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("rettskilde_id");
+
+                    b.Property<string>("Treff")
+                        .HasColumnType("text")
+                        .HasColumnName("treff");
+
+                    b.HasKey("Id")
+                        .HasName("rettskilde_disposisjonstyper_pkey");
+
+                    b.HasIndex("Disposisjonstype")
+                        .HasDatabaseName("ix_rettskilde_disposisjonstyper_type");
+
+                    b.HasIndex("RettskildeId", "Disposisjonstype", "Kilde")
+                        .IsUnique()
+                        .HasDatabaseName("ux_rettskilde_disposisjonstyper_rettskilde_type_kilde");
+
+                    b.ToTable("rettskilde_disposisjonstyper", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_rettskilde_disposisjonstyper_kilde", "kilde IN ('tittel', 'monster', 'ki', 'manuell')");
+
+                            t.HasCheckConstraint("ck_rettskilde_disposisjonstyper_kunnskapsstatus", "kunnskapsstatus IN ('tekstfunn', 'normalisering', 'fortolkning', 'uavklart', 'omstridt')");
+
+                            t.HasCheckConstraint("ck_rettskilde_disposisjonstyper_type", "disposisjonstype IN ('oppretting', 'navneendring', 'nedleggelse', 'omorganisering', 'overforing_ressortfordeling', 'delegering', 'instruks', 'ikrafttredelse', 'regulering')");
+                        });
+                });
+
             modelBuilder.Entity("RegelIde.Data.RettskildeEndringEntitet", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2885,6 +2954,10 @@ namespace RegelIde.Data.Migrasjoner
                         .HasColumnType("text")
                         .HasColumnName("irrelevant_kommentar");
 
+                    b.Property<string>("Kildeform")
+                        .HasColumnType("text")
+                        .HasColumnName("kildeform");
+
                     b.Property<string>("Kildetype")
                         .IsRequired()
                         .HasColumnType("text")
@@ -3014,6 +3087,8 @@ namespace RegelIde.Data.Migrasjoner
                             t.HasCheckConstraint("ck_rettskilder_akn_xml", "importrolle = 'referanse' OR akn_xml IS NOT NULL");
 
                             t.HasCheckConstraint("ck_rettskilder_importrolle", "importrolle IN ('primaer', 'referanse')");
+
+                            t.HasCheckConstraint("ck_rettskilder_kildeform", "kildeform IS NULL OR kildeform IN ('konsolidert', 'kunngjort')");
                         });
                 });
 
@@ -3361,6 +3436,10 @@ namespace RegelIde.Data.Migrasjoner
                     b.Property<string>("Objekt")
                         .HasColumnType("text")
                         .HasColumnName("objekt");
+
+                    b.Property<string>("ObjektEli")
+                        .HasColumnType("text")
+                        .HasColumnName("objekt_eli");
 
                     b.Property<string>("OppdagelsesKilde")
                         .IsRequired()
@@ -5008,6 +5087,15 @@ namespace RegelIde.Data.Migrasjoner
                     b.HasOne("RegelIde.Data.Virksomhet", null)
                         .WithMany()
                         .HasForeignKey("VirksomhetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("RegelIde.Data.RettskildeDisposisjonstypeEntitet", b =>
+                {
+                    b.HasOne("RegelIde.Data.RettskildeEntitet", null)
+                        .WithMany()
+                        .HasForeignKey("RettskildeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

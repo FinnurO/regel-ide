@@ -67,6 +67,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
     public DbSet<RettskildeReferanseEntitet> RettskildeReferanser => Set<RettskildeReferanseEntitet>();
     public DbSet<RettskildeHjemmelEntitet> RettskildeHjemler => Set<RettskildeHjemmelEntitet>();
     public DbSet<RettskildeEndringEntitet> RettskildeEndringer => Set<RettskildeEndringEntitet>();
+    public DbSet<RettskildeDisposisjonstypeEntitet> RettskildeDisposisjonstyper => Set<RettskildeDisposisjonstypeEntitet>(); // [Ny, issue #395]
     public DbSet<TekstTaggEntitet> TekstTagger => Set<TekstTaggEntitet>();
     public DbSet<TaggKindKonfigurasjonEntitet> TaggKindKonfigurasjoner => Set<TaggKindKonfigurasjonEntitet>();
     public DbSet<HandbokKommentarMetadataEntitet> HandbokKommentarMetadata => Set<HandbokKommentarMetadataEntitet>();
@@ -292,6 +293,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.TilVirksomhetId).HasColumnName("til_virksomhet_id");
             e.Property(x => x.TilBegrepId).HasColumnName("til_begrep_id");
             e.Property(x => x.Objekt).HasColumnName("objekt");
+            e.Property(x => x.ObjektEli).HasColumnName("objekt_eli"); // [Ny, issue #395] ressortfordelingens lov
             e.Property(x => x.AvgrensningParagrafspennJson).HasColumnName("avgrensning_paragrafspenn_json").HasDefaultValue("[]");
             e.Property(x => x.AvgrensningTekst).HasColumnName("avgrensning_tekst");
             e.Property(x => x.Polaritet).HasColumnName("polaritet").HasDefaultValue("positiv");
@@ -734,6 +736,10 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.PublisertI).HasColumnName("publisert_i");
             e.Property(x => x.AnnetOmDokumentet).HasColumnName("annet_om_dokumentet");
             e.Property(x => x.SisteRettelse).HasColumnName("siste_rettelse");
+            // [Ny, issue #395] konsolidert | kunngjort, NULL = ukjent. Se RettskildeEntitet.Kildeform.
+            e.Property(x => x.Kildeform).HasColumnName("kildeform");
+            e.ToTable("rettskilder", t => t.HasCheckConstraint(
+                "ck_rettskilder_kildeform", "kildeform IS NULL OR kildeform IN ('konsolidert', 'kunngjort')"));
             // [Ny, fastsatt-av-runden, 2026-09-10, issue #215] Fastsetteren. Se entitetskommentaren
             // for hvorfor dette IKKE er virksomhet_id, og hvorfor etat-feltet ikke kan brukes.
             e.Property(x => x.FastsattAv).HasColumnName("fastsatt_av");
@@ -939,6 +945,36 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.HasIndex(x => new { x.RettskildeId, x.EndringEid }).IsUnique()
                 .HasDatabaseName("ux_rettskilde_endringer_rettskilde_id_endring_eid");
             e.HasIndex(x => x.EndringRettskildeId).HasDatabaseName("ix_rettskilde_endringer_endring_rettskilde");
+        });
+
+        // [Ny, issue #395] Del 1 — disposisjonstyper. Se RettskildeDisposisjonstypeEntitet.
+        b.Entity<RettskildeDisposisjonstypeEntitet>(e =>
+        {
+            e.ToTable("rettskilde_disposisjonstyper", t =>
+            {
+                t.HasCheckConstraint("ck_rettskilde_disposisjonstyper_type",
+                    "disposisjonstype IN ('oppretting', 'navneendring', 'nedleggelse', 'omorganisering', 'overforing_ressortfordeling', "
+                    + "'delegering', 'instruks', 'ikrafttredelse', 'regulering')");
+                t.HasCheckConstraint("ck_rettskilde_disposisjonstyper_kilde", "kilde IN ('tittel', 'monster', 'ki', 'manuell')");
+                t.HasCheckConstraint("ck_rettskilde_disposisjonstyper_kunnskapsstatus",
+                    "kunnskapsstatus IN ('tekstfunn', 'normalisering', 'fortolkning', 'uavklart', 'omstridt')");
+            });
+            e.HasKey(x => x.Id).HasName("rettskilde_disposisjonstyper_pkey");
+            e.Property(x => x.RettskildeId).HasColumnName("rettskilde_id");
+            e.Property(x => x.Disposisjonstype).HasColumnName("disposisjonstype");
+            e.Property(x => x.Kilde).HasColumnName("kilde");
+            e.Property(x => x.Regel).HasColumnName("regel");
+            e.Property(x => x.Treff).HasColumnName("treff");
+            e.Property(x => x.NodeEid).HasColumnName("node_eid");
+            e.Property(x => x.Kunnskapsstatus).HasColumnName("kunnskapsstatus");
+            e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
+            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
+            e.HasOne<RettskildeEntitet>().WithMany()
+                .HasForeignKey(x => x.RettskildeId).OnDelete(DeleteBehavior.Cascade);
+            // Én rad per (kilde, type, kilde-metode): tittel- og mønsterregelen kan begge gi «delegering» og står da hver for seg.
+            e.HasIndex(x => new { x.RettskildeId, x.Disposisjonstype, x.Kilde }).IsUnique()
+                .HasDatabaseName("ux_rettskilde_disposisjonstyper_rettskilde_type_kilde");
+            e.HasIndex(x => x.Disposisjonstype).HasDatabaseName("ix_rettskilde_disposisjonstyper_type");
         });
 
         b.Entity<TekstTaggEntitet>(e =>

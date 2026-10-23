@@ -185,6 +185,27 @@ public sealed record RettskildeMetadata
 
     /// <summary>Header-feltet <c>&lt;dt class="lastupdated"&gt;Siste rettelse&lt;/dt&gt;</c>.</summary>
     public string? SisteRettelse { get; init; }
+
+    /// <summary>
+    /// [Ny, issue #395, 2026-10-23] Kildeformen, avledet av <see cref="DokumentId"/>-prefikset (<see cref="AvledKildeform"/>):
+    /// <c>kunngjort</c> for Lovtidend avd. I (<c>LTI/forskrift/2004-10-01-1304</c>), <c>konsolidert</c> for Lovdatas gjeldende-uttrekk
+    /// (<c>NL/</c>, <c>SF/</c>, <c>DEL/</c>, <c>INS/</c>, <c>STV/</c>). NULL når prefikset mangler eller er ukjent — ingen gjettet verdi.
+    /// </summary>
+    public string? Kildeform { get; init; }
+
+    /// <summary>[Ny, issue #395] Prefiksene er målt 2026-10-23: lokal base (NL 760, SF 3 395, DEL 1 424, INS 185, STV 84) og
+    /// Lovtidend-arkivet 2001–2025 (bare LTI). Et nytt prefiks gir NULL til det er målt, ikke en antatt form.</summary>
+    public static string? AvledKildeform(string? dokumentId)
+    {
+        if (string.IsNullOrWhiteSpace(dokumentId)) return null;
+        var prefiks = dokumentId.Split('/')[0].Trim().ToUpperInvariant();
+        return prefiks switch
+        {
+            "LTI" => "kunngjort",
+            "NL" or "SF" or "DEL" or "INS" or "STV" => "konsolidert",
+            _ => null,
+        };
+    }
 }
 
 /// <summary>
