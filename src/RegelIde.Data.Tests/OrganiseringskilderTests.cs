@@ -83,10 +83,23 @@ public class OrganiseringskilderTests(EmbeddedPostgresFixture fixture)
         Assert.Equal(lmd, landbruk.KatalogVirksomhetId);
         Assert.Equal(new DateOnly(2004, 9, 30), landbruk.Navn[0].Til);
         Assert.Equal("Landbruks- og matdepartementet", landbruk.Navn[^1].Navn);
-        // Det nedlagte Sosialdepartementet har ingen aktør i katalogen og får ingen kanter.
+        // [ENDRET, Johanns avgjørelse M5] Det nedlagte Sosialdepartementet blir en aktør med status nedlagt, uten registerkobling, og får
+        // R avvikler fra Kongen i statsråd med hjemmel i nedleggelsen. Oppslaget «for i dag» treffer det aldri.
         var sosial = r1.Identiteter.Single(i => i.Navn[0].Navn == "Sosialdepartementet");
         Assert.Equal(new DateOnly(2004, 10, 1), sosial.Nedlagt);
-        Assert.Null(sosial.KatalogVirksomhetId);
+        var sosialAktor = await db.Virksomheter.SingleAsync(v => v.Id == sosial.KatalogVirksomhetId);
+        Assert.Equal("nedlagt", sosialAktor.Livsstatus);
+        Assert.Null(sosialAktor.Organisasjonsnummer);
+        Assert.False(sosialAktor.Aktiv);
+        Assert.Equal(new DateOnly(2004, 9, 30), sosialAktor.GyldigTil);
+        Assert.Null(await new VirksomhetOppslagTjeneste(db).FinnVirksomhetIdForNavnEllerNavneformAsync("Sosialdepartementet"));
+        var avvikler = await db.Strukturkanter.SingleAsync(k => k.Typekode == "avvikler" && k.TilVirksomhetId == sosialAktor.Id);
+        Assert.Equal(kongen, avvikler.FraVirksomhetId);
+        Assert.Equal(Strukturkanter.MaskineltForeslatt, avvikler.Status);
+        Assert.Equal(new DateOnly(2004, 10, 1), avvikler.GyldigFra);
+        var sosialNavn = await db.Begreper.SingleAsync(b => b.VirksomhetReferanseId == sosialAktor.Id && b.Term == "Sosialdepartementet");
+        Assert.Equal("gjeldende", sosialNavn.Navneformgrunn);
+        Assert.Equal(Strukturkanter.MaskineltForeslatt, sosialNavn.Godkjenning);
 
         var utgatt = await db.Begreper.SingleAsync(b => b.VirksomhetReferanseId == lmd && b.Term == "Landbruksdepartementet");
         Assert.Equal("utgatt", utgatt.Navneformgrunn);
@@ -112,7 +125,47 @@ public class OrganiseringskilderTests(EmbeddedPostgresFixture fixture)
 
         // Idempotent: andre kjøring legger ikke til noe.
         var r2 = await livslop.KjorAsync(skriv: true);
-        Assert.Equal(0, r2.Skriving.OpprettetNye + r2.Skriving.NavneformerNye + r2.Skriving.RessortNye);
+        Assert.Equal(0, r2.Skriving.OpprettetNye + r2.Skriving.NavneformerNye + r2.Skriving.RessortNye + r2.Skriving.AvviklerNye);
+        Assert.Equal(0, r2.Skriving.HistoriskeAktorerNye);
         Assert.Empty(r2.Skriving.Feil);
+
+        // ---- Etterfølger (Johanns avgjørelse 2): et konstruert vedtak 2006 nedlegger Arbeids- og sosialdepartementet og gir lovene det
+        // fikk i 2004 (vedlegg 1) til et nytt Arbeids- og inkluderingsdepartement. Da etterfølger det nye det nedlagte, avledet av lovene.
+        var v2006 = html.Replace("FOR-2004-10-01-1304", "FOR-2005-12-16-9998").Replace("2004-10-01-1304", "2005-12-16-9998")
+            .Replace("<dd class=\"dateInForce\">2004-10-01</dd>", "<dd class=\"dateInForce\">2006-01-01</dd>")
+            .Replace("Opprettelse av et Arbeids- og sosialdepartement, et Helse- og omsorgsdepartement og et Moderniseringsdepartement.",
+                "Opprettelse av et Arbeids- og inkluderingsdepartement.")
+            .Replace("Nedleggelse av Sosialdepartementet, Helsedepartementet og Arbeids- og administrasjonsdepartementet.",
+                "Nedleggelse av Arbeids- og sosialdepartementet.")
+            .Replace("Oversikt over lover Arbeids- og sosialdepartementet skal ha", "Oversikt over lover Arbeids- og inkluderingsdepartementet skal ha");
+        Assert.Equal(1, (await import.KjorAsync(Dokumenter(("FOR-2005-12-16-9998", "forskrift", v2006)), skriv: true)).Importert);
+        var aid = await SikreAktorAsync(db, "Arbeids- og inkluderingsdepartementet");
+        var r3 = await livslop.KjorAsync(skriv: true);
+        Assert.True(r3.Skriving.Feil.Count == 0, string.Join(" || ", r3.Skriving.Feil));
+        var asdAktor = await db.Virksomheter.SingleAsync(v => v.Livsstatus == "nedlagt" && v.Navn == "Arbeids- og sosialdepartementet");
+        Assert.Equal(new DateOnly(2004, 10, 1), asdAktor.GyldigFra);
+        Assert.Equal(new DateOnly(2005, 12, 31), asdAktor.GyldigTil);
+        var etterfolger = await db.Strukturkanter.SingleAsync(k => k.Typekode == "etterfolger" && k.FraVirksomhetId == aid && k.TilVirksomhetId == asdAktor.Id);
+        Assert.Equal(Strukturkanter.Avledet, etterfolger.Kunnskapsstatus);
+        Assert.Equal(Strukturkanter.MaskineltForeslatt, etterfolger.Status);
+        Assert.True(await db.StrukturkantPremisser.AnyAsync(p => p.KantId == etterfolger.Id));
+        // Et rent navnebytte gir aldri etterfølger: Landbruks- og matdepartementet har ingen.
+        Assert.False(await db.Strukturkanter.AnyAsync(k => k.Typekode == "etterfolger" && (k.FraVirksomhetId == lmd || k.TilVirksomhetId == lmd)));
+        // HOD finnes før og etter 2006 (ikke nedlagt), så HOD får ingen etterfølger selv om vedlegg 2 gjentas.
+        Assert.False(await db.Strukturkanter.AnyAsync(k => k.Typekode == "etterfolger" && k.TilVirksomhetId == hod));
+
+        // ---- Markøren for rene endringsvedtak (Johanns avgjørelse 6): hodet sier at kilden endrer et annet dokument, OG tittelen har
+        // endringsform, OG ingen organiseringstype. Sveipene hopper over den uten å lese tittelen.
+        var endring = html.Replace("FOR-2004-10-01-1304", "FOR-2004-10-03-9997").Replace("2004-10-01-1304", "2004-10-03-9997")
+            .Replace("<dd class=\"title\">Omorganisering av departementsstrukturen fra 1. oktober 2004.</dd>",
+                "<dd class=\"title\">Forskrift om endring i forskrift om noe.</dd>");
+        var endringId = await new RettskildeImportTjeneste(db).ImporterAsync(RegelIde.Kildekonvertering.LovdataKonverterer.Konverter(endring));
+        var rapportEndring = await klassifiserer.KlassifiserAsync(skriv: true, rettskildeId: endringId);
+        Assert.Equal(1, rapportEndring.ReneEndringsvedtak);
+        var endringKilde = await db.Rettskilder.AsNoTracking().SingleAsync(r => r.Id == endringId);
+        Assert.True(endringKilde.RentEndringsvedtak);
+        Assert.Contains("changesToDocuments", endringKilde.RentEndringsvedtakGrunnlag);
+        Assert.Contains(endringId, await Sveipeutvalg.StandardUtelattAsync(db));
+        Assert.DoesNotContain(id, await Sveipeutvalg.StandardUtelattAsync(db));
     }
 }
