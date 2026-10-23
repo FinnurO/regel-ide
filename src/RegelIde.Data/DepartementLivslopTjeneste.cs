@@ -436,7 +436,12 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
             foreach (var gruppe in tildelinger.Where(t => t.Hjemmel.RettskildeId == vedtak && t.Id != x && t.Eli is not null && hadde.ContainsKey(t.Eli))
                          .GroupBy(t => t.Id))
             {
-                svar.Add((x, gruppe.Key, gruppe.Select(t => (hadde[t.Eli!], t)).ToList()));
+                // [ENDRET etter juristrunden M5 2026-10-23, E19/E22/E30/E32/E34] Samme DEL av loven må gå over: enten hele loven begge
+                // ganger, eller samme punkttekst. Et par på ELI alene ga falske etterfølgere (KKD hadde §§ 1 og 3 i brudvigjingslova, BLD
+                // §§ 2, 6, 7 og 11 — ulike deler av samme lov).
+                var par = gruppe.Select(t => (Gammel: hadde[t.Eli!], Ny: t))
+                    .Where(p => (p.Gammel.Hele && p.Ny.Hele) || Delnokkel(p.Gammel.Objekt) == Delnokkel(p.Ny.Objekt)).ToList();
+                if (par.Count > 0) svar.Add((x, gruppe.Key, par));
             }
         }
         return svar;
@@ -619,16 +624,27 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
                 .Where(g => g != Guid.Empty).Distinct().ToList();
             if (premisser.Count == 0) { feil.Add($"R etterfolger {y.Gjeldende} → {x.Gjeldende}: ingen av premisskantene ble skrevet"); continue; }
             var lover = par.Select(p => p.Ny.Objekt).Distinct().ToList();
-            await Opprett(new NyStrukturkant(Strukturkanter.Relasjon, "etterfolger", Kantnode.Virksomhet(katalog[y].Id), Kantnode.Virksomhet(katalog[x].Id),
+            var ny = new NyStrukturkant(Strukturkanter.Relasjon, "etterfolger", Kantnode.Virksomhet(katalog[y].Id), Kantnode.Virksomhet(katalog[x].Id),
                 HjemmelRettskildeId: x.NedlagtVed!.RettskildeId, HjemmelEid: x.NedlagtVed.Eid, GyldigFra: x.Nedlagt,
-                Kommentar: $"Lover som går fra {x.Gjeldende} til {y.Gjeldende} i samme vedtak: " + string.Join("; ", lover.Take(5).Select(o => Avkort(o)))
+                Kommentar: $"Lover som går fra {NavnPaa(x, x.Nedlagt!.Value.AddDays(-1))} til {NavnPaa(y, x.Nedlagt.Value)} i samme vedtak: " + string.Join("; ", lover.Take(5).Select(o => Avkort(o)))
                     + (lover.Count > 5 ? $" … ({lover.Count} i alt)" : ""),
                 Status: Strukturkanter.MaskineltForeslatt, OppdagelsesKilde: "monster:livslop-etterfolger",
                 Kunnskapsstatus: Strukturkanter.Avledet, Premisser: premisser,
-                Begrunnelse: $"Avledet (issue #395, Johanns avgjørelse 2): {x.Gjeldende} nedlegges ved «{x.NedlagtVed.Tittel}», og {lover.Count} lov(er) "
-                    + $"{x.Gjeldende} hadde forvaltningsansvaret for, gis i samme vedtak til {y.Gjeldende}. Ansvaret går over til et annet organ. "
-                    + "Premissene er forvaltningskantene før og etter."),
-                () => eNye++, () => eFantes++);
+                // [ENDRET etter juristrunden M5, E27] Navnene som gjaldt på datoen, ikke dagens.
+                Begrunnelse: $"Avledet (issue #395, Johanns avgjørelse 2): {NavnPaa(x, x.Nedlagt!.Value.AddDays(-1))} nedlegges ved «{x.NedlagtVed.Tittel}», og "
+                    + $"{lover.Count} lov(er) eller samme del av lov det hadde forvaltningsansvaret for, gis i samme vedtak til {NavnPaa(y, x.Nedlagt.Value)}. "
+                    + "Ansvaret går over til et annet organ. Premissene er forvaltningskantene før og etter. Omfanget (hoved- eller delvis etterfølger) "
+                    + "står i kommentaren; formatet har ikke eget felt for det.");
+            var eId = await Opprett(ny, () => eNye++, () => eFantes++);
+            // Et maskinelt forslag som alt fantes, får oppdatert tekst (begrunnelse og kommentar er ikke en del av utsagnets identitet, og
+            // ingen har vurdert det ennå). Et vurdert eller avvist utsagn røres ikke.
+            if (eId is { } eid && await db.Strukturkanter.FirstOrDefaultAsync(k => k.Id == eid, ct) is { Status: Strukturkanter.MaskineltForeslatt } eksisterende
+                && (eksisterende.Begrunnelse != ny.Begrunnelse || eksisterende.Kommentar != ny.Kommentar))
+            {
+                eksisterende.Begrunnelse = ny.Begrunnelse;
+                eksisterende.Kommentar = ny.Kommentar;
+                await db.SaveChangesAsync(ct);
+            }
         }
 
         return new LivslopSkriving(oNye, oFantes, nNye, nFantes, rNye, rFantes, avvist, feil)
@@ -636,6 +652,14 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
             AvviklerNye = aNye, AvviklerFantes = aFantes, EtterfolgerNye = eNye, EtterfolgerFantes = eFantes,
         };
     }
+
+    /// <summary>Punktteksten uten mellomrom og skilletegn, for å kjenne igjen samme del av en lov i to vedlegg.</summary>
+    private static string Delnokkel(string objekt) =>
+        new string(objekt.Where(char.IsLetterOrDigit).ToArray()).ToLowerInvariant();
+
+    /// <summary>Navnet identiteten hadde på en dato (navnet som gjaldt da), ellers det siste.</summary>
+    private static string NavnPaa(Identitet i, DateOnly dato) =>
+        i.Navn.LastOrDefault(n => (n.Fra is null || n.Fra <= dato) && (n.Til is null || n.Til >= dato)).Navn ?? i.Gjeldende;
 
     private static string TilGrunn(Tildeling t, DateOnly til) =>
         t.Id.Nedlagt is { } nd && til == nd.AddDays(-1)
