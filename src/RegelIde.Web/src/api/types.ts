@@ -315,6 +315,10 @@ export interface OppdaterBrukerRequest {
 
 export interface VirksomhetDto {
   id: string;
+  /** [Ny, issue #395 M5] 'nedlagt' for et nedlagt departement (ingen registerkobling, gyldighet fra vedtakene); ellers null/utelatt. */
+  livsstatus?: string | null;
+  gyldigFra?: string | null;
+  gyldigTil?: string | null;
   /**
    * REGISTERETS egen form av navnet (issue #158) — for Brreg-synkroniserte rader betyr det VERSALER,
    * og for tospråklige kommuner en konkatenering uten skilletegn:

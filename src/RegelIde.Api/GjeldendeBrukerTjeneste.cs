@@ -81,7 +81,10 @@ public sealed record VirksomhetDto(
     /// for å hente navneformen ikke er verdt det.</summary>
     public static VirksomhetDto FraEntitet(Virksomhet v) => new(
         v.Id, v.Navn, v.Organisasjonsnummer, v.Aktiv, v.Forvaltningsniva, v.OrganisasjonsformKode,
-        v.Sektorkode, v.OverordnetEnhetId, v.SistBrregSynkronisert, v.Navn, v.Aktortype, v.Ordningstype);
+        v.Sektorkode, v.OverordnetEnhetId, v.SistBrregSynkronisert, v.Navn, v.Aktortype, v.Ordningstype)
+    {
+        Livsstatus = v.Livsstatus, GyldigFra = v.GyldigFra, GyldigTil = v.GyldigTil,
+    };
 
     /// <summary>Med visningsnavn slått opp — brukes av katalogendepunktet, som henter alle
     /// navneformene i ett spørsmål (<see cref="VirksomhetVisningsnavnTjeneste.AlleAsync"/>).
@@ -93,6 +96,7 @@ public sealed record VirksomhetDto(
         visningsnavn.GetValueOrDefault(v.Id) ?? v.Navn, v.Aktortype, v.Ordningstype)
     {
         NavneformMangler = !visningsnavn.ContainsKey(v.Id),
+        Livsstatus = v.Livsstatus, GyldigFra = v.GyldigFra, GyldigTil = v.GyldigTil,
     };
 
     /// <summary>[Ny, issue #385 AC2] Én rad med visningsnavnet slått opp — for endepunktene som returnerer en nyopprettet eller endret aktør.</summary>
@@ -105,6 +109,12 @@ public sealed record VirksomhetDto(
     /// <summary>[Ny, issue #385 AC1/AC2] Sann når aktøren ikke har en godkjent gjeldende navneform — visningsnavnet er da registernavnet,
     /// og siden viser «Navneform mangler». Null der det ikke er slått opp.</summary>
     public bool? NavneformMangler { get; init; }
+
+    /// <summary>[Ny, issue #395 M5] <c>nedlagt</c> for et nedlagt departement (ingen registerkobling), ellers null. Med gyldighetsperioden fra
+    /// vedtakene.</summary>
+    public string? Livsstatus { get; init; }
+    public DateOnly? GyldigFra { get; init; }
+    public DateOnly? GyldigTil { get; init; }
 }
 
 /// <summary>Brukerhåndteringssiden — se BrukerregisterTjeneste.GyldigeRoller for gyldige verdier.</summary>
