@@ -1131,7 +1131,9 @@ rettskildene. Migrasjonen `Aktoridentitet`:
 ### 5.9 Organiseringskildene og departementenes livsløp (#395, bygget 2026-10-23)
 
 **Disposisjonstype** (`rettskilde_disposisjonstyper`, `Disposisjonstyper.cs`): lukket liste `oppretting`, `navneendring`, `nedleggelse`,
-`omorganisering`, `overforing_ressortfordeling`, `delegering`, `instruks`, `ikrafttredelse`, `regulering`. En kilde kan ha flere. Hver rad har
+`omorganisering`, `overforing_ressortfordeling`, `delegering`, `instruks`, `ikrafttredelse`, `regulering`. En kilde kan ha flere.
+Presisjon på juristutvalget (40 kilder): 79 % (42/53) før juristrundens rettinger, 96 % (46/48, én type ikke vurdert) etter — målt på det
+SAMME utvalget som rettingene bygger på, så tallet er optimistisk. Hver rad har
 metode (`tittel` | `monster` | `ki` | `manuell`), regel, treff og kunnskapsstatus `normalisering`. Ingen rad = uklassifisert. Tittelregler
 først; innholdsmønstrene kjøres når tittelen ikke ga noen type (bare for kilder med høyst 30 noder) eller bare organiseringstyper.
 Anledningen i tittelen («som følge av oppretting av …», «i forbindelse med etableringen av …», parenteser) gir ikke type. KI-laget er ikke
@@ -1140,7 +1142,12 @@ hendelsen står. `POST /api/rettskilder/disposisjonstyper/klassifiser[?skriv=tru
 filter på kildeform og disposisjonstype (docs/09 §41).
 
 **Sveipefilter** (`Sveipeutvalg`): begreps- og navnekandidatsveipet over hele korpuset hopper som standard over kilder der alle typene er
-`ikrafttredelse`, og kunngjorte rene endringsvedtak uten organiseringstype; `?inkluderIkrafttredelseOgEndring=true` tar dem med.
+`ikrafttredelse`, og kilder markert som rent endringsvedtak; `?inkluderIkrafttredelseOgEndring=true` tar dem med.
+
+**[Ny, Johanns avgjørelse 6] Markøren for rene endringsvedtak** er en egen egenskap på rettskilden (`rettskilder.rent_endringsvedtak`,
+med regelen i `rent_endringsvedtak_grunnlag`), ikke en disposisjonstype: den lukkede listen er uendret. Den settes når hodet sier at kilden
+endrer andre dokumenter (`changesToDocuments`), tittelen har endringsform, og ingen organiseringstype slo til — to signaler fra kilden, ikke
+tittelen alene. Målt: 222 kilder.
 Uklassifisert er ikke ikrafttredelse og blir alltid med.
 
 **Livsløpet** (`DepartementLivslopTjeneste`, `POST /api/departementer/livslop[?skriv=true]`) bygger departementene som identiteter over tid
@@ -1156,16 +1163,34 @@ eldre vedtak (Lovdata oppdaterer dem); en slik identitet slås sammen ved navneb
 - **F forvaltning** (ressortfordeling) per lov i vedleggene («Oversikt over lover X skal ha forvaltningsansvaret for», åtte målte former) og
   i enkeltoverføringene, med `objekt_eli` (lovens ELI fra dato og nummer), gyldig fra vedtaket og til neste vedtak som gir samme HELE lov til
   et annet departement, eller til nedleggelsen. Modalitet er ikke satt: en ressortfordeling tildeler ansvar, den pålegger ingen plikt.
-- **Ikke skrevet:** R avvikler og R etterfolger. Nedlagte departementer finnes ikke i katalogen (juristrundens M5, prinsipiell; Johanns
-  beslutning). AK 5 er derfor ikke oppfylt for nedlagte departementer. Opprettelser og nedleggelser i samme vedtak står som kandidater i
-  rapporten.
+- **[ENDRET, Johanns avgjørelse M5 2026-10-23] Nedlagte departementer er aktører** (`virksomheter.livsstatus = 'nedlagt'`,
+  `gyldig_fra`/`gyldig_til` fra vedtakene, ingen orgnr, `aktiv = false`). Nøkkelen er (nedlagt, navn, gyldig til), fordi navn gjenbrukes.
+  Det siste navnet er navneform `gjeldende` (gyldig til nedleggelsen), tidligere navn `utgatt`, alle som forslag med hjemmel i vedtaket.
+  Navneoppslagene «for i dag» (`VirksomhetOppslagTjeneste`, livsløpets katalogoppslag) treffer aldri en nedlagt aktør.
+  Aktørsiden og aktørlisten viser merket «Nedlagt (til …)» (docs/09 §41).
+- **R avvikler** fra Kongen i statsråd til det nedlagte departementet (kgl.res.), hjemmel i nedleggelsesleddet, `normalisering`.
+- **[ENDRET, Johanns avgjørelse 2] R etterfolger bare når ansvar går over til et annet organ** (sammenslåing eller oppdeling), aldri ved et
+  rent navnebytte. Avledet (`avledet`, premissene er forvaltningskantene før og etter): X nedlegges i vedtaket V, og V gir SAMME del av en
+  lov X hadde forvaltningsansvaret for (hele loven begge ganger, eller samme punkttekst) til Y. Fra = etterfølgeren. Omfanget (hoved- eller
+  delvis etterfølger) står i kommentaren; formatet har ikke eget felt. Ingen tallterskel (juristrunden M5).
+- **K oppretting og K avvikling** for Kongen i statsråd er registrert én gang, manuelt (`manuelt_foreslatt`), med Grl. § 12 annet ledd
+  som hjemmel og kunnskapsstatus `fortolkning` (ordlyd, praksis): vedtakene oppgir selv Grl. § 12 og Instruks for Regjeringen
+  (LOV-1909-03-23) som hjemmel.
 - **Sekundær kontroll:** siste ressortvedtak for hele loven mot Lovdatas «Ansvarlig departement»; avvik listes, ingenting rettes.
 
 **Målt 2026-10-23 (lokal base):** 45 vedtak, 34 identiteter (16 lever og er i katalogen, 16 nedlagt), 829 ressorttildelinger. Skrevet:
 7 R oppretter, 11 navneformer `utgatt`, 503 F forvaltning. Mot Lovdata: 221 samsvar, 9 avvik, 4 der siste ressortvedtak gjelder et nedlagt
 departement, 178 lover som ikke er i korpuset. 6 ledd ble ikke lest (bl.a. skrivefeilen «regionaldepartementel» i FOR-2013-12-13-1455).
 13 av 16 levende departementer har i dag en gjeldende navneform uten hjemmel eller med en tilfeldig hjemmel (Landbruks- og
-matdepartementet: «Forskrift om avlsfremmende tiltak på bier» § 3), mens navnevedtaket står i rapporten — grunnlaget for del 4 (AK 9).
+matdepartementet: «Forskrift om avlsfremmende tiltak på bier» § 3), mens navnevedtaket står i rapporten — grunnlaget for del 4 (AK 9), som
+bygges i #394 (navneformen får hjemmel i navnevedtaket som forslag, og den gamle hjemmelen settes som erstattet).
+
+**Målt etter M5 (2026-10-23, lokal base):** 16 nedlagte departementer som aktører, 18 navneformer, 9 R oppretter og 16 R avvikler til dem,
+319 F forvaltning for dem (ressortkjeden), 15 avledede R etterfolger. Juristrunden på aktørene og kantene: R oppretter og R avvikler holder
+alle; 5 etterfølgere bygde på ELI alene og koblet ulike deler av samme lov — regelen krever nå samme del (7 tidligere forslag avledes ikke
+lenger og står i forslagskøen til avvisning). Kjente hull: vedtakene fra 1989–1997 i korpuset er ikke lest (Utdannings- og
+forskningsdepartementet 1990, «nytt» Arbeids- og administrasjonsdepartement 1998), og vedleggene 2–4 fra 2001 og 3 fra 2013 gir ingen
+forvaltningskanter, så hovedetterfølgeren mangler for blant andre Sosial- og helsedepartementet og Fiskeri- og kystdepartementet.
 
 ### 5.6 Konvertering av eksisterende data
 

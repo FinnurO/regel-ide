@@ -1205,4 +1205,6 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
   Uklassifisert gir ingen merkelapp (tom celle), som en uspesifisert navneformgrunn (§15).
 - **Filter:** to `Select` ved fritekstfilteret (Kildeform: Alle / Konsolidert / Kunngjort / Ukjent; Disposisjonstype: Alle / de ni / Uklassifisert),
   på fanene «Aktive rettskilder» og «Utenfor korpuset». «Ukjent» og «Uklassifisert» betyr at feltet mangler — ikke en gjettet verdi.
-
+- **[Ny, #395 M5] `NedlagtTag`** (`virksomhet/NedlagtTag.tsx`): «Nedlagt (til ÅÅÅÅ-MM-DD)» som `warning` på aktørsiden og i aktørlisten for
+  en aktør med `livsstatus = 'nedlagt'`, med perioden i `title`. Samme rolle som en utgått navneform (§15): en nedlagt aktør skal aldri kunne
+  leses som en som finnes i dag. Ikke forveksle med «sovende» (`aktiv = false` alene), som ikke sier at noe er nedlagt (CLAUDE.md §9).

@@ -374,6 +374,12 @@ lenker; teksten har href-formen og tolkes av samme `LovdataHrefTolker`.
 `NL/`, `SF/`, `DEL/`, `INS/`, `STV/` → konsolidert). Migrasjonen `Organiseringskilder` fyller den der `dokid` finnes; resten fylles ved neste
 resynk.
 
+**Markør for rene endringsvedtak [Johanns avgjørelse 6, 2026-10-23].** Valgt som egen kolonne på rettskilden
+(`rent_endringsvedtak boolean`, `rent_endringsvedtak_grunnlag text`), ikke som disposisjonstype eller kildeform: kildeform sier hvilken
+tekst vi har (konsolidert/kunngjort), disposisjonstypene er Johanns lukkede liste, og «rent endringsvedtak» er en egenskap ved dokumentet
+som sveipene skal lese uten å tolke tittelen på nytt. Regelen (`DisposisjonstypeTjeneste`): `changesToDocuments` har minst ett mål, tittelen
+har endringsform, og ingen organiseringstype. NULL = ikke markert.
+
 **Utvalg [LÅST, #395].** `POST /api/lovdata/lovtidend-import[?skriv=true]` (`LovtidendImportTjeneste`) importerer bare dokumenter der
 tittelen gir en organiseringstype (`Disposisjonstyper.Organiseringstyper`) og ELI-en (dokumenttype + dato + nummer) ikke finnes som
 primærkilde. En referanse-stub forfremmes. Ikrafttredelser holdes utenfor.
