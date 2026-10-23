@@ -23,7 +23,11 @@ public sealed class EmbeddedPostgresFixture : IAsyncLifetime
         // EmbeddedPostgresApiFixture.cs) — i prinsippet kunne den lande på nettopp 55432 i vinduet
         // før denne fixturen binder den, men det er IKKE bekreftet som en reell årsak til noe
         // observert flaky-tilfelle (GitHub-issue #10) — kun et teoretisk, samme-klasse problem.
-        _server = new PgServer("15.4.0", instanceId: Guid.NewGuid(), port: 55432, clearInstanceDirOnStop: true);
+        // [ENDRET 2026-10-23] Standardporten er flyttet fra 55432 til 15432: Windows (WSL/Hyper-V) reserverte
+        // portområdet 55431–55530, så Data-testene startet ikke lokalt. Porten kan overstyres med
+        // REGELIDE_TEST_PG_PORT. CI (Linux) bruker standardverdien.
+        var port = int.TryParse(Environment.GetEnvironmentVariable("REGELIDE_TEST_PG_PORT"), out var p) ? p : 15432;
+        _server = new PgServer("15.4.0", instanceId: Guid.NewGuid(), port: port, clearInstanceDirOnStop: true);
         await Task.Run(() => _server.Start());
         ConnectionString = $"Host=localhost;Port={_server.PgPort};Username=postgres;Password=postgres;Database=regelide_test";
 

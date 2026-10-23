@@ -57,7 +57,7 @@ faktisk startes.
 
 **To testprosjekter som begge starter embedded Postgres kolliderte** når hele løsningen
 testes samlet (`dotnet test` uten prosjektfilter) — løst med eksplisitt, forskjellig port per
-fixture (`55432`/`55433`) og unik `instanceId`, se kommentarer i
+fixture (`15432`, overstyrbar med `REGELIDE_TEST_PG_PORT`) og unik `instanceId`, se kommentarer i
 `EmbeddedPostgresFixture.cs`/`EmbeddedPostgresApiFixture.cs`.
 
 **Design-time-migrasjoner:** `RegelIdeDbContextFactory.cs` brukes kun av `dotnet ef migrations
