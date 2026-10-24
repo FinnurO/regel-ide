@@ -69,9 +69,14 @@ public sealed class DepartementNavneformHjemmelTjeneste(RegelIdeDbContext db, De
                 .ToListAsync(ct);
             var gjeldende = former.FirstOrDefault(b => b.Entitetsstatus == "gjeldende"
                 && (b.Godkjenning == null || b.Godkjenning == Strukturkanter.Godkjent));
-            var gammel = gjeldende is null ? null : await HjemmelTekstAsync(gjeldende.LovkildeId, gjeldende.LovreferanseEid);
+            // Et ventende forslag til gjeldende navneform med en annen hjemmel (typisk #385 AC1: første treff i lovteksten, «bier § 3»).
+            var ventende = former.Where(b => b.Entitetsstatus == "gjeldende" && b.Godkjenning is { } g && Strukturkanter.Ventende.Contains(g)).ToList();
+            var gammelForslag = gjeldende is null ? ventende.FirstOrDefault(b => b.OppdagelsesKilde != OppdagelsesKilde) : null;
+            var erstattes = gjeldende ?? gammelForslag;
+            var gammel = erstattes is null ? null : await HjemmelTekstAsync(erstattes.LovkildeId, erstattes.LovreferanseEid)
+                + (erstattes == gammelForslag ? " (forslag)" : "");
             NavneformHjemmelRad Rad(string utfall, string? ks = null, Guid? forslag = null) => new(vid, i.KatalogNavn ?? sist.Navn, utfall,
-                gjeldende?.Id, gjeldende?.Term, gammel, sist.GittVed, ks, forslag);
+                erstattes?.Id, erstattes?.Term, gammel, sist.GittVed, ks, forslag);
 
             if (sist.GittVed is not { } h) { rader.Add(Rad(NavneformHjemmelUtfall.UtenNavnevedtak)); continue; }
             bool SammeHjemmel(BegrepEntitet b) => b.LovkildeId == h.RettskildeId && b.LovreferanseEid == h.Eid;
@@ -89,7 +94,7 @@ public sealed class DepartementNavneformHjemmelTjeneste(RegelIdeDbContext db, De
             }
 
             // Termen er den godkjente navneformens (navnet katalogen alt viser); finnes ingen, livsløpets navn.
-            var term = gjeldende?.Term ?? sist.Navn;
+            var term = erstattes?.Term ?? sist.Navn;
             var ordrett = h.Tekst.Contains(term, StringComparison.Ordinal);
             var ks = ordrett ? Strukturkanter.Tekstfunn : Strukturkanter.Normalisering;
             Guid? id = null;
@@ -110,8 +115,9 @@ public sealed class DepartementNavneformHjemmelTjeneste(RegelIdeDbContext db, De
                     Begrunnelse = (ordrett
                             ? $"Navnevedtaket: «{Avkort(h.Tekst)}»"
                             : $"Navnevedtaket: «{Avkort(h.Tekst)}» Navnet står i genitiv eller ubestemt form i vedtaket og er gjort til bestemt grunnform.")
-                        + (gjeldende is null ? "" : $" Erstatter hjemmelen navneformen har i dag ({gammel}) når forslaget godkjennes."),
-                    ErstatterId = gjeldende?.Id,
+                        + (gjeldende is not null ? $" Erstatter hjemmelen navneformen har i dag ({gammel}) når forslaget godkjennes."
+                            : gammelForslag is not null ? $" Erstatter forslaget med hjemmel i {gammel}." : ""),
+                    ErstatterId = erstattes?.Id,
                     Godkjenning = Strukturkanter.MaskineltForeslatt,
                     OppdagelsesKilde = OppdagelsesKilde,
                     OpprettetAv = bruker,
@@ -119,6 +125,17 @@ public sealed class DepartementNavneformHjemmelTjeneste(RegelIdeDbContext db, De
                 };
                 db.Begreper.Add(b);
                 db.Proveniens.Add(ProveniensHjelper.NyRad("begrep", b.Id, virksomhetId: null, "foreslatt", bruker));
+                // [Johanns avgjørelse 3 på #395: «den gamle hjemmelen settes som erstattet»] Er den gamle bare et FORSLAG (ikke vurdert av
+                // noen), settes det som erstattet med en gang — ellers ville to konkurrerende forslag stått i køen. Taggene flyttes. Er den
+                // gamle godkjent, venter erstatningen til det nye er godkjent (AktoridentitetTjeneste.GodkjennNavneformAsync).
+                if (gammelForslag is not null)
+                {
+                    gammelForslag.Entitetsstatus = "erstattet";
+                    gammelForslag.SistEndretAv = bruker;
+                    gammelForslag.SistEndretTidspunkt = DateTimeOffset.UtcNow;
+                    db.Proveniens.Add(ProveniensHjelper.NyRad("begrep", gammelForslag.Id, virksomhetId: null, "erstattet", bruker));
+                    foreach (var t in await db.TekstTagger.Where(t => t.RefId == gammelForslag.Id).ToListAsync(ct)) t.RefId = b.Id;
+                }
                 await db.SaveChangesAsync(ct);
                 id = b.Id;
             }

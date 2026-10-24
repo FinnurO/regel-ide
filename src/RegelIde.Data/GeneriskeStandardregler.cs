@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 
 namespace RegelIde.Data;
@@ -148,10 +149,10 @@ public sealed class GeneriskStandardregelTjeneste(RegelIdeDbContext db)
         {
             AnsvarligDepartement => await DepartementAsync(regel, rettskildeId, dato, ct),
             KlasseKommune => await FastKlasseAsync(regel, await db.Begreper.FirstOrDefaultAsync(
-                b => b.Medlemskapsregel == Klasseregler.OmraderegisterKommune && b.Entitetsstatus == "gjeldende", ct), dato, ct),
+                b => b.Medlemskapsregel == Klasseregler.OmraderegisterKommune && b.Entitetsstatus == "gjeldende", ct), rettskildeId, dato, ct),
             KlasseStatsforvalter => await FastKlasseAsync(regel, await db.Begreper.FirstOrDefaultAsync(
                 b => b.Begrepskategori == Nodetyper.Klasse && b.Term == StatsforvalterKlasseTerm && b.LovkildeId == null
-                     && b.Omradetype == null && b.Entitetsstatus == "gjeldende", ct), dato, ct),
+                     && b.Omradetype == null && b.Entitetsstatus == "gjeldende", ct), rettskildeId, dato, ct),
             _ => null,
         };
         _cache[nokkel] = svar;
@@ -162,9 +163,56 @@ public sealed class GeneriskStandardregelTjeneste(RegelIdeDbContext db)
         List<string> merknader, string utfall = StandardregelUtfall.IkkeLost) =>
         new(r.Term, r.Regelkode, r.Navn, utfall, null, null, null, r.Kunnskapsstatus, null, d, null, null, forklaring, premisser, merknader);
 
-    private async Task<StandardregelSvar> FastKlasseAsync(GeneriskStandardregel r, BegrepEntitet? klasse, DateOnly? dato, CancellationToken ct)
+    /// <summary>
+    /// [Ny, juristrunden på #394 (runde 1, 2026-10-24)] Når kilden selv sier hva ordet betyr, går kilden foran regelen: regelen gir da
+    /// «ikke avklart» med grunnen, og en manuell binding avgjør. Fire sperrer, i rekkefølge:
+    /// (a) kilden definerer ordet («Med «Statsforvalteren» forstås …», «med kommune forstås Longyearbyen lokalstyre»);
+    /// (b) for «statsforvalteren»: kilden navngir ett embete («Statsforvalteren i Trøndelag avgjør …») — juristen målte 92 noder i 26 kilder;
+    /// (c) kilden er et virksomhetsdokument (eid av én aktør, typisk en kommune): «kommunen» er da utstederen (Bergen kommunes retningslinjer);
+    /// (d) kilden gjelder Svalbard, Jan Mayen eller Longyearbyen, som ikke er inndelt i kommuner og fylker (Longyearbyen lokalstyre er ikke en
+    /// kommune; Jan Mayen ligger under Statsforvalteren i Nordland).
+    /// </summary>
+    private async Task<string?> SperreAsync(GeneriskStandardregel r, Guid rettskildeId, CancellationToken ct)
+    {
+        var rk = await db.Rettskilder.Where(x => x.Id == rettskildeId).Select(x => new { x.Tittel, x.Kortnavn, x.VirksomhetId }).FirstOrDefaultAsync(ct);
+        if (rk is null) return "Fant ikke rettskilden.";
+        var stamme = r.Regelkode == KlasseKommune ? "kommun" : "statsforvalt";
+        var definisjon = $@"\m(med|ved)\s+«?{stamme}[a-zæøå]*»?\s+(menes|meinast|forstås)";
+        if (await db.RettskildeNoder.AnyAsync(n => n.RettskildeId == rettskildeId && n.Entitetsstatus == "gjeldende" && n.Tekst != null
+                && Regex.IsMatch(n.Tekst, definisjon, RegexOptions.IgnoreCase), ct))
+        {
+            return $"Kilden definerer selv hva «{r.Term}» betyr. Definisjonen går foran standardregelen — bind manuelt etter den.";
+        }
+        if (r.Regelkode == KlasseStatsforvalter)
+        {
+            var navngitt = await db.RettskildeNoder.Where(n => n.RettskildeId == rettskildeId && n.Entitetsstatus == "gjeldende" && n.Tekst != null
+                    && Regex.IsMatch(n.Tekst, @"Statsforvalteren i [A-ZÆØÅ]"))
+                .Select(n => n.Tekst!).Take(20).ToListAsync(ct);
+            if (navngitt.Count > 0)
+            {
+                var navn = navngitt.SelectMany(t => System.Text.RegularExpressions.Regex.Matches(t, @"Statsforvalteren i [A-ZÆØÅ][\p{L}]+(?:(?:,| og) [A-ZÆØÅ][\p{L}]+)*")
+                    .Select(m => m.Value)).Distinct().Take(3);
+                return $"Kilden navngir et bestemt embete ({string.Join(", ", navn)}). «{r.Term}» kan vise tilbake til det — bind manuelt.";
+            }
+        }
+        if (rk.VirksomhetId is { } eier)
+        {
+            var navn = await db.Virksomheter.Where(v => v.Id == eier).Select(v => v.Navn).FirstOrDefaultAsync(ct);
+            return $"Kilden er et virksomhetsdokument eid av {navn}. «{r.Term}» kan være utstederen selv — bind manuelt.";
+        }
+        var tittel = $"{rk.Tittel} {rk.Kortnavn}";
+        if (System.Text.RegularExpressions.Regex.IsMatch(tittel, @"Svalbard|Jan Mayen|Longyearbyen", System.Text.RegularExpressions.RegexOptions.IgnoreCase))
+        {
+            return "Kilden gjelder Svalbard, Jan Mayen eller Longyearbyen, som ikke er inndelt i kommuner og fylker — bind manuelt.";
+        }
+        return null;
+    }
+
+    private async Task<StandardregelSvar> FastKlasseAsync(GeneriskStandardregel r, BegrepEntitet? klasse, Guid rettskildeId, DateOnly? dato,
+        CancellationToken ct)
     {
         var d = dato ?? DateOnly.FromDateTime(DateTime.Today);
+        if (await SperreAsync(r, rettskildeId, ct) is { } sperre) return IkkeLost(r, d, sperre, [], []);
         if (klasse is null)
         {
             return IkkeLost(r, d, $"Klassen regelen peker på, finnes ikke i modellen. Ingen gjettet fallback.", [], []);
@@ -176,12 +224,22 @@ public sealed class GeneriskStandardregelTjeneste(RegelIdeDbContext db)
             var eli = eid[..(i + 4)];
             hjemmelId = await db.Rettskilder.Where(x => x.Eli == eli && x.Entitetsstatus == "gjeldende").Select(x => (Guid?)x.Id).FirstOrDefaultAsync(ct);
         }
-        var premiss = new StandardregelPremiss("klasse", $"Klassen «{klasse.Term}»" + (klasse.LovreferanseEid is null ? " (uten hjemmel i korpus)" : ""),
-            Status: klasse.Godkjenning ?? Strukturkanter.Godkjent, Kunnskapsstatus: klasse.Kunnskapsstatus, HjemmelRettskildeId: hjemmelId,
-            HjemmelEid: klasse.LovreferanseEid);
+        // [ENDRET etter juristrunden på #394, runde 2] Ingen gjettet status: en klasse uten godkjenning (registrert før #385) vises som
+        // «ikke vurdert», ikke som godkjent (docs/33 §5.8), og hjemmelen til en klasse uten vurdert kunnskapsstatus vises som «hjemmel ikke
+        // vurdert» — klassen statsforvalter har i dag reindriftsloven § 62 fjerde ledd, som ikke er grunnlaget for klassen.
+        var vurdert = klasse.Kunnskapsstatus is not null;
+        var premiss = new StandardregelPremiss("klasse",
+            $"Klassen «{klasse.Term}»" + (klasse.LovreferanseEid is null ? " (uten hjemmel i korpus)" : vurdert ? "" : " (hjemmel ikke vurdert)"),
+            Status: klasse.Godkjenning, Kunnskapsstatus: klasse.Kunnskapsstatus, HjemmelRettskildeId: vurdert ? hjemmelId : null,
+            HjemmelEid: vurdert ? klasse.LovreferanseEid : null);
         return new StandardregelSvar(r.Term, r.Regelkode, r.Navn, StandardregelUtfall.Lost, StandardregelRute.FastReferent,
             Kantnode.Begrep(klasse.Id), new KantnodeVisning("begrep", klasse.Id, klasse.Term, klasse.Begrepskategori), r.Kunnskapsstatus,
-            "primaer", d, null, null, $"«{r.Term}» betyr klassen {klasse.Term} (standardregel).", [premiss], []);
+            "primaer", d, null, null, $"«{r.Term}» betyr klassen {klasse.Term} (standardregel).", [premiss],
+            // [Ny, juristrunden på #394] En slutning er ikke sterkere enn det svakeste premisset (profilsiden).
+            klasse.Kunnskapsstatus is null
+                ? [$"Klassen «{klasse.Term}» har ingen vurdert kunnskapsstatus" + (klasse.LovreferanseEid is null ? " og ingen hjemmel." : $" (hjemmel: {klasse.LovreferanseEid}).")
+                   + " Svaret er ikke sterkere enn det."]
+                : []);
     }
 
     private async Task<StandardregelSvar> DepartementAsync(GeneriskStandardregel r, Guid rettskildeId, DateOnly? dato, CancellationToken ct)
@@ -306,6 +364,19 @@ public sealed class GeneriskStandardregelTjeneste(RegelIdeDbContext db)
         var id = await new VirksomhetOppslagTjeneste(db).FinnVirksomhetIdForNavnAsync(lovdata[0]);
         if (id is null)
         {
+            // Et gammelt navn: livsløpet (#395) kan ha registrert det som utgått navneform for et levende departement. Det sies, men brukes
+            // ikke: et navn kobles aldri til en aktør på navnet alene (navn gjenbrukes, #395).
+            var lower = lovdata[0].ToLower();
+            var utgatt = await db.Begreper.Where(b => b.Navneformgrunn == "utgatt" && b.Entitetsstatus == "gjeldende" && b.VirksomhetReferanseId != null
+                    && b.Term.ToLower() == lower)
+                .Join(db.Virksomheter, b => b.VirksomhetReferanseId, v => v.Id, (b, v) => new { v.Navn, v.Livsstatus, b.Godkjenning, b.GyldigTil })
+                .ToListAsync(ct);
+            foreach (var u in utgatt)
+            {
+                merknader.Add($"«{lovdata[0]}» er registrert som utgått navn for {u.Navn}"
+                    + (u.GyldigTil is { } gt ? $" (til {gt:yyyy-MM-dd})" : "") + (u.Livsstatus == "nedlagt" ? ", som er nedlagt" : "")
+                    + $" — {(u.Godkjenning is null or Strukturkanter.Godkjent ? "godkjent" : "forslag")}. Bind manuelt om det er riktig.");
+            }
             return IkkeLost(r, d, $"Lovdata oppgir «{lovdata[0]}», men det navnet finnes ikke som et departement i katalogen i dag. Ingen gjettet fallback.",
                 premisser, merknader);
         }
@@ -318,8 +389,10 @@ public sealed class GeneriskStandardregelTjeneste(RegelIdeDbContext db)
         return new StandardregelSvar(r.Term, r.Regelkode, r.Navn, StandardregelUtfall.Lost, StandardregelRute.Lovdata,
             Kantnode.Virksomhet(id.Value), new KantnodeVisning("virksomhet", id.Value, lv.Navn, null), r.Kunnskapsstatus, "sekundaer", d,
             null, null,
-            $"«departementet» betyr {lv.Navn} etter Lovdatas felt «Ansvarlig departement» (sekundær kilde): ressortfordelingen er ikke vurdert for "
-            + "denne rettskilden.", premisser, merknader);
+            $"«departementet» betyr {lv.Navn} etter Lovdatas felt «Ansvarlig departement» (sekundær kilde): "
+            + (forslagNavn.Count > 0 ? "ressortforslaget for loven er ikke vurdert ennå."
+                : rk.Eli is not null && rk.Eli.Contains("/lov/", StringComparison.Ordinal) ? "ressortvedtakene i korpuset gir ikke loven til noe departement på datoen."
+                : "ressortvedtakene fordeler lover, ikke forskrifter og andre kilder."), premisser, merknader);
     }
 
     /// <summary>
@@ -356,7 +429,11 @@ public sealed class GeneriskStandardregelTjeneste(RegelIdeDbContext db)
             {
                 var g = s.Forklaring.StartsWith("Ingen vurdert ressortfordeling for rettskilden, og Lovdata oppgir ikke", StringComparison.Ordinal) ? "ingen_kilde"
                     : s.Forklaring.Contains("finnes ikke som et departement", StringComparison.Ordinal) ? "navnet_finnes_ikke_i_katalogen"
-                    : s.Forklaring.Contains("flere departementer", StringComparison.Ordinal) ? "flere_departementer" : "annet";
+                    : s.Forklaring.Contains("flere departementer", StringComparison.Ordinal) ? "flere_departementer"
+                    : s.Forklaring.StartsWith("Kilden definerer", StringComparison.Ordinal) ? "kilden_definerer_ordet"
+                    : s.Forklaring.StartsWith("Kilden navngir", StringComparison.Ordinal) ? "kilden_navngir_embete"
+                    : s.Forklaring.Contains("virksomhetsdokument", StringComparison.Ordinal) ? "virksomhetsdokument"
+                    : s.Forklaring.Contains("Svalbard", StringComparison.Ordinal) ? "svalbard_jan_mayen_longyearbyen" : "annet";
                 grunner[g] = grunner.GetValueOrDefault(g) + 1;
             }
             if (rader.Count < eksempler || s.Utfall != StandardregelUtfall.Lost && rader.Count < eksempler * 2)
