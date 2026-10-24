@@ -226,7 +226,8 @@ gang til. Det regnes ut, slik den avledede domstolkjeden i #345 gjør.
 
 ### Hvordan det tegnes i modellen
 
-- Den generiske navneformen «kommunen» bindes til klassen for hver rettskilde (docs/33 §5.7).
+- Den generiske navneformen «kommunen» betyr klassen etter standardregelen (issue #394), uten en binding for hver rettskilde. En manuell
+  binding går foran, og regelen sier «ikke avklart» når kilden selv sier noe annet (se «Generiske omtaler og standardregler» under).
 - Hvilken kommune omtalen gjelder i den enkelte saken, avgjøres ikke av klassen. Det er #314.
 - **Appen:** begrepssiden viser seksjonen «Medlemmer (utledet av områderegisteret)». Den har antallet, kunnskapsstatus for klassen og for
   medlemskapet, og hullene.
@@ -244,3 +245,43 @@ bare én konsolidert versjon. `rettskilde_id` er versjonen bindingen ble registr
   uten referent, bare for en node ingen av dem dekker.
 - **Grense mot hjemmelen:** hjemmelen peker fortsatt på versjonen bindingen ble vurdert mot. Strukturkantene flagges med «hjemmel endret»
   (#367), men bindingene gjør ikke det ennå. Det hører ikke til #384.
+
+## Generiske omtaler og standardregler (issue #394)
+
+En **generisk omtale** er et fellesnavn i lovteksten — «departementet», «statsforvalteren», «kommunen», «styret» — som betyr noe bestemt i
+hver lov. Den er én generisk navneform for hele korpuset (docs/33 §5.7). Hva den betyr, kommer fra én av to kilder, i denne rekkefølgen:
+
+1. **En binding** (manuell, per rettskilde eller paragrafspenn): godkjent eller faglig vurdert. Et forslag som ingen har vurdert, brukes ikke.
+2. **En standardregel** for ordet. Svaret er en **avledet slutning** med premissene synlige, og det er ikke sterkere enn det svakeste
+   premisset (profilsiden).
+
+| Ord | Standardregel | Premisser | Når regelen ikke gir svar |
+|---|---|---|---|
+| «departementet» | Ansvarlig departement | En **ressortkant** (F forvaltning med lovens ELI, #395) for hele loven på datoen, godkjent eller faglig vurdert — primær kilde. Ellers Lovdatas felt «Ansvarlig departement» — **sekundær kilde** | Ingen kilde; flere departementer; navnet finnes ikke i katalogen i dag |
+| «statsforvalteren» | Klassen statsforvalter | Klassen | Kilden definerer ordet, navngir et embete («Statsforvalteren i Nordland»), er et virksomhetsdokument, eller gjelder Svalbard, Jan Mayen eller Longyearbyen |
+| «kommunen» | Klassen kommune | Klassen (kommuneloven § 2-1 første ledd) | Som over, unntatt navngitt embete |
+
+### Eksempler og grenser
+
+- **Ressortfordeling først:** «departementet» i reindriftsloven er Landbruks- og matdepartementet. I dag kommer svaret fra Lovdatas felt,
+  merket sekundær kilde: ingen ressortkant er vurdert ennå (de 503 fra #395 er maskinelt foreslått). Når en ressortkant godkjennes, slår den
+  igjennom straks, uten ny kjøring.
+- **Forslag er ikke svar:** et ressortforslag som venter, står som merknad («et ressortforslag venter»), og som avvik når det sier noe annet
+  enn Lovdata. Det brukes aldri som svaret.
+- **Over tid:** svaret gjelder på datoen. En eldre versjon av loven slås opp på versjonens dato. Et nedlagt departement er svaret for en dato
+  før nedleggelsen, og merkes «nedlagt». Lovdatas felt sier bare hvem som har ansvaret i dag.
+- **Del av loven:** gir ressortfordelingen en paragraf eller et kapittel til et annet departement, sier merknaden det. Svaret for den delen
+  bindes manuelt.
+- **Forskrifter:** ressortvedtakene fordeler lover. For en forskrift er Lovdatas felt eneste kilde; departementet for hjemmelsloven brukes ikke
+  (en forskrift kan ha flere hjemmelslover).
+- **Klassen, ikke én:** «kommunen» og «statsforvalteren» sier hva slags aktør det er. Hvilken kommune eller statsforvalter i en sak er #314.
+- **Kjent pris (juristrunden på #394):** sperrene gjelder hele kilden. Vergemålsforskriften er sperret for «statsforvalteren» fordi én
+  paragraf (§ 35, Svalbard) navngir et embete. Der binder et menneske resten. Ordformene «statsforvaltaren», «fylkesmannen» og «kommuna»
+  har ingen regel.
+
+### Hvordan det tegnes i appen
+
+- **Taggen i lovteksten:** «departementet» → [Generisk omtale] [Binding · Faglig vurdert] → Landbruks- og matdepartementet, eller
+  [Standardregel] [Sekundær kilde] når regelen ga svaret. Uten svar: «generisk omtale, ikke avklart». Aldri en rå id (docs/09 §42).
+- **Veiviseren:** én skjerm med forslag, søk og forhåndsvisning (docs/09 §42).
+

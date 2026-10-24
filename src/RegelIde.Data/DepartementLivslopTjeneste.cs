@@ -449,7 +449,7 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
 
     /// <summary>Hele loven, ikke enkeltparagrafer eller kapitler («Lov 17. juli 1925 nr. 11 om Svalbard, § 4» er en del).</summary>
     // [ENDRET etter måling 2026-10-23] + «bestemmelser»/«følgende»: «følgende bestemmelser i lov 22. mars 2019 nr. 7 …» er en del.
-    private static bool ErHeleLoven(string objekt) =>
+    public static bool ErHeleLoven(string objekt) =>
         !objekt.Contains('§') && !objekt.Contains("kapittel", StringComparison.OrdinalIgnoreCase) && !objekt.Contains("kap.", StringComparison.OrdinalIgnoreCase)
         // [ENDRET etter juristrunden 2026-10-23, L16/L19/L21] + avgrensninger i punktteksten («Gjelder for petroleumsvirksomhet på
         // landanleggene …», «Anden Bog», «for så vidt gjelder», «med unntak av»). «bestemmelse» alene er for vidt: «… indeholdende visse
