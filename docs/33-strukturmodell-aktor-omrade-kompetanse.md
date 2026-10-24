@@ -1056,7 +1056,7 @@ term som alt er navneform for én virksomhet, kan ikke gjøres generisk (oppslag
 eller begrep av typen klasse eller rolle). Et modellutsagn med samme egenskaper som strukturkantene etter #367: hjemmel i korpus ELLER kilde
 utenfor korpus (type og dokumentasjon), kunnskapsstatus (docs/profil/03 §5: `tekstfunn` når loven definerer ordet, ellers `fortolkning` med
 tolkningsargumenter, eller `eksternt_dokumentert`; `avledet` og `foreldet` avvises), godkjenning, avvisning med hvem/hvorfor (slettes ikke).
-Bare godkjente bindinger oppløser; det smaleste spennet som dekker noden vinner (et spenn dekker nodene fra–til i dokumentrekkefølge og alt
+Bare godkjente bindinger oppløser ([ENDRET, #394, Johanns beslutning 2 2026-10-23] godkjente OG faglig vurderte; se §5.10); det smaleste spennet som dekker noden vinner (et spenn dekker nodene fra–til i dokumentrekkefølge og alt
 under dem; tomt = hele rettskilden). [ENDRET før merge, Johanns beslutning 2026-10-16 etter juristrunden B1] Bindingen har egen gyldighet
 (`gyldig_fra`/`gyldig_til`): «departementet» følger ressortfordelingen ved kgl.res., som kan endres uten at loven endres (docs/profil/03 §8).
 Oppslaget bruker bare bindinger som gjelder på datoen (standard i dag). Samme virkeområde kan ha bindinger etter hverandre i tid;
@@ -1191,6 +1191,66 @@ alle; 5 etterfølgere bygde på ELI alene og koblet ulike deler av samme lov —
 lenger og står i forslagskøen til avvisning). Kjente hull: vedtakene fra 1989–1997 i korpuset er ikke lest (Utdannings- og
 forskningsdepartementet 1990, «nytt» Arbeids- og administrasjonsdepartement 1998), og vedleggene 2–4 fra 2001 og 3 fra 2013 gir ingen
 forvaltningskanter, så hovedetterfølgeren mangler for blant andre Sosial- og helsedepartementet og Fiskeri- og kystdepartementet.
+
+### 5.10 Standardregler for generiske omtaler og navnevedtaket som hjemmel (#394, bygget 2026-10-24)
+
+Johann 2026-10-23: det var tungvint å binde «departementet» til lovens eierdepartement, bindingen han lagde ble ikke brukt (bare godkjente
+oppløste), taggen viste en rå id, og veiviseren hadde for mange steg. Beslutningene står i issue #394; reglene er beskrevet for fagfolk i
+begrepsmanualen (docs/profil/02, «Generiske omtaler og standardregler»).
+
+**Oppslaget** (`GeneriskNavneformTjeneste.LosOppAsync`): vurderte bindinger (godkjent eller faglig vurdert) først, smaleste spenn vinner.
+Dekker ingen av dem noden — og ingen er uflyttbar (`spenn_endret`) eller flertydig — gir **standardregelen** svaret, med ny status `regel`.
+Regelens svar står ved siden av også når en binding vant («regelen alene ville gitt …»). Svarene lagres ikke (som #345).
+`GET /api/navneformer/generiske/oppslag?rettskildeId=&term=&eid=&dato=&bareRegel=` viser status, kilde (binding/regel), bindingen og
+regelens premisser; `bareRegel=true` ser bort fra bindingene. Taggoppslaget (`/api/rettskilder/{id}/generiske-tagger`) har fått term,
+kilde, bindingens status og regelsvaret. Lasteren behandler `regel` som `kjent` (forslagene er uansett forslag). Virksomhetens «brukt i»
+teller bare bindinger.
+
+**Standardreglene** (`GeneriskStandardregelTjeneste`, kode, ikke data — tre regler, bestemt av Johann; liste:
+`GET /api/navneformer/generiske/standardregler`). Kunnskapsstatus `avledet`, med premissene:
+- **«departementet» → ansvarlig departement.** [LÅST, Johanns kommentar på #394 2026-10-23] Ressortfordelingen fra §5.9 er grunnlaget:
+  F forvaltning med `objekt_eli` = rettskildens ELI, for HELE loven (`DepartementLivslopTjeneste.ErHeleLoven`), gyldig på datoen,
+  **godkjent eller faglig vurdert**. Én referent → svar, primær kilde; flere → flertydig. Ellers Lovdatas «Ansvarlig departement» når
+  det er nøyaktig ett navn som finnes i katalogen i dag — **sekundær kilde**. Et ressortforslag som ikke er vurdert, brukes ALDRI som svar;
+  det står i merknadene («et ressortforslag venter», og om det avviker fra Lovdata). Del av loven til et annet departement gir en merknad.
+  Et gammelt navn i Lovdatas felt som er utgått navneform for et levende departement, gir en merknad, ikke et svar (navn gjenbrukes, §5.9).
+- **Gyldighet:** datoen er i dag for den gjeldende versjonen og versjonens dato (konsolidert dato, ellers ikrafttredelse) for en eldre.
+  En ressortkant til et nedlagt departement er svaret før nedleggelsen (`referentNedlagt`); etter den er kanten utløpt (§5.9).
+- **Forskrifter:** ingen ressortkant (vedtakene fordeler lover); Lovdatas felt er eneste kilde. Hjemmelslovens departement brukes ikke.
+- **«statsforvalteren» → klassen statsforvalter, «kommunen» → klassen kommune** (#384). [Ny etter juristrunden på PR-en] Fire sperrer gir
+  «ikke avklart» når kilden selv sier hva ordet betyr: (a) kilden definerer ordet («med kommune forstås Longyearbyen lokalstyre»),
+  (b) for «statsforvalteren»: kilden navngir et embete («Statsforvalteren i ‹sted›»), (c) kilden er et virksomhetsdokument (eid av én
+  aktør — «kommunen» er utstederen), (d) kilden gjelder Svalbard, Jan Mayen eller Longyearbyen. Premisset viser klassens egen status; en
+  klasse uten vurdert kunnskapsstatus vises med «hjemmel ikke vurdert» (klassen statsforvalter har i dag reindriftsloven § 62 fjerde ledd,
+  som ikke er grunnlaget for klassen).
+- **Kjent pris og hull:** sperrene gjelder hele kilden (vergemålsforskriften sperres for «statsforvalteren» i alle 47 forekomster fordi
+  § 35 navngir et embete). Regelen kan treffe der ordet betyr søkeren (klimatiltaksforskriften § 3 nr. 2 og 4) eller kommunen som område;
+  der binder et menneske paragrafen. Sperre (a) fanger bare «med X menes/forstås». Ordformene «statsforvaltaren» (200 noder i 43 kilder),
+  «fylkesmannen» (187 noder i 88 kilder, også eldre versjoner av samme verk) og «kommuna» har ingen regel — det er Johanns valg.
+
+**Målt 2026-10-24 (lokal base, regelen alene, gjeldende primærrettskilder der ordet står som eget ord;
+`GET /api/navneformer/generiske/standardregel-dekning?term=`):**
+
+| Ord | Rettskilder | Ressortfordeling | Lovdata (sekundær) | Fast klasse | Ikke løst | Flertydig |
+|---|---|---|---|---|---|---|
+| departementet | 1 543 | 0 | 1 489 | – | 47 (navnet finnes ikke i katalogen i dag) | 7 (flere departementer i Lovdata) |
+| statsforvalteren | 324 | – | – | 297 | 27 (sperret) | 0 |
+| kommunen | 533 | – | – | 519 | 14 (sperret) | 0 |
+
+Null ressortsvar fordi ingen av ressortkantene fra §5.9 er vurdert ennå; 167 av «departementet»-kildene har et ressortforslag som venter.
+
+**Navnevedtaket som hjemmel (AK 9, Johanns avgjørelse 3 på #395)** (`DepartementNavneformHjemmelTjeneste`,
+`POST /api/departementer/navneform-hjemmel?skriv=`): for hvert levende departement i katalogen der navnevedtaket (`navn[^1].gittVed` i
+livsløpet) ikke alt er hjemmelen, en NY navneform med samme term, grunn «gjeldende», hjemmel i navnevedtaket (`tekstfunn` når navnet står
+ordrett, ellers `normalisering`), `maskinelt_foreslatt`, `oppdagelses_kilde = monster:livslop-navnevedtak` og `erstatter_id` = den gamle.
+Er den gamle bare et forslag, settes den som `erstattet` med en gang (to konkurrerende forslag skal ikke stå i køen) og taggene flyttes.
+Er den gamle godkjent, settes den som `erstattet` — og taggene flyttes — først når det nye forslaget godkjennes
+(`AktoridentitetTjeneste.GodkjennNavneformAsync`). Skrevet i lokal base 2026-10-24: 13 forslag av 16 levende (3 har navn eldre enn det
+eldste vedtaket i korpuset: Utenriks-, Samferdsels- og Forsvarsdepartementet), 8 gamle forslag satt som erstattet, 3 godkjente
+(Energi-, Justis- og beredskaps-, Nærings- og fiskeridepartementet) venter på at det nye godkjennes, 0 tagger flyttet. Forslagene står på
+aktørsiden (fanen Navneformer) med Godkjenn/Avvis.
+
+**Veiviseren** for generisk omtale er én skjerm (docs/09 §42), med forslag fra `GET /api/navnekandidater/{id}/generisk-kontekst`.
 
 ### 5.6 Konvertering av eksisterende data
 
