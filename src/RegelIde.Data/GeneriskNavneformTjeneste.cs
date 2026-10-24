@@ -34,10 +34,20 @@ public static class GeneriskOppslagstatus
     /// bindingene for navneformen brukes som før, og statusen gis bare for en node ingen av dem dekker.
     /// <see cref="GeneriskOppslag.Binding"/> er bindingen som ikke kunne flyttes.</summary>
     public const string SpennEndret = "spenn_endret";
+    /// <summary>[Ny, issue #394 AK 1] Ingen vurdert binding dekker noden, og standardregelen for termen gir referenten
+    /// (<see cref="GeneriskOppslag.Regel"/> har kilde, rute og premisser). En manuell binding går alltid foran.</summary>
+    public const string Regel = "regel";
 }
 
 /// <summary>Resultatet av et oppslag: status, bindingen som vant (ved <c>bundet</c>) og referenten.</summary>
-public sealed record GeneriskOppslag(string Status, NavneformBindingEntitet? Binding, Kantnode? Referent, int AntallForeslatteBindinger);
+public sealed record GeneriskOppslag(string Status, NavneformBindingEntitet? Binding, Kantnode? Referent, int AntallForeslatteBindinger)
+{
+    /// <summary>[Ny, issue #394 AK 1] Standardregelens svar for rettskilden — satt når termen har en regel, også når en binding vant (da som
+    /// opplysning: «regelen alene ville gitt …»). Referenten kommer fra regelen bare ved status <c>regel</c>.</summary>
+    public StandardregelSvar? Regel { get; init; }
+    /// <summary>[Ny, issue #394 AK 1] Hvor svaret kommer fra: <c>binding</c>, <c>regel</c> eller null (ikke avklart).</summary>
+    public string? Kilde => Status == GeneriskOppslagstatus.Bundet ? "binding" : Status == GeneriskOppslagstatus.Regel ? "regel" : null;
+}
 
 /// <summary>Én binding slik den vises: referentens navn og type, rettskildens tittel.</summary>
 public sealed record NavneformBindingVisning(
@@ -78,7 +88,18 @@ public sealed record GeneriskBrukIRettskilde(Guid RettskildeId, string Rettskild
 public sealed record GeneriskNavneformOversikt(Guid NavneformId, string Term, int AntallTagger, IReadOnlyList<GeneriskBrukIRettskilde> Rettskilder);
 
 /// <summary>Oppløsningen av én tagg mot en generisk navneform (AC6 — taggen bruker bindingen).</summary>
-public sealed record GeneriskTaggOppslag(Guid TaggId, Guid NavneformId, string Status, Guid? BindingId, KantnodeVisning? Referent);
+public sealed record GeneriskTaggOppslag(Guid TaggId, Guid NavneformId, string Status, Guid? BindingId, KantnodeVisning? Referent)
+{
+    /// <summary>[Ny, issue #394 AK 2] Termen («departementet»), så kjeden kan vises uten et nytt oppslag.</summary>
+    public string Term { get; init; } = "";
+    /// <summary>[Ny, issue #394 AK 2] <c>binding</c> | <c>regel</c> | null.</summary>
+    public string? Kilde { get; init; }
+    /// <summary>[Ny, issue #394 AK 3] Godkjenningen til bindingen som vant (godkjent eller faglig vurdert).</summary>
+    public string? BindingStatus { get; init; }
+    public string? BindingKunnskapsstatus { get; init; }
+    /// <summary>[Ny, issue #394 AK 1] Standardregelens svar (kilde, rute, premisser), også når en binding vant.</summary>
+    public StandardregelSvar? Regel { get; init; }
+}
 
 /// <summary>
 /// [Ny, issue #378 B4–B7, Johanns godkjenning 2026-10-15] Generiske navneformer og bindingen av dem per rettskilde
@@ -107,6 +128,14 @@ public sealed record GeneriskTaggOppslag(Guid TaggId, Guid NavneformId, string S
 public sealed class GeneriskNavneformTjeneste(RegelIdeDbContext db)
 {
     private const string ProveniensType = "navneform_binding";
+
+    /// <summary>[Ny, issue #394] Standardreglene (cacher per rettskilde og dato i instansen).</summary>
+    private readonly GeneriskStandardregelTjeneste _regler = new(db);
+    private readonly Dictionary<Guid, string> _termer = [];
+
+    /// <summary>[Ny, issue #394 AK 3, Johanns beslutning 2 2026-10-23] Bindingene som brukes i oppslaget: godkjente OG faglig vurderte.
+    /// Forslag som ikke er vurdert (maskinelt eller manuelt foreslått), brukes ikke.</summary>
+    public static readonly string[] VurderteStatuser = [Strukturkanter.Godkjent, Strukturkanter.FagligVurdert];
 
     /// <summary>Begrepstypene en binding kan peke på (B5: «aktør, klasse eller rolle»). Område er ikke en referent for en
     /// aktøromtale; et uavklart <c>gruppe</c>-begrep må først få type (#310).</summary>
@@ -511,31 +540,54 @@ public sealed class GeneriskNavneformTjeneste(RegelIdeDbContext db)
 
     /// <summary>
     /// Slår opp hva generisk navneform <paramref name="navneformId"/> betyr i noden <paramref name="eid"/> i <paramref name="rettskildeId"/>
-    /// (B6). Bare GODKJENTE bindinger teller; det smaleste spennet som dekker noden vinner. Like smale med ulik referent → flertydig.
+    /// (B6). Det smaleste spennet som dekker noden vinner. Like smale med ulik referent → flertydig.
     /// [ENDRET, issue #378, Johanns beslutning 2026-10-16] Bare bindinger som gjelder på <paramref name="dato"/> (standard: i dag) teller —
     /// også i tellingen av foreslåtte.
-    /// [ENDRET, issue #384] Bindingene for VERKET teller, uansett hvilken versjon de ble registrert mot. En godkjent binding som ikke kan
+    /// [ENDRET, issue #384] Bindingene for VERKET teller, uansett hvilken versjon de ble registrert mot. En binding som ikke kan
     /// flyttes entydig til denne versjonen, brukes ikke her. [ENDRET, Johanns beslutning på PR #388 2026-10-16] Den blokkerer bare seg selv:
     /// de andre gyldige bindingene oppløser som før (smaleste spenn vinner). Dekker ingen av dem noden, er svaret
     /// <see cref="GeneriskOppslagstatus.SpennEndret"/> med den uflyttbare bindingen — ikke <c>ubundet</c>, for da ville det sett ut som om
     /// ingen hadde bundet navneformen her. Før rettingen blokkerte én slik binding navneformen i hele versjonen.
+    /// [ENDRET, issue #394 AK 3, Johanns beslutning 2 2026-10-23] Godkjente OG faglig vurderte bindinger brukes (<see cref="VurderteStatuser"/>);
+    /// før #394 bare godkjente, og Johanns faglig vurderte binding i reindriftsloven ble ikke brukt. Forslag som ikke er vurdert, telles som
+    /// foreslåtte og brukes ikke.
+    /// [ENDRET, issue #394 AK 1] Dekker ingen vurdert binding noden (og ingen er uflyttbar eller flertydig), gir STANDARDREGELEN for termen
+    /// svaret (<see cref="GeneriskOppslagstatus.Regel"/>), når den løser. Den manuelle bindingen går alltid foran. Regelens svar står på
+    /// <see cref="GeneriskOppslag.Regel"/> også når en binding vant, så visningen kan si hva regelen alene ville gitt.
+    /// <paramref name="brukBindinger"/> = false gir regelen alene (kaldsjekken i AK 5); <paramref name="brukRegel"/> = false gir oppslaget
+    /// slik det var før #394.
     /// </summary>
     public async Task<GeneriskOppslag> LosOppAsync(
-        Guid navneformId, Guid rettskildeId, string? eid, CancellationToken ct = default, DateOnly? dato = null)
+        Guid navneformId, Guid rettskildeId, string? eid, CancellationToken ct = default, DateOnly? dato = null,
+        bool brukBindinger = true, bool brukRegel = true)
     {
         var d = dato ?? DateOnly.FromDateTime(DateTime.Today);
         var verk = await VerkAsync(rettskildeId, ct);
-        var bindinger = await IVerket(verk)
+        var bindinger = !brukBindinger ? [] : await IVerket(verk)
             .Where(b => b.NavneformId == navneformId && b.Entitetsstatus == "gjeldende"
                         && b.Status != Strukturkanter.Avvist
                         && (b.GyldigFra == null || b.GyldigFra <= d) && (b.GyldigTil == null || b.GyldigTil >= d))
             .ToListAsync(ct);
-        var foreslatte = bindinger.Count(b => b.Status != Strukturkanter.Godkjent);
-        var godkjente = bindinger.Where(b => b.Status == Strukturkanter.Godkjent).ToList();
-        if (godkjente.Count == 0) return new GeneriskOppslag(GeneriskOppslagstatus.Ubundet, null, null, foreslatte);
+        var foreslatte = bindinger.Count(b => !VurderteStatuser.Contains(b.Status));
+        var vurderte = bindinger.Where(b => VurderteStatuser.Contains(b.Status)).ToList();
+        StandardregelSvar? regel = null;
+        if (brukRegel)
+        {
+            if (!_termer.TryGetValue(navneformId, out var term))
+            {
+                term = await db.Begreper.Where(b => b.Id == navneformId).Select(b => b.Term).FirstOrDefaultAsync(ct) ?? "";
+                _termer[navneformId] = term;
+            }
+            // Datoen sendes bare videre når kalleren oppga den; ellers regner regelen ut versjonens dato (eldre versjon → versjonens dato).
+            regel = await _regler.LosAsync(term, rettskildeId, dato, ct);
+        }
+        GeneriskOppslag UtenBinding() => regel is { Utfall: StandardregelUtfall.Lost, Referent: { } rr }
+            ? new GeneriskOppslag(GeneriskOppslagstatus.Regel, null, rr, foreslatte) { Regel = regel }
+            : new GeneriskOppslag(GeneriskOppslagstatus.Ubundet, null, null, foreslatte) { Regel = regel };
+        if (vurderte.Count == 0) return UtenBinding();
         var gyldige = new List<NavneformBindingEntitet>();
         NavneformBindingEntitet? ikkeFlyttet = null;
-        foreach (var b in godkjente.OrderBy(b => b.Id))
+        foreach (var b in vurderte.OrderBy(b => b.Id))
         {
             if (await IkkeFlyttbarGrunnAsync(b, rettskildeId, ct) is null) gyldige.Add(b);
             else ikkeFlyttet ??= b;
@@ -547,15 +599,19 @@ public sealed class GeneriskNavneformTjeneste(RegelIdeDbContext db)
         if (dekkende.Count == 0)
         {
             return ikkeFlyttet is not null
-                ? new GeneriskOppslag(GeneriskOppslagstatus.SpennEndret, ikkeFlyttet, null, foreslatte)
-                : new GeneriskOppslag(GeneriskOppslagstatus.Ubundet, null, null, foreslatte);
+                ? new GeneriskOppslag(GeneriskOppslagstatus.SpennEndret, ikkeFlyttet, null, foreslatte) { Regel = regel }
+                : UtenBinding();
         }
         var smalest = dekkende.Min(x => x.Bredde!.Value);
         var vinnere = dekkende.Where(x => x.Bredde == smalest).ToList();
         var referenter = vinnere.Select(x => (x.B.TilVirksomhetId, x.B.TilBegrepId)).Distinct().ToList();
-        if (referenter.Count > 1) return new GeneriskOppslag(GeneriskOppslagstatus.Flertydig, null, null, foreslatte);
-        var vinner = vinnere[0].B;
-        return new GeneriskOppslag(GeneriskOppslagstatus.Bundet, vinner, new Kantnode(vinner.TilVirksomhetId, vinner.TilBegrepId), foreslatte);
+        if (referenter.Count > 1) return new GeneriskOppslag(GeneriskOppslagstatus.Flertydig, null, null, foreslatte) { Regel = regel };
+        // Ved like smale med SAMME referent vinner en godkjent foran en faglig vurdert (statusen som vises, skal være den sterkeste).
+        var vinner = vinnere.OrderBy(x => x.B.Status == Strukturkanter.Godkjent ? 0 : 1).ThenBy(x => x.B.Id).First().B;
+        return new GeneriskOppslag(GeneriskOppslagstatus.Bundet, vinner, new Kantnode(vinner.TilVirksomhetId, vinner.TilBegrepId), foreslatte)
+        {
+            Regel = regel,
+        };
     }
 
     /// <summary>
@@ -592,7 +648,7 @@ public sealed class GeneriskNavneformTjeneste(RegelIdeDbContext db)
         var tagger = await db.TekstTagger
             .Where(t => t.RettskildeId == rettskildeId && t.Kind == "virksomhet" && t.RefId != null && t.Entitetsstatus == "gjeldende")
             .Join(db.Begreper.Where(b => b.Navneformgrunn == VirksomhetsbegrepTjeneste.Generisk), t => t.RefId, b => b.Id,
-                (t, b) => new { t.Id, t.NodeEid, NavneformId = b.Id })
+                (t, b) => new { t.Id, t.NodeEid, NavneformId = b.Id, b.Term })
             .ToListAsync(ct);
         var ut = new List<GeneriskTaggOppslag>();
         var navn = new Dictionary<(Guid?, Guid?), KantnodeVisning?>();
@@ -605,7 +661,14 @@ public sealed class GeneriskNavneformTjeneste(RegelIdeDbContext db)
                 var nokkel = (r.VirksomhetId, r.BegrepId);
                 if (!navn.TryGetValue(nokkel, out referent)) navn[nokkel] = referent = await VisningAsync(r, ct);
             }
-            ut.Add(new GeneriskTaggOppslag(t.Id, t.NavneformId, o.Status, o.Binding?.Id, referent));
+            ut.Add(new GeneriskTaggOppslag(t.Id, t.NavneformId, o.Status, o.Binding?.Id, referent)
+            {
+                Term = t.Term,
+                Kilde = o.Kilde,
+                BindingStatus = o.Status == GeneriskOppslagstatus.Bundet ? o.Binding?.Status : null,
+                BindingKunnskapsstatus = o.Status == GeneriskOppslagstatus.Bundet ? o.Binding?.Kunnskapsstatus : null,
+                Regel = o.Regel,
+            });
         }
         return ut;
     }

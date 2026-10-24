@@ -112,7 +112,7 @@ public sealed class VirksomhetWhereUsedTjeneste(RegelIdeDbContext db)
         // står. Hver tagg slås opp på samme måte som lasteren (smaleste spenn vinner), så en tagg utenfor bindingens spenn — eller
         // overstyrt av en smalere binding til noe annet — kommer ikke med.
         var bindinger = await db.NavneformBindinger
-            .Where(b => b.TilVirksomhetId == virksomhetId && b.Status == Strukturkanter.Godkjent && b.Entitetsstatus == "gjeldende")
+            .Where(b => b.TilVirksomhetId == virksomhetId && GeneriskNavneformTjeneste.VurderteStatuser.Contains(b.Status) && b.Entitetsstatus == "gjeldende")
             .Select(b => new { b.Id, b.NavneformId, b.RettskildeId }).ToListAsync(ct);
         if (bindinger.Count > 0)
         {
@@ -130,7 +130,8 @@ public sealed class VirksomhetWhereUsedTjeneste(RegelIdeDbContext db)
                     .ToListAsync(ct);
                 foreach (var x in tagger)
                 {
-                    var o = await generiske.LosOppAsync(b.NavneformId, x.Tagg.RettskildeId, x.Tagg.NodeEid, ct);
+                    // [ENDRET, issue #394 AK 3] Faglig vurderte bindinger brukes også. Svar fra standardregelen er ikke bindinger og telles ikke her.
+                    var o = await generiske.LosOppAsync(b.NavneformId, x.Tagg.RettskildeId, x.Tagg.NodeEid, ct, brukRegel: false);
                     if (o.Status != GeneriskOppslagstatus.Bundet || o.Binding?.Id != b.Id) continue;
                     ekstra.Add(new NavneformForekomst(b.NavneformId, x.Term, x.Navneformgrunn, x.Tagg.RettskildeId, x.Tittel, x.Tagg.NodeEid,
                         x.Tagg.QuoteExact, x.Tagg.StartOffset, x.Tagg.EndOffset));
