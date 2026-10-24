@@ -2539,8 +2539,9 @@ export interface StandardregelSvar {
 }
 /** [Ny, issue #394 AK 4] Ett forslag til hva en generisk omtale betyr, med ferdig utfylt grunnlag. */
 export interface GeneriskReferentforslag {
-  kilde: 'standardregel' | 'ansvarlig_departement' | 'samme_rettskilde' | 'navneform' | 'tidligere_binding';
-  referent: StrukturnodeDto; grunn: string; rang: number; kunnskapsstatus: Kunnskapsstatus; tolkningsargumenter: Tolkningsargument[];
+  kilde: 'standardregel' | 'ansvarlig_departement' | 'samme_rettskilde' | 'navneform' | 'tidligere_binding' | 'ny_aktor_fra_kandidat';
+  /** `type: 'ny'` = en navnekandidat som ikke finnes som aktør ennå (id-en er kandidatens); aktøren opprettes ved lagring. */
+  referent: Omit<StrukturnodeDto, 'type'> & { type: StrukturnodeDto['type'] | 'ny' }; grunn: string; rang: number; kunnskapsstatus: Kunnskapsstatus; tolkningsargumenter: Tolkningsargument[];
   begrunnelse: string; trengerIkkeBinding: boolean;
 }
 /** [Ny, issue #394 AK 4] Alt veiviserens én-skjerm trenger for én kandidat. */

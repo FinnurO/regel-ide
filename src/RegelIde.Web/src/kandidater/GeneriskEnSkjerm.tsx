@@ -25,10 +25,11 @@ export interface GeneriskKvittering {
   referentErBegrep: boolean;
 }
 
+type Referent = GeneriskReferentforslag['referent'];
 type Valg =
   | { type: 'regel' }
   | { type: 'marker' }
-  | { type: 'referent'; referent: StrukturnodeDto; forslag: GeneriskReferentforslag | null };
+  | { type: 'referent'; referent: Referent; forslag: GeneriskReferentforslag | null };
 
 const ARGUMENTER: { verdi: Tolkningsargument; tekst: string }[] = [
   { verdi: 'ordlyd', tekst: 'Ordlyden' }, { verdi: 'kontekst_system', tekst: 'Sammenhengen i loven' }, { verdi: 'formal', tekst: 'Formålet' },
@@ -42,10 +43,11 @@ const FORSLAG_ETIKETT: Record<GeneriskReferentforslag['kilde'], string> = {
   samme_rettskilde: 'Nevnt i samme rettskilde',
   navneform: 'Navneform',
   tidligere_binding: 'Bundet før',
+  ny_aktor_fra_kandidat: 'Ny aktør',
 };
 
-function lenkeFor(r: StrukturnodeDto): string {
-  return r.type === 'virksomhet' ? `/virksomheter/${r.id}` : `/begreper/${r.id}`;
+function lenkeFor(r: Referent): string | null {
+  return r.type === 'virksomhet' ? `/virksomheter/${r.id}` : r.type === 'begrep' ? `/begreper/${r.id}` : null;
 }
 
 /** Ordet uthevet i nodeteksten, til forhåndsvisningen. */
@@ -126,7 +128,7 @@ export function GeneriskEnSkjerm({
   const term = kontekst?.term ?? kandidat.foreslattTekst.trim().toLowerCase();
   const sted = node ? nodeEtikett(node, perId) : kandidat.nodeEid;
 
-  function velgReferent(referent: StrukturnodeDto, forslag: GeneriskReferentforslag | null) {
+  function velgReferent(referent: Referent, forslag: GeneriskReferentforslag | null) {
     setValg({ type: 'referent', referent, forslag });
     setKunnskapsstatus(forslag?.kunnskapsstatus ?? 'fortolkning');
     setArgumenter(forslag?.tolkningsargumenter.length ? forslag.tolkningsargumenter : ['kontekst_system']);
@@ -180,8 +182,18 @@ export function GeneriskEnSkjerm({
       gyldigTil: gyldigTil || null,
     };
     try {
+      // En ny aktør fra en navnekandidat opprettes først (bare navnet), så bindes omtalen til den. Navneform og type gis når kandidaten
+      // behandles — det sier kvitteringen.
+      let opprettet: StrukturnodeDto | null = null;
+      if (valg.type === 'referent' && valg.referent.type === 'ny' && binding) {
+        const ny = await api.opprettVirksomhet({ navn: valg.referent.navn, overordnetEnhetId: null });
+        opprettet = { type: 'virksomhet', id: ny.id, navn: valg.referent.navn, nodetype: null };
+        binding.tilVirksomhetId = ny.id;
+        binding.tilBegrepId = null;
+      }
       const r = await api.markerNavnekandidatSomGenerisk(kandidat.id, binding);
-      const referent = valg.type === 'referent' ? valg.referent : valg.type === 'regel' ? kontekst?.regelsvar?.referentVisning ?? null : null;
+      const referent: Referent | null = opprettet ?? (valg.type === 'referent' ? valg.referent
+        : valg.type === 'regel' ? kontekst?.regelsvar?.referentVisning ?? null : null);
       onFerdig({
         tittel: valg.type === 'referent'
           ? `«${r.navneform.term}» betyr ${valg.referent.navn} i ${omfangTekst}.`
@@ -195,6 +207,8 @@ export function GeneriskEnSkjerm({
               + `Grunnlag: ${sted} (der ordet står), ${KUNNSKAPSSTATUS_VISNING[kunnskapsstatus].tekst.toLowerCase()}.`
             : valg.type === 'regel' ? 'Ingen binding er lagret: standardregelen gir svaret, og en vurdert ressortfordeling slår igjennom når den godkjennes.'
               : 'Ingen binding: omtalen vises som «generisk omtale, ikke avklart» til noen binder den.',
+          ...(opprettet ? [`Aktøren «${opprettet.navn}» er opprettet med bare navnet. Navnekandidaten «${opprettet.navn}» står fortsatt i køen — `
+            + 'behandle den for å gi aktøren navneform, kilde og type.'] : []),
           r.taggId ? 'Taggen på forekomsten peker på den generiske navneformen og viser kjeden.' : 'Ingen tagg kunne opprettes.',
           'Navnekandidaten er satt til «Godkjent» (behandlet).',
         ],
@@ -382,7 +396,9 @@ export function GeneriskEnSkjerm({
             {valg.type === 'referent' && <GeneriskKildeTagger oppslag={{ kilde: 'binding', bindingStatus: godkjenning, regel: null }} />}
             {valg.type === 'marker' && <GeneriskKildeTagger oppslag={{ kilde: null, bindingStatus: null, regel: null }} />}
             → {kjedeReferent
-              ? (valg.type === 'referent' ? <Link asChild><RouterLink to={lenkeFor(valg.referent)}>{kjedeReferent}</RouterLink></Link> : <strong>{kjedeReferent}</strong>)
+              ? (valg.type === 'referent' && lenkeFor(valg.referent)
+                ? <Link asChild><RouterLink to={lenkeFor(valg.referent)!}>{kjedeReferent}</RouterLink></Link>
+                : <strong>{kjedeReferent}{valg.type === 'referent' && valg.referent.type === 'ny' ? ' (ny aktør)' : ''}</strong>)
               : <Metatekst as="span">generisk omtale, ikke avklart</Metatekst>}
             {valg.type === 'referent' && <KunnskapsstatusTag status={kunnskapsstatus} />}
           </div>

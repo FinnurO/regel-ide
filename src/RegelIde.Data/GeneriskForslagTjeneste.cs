@@ -16,6 +16,9 @@ public static class GeneriskForslagKilde
     public const string Navneform = "navneform";
     /// <summary>Termen er bundet til denne referenten i andre rettskilder.</summary>
     public const string TidligereBinding = "tidligere_binding";
+    /// <summary>En navnekandidat i samme rettskilde der ordet står som eget ord («Styret for domstoladministrasjonen» for «styret»), og som
+    /// ikke finnes som aktør ennå. Referenten har typen <c>ny</c> og id-en til navnekandidaten; aktøren opprettes først når noen lagrer.</summary>
+    public const string NyAktorFraKandidat = "ny_aktor_fra_kandidat";
 }
 
 /// <summary>
@@ -141,6 +144,25 @@ public sealed class GeneriskForslagTjeneste(RegelIdeDbContext db, GeneriskNavnef
             Legg(new GeneriskReferentforslag(GeneriskForslagKilde.SammeRettskilde, x.V, grunn, rang, Strukturkanter.Fortolkning, ["kontekst_system"],
                 $"«{term}» i {Sted(k.NodeEid)} viser til {x.V.Navn}, som er nevnt i {Sted(x.Eid)} i samme rettskilde"
                 + (x.Inneholder ? $" — «{term}» er kortformen av navnet." : ".")));
+        }
+
+        // 2b. Navnekandidater i samme rettskilde som inneholder ordet og ikke er kjente aktører (Johanns eksempel: «styret» i domstolloven
+        // § 33a, der «Styret for domstoladministrasjonen» står i samme ledd, men ikke er registrert).
+        var kandidatnavn = await db.Navnekandidater.Where(x => x.RettskildeId == k.RettskildeId && x.Status == "Venter" && x.Id != k.Id)
+            .Select(x => new { x.Id, x.ForeslattTekst, x.NodeEid }).ToListAsync(ct);
+        var kjenteNavn = (await db.Virksomheter.Where(v => v.Livsstatus == null).Select(v => v.Navn.ToLower()).ToListAsync(ct))
+            .Concat(await db.Begreper.Where(b => b.Begrepskategori == "virksomhet" && b.Entitetsstatus == "gjeldende").Select(b => b.Term.ToLower()).ToListAsync(ct))
+            .ToHashSet();
+        foreach (var x in kandidatnavn.Where(x => ord.IsMatch(x.ForeslattTekst) && GeneriskNavneformTjeneste.NormaliserTerm(x.ForeslattTekst) != term
+                         && !kjenteNavn.Contains(x.ForeslattTekst.ToLower()))
+                     .GroupBy(x => x.ForeslattTekst.ToLower()).Select(g => g.OrderBy(y => Paragraf(y.NodeEid) == hereParagraf ? 0 : 1).First())
+                     .Take(MaksPerKilde))
+        {
+            var sammeParagraf = hereParagraf is not null && Paragraf(x.NodeEid) == hereParagraf;
+            Legg(new GeneriskReferentforslag(GeneriskForslagKilde.NyAktorFraKandidat, new KantnodeVisning("ny", x.Id, x.ForeslattTekst, null),
+                $"Står i {Sted(x.NodeEid)} som «{x.ForeslattTekst}», og navnet inneholder «{term}». Finnes ikke som aktør ennå — opprettes når du lagrer.",
+                sammeParagraf ? 8 : 25, Strukturkanter.Fortolkning, ["kontekst_system"],
+                $"«{term}» i {Sted(k.NodeEid)} viser til «{x.ForeslattTekst}», som står i {Sted(x.NodeEid)} i samme rettskilde — «{term}» er kortformen."));
         }
 
         // 3. Navneformer i korpuset der ordet står som eget ord (ikke generiske, ikke nedlagte aktører).
