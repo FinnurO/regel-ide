@@ -25,6 +25,7 @@ import { KommentarRedigering } from '../handbok/KommentarRedigering';
 import { RettskildeVelger } from '../rettskilde/RettskildeVelger';
 import { useKonfigurasjon } from '../konfigurasjon/KonfigurasjonContext';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
+import { GeneriskKildeTagger, generiskKildeTekst } from '../kandidater/GeneriskKilde';
 import { NavneformgrunnTag } from '../virksomhet/Navneformgrunn';
 import { finnHovedledd } from '../virksomhet/navneformKjede';
 import { RaaTekstMedLenker } from '../rettskilde/RaaTekstMedLenker';
@@ -571,7 +572,7 @@ export default function RettskildeDetalj() {
     ref: string,
     taggId?: string,
   ):
-    | { label: string; href: string; mellomledd?: ReactNode; mellomleddTekst?: string; titleTillegg?: string }
+    | { label: string; href: string | null; mellomledd?: ReactNode; mellomleddTekst?: string; titleTillegg?: string }
     | undefined {
     if (kind === 'begrep' && begrepPerId.has(ref)) return { label: begrepPerId.get(ref)!, href: `/begreper/${ref}` };
     if (kind === 'tjeneste' && tjenestePerId.has(ref)) return { label: tjenestePerId.get(ref)!, href: `/tjenester/${ref}` };
@@ -591,14 +592,26 @@ export default function RettskildeDetalj() {
       const navneform = navneformPerId.get(ref);
       // [Ny, issue #378 B6] Generisk navneform: kjeden er «styret» → [Generisk omtale] → det bindingen sier for denne rettskilden og
       // paragrafen. Uten godkjent binding står taggen ukoblet (ingen gjettet lenke).
+      // [ENDRET, issue #394 AK 2] Kjeden vises ALLTID — aldri navneformens rå id. «departementet» → [Generisk omtale] [Binding/Standardregel
+      // + status] → referenten, eller «generisk omtale, ikke avklart» uten lenke når verken en vurdert binding eller standardregelen gir svar.
       if (navneform?.navneformgrunn === 'generisk') {
         const o = taggId ? generiskPerTagg.get(taggId) : undefined;
-        if (!o?.referent) return undefined;
+        const kildeTekst = generiskKildeTekst(o?.kilde, o?.bindingStatus, o?.regel);
+        if (!o?.referent) {
+          return {
+            label: o ? 'generisk omtale, ikke avklart' : 'generisk omtale (laster …)',
+            href: null,
+            mellomledd: <><NavneformgrunnTag grunn="generisk" />{o && <> <GeneriskKildeTagger oppslag={o} /></>}</>,
+            mellomleddTekst: `${navneform.term} (generisk)`,
+            titleTillegg: o?.regel ? o.regel.forklaring : undefined,
+          };
+        }
         return {
           label: o.referent.navn,
           href: o.referent.type === 'virksomhet' ? `/virksomheter/${o.referent.id}` : `/begreper/${o.referent.id}`,
-          mellomledd: <NavneformgrunnTag grunn="generisk" />,
-          mellomleddTekst: `${navneform.term} (generisk omtale, bundet for denne rettskilden)`,
+          mellomledd: <><NavneformgrunnTag grunn="generisk" /> <GeneriskKildeTagger oppslag={o} /></>,
+          mellomleddTekst: `${navneform.term} (generisk; ${kildeTekst})`,
+          titleTillegg: o.kilde === 'regel' && o.regel ? [o.regel.forklaring, ...o.regel.merknader].join(' ') : undefined,
         };
       }
       if (!navneform?.virksomhetReferanseId) return undefined;

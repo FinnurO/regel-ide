@@ -171,7 +171,7 @@ import type {
   NavnekandidatGruppeBatchRequest,
   SlettNavnekandidaterResultatDto,
   VisningsinnstillingInput,
-  AktorsveipRapport, GeneriskNavneformOversikt, GeneriskTaggOppslag, NavneformBindingRequest, UtledetMedlemskapDto,
+  AktorsveipRapport, GeneriskNavneformOversikt, GeneriskTaggOppslag, GeneriskKandidatkontekst, NavneformBindingRequest, UtledetMedlemskapDto,
 } from './types';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5187';
@@ -1191,6 +1191,10 @@ export const api = {
 
   /** [Ny, issue #384] Medlemmene av en klasse med utledet medlemskap («kommune»), beregnet av områderegisteret. */
   hentUtledetMedlemskap: (begrepId: string) => kall<UtledetMedlemskapDto>(`/api/gruppebegrep/${begrepId}/utledet-medlemskap`),
+
+  /** [Ny, issue #394 AK 4] Veiviserens én-skjerm: standardregelen, forslag til referent med grunnlag, og bindingene i rettskilden. */
+  hentGeneriskKandidatkontekst: (kandidatId: string) =>
+    kall<GeneriskKandidatkontekst>(`/api/navnekandidater/${kandidatId}/generisk-kontekst`),
 
   /** [Ny, issue #378 B6] Hva taggene mot generiske navneformer betyr i rettskilden. */
   hentGeneriskeTagger: (rettskildeId: string) => kall<GeneriskTaggOppslag[]>(`/api/rettskilder/${rettskildeId}/generiske-tagger`),

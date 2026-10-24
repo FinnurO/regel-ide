@@ -145,7 +145,9 @@ export interface TagTekstProps {
     taggId?: string,
   ) => {
     label: string;
-    href: string;
+    /** [ENDRET, issue #394 AK 2] null = kjeden vises, men har ikke et lenkemål («generisk omtale, ikke avklart»). Da står etiketten som
+     * tekst i stedet for den rå `ref`-id-en. */
+    href: string | null;
     mellomledd?: ReactNode;
     mellomleddTekst?: string;
     /**
@@ -350,7 +352,7 @@ function TaggetSegment({
   tekst: string;
   etikett: string;
   farge: string | undefined;
-  lenke: { label: string; href: string; mellomleddTekst?: string; titleTillegg?: string } | undefined;
+  lenke: { label: string; href: string | null; mellomleddTekst?: string; titleTillegg?: string } | undefined;
   /** [Ny, tagg-synlig-runden, 2026-09-08] Ankeret taggraden under teksten ruller til — se
    *  `visTaggITeksten`. Rent DOM-anker, ingen visuell effekt. */
   taggId: string | undefined;
@@ -364,6 +366,12 @@ function TaggetSegment({
   };
   if (!lenke) {
     return <mark data-tagg-id={taggId} title={etikett} style={stil}>{tekst}</mark>;
+  }
+  // [Ny, issue #394 AK 2] Kjede uten lenkemål («generisk omtale, ikke avklart»): kjeden i title, ingen lenke.
+  if (lenke.href === null) {
+    const uten = `${etikett} → ${lenke.mellomleddTekst ? `${lenke.mellomleddTekst} → ` : ''}${lenke.label}`
+      + (lenke.titleTillegg ? ` (${lenke.titleTillegg})` : '');
+    return <mark data-tagg-id={taggId} title={uten} style={stil}>{tekst}</mark>;
   }
   // Samme kjede som tagg-listen viser, men som ren tekst — et `title`-attributt kan ikke bære en
   // ReactNode, så mellomleddet kommer som `mellomleddTekst`. Se `resolveRef`-propens kommentar.
@@ -870,6 +878,9 @@ export function TagTekst({
                             </>
                           )}
                           {' → '}
+                          {lenke.href === null ? (
+                            <span title={lenke.titleTillegg} style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>{lenke.label}</span>
+                          ) : (
                           <Link asChild>
                             {/* `titleTillegg` på hover, ikke i lenketeksten: opplysningen hører til
                               * målet, men skal ikke være hovedleddet i kjeden — se propen. */}
@@ -877,6 +888,7 @@ export function TagTekst({
                               {lenke.label}
                             </RouterLink>
                           </Link>
+                          )}
                         </>
                       );
                     })()}
