@@ -94,6 +94,20 @@ public sealed class Virksomhet
     /// rader ingen seed rører, slik at ingenting existing forsvinner stille fra en velger.
     /// </summary>
     public bool Aktiv { get; set; } = true;
+
+    /// <summary>
+    /// [Ny, issue #395, Johanns avgjørelse M5 2026-10-23] <c>'nedlagt'</c> for en aktør som ikke finnes lenger, men som er identifisert av
+    /// vedtakene som opprettet og nedla den (et nedlagt departement). NULL = ikke angitt (normaltilfellet: aktøren finnes, eller det er ikke
+    /// vurdert). En nedlagt aktør har ingen registerkobling (<see cref="Organisasjonsnummer"/> er NULL), er ikke valgbar for nytt arbeid
+    /// (<see cref="Aktiv"/> = false), og treffes ALDRI av navneoppslagene som svarer for i dag (<see cref="VirksomhetOppslagTjeneste"/>):
+    /// navn gjenbrukes (Barne- og familiedepartementet fantes til 2006 og igjen fra 2019). CHECK <c>ck_virksomheter_livsstatus</c>.
+    /// </summary>
+    public string? Livsstatus { get; set; }
+
+    /// <summary>[Ny, issue #395] Når aktøren fantes, etter vedtakene (opprettelsen og nedleggelsen; dagen før nedleggelsen er siste dag).
+    /// NULL = ikke kjent fra vedtakene (en aktør som fantes før det eldste vedtaket i korpuset). Hjemmelen står på R oppretter/R avvikler.</summary>
+    public DateOnly? GyldigFra { get; set; }
+    public DateOnly? GyldigTil { get; set; }
 }
 
 /// <summary>
@@ -266,6 +280,28 @@ public sealed class RettskildeEntitet
     public string? PublisertI { get; set; }
     public string? AnnetOmDokumentet { get; set; }
     public string? SisteRettelse { get; set; }
+
+    /// <summary>
+    /// [Ny, issue #395, 2026-10-23] Kildeformen: <c>konsolidert</c> (Lovdatas gjeldende-uttrekk, «gjeldende lover» og
+    /// «gjeldende sentrale forskrifter») eller <c>kunngjort</c> (vedtaket slik det ble kunngjort i Norsk Lovtidend avd. I).
+    /// Avledet av Lovdatas eget <c>dokid</c>-prefiks i hodet (<see cref="RegelIde.Kildekonvertering.RettskildeMetadata.Kildeform"/>):
+    /// <c>LTI/</c> er Lovtidend, <c>NL/</c>, <c>SF/</c>, <c>DEL/</c>, <c>INS/</c> og <c>STV/</c> er gjeldende-uttrekket (målt lokalt
+    /// 2026-10-23). NULL = ukjent (ikke-Lovdata-kilder, og rader uten <c>dokid</c> til neste resynk fyller det) — ingen gjettet verdi.
+    /// Sveipene bruker den sammen med disposisjonstypen som filter (<see cref="Sveipeutvalg"/>).
+    /// </summary>
+    public string? Kildeform { get; set; }
+
+    /// <summary>
+    /// [Ny, issue #395, Johanns avgjørelse 6 2026-10-23] Markøren for et RENT endringsvedtak: dokumentet endrer andre dokumenter og gjør
+    /// ingenting annet. <c>true</c> = markert; NULL = ikke markert (vurdert og ikke rent endringsvedtak, eller ikke vurdert). Ikke en
+    /// disposisjonstype: den lukkede listen er uendret. Settes av <see cref="DisposisjonstypeTjeneste"/> med regelen i
+    /// <see cref="RentEndringsvedtakGrunnlag"/>, og sveipene (<see cref="Sveipeutvalg"/>) hopper over markerte dokumenter uten å lese tittelen.
+    /// </summary>
+    public bool? RentEndringsvedtak { get; set; }
+
+    /// <summary>[Ny, issue #395] Regelen og signalene som satte markøren, f.eks. «endrer 3 dokumenter (changesToDocuments); tittelform
+    /// «Forskrift om endring i …»; ingen organiseringstype».</summary>
+    public string? RentEndringsvedtakGrunnlag { get; set; }
 
     /// <summary>
     /// [Ny, fastsatt-av-runden, 2026-09-10, issue #215] Organet som FASTSATTE forskriften, slik det
@@ -635,6 +671,39 @@ public sealed class RettskildeEndringEntitet
 
     /// <summary>Bevarer header-feltets egen rekkefølge i kildeorden, kun for visning.</summary>
     public int Sorteringsrekkefolge { get; set; }
+}
+
+/// <summary>
+/// [Ny, issue #395, 2026-10-23] Del 1: én disposisjonstype for én rettskilde — HVA slags vedtak kilden er (oppretter den et organ,
+/// gir den et nytt navn, overfører den ansvar, delegerer den myndighet, er den en instruks, setter den noe i kraft, eller er den en
+/// vanlig regulering). En kilde kan ha flere typer (FOR-2004-10-01-1304 oppretter, nedlegger, gir nytt navn og overfører
+/// lovansvar). Ingen rad = UKLASSIFISERT: klassifiseringen gjetter ikke (CLAUDE.md §8).
+/// <para>
+/// Lukket liste (<see cref="Disposisjonstyper.Alle"/>, CHECK <c>ck_rettskilde_disposisjonstyper_type</c>). Hver rad sier hvordan
+/// den er kommet fram (<see cref="Kilde"/>: <c>tittel</c> | <c>monster</c> | <c>ki</c> | <c>manuell</c>), regelen som slo til, treffet i
+/// teksten, og kunnskapsstatus i vokabularet fra docs/33 §4.6. Tittel- og mønsterregler gir <c>normalisering</c>: typen følger av
+/// ordformen etter en navngitt regel, ikke av en tolkning.
+/// </para>
+/// </summary>
+public sealed class RettskildeDisposisjonstypeEntitet
+{
+    public Guid Id { get; set; }
+    public required Guid RettskildeId { get; set; }
+    public required string Disposisjonstype { get; set; }
+    public required string Kilde { get; set; }
+
+    /// <summary>Regelen som slo til, f.eks. <c>tittel:delegering</c> eller <c>monster:navn-endres-til</c>.</summary>
+    public required string Regel { get; set; }
+
+    /// <summary>Teksten regelen traff (tittelen eller leddet, avkortet), slik at en kontrollør ser grunnlaget uten å slå opp.</summary>
+    public string? Treff { get; set; }
+
+    /// <summary>eId-en til noden mønsteret traff i. NULL for tittelregler.</summary>
+    public string? NodeEid { get; set; }
+
+    public required string Kunnskapsstatus { get; set; }
+    public required string OpprettetAv { get; set; }
+    public DateTimeOffset OpprettetTidspunkt { get; set; }
 }
 
 /// <summary>
@@ -1547,6 +1616,13 @@ public sealed class StrukturkantEntitet
     /// Fritekst ordrett fra kilden; aldri utledet. [ENDRET, issue #368] På F (oppgave/funksjon) ER objektet oppgaven
     /// («beredskapsarbeid») og påkrevd (CHECK <c>ck_strukturkanter_oppgave_objekt</c>).</summary>
     public string? Objekt { get; set; }
+
+    /// <summary>[Ny, issue #395, 2026-10-23] Når objektet er en LOV eller forskrift (ressortfordelingen: «Arbeids- og sosialdepartementet
+    /// får forvaltningsansvaret for … Lov 17. juli 1925 nr. 11 om Svalbard»), dens ELI — avledet deterministisk av dato og nummer i
+    /// objektteksten (<see cref="RegelIde.Kildekonvertering.LovdataIdentifikatorer"/>), aldri av et navnetreff. ELI og ikke rettskilde-id: en ny konsolidert versjon
+    /// får ny id, ELI-en er stabil, og loven trenger ikke være i korpuset. NULL = objektet er ikke en rettskilde, eller dato/nummer
+    /// sto ikke i teksten. Grunnlaget for at #394 kan utlede «departementet» av ressortfordelingen.</summary>
+    public string? ObjektEli { get; set; }
 
     /// <summary>Strukturert (docs/20 §7.1, <c>[LÅST]</c>) — JSON-liste av <c>{ FraEid, TilEid? }</c>, samme
     /// form som myndighetstildelingens <c>ParagrafspennJson</c> hadde. <c>"[]"</c> = ingen avgrensning.

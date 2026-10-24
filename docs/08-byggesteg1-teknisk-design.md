@@ -357,6 +357,38 @@ Transformasjonen fra Lovdata-kildet innhold til AKN skal være **referansielt tr
 
 Ett-hopps referanse-stub (steg 6) er hovedregelen, men noen lover brukes på tvers av så godt som alle andre — **forvaltningsloven, offentleglova, personopplysningsloven og kommuneloven** er kandidater — og forhåndsimporteres derfor fullt ut som `importrolle='primaer'` uansett hvilket testcase byggesteg 1 starter med, i stedet for å vente på at et testcase tilfeldigvis refererer dem inn som stub. Begrunnelsen er ikke teknisk (stub-mekanismen håndterer dem fint) — den er at brukerne kommer til å slå opp i disse lovene svært ofte, og det er bedre å ha dem fullt tilgjengelige fra start. Nøyaktig hvilke lover som kvalifiserer som "infrastrukturlov" og deres eksakte ELI-referanser bekreftes før implementasjon, ikke antatt fra denne listen alene.
 
+### 3.1.2 Norsk Lovtidend avd. I som kilde (issue #395, 2026-10-23)
+
+**Kilde.** `api.lovdata.no/v1/publicData/get/lovtidend-avd1-2001-2025.tar.bz2` (69 MB, 38 182 dokumenter) og `…/lovtidend-avd1-2026.tar.bz2`
+(1 131 dokumenter), verifisert mot `publicData/list` 2026-10-23. NLOD 2.0. Avd. II (lokale forskrifter) er ikke med. Delegeringsbasen
+(DEL) finnes ikke som eget åpent datasett; den gjeldende delen ligger i «gjeldende sentrale forskrifter» (1 424 dokumenter med `dokid`
+`DEL/…` i korpuset, blant dem FOR-2004-10-01-1304).
+
+**Samme vei som gjeldende-uttrekket.** `LovdataBulkHenter.HentLovtidendDokumenterAsync` leser arkivene med samme kode (typen avledes nå av
+filnavnprefikset `nl`/`sf`), `LovdataKonverterer` parser dem (samme noder, eId og AKN), og `RettskildeImportTjeneste` lagrer dem. Hodet tas
+vare på som før: `basedOn` → `rettskilde_hjemler`, `changesToDocuments` → `rettskilde_endringer`, departement, datoer og
+`miscInformation`. Én parserendring: i Lovtidend er `basedOn`/`changesToDocuments` ren tekst i lista (`<li>lov/1814-05-17/§12</li>`), ikke
+lenker; teksten har href-formen og tolkes av samme `LovdataHrefTolker`.
+
+**Kildeform.** `rettskilder.kildeform` = `konsolidert` | `kunngjort` | NULL, avledet av `dokid`-prefikset (`LTI/` → kunngjort;
+`NL/`, `SF/`, `DEL/`, `INS/`, `STV/` → konsolidert). Migrasjonen `Organiseringskilder` fyller den der `dokid` finnes; resten fylles ved neste
+resynk.
+
+**Markør for rene endringsvedtak [Johanns avgjørelse 6, 2026-10-23].** Valgt som egen kolonne på rettskilden
+(`rent_endringsvedtak boolean`, `rent_endringsvedtak_grunnlag text`), ikke som disposisjonstype eller kildeform: kildeform sier hvilken
+tekst vi har (konsolidert/kunngjort), disposisjonstypene er Johanns lukkede liste, og «rent endringsvedtak» er en egenskap ved dokumentet
+som sveipene skal lese uten å tolke tittelen på nytt. Regelen (`DisposisjonstypeTjeneste`): `changesToDocuments` har minst ett mål, tittelen
+har endringsform, og ingen organiseringstype. NULL = ikke markert.
+
+**Utvalg [LÅST, #395].** `POST /api/lovdata/lovtidend-import[?skriv=true]` (`LovtidendImportTjeneste`) importerer bare dokumenter der
+tittelen gir en organiseringstype (`Disposisjonstyper.Organiseringstyper`) og ELI-en (dokumenttype + dato + nummer) ikke finnes som
+primærkilde. En referanse-stub forfremmes. Ikrafttredelser holdes utenfor.
+
+**Målt 2026-10-23 (lokal base):** 39 313 dokumenter i arkivene; 1 689 organiseringsvedtak etter de endelige tittelreglene; 1 681 av dem finnes
+i korpuset etter importen; 809 importert (663 nye, 146 forfremmede stubber); 8 feilet i parseren (Lovtidend-spesifikke `gazettenote`,
+`leddfortsettelse` direkte i et kapittel, et `Endrer`-mål med paragraf) og står i rapporten. 66 av de importerte gir ikke lenger en
+organiseringstype etter juristrundens strammere regler (stort sett følgeendringer «som følge av omorganiseringen»); de ble stående.
+
 ### 3.2 Kjente vanskelige tilfeller
 
 Funnet i den ekte teksten, ikke antatt:

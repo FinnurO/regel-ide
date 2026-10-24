@@ -19,6 +19,11 @@ export interface RettskildeSammendrag {
   /** [Ny, 2026-09-02] Rå, utrunket Lovdata-"dateInForce"-streng. Populert KUN for Lov/Forskrift — NULL
    * for andre kildetyper er forventet fravær av data, IKKE "ikke i kraft" (se RettskilderListe.tsx). */
   ikrafttredelseRaa: string | null;
+  /** [Ny, issue #395] 'konsolidert' (gjeldende-uttrekket) | 'kunngjort' (Norsk Lovtidend avd. I) | null (ukjent). */
+  kildeform?: string | null;
+  /** [Ny, issue #395] Disposisjonstypene (oppretting, navneendring, …, regulering). Tom liste = uklassifisert. Utelatt (undefined/null)
+   * i batch-oppslagene, som ikke henter dem — det er ikke det samme som uklassifisert. */
+  disposisjonstyper?: string[] | null;
 }
 
 /** [Ny, fler-verdi-departement, 2026-09-04] Ett departement fra RettskildeDetalj.ansvarligDepartement
@@ -310,6 +315,10 @@ export interface OppdaterBrukerRequest {
 
 export interface VirksomhetDto {
   id: string;
+  /** [Ny, issue #395 M5] 'nedlagt' for et nedlagt departement (ingen registerkobling, gyldighet fra vedtakene); ellers null/utelatt. */
+  livsstatus?: string | null;
+  gyldigFra?: string | null;
+  gyldigTil?: string | null;
   /**
    * REGISTERETS egen form av navnet (issue #158) — for Brreg-synkroniserte rader betyr det VERSALER,
    * og for tospråklige kommuner en konkatenering uten skilletegn:

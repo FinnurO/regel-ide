@@ -145,6 +145,21 @@ internal static class HistoriskSkjema
             await db.GetService<IMigrator>().MigrateAsync(tilMigrasjon);
         }
         if (tilMigrasjon is not null && leggTilSenereKolonner) await LeggTilSenereKolonnerAsync(connString);
+        // [Ny, issue #395] rettskilder.kildeform og strukturkanter.objekt_eli (Organiseringskilder) legges til i BEGGE modusene: testene
+        // importerer rettskilder med dagens modell (RettskildeImportTjeneste) også når de migrerer videre etterpå, og migrasjonen bruker
+        // ADD COLUMN IF NOT EXISTS, så den kolliderer ikke.
+        if (tilMigrasjon is not null)
+        {
+            await using var db = new RegelIdeDbContext(Options(connString));
+            await db.Database.ExecuteSqlRawAsync("ALTER TABLE rettskilder ADD COLUMN IF NOT EXISTS kildeform text; "
+                + "ALTER TABLE IF EXISTS strukturkanter ADD COLUMN IF NOT EXISTS objekt_eli text; "
+                // NedlagteAktorerOgEndringsmarkor (samme IF NOT EXISTS-mønster).
+                + "ALTER TABLE virksomheter ADD COLUMN IF NOT EXISTS livsstatus text; "
+                + "ALTER TABLE virksomheter ADD COLUMN IF NOT EXISTS gyldig_fra date; "
+                + "ALTER TABLE virksomheter ADD COLUMN IF NOT EXISTS gyldig_til date; "
+                + "ALTER TABLE rettskilder ADD COLUMN IF NOT EXISTS rent_endringsvedtak boolean; "
+                + "ALTER TABLE rettskilder ADD COLUMN IF NOT EXISTS rent_endringsvedtak_grunnlag text;");
+        }
     }
 
     public static DbContextOptions<RegelIdeDbContext> Options(string connString) =>

@@ -555,7 +555,7 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// metodene ble slått sammen (se klassekommentaren). Selve spørringen/scopingen er UENDRET.
     /// </para>
     /// </summary>
-    private async Task<List<SveipbarNode>> HentSveipbareNoderAsync(Guid? rettskildeId, CancellationToken ct)
+    private async Task<List<SveipbarNode>> HentSveipbareNoderAsync(Guid? rettskildeId, CancellationToken ct, bool inkluderIkrafttredelseOgEndring = false)
     {
         // Krever delt/nasjonal OG gjeldende, se spørringen under — samme to vilkår, kontrollert her på
         // forhånd for en presis feilmelding når EN bestemt rettskilde etterspørres eksplisitt (i stedet
@@ -567,13 +567,18 @@ public sealed class NavnekandidatOppdagelseTjeneste(
                 $"Fant ingen gjeldende, delt/nasjonal rettskilde med id '{rettskildeId}'. Ingen gjettet fallback.");
         }
 
-        return await db.RettskildeNoder
+        // [Ny, issue #395] Ikrafttredelses- og rene endringsvedtak hoppes over som standard når hele korpuset sveipes (Sveipeutvalg).
+        var utelatt = rettskildeId is null && !inkluderIkrafttredelseOgEndring
+            ? await Sveipeutvalg.StandardUtelattAsync(db, ct)
+            : [];
+        var noder = await db.RettskildeNoder
             .Join(db.Rettskilder, n => n.RettskildeId, r => r.Id, (n, r) => new { Node = n, r.VirksomhetId, RettskildeStatus = r.Entitetsstatus })
             .Where(x => x.Node.Tekst != null && !x.Node.Opphevet && x.Node.Entitetsstatus == "gjeldende"
                         && x.VirksomhetId == null && x.RettskildeStatus == "gjeldende"
                         && (rettskildeId == null || x.Node.RettskildeId == rettskildeId))
             .Select(x => new SveipbarNode(x.Node.RettskildeId, x.Node.Eid, x.Node.Tekst!))
             .ToListAsync(ct);
+        return utelatt.Count == 0 ? noder : noder.Where(n => !utelatt.Contains(n.RettskildeId)).ToList();
     }
 
     /// <summary>
@@ -641,9 +646,11 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// korreksjonsmekanismen.
     /// </para>
     /// </summary>
-    public async Task<NavnekandidatSveipResultat> SveipAsync(Guid? rettskildeId, string opprettetAv, CancellationToken ct = default)
+    /// <param name="inkluderIkrafttredelseOgEndring">[Ny, issue #395] Se <see cref="Sveipeutvalg"/>.</param>
+    public async Task<NavnekandidatSveipResultat> SveipAsync(Guid? rettskildeId, string opprettetAv, CancellationToken ct = default,
+        bool inkluderIkrafttredelseOgEndring = false)
     {
-        var noder = await HentSveipbareNoderAsync(rettskildeId, ct);
+        var noder = await HentSveipbareNoderAsync(rettskildeId, ct, inkluderIkrafttredelseOgEndring);
 
         // Eksisterende Begrep-termer, forhåndslastet ÉN gang for hele sveipet (ikke ett spørring per
         // treff) — samme "unngå N+1" -hensyn som ellers i kodebasen. To separate mengder, se

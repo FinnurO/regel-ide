@@ -37,11 +37,18 @@ namespace RegelIde.Api;
 /// </summary>
 public sealed record RettskildeSammendrag(
     Guid Id, Guid? VirksomhetId, string? Eli, string Tittel, string? Kortnavn, string Kildetype,
-    IReadOnlyList<string>? AnsvarligDepartement, bool ErIrrelevant, string? IrrelevantKommentar, string? IkrafttredelseRaa)
+    IReadOnlyList<string>? AnsvarligDepartement, bool ErIrrelevant, string? IrrelevantKommentar, string? IkrafttredelseRaa,
+    // [Ny, issue #395] Kildeformen (konsolidert | kunngjort | null) og disposisjonstypene (tom = uklassifisert) for filter og visning i
+    // RettskilderListe.tsx. Null for Disposisjonstyper betyr at kalleren ikke hentet dem (batch-oppslagene), ikke «uklassifisert».
+    string? Kildeform = null, IReadOnlyList<string>? Disposisjonstyper = null)
 {
     public static RettskildeSammendrag FraEntitet(RettskildeEntitet r) =>
         new(r.Id, r.VirksomhetId, r.Eli, r.Tittel, r.Kortnavn, r.Kildetype, r.AnsvarligDepartement, r.ErIrrelevant,
-            r.IrrelevantKommentar, r.IkrafttredelseRaa);
+            r.IrrelevantKommentar, r.IkrafttredelseRaa, r.Kildeform);
+
+    /// <summary>[Ny, issue #395] Med disposisjonstypene fra <see cref="RegelIde.Data.DisposisjonstypeTjeneste.TyperPerRettskildeAsync"/>.</summary>
+    public static RettskildeSammendrag FraEntitet(RettskildeEntitet r, IReadOnlyDictionary<Guid, List<string>> typer) =>
+        FraEntitet(r) with { Disposisjonstyper = typer.TryGetValue(r.Id, out var t) ? t : [] };
 }
 
 /// <summary>[Ny, issue #256, 2026-09-10] Body for POST /api/rettskilder/oppslag — se endepunktkommentaren

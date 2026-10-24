@@ -79,6 +79,11 @@ Et lite, lukket startsett. Nye typer er rader i typekonfigurasjonen, ikke kode, 
 | `veiledning` | `veiledningsoppgave` | En særskilt lovbestemt veiledningsfunksjon overfor dem som skal etterleve eller bruke regelverket eller faget | «skal veilede om», «skal gi veiledning», «utvikle … retningslinjer og veiledere», «opplæring og veiledning av» |
 | `kontroll` | `kontrolloppgave` | Å påse at andre etterlever regelverket, uten egen hjemmel til å undersøke eller reagere | «skal påse at», «følge opp og kontrollere» |
 
+[Ny, #395, juristrunden 2026-10-23] **Ressortfordeling** er F `forvaltning` med loven som objekt (og lovens ELI i `objekt_eli`):
+«Oversikt over lover X skal ha forvaltningsansvaret for» og «Forvaltningsansvaret for lov … overføres fra A til B». `tekstfunn` når teksten
+bruker «forvaltningsansvaret», ellers `normalisering` begrunnet med at objektet er et regelverk. Modalitet settes ikke: «skal ha» er
+tildelingens form, ikke en plikt (unntak fra modalitetsregelen over).
+
 `veiledning` og `kontroll` står ikke i docs/34 §6.1-forslaget; begge er lagt til i #368. Barnehageloven (piloten, #375) har «veilede
 og påse» i nesten hver kapittel. Veiledning er ikke rådgivning: rådgivning går til den som skal avgjøre noe, veiledning til den som
 skal etterleve eller bruke regelverket. [ENDRET, juristrunden] Den alminnelige veiledningsplikten i fvl. § 11 gjelder alle

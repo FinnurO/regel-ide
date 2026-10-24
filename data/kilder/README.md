@@ -18,6 +18,18 @@ Den andre forskriften fra samme dato i bulk-arkivet (`sf-20050608-0539.xml`, "Fo
 
 `advokatloven-LOV-2022-05-12-28.html` = "Lov om advokater og andre som yter rettslig bistand (advokatloven)", hele loven — hentet for kandidatsøk-og-godkjenning-runden (`docs/20-virksomhetskatalog-og-rollemodell.md` §2.6.1). Testcase for virksomhetskandidat-sveipet: § 4 første ledd har ordrett "Advokattilsynet utsteder advokatbevilling", og loven inneholder også den historiske navneformen "Tilsynsrådet for advokatvirksomhet" (forgjengeren til Advokattilsynet) — dekker begge navneformer i én ekte kilde.
 
+## Norsk Lovtidend avd. I (issue #395)
+
+| Felt | Verdi |
+|---|---|
+| Kilde | `https://api.lovdata.no/v1/publicData/get/lovtidend-avd1-2001-2025.tar.bz2` (69 MB, 38 182 dokumenter) og `.../lovtidend-avd1-2026.tar.bz2` — verifisert mot `https://api.lovdata.no/v1/publicData/list` 2026-10-23 |
+| Lisens | NLOD 2.0 — kildeangivelse: **Lovdata** |
+| Hentet | 2026-10-23 |
+| Filer | `lti/2004/sf-20041001-1304.xml` → `raw-lovtidend/omorganisering-FOR-2004-10-01-1304.html` («Omorganisering av departementsstrukturen fra 1. oktober 2004», Statsministerens kontor, kgl.res.) |
+| Koding | UTF-8 (samme som gjeldende-uttrekket) |
+
+Samme HTML-format som gjeldende-uttrekket (`documentHeader`, `legalP`, `listArticle`), men `dokid` har prefikset `LTI/` (kunngjort tekst), ikke `NL/`/`SF/`/`DEL/`/`INS/`/`STV/` (konsolidert). Arkivet har bare `nl-` (3 012) og `sf-` (35 170) filer, i mappene `lti/ÅÅÅÅ/`. Fixturen er testgrunnlaget for `LovtidendImportTjeneste` og `DepartementLivslopTjeneste`: vedtaket oppretter tre departementer, nedlegger tre, endrer navn på to (Landbruksdepartementet → Landbruks- og matdepartementet, Fiskeridepartementet → Fiskeri- og kystdepartementet) og har tre vedlegg med lovene hvert nytt departement får forvaltningsansvaret for.
+
 ## Lokale forskrifter er ikke i bulk-datasettet
 
 Undersøkt 2026-07-24 (se `../../src/README.md`): Lovdatas gratis bulk-datasett dekker kun **sentrale** (statlige) rettskilder. Lokale forskrifter (kunngjort i Norsk Lovtidend **Del II**, bekreftet av Johann) er ikke tilgjengelig der, og heller ikke i samme "XML-kompatible HTML"-format på selve nettsiden (`lovdata.no/dokument/LF/...` bruker en helt annen, inkompatibel HTML-struktur — `morTag_p`/`paragrafHeader` i stedet for `legalArticle`/`documentHeader`). Konsekvens: lokale forskrifter må kommunen selv levere til regel-IDE (fil/opplasting), og systemet trenger en egen parser for det formatet kommunen faktisk leverer — det er ikke bare en ny kilde-URL å peke det eksisterende Lovdata-importet mot.

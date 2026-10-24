@@ -145,6 +145,9 @@ builder.Services.AddScoped<HandlingRegelverksreferanseforslagTjeneste>();
 builder.Services.AddHttpClient<LovdataBulkHenter>();
 builder.Services.AddScoped<LovdataKatalogTjeneste>();
 builder.Services.AddScoped<LovdataFullimportTjeneste>();
+builder.Services.AddScoped<DisposisjonstypeTjeneste>(); // [Ny, issue #395]
+builder.Services.AddScoped<LovtidendImportTjeneste>(); // [Ny, issue #395]
+builder.Services.AddScoped<DepartementLivslopTjeneste>(); // [Ny, issue #395]
 builder.Services.AddScoped<LovdataImportstatusTjeneste>();
 // Full Lovdata-synkronisering ved oppstart (docs/13-backlog.md §6) — se klassekommentaren for
 // hvorfor dette er en BackgroundService og ikke et synkront steg i oppstartsblokken under.
@@ -188,7 +191,8 @@ builder.Services.AddScoped<KommuneTjenesteHenter>();
 
 const string VitePolicy = "ViteDevServer";
 builder.Services.AddCors(o => o.AddPolicy(VitePolicy, p => p
-    .WithOrigins("http://localhost:5173", "http://127.0.0.1:5173")
+    // [ENDRET, issue #395] + 5373: byggeagentenes web-port ved kaldsjekk i en worktree (5187/5173 er hovedappen på master).
+    .WithOrigins("http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:5373", "http://127.0.0.1:5373")
     .AllowAnyMethod()
     .AllowAnyHeader()));
 
@@ -968,9 +972,14 @@ static Task<Guid?> LosFastsattAvVirksomhetAsync(string? organnavn, VirksomhetOpp
 
 var rettskilder = app.MapGroup("/api/rettskilder").WithOpenApi();
 
-rettskilder.MapGet("/", async (Guid? virksomhetId, bool? inkluderIrrelevante, RettskildeRepository repo) =>
-        (await repo.AlleRettskilderAsync(virksomhetId, inkluderIrrelevante ?? false))
-            .Select(RettskildeSammendrag.FraEntitet))
+rettskilder.MapGet("/", async (Guid? virksomhetId, bool? inkluderIrrelevante, RettskildeRepository repo, DisposisjonstypeTjeneste disposisjon,
+        CancellationToken ct) =>
+    {
+        // [ENDRET, issue #395] Med kildeform og disposisjonstyper, for filteret i RettskilderListe.tsx. Ett ekstra oppslag for hele lista.
+        var typer = await disposisjon.TyperPerRettskildeAsync(ct);
+        return (await repo.AlleRettskilderAsync(virksomhetId, inkluderIrrelevante ?? false))
+            .Select(r => RettskildeSammendrag.FraEntitet(r, typer));
+    })
     .WithName("HentAlleRettskilder")
     .WithSummary("Lister rettskilder (åpne data — kun Status != 'Utkast'). " +
         "?virksomhetId snevrer inn til én virksomhets bidrag; utelatt viser alt (delt + alle virksomheter). " +
@@ -4278,6 +4287,58 @@ app.MapGet("/api/ki-oppdagelse/ko", async (StrukturkantTjeneste tjeneste, Cancel
 // Aktørens identitet og primærnavn kommer fra rettskildene; orgnr og registernavn er attributter. Alt maskinen finner, er FORSLAG som et
 // menneske godkjenner. Se AktoridentitetTjeneste.
 
+// [Ny, issue #395, 2026-10-23] Organiseringskildene: disposisjonstyper (del 1), Lovtidend avd. I som korpuskilde (del 2) og
+// departementenes livsløp (del 3). Alle tre er brukerutløste (ingen oppstartsjobb, CLAUDE.md §4), har tørrkjøring som standard og
+// skriver bare forslag der de skriver til modellen. Se docs/08 §Lovtidend og docs/33 §5.9.
+app.MapPost("/api/rettskilder/disposisjonstyper/klassifiser", async (bool? skriv, bool? medRader, Guid? rettskildeId, HttpRequest request,
+        RegelIdeDbContext db, DisposisjonstypeTjeneste tjeneste, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            return Results.Ok(await tjeneste.KlassifiserAsync(skriv ?? false, rettskildeId, medRader ?? false, bruker.Navn, ct));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithOpenApi()
+    .WithName("KlassifiserDisposisjonstyper")
+    .WithSummary("Issue #395 del 1 — klassifiserer delte, gjeldende lover og forskrifter etter disposisjonstype (oppretting, navneendring, " +
+        "nedleggelse, omorganisering, overforing_ressortfordeling, delegering, instruks, ikrafttredelse, regulering): tittel først, mønster på " +
+        "innholdet der tittelen ikke avgjør. Ingen treff = uklassifisert. ?skriv=true lagrer (erstatter bare maskinens egne rader); " +
+        "?medRader=true tar med treffene per kilde.");
+
+app.MapPost("/api/lovdata/lovtidend-import", async (bool? skriv, HttpRequest request, RegelIdeDbContext db, LovdataBulkHenter henter,
+        LovtidendImportTjeneste tjeneste, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        return Results.Ok(await tjeneste.KjorAsync(henter.HentLovtidendDokumenterAsync(ct), skriv ?? false, ct));
+    })
+    .WithOpenApi()
+    .WithName("ImporterLovtidendOrganiseringsvedtak")
+    .WithSummary("Issue #395 del 2 — henter Norsk Lovtidend avd. I (2001–2025 og 2026) fra Lovdatas åpne API og importerer kunngjorte " +
+        "organiseringsvedtak (tittelen gir en organiseringstype) som ikke finnes i korpuset (nøkkel: ELI = dokumenttype, dato og nummer), " +
+        "gjennom samme parser og import som gjeldende-uttrekket. Ikrafttredelser holdes utenfor. ?skriv=true importerer; uten er det en " +
+        "tørrkjøring med de samme tallene («importert» = ville blitt importert).");
+
+app.MapPost("/api/departementer/livslop", async (bool? skriv, HttpRequest request, RegelIdeDbContext db, DepartementLivslopTjeneste tjeneste,
+        CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        return Results.Ok(await tjeneste.KjorAsync(skriv ?? false, bruker.Navn, ct));
+    })
+    .WithOpenApi()
+    .WithName("DepartementenesLivslop")
+    .WithSummary("Issue #395 del 3 (pilot) — departementenes livsløp fra organiseringsvedtakene: identiteter over tid (opprettelse, " +
+        "navnebytter, nedleggelse), ressortfordelingen (hvilket departement som har forvaltningsansvaret for hvilken lov) og avvik mot " +
+        "Lovdatas «Ansvarlig departement» (sekundær kontroll). ?skriv=true legger R oppretter, navneform «utgått» og F forvaltning inn som " +
+        "forslag (maskinelt_foreslatt, forslagskøen); ingenting godkjennes.");
+
 app.MapPost("/api/aktorer/navneformforslag", async (bool? skriv, HttpRequest request, RegelIdeDbContext db, AktoridentitetTjeneste identitet,
         CancellationToken ct) =>
     {
@@ -4584,14 +4645,14 @@ navnekandidater.MapGet("/", async (string? status, string? kategori, Guid? retts
         "Merk at automatisk avvisning IKKE lenger finnes (konfidens-runden 2026-09-09) — behandletAutomatisk=true beskriver derfor historiske rader. " +
         "'virksomhet'-kandidater (uansett oppdagelsesmønster, se issue #117) beriket med SNL-alias/URL/orgnr og SSR-bekreftelse når SNL/SSR-cachen har et treff for teksten.");
 
-navnekandidater.MapPost("/sveip", async (HttpRequest request, SveipNavnekandidaterRequest body,
+navnekandidater.MapPost("/sveip", async (HttpRequest request, SveipNavnekandidaterRequest body, bool? inkluderIkrafttredelseOgEndring,
         NavnekandidatOppdagelseTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
     {
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         try
         {
-            var resultat = await register.SveipAsync(body.RettskildeId, bruker.Navn, ct);
+            var resultat = await register.SveipAsync(body.RettskildeId, bruker.Navn, ct, inkluderIkrafttredelseOgEndring ?? false);
             return Results.Ok(new SveipNavnekandidaterResultatDto(resultat.AntallTreffFunnet, resultat.AntallNyeKandidater));
         }
         catch (ArgumentException ex)
@@ -5119,14 +5180,14 @@ begrepsforekomster.MapGet("/", async (Guid? rettskildeId, string? monsterId, str
         "konfidens: 'hoy'/'middels'/'lav'/'krever_oppslag', eller utelatt/'Alle' = ingen konfidensfilter. " +
         "Innenfor M11 skiller konfidensen markørklassene: 'hoy' = «Med X menes/forstås/regnes», 'lav' = «X beregnes/angir» (issue #214).");
 
-begrepsforekomster.MapPost("/sveip", async (HttpRequest request, SveipBegrepsforekomsterRequest body,
+begrepsforekomster.MapPost("/sveip", async (HttpRequest request, SveipBegrepsforekomsterRequest body, bool? inkluderIkrafttredelseOgEndring,
         BegrepsoppdagelseSveipTjeneste sveip, RegelIdeDbContext db, CancellationToken ct) =>
     {
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         try
         {
-            var resultat = await sveip.SveipAsync(body.RettskildeId, bruker.Navn, ct);
+            var resultat = await sveip.SveipAsync(body.RettskildeId, bruker.Navn, ct, inkluderIkrafttredelseOgEndring ?? false);
             return Results.Ok(new SveipBegrepsforekomsterResultatDto(resultat.AntallTreffFunnet, resultat.AntallNyeForekomster));
         }
         catch (ArgumentException ex)

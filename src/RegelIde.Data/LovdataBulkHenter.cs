@@ -16,6 +16,20 @@ public sealed partial class LovdataBulkHenter(HttpClient http)
     private const string LoverUrl = "https://api.lovdata.no/v1/publicData/get/gjeldende-lover.tar.bz2";
     private const string ForskrifterUrl = "https://api.lovdata.no/v1/publicData/get/gjeldende-sentrale-forskrifter.tar.bz2";
 
+    /// <summary>
+    /// [Ny, issue #395, 2026-10-23] Norsk Lovtidend avd. I — lover og sentrale forskrifter slik de ble KUNNGJORT (ikke konsolidert).
+    /// Filnavnene er verifisert live mot <c>https://api.lovdata.no/v1/publicData/list</c> 2026-10-23: «lovtidend-avd1-2001-2025.tar.bz2»
+    /// (69 MB, 38 182 dokumenter) og «lovtidend-avd1-2026.tar.bz2» (1,6 MB). Samme HTML-format og samme filnavnkonvensjon
+    /// (<c>lti/2004/sf-20041001-1304.xml</c>) som gjeldende-uttrekket, så de leses av samme iterasjon og importeres gjennom samme
+    /// parser (<c>LovdataKonverterer</c>). Avd. II (lokale forskrifter) er bevisst ikke med. Delegeringsbasen (DEL) finnes ikke som
+    /// åpent datasett (målt 2026-10-23, se issue #395).
+    /// </summary>
+    public static readonly IReadOnlyList<string> LovtidendAvd1Urler =
+    [
+        "https://api.lovdata.no/v1/publicData/get/lovtidend-avd1-2001-2025.tar.bz2",
+        "https://api.lovdata.no/v1/publicData/get/lovtidend-avd1-2026.tar.bz2",
+    ];
+
     [GeneratedRegex(@"^(LOV|FOR)-(\d{4})-(\d{2})-(\d{2})(?:-(\d+))?$")]
     private static partial Regex DatokodeMønster();
 
@@ -76,10 +90,19 @@ public sealed partial class LovdataBulkHenter(HttpClient http)
     /// docs/13-backlog.md §6) — å laste ned og dekomprimere de samme ~26 MB arkivene to ganger for
     /// to ulike formål ville vært unødvendig tregt.
     /// </summary>
-    private async IAsyncEnumerable<(string Datokode, string Type, string Html)> HentAlleArkivEntrierAsync(
-        [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken ct = default)
+    private IAsyncEnumerable<(string Datokode, string Type, string Html)> HentAlleArkivEntrierAsync(CancellationToken ct = default) =>
+        HentArkivEntrierAsync([LoverUrl, ForskrifterUrl], ct);
+
+    /// <summary>
+    /// [ENDRET, issue #395, 2026-10-23] Generalisert fra de to gjeldende-arkivene til en liste av arkiver, slik at Lovtidend-arkivene
+    /// leses av SAMME kode. Typen (lov/forskrift) avledes nå av filnavnprefikset (<c>nl</c>/<c>sf</c>) i stedet for av hvilket arkiv
+    /// filen lå i: Lovtidend-arkivet har begge i samme arkiv. For de to gjeldende-arkivene gir det samme svar som før (lover-arkivet har
+    /// bare <c>nl-</c>-filer, forskrift-arkivet bare <c>sf-</c>, se <c>data/kilder/README.md</c>).
+    /// </summary>
+    private async IAsyncEnumerable<(string Datokode, string Type, string Html)> HentArkivEntrierAsync(
+        IEnumerable<string> arkivUrler, [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken ct = default)
     {
-        foreach (var (arkivUrl, type) in new[] { (LoverUrl, "lov"), (ForskrifterUrl, "forskrift") })
+        foreach (var arkivUrl in arkivUrler)
         {
             var arkivBytes = await http.GetByteArrayAsync(arkivUrl, ct);
             using var arkivStrøm = new MemoryStream(arkivBytes);
@@ -98,6 +121,7 @@ public sealed partial class LovdataBulkHenter(HttpClient http)
                 await entryStrøm.CopyToAsync(minne, ct);
                 var html = Encoding.UTF8.GetString(minne.ToArray());
 
+                var type = m.Groups[1].Value == "nl" ? "lov" : "forskrift";
                 var dato = m.Groups[2].Value;
                 var løpenummer = int.Parse(m.Groups[3].Value);
                 var datokode = $"{(type == "lov" ? "LOV" : "FOR")}-{dato[..4]}-{dato[4..6]}-{dato[6..8]}" +
@@ -161,6 +185,11 @@ public sealed partial class LovdataBulkHenter(HttpClient http)
     /// </summary>
     public IAsyncEnumerable<(string Datokode, string Type, string Html)> HentAlleDokumenterAsync(CancellationToken ct = default) =>
         HentAlleArkivEntrierAsync(ct);
+
+    /// <summary>[Ny, issue #395] Alle dokumenter i Lovtidend avd. I (<see cref="LovtidendAvd1Urler"/>), i samme form som
+    /// <see cref="HentAlleDokumenterAsync"/>. Brukt av <see cref="LovtidendImportTjeneste"/>.</summary>
+    public IAsyncEnumerable<(string Datokode, string Type, string Html)> HentLovtidendDokumenterAsync(CancellationToken ct = default) =>
+        HentArkivEntrierAsync(LovtidendAvd1Urler, ct);
 
     private static (string ArkivUrl, string Dato, int Løpenummer) TolkDatokode(string datokode)
     {

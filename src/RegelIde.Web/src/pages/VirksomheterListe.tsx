@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { NedlagtTag } from '../virksomhet/NedlagtTag';
 import { Link as RouterLink, useSearchParams } from 'react-router';
 import { Alert, Button, Card, Checkbox, Dialog, Heading, Link, Paragraph, Spinner, Table, Tabs, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
@@ -166,6 +167,11 @@ export default function VirksomheterListe() {
                       {/* [Ny, issue #385] Navnet er registernavnet til en gjeldende navneform er godkjent — det skal sies. */}
                       {v.navneformMangler && (
                         <Tag data-size="sm" data-color="neutral" variant="outline" style={{ marginLeft: '0.4rem' }}>Navneform mangler</Tag>
+                      )}
+                      {v.livsstatus === 'nedlagt' && (
+                        <span style={{ marginLeft: '0.4rem' }}>
+                          <NedlagtTag livsstatus={v.livsstatus} gyldigFra={v.gyldigFra} gyldigTil={v.gyldigTil} />
+                        </span>
                       )}
                     </Table.Cell>
                     <Table.Cell style={{ fontFamily: 'monospace' }}>{v.organisasjonsnummer ?? '—'}</Table.Cell>

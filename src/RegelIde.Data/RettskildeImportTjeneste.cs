@@ -108,6 +108,8 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
                 eksisterende.PublisertI = m.PublisertI;
                 eksisterende.AnnetOmDokumentet = m.AnnetOmDokumentet;
                 eksisterende.SisteRettelse = m.SisteRettelse;
+                // [Ny, issue #395] Fra dokid-prefikset; fyller rader som ble importert før feltet fantes (bare der dokid er kjent).
+                eksisterende.Kildeform = m.Kildeform ?? eksisterende.Kildeform;
                 // [Ny, fastsatt-av-runden, 2026-09-10, issue #215] Utledet av hjemmelslinja over, ikke
                 // et eget kildefelt — se FastsattAvTolker for hvorfor etat-feltet ikke kan brukes.
                 SettFastsattAv(eksisterende, m.AnnetOmDokumentet);
@@ -168,6 +170,7 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
             eksisterende.PublisertI = m.PublisertI;
             eksisterende.AnnetOmDokumentet = m.AnnetOmDokumentet;
             eksisterende.SisteRettelse = m.SisteRettelse;
+            eksisterende.Kildeform = m.Kildeform; // [Ny, issue #395]
             SettFastsattAv(eksisterende, m.AnnetOmDokumentet); // issue #215, se SettFastsattAv
             eksisterende.Status = m.Status;
             // Del B (2026-09-02) — stubben har aldri hatt ekte HTML før nå (den ble opprettet av
@@ -218,6 +221,7 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
                 PublisertI = m.PublisertI,
                 AnnetOmDokumentet = m.AnnetOmDokumentet,
                 SisteRettelse = m.SisteRettelse,
+                Kildeform = m.Kildeform, // [Ny, issue #395]
                 // issue #215 — utledet av hjemmelslinja, se SettFastsattAv/FastsattAvTolker.
                 FastsattAv = FastsattAvTolker.Tolk(m.AnnetOmDokumentet)?.Tekst,
                 FastsattAvOrgannavn = FastsattAvTolker.Tolk(m.AnnetOmDokumentet)?.Organnavn,
@@ -483,6 +487,7 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
             PublisertI = m.PublisertI,
             AnnetOmDokumentet = m.AnnetOmDokumentet,
             SisteRettelse = m.SisteRettelse,
+            Kildeform = m.Kildeform, // [Ny, issue #395] en ny konsolidert versjon av et kunngjort vedtak blir konsolidert
             // issue #215 — utledet av hjemmelslinja, se SettFastsattAv/FastsattAvTolker.
             FastsattAv = FastsattAvTolker.Tolk(m.AnnetOmDokumentet)?.Tekst,
             FastsattAvOrgannavn = FastsattAvTolker.Tolk(m.AnnetOmDokumentet)?.Organnavn,
