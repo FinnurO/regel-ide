@@ -56,7 +56,12 @@ public sealed record StrukturkantOpprettet(StrukturkantEntitet Kant, bool VarNy)
 /// <param name="Type"><c>'virksomhet'</c> | <c>'begrep'</c>.</param>
 /// <param name="Nodetype">Aktørtypen for en virksomhet (<see cref="Virksomhet.Aktortype"/>, kan være NULL =
 /// uavklart) eller begrepskategorien for et begrep (klasse/rolle/omrade/gruppe).</param>
-public sealed record KantnodeVisning(string Type, Guid Id, string Navn, string? Nodetype);
+public sealed record KantnodeVisning(string Type, Guid Id, string Navn, string? Nodetype)
+{
+    /// <summary>[Ny, issue #390 AK 3] Områdetypen (fylke, kommune, lagsogn …) når noden er et registrert område — så områdesiden kan
+    /// gruppere relasjonene etter betydning («Ligger i fylke») uten å gjette fra navnet. Null ellers.</summary>
+    public string? Omradetype { get; init; }
+}
 
 /// <summary>
 /// [Ny, issue #311] Én strukturkant med navn og ferdig beregnet visningstekst. Når den er hentet FOR en
@@ -901,7 +906,7 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
         var begrepIder = kanter.SelectMany(k => new[] { k.FraBegrepId, k.TilBegrepId })
             .Where(x => x is not null).Select(x => x!.Value).Distinct().ToList();
         var begreper = await db.Begreper.Where(b => begrepIder.Contains(b.Id))
-            .Select(b => new { b.Id, b.Term, b.Begrepskategori }).ToDictionaryAsync(b => b.Id, ct);
+            .Select(b => new { b.Id, b.Term, b.Begrepskategori, b.Omradetype }).ToDictionaryAsync(b => b.Id, ct);
 
         var typer = (await db.RelasjonsTypeKonfigurasjoner.ToListAsync(ct))
             .ToDictionary(k => (k.Kategori, k.Kode));
@@ -937,7 +942,7 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
             }
             var b = begrepId!.Value;
             return begreper.TryGetValue(b, out var brad)
-                ? new KantnodeVisning("begrep", b, brad.Term, brad.Begrepskategori)
+                ? new KantnodeVisning("begrep", b, brad.Term, brad.Begrepskategori) { Omradetype = brad.Omradetype }
                 : new KantnodeVisning("begrep", b, "(ukjent begrep)", null);
         }
 

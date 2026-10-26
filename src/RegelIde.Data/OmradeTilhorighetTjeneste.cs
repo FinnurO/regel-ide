@@ -138,7 +138,7 @@ public sealed class OmradeTilhorighetTjeneste(RegelIdeDbContext db, Strukturkant
             return new TilhorighetKandidat(node, true, SvakestePremiss.SvarStatus(svakest?.Kunnskapsstatus), premisser,
                 svakest?.Id, svakest?.Kunnskapsstatus, premisser.Any(id => kantPerId[id].Status != Strukturkanter.Godkjent));
         }
-        KantnodeVisning Omradenode(OmradeVisning o) => new("begrep", o.Id, o.Navn, Nodetyper.Omrade);
+        KantnodeVisning Omradenode(OmradeVisning o) => new("begrep", o.Id, o.Navn, Nodetyper.Omrade) { Omradetype = o.Omradetype };
         var aktorIder = ansvar.Select(k => k.FraVirksomhetId!.Value)
             .Concat(kanter.Where(k => k.Typekode == "har_sete_i" && k.FraVirksomhetId != null).Select(k => k.FraVirksomhetId!.Value)).Distinct().ToList();
         var aktorer = await db.Virksomheter.Where(x => aktorIder.Contains(x.Id)).Select(x => new { x.Id, x.Navn, x.Aktortype })

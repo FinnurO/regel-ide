@@ -3,7 +3,7 @@ import type {
   BegrepBruktIRettskildeDto,
   Aktortype,
   BegrepDto,
-  KommuneTilhorighetDto,
+  KommuneTilhorighetDto, VirksomhetTilhorighetDto,
   KommunePlikterDto,
   Ordningstype,
   Plikttype,
@@ -1274,6 +1274,9 @@ export const api = {
   /** [Ny, issue #312, AC5] Fylke, tingrett, lagsogn, lagdømme, lagmannsrett, statsforvalter, helseregion og RHF for
    * et kommuneområde (begrep-id), beregnet fra strukturkantene. */
   hentOmradeTilhorighet: (omradeId: string) => kall<KommuneTilhorighetDto>(`/api/omrader/${omradeId}/tilhorighet`),
+  /** [Ny, issue #390 AK 1] «Område og tilhørighet» for en aktør med eget territorium, med premissene for hvert svar. */
+  hentVirksomhetTilhorighet: (virksomhetId: string) =>
+    kall<VirksomhetTilhorighetDto>(`/api/virksomheter/${virksomhetId}/omrade-tilhorighet`),
   /** [Ny, issue #353 AC5, docs/32 S6] Pliktene (P) som gjelder kommunen med dette kommunenummeret — direkte, via registrert
    * medlemskap eller fra en klasse uten registrert medlemskap — med motparten løst via område eller et synlig hull. 404 når
    * kommunenummeret ikke er et gjeldende kommuneområde. `type` = én P-typekode, utelatt = alle. */

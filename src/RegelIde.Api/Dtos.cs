@@ -556,9 +556,10 @@ public sealed record RelasjonsTypeKonfigurasjonDto(string Kategori, string Kode,
 // ---------- Strukturkanter (issue #311, docs/33 §4.3) ----------
 
 /// <summary>[Ny, issue #311] Én node i en kant — se <see cref="KantnodeVisning"/>.</summary>
-public sealed record StrukturnodeDto(string Type, Guid Id, string Navn, string? Nodetype)
+public sealed record StrukturnodeDto(string Type, Guid Id, string Navn, string? Nodetype, string? Omradetype = null)
 {
-    public static StrukturnodeDto FraVisning(KantnodeVisning n) => new(n.Type, n.Id, n.Navn, n.Nodetype);
+    // [ENDRET, issue #390 AK 3] + områdetypen, for grupperingen på områdesiden.
+    public static StrukturnodeDto FraVisning(KantnodeVisning n) => new(n.Type, n.Id, n.Navn, n.Nodetype, n.Omradetype);
 }
 
 /// <summary>[Ny, issue #311] Én strukturkant med navn og visningstekst — se <see cref="StrukturkantVisning"/>.</summary>
