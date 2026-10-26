@@ -1261,6 +1261,10 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
   6. «Slik blir det»: leddet med ordet markert, kjeden med de samme merkene som rettskildesiden, kunnskapsstatus, og hvor bindingen gjelder.
   7. «Lagre bindingen» / «Marker som generisk». Kvitteringen er veiviserens «Dette skjedde» (§15) med lenke til rettskilden og referenten.
 - **Ny aktør fra en navnekandidat:** et forslag med merket «Ny aktør» (en navnekandidat i samme rettskilde som inneholder ordet,
-  «Styret for domstoladministrasjonen» for «styret») oppretter aktøren med bare navnet ved lagring. Kvitteringen sier at kandidaten står
-  igjen i køen for navneform, kilde og type.
+  «Styret for domstoladministrasjonen» for «styret») oppretter aktøren med bare navnet ved lagring. [ENDRET, #386] Navnet blir samtidig
+  gjeldende navneform, hjemlet der kandidaten står, med bindingens godkjenning (docs/33 §5.11). Kvitteringen sier det, og at kandidaten
+  står igjen i køen for type og andre navneformer.
+- **[Ny, #386] Ny aktør med bare navn i navnekandidatveiviseren:** opprettes aktøren med «kun navn» i steg 3, blir navnet gjeldende
+  navneform med grunnlaget og statusen fra «Hva bygger dette på?» og «Hvor sikkert er det?». Kvitteringen («Dette skjedde», §15) har en
+  linje for det, og en linje til når hjemmelen ikke viser navnet («hjemmel mangler», velges på aktørsiden). Før: «Navneform mangler».
 
