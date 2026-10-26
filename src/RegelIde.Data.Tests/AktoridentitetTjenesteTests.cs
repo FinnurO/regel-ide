@@ -292,4 +292,75 @@ public class AktoridentitetTjenesteTests
         await generiske.GodkjennAsync(iHjemmelen.Id, "Jurist");
         Assert.Null((await db.NavneformBindinger.AsNoTracking().SingleAsync(b => b.Id == iHjemmelen.Id)).HjemmelEndretTidspunkt);
     }
+
+    // ---------------------------------------------------------------- [Ny, issue #386] Navnet som gjeldende navneform
+
+    private static Utsagnsgrunnlag Hjemmel(Guid rettskildeId, string eid, string godkjenning = Strukturkanter.FagligVurdert) => new()
+    {
+        Grunnlag = Utsagnsgrunnlag.Hjemmel, HjemmelRettskildeId = rettskildeId, HjemmelEid = eid,
+        Kunnskapsstatus = Strukturkanter.Tekstfunn, Godkjenning = godkjenning,
+    };
+
+    /// <summary>Hva heter en aktør som er opprettet med bare et navn? Navnet, med veiviserens grunnlag og status, hjemlet der det står.</summary>
+    [Fact]
+    public async Task Ny_aktor_med_bare_navn_far_navnet_som_gjeldende_navneform_med_grunnlaget()
+    {
+        await using var db = _fixture.NyDbContext();
+        var u = Unik();
+        var aktor = await NyVirksomhetAsync(db, $"Testutvalget{u} for dommere");
+        var (rk, eider) = await NyRettskildeAsync(db, null, $"Testutvalget{u} for dommere behandler klager. Testutvalget{u} skal bestå av fem.");
+
+        var r = await Tjeneste(db).RegistrerNavnetSomGjeldendeAsync(aktor.Id, Hjemmel(rk, eider[0]), "test", default);
+
+        Assert.Equal(NavnetSomGjeldende.Opprettet, r.Utfall);
+        Assert.Null(r.Merknad);
+        var nf = await db.Begreper.SingleAsync(b => b.VirksomhetReferanseId == aktor.Id);
+        Assert.Equal(($"Testutvalget{u} for dommere", "gjeldende", Strukturkanter.Tekstfunn, Strukturkanter.FagligVurdert, eider[0], (Guid?)rk),
+            (nf.Term, nf.Navneformgrunn, nf.Kunnskapsstatus, nf.Godkjenning, nf.LovreferanseEid, nf.LovkildeId));
+
+        // Andre gang: aktøren har alt en gjeldende navneform, ingenting nytt.
+        var igjen = await Tjeneste(db).RegistrerNavnetSomGjeldendeAsync(aktor.Id, Hjemmel(rk, eider[0]), "test", default);
+        Assert.Equal(NavnetSomGjeldende.Fantes, igjen.Utfall);
+        Assert.Equal(1, await db.Begreper.CountAsync(b => b.VirksomhetReferanseId == aktor.Id));
+    }
+
+    /// <summary>Står navnet ikke i bestemmelsen som ble valgt, gjettes ingen annen: «hjemmel mangler» med begrunnelse (#395).</summary>
+    [Fact]
+    public async Task Navnet_som_ikke_star_i_hjemmelen_lagres_med_hjemmel_mangler()
+    {
+        await using var db = _fixture.NyDbContext();
+        var u = Unik();
+        var aktor = await NyVirksomhetAsync(db, $"Styret for testadministrasjonen{u}");
+        var (rk, eider) = await NyRettskildeAsync(db, null, "Styret skal ha sju medlemmer.");
+
+        var r = await Tjeneste(db).RegistrerNavnetSomGjeldendeAsync(aktor.Id, Hjemmel(rk, eider[0], Strukturkanter.Godkjent), "test", default);
+
+        Assert.Equal(NavnetSomGjeldende.Opprettet, r.Utfall);
+        Assert.Contains("står ikke i bestemmelsen", r.Merknad);
+        var nf = r.Navneform!;
+        Assert.Equal(("gjeldende", Strukturkanter.Uavklart, Strukturkanter.Godkjent, (string?)null), (nf.Navneformgrunn, nf.Kunnskapsstatus, nf.Godkjenning, nf.LovreferanseEid));
+        Assert.Equal(r.Merknad, nf.Begrunnelse);
+    }
+
+    /// <summary>En navneform med samme navn uten grunn eller grunnlag (SNL ved opprettelsen) fylles ut, ingen dublett.</summary>
+    [Fact]
+    public async Task Eksisterende_navneform_med_samme_navn_uten_grunnlag_fylles_ut()
+    {
+        await using var db = _fixture.NyDbContext();
+        var u = Unik();
+        var aktor = await NyVirksomhetAsync(db, $"Testnemnda{u}");
+        db.Begreper.Add(new BegrepEntitet
+        {
+            Id = Guid.NewGuid(), Begrepskategori = "virksomhet", VirksomhetReferanseId = aktor.Id, Term = $"Testnemnda{u}", Status = "publisert",
+            OpprettetAv = "manuell-opprettelse", OpprettetTidspunkt = DateTimeOffset.UtcNow,
+        });
+        await db.SaveChangesAsync();
+        var (rk, eider) = await NyRettskildeAsync(db, null, $"Testnemnda{u} avgjør klager.");
+
+        var r = await Tjeneste(db).RegistrerNavnetSomGjeldendeAsync(aktor.Id, Hjemmel(rk, eider[0]), "test", default);
+
+        Assert.Equal(NavnetSomGjeldende.Utfylt, r.Utfall);
+        var nf = await db.Begreper.SingleAsync(b => b.VirksomhetReferanseId == aktor.Id);
+        Assert.Equal(("gjeldende", eider[0]), (nf.Navneformgrunn, nf.LovreferanseEid));
+    }
 }
