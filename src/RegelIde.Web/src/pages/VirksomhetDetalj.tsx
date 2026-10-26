@@ -503,6 +503,13 @@ export default function VirksomhetDetalj() {
                       <span style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap' }}>
                         {b.kunnskapsstatus && <KunnskapsstatusTag status={b.kunnskapsstatus} />}
                         {b.godkjenning && <GodkjenningTag status={b.godkjenning} oppdagelsesKilde={b.oppdagelsesKilde ?? 'ukjent'} />}
+                        {/* [Ny, Johanns avgjørelse P4 på #397, docs/09 §44] Hindrer ikke godkjenning. */}
+                        {b.ikkeKontrollertMotKunngjort && (
+                          <Tag data-size="sm" data-color="warning"
+                            title="Navnet er hentet fra en konsolidert DEL-tekst fra før 2001. Lovdata kan ha oppdatert departementsnavn i ettertid, og den kunngjorte teksten finnes ikke i åpne data. Merket hindrer ikke godkjenning.">
+                            Ikke kontrollert mot kunngjort tekst
+                          </Tag>
+                        )}
                       </span>
                       {b.godkjenning === 'avvist' && b.avvisningBegrunnelse && <Metatekst as="span" style={{ display: 'block' }}>{b.avvisningBegrunnelse}</Metatekst>}
                     </Table.Cell>

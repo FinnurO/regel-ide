@@ -5,8 +5,10 @@ namespace RegelIde.Data;
 
 /// <summary>Én hendelse i et organiseringsvedtak, slik mønstrene leser den ut av ett ledd. <see cref="Navn"/> er normalisert til bestemt
 /// form; <see cref="Raa"/> er formen slik den står (for kunnskapsstatus: lik → tekstfunn, ellers normalisering).</summary>
+// [ENDRET, Johanns avgjørelse U1 på #397] + Virkning: datoen leddet selv sier («Med virkning fra 1. januar 1988 …»). Gjelder bare der teksten
+// sier det; ellers brukes vedtakets dato.
 public sealed record Livslopshendelse(string Type, IReadOnlyList<(string Navn, string Raa)> Navn, (string Navn, string Raa)? Fra = null,
-    (string Navn, string Raa)? Til = null, string? Objekt = null, bool Utsatt = false, string Regel = "");
+    (string Navn, string Raa)? Til = null, string? Objekt = null, bool Utsatt = false, string Regel = "", DateOnly? Virkning = null);
 
 /// <summary>
 /// [Ny, issue #395 del 3, 2026-10-23] Mønstrene som leser departementenes livsløp ut av organiseringsvedtakene. Rene funksjoner uten
@@ -39,6 +41,11 @@ public static partial class DepartementLivslopMonstre
     public const string Nedleggelse = "nedleggelse";
     public const string Navnebytte = "navnebytte";
     public const string Overforing = "overforing";
+    /// <summary>[Ny, Johanns avgjørelse P1 på #397] Opphør uten ordet «nedlegges» («overtar alle arbeidsoppgavene til det nåværende X»,
+    /// «det tidligere X»). Gir R avvikler med kunnskapsstatus fortolkning.</summary>
+    public const string Opphor = "opphor";
+    /// <summary>[Ny, Johanns avgjørelse P2 på #397] «Y overtar … fra X» (Fra = X, Til = Y). Gir R etterfolger når X opphører i samme vedtak.</summary>
+    public const string Overtar = "overtar";
 
     // Ett departementsnavn: «Kulturdepartementet», «Arbeids- og sosialdepartementet», «Barne-, likestillings- og inkluderingsdepartementet»,
     // også ubestemt («et Helse- og omsorgsdepartement») og genitiv («Landbruksdepartementets»). Delene før siste ledd ender på bindestrek.
@@ -87,6 +94,23 @@ public static partial class DepartementLivslopMonstre
     private static partial Regex OrganiseresVedOpprettelsenRegex();
     // [Ny, issue #397] Et kapittel som bare heter et departement, under et «Vedlegg» (FOR-2018-04-27-638, FOR-2019-05-03-560).
     [GeneratedRegex(@"^\s*(?<d>" + Dept + @")\s*$", RegexOptions.CultureInvariant)] private static partial Regex BareDepartementRegex();
+
+    // [Ny, Johanns avgjørelse U1 på #397] «Med virkning fra 1. januar 1988 …» i leddet.
+    [GeneratedRegex(@"\b[Mm]ed\s+virkning\s+fra\s+(?<d>\d{1,2})\.\s*(?<m>januar|februar|mars|april|mai|juni|juli|august|september|oktober|november|desember)\s+(?<y>\d{4})", RegexOptions.CultureInvariant)]
+    private static partial Regex VirkningRegex();
+    // [Ny, Johanns avgjørelse P1 på #397] Opphør uten «nedlegges» (FOR-1996-12-20-1156, FOR-1997-12-19-1316).
+    [GeneratedRegex(@"\bovertar\s+(?:alle\s+arbeidsoppgavene|de\s+resterende\s+oppgavene)\s+til\s+(?:det\s+(?:nåværende|tidligere)\s+)?(?<x>" + Dept + ")", RegexOptions.CultureInvariant)]
+    private static partial Regex OvertarAlleRegex();
+    [GeneratedRegex(@"\bdet\s+tidligere\s+(?<x>" + Dept + ")", RegexOptions.CultureInvariant)] private static partial Regex DetTidligereRegex();
+    // [Ny, Johanns avgjørelse P2 på #397] «Y (FORK) overtar … fra [det nåværende] X» og «Y overtar alle arbeidsoppgavene til X».
+    [GeneratedRegex(@"(?<y>" + Dept + @")(?:\s*\([^()]*\))?\s+overtar\b[^.]*?\bfra\s+(?:det\s+(?:nåværende|tidligere)\s+)?(?<x>" + Dept + ")", RegexOptions.CultureInvariant)]
+    private static partial Regex OvertarFraRegex();
+    [GeneratedRegex(@"(?<y>" + Dept + @")(?:\s*\([^()]*\))?\s+overtar\s+(?:alle\s+arbeidsoppgavene|de\s+resterende\s+oppgavene)\s+til\s+(?:det\s+(?:nåværende|tidligere)\s+)?(?<x>" + Dept + ")", RegexOptions.CultureInvariant)]
+    private static partial Regex OvertarAlleTilRegex();
+    // [Ny, Johanns avgjørelse U2 på #397] FOR-1989-12-22-1273 vedlegg 4: «Forvaltningen av følgende lover overføres fra X» under «Til Y overføres følgende:».
+    [GeneratedRegex(@"^\s*Forvaltningen\s+av\s+følgende\s+lover\s+overføres\s+fra\s+(?<x>" + Dept + ")", RegexOptions.CultureInvariant)]
+    private static partial Regex ForvaltningenOverforesFraRegex();
+    [GeneratedRegex(@"^\s*Til\s+(?<y>" + Dept + @")\s+overføres\s+følgende", RegexOptions.CultureInvariant)] private static partial Regex TilOverforesFolgendeRegex();
 
     [GeneratedRegex(@"\biverksettes fra det tidspunkt\b", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase)]
     private static partial Regex UtsattRegex();
@@ -149,6 +173,38 @@ public static partial class DepartementLivslopMonstre
     /// <paramref name="ulest"/>).</summary>
     public static IReadOnlyList<Livslopshendelse> LesLedd(string tekst, out string? ulest)
     {
+        var h = LesLeddUtenVirkning(tekst, out ulest);
+        // [Ny, Johanns avgjørelse U1 på #397] Sier leddet «med virkning fra <dato>», gjelder den datoen for hendelsene i leddet.
+        return Virkning(tekst) is { } v ? h.Select(x => x with { Virkning = v }).ToList() : h;
+    }
+
+    /// <summary>[Ny, issue #397 U1] Datoen i «med virkning fra D. måned ÅÅÅÅ», ellers null.</summary>
+    public static DateOnly? Virkning(string tekst)
+    {
+        var m = VirkningRegex().Match(tekst);
+        if (!m.Success) return null;
+        var mnd = Array.IndexOf(Maneder, m.Groups["m"].Value) + 1;
+        var dag = int.Parse(m.Groups["d"].Value, CultureInfo.InvariantCulture);
+        var ar = int.Parse(m.Groups["y"].Value, CultureInfo.InvariantCulture);
+        try { return new DateOnly(ar, mnd, dag); } catch (ArgumentOutOfRangeException) { return null; }
+    }
+
+    /// <summary>[Ny, issue #397 P1] Opphør i en overskrift («Organisatorisk deling av det tidligere Nærings- og energidepartementet»).</summary>
+    public static IReadOnlyList<Livslopshendelse> LesOverskrift(string overskrift) =>
+        DetTidligereRegex().Match(overskrift) is { Success: true } m
+            ? [new(Opphor, [(Normaliser(m.Groups["x"].Value), m.Groups["x"].Value)], Regel: "monster:livslop-det-tidligere")]
+            : [];
+
+    /// <summary>[Ny, issue #397 U2] «Forvaltningen av følgende lover overføres fra X» → X, ellers null.</summary>
+    public static (string Navn, string Raa)? LesForvaltningenOverforesFra(string tekst) =>
+        ForvaltningenOverforesFraRegex().Match(tekst) is { Success: true } m ? (Normaliser(m.Groups["x"].Value), m.Groups["x"].Value) : null;
+
+    /// <summary>[Ny, issue #397 U2] «Til Y overføres følgende:» → Y, ellers null.</summary>
+    public static (string Navn, string Raa)? LesTilOverforesFolgende(string overskrift) =>
+        TilOverforesFolgendeRegex().Match(overskrift) is { Success: true } m ? (Normaliser(m.Groups["y"].Value), m.Groups["y"].Value) : null;
+
+    private static IReadOnlyList<Livslopshendelse> LesLeddUtenVirkning(string tekst, out string? ulest)
+    {
         ulest = null;
         var h = new List<Livslopshendelse>();
         // «Opprettelse av Næringsdepartementet og nedleggelse av Industridepartementet.» (FOR-1987-12-18) — to hendelser i ett ledd.
@@ -157,8 +213,8 @@ public static partial class DepartementLivslopMonstre
         var deler = Regex.Split(tekst, @"\s+og\s+(?=nedleggelse av\b|det opprettes\b)", RegexOptions.CultureInvariant);
         if (deler.Length == 2)
         {
-            var a = LesLedd(deler[0], out var ua);
-            var b = LesLedd(char.ToUpperInvariant(deler[1][0]) + deler[1][1..], out var ub);
+            var a = LesLeddUtenVirkning(deler[0], out var ua);
+            var b = LesLeddUtenVirkning(char.ToUpperInvariant(deler[1][0]) + deler[1][1..], out var ub);
             ulest = ua ?? ub;
             return [.. a, .. b];
         }
@@ -206,6 +262,25 @@ public static partial class DepartementLivslopMonstre
                 var fra = m.Groups["fra"].Value;
                 var til = m.Groups["til"].Value;
                 h.Add(new(Navnebytte, [], (Normaliser(fra), fra), (Normaliser(til), til), Utsatt: utsatt, Regel: regel));
+            }
+        }
+        // [Ny, Johanns avgjørelser P1 og P2 på #397] Opphør uten «nedlegges» og «Y overtar … fra X». Tjenesten avgjør om X faktisk
+        // opphører (lever X i dag, eller opphører ikke i samme vedtak, er det en vanlig overføring og gir ingenting).
+        foreach (Match m in OvertarAlleRegex().Matches(tekst))
+        {
+            h.Add(new(Opphor, [(Normaliser(m.Groups["x"].Value), m.Groups["x"].Value)], Regel: "monster:livslop-overtar-alle-oppgavene-til"));
+        }
+        foreach (Match m in DetTidligereRegex().Matches(tekst))
+        {
+            h.Add(new(Opphor, [(Normaliser(m.Groups["x"].Value), m.Groups["x"].Value)], Regel: "monster:livslop-det-tidligere"));
+        }
+        foreach (var (r, regel) in new[] { (OvertarFraRegex(), "monster:livslop-overtar-fra"), (OvertarAlleTilRegex(), "monster:livslop-overtar-alle-oppgavene-til") })
+        {
+            foreach (Match m in r.Matches(tekst))
+            {
+                if (Normaliser(m.Groups["x"].Value) == Normaliser(m.Groups["y"].Value)) continue;
+                h.Add(new(Overtar, [], (Normaliser(m.Groups["x"].Value), m.Groups["x"].Value), (Normaliser(m.Groups["y"].Value), m.Groups["y"].Value),
+                    Objekt: tekst.Trim(), Regel: regel));
             }
         }
         foreach (Match m in OverforesRegex().Matches(tekst))

@@ -412,6 +412,8 @@ export interface BrregEnhetDto {
 }
 
 export interface VirksomhetsbegrepDto {
+  /** [Ny, Johanns avgjørelse P4 på #397] Hjemmel i konsolidert DEL-tekst fra før 2001: «ikke kontrollert mot kunngjort tekst». */
+  ikkeKontrollertMotKunngjort?: boolean;
   id: string;
   virksomhetId: string | null;
   begrepskategori: string | null;

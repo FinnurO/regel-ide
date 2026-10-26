@@ -44,6 +44,9 @@ public sealed record LivslopSkriving(int OpprettetNye, int OpprettetFantes, int 
     public int AvviklerFantes { get; init; }
     public int EtterfolgerNye { get; init; }
     public int EtterfolgerFantes { get; init; }
+    /// <summary>[Ny, Johanns avgjørelse P2 på #397] R etterfolger lest av «overtar … fra X».</summary>
+    public int EtterfolgerTekstNye { get; init; }
+    public int EtterfolgerTekstFantes { get; init; }
     /// <summary>[Ny, issue #397] Egne, uvurderte F-forslag som fikk ny gyldig til fordi et nytt vedtak er lest.</summary>
     public int RessortGyldigTilOppdatert { get; init; }
     /// <summary>[Ny, issue #397] Nedlagte aktører og deres maskinelle navneformer som fikk gyldig fra fylt inn (var tom).</summary>
@@ -61,6 +64,9 @@ public sealed record LivslopRapport(
 {
     /// <summary>[Ny, issue #395] De avledede etterfølgerne (skrevet som forslag når <see cref="Skrevet"/>).</summary>
     public IReadOnlyList<AvledetEtterfolger> AvlededeEtterfolgere { get; init; } = [];
+    /// <summary>[Ny, Johanns avgjørelse P2 på #397] Etterfølgere lest av teksten («Y overtar … fra X», X opphører i samme vedtak), der
+    /// ressortfordelingen ikke ga noen. <see cref="AvledetEtterfolger.Vedtak"/> er leddet; lista over lover er tom.</summary>
+    public IReadOnlyList<AvledetEtterfolger> TekstEtterfolgere { get; init; } = [];
 }
 
 /// <summary>
@@ -106,7 +112,8 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
         public int Nr;
         public List<(string Navn, DateOnly? Fra, DateOnly? Til, LivslopHjemmel? Gitt, LivslopHjemmel? Endret, string? Raa)> Navn = [];
         public DateOnly? Opprettet; public LivslopHjemmel? OpprettetVed;
-        public string? OpprettetRegel; public string? NedlagtRegel; // [Ny, issue #397] mønsteret som leste opprettelsen
+        public string? OpprettetRegel; public string? NedlagtRegel;
+        public bool NedlagtFortolkning; // [Ny, Johanns avgjørelse P1 på #397] opphør uten «nedlegges» // [Ny, issue #397] mønsteret som leste opprettelsen
         public DateOnly? Nedlagt; public LivslopHjemmel? NedlagtVed; public bool NedlagtKglRes;
         public string Gjeldende => Navn[^1].Navn;
     }
@@ -114,7 +121,7 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
     // [ENDRET, issue #397] + Innledning: leddet over punktet i vedlegget («Statsråd Monica Mæland», «Oversikt over lover statsråd … har
     // forvaltningsansvar for etter endringene:»), når det finnes. Står i kommentaren.
     private sealed record Tildeling(Identitet Id, string NavnDaVedtaket, string Objekt, string? Eli, bool Hele, DateOnly Fra, LivslopHjemmel Hjemmel, bool Funksjonsord,
-        string? Innledning = null);
+        string? Innledning = null, string? FraDepartement = null);
 
     public async Task<LivslopRapport> KjorAsync(bool skriv, string bruker = SystemBruker, CancellationToken ct = default)
     {
@@ -130,7 +137,7 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
         var ulest = new List<LivslopUlest>();
         var utsatt = new List<string>();
         var vedtak = new List<(DateOnly Dato, Guid Id, string Tittel, string? Kildeform, bool KglRes, List<(LivslopHjemmel H, Livslopshendelse E)> Hendelser,
-            List<(LivslopHjemmel H, string Dept, string Raa, bool Funksjonsord, bool HarUnderpunkter, string? Innledning)> Vedlegg)>();
+            List<(LivslopHjemmel H, string Dept, string Raa, bool Funksjonsord, bool HarUnderpunkter, string? Innledning, string? FraDept)> Vedlegg)>();
 
         foreach (var k in kilder)
         {
@@ -141,7 +148,8 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
                 .Select(n => new { n.Id, n.ParentNodeId, n.Eid, n.NodeType, n.Overskrift, n.Tekst })
                 .ToListAsync(ct);
             var hendelser = new List<(LivslopHjemmel, Livslopshendelse)>();
-            var vedlegg = new List<(LivslopHjemmel, string, string, bool, bool, string?)>();
+            var vedlegg = new List<(LivslopHjemmel, string, string, bool, bool, string?, string?)>();
+            var fraDeptForKap = new Dictionary<Guid, string>(); // [Ny, issue #397 U2] «… overføres fra X» → X
             // Et lovpunkt med underpunkter («Lov … om vern mot forurensninger» → «§ 44») gir bare ansvaret for underpunktene: en del, ikke hele loven.
             var harBarn = noder.Where(x => x.ParentNodeId is not null).Select(x => x.ParentNodeId!.Value).ToHashSet();
             var vedleggskapitler = new Dictionary<Guid, (string Dept, string Raa, bool F)>();
@@ -172,18 +180,39 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
                     vedleggskapitler[n.Id] = vl;
                 }
                 if (n.Overskrift is { } on && DepartementLivslopMonstre.LesNyttDepartement(on) is { } nd) nyttKapitler[n.Id] = nd.Navn;
+                // [Ny, Johanns avgjørelse U2 på #397] FOR-1989-12-22-1273: «Forvaltningen av følgende lover overføres fra X» (med punktene under)
+                // i et rom «Til Y overføres følgende:». Y må finnes på vedtaksdatoen (sjekkes i tidsrekkefølgen nedenfor): vedlegg 3 bruker
+                // 2002-navnet «Kultur- og kirkedepartementet» i underoverskriften og leses derfor ikke.
+                if (n.Tekst is { } ft && harBarn.Contains(n.Id) && DepartementLivslopMonstre.LesForvaltningenOverforesFra(ft) is { } fx)
+                {
+                    for (var q = n.ParentNodeId; q is { } qid && nodeVedId.TryGetValue(qid, out var qn); q = qn.ParentNodeId)
+                    {
+                        if (qn.Overskrift is { } qo && DepartementLivslopMonstre.LesTilOverforesFolgende(qo) is { } ty)
+                        {
+                            vedleggskapitler[n.Id] = (ty.Navn, ty.Raa, false);
+                            fraDeptForKap[n.Id] = fx.Navn;
+                            break;
+                        }
+                    }
+                }
             }
             foreach (var n in noder)
             {
+                // [Ny, issue #397 P1] Opphør i en overskrift.
+                if (n.Overskrift is { } ovs && DepartementLivslopMonstre.LesOverskrift(ovs) is { Count: > 0 } ovh)
+                {
+                    foreach (var e in ovh) hendelser.Add((new LivslopHjemmel(k.Id, k.Tittel, k.Kildeform, n.Eid, ovs), e));
+                }
                 if (string.IsNullOrWhiteSpace(n.Tekst)) continue;
                 var h = new LivslopHjemmel(k.Id, k.Tittel, k.Kildeform, n.Eid, n.Tekst);
                 // Et punkt i et vedlegg («Oversikt over lover X skal ha forvaltningsansvaret for»): nærmeste vedleggskapittel oppover.
                 Guid? p = n.ParentNodeId;
                 (string Dept, string Raa, bool F)? kap = null;
+                string? kapFraDept = null;
                 string? innledning = null; // [Ny, issue #397] nærmeste tekst over punktet, under vedleggskapitlet
                 while (p is { } pid)
                 {
-                    if (vedleggskapitler.TryGetValue(pid, out var v)) { kap = v; break; }
+                    if (vedleggskapitler.TryGetValue(pid, out var v)) { kap = v; kapFraDept = fraDeptForKap.GetValueOrDefault(pid); break; }
                     var pn = nodeVedId.GetValueOrDefault(pid);
                     // Teksten i et ledd over punktet, ellers overskriften på en underinndeling («Oversikt over lover som statsråd … skal ha …»).
                     if (innledning is null && (string.IsNullOrWhiteSpace(pn?.Tekst) ? pn?.Overskrift : pn.Tekst) is { } it && !string.IsNullOrWhiteSpace(it))
@@ -201,11 +230,12 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
                         // overskrift som bare er departementsnavnet, er normalisering: departementet følger av strukturen.
                         var funksjonsord = kv.F || (innledning is not null && innledning.Contains("forvaltningsansvar", StringComparison.OrdinalIgnoreCase)
                             && innledning.Contains(kv.Raa, StringComparison.Ordinal));
-                        vedlegg.Add((h, kv.Dept, kv.Raa, funksjonsord, harBarn.Contains(n.Id), innledning));
+                        vedlegg.Add((h, kv.Dept, kv.Raa, funksjonsord, harBarn.Contains(n.Id), innledning, kapFraDept));
                     }
                     continue;
                 }
                 var lest = DepartementLivslopMonstre.LesLedd(n.Tekst, out var grunn);
+                // [Ny, issue #397 P1] «det tidligere X» i overskriften over leddet (1997: «Organisatorisk deling av det tidligere …»).
                 foreach (var e in lest) hendelser.Add((h, e));
                 // [Ny, issue #397] «X organiseres ved opprettelsen …» i et kapittel med overskriften «Nytt X (FORK)» (1997, 1998).
                 if (DepartementLivslopMonstre.LesOrganiseresVedOpprettelsen(n.Tekst) is { } ov)
@@ -245,6 +275,7 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
         var levende = new Dictionary<string, Identitet>(StringComparer.Ordinal);
         var tildelinger = new List<Tildeling>();
         var etterfolgere = new List<EtterfolgerKandidat>();
+        var tekstEtterfolgere = new List<(Identitet X, Identitet Y, LivslopHjemmel H, string Regel)>(); // [Ny, issue #397 P2]
         var merknader = new List<string>();
         var opprettetKanter = new List<(Identitet Id, DateOnly Dato, LivslopHjemmel H, bool Normalisert)>();
 
@@ -266,17 +297,40 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
         {
             var opprettetHer = new List<string>();
             var nedlagtHer = new List<string>();
+            var nedlagtIdent = new Dictionary<string, Identitet>(); // [Ny, issue #397 P2] hvem som opphørte i dette vedtaket
             foreach (var (h, e) in v.Hendelser.Where(x => x.E.Type == DepartementLivslopMonstre.Nedleggelse))
             {
+                var dato = e.Virkning ?? v.Dato; // [Ny, Johanns avgjørelse U1 på #397]
                 foreach (var (navn, _) in e.Navn)
                 {
                     // [Ny, issue #397] Samme nedleggelse to ganger i samme vedtak («Nedleggelse av X» og «X nedlegges») er én.
                     if (!levende.ContainsKey(navn) && nedlagtHer.Contains(navn)) continue;
                     var i = Hent(navn, h);
-                    i.Nedlagt = v.Dato; i.NedlagtVed = h; i.NedlagtKglRes = v.KglRes; i.NedlagtRegel = e.Regel;
-                    i.Navn[^1] = i.Navn[^1] with { Til = v.Dato.AddDays(-1) };
+                    i.Nedlagt = dato; i.NedlagtVed = h; i.NedlagtKglRes = v.KglRes; i.NedlagtRegel = e.Regel;
+                    i.Navn[^1] = i.Navn[^1] with { Til = dato.AddDays(-1) };
                     levende.Remove(navn);
                     nedlagtHer.Add(navn);
+                    nedlagtIdent[navn] = i;
+                }
+            }
+            // [Ny, Johanns avgjørelse P1 på #397] Opphør uten «nedlegges» («overtar alle arbeidsoppgavene til det nåværende X», «det tidligere
+            // X»): bare for et departement som lever i livsløpet, og bare i et vedtak som også oppretter et departement (en omorganisering) —
+            // ellers kan «det tidligere X» i en senere tekst avslutte noe som fortsatt finnes. R avvikler blir fortolkning.
+            if (v.Hendelser.Any(x => x.E.Type == DepartementLivslopMonstre.Oppretting))
+            {
+                foreach (var (h, e) in v.Hendelser.Where(x => x.E.Type == DepartementLivslopMonstre.Opphor))
+                {
+                    var dato = e.Virkning ?? v.Dato;
+                    foreach (var (navn, _) in e.Navn)
+                    {
+                        if (!levende.TryGetValue(navn, out var i) || nedlagtHer.Contains(navn)) continue;
+                        if (v.Hendelser.Any(x => x.E.Type == DepartementLivslopMonstre.Oppretting && x.E.Navn.Any(o => o.Navn == navn))) continue;
+                        i.Nedlagt = dato; i.NedlagtVed = h; i.NedlagtKglRes = v.KglRes; i.NedlagtRegel = e.Regel; i.NedlagtFortolkning = true;
+                        i.Navn[^1] = i.Navn[^1] with { Til = dato.AddDays(-1) };
+                        levende.Remove(navn);
+                        nedlagtHer.Add(navn);
+                        nedlagtIdent[navn] = i;
+                    }
                 }
             }
             foreach (var (h, e) in v.Hendelser.Where(x => x.E.Type == DepartementLivslopMonstre.Navnebytte))
@@ -284,6 +338,7 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
                 var (fra, fraRaa) = e.Fra!.Value;
                 var (til, tilRaa) = e.Til!.Value;
                 if (e.Utsatt) { utsatt.Add($"{v.Tittel}: «{fraRaa}» → «{tilRaa}» (utsatt iverksetting, {h.Eid})"); continue; }
+                var nbDato = e.Virkning ?? v.Dato; // [Ny, Johanns avgjørelse U1 på #397]
                 if (levende.TryGetValue(til, out var alt) && alt.Gjeldende == til && alt.Navn[^1].Gitt is { } gitt && gitt.RettskildeId != h.RettskildeId)
                 {
                     continue; // allerede gjennomført av et tidligere vedtak med samme navnebytte
@@ -305,8 +360,8 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
                     merknader.Add($"«{til}» er brukt i vedtak fra før navnebyttet «{fraRaa}» → «{tilRaa}» ({v.Tittel}, {v.Dato:yyyy-MM-dd}). " +
                         "Lest som samme departement: konsoliderte tekster bruker gjeldende navn.");
                 }
-                i.Navn[^1] = i.Navn[^1] with { Til = v.Dato.AddDays(-1), Endret = h };
-                i.Navn.Add((til, v.Dato, null, h, null, tilRaa));
+                i.Navn[^1] = i.Navn[^1] with { Til = nbDato.AddDays(-1), Endret = h };
+                i.Navn.Add((til, nbDato, null, h, null, tilRaa));
                 levende.Remove(fra);
                 levende[til] = i;
             }
@@ -320,13 +375,22 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
                         ulest.Add(new(h, $"«{navn}» opprettes, men et departement med samme navn finnes fra før uten å være nedlagt"));
                         continue;
                     }
-                    var i = new Identitet { Nr = ++lopenr, Opprettet = v.Dato, OpprettetVed = h, OpprettetRegel = e.Regel };
-                    i.Navn.Add((navn, v.Dato, null, h, null, raa));
+                    var oDato = e.Virkning ?? v.Dato; // [Ny, Johanns avgjørelse U1 på #397]
+                    var i = new Identitet { Nr = ++lopenr, Opprettet = oDato, OpprettetVed = h, OpprettetRegel = e.Regel };
+                    i.Navn.Add((navn, oDato, null, h, null, raa));
                     identiteter.Add(i);
                     levende[navn] = i;
                     opprettetHer.Add(navn);
-                    if (v.KglRes) opprettetKanter.Add((i, v.Dato, h, raa != navn));
+                    if (v.KglRes) opprettetKanter.Add((i, oDato, h, raa != navn));
                 }
+            }
+            // [Ny, Johanns avgjørelse P2 på #397] «Y overtar … fra X», der X opphører i SAMME vedtak og Y finnes etter det: Y etterfølger X,
+            // lest av teksten, også uten forvaltningskanter. En vanlig overføring mellom to departementer som begge finnes videre, gir ingenting.
+            foreach (var (h, e) in v.Hendelser.Where(x => x.E.Type == DepartementLivslopMonstre.Overtar))
+            {
+                if (!nedlagtIdent.TryGetValue(e.Fra!.Value.Navn, out var xi) || !levende.TryGetValue(e.Til!.Value.Navn, out var yi) || xi == yi) continue;
+                if (tekstEtterfolgere.Any(t => t.X == xi && t.Y == yi)) continue;
+                tekstEtterfolgere.Add((xi, yi, h, e.Regel));
             }
             if (opprettetHer.Count > 0 && nedlagtHer.Count > 0)
             {
@@ -339,12 +403,22 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
                 tildelinger.Add(new Tildeling(til, e.Til.Value.Navn, e.Objekt!, datokode is null ? null : LovdataIdentifikatorer.AvledEliFraDatokode(datokode, out _),
                     ErHeleLoven(e.Objekt!), v.Dato, h, Funksjonsord: true));
             }
-            foreach (var (h, dept, _, funksjonsord, harUnderpunkter, innledning) in v.Vedlegg)
+            foreach (var (h, dept, _, funksjonsord, harUnderpunkter, innledning, fraDept) in v.Vedlegg)
             {
+                // [Ny, Johanns avgjørelse U2 på #397] «Til Y overføres følgende»: Y må finnes på vedtaksdatoen; ellers er navnet trolig
+                // etterkonsolidert (P4), og lista leses ikke.
+                if (fraDept is not null && !levende.ContainsKey(dept))
+                {
+                    if (!ulest.Any(u => u.Hjemmel.RettskildeId == h.RettskildeId && u.Grunn.Contains(dept, StringComparison.Ordinal)))
+                    {
+                        ulest.Add(new(h, $"vedlegg: «Til {dept} overføres følgende» — navnet finnes ikke på vedtaksdatoen (mulig etterkonsolidert navn); lista leses ikke"));
+                    }
+                    continue;
+                }
                 var i = Hent(dept, h);
                 var datokode = DepartementLivslopMonstre.LovDatokode(h.Tekst)!;
                 tildelinger.Add(new Tildeling(i, dept, h.Tekst.Trim(), LovdataIdentifikatorer.AvledEliFraDatokode(datokode, out _),
-                    ErHeleLoven(h.Tekst) && !harUnderpunkter, v.Dato, h, funksjonsord, innledning));
+                    ErHeleLoven(h.Tekst) && !harUnderpunkter, v.Dato, h, funksjonsord, innledning, fraDept));
             }
         }
 
@@ -477,7 +551,7 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
         var alle = katalog.Concat(historiske).ToDictionary(x => x.Key, x => x.Value);
         var avledede = AvledEtterfolgere(identiteter, tildelinger);
         var skriving = skriv
-            ? await SkrivAsync(alle, historiske.Keys.ToHashSet(), opprettetKanter, tildelinger, avledede, Til, bruker, ct)
+            ? await SkrivAsync(alle, historiske.Keys.ToHashSet(), opprettetKanter, tildelinger, avledede, tekstEtterfolgere, Til, bruker, ct)
             : TellUtenSkriving(katalog, opprettetKanter, tildelinger);
         skriving = skriving with { HistoriskeAktorerNye = historiskeNye, HistoriskeAktorerFantes = historiskeFantes, GyldigFraFylt = skriving.GyldigFraFylt + gyldigFraFylt };
 
@@ -493,6 +567,9 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
         {
             AvlededeEtterfolgere = avledede.Select(a => new AvledetEtterfolger(a.Y.Gjeldende, a.X.Gjeldende, a.X.Nedlagt!.Value, a.X.NedlagtVed!,
                 a.Par.Select(p => p.Ny.Eli!).Distinct().ToList())).ToList(),
+            // [Ny, issue #397 P2] Etterfølgere lest av «overtar … fra X» (uten par i den avledede lista).
+            TekstEtterfolgere = tekstEtterfolgere.Where(t => !avledede.Any(a => a.X == t.X && a.Y == t.Y))
+                .Select(t => new AvledetEtterfolger(t.Y.Gjeldende, t.X.Gjeldende, t.X.Nedlagt!.Value, t.H, [])).ToList(),
         };
     }
 
@@ -566,6 +643,7 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
     private async Task<LivslopSkriving> SkrivAsync(Dictionary<Identitet, (Guid Id, string Navn)> katalog, HashSet<Identitet> historiske,
         List<(Identitet Id, DateOnly Dato, LivslopHjemmel H, bool Normalisert)> opprettet, List<Tildeling> tildelinger,
         List<(Identitet X, Identitet Y, List<(Tildeling Gammel, Tildeling Ny)> Par)> avledede,
+        List<(Identitet X, Identitet Y, LivslopHjemmel H, string Regel)> tekstEtterfolgere,
         Func<Tildeling, DateOnly?> til, string bruker, CancellationToken ct)
     {
         int oNye = 0, oFantes = 0, nNye = 0, nFantes = 0, rNye = 0, rFantes = 0, avvist = 0, aNye = 0, aFantes = 0, eNye = 0, eFantes = 0, rOppdatert = 0, nfFylt = 0;
@@ -701,7 +779,10 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
                 // Modalitet null: en ressortfordeling er en TILDELING av ansvar, ikke en plikt til å utføre noe («skal ha» er tildelingens form).
                 // [ENDRET etter juristrunden på #397] Når lista er fordelt på statsråder, er departementet hentet fra overskriften; det er
                 // grunnen til normalisering, ikke ordet «ansvaret».
-                Begrunnelse: (t.Innledning is { } inn && inn.Contains("statsråd", StringComparison.OrdinalIgnoreCase) && !t.Funksjonsord
+                Begrunnelse: (t.FraDepartement is { } fd
+                    ? $"Regel: monster:livslop-forvaltningen-overfores-fra (Johanns avgjørelse U2 på #397). «Forvaltningen av følgende lover overføres fra "
+                      + $"{fd}» under «Til {t.NavnDaVedtaket} overføres følgende»: «forvaltningen av» lovene er lest som forvaltningsansvar."
+                    : t.Innledning is { } inn && inn.Contains("statsråd", StringComparison.OrdinalIgnoreCase) && !t.Funksjonsord
                     ? "Regel: monster:livslop-ressortfordeling. Vedlegget fordeler lovene på statsråder («" + Avkort(inn) + "»); departementet er "
                       + "tatt fra overskriften lista står under, ikke fra teksten som bruker funksjonsordet (issue #397)."
                     : t.Funksjonsord
@@ -740,9 +821,14 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
             await Opprett(new NyStrukturkant(Strukturkanter.Relasjon, "avvikler", Kantnode.Virksomhet(kongen.Value.Id), Kantnode.Virksomhet(katalog[i].Id),
                 HjemmelRettskildeId: h.RettskildeId, HjemmelEid: h.Eid, GyldigFra: i.Nedlagt,
                 Kommentar: $"«{Avkort(h.Tekst)}»", Status: Strukturkanter.MaskineltForeslatt, OppdagelsesKilde: OppdagelsesKilde,
-                Kunnskapsstatus: Strukturkanter.Normalisering,
+                // [ENDRET, Johanns avgjørelse P1 på #397] Opphør uten «nedlegges» er en fortolkning (ordlyd og sammenheng).
+                Kunnskapsstatus: i.NedlagtFortolkning ? Strukturkanter.Fortolkning : Strukturkanter.Normalisering,
+                Tolkningsargumenter: i.NedlagtFortolkning ? ["ordlyd", "kontekst_system"] : null,
                 Begrunnelse: $"Regel: {i.NedlagtRegel ?? "monster:livslop-nedleggelse-av"}. Vedtaket er fastsatt ved kgl.res. (fra = Kongen i statsråd)"
-                    + (ordrett ? "." : "; navnet er gjort til bestemt grunnform.")),
+                    + (i.NedlagtFortolkning
+                        ? $". Teksten sier ikke «nedlegges»; at {i.Gjeldende} opphører, er lest av «{Avkort(h.Tekst)}» i et vedtak som oppretter nye "
+                          + "departementer (Johanns avgjørelse P1 på #397, fortolkning: ordlyd og sammenheng)."
+                        : ordrett ? "." : "; navnet er gjort til bestemt grunnform.")),
                 () => aNye++, () => aFantes++);
         }
 
@@ -778,8 +864,29 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
             }
         }
 
+        // [Ny, Johanns avgjørelse P2 på #397] R etterfolger lest av «Y overtar … fra X» når X opphører i samme vedtak, også uten
+        // forvaltningskanter. Er paret alt avledet av ressortfordelingen, skrives det ikke på nytt (ett utsagn per par).
+        int tNye = 0, tFantes = 0;
+        foreach (var (x, y, h, regel) in tekstEtterfolgere.Where(t => katalog.ContainsKey(t.X) && katalog.ContainsKey(t.Y)
+                     && !avledede.Any(a => a.X == t.X && a.Y == t.Y)))
+        {
+            var fortolkning = x.NedlagtFortolkning;
+            await Opprett(new NyStrukturkant(Strukturkanter.Relasjon, "etterfolger", Kantnode.Virksomhet(katalog[y].Id), Kantnode.Virksomhet(katalog[x].Id),
+                HjemmelRettskildeId: h.RettskildeId, HjemmelEid: h.Eid, GyldigFra: x.Nedlagt,
+                Kommentar: $"Omfang: det teksten sier, ikke talt i lovdeler: «{Avkort(h.Tekst)}»",
+                Status: Strukturkanter.MaskineltForeslatt, OppdagelsesKilde: "monster:livslop-etterfolger-tekst",
+                Kunnskapsstatus: fortolkning ? Strukturkanter.Fortolkning : Strukturkanter.Normalisering,
+                Tolkningsargumenter: fortolkning ? ["ordlyd", "kontekst_system"] : null,
+                Begrunnelse: $"Regel: {regel} (Johanns avgjørelse P2 på #397). Leddet sier at {NavnPaa(y, x.Nedlagt!.Value)} overtar ansvar fra "
+                    + $"{NavnPaa(x, x.Nedlagt.Value.AddDays(-1))}, som "
+                    + (fortolkning ? "opphører i samme vedtak (lest uten «nedlegges», P1)" : $"nedlegges i samme vedtak («{x.NedlagtVed!.Tittel}»)")
+                    + ". Ansvaret går over til et annet organ. Ingen forvaltningskanter er premisser; omfanget er det teksten sier."),
+                () => tNye++, () => tFantes++);
+        }
+
         return new LivslopSkriving(oNye, oFantes, nNye, nFantes, rNye, rFantes, avvist, feil)
         {
+            EtterfolgerTekstNye = tNye, EtterfolgerTekstFantes = tFantes,
             AvviklerNye = aNye, AvviklerFantes = aFantes, EtterfolgerNye = eNye, EtterfolgerFantes = eFantes, RessortGyldigTilOppdatert = rOppdatert, GyldigFraFylt = nfFylt,
         };
     }

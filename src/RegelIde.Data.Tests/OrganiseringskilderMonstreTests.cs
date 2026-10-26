@@ -255,4 +255,41 @@ public class OrganiseringskilderMonstreTests
             "Med virkning fra 1. januar 1990 slås Utenriksdepartementet og Departementet for utviklingshjelp sammen til ett departement, Utenriksdepartementet.", out var u2));
         Assert.StartsWith("sammenslåing", u2);
     }
+    // ---- [Ny, Johanns avgjørelser på #397 2026-10-26] U1, U2, P1, P2 ----
+
+    [Fact]
+    public void Med_virkning_fra_gir_datoen_i_leddet()
+    {
+        var h = DepartementLivslopMonstre.LesLedd(
+            "Med virkning fra 1. januar 1988 nedlegges Industridepartementet og det opprettes et nytt departementet, Næringsdepartementet.", out _);
+        Assert.All(h, x => Assert.Equal(new DateOnly(1988, 1, 1), x.Virkning));
+        // Uten «med virkning fra» ingen egen dato (vedtakets dato brukes).
+        Assert.All(DepartementLivslopMonstre.LesLedd("Fra samme dato nedlegges Forbruker- og administrasjonsdepartementet.", out _), x => Assert.Null(x.Virkning));
+    }
+
+    [Fact]
+    public void Opphor_og_overtar_fra_leses()
+    {
+        var h = DepartementLivslopMonstre.LesLedd(
+            "Planleggings- og samordningsdepartementet (PSD) overtar alle arbeidsoppgavene til det nåværende Administrasjonsdepartementet.", out _);
+        Assert.Contains(h, x => x.Type == DepartementLivslopMonstre.Opphor && x.Navn.Single().Navn == "Administrasjonsdepartementet");
+        Assert.Contains(h, x => x.Type == DepartementLivslopMonstre.Overtar && x.Fra!.Value.Navn == "Administrasjonsdepartementet"
+            && x.Til!.Value.Navn == "Planleggings- og samordningsdepartementet");
+        var fkd = DepartementLivslopMonstre.LesLedd(
+            "Samferdselsdepartementet overtar ansvaret for Fornyings-, administrasjons- og kirkedepartementets oppgaver knyttet til bredbånd samt ansvaret for kyst- og miljøsaker fra Fiskeri- og kystdepartementet.", out _);
+        var o = Assert.Single(fkd, x => x.Type == DepartementLivslopMonstre.Overtar);
+        Assert.Equal(("Fiskeri- og kystdepartementet", "Samferdselsdepartementet"), (o.Fra!.Value.Navn, o.Til!.Value.Navn));
+        Assert.Equal("Nærings- og energidepartementet",
+            DepartementLivslopMonstre.LesOverskrift("Organisatorisk deling av det tidligere Nærings- og energidepartementet").Single().Navn.Single().Navn);
+    }
+
+    [Fact]
+    public void Forvaltningen_overfores_fra_under_til_overfores_folgende()
+    {
+        Assert.Equal("Kirke- og undervisningsdepartementet",
+            DepartementLivslopMonstre.LesForvaltningenOverforesFra("Forvaltningen av følgende lover overføres fra Kirke- og undervisningsdepartementet")!.Value.Navn);
+        Assert.Null(DepartementLivslopMonstre.LesForvaltningenOverforesFra("Myndighet etter følgende lover overføres fra Sosialdepartementet:"));
+        Assert.Equal("Utdannings- og forskningsdepartementet",
+            DepartementLivslopMonstre.LesTilOverforesFolgende("Til Utdannings- og forskningsdepartementet overføres følgende:")!.Value.Navn);
+    }
 }
