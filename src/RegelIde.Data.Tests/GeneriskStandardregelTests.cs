@@ -118,6 +118,44 @@ public class GeneriskStandardregelTests(EmbeddedPostgresFixture fixture)
         Assert.Contains(iDag.Merknader, m => m.Contains("(nedlagt)", StringComparison.Ordinal));
     }
 
+    private static async Task NyNavneformAsync(RegelIdeDbContext db, Guid vid, string term, string grunn)
+    {
+        db.Begreper.Add(new BegrepEntitet
+        {
+            Id = Guid.NewGuid(), Begrepskategori = "virksomhet", VirksomhetReferanseId = vid, Navneformgrunn = grunn, Term = term, Status = "publisert",
+            Godkjenning = Strukturkanter.MaskineltForeslatt, OpprettetAv = "Test",
+        });
+        await db.SaveChangesAsync();
+    }
+
+    [Fact]
+    public async Task Departementet_utgatt_navn_i_Lovdata_gir_svar_bare_naar_historikken_er_entydig()
+    {
+        await using var db = fixture.NyDbContext();
+        var n = Guid.NewGuid().ToString("N")[..8];
+        var levende = await NyVirksomhetAsync(db, $"Nytt departement {n}");
+        await NyNavneformAsync(db, levende.Id, $"Gammelt departement {n}", "utgatt");
+        var regler = new GeneriskStandardregelTjeneste(db);
+
+        // Entydig: det utgåtte navnet fører til én levende aktør — svar, sekundær kilde, utgått navn.
+        var s1 = (await regler.LosAsync("departementet", (await NyLovAsync(db, [$"Gammelt departement {n}"])).Id))!;
+        Assert.Equal((StandardregelUtfall.Lost, StandardregelRute.LovdataUtgattNavn, "sekundaer", levende.Id),
+            (s1.Utfall, s1.Rute, s1.Dokumentasjon, s1.Referent!.VirksomhetId!.Value));
+        Assert.Contains(s1.Premisser, p => p.Type == "navnehistorikk");
+
+        // Navnet gjenbrukt av et nedlagt departement: flertydig, ingen valgt.
+        var nedlagt = await NyVirksomhetAsync(db, $"Gjenbrukt {n}", "nedlagt", new DateOnly(2010, 1, 1));
+        await NyNavneformAsync(db, nedlagt.Id, $"Gjenbrukt navn {n}", "gjeldende");
+        await NyNavneformAsync(db, levende.Id, $"Gjenbrukt navn {n}", "utgatt");
+        Assert.Equal(StandardregelUtfall.Flertydig,
+            (await new GeneriskStandardregelTjeneste(db).LosAsync("departementet", (await NyLovAsync(db, [$"Gjenbrukt navn {n}"])).Id))!.Utfall);
+
+        // Bare et nedlagt departement har hatt navnet: ikke løst.
+        await NyNavneformAsync(db, nedlagt.Id, $"Bare nedlagt {n}", "utgatt");
+        Assert.Equal(StandardregelUtfall.IkkeLost,
+            (await new GeneriskStandardregelTjeneste(db).LosAsync("departementet", (await NyLovAsync(db, [$"Bare nedlagt {n}"])).Id))!.Utfall);
+    }
+
     [Fact]
     public async Task Binding_faglig_vurdert_gaar_foran_regelen_og_regelen_alene_kan_slaas_opp()
     {
