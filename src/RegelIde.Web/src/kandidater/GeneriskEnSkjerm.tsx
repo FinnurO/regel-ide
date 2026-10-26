@@ -75,7 +75,9 @@ function MedOrdet({ tekst, term, etikett }: { tekst: string; term: string; etike
  * departement. Hvert forslag sier hvorfor det er foreslått.</li>
  * <li><b>Søk</b> på tvers av aktører, klasser og roller, med treff mens man skriver.</li>
  * <li><b>Grunnlag og sikkerhet er ferdig utfylt</b> etter hvordan referenten ble funnet (hjemmel = der ordet står; kunnskapsstatus
- * fortolkning med sammenhengen i loven; begrunnelsen sier hvor), og kan endres under «Detaljer». Godkjenningen står som «Faglig vurdert»
+ * fortolkning med sammenhengen i loven; begrunnelsen sier hvor), og kan endres under «Detaljer». [ENDRET, Johanns beslutning på PR #398
+ * 2026-10-26] Godkjenningen forhåndsvelges IKKE: «Hvor sikkert er det?» står synlig over lagreknappen, og et menneske velger «Faglig vurdert»
+ * eller «Godkjent» selv. Før: forhåndsvalgt «Faglig vurdert»
  * — en binding blir aldri godkjent uten at noen velger det (docs/09 §42 om hvorfor dette avviker fra «ingenting forhåndsvelges»).</li>
  * <li><b>Slik blir det</b>: kjeden i lovteksten og hvor bindingen gjelder, før lagring. Etter lagring en kvittering med lenker.</li>
  * </ul>
@@ -101,7 +103,8 @@ export function GeneriskEnSkjerm({
   const [kunnskapsstatus, setKunnskapsstatus] = useState<Kunnskapsstatus>('fortolkning');
   const [argumenter, setArgumenter] = useState<Tolkningsargument[]>(['kontekst_system']);
   const [begrunnelse, setBegrunnelse] = useState('');
-  const [godkjenning, setGodkjenning] = useState<Godkjenning>('faglig_vurdert');
+  // [ENDRET, Johanns beslutning på PR #398] null = ikke valgt. Statusen er en menneskelig avgjørelse og forhåndsvelges ikke.
+  const [godkjenning, setGodkjenning] = useState<Godkjenning | null>(null);
   const [gyldigFra, setGyldigFra] = useState('');
   const [gyldigTil, setGyldigTil] = useState('');
   const [lagrer, setLagrer] = useState(false);
@@ -158,6 +161,7 @@ export function GeneriskEnSkjerm({
     : omfang === 'spenn' && !fraEid ? 'Velg hvor spennet starter.'
     : omfang === 'paragraf' && !paragraf ? 'Fant ikke paragrafen ordet står i — velg et spenn.'
     : kunnskapsstatus === 'fortolkning' && (!begrunnelse.trim() || argumenter.length === 0) ? 'Fortolkning krever en begrunnelse og minst ett argument (under «Detaljer»).'
+    : godkjenning === null ? 'Velg hvor sikkert det er: «Faglig vurdert» eller «Godkjent».'
     : gyldigFra && gyldigTil && gyldigFra > gyldigTil ? '«Gjelder fra» kan ikke være etter «Gjelder til».'
     : null;
 
@@ -176,7 +180,7 @@ export function GeneriskEnSkjerm({
       kunnskapsstatus,
       begrunnelse: begrunnelse.trim() || null,
       tolkningsargumenter: kunnskapsstatus === 'fortolkning' ? argumenter : null,
-      status: godkjenning,
+      status: godkjenning!,
       kommentar: null,
       gyldigFra: gyldigFra || null,
       gyldigTil: gyldigTil || null,
@@ -228,7 +232,7 @@ export function GeneriskEnSkjerm({
   const regel = kontekst.regelsvar;
   const forslag = kontekst.forslag.filter((f) => f.kilde !== 'standardregel');
   const kjedeKilde = valg?.type === 'regel' ? generiskKildeTekst('regel', null, regel)
-    : valg?.type === 'referent' ? generiskKildeTekst('binding', godkjenning) : 'ikke avklart';
+    : valg?.type === 'referent' ? (godkjenning ? generiskKildeTekst('binding', godkjenning) : 'binding, status ikke valgt') : 'ikke avklart';
   const kjedeReferent = valg?.type === 'regel' ? regel?.referentVisning?.navn : valg?.type === 'referent' ? valg.referent.navn : null;
 
   return (
@@ -335,7 +339,7 @@ export function GeneriskEnSkjerm({
 
       {binder && (
         <Details>
-          <Details.Summary>Detaljer: grunnlag og sikkerhet ({KUNNSKAPSSTATUS_VISNING[kunnskapsstatus].tekst.toLowerCase()}, {godkjenning === 'godkjent' ? 'godkjent' : 'faglig vurdert'})</Details.Summary>
+          <Details.Summary>Detaljer: grunnlaget ({KUNNSKAPSSTATUS_VISNING[kunnskapsstatus].tekst.toLowerCase()}, der ordet står)</Details.Summary>
           <Details.Content>
             <div style={{ display: 'grid', gap: '0.6rem' }}>
               <Metatekst>
@@ -363,13 +367,6 @@ export function GeneriskEnSkjerm({
                 <Label>Begrunnelse</Label>
                 <Textarea data-size="sm" rows={2} value={begrunnelse} onChange={(e) => setBegrunnelse(e.target.value)} />
               </Field>
-              <Fieldset data-size="sm">
-                <Fieldset.Legend>Hvor sikkert er det?</Fieldset.Legend>
-                <Radio name="godkjenning" value="faglig_vurdert" checked={godkjenning === 'faglig_vurdert'} onChange={() => setGodkjenning('faglig_vurdert')}
-                  label="Faglig vurdert" description="Du har vurdert det. Bindingen brukes i oppslaget og står med statusen synlig." />
-                <Radio name="godkjenning" value="godkjent" checked={godkjenning === 'godkjent'} onChange={() => setGodkjenning('godkjent')}
-                  label="Godkjent" description="Endelig: du har myndighet til å godkjenne modellutsagn." />
-              </Fieldset>
               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                 <Textfield data-size="sm" type="date" label="Gjelder fra (valgfritt)" value={gyldigFra} onChange={(e) => setGyldigFra(e.target.value)} />
                 <Textfield data-size="sm" type="date" label="Gjelder til (valgfritt)" value={gyldigTil} onChange={(e) => setGyldigTil(e.target.value)} />
@@ -377,6 +374,18 @@ export function GeneriskEnSkjerm({
             </div>
           </Details.Content>
         </Details>
+      )}
+
+      {/* [ENDRET, Johanns beslutning på PR #398] Synlig, ikke inne i «Detaljer», og ingenting forhåndsvalgt: statusen velges aktivt. */}
+      {binder && (
+        <Fieldset data-size="sm">
+          <Fieldset.Legend>Hvor sikkert er det?</Fieldset.Legend>
+          <Fieldset.Description>Velg selv — statusen er din vurdering og står synlig ved bindingen.</Fieldset.Description>
+          <Radio name="godkjenning" value="faglig_vurdert" checked={godkjenning === 'faglig_vurdert'} onChange={() => setGodkjenning('faglig_vurdert')}
+            label="Faglig vurdert" description="Du har vurdert det. Bindingen brukes i oppslaget og står med statusen synlig." />
+          <Radio name="godkjenning" value="godkjent" checked={godkjenning === 'godkjent'} onChange={() => setGodkjenning('godkjent')}
+            label="Godkjent" description="Endelig: du har myndighet til å godkjenne modellutsagn." />
+        </Fieldset>
       )}
 
       <Divider />
