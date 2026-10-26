@@ -3320,6 +3320,62 @@ namespace RegelIde.Data.Migrasjoner
                     b.ToTable("rettskilde_referanser", (string)null);
                 });
 
+            modelBuilder.Entity("RegelIde.Data.StrukturkantBekreftelseEntitet", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("Id");
+
+                    b.Property<DateOnly?>("Dato")
+                        .HasColumnType("date")
+                        .HasColumnName("dato");
+
+                    b.Property<string>("HjemmelEid")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("hjemmel_eid");
+
+                    b.Property<Guid>("HjemmelRettskildeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("hjemmel_rettskilde_id");
+
+                    b.Property<Guid>("KantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("kant_id");
+
+                    b.Property<string>("Kommentar")
+                        .HasColumnType("text")
+                        .HasColumnName("kommentar");
+
+                    b.Property<string>("OppdagelsesKilde")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("oppdagelses_kilde");
+
+                    b.Property<string>("OpprettetAv")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("opprettet_av");
+
+                    b.Property<DateTimeOffset>("OpprettetTidspunkt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("opprettet_tidspunkt")
+                        .HasDefaultValueSql("now()");
+
+                    b.HasKey("Id")
+                        .HasName("strukturkant_bekreftelser_pkey");
+
+                    b.HasIndex("HjemmelRettskildeId");
+
+                    b.HasIndex("KantId", "HjemmelRettskildeId", "HjemmelEid")
+                        .IsUnique()
+                        .HasDatabaseName("ux_strukturkant_bekreftelser");
+
+                    b.ToTable("strukturkant_bekreftelser", (string)null);
+                });
+
             modelBuilder.Entity("RegelIde.Data.StrukturkantEntitet", b =>
                 {
                     b.Property<Guid>("Id")
@@ -4524,6 +4580,10 @@ namespace RegelIde.Data.Migrasjoner
                         .HasColumnType("text")
                         .HasColumnName("aktortype");
 
+                    b.Property<Guid?>("ErstattetAvId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("erstattet_av_id");
+
                     b.Property<string>("Forvaltningsniva")
                         .HasColumnType("text")
                         .HasColumnName("forvaltningsniva");
@@ -4581,6 +4641,8 @@ namespace RegelIde.Data.Migrasjoner
 
                     b.HasKey("Id")
                         .HasName("virksomheter_pkey");
+
+                    b.HasIndex("ErstattetAvId");
 
                     b.HasIndex("Organisasjonsnummer")
                         .IsUnique()
@@ -5204,6 +5266,21 @@ namespace RegelIde.Data.Migrasjoner
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("RegelIde.Data.StrukturkantBekreftelseEntitet", b =>
+                {
+                    b.HasOne("RegelIde.Data.RettskildeEntitet", null)
+                        .WithMany()
+                        .HasForeignKey("HjemmelRettskildeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("RegelIde.Data.StrukturkantEntitet", null)
+                        .WithMany()
+                        .HasForeignKey("KantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("RegelIde.Data.StrukturkantEntitet", b =>
                 {
                     b.HasOne("RegelIde.Data.StrukturkantEntitet", null)
@@ -5435,6 +5512,11 @@ namespace RegelIde.Data.Migrasjoner
 
             modelBuilder.Entity("RegelIde.Data.Virksomhet", b =>
                 {
+                    b.HasOne("RegelIde.Data.Virksomhet", null)
+                        .WithMany()
+                        .HasForeignKey("ErstattetAvId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("RegelIde.Data.Virksomhet", null)
                         .WithMany()
                         .HasForeignKey("OverordnetEnhetId");

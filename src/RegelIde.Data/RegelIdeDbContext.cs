@@ -46,6 +46,8 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
     public DbSet<StrukturkantEntitet> Strukturkanter => Set<StrukturkantEntitet>();
     // [Ny, issue #367] Premissene for avledede utsagn — se StrukturkantPremissEntitet.
     public DbSet<StrukturkantPremissEntitet> StrukturkantPremisser => Set<StrukturkantPremissEntitet>();
+    // [Ny, Johanns avgjørelse S1 på #397] Senere vedtak som bekrefter en kant — se StrukturkantBekreftelseEntitet.
+    public DbSet<StrukturkantBekreftelseEntitet> StrukturkantBekreftelser => Set<StrukturkantBekreftelseEntitet>();
     // [Ny, issue #378] Hva en generisk navneform betyr per rettskilde — se NavneformBindingEntitet.
     public DbSet<NavneformBindingEntitet> NavneformBindinger => Set<NavneformBindingEntitet>();
     /// <summary>[Ny, issue #385] Aktørtype som modellutsagn (forslag, grunnlag, godkjenning).</summary>
@@ -161,6 +163,9 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.Livsstatus).HasColumnName("livsstatus");
             e.Property(x => x.GyldigFra).HasColumnName("gyldig_fra");
             e.Property(x => x.GyldigTil).HasColumnName("gyldig_til");
+            // [Ny, issue #397] Duplikat erstattet av en annen aktør (reversibelt).
+            e.Property(x => x.ErstattetAvId).HasColumnName("erstattet_av_id");
+            e.HasOne<Virksomhet>().WithMany().HasForeignKey(x => x.ErstattetAvId).OnDelete(DeleteBehavior.Restrict);
             e.ToTable("virksomheter", t => t.HasCheckConstraint("ck_virksomheter_livsstatus", "livsstatus IS NULL OR livsstatus = 'nedlagt'"));
             e.HasOne<Virksomhet>().WithMany().HasForeignKey(x => x.OverordnetEnhetId);
             e.HasIndex(x => x.Organisasjonsnummer).IsUnique().HasDatabaseName("ux_virksomheter_organisasjonsnummer")
@@ -549,6 +554,24 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.HasOne<StrukturkantEntitet>().WithMany().HasForeignKey(x => x.KantId).OnDelete(DeleteBehavior.Cascade);
             e.HasOne<StrukturkantEntitet>().WithMany().HasForeignKey(x => x.PremissKantId).OnDelete(DeleteBehavior.Restrict);
             e.HasIndex(x => x.PremissKantId).HasDatabaseName("ix_strukturkant_premisser_premiss");
+        });
+
+        b.Entity<StrukturkantBekreftelseEntitet>(e =>
+        {
+            e.ToTable("strukturkant_bekreftelser");
+            e.HasKey(x => x.Id).HasName("strukturkant_bekreftelser_pkey");
+            e.Property(x => x.Id).HasColumnName("Id");
+            e.Property(x => x.KantId).HasColumnName("kant_id");
+            e.Property(x => x.HjemmelRettskildeId).HasColumnName("hjemmel_rettskilde_id");
+            e.Property(x => x.HjemmelEid).HasColumnName("hjemmel_eid");
+            e.Property(x => x.Dato).HasColumnName("dato");
+            e.Property(x => x.Kommentar).HasColumnName("kommentar");
+            e.Property(x => x.OppdagelsesKilde).HasColumnName("oppdagelses_kilde");
+            e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
+            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").HasDefaultValueSql("now()");
+            e.HasOne<StrukturkantEntitet>().WithMany().HasForeignKey(x => x.KantId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<RettskildeEntitet>().WithMany().HasForeignKey(x => x.HjemmelRettskildeId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => new { x.KantId, x.HjemmelRettskildeId, x.HjemmelEid }).IsUnique().HasDatabaseName("ux_strukturkant_bekreftelser");
         });
 
         b.Entity<VirksomhetKandidatEntitet>(e =>

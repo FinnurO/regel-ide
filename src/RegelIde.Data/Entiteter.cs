@@ -108,6 +108,9 @@ public sealed class Virksomhet
     /// NULL = ikke kjent fra vedtakene (en aktør som fantes før det eldste vedtaket i korpuset). Hjemmelen står på R oppretter/R avvikler.</summary>
     public DateOnly? GyldigFra { get; set; }
     public DateOnly? GyldigTil { get; set; }
+    /// <summary>[Ny, issue #397, 2026-10-27] Aktøren er en duplikat og ERSTATTET av denne (Industridepartementet med feil sluttdato). Ingenting
+    /// slettes; raden står, men oppslag og lister bruker den erstattende. Settes tilbake til NULL for å angre.</summary>
+    public Guid? ErstattetAvId { get; set; }
 }
 
 /// <summary>
@@ -1802,6 +1805,25 @@ public sealed class StrukturkantPremissEntitet
 {
     public Guid KantId { get; set; }
     public Guid PremissKantId { get; set; }
+}
+
+/// <summary>
+/// [Ny, Johanns avgjørelse S1 på #397, 2026-10-27] Et senere vedtak som tildeler SAMME innehaver det samme på nytt (statsrådlistene «etter
+/// endringene» 2018/2019) er en BEKREFTELSE av kanten, ikke en ny kant: vedtaket legges til her som et ekstra grunnlag. Kanten beholder
+/// sin opprinnelige hjemmel og gyldighet. Raden er bare et grunnlag; den endrer ikke godkjenningen.
+/// </summary>
+public sealed class StrukturkantBekreftelseEntitet
+{
+    public Guid Id { get; set; }
+    public Guid KantId { get; set; }
+    public Guid HjemmelRettskildeId { get; set; }
+    public required string HjemmelEid { get; set; }
+    /// <summary>Datoen vedtaket gjelder fra.</summary>
+    public DateOnly? Dato { get; set; }
+    public string? Kommentar { get; set; }
+    public required string OppdagelsesKilde { get; set; }
+    public required string OpprettetAv { get; set; }
+    public DateTimeOffset OpprettetTidspunkt { get; set; }
 }
 
 /// <summary>

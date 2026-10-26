@@ -46,6 +46,10 @@ public sealed record LivslopSkriving(int OpprettetNye, int OpprettetFantes, int 
     public int EtterfolgerFantes { get; init; }
     /// <summary>[Ny, issue #397 U1] Nedlagte aktører og egne uvurderte R oppretter/R avvikler som fikk ny dato fordi leddet sier «med virkning fra».</summary>
     public int DatoFlyttet { get; init; }
+    /// <summary>[Ny, Johanns avgjørelse S1 på #397] Bekreftelser lagt til som grunnlag, og egne uvurderte duplikater som er avvist.</summary>
+    public int BekreftelserNye { get; init; }
+    public int BekreftelserFantes { get; init; }
+    public int DuplikaterAvvist { get; init; }
     /// <summary>[Ny, Johanns avgjørelse P2 på #397] R etterfolger lest av «overtar … fra X».</summary>
     public int EtterfolgerTekstNye { get; init; }
     public int EtterfolgerTekstFantes { get; init; }
@@ -464,13 +468,13 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
         {
             var sisteDag = i.Nedlagt!.Value.AddDays(-1);
             var navn = i.Gjeldende;
-            var finnes = await db.Virksomheter.Where(v => v.Livsstatus == "nedlagt" && v.Navn == navn && v.GyldigTil == sisteDag)
+            var finnes = await db.Virksomheter.Where(v => v.Livsstatus == "nedlagt" && v.ErstattetAvId == null && v.Navn == navn && v.GyldigTil == sisteDag)
                 .Select(v => new { v.Id, v.Navn }).FirstOrDefaultAsync(ct);
             // [Ny, issue #397 U1] Datoen kan flytte seg når et ledd sier «med virkning fra» (Industridepartementet: 1987-12-17 → 1987-12-31).
             // Samme aktør er da den nedlagte med samme navn som har livsløpets R avvikler med hjemmel i SAMME ledd; datoene oppdateres der.
             if (finnes is null && i.NedlagtVed is { } nv)
             {
-                var flyttet = await db.Virksomheter.Where(v => v.Livsstatus == "nedlagt" && v.Navn == navn
+                var flyttet = await db.Virksomheter.Where(v => v.Livsstatus == "nedlagt" && v.ErstattetAvId == null && v.Navn == navn
                         && db.Strukturkanter.Any(k => k.Typekode == "avvikler" && k.OppdagelsesKilde == OppdagelsesKilde && k.TilVirksomhetId == v.Id
                             && k.HjemmelEid == nv.Eid))
                     .OrderBy(v => v.OpprettetTidspunkt).FirstOrDefaultAsync(ct);
@@ -580,8 +584,9 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
         // ---- Skriving (bare forslag) ----
         var alle = katalog.Concat(historiske).ToDictionary(x => x.Key, x => x.Value);
         var avledede = AvledEtterfolgere(identiteter, tildelinger);
+        var bekrefter = Bekreftelser(tildelinger, Til);
         var skriving = skriv
-            ? await SkrivAsync(alle, historiske.Keys.ToHashSet(), opprettetKanter, tildelinger, avledede, tekstEtterfolgere, Til, bruker, ct)
+            ? await SkrivAsync(alle, historiske.Keys.ToHashSet(), opprettetKanter, tildelinger, avledede, tekstEtterfolgere, bekrefter, Til, bruker, ct)
             : TellUtenSkriving(katalog, opprettetKanter, tildelinger);
         skriving = skriving with { HistoriskeAktorerNye = historiskeNye, HistoriskeAktorerFantes = historiskeFantes, GyldigFraFylt = skriving.GyldigFraFylt + gyldigFraFylt,
             DatoFlyttet = skriving.DatoFlyttet + datoFlyttet };
@@ -675,9 +680,10 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
         List<(Identitet Id, DateOnly Dato, LivslopHjemmel H, bool Normalisert)> opprettet, List<Tildeling> tildelinger,
         List<(Identitet X, Identitet Y, List<(Tildeling Gammel, Tildeling Ny)> Par)> avledede,
         List<(Identitet X, Identitet Y, LivslopHjemmel H, string Regel)> tekstEtterfolgere,
+        Dictionary<Tildeling, Tildeling> bekrefter,
         Func<Tildeling, DateOnly?> til, string bruker, CancellationToken ct)
     {
-        int oNye = 0, oFantes = 0, nNye = 0, nFantes = 0, rNye = 0, rFantes = 0, avvist = 0, aNye = 0, aFantes = 0, eNye = 0, eFantes = 0, rOppdatert = 0, nfFylt = 0, rDatoFlyttet = 0;
+        int oNye = 0, oFantes = 0, nNye = 0, nFantes = 0, rNye = 0, rFantes = 0, avvist = 0, aNye = 0, aFantes = 0, eNye = 0, eFantes = 0, rOppdatert = 0, nfFylt = 0, rDatoFlyttet = 0, bNye = 0, bFantes = 0, bAvvist = 0;
         var kantFor = new Dictionary<Tildeling, Guid>();
         var feil = new List<string>();
         var kongen = await FinnAktorAsync(KongenIStatsrad, ct);
@@ -811,6 +817,43 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
         // F forvaltning (ressortfordeling)
         foreach (var t in tildelinger.Where(t => katalog.ContainsKey(t.Id)))
         {
+            // [Ny, Johanns avgjørelse S1 på #397] En statsrådliste som gir samme innehaver det samme på nytt, bekrefter kanten: vedtaket
+            // legges til som grunnlag på den eksisterende kanten, og en egen, uvurdert duplikat fra før avvises (reversibelt, med begrunnelse).
+            if (bekrefter.TryGetValue(t, out var forrige))
+            {
+                if (kantFor.TryGetValue(forrige, out var forrigeKant))
+                {
+                    kantFor[t] = forrigeKant;
+                    var finnesB = await db.StrukturkantBekreftelser.AnyAsync(b => b.KantId == forrigeKant
+                        && b.HjemmelEid == t.Hjemmel.Eid
+                        && db.Rettskilder.Any(r => r.Id == b.HjemmelRettskildeId
+                            && r.Eli == db.Rettskilder.Where(x => x.Id == t.Hjemmel.RettskildeId).Select(x => x.Eli).FirstOrDefault()), ct);
+                    if (!finnesB)
+                    {
+                        db.StrukturkantBekreftelser.Add(new StrukturkantBekreftelseEntitet
+                        {
+                            Id = Guid.NewGuid(), KantId = forrigeKant, HjemmelRettskildeId = t.Hjemmel.RettskildeId, HjemmelEid = t.Hjemmel.Eid,
+                            Dato = t.Fra, OppdagelsesKilde = "monster:livslop-bekreftelse", OpprettetAv = bruker, OpprettetTidspunkt = DateTimeOffset.UtcNow,
+                            Kommentar = $"«{Avkort(t.Hjemmel.Tekst)}»" + (t.Innledning is null ? "" : $" Innledningen i vedlegget: «{Avkort(t.Innledning)}»."),
+                        });
+                        await db.SaveChangesAsync(ct);
+                        bNye++;
+                    }
+                    else bFantes++;
+                }
+                var objektT = t.Objekt.Trim();
+                var duplikater = await kanter.GjeldendeInklAvviste.Where(k => k.Kategori == Strukturkanter.Oppgave && k.Typekode == "forvaltning"
+                        && k.FraVirksomhetId == katalog[t.Id].Id && k.HjemmelEid == t.Hjemmel.Eid && k.Objekt == objektT
+                        && k.Status == Strukturkanter.MaskineltForeslatt && k.OppdagelsesKilde == OppdagelsesKilde)
+                    .Select(k => k.Id).ToListAsync(ct);
+                foreach (var d in duplikater)
+                {
+                    await kanter.AvvisAsync(d, bruker, "Johanns avgjørelse S1 på #397 (2026-10-27): statsrådlista gir samme departement loven på nytt. "
+                        + "Det er en bekreftelse av den eksisterende kanten, og vedtaket står som grunnlag der. Avvist av livsløpet, kan angres.", ct);
+                    bAvvist++;
+                }
+                continue;
+            }
             var gyldigTil = til(t);
             var fny = new NyStrukturkant(Strukturkanter.Oppgave, "forvaltning", Kantnode.Virksomhet(katalog[t.Id].Id), null,
                 HjemmelRettskildeId: t.Hjemmel.RettskildeId, HjemmelEid: t.Hjemmel.Eid, Objekt: t.Objekt, ObjektEli: t.Eli,
@@ -943,6 +986,7 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
         return new LivslopSkriving(oNye, oFantes, nNye, nFantes, rNye, rFantes, avvist, feil)
         {
             EtterfolgerTekstNye = tNye, EtterfolgerTekstFantes = tFantes,
+            BekreftelserNye = bNye, BekreftelserFantes = bFantes, DuplikaterAvvist = bAvvist,
             AvviklerNye = aNye, AvviklerFantes = aFantes, EtterfolgerNye = eNye, EtterfolgerFantes = eFantes, RessortGyldigTilOppdatert = rOppdatert, GyldigFraFylt = nfFylt, DatoFlyttet = rDatoFlyttet,
         };
     }
@@ -963,6 +1007,25 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
     }
 
     /// <summary>Punktteksten uten mellomrom og skilletegn, for å kjenne igjen samme del av en lov i to vedlegg.</summary>
+    /// <summary>
+    /// [Ny, Johanns avgjørelse S1 på #397, 2026-10-27] Tildelinger i en statsrådliste («Oversikt over lover statsråd … har forvaltningsansvar for
+    /// etter endringene», 2018 og 2019; innledningen nevner en statsråd) som gir SAMME identitet samme del av en lov som den alt har på
+    /// datoen (en tidligere tildeling som ikke er avsluttet), er bekreftelser av den tidligere: nøkkel = bekreftelsen, verdi = den bekreftede.
+    /// </summary>
+    private static Dictionary<Tildeling, Tildeling> Bekreftelser(List<Tildeling> tildelinger, Func<Tildeling, DateOnly?> til)
+    {
+        var svar = new Dictionary<Tildeling, Tildeling>();
+        foreach (var t in tildelinger.Where(t => t.Eli is not null && t.Innledning is { } inn && inn.Contains("statsråd", StringComparison.OrdinalIgnoreCase)))
+        {
+            var forrige = tildelinger.Where(p => p != t && p.Id == t.Id && p.Eli == t.Eli && p.Fra < t.Fra && !svar.ContainsKey(p)
+                    && ((p.Hele && t.Hele) || Delnokkel(p.Objekt) == Delnokkel(t.Objekt))
+                    && (til(p) is not { } pt || pt >= t.Fra))
+                .OrderByDescending(p => p.Fra).FirstOrDefault();
+            if (forrige is not null) svar[t] = forrige;
+        }
+        return svar;
+    }
+
     private static string Delnokkel(string objekt) =>
         new string(objekt.Where(char.IsLetterOrDigit).ToArray()).ToLowerInvariant();
 

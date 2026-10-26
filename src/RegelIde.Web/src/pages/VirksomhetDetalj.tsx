@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { NedlagtTag } from '../virksomhet/NedlagtTag';
+import { ErstattetTag, HovedetterfolgerUkjentTag, NedlagtTag } from '../virksomhet/NedlagtTag';
 import { Link as RouterLink, useNavigate, useParams } from 'react-router';
 import { Alert, Button, Card, Dialog, Field, Heading, Label, Link, Paragraph, Select, Spinner, Table, Tabs, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
@@ -298,6 +298,8 @@ export default function VirksomhetDetalj() {
         )}
         {begrep?.some((b) => erForslag(b.godkjenning)) && <Tag data-size="sm" data-color="info">Navneforslag venter</Tag>}
         <NedlagtTag livsstatus={virksomhet.livsstatus} gyldigFra={virksomhet.gyldigFra} gyldigTil={virksomhet.gyldigTil} />
+        <HovedetterfolgerUkjentTag ukjent={virksomhet.hovedetterfolgerUkjent} />
+        <ErstattetTag erstattetAvId={virksomhet.erstattetAvId} />
       </Paragraph>
 
       {feil && <Alert data-color="danger" style={{ marginBottom: '1rem' }}>{feil}</Alert>}

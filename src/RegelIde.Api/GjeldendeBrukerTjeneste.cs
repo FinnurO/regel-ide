@@ -83,7 +83,7 @@ public sealed record VirksomhetDto(
         v.Id, v.Navn, v.Organisasjonsnummer, v.Aktiv, v.Forvaltningsniva, v.OrganisasjonsformKode,
         v.Sektorkode, v.OverordnetEnhetId, v.SistBrregSynkronisert, v.Navn, v.Aktortype, v.Ordningstype)
     {
-        Livsstatus = v.Livsstatus, GyldigFra = v.GyldigFra, GyldigTil = v.GyldigTil,
+        Livsstatus = v.Livsstatus, GyldigFra = v.GyldigFra, GyldigTil = v.GyldigTil, ErstattetAvId = v.ErstattetAvId,
     };
 
     /// <summary>Med visningsnavn slått opp — brukes av katalogendepunktet, som henter alle
@@ -96,7 +96,7 @@ public sealed record VirksomhetDto(
         visningsnavn.GetValueOrDefault(v.Id) ?? v.Navn, v.Aktortype, v.Ordningstype)
     {
         NavneformMangler = !visningsnavn.ContainsKey(v.Id),
-        Livsstatus = v.Livsstatus, GyldigFra = v.GyldigFra, GyldigTil = v.GyldigTil,
+        Livsstatus = v.Livsstatus, GyldigFra = v.GyldigFra, GyldigTil = v.GyldigTil, ErstattetAvId = v.ErstattetAvId,
     };
 
     /// <summary>[Ny, issue #385 AC2] Én rad med visningsnavnet slått opp — for endepunktene som returnerer en nyopprettet eller endret aktør.</summary>
@@ -115,6 +115,11 @@ public sealed record VirksomhetDto(
     public string? Livsstatus { get; init; }
     public DateOnly? GyldigFra { get; init; }
     public DateOnly? GyldigTil { get; init; }
+    /// <summary>[Ny, issue #397] Duplikat erstattet av denne aktøren (reversibelt), ellers null.</summary>
+    public Guid? ErstattetAvId { get; init; }
+    /// <summary>[Ny, Johanns avgjørelse S3 på #397] Nedlagt uten kjent hovedetterfølger (regnet ut, se EtterfolgerHull). Null der det ikke
+    /// er regnet ut.</summary>
+    public bool? HovedetterfolgerUkjent { get; init; }
 }
 
 /// <summary>Brukerhåndteringssiden — se BrukerregisterTjeneste.GyldigeRoller for gyldige verdier.</summary>
