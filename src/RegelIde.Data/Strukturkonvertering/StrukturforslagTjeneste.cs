@@ -144,7 +144,7 @@ public sealed record StrukturforslagRapport(
 /// nøkkelen alt — som forslag, godkjent eller AVVIST — lages ingen ny rad. Et avvist utsagn foreslås ikke på nytt (#374 AC4).
 /// </para>
 /// </summary>
-public sealed class StrukturforslagTjeneste(
+public sealed partial class StrukturforslagTjeneste(
     RegelIdeDbContext db, StrukturkantTjeneste kanter, VirksomhetOppslagTjeneste virksomhetOppslag, NavnekandidatOppdagelseTjeneste navnekandidater)
 {
     private readonly GeneriskNavneformTjeneste generiske = new(db);
@@ -505,7 +505,12 @@ public sealed class StrukturforslagTjeneste(
 
 /// <summary>Grunnlaget for én aktør: eksakte treff, generisk navneform og kandidater — uavhengig av hvor i rettskilden den står.</summary>
 internal sealed record Aktorgrunnlag(
-    string Status, Kantnode? Node, KantnodeVisning? Referent, IReadOnlyList<string> Treff, IReadOnlyList<string> Kandidater, Guid? GeneriskNavneformId);
+    string Status, Kantnode? Node, KantnodeVisning? Referent, IReadOnlyList<string> Treff, IReadOnlyList<string> Kandidater, Guid? GeneriskNavneformId)
+{
+    /// <summary>[Ny, issue #387] De eksakte treffene med arten sin («virksomhet», «omrade», «klasse», «rolle», «gruppe») — fasitimporten skiller
+    /// et flertydig navn på fasitens entitetstype (Karasjok kommune og området Karasjok).</summary>
+    public IReadOnlyList<(Kantnode Node, string Art)> Treffnoder { get; init; } = [];
+}
 
 /// <summary>
 /// [Ny, issue #378 A1/B6] Klassifiseringen av aktører i én rettskilde — felles for aktørsveipet og lasteren, så statusene i de to
@@ -526,6 +531,7 @@ internal sealed class Aktorklassifiserer(
         if (_cache.TryGetValue(aktor.Id, out var c)) return c;
         var treff = new HashSet<Kantnode>();
         var treffnavn = new List<string>();
+        var treffnoder = new List<(Kantnode, string)>(); // [Ny, issue #387]
         var former = new[] { aktor.Tekstform }.Concat(aktor.Varianter).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
         Guid? generisk = null;
         foreach (var form in former)
@@ -533,7 +539,7 @@ internal sealed class Aktorklassifiserer(
             var lower = form.ToLower();
             if (await virksomhetOppslag.FinnVirksomhetIdForNavnEllerNavneformAsync(form, ct) is { } vid)
             {
-                if (treff.Add(Kantnode.Virksomhet(vid))) treffnavn.Add($"virksomhet:{form}");
+                if (treff.Add(Kantnode.Virksomhet(vid))) { treffnavn.Add($"virksomhet:{form}"); treffnoder.Add((Kantnode.Virksomhet(vid), "virksomhet")); }
             }
             else
             {
@@ -544,7 +550,7 @@ internal sealed class Aktorklassifiserer(
                     .Select(b => b.VirksomhetReferanseId!.Value).Distinct().Take(3).ToListAsync(ct);
                 foreach (var id in flere.Count > 1 ? flere : [])
                 {
-                    if (treff.Add(Kantnode.Virksomhet(id))) treffnavn.Add($"virksomhet:{form}");
+                    if (treff.Add(Kantnode.Virksomhet(id))) { treffnavn.Add($"virksomhet:{form}"); treffnoder.Add((Kantnode.Virksomhet(id), "virksomhet")); }
                 }
             }
             var begreper = await db.Begreper
@@ -553,7 +559,7 @@ internal sealed class Aktorklassifiserer(
                 .Select(b => new { b.Id, b.Begrepskategori }).Take(3).ToListAsync(ct);
             foreach (var b in begreper)
             {
-                if (treff.Add(Kantnode.Begrep(b.Id))) treffnavn.Add($"{b.Begrepskategori}:{form}");
+                if (treff.Add(Kantnode.Begrep(b.Id))) { treffnavn.Add($"{b.Begrepskategori}:{form}"); treffnoder.Add((Kantnode.Begrep(b.Id), b.Begrepskategori!)); }
             }
             generisk ??= (await generiske.FinnAsync(form, ct))?.Id;
         }
@@ -567,6 +573,7 @@ internal sealed class Aktorklassifiserer(
             var kandidater = await KandidaterAsync(former, ct);
             svar = new(kandidater.Count > 0 ? Aktorstatus.NyNavneformForKjentAktor : Aktorstatus.NyAktor, null, null, treffnavn, kandidater, null);
         }
+        svar = svar with { Treffnoder = treffnoder };
         _cache[aktor.Id] = svar;
         return svar;
     }

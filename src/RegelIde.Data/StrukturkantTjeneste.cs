@@ -129,7 +129,8 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
     /// <see cref="ProveniensEntitet.EntitetId"/> — kantene beholdt id-ene sine i migrasjonen.)</summary>
     public const string ProveniensType = "strukturkant";
 
-    [GeneratedRegex(@"^(manuell|monster:\S+|ki:\S+)$", RegexOptions.CultureInvariant)]
+    // [ENDRET, issue #387] + fasit:<fil>:<id> — utsagn lastet fra data/fasit/strukturmodell (faglig vurdert, ikke uavhengig kontrollert).
+    [GeneratedRegex(@"^(manuell|monster:\S+|ki:\S+|fasit:\S+)$", RegexOptions.CultureInvariant)]
     private static partial Regex OppdagelsesKildeForm();
 
     /// <summary>[Ny, issue #313 / #374] De gjeldende kantene MED de avviste — global spørrefilter skjuler avviste (historikk, ikke slettet).
@@ -175,7 +176,7 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
         if (!OppdagelsesKildeForm().IsMatch(oppdagelsesKilde))
         {
             throw new ArgumentException(
-                $"Ugyldig oppdagelseskilde '{oppdagelsesKilde}' — må være 'manuell', 'monster:<id>' eller 'ki:<modell>' (docs/33 §4.3).");
+                $"Ugyldig oppdagelseskilde '{oppdagelsesKilde}' — må være 'manuell', 'monster:<id>', 'ki:<modell>' eller 'fasit:<fil>:<id>' (docs/33 §4.3).");
         }
 
         var typeFinnes = await db.RelasjonsTypeKonfigurasjoner.AnyAsync(
