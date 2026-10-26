@@ -29,7 +29,9 @@ Digital-rettsstats `06-regellaget.md` skiller mellom **Lag 1-editoren** (tekst �
 
 Hvem som finnes i forvaltningen, hvordan de henger sammen og hvem som har hvilken myndighet, hentet ut
 av lovteksten med hjemmel på hver kobling: seks typer (rettssubjekt, organ, organisatorisk enhet, rolle,
-klasse, område) og åtte koblinger, testet mot en fasit på 1 797 utsagn fra fem lover. Områderegisteret (#312) gir
+klasse, område) og åtte koblinger, testet mot en fasit på 1 825 utsagn fra fem lover. Fasiten er også lastet inn i
+appen (#387): det som kan knyttes til aktører i katalogen, står som «fra fasiten, faglig vurdert, ikke uavhengig kontrollert»
+(`POST /api/fasit/strukturmodell/import`, docs/33 §5.12). Områderegisteret (#312) gir
 fylker og kommuner fra Kartverket, domstolstrukturen fra inndelingsforskriften, statsforvalterne og helseregionene,
 og svarer på «gitt kommune X: hvilket fylke, hvilken tingrett, statsforvalter og RHF?». Lettlest innføring
 for lesere uten forkunnskap: [finnuro.github.io/regel-ide/strukturmodell/](https://finnuro.github.io/regel-ide/strukturmodell/).

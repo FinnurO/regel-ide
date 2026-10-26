@@ -270,6 +270,21 @@ idempotent, også på `ki-utdata/`):
 - Konverteringen gjør bare det juristrunden avgjorde: `konvertering-368-oppgave.py` leser `juristrunde-368-oppgave.json` (fasit 1 802 →
   1 825, 52 oppgaverader; KI-utdata 1 042 → 1 051, 29).
 
+**[Ny, issue #387, 2026-10-27] Fasiten i appen og `utsagn_utenfor_korpus`.** Fasiten lastes inn i basen som `faglig_vurdert` med
+oppdagelseskilde `fasit:<fil>:<id>` (`POST /api/fasit/strukturmodell/import`, docs/33 §5.12). Formatet har fått én valgfri liste på toppnivå:
+
+"utsagn_utenfor_korpus": [{
+  "id": "x1", "kategori": "relasjon", "type": "sekretariat_for", "fra": "da", "til": "tilsyn",
+  "objekt": null, "polaritet": "positiv", "avgrensning": null,
+  "kilde": {"tekst": "Ot.prp. nr. 44 (2000–2001) kap. 11.5.12", "lenke": "https://…", "type": "forarbeider", "dokumentasjon": "primaer"},
+  "kunnskapsstatus": "eksternt_dokumentert", "begrunnelse": "…", "kommentar": "…", "verifisert_av": "…"
+}]
+
+Den er for utsagn som er avklart i fasitkontrollen, men som ikke står i lovteksten: de har ingen eId og intet sitat, men en kilde utenfor
+korpus med type og dokumentasjon (samme lukkede lister som `strukturkanter`, docs/33 §4.3). Aktørene er id-er i samme fil. Første og eneste
+rad: domstolloven `x1`, Domstoladministrasjonen `sekretariat_for` Tilsynsutvalget for dommere (kildesøket og rettelsen i #311). Målingene
+(`Strukturfasit/`, `designtest.py`) leser bare `utsagn` og ser ikke lista.
+
 Typer per kategori (bruk disse når de passer, ellers "annet:<x>"):
 - relasjon (aktør→aktør): `eies_av`, `ledes_av`, `sekretariat_for`, `rapporterer_til`, `etterfolger`,
   `representerer`, `har_delegert_til` (gjennomført delegering, når BÅDE fra og til er gitt),

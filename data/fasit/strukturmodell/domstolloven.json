@@ -22005,5 +22005,27 @@
     "kontekst_system"
    ]
   }
+ ],
+ "utsagn_utenfor_korpus": [
+  {
+   "id": "x1",
+   "kategori": "relasjon",
+   "type": "sekretariat_for",
+   "fra": "da",
+   "til": "tilsyn",
+   "objekt": null,
+   "polaritet": "positiv",
+   "avgrensning": null,
+   "kilde": {
+    "tekst": "Ot.prp. nr. 44 (2000–2001) kap. 11.5.12",
+    "lenke": "https://www.regjeringen.no/no/dokumenter/otprp-nr-44-2000-2001-/id164074/?ch=11",
+    "type": "forarbeider",
+    "dokumentasjon": "primaer"
+   },
+   "kunnskapsstatus": "eksternt_dokumentert",
+   "begrunnelse": "Forarbeidene legger sekretariatsfunksjonen for Tilsynsutvalget til den nye domstoladministrasjonen (kap. 11.5.12; kap. 11.6 bekrefter det). Bekreftet av tilsynsutvalget.no («Utvalget bistås av et sekretariat med medarbeidere fra Domstoladministrasjonen»). Korpuset har ingen hjemmel: domstolloven nevner utvalget bare i § 121c og § 237.",
+   "kommentar": "Kildesøket og rettelsen i #311 (2026-10-07): forarbeider + primaer, ikke nettside_annet. Eksempelet i #387 (avklart i #309).",
+   "verifisert_av": "Johann (kildesøk og rettelse i #311, 2026-10-07; eksempel i #387, 2026-10-16)"
+  }
  ]
 }

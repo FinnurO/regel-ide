@@ -1297,6 +1297,41 @@ rettskilder.MapPost("/{id:guid}/aktorsveip", async (Guid id, string? lag, bool? 
         "ny_navneform_for_kjent_aktor | ny_aktor | generisk | flertydig. Skriver ingen forslag. ?navnekandidater=true legger aktørene som " +
         "ikke er kjent (unntatt flertydige) i navnekandidatkøen.");
 
+// [Ny, issue #387, Johanns go 2026-10-27] Fasiten inn i appen: utsagnene i data/fasit/strukturmodell lastes som FAGLIG VURDERT (opphav
+// fasit:<fil>:<id>) gjennom forslagskøens tjenestevei (StrukturforslagTjeneste → StrukturkantTjeneste). Kan kjøres flere ganger: lik rad =
+// uendret, endret rad = revisjon, avvist = respektert, godkjent/faglig vurdert fra annen kilde = aldri overskrevet (konflikt listes).
+// ?torrkjoring=true skriver ingenting. ?fil= kan gjentas; uten fil kjøres alle fem. Mappen er RegelIde:Fasitmappe (samme mønster som
+// RegelIde:Kildemappe: containeren har ikke repoets mappestruktur).
+app.MapPost("/api/fasit/strukturmodell/import", async (string[]? fil, bool? torrkjoring, bool? navnekandidater, HttpRequest request,
+        RegelIdeDbContext db, RegelIde.Data.Strukturkonvertering.StrukturforslagTjeneste laster, IConfiguration konfig, IWebHostEnvironment miljo,
+        CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        var mappe = konfig["RegelIde:Fasitmappe"]
+            ?? Path.GetFullPath(Path.Combine(miljo.ContentRootPath, "..", "..", "data", "fasit", "strukturmodell"));
+        var filer = fil is { Length: > 0 } ? fil : RegelIde.Data.Strukturkonvertering.Fasitfil.Filer;
+        try
+        {
+            var lest = filer.Select(f => RegelIde.Data.Strukturkonvertering.Fasitfil.Les(mappe, f)).ToList();
+            var rapporter = new List<RegelIde.Data.Strukturkonvertering.FasitimportRapport>();
+            foreach (var f in lest)
+            {
+                rapporter.Add(await laster.ImporterFasitAsync(f, torrkjoring ?? false, navnekandidater ?? false, bruker.Navn, ct));
+            }
+            return Results.Ok(RegelIde.Data.Strukturkonvertering.StrukturforslagTjeneste.SlaSammen(torrkjoring ?? false, rapporter));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithOpenApi()
+    .WithName("ImporterFasit")
+    .WithSummary("Issue #387 — laster fasiten (data/fasit/strukturmodell) som faglig vurdert, opphav fasit:<fil>:<id>. ?fil= (gjentas; uten = " +
+        "alle fem), ?torrkjoring=true (skriver ingenting), ?navnekandidater=true (aktører som ikke kan løses opp, legges i navnekandidatkøen). " +
+        "Svarer med tall per fil og utfall, årsakene til det som ikke ble lastet, uløste aktører og konfliktene.");
+
 // [Ny, issue #378 B6] Taggen bruker bindingen: for hver virksomhet-tagg i rettskilden som peker på en GENERISK navneform, hva den betyr der.
 rettskilder.MapGet("/{id:guid}/generiske-tagger", async (Guid id, GeneriskNavneformTjeneste generiske, CancellationToken ct) =>
         Results.Ok(await generiske.LosOppTaggerAsync(id, ct)))

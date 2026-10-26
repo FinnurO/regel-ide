@@ -55,6 +55,16 @@ export function GodkjenningTag({ status, oppdagelsesKilde }: { status: Godkjenni
     case 'manuelt_foreslatt':
       return <Tag data-size="sm" data-color="info" title="Foreslått av et menneske, ikke godkjent ennå.">Manuelt forslag</Tag>;
     case 'faglig_vurdert':
+      // [Ny, issue #387 AK 4] Utsagn lastet fra fasiten (opphav fasit:<fil>:<id>) sier HVOR vurderingen kommer fra, og at den ikke er
+      // uavhengig kontrollert (docs/profil/03 §10). Samme `info` som andre ventende (docs/09 §35); teksten skiller dem.
+      if (oppdagelsesKilde.startsWith('fasit:')) {
+        return (
+          <Tag data-size="sm" data-color="info"
+            title={`Fra fasiten (data/fasit/strukturmodell, ${oppdagelsesKilde.slice('fasit:'.length)}): kontrollert i fasitkontrollen (#309) og juristrundene, men ikke uavhengig kontrollert av to menneskelige jurister (metodenotatet §10). Ikke godkjent ennå.`}>
+            Fra fasiten, faglig vurdert, ikke uavhengig kontrollert
+          </Tag>
+        );
+      }
       return <Tag data-size="sm" data-color="info" title="Faglig vurdert, ikke godkjent ennå.">Faglig vurdert</Tag>;
   }
 }

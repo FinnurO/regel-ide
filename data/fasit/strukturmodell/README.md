@@ -13,6 +13,13 @@ Målegrunnlaget for `docs/33-strukturmodell-aktor-omrade-kompetanse.md`.
 | `konvertering-368-oppgave.py` + `juristrunde-368-oppgave.json` | **[Ny 2026-10-16, #368]** Kategorien oppgave (F): skriptet gjør nøyaktig det juristrundens kort sier (F / begge / behold), på fasiten og `ki-utdata/`. Deterministisk og idempotent. |
 | `designtest.py` | Klassifiserer hvert utsagn mot dagens og revidert modell (`docs/33` §6). `python designtest.py`. |
 
+## Fasiten i appen (#387)
+
+`POST /api/fasit/strukturmodell/import` laster utsagnene inn i basen som `faglig_vurdert` (ikke `godkjent`: fasiten er ikke uavhengig
+kontrollert, docs/profil/03 §10), med oppdagelseskilde `fasit:<fil>:<id>`, gjennom forslagskøens tjenestevei. Reglene og målingen står i
+docs/33 §5.12. `?torrkjoring=true` skriver ingenting. Domstolloven har i tillegg ett utsagn med kilde utenfor korpus
+(`utsagn_utenfor_korpus`, FORMAT.md).
+
 ## Proveniens
 
 - **Nodetekst:** Lovdata, hentet via regel-ide sin Lovdata-import (NLOD 2.0, kildeangivelse påkrevd —
