@@ -245,6 +245,11 @@ public class OrganiseringskilderMonstreTests
         Assert.Null(ulest);
         Assert.Contains(h, x => x.Type == DepartementLivslopMonstre.Nedleggelse && x.Navn.Single().Navn == "Industridepartementet");
         Assert.Contains(h, x => x.Type == DepartementLivslopMonstre.Oppretting && x.Navn.Single().Navn == "Næringsdepartementet");
+        // Juristrunde 2: lista slutter ved formelen «med myndighetsområde …» (FOR-1972-05-05-8645 kap-II).
+        var (l72, uu) = (DepartementLivslopMonstre.LesLedd(
+            "Med virkning fra samme dato opprettes to nye departementer, Miljøverndepartementet og Forbruker- og administrasjonsdepartementet med myndighetsområde som nevnt i foredraget og vedlagte utkast. Overføringen av ansvaret …", out var u72), u72);
+        Assert.True(l72.Count == 1, $"{l72.Count} {uu}");
+        Assert.Equal(2, l72[0].Navn.Count);
         // Sammenslåing leses ikke, men rapporteres.
         Assert.Empty(DepartementLivslopMonstre.LesLedd(
             "Med virkning fra 1. januar 1990 slås Utenriksdepartementet og Departementet for utviklingshjelp sammen til ett departement, Utenriksdepartementet.", out var u2));

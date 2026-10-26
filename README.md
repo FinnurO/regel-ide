@@ -46,7 +46,9 @@ navneformen en kilde og en tagg på nøyaktig spenn.
 Organiseringskildene (#395): rettskildene er klassifisert etter disposisjonstype (oppretting, navneendring, nedleggelse, omorganisering,
 overføring/ressortfordeling, delegering, instruks, ikrafttredelse, regulering) og kildeform (konsolidert eller kunngjort), og kunngjorte
 organiseringsvedtak fra Norsk Lovtidend avd. I (2001–) er importert gjennom samme parser. Av dem bygges departementenes livsløp —
-opprettelse, navnebytter med utgåtte navneformer, og ressortfordelingen (hvilket departement som forvalter hvilken lov) — som forslag.
+opprettelse, navnebytter med utgåtte navneformer, og ressortfordelingen (hvilket departement som forvalter hvilken lov) — som forslag. Vedtakene
+fra 1990–1998 leses fra de konsoliderte tekstene, og etterfølgerne viser omfanget (antall lovdeler) (#397). Kunngjorte vedtak fra før 2001
+finnes ikke i Lovdatas åpne data.
 Spesifikasjonen og målingene: [`docs/33-strukturmodell-aktor-omrade-kompetanse.md`](docs/33-strukturmodell-aktor-omrade-kompetanse.md)
 (arbeidsplanen er epic #318).
 

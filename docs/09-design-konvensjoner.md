@@ -1210,6 +1210,12 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
   en aktør med `livsstatus = 'nedlagt'`, med perioden i `title`. Samme rolle som en utgått navneform (§15): en nedlagt aktør skal aldri kunne
   leses som en som finnes i dag. Ikke forveksle med «sovende» (`aktiv = false` alene), som ikke sier at noe er nedlagt (CLAUDE.md §9).
 
+## 43. Omfang på en etterfølger (issue #397, 2026-10-26)
+
+- **Ikke hoved/del, men omfang** (Johann 2026-10-24 på #134): en avledet R etterfolger viser «Omfang: N lovdeler» som `neutral`-merke ved
+  utsagnsteksten i `StrukturkantTabell`. Tallet kommer fra API-et (`omfang`), talt fra premissene; det lagres ikke og er ikke et felt.
+  Kommentaren begynner med det samme tallet.
+
 ## 42. Generisk omtale: kjeden i lovteksten og veiviseren på én skjerm (issue #394, 2026-10-24)
 
 - **Kjeden vises alltid, aldri en rå id.** En tagg mot en generisk navneform viser «departementet» → [Generisk omtale] [kilde] → referenten,

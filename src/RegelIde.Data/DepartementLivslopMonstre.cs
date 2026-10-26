@@ -68,8 +68,9 @@ public static partial class DepartementLivslopMonstre
     // 1. januar 1990 opprettes fire nye departementer med funksjoner og myndighet som beskrevet i foredraget og vedlegg til denne
     // resolusjon: A, B, C samt D.» og «Fra samme dato nedlegges A, B og C.»
     // [ENDRET etter juristrunden på #397] + kommaformen i FOR-1972-05-05-8645: «… opprettes to nye departementer, Miljøverndepartementet og
-    // Forbruker- og administrasjonsdepartementet.»
-    [GeneratedRegex(@"\bopprettes\s+(?:\p{L}+\s+)?nye\s+departementer\b(?:[^:]*:|,)\s*(?<liste>.+)$", RegexOptions.CultureInvariant)]
+    // Forbruker- og administrasjonsdepartementet [med myndighetsområde som nevnt i foredraget …]». Juristrunde 2: lista slutter ved den faste
+    // formelen «med funksjoner …»/«med myndighet…», som i 1990-formen står foran kolonet.
+    [GeneratedRegex(@"\bopprettes\s+(?:\p{L}+\s+)?nye\s+departementer\b(?:[^:]*:|,)\s*(?<liste>.+?)(?:\s+med\s+(?:funksjoner|myndighet\w*)\b.*)?$", RegexOptions.CultureInvariant)]
     private static partial Regex OpprettesNyeRegex();
     [GeneratedRegex(@"\bnedlegges\s+(?<liste>.+)$", RegexOptions.CultureInvariant)] private static partial Regex NedleggesRegex();
     // [Ny, issue #397] Navnebytte som liste (FOR-1990-12-21-1022 punkt 2): «Med virkning fra 1. januar 1991 endrer følgende departementer

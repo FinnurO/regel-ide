@@ -1171,8 +1171,10 @@ eldre vedtak (Lovdata oppdaterer dem); en slik identitet slås sammen ved navneb
 - **R avvikler** fra Kongen i statsråd til det nedlagte departementet (kgl.res.), hjemmel i nedleggelsesleddet, `normalisering`.
 - **[ENDRET, Johanns avgjørelse 2] R etterfolger bare når ansvar går over til et annet organ** (sammenslåing eller oppdeling), aldri ved et
   rent navnebytte. Avledet (`avledet`, premissene er forvaltningskantene før og etter): X nedlegges i vedtaket V, og V gir SAMME del av en
-  lov X hadde forvaltningsansvaret for (hele loven begge ganger, eller samme punkttekst) til Y. Fra = etterfølgeren. Omfanget (hoved- eller
-  delvis etterfølger) står i kommentaren; formatet har ikke eget felt. Ingen tallterskel (juristrunden M5).
+  lov X hadde forvaltningsansvaret for (hele loven begge ganger, eller samme punkttekst) til Y. Fra = etterfølgeren. [ENDRET, Johann
+  2026-10-24 på #134, bygget i #397] Det er ikke et felt for hoved- eller deletterfølger: **omfanget** (antall lovdeler som gikk over) står
+  først i kommentaren og telles i API-et fra premissene (`omfang` på kanten, forvaltningskantene fra etterfølgeren), og vises som merket
+  «Omfang: N lovdeler» (docs/09 §43). Ingen tallterskel (juristrunden M5).
 - **K oppretting og K avvikling** for Kongen i statsråd er registrert én gang, manuelt (`manuelt_foreslatt`), med Grl. § 12 annet ledd
   som hjemmel og kunnskapsstatus `fortolkning` (ordlyd, praksis): vedtakene oppgir selv Grl. § 12 og Instruks for Regjeringen
   (LOV-1909-03-23) som hjemmel.
@@ -1190,7 +1192,68 @@ bygges i #394 (navneformen får hjemmel i navnevedtaket som forslag, og den gaml
 alle; 5 etterfølgere bygde på ELI alene og koblet ulike deler av samme lov — regelen krever nå samme del (7 tidligere forslag avledes ikke
 lenger og står i forslagskøen til avvisning). Kjente hull: vedtakene fra 1989–1997 i korpuset er ikke lest (Utdannings- og
 forskningsdepartementet 1990, «nytt» Arbeids- og administrasjonsdepartement 1998), og vedleggene 2–4 fra 2001 og 3 fra 2013 gir ingen
-forvaltningskanter, så hovedetterfølgeren mangler for blant andre Sosial- og helsedepartementet og Fiskeri- og kystdepartementet.
+forvaltningskanter, så hovedetterfølgeren mangler for blant andre Sosial- og helsedepartementet og Fiskeri- og kystdepartementet. **[Fulgt opp i #397, se §5.9.1.]**
+
+### 5.9.1 Hullene i livsløpet: vedtakene 1990–1998 og vedleggene (#397, bygget 2026-10-26)
+
+**Kilden for vedtakene før 2001 (kartlagt 2026-10-26).** Lovdatas åpne API (`/v1/publicData/list`) har bare seks datasett:
+gjeldende lover, gjeldende sentrale forskrifter og Lovtidend avd. I og II fra 2001. **Kunngjorte vedtak fra før 2001 finnes ikke i åpne
+data.** Vedtakene fra 1989–1998 finnes bare som konsoliderte `DEL/`-tekster i gjeldende-uttrekket, og de var alt i korpuset:
+FOR-1989-12-22-1273 (1990), FOR-1990-12-21-1022 (1991), FOR-1992-12-18-1074 (1993), FOR-1996-12-20-1156/1157/1158 (1997),
+FOR-1997-12-19-1316 og FOR-1998-01-01-1 (1998), FOR-1999-12-03-1203 (2000). Det som **ikke** kan hentes:
+- FOR-1992-12-18-1074 punkt 3–5 er «– – –» i den konsoliderte teksten. Innholdet er ukjent (opprettelsen av Sosial- og
+  helsedepartementet står trolig der, men det er ikke kontrollert, og det gjettes ikke).
+- FOR-1989-12-22-1273 har kapittel I–IV og IX; V–VIII mangler i den konsoliderte teksten.
+- Vedtakene fra 1997 og 1998 er gjengitt som foredragstekst. De sier ikke «nedlegges» om Administrasjonsdepartementet,
+  Nærings- og energidepartementet, Planleggings- og samordningsdepartementet eller Kommunal- og arbeidsdepartementet (1993–). Disse
+  identitetene har derfor ingen slutt, blir ikke aktører og får ingen R oppretter (juristrunden P1, til Johann).
+- Lovtidend før 2001, eller Lovdata Pro, ville vært kilden for disse. Det er ikke bygget noen omvei.
+
+**Nye mønstre** (`DepartementLivslopMonstre`, alt som forslag):
+- «opprettes N nye departementer …: A, B samt C» og kommaformen (1972), «nedlegges A, B og C» (1990, 1993).
+- «… nedlegges X og det opprettes et nytt departementet, Y» (1988).
+- Navnebytte som liste: «endrer følgende departementer navn; A til B, C til D, og E til F» (1991).
+- 1997/1998: overskriften «Nytt X (FORK)» sammen med leddet «X organiseres ved opprettelsen …» i samme kapittel gir opprettelse
+  (`monster:livslop-nytt-departement`, hjemmel = leddet, `normalisering`). Overskriften alene er ikke nok.
+- Lov med tittelen før datoen: «Lov om folkebibliotek av 20. desember 1985 nr. 108» (ikke når «endring» eller en annen lov står før datoen).
+- Vedlegg: et kapittel som bare heter et departement under et «Vedlegg» (2018, 2019, 2020), og en vedleggsoverskrift som står som
+  ledd over lista (2024). Innledningen («Statsråd Monica Mæland», «Oversikt over lover statsråd … har forvaltningsansvar for …») står i
+  kommentaren. **Tekstfunn bare når samme tekst navngir departementet og har funksjonsordet** (overskriften, eller en innledning som også
+  nevner departementet); en statsrådliste under en departementsoverskrift er `normalisering`.
+- «slås … sammen» leses ikke, men rapporteres som ulest (Departementet for utviklingshjelp 1990, Handelsdepartementet 1988).
+
+**Parseren** (docs/08 §3.1.3): lovlistene i vedleggene 2002, 2014, 2018, 2019, 2020 og 2024 sto i et `defaultP`-avsnitt med liste og
+ble hoppet over. **Ny versjon av et vedtak:** `POST /api/rettskilder/{id}/konverter-paa-nytt[?skriv=true]` konverterer den lagrede HTML-en
+på nytt og klassifiserer den nye versjonen. Livsløpet foreslår ikke samme utsagn på nytt når hjemmelen er en annen versjon av samme
+vedtak (samme ELI og eId), og en gammel kant står på versjonen den ble foreslått mot (#367).
+
+**Gyldighet (rettet etter juristrunden).** Gyldig til er det tidligste av neste vedtak som gir samme hele lov til et annet departement,
+og nedleggelsen. Et eget, uvurdert F-forslag får ny gyldig til og kommentar når et senere vedtak er lest; en tom gyldig fra på en
+nedlagt aktør eller en egen uvurdert navneform fylles når opprettelsen er lest.
+
+**Målt 2026-10-26 (lokal base), før → etter:**
+
+| | Før (#396) | Etter (#397) |
+|---|---|---|
+| Vedtak lest | 45 | 49 |
+| Identiteter | 34 | 45 |
+| Ressorttildelinger | 829 | 1 175 |
+| Mot Lovdata: samsvar | 221 | 272 |
+| Mot Lovdata: avvik | 9 | 5 |
+| Mot Lovdata: siste vedtak gjelder et nedlagt departement | 4 | 4 |
+| Mot Lovdata: lov ikke i korpuset | 178 | 205 |
+| Avledede R etterfolger | 15 | 20 |
+
+Navnehistorikken fra 1990 for tre aktører: Familie- og forbrukerdepartementet (1990) → Barne- og familiedepartementet (1991–2005),
+Utdannings- og forskningsdepartementet (1990) → Kirke-, utdannings- og forskningsdepartementet (1991–2001), Kirke- og kulturdepartementet
+(1990) → Kulturdepartementet (1991–2001). Arbeids- og administrasjonsdepartementet 1990–1992 (nedlagt 1993) er skilt fra det «nye»
+1998–2004. Olje- og energidepartementet 1978–1992 er skilt fra det som ble opprettet 1997 og heter Energidepartementet i dag.
+Nye etterfølgere: Nærings- og handelsdepartementet → Nærings- og fiskeridepartementet (18 lovdeler), Fornyings-, administrasjons- og
+kirkedepartementet → Nærings- og fiskeridepartementet (6), Helsedepartementet → Helse- og omsorgsdepartementet (21), Sosialdepartementet →
+Arbeids- og sosialdepartementet (24), Utdannings- og forskningsdepartementet → Kunnskapsdepartementet (4). **Ikke avledet:** Sosial- og
+helsedepartementet og Fiskeri- og kystdepartementet. Korpuset viser ikke at de hadde forvaltningsansvaret for noen lov før nedleggelsen
+(vedleggene 2002 sier ikke «fra»), og avgjørelse 2 krever forvaltningskanter før og etter. Om en etterfølger skal kunne leses der vedtaket
+selv sier «overtar ansvaret … fra» (2014 punkt 6), er juristrundens P2, til Johann.
 
 ### 5.10 Standardregler for generiske omtaler og navnevedtaket som hjemmel (#394, bygget 2026-10-24)
 
