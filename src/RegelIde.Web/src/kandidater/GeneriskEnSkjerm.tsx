@@ -190,7 +190,16 @@ export function GeneriskEnSkjerm({
       // behandles — det sier kvitteringen.
       let opprettet: StrukturnodeDto | null = null;
       if (valg.type === 'referent' && valg.referent.type === 'ny' && binding) {
-        const ny = await api.opprettVirksomhet({ navn: valg.referent.navn, overordnetEnhetId: null });
+        // [ENDRET, issue #386] Navnet blir gjeldende navneform med bindingens status, hjemlet der kandidatens navn står (serveren
+        // setter noden fra navnekandidaten). Står navnet ikke der, lagres «hjemmel mangler» med begrunnelse.
+        const ny = await api.opprettVirksomhet({
+          navn: valg.referent.navn, overordnetEnhetId: null, navnFraNavnekandidatId: valg.referent.id,
+          grunnlag: {
+            grunnlag: 'hjemmel', hjemmelRettskildeId: kandidat.rettskildeId, hjemmelEid: kandidat.nodeEid,
+            kildeTekst: null, kildeType: null, kildeDokumentasjon: null, kildeLenker: null,
+            kunnskapsstatus: 'tekstfunn', godkjenning: godkjenning!, begrunnelse: null, tolkningsargumenter: null,
+          },
+        });
         opprettet = { type: 'virksomhet', id: ny.id, navn: valg.referent.navn, nodetype: null };
         binding.tilVirksomhetId = ny.id;
         binding.tilBegrepId = null;
@@ -211,8 +220,8 @@ export function GeneriskEnSkjerm({
               + `Grunnlag: ${sted} (der ordet står), ${KUNNSKAPSSTATUS_VISNING[kunnskapsstatus].tekst.toLowerCase()}.`
             : valg.type === 'regel' ? 'Ingen binding er lagret: standardregelen gir svaret, og en vurdert ressortfordeling slår igjennom når den godkjennes.'
               : 'Ingen binding: omtalen vises som «generisk omtale, ikke avklart» til noen binder den.',
-          ...(opprettet ? [`Aktøren «${opprettet.navn}» er opprettet med bare navnet. Navnekandidaten «${opprettet.navn}» står fortsatt i køen — `
-            + 'behandle den for å gi aktøren navneform, kilde og type.'] : []),
+          ...(opprettet ? [`Aktøren «${opprettet.navn}» er opprettet, og navnet er registrert som gjeldende navneform (${godkjenning === 'godkjent' ? 'godkjent' : 'faglig vurdert'}), `
+            + 'hjemlet der navnet står. Navnekandidaten står fortsatt i køen for type og andre navneformer.'] : []),
           r.taggId ? 'Taggen på forekomsten peker på den generiske navneformen og viser kjeden.' : 'Ingen tagg kunne opprettes.',
           'Navnekandidaten er satt til «Godkjent» (behandlet).',
         ],
