@@ -265,7 +265,9 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
                 if (forste is not null) hendelser.Add((new LivslopHjemmel(k.Id, k.Tittel, k.Kildeform, forste.Eid, forste.Tekst!), tittelOverforing));
                 else ulest.Add(new(new LivslopHjemmel(k.Id, k.Tittel, k.Kildeform, "", k.Tittel), "overføring i tittelen, men intet ledd nevner forvaltningsansvaret"));
             }
-            if (hendelser.Count == 0 && vedlegg.Count == 0) continue;
+            // [ENDRET, S2 på #397] Et vedtak med bare «overføres fra X til Y» (vanlige overføringer mellom departementer som finnes videre) er
+            // ikke et livsløpsvedtak: «overtar»-hendelser gir bare noe når X opphører i samme vedtak.
+            if (vedlegg.Count == 0 && hendelser.All(x => x.Item2.Type == DepartementLivslopMonstre.Overtar)) continue;
             if (dato is null)
             {
                 ulest.Add(new(new LivslopHjemmel(k.Id, k.Tittel, k.Kildeform, "", k.Tittel), "vedtaket har verken ikrafttredelse eller kunngjøringsdato"));
