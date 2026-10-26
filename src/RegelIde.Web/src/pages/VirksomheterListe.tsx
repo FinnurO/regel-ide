@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { NedlagtTag } from '../virksomhet/NedlagtTag';
+import { HovedetterfolgerUkjentTag, NedlagtTag } from '../virksomhet/NedlagtTag';
 import { Link as RouterLink, useSearchParams } from 'react-router';
 import { Alert, Button, Card, Checkbox, Dialog, Heading, Link, Paragraph, Spinner, Table, Tabs, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
@@ -56,8 +56,10 @@ export default function VirksomheterListe() {
 
   const viste = useMemo(() => {
     const tekst = filterTekst.trim().toLowerCase();
+    // [Ny, issue #397] En duplikat som er erstattet av en annen aktør, vises ikke i lista (den finnes fortsatt, se aktørsiden).
+    const utenDuplikater = virksomheter.filter((v) => !v.erstattetAvId);
     const filtrert = tekst
-      ? virksomheter.filter(
+      ? utenDuplikater.filter(
           (v) =>
             // [ENDRET, registernavn-runden, 2026-09-08] Søker i BEGGE navneformene, ikke bare den
             // viste: kolonnen viser «Kåfjord kommune», men noen kan lime inn registerstrengen fra
@@ -67,7 +69,7 @@ export default function VirksomheterListe() {
             (v.organisasjonsnummer?.includes(tekst) ?? false) ||
             (v.forvaltningsniva?.toLowerCase().includes(tekst) ?? false),
         )
-      : virksomheter;
+      : utenDuplikater;
 
     const sortnokkel = (v: (typeof virksomheter)[number]) =>
       sortKolonne === 'navn'
@@ -171,6 +173,7 @@ export default function VirksomheterListe() {
                       {v.livsstatus === 'nedlagt' && (
                         <span style={{ marginLeft: '0.4rem' }}>
                           <NedlagtTag livsstatus={v.livsstatus} gyldigFra={v.gyldigFra} gyldigTil={v.gyldigTil} />
+                          <HovedetterfolgerUkjentTag ukjent={v.hovedetterfolgerUkjent} />
                         </span>
                       )}
                     </Table.Cell>

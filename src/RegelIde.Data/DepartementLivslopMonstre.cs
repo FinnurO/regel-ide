@@ -112,6 +112,16 @@ public static partial class DepartementLivslopMonstre
     private static partial Regex ForvaltningenOverforesFraRegex();
     [GeneratedRegex(@"^\s*Til\s+(?<y>" + Dept + @")\s+overføres\s+følgende", RegexOptions.CultureInvariant)] private static partial Regex TilOverforesFolgendeRegex();
 
+    // [Ny, Johanns avgjørelse S2 på #397, 2026-10-27] Også overføringsformene gir etterfølger når X opphører i samme vedtak:
+    // «… overføres fra [det nåværende] X [(FORK)] til [det nye] Y», «… tilbakeføres fra X til Y» (FOR-1997-12-19-1316 kap-2, 3 og 5),
+    // «Y får overført fra X …» (FOR-2005-12-16-1479 vedlegg 4) og «Y overtar ansvaret for Xs oppgaver» (FOR-2013-12-13-1455 punkt 6).
+    [GeneratedRegex(@"\b(?:overføres|tilbakeføres)\s+fra\s+(?:det\s+(?:nåværende|tidligere)\s+)?(?<x>" + Dept + @")(?:\s*\([^()]*\))?\s+til\s+(?:det\s+nye\s+)?(?<y>" + Dept + ")", RegexOptions.CultureInvariant)]
+    private static partial Regex OverforesFraTilRegex();
+    [GeneratedRegex(@"(?<y>" + Dept + @")\s+får\s+overført\s+fra\s+(?<x>" + Dept + ")", RegexOptions.CultureInvariant)]
+    private static partial Regex FaarOverfortFraRegex();
+    [GeneratedRegex(@"(?<y>" + Dept + @")(?:\s*\([^()]*\))?\s+overtar\b[^.]*?\b(?<x>\p{Lu}\p{Ll}*(?:-(?:,|\s+og)\s+\p{Ll}+)*?departementets)\s+(?:arbeidsoppgaver|oppgaver|ansvar)\b", RegexOptions.CultureInvariant)]
+    private static partial Regex OvertarXsOppgaverRegex();
+
     [GeneratedRegex(@"\biverksettes fra det tidspunkt\b", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase)]
     private static partial Regex UtsattRegex();
 
@@ -190,10 +200,21 @@ public static partial class DepartementLivslopMonstre
     }
 
     /// <summary>[Ny, issue #397 P1] Opphør i en overskrift («Organisatorisk deling av det tidligere Nærings- og energidepartementet»).</summary>
-    public static IReadOnlyList<Livslopshendelse> LesOverskrift(string overskrift) =>
-        DetTidligereRegex().Match(overskrift) is { Success: true } m
-            ? [new(Opphor, [(Normaliser(m.Groups["x"].Value), m.Groups["x"].Value)], Regel: "monster:livslop-det-tidligere")]
-            : [];
+    public static IReadOnlyList<Livslopshendelse> LesOverskrift(string overskrift)
+    {
+        var h = new List<Livslopshendelse>();
+        if (DetTidligereRegex().Match(overskrift) is { Success: true } m)
+        {
+            h.Add(new(Opphor, [(Normaliser(m.Groups["x"].Value), m.Groups["x"].Value)], Regel: "monster:livslop-det-tidligere"));
+        }
+        // [Ny, Johanns avgjørelse S2 på #397] «Lover som overføres fra X til Y:» som overskrift (FOR-1996-12-20-1156 vedlegget).
+        if (OverforesFraTilRegex().Match(overskrift) is { Success: true } o && Normaliser(o.Groups["x"].Value) != Normaliser(o.Groups["y"].Value))
+        {
+            h.Add(new(Overtar, [], (Normaliser(o.Groups["x"].Value), o.Groups["x"].Value), (Normaliser(o.Groups["y"].Value), o.Groups["y"].Value),
+                Objekt: overskrift.Trim(), Regel: "monster:livslop-overfores-fra-til"));
+        }
+        return h;
+    }
 
     /// <summary>[Ny, issue #397 U2] «Forvaltningen av følgende lover overføres fra X» → X, ellers null.</summary>
     public static (string Navn, string Raa)? LesForvaltningenOverforesFra(string tekst) =>
@@ -274,7 +295,9 @@ public static partial class DepartementLivslopMonstre
         {
             h.Add(new(Opphor, [(Normaliser(m.Groups["x"].Value), m.Groups["x"].Value)], Regel: "monster:livslop-det-tidligere"));
         }
-        foreach (var (r, regel) in new[] { (OvertarFraRegex(), "monster:livslop-overtar-fra"), (OvertarAlleTilRegex(), "monster:livslop-overtar-alle-oppgavene-til") })
+        foreach (var (r, regel) in new[] { (OvertarFraRegex(), "monster:livslop-overtar-fra"), (OvertarAlleTilRegex(), "monster:livslop-overtar-alle-oppgavene-til"),
+                     (OverforesFraTilRegex(), "monster:livslop-overfores-fra-til"), (FaarOverfortFraRegex(), "monster:livslop-faar-overfort-fra"),
+                     (OvertarXsOppgaverRegex(), "monster:livslop-overtar-xs-oppgaver") })
         {
             foreach (Match m in r.Matches(tekst))
             {

@@ -15,3 +15,28 @@ export function NedlagtTag({ livsstatus, gyldigFra, gyldigTil }: { livsstatus?: 
     </Tag>
   );
 }
+
+/**
+ * [Ny, Johanns avgjørelse S3 på #397, docs/09 §45] «Hovedetterfølger ukjent» for et nedlagt departement uten en etterfølger som tok over
+ * hovedansvaret (bare delvise eller ingen). Et synlig hull, `warning`; ingen etterfølger gjettes. Fylles av en avledet etterfølger, en som
+ * overtok alle (de resterende) oppgavene, eller en faglig vurdert/godkjent etterfølger registrert manuelt.
+ */
+export function HovedetterfolgerUkjentTag({ ukjent }: { ukjent?: boolean | null }) {
+  if (!ukjent) return null;
+  return (
+    <Tag data-size="sm" data-color="warning"
+      title="Vedtakene sier ikke hvem som overtok hovedansvaret (bare delvise etterfølgere, eller ingen). Hullet kan fylles med en faglig vurdert etterfølger.">
+      Hovedetterfølger ukjent
+    </Tag>
+  );
+}
+
+/** [Ny, issue #397, docs/09 §45] En duplikat som er erstattet av en annen aktør (reversibelt; ingenting er slettet). `neutral`. */
+export function ErstattetTag({ erstattetAvId }: { erstattetAvId?: string | null }) {
+  if (!erstattetAvId) return null;
+  return (
+    <Tag data-size="sm" data-color="neutral" title="Duplikat: aktøren er erstattet av en annen. Ingenting er slettet, og det kan angres.">
+      Erstattet (duplikat)
+    </Tag>
+  );
+}

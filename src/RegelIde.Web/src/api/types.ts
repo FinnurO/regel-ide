@@ -319,6 +319,10 @@ export interface VirksomhetDto {
   livsstatus?: string | null;
   gyldigFra?: string | null;
   gyldigTil?: string | null;
+  /** [Ny, issue #397] Duplikat erstattet av denne aktøren (reversibelt). */
+  erstattetAvId?: string | null;
+  /** [Ny, Johanns avgjørelse S3 på #397] Nedlagt uten kjent hovedetterfølger (regnet ut). */
+  hovedetterfolgerUkjent?: boolean | null;
   /**
    * REGISTERETS egen form av navnet (issue #158) — for Brreg-synkroniserte rader betyr det VERSALER,
    * og for tospråklige kommuner en konkatenering uten skilletegn:

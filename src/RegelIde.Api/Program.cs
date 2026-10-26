@@ -677,13 +677,38 @@ app.MapGet("/api/virksomheter", async (
         // eier-kolonner, velgere og taggetiketter får den lesbare formen fra samme sted.
         var visningsnavn = await visningsnavnTjeneste.AlleAsync(ct);
         var virksomheter = await db.Virksomheter.ToListAsync(ct);
-        return virksomheter.Select(v => VirksomhetDto.FraEntitet(v, visningsnavn));
+        // [Ny, Johanns avgjørelse S3 på #397] «Hovedetterfølger ukjent» for nedlagte aktører, i ett oppslag.
+        var hull = await EtterfolgerHull.HovedetterfolgerUkjentAsync(db, virksomheter.Where(v => v.Livsstatus == "nedlagt").Select(v => v.Id), ct);
+        return virksomheter.Select(v => VirksomhetDto.FraEntitet(v, visningsnavn) with
+        {
+            HovedetterfolgerUkjent = v.Livsstatus == "nedlagt" && v.ErstattetAvId is null ? hull.Contains(v.Id) : null,
+        });
     })
     .WithOpenApi()
     .WithName("HentVirksomheter")
     .WithSummary(
         "Lister virksomheter — hele virksomhetskatalogen (docs/20), ikke bare aktive tenanter. "
         + "'navn' er registerets egen form (#158); 'visningsnavn' er den lesbare formen UI-et skal vise.");
+
+// [Ny, issue #397, 2026-10-27] Marker en aktør som duplikat ERSTATTET av en annen (eller angre med erstattetAvId = null). Ingenting slettes.
+app.MapPost("/api/virksomheter/{id:guid}/erstattet-av", async (Guid id, ErstattetAvRequest body, HttpRequest request, RegelIdeDbContext db,
+        CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var v = await AktorErstatning.SettAsync(db, id, body.ErstattetAvId, bruker.Navn, ct);
+            return v is null ? Results.NotFound(new { feil = $"Ingen aktør med id '{id}'." }) : Results.Ok(VirksomhetDto.FraEntitet(v));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithOpenApi()
+    .WithName("SettErstattetAv")
+    .WithSummary("Issue #397 — markerer aktøren som en duplikat erstattet av en annen ({ erstattetAvId }), eller angrer ({ erstattetAvId: null }). Ingenting slettes.");
 
 app.MapPost("/api/virksomheter", async (
     OpprettVirksomhetRequest body, RegelIdeDbContext db,

@@ -604,6 +604,9 @@ public sealed record StrukturkantDto(
 /// <summary>[Ny, issue #313 / #374] Kroppen til «avvis» (én eller alle per hjemmel): en valgfri begrunnelse.</summary>
 public sealed record AvvisStrukturkantRequest(string? Begrunnelse);
 
+/// <summary>[Ny, issue #397] Kroppen til «erstattet av»: den erstattende aktøren, eller null for å angre.</summary>
+public sealed record ErstattetAvRequest(Guid? ErstattetAvId);
+
 /// <summary>[Ny, issue #313 AC4] Forhåndsvisning av ett forslag: fra-nodens side, til-nodens side (null uten egen til-node) og rettskildesiden.</summary>
 public sealed record StrukturkantForhandsvisningDto(StrukturkantDto FraSide, StrukturkantDto? TilSide, StrukturkantDto Rettskildeside)
 {
