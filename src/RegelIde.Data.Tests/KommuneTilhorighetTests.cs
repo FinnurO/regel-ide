@@ -233,8 +233,10 @@ public class KommuneTilhorighetTests
         var skrevet = await tjeneste.ForeslaAsync(skriv: true, "test", [a, b]);
         Assert.Equal(2, skrevet.Nye);
         var kortform = await db.Begreper.AsNoTracking().SingleAsync(x => x.VirksomhetReferanseId == va && x.Navneformgrunn == "kortform");
-        Assert.Equal((navn, Strukturkanter.MaskineltForeslatt, Strukturkanter.EksterntDokumentert, Strukturkanter.Register),
+        // [ENDRET, juristrunden k2] Fortolkning: registeret navngir området; at rettssubjektet bærer navnet, er en slutning.
+        Assert.Equal((navn, Strukturkanter.MaskineltForeslatt, Strukturkanter.Fortolkning, Strukturkanter.Register),
             (kortform.Term, kortform.Godkjenning, kortform.Kunnskapsstatus, kortform.KildeUtenforKorpusType));
+        Assert.Equal(["kontekst_system"], kortform.Tolkningsargumenter!);
         Assert.Equal(KommuneKortformTjeneste.OppdagelsesKilde, kortform.OppdagelsesKilde);
 
         // Kjørt på nytt: ingenting nytt.
@@ -278,7 +280,12 @@ public class KommuneTilhorighetTests
             return (status, node);
         }
         Assert.Equal((Aktorstatus.Kjent, Kantnode.Begrep(omrade)), await KlassifiserAsync(rettskretser));
-        Assert.Equal(Aktorstatus.Flertydig, (await KlassifiserAsync(annen)).Status); // området og kommunen: ingen gjetting
+        // [Juristrunden k2] Et kortformforslag som ikke er vurdert, brukes ikke i oppslaget: uten binding treffer ordet bare området, som før.
+        Assert.Equal((Aktorstatus.Kjent, Kantnode.Begrep(omrade)), await KlassifiserAsync(annen));
+        // Godkjent kortform: området og kommunen har samme navn, og uten binding velges ingen (ingen gjetting).
+        kortform.Godkjenning = Strukturkanter.Godkjent;
+        await db.SaveChangesAsync();
+        Assert.Equal(Aktorstatus.Flertydig, (await KlassifiserAsync(annen)).Status);
 
         // En avvist binding brukes ikke: da er ordet flertydig også her.
         await generiske.AvvisAsync(binding.Id, "test", "test");

@@ -23,7 +23,9 @@ public sealed record KortformResultat(
 /// <b>Regelen.</b> For hver kommune med territoriekant (<see cref="OmraderegisterSeed"/> steg 2: Enhetsregisteret KOMM ↔ kommunenummer) er
 /// kortformen områdets navn i Kartverkets inndeling (<c>kommunenavnNorsk</c>) — teksten kommer fra registeret, den lages ikke ved å kutte
 /// ord av registernavnet (CLAUDE.md §8: «Statsforvalteren i innlandet»). Kunnskapsstatus <c>eksternt_dokumentert</c> (registeret er kilden),
-/// godkjenning <c>maskinelt_foreslatt</c>: forslag, ikke godkjent. Oppdagelseskilde <see cref="OppdagelsesKilde"/>.
+/// godkjenning <c>maskinelt_foreslatt</c>: forslag, ikke godkjent. [ENDRET, juristrunden #390 k2] Kunnskapsstatus er <c>fortolkning</c>, ikke
+/// eksternt dokumentert (se <see cref="Begrunnelse"/>). Et kortformforslag brukes ikke i navneoppslaget før det er vurdert
+/// (<see cref="VirksomhetOppslagTjeneste"/>). Oppdagelseskilde <see cref="OppdagelsesKilde"/>.
 /// </para>
 /// <para>
 /// <b>Hoppes over:</b> kommunen har alt en gjeldende navneform med samme tekst (stor/liten bokstav likegyldig), eller et menneske har avvist
@@ -37,6 +39,11 @@ public sealed record KortformResultat(
 public sealed class KommuneKortformTjeneste(RegelIdeDbContext db)
 {
     public const string OppdagelsesKilde = "register:kartverket-kommunenavn";
+
+    /// <summary>[Ny, juristrunden #390 k2] Begrunnelsen for kunnskapsstatus fortolkning.</summary>
+    public const string Begrunnelse = "Kortform: kommunenavnet uten «kommune» (#390). Kartverket navngir kommuneområdet, og Enhetsregisteret knytter "
+        + "rettssubjektet til kommunenummeret; at rettssubjektet bærer områdets navn, er en slutning (kommuneloven § 3-1). Hva ordet viser til i "
+        + "en rettskilde (kommunen eller området), avgjøres av en binding eller konteksten.";
 
     /// <param name="kommunenumre">Bare disse kommunene (null = alle). Kollisjonene sjekkes uansett mot hele basen.</param>
     public async Task<KortformResultat> ForeslaAsync(bool skriv, string bruker, IReadOnlyCollection<string>? kommunenumre = null, CancellationToken ct = default)
@@ -128,15 +135,17 @@ public sealed class KommuneKortformTjeneste(RegelIdeDbContext db)
                     Navneformgrunn = "kortform",
                     Term = x.Term,
                     Status = "publisert",
-                    Kunnskapsstatus = Strukturkanter.EksterntDokumentert,
+                    // [ENDRET, juristrunden #390 k2] Fortolkning, ikke eksternt dokumentert: Kartverket navngir kommuneOMRÅDET og
+                    // Enhetsregisteret gir orgnr og kommunenummer. At rettssubjektet bærer områdets navn, er en slutning (kommuneloven § 3-1).
+                    Kunnskapsstatus = Strukturkanter.Fortolkning,
+                    Tolkningsargumenter = ["kontekst_system"],
                     KildeUtenforKorpusType = Strukturkanter.Register,
                     KildeUtenforKorpusDokumentasjon = Strukturkanter.Primaer,
                     KildeUtenforKorpusTekst = $"Kartverket kommuneinfo: kommunenavnNorsk «{x.Term}» for kommune {x.Kode} (øyeblikksbildet i Seed/kartverket-fylker-kommuner.json, hentet 2026-10-08); "
                         + $"Enhetsregisteret: organisasjonsform KOMM {x.Orgnr} har kommunenummer {x.Kode}",
                     KildeUtenforKorpusLenker = ["https://ws.geonorge.no/kommuneinfo/v1/fylkerkommuner",
                         .. x.Orgnr is null ? Array.Empty<string>() : [$"https://data.brreg.no/enhetsregisteret/api/enheter/{x.Orgnr}"]],
-                    Begrunnelse = "Kortform: kommunenavnet uten «kommune», slik registeret skriver det (#390). Hva ordet viser til i en rettskilde "
-                        + "(kommunen eller området), avgjøres av en binding eller konteksten.",
+                    Begrunnelse = Begrunnelse,
                     Godkjenning = Strukturkanter.MaskineltForeslatt,
                     OppdagelsesKilde = OppdagelsesKilde,
                     OpprettetAv = bruker,
@@ -144,6 +153,23 @@ public sealed class KommuneKortformTjeneste(RegelIdeDbContext db)
                 };
                 db.Begreper.Add(b);
                 db.Proveniens.Add(ProveniensHjelper.NyRad("begrep", b.Id, virksomhetId: null, "foreslatt", bruker));
+            }
+            // [Ny, juristrunden #390 k2] Forslag fra første kjøring (eksternt dokumentert) rettes på raden til fortolkning. Bare forslag som
+            // ingen har vurdert; en proveniensrad per rad.
+            var gamle = await db.Begreper.Where(b => b.OppdagelsesKilde == OppdagelsesKilde && b.Godkjenning == Strukturkanter.MaskineltForeslatt
+                                                     && b.Kunnskapsstatus == Strukturkanter.EksterntDokumentert).ToListAsync(ct);
+            foreach (var b in gamle)
+            {
+                b.Kunnskapsstatus = Strukturkanter.Fortolkning;
+                b.Tolkningsargumenter = ["kontekst_system"];
+                b.Begrunnelse = Begrunnelse;
+                var prov = ProveniensHjelper.NyRad("begrep", b.Id, virksomhetId: null, "endret", bruker);
+                prov.KildeReferanserJson = System.Text.Json.JsonSerializer.Serialize(new
+                {
+                    felt = "kunnskapsstatus", fra = Strukturkanter.EksterntDokumentert, til = Strukturkanter.Fortolkning, issue = 390,
+                    merknad = "Juristrunden k2: registeret navngir området; at rettssubjektet bærer navnet, er en slutning.",
+                });
+                db.Proveniens.Add(prov);
             }
             await db.SaveChangesAsync(ct);
         }

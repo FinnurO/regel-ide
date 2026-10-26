@@ -1,0 +1,73 @@
+[
+  {
+    "id": "k1",
+    "dom": "holder",
+    "gjelder": "raden",
+    "alvor": null,
+    "innvending": "Bindingen holder. «Dekker kommunene Alta …» er en romlig angivelse. Forskriften § 1 første ledd sier at en rettskrets «dekker én eller flere kommuner», og domstolloven § 16 første ledd taler om rikets inndeling i lagdømmer og rettskretser. Ordet angir derfor området, ikke rettssubjektet. «Rettssteder i Alta» er et stedsuttrykk. At rettsstedet kobles til samme kommuneområde, følger regelen fra #312. Kunnskapsstatus fortolkning er riktig: forskriften definerer ikke ordet, så det er ikke tekstfunn. Merknader som ikke endrer dommen: (1) Begrunnelsen blir sterkere med § 1 første ledd og stadnamnlova § 2 bokstav a, der et kommunenavn er et stadnamn for et «administrativt område». Begge hører til kontekst_system. (2) Bindingen følger verket over versjoner (#384). Alta hadde nummer 5403 i 2020–2023 og har 5601 nå. Det går bra så lenge områdenoden har samme identitet og kommunenummeret bare er et attributt (docs/33 §4.1). For kommuner som er delt eller slått sammen, må tilsvarende bindinger ha gyldighet [slutning]. (3) docs/33 §5.7 sier fortsatt at en bindings referent er «virksomhet, eller begrep av typen klasse eller rolle». At en kortform kan bindes til et område (commit c98b735), står ikke i dokumentet.",
+    "retting": null,
+    "ny_rad": null,
+    "kilder": [
+      {"ref": "FOR-2021-01-22-163 § 2 første ledd nr. 1 (korpus, rettskilde 3db93353)", "funksjon": "direkte_hjemmel"},
+      {"ref": "FOR-2021-01-22-163 § 1 første ledd: «Hver rettskrets har en tingrett … som dekker én eller flere kommuner»", "funksjon": "forutsatt_kilde"},
+      {"ref": "domstolloven § 16 første ledd", "funksjon": "forutsatt_kilde"},
+      {"ref": "stadnamnlova § 2 bokstav a (kommunenavn er stadnamn for et administrativt område), Lovdata, versjon fra 2021-06-01", "funksjon": "forutsatt_kilde"},
+      {"ref": "docs/33 §4.1 (#312: rettsstedet er kommunenoden), §5.7 (#384: bindingen følger verket)", "funksjon": "forutsatt_kilde"}
+    ]
+  },
+  {
+    "id": "k2",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "middels",
+    "innvending": "(1) Statusen viser en slutning som om den var et registerfaktum. Kartverkets kommunenavn er navnet på det administrative OMRÅDET med kommunenummeret: kommunenavnet er et stadnamn etter stadnamnlova § 2 bokstav a og vedtas av Kongen etter kommuneloven § 3-1 tredje ledd. Enhetsregisteret oppgir «ALTA KOMMUNE» med kommunenummer. Ingen av registrene sier at rettssubjektet 944588132 heter «Alta». Navneformen bygger altså på to premisser: områdets navn og territoriekanten. Etter regelen om svakeste premiss (docs/33 §4.6) er det en avledning, ikke eksternt_dokumentert. CHECK-en på begreper tillater ikke `avledet` for navneformer. Det er en mangel i formatet, og nærmeste lovlige verdi er fortolkning med premissene i begrunnelsen. (2) Premisset i #390, at ordet betyr «kommunen i andre rettskilder», stemmer ikke med korpuset. Av de 16 gjeldende rettskildene med «Alta» brukes ordet alene om sted eller område i 15: politidistriktsforskriften, valgloven § 11-1, sameloven § 2-4, jordskifteinndelingen, fiskeriforskriften, satsforskriftene, «studiested Alta», «Rafsbotn i Alta», havnelisten i lospliktforskriften og trekningskretsene. Ellers inngår ordet i et annet navn, som «Alta politistasjon» og «A/L Alta Skiferbrudd». Bare tabellen over konstitueringsdatoer i ikrafttredelsesmeddelelsen til kommuneloven kan leses som kommunen som organisasjon. Der kommunen som enhet er ment, skrives «Alta kommune». (3) Virkning: klassifisereren (`Aktorklassifiserer.GrunnlagAsync`) filtrerer navneformer bare på entitetsstatus, ikke på godkjenning. De 209 ikke-vurderte forslagene gjør derfor at kommunenavn som før traff bare området («Fjord», «Sel», «Os», «Nes» …), nå gir «flertydig» i hele korpuset. Det skjer uten at noen binding er laget, unntatt for Alta. Det er ikke gjetting, men et maskinelt forslag svekker et oppslag som var riktig. Det strider mot prinsippet om at bare vurderte utsagn virker i oppslaget. (4) Grunnen «kortform» er en etikett, ikke en feil. Rettslig er «Alta» kommunenavnet (kommuneloven § 3-1 tredje ledd), og «Alta kommune» er navnet med kategoriord.",
+    "retting": {
+      "kilde": "Kartverket kommuneinfo (kommunenavnNorsk/gyldigeNavn) dokumenterer navnet på kommuneOMRÅDET (stadnamnlova § 2 bokstav a; vedtatt etter kommuneloven § 3-1 tredje ledd). Enhetsregisteret (KOMM) dokumenterer orgnr og kommunenummer. At rettssubjektet bærer navnet, er en slutning via territoriekanten.",
+      "kunnskapsstatus": "fortolkning (ordlyd: kommuneloven § 3-1 tredje ledd om «kommunenavn»; kontekst_system: områdenavnet og territoriekanten som premisser). Riktig status er avledet, men skjemaet for navneformer har ikke den verdien (mangel i formatet).",
+      "godkjenning": "maskinelt_foreslatt. Forslaget skal ikke telle som treff i aktøroppslaget før det er godkjent eller faglig vurdert, slik at et kommunenavn som i dag treffer bare området, ikke blir flertydig av et forslag som ikke er vurdert."
+    },
+    "ny_rad": null,
+    "kilder": [
+      {"ref": "kommuneloven § 3-1 tredje ledd (Lovdata, sist endret LOV-2025-06-20-96 fra 01.01.2026)", "funksjon": "direkte_hjemmel"},
+      {"ref": "stadnamnlova § 2 bokstav a (Lovdata, versjon fra 2021-06-01; i korpus som §2/ledd-1/punkt-1)", "funksjon": "direkte_hjemmel"},
+      {"ref": "kommuneloven § 2-1 første og andre ledd (inndeling og rettssubjekt)", "funksjon": "forutsatt_kilde"},
+      {"ref": "docs/33 §4.6 (svakeste premiss) og §5.8 (navneformen som modellutsagn)", "funksjon": "forutsatt_kilde"},
+      {"ref": "Korpusmåling 2026-10-26: forekomster av «Alta» som eget ord i gjeldende rettskilder (lokal regelide)", "funksjon": "forutsatt_kilde"},
+      {"ref": "src/RegelIde.Data/Strukturkonvertering/StrukturforslagTjeneste.cs, Aktorklassifiserer.GrunnlagAsync (ingen filtrering på godkjenning)", "funksjon": "forutsatt_kilde"}
+    ]
+  },
+  {
+    "id": "k3",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "lav",
+    "innvending": "De fire tilfellene stemmer. Herøy har 1515 og 1818, Våler har 3114 og 3419, og Oslo har både kommune 0301 og fylke 03. For Oslo støttes det av kommuneloven § 3-1 første ledd: «Hvert fylke unntatt Oslo utgjør en fylkeskommune». Det finnes altså ingen fylkeskommune-aktør Oslo, og det er tre referenter: kommunen, kommuneområdet og fylket. I klassifisereren treffer ordet også sitt eget område, så alt blir flertydig uten binding, og ingenting velges. Innvendingen gjelder hvor fullstendig sjekken er, og påstanden om at «Bø» ikke er en kollisjon. (a) Sjekken gjøres mot dagens inndeling, mens bindingene følger verket gjennom eldre versjoner (#384), og korpuset har eldre versjoner. Navn som før 2020 tilhørte en annen kommune, er ikke med: Bø i Telemark, Os i Hordaland, Nes i Buskerud og Sande i Vestfold [slutning; ikke målt i korpus]. (b) Klassifisereren skiller ikke mellom store og små bokstaver (ToLower). Kortformer som også er vanlige ord, bør derfor listes som kollisjon med et fellesord: Time, Sel, Nes, Ås, Fjord, Os, Vik og Lund. Risikoen er liten fordi bare ord som er trukket ut som aktører, slås opp. Den er likevel reell for KI-laget.",
+    "retting": {
+      "ikke_kollisjon": "Kommunens eget territorium regnes ikke som kollisjon. «Bø» finnes bare én gang i DAGENS inndeling. Sjekken dekker ikke eldre inndelinger og bør utvides: kortformer med samme tekst som et tidligere kommunenavn (Bø, Os, Nes, Sande før 2020) og kortformer som også er et vanlig ord (Time, Sel, Nes, Ås, Fjord, Os, Vik, Lund) listes som kollisjoner."
+    },
+    "ny_rad": null,
+    "kilder": [
+      {"ref": "kommuneloven § 3-1 første ledd", "funksjon": "direkte_hjemmel"},
+      {"ref": "docs/33 §4.1 (#312: identitet (type, kode), Herøy/Våler/Oslo) og §5.7 (#384: bindingen følger verket)", "funksjon": "forutsatt_kilde"},
+      {"ref": "src/RegelIde.Data/KommuneKortformTjeneste.cs (kollisjoner bare mot gjeldende begreper og virksomheter)", "funksjon": "forutsatt_kilde"},
+      {"ref": "Tidligere kommunenavn i korpusets eldre versjoner", "funksjon": "ikke_funnet"}
+    ]
+  },
+  {
+    "id": "k4",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "lav",
+    "innvending": "Premisset «registeret gir bare det norske navnet» stemmer ikke. Kartverkets kommuneinfo har feltet gyldigeNavn med språk og prioritet. Kontrollert 2026-10-26: 5622 har Porsanger, Porsáŋgu og Porsanki, og 5603 har Hammerfest og Hámmerfeasta. Øyeblikksbildet mangler dem fordi det ble hentet med filtrer=…kommunenavnNorsk (Seed/kartverket-fylker-kommuner.json). Det er altså et hull i dataene, ikke en regel. Rettslig skal samiske og kvenske navn «til vanleg brukast av det offentlege … i register saman med eventuelt norsk namn» (stadnamnlova § 11 andre ledd), og alle navnene skal brukes (stadnamnforskrifta § 7 første ledd). Regelen bør derfor stå som et kjent hull som tettes ved å fornye øyeblikksbildet med gyldigeNavn. Det er riktig at kortformen ikke lages ved å kutte de 41 navneformene: de er organisasjonsnavn i genitiv («Kárášjoga gielda», «Álttá suohkan»), og å kutte ville gitt feil ord. Eksempelet «Álttá» er misvisende. Kartverket har ikke noe samisk kommunenavn for 5601, så den kortformen ville ikke vært dokumentert uansett. Kontrollpunkt: forskriften bruker sammensatte former («Porsáŋgu/Porsanger/Porsanki», «Hámmerfeasta/Hammerfest»). Det må sjekkes om en binding på kortformen «Porsanger» dekker en tekstform som er hele den sammensatte formen.",
+    "retting": {
+      "regel": "Kortform foreslås for hvert gyldig navn i Kartverkets gyldigeNavn (norsk, samisk, kvensk) for kommunenummeret. Hvert navn får språk som attributt og samme status og godkjenning som den norske kortformen. Til øyeblikksbildet er fornyet med gyldigeNavn, listes de 41 kommunene med parallellnavn som kjent hull. Kortform lages aldri ved å kutte «suohkan», «gielda», «tjïelte» eller «komuuni» fra navneformene (genitiv)."
+    },
+    "ny_rad": null,
+    "kilder": [
+      {"ref": "stadnamnlova § 11 andre ledd", "funksjon": "direkte_hjemmel"},
+      {"ref": "forskrift om stadnamn (FOR-2017-05-23-638) § 7 første og tredje ledd", "funksjon": "forutsatt_kilde"},
+      {"ref": "Kartverket kommuneinfo v1, /kommuner/5622, /5603, /5601 (gyldigeNavn), hentet 2026-10-26", "funksjon": "forutsatt_kilde"},
+      {"ref": "src/RegelIde.Data/Seed/kartverket-fylker-kommuner.json (_url med filtrer=…kommunenavnNorsk)", "funksjon": "forutsatt_kilde"}
+    ]
+  }
+]
