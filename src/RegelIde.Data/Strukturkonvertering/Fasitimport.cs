@@ -361,7 +361,7 @@ public sealed partial class StrukturforslagTjeneste
             // [Ny, Johanns avgjørelse 2026-10-26 på #387] Lav sikkerhet i fasiten = annotatøren var usikker. Raden er da ikke faglig vurdert:
             // den blir et manuelt forslag med kunnskapsstatus uavklart (eller omstridt, om et premiss er det), og vurderes i forslagskøen.
             var lav = u.Sikkerhet == "lav";
-            if (lav && Svakestepremiss.Rang(ks) < Svakestepremiss.Rang(Strukturkanter.Uavklart))
+            if (lav && (ks is null || Svakestepremiss.Rang(ks) < Svakestepremiss.Rang(Strukturkanter.Uavklart)))
             {
                 begrunnelse = $"Fasiten markerer sikkerhet lav (annotatøren var usikker){(ks is null ? "" : $"; fasitens kunnskapsstatus var {ks}")}"
                     + $"{(begrunnelse is null ? "" : $" ({begrunnelse})")}. Johanns avgjørelse 2026-10-26 på #387: manuelt forslag, vurderes i forslagskøen.";

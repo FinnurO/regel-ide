@@ -209,18 +209,23 @@ public class FasitimportTests
             OppdagelsesKilde: "fasit:test:l1", Kunnskapsstatus: "normalisering", Begrunnelse: "regel z"), "Test")).Kant;
         var l1 = new StrukturUtsagn("l1", node.Eid, sitat, "kompetanse", "tilsynskompetanse", "o", null, "salg", "positiv", null, false, false, "lav", "")
             { Kunnskapsstatus = "normalisering", Begrunnelse = "regel z" };
-        var fil = Fil(eli, [A("o", organ.Navn)], [l1]);
+        // Uten vurdert kunnskapsstatus i fasiten blir den også uavklart (ikke NULL): raden er uavklart, ikke «ikke vurdert».
+        var l2 = new StrukturUtsagn("l2", node.Eid, sitat, "kompetanse", "tilsynskompetanse", "o", null, "skjenking", "positiv", null, false, false, "lav", "");
+        var fil = Fil(eli, [A("o", organ.Navn)], [l1, l2]);
         var laster = NyLaster(db);
 
         var r = await laster.ImporterFasitAsync(fil, false, false, "Test");
-        var rad = r.Rader.Single();
-        Assert.Equal((Fasitutfall.Oppdatert, "uavklart", 1), (rad.Utfall, rad.Kunnskapsstatus, r.LavSikkerhetSomForslag));
+        var rad = r.Rader.Single(x => x.UtsagnId == "l1");
+        Assert.Equal((Fasitutfall.Oppdatert, "uavklart", 2), (rad.Utfall, rad.Kunnskapsstatus, r.LavSikkerhetSomForslag));
+        var rad2 = r.Rader.Single(x => x.UtsagnId == "l2");
+        var kant2 = await db.Strukturkanter.SingleAsync(k => k.Id == rad2.KantId);
+        Assert.Equal((Fasitutfall.Ny, "manuelt_foreslatt", "uavklart"), (rad2.Utfall, kant2.Status, kant2.Kunnskapsstatus));
         var ny = await db.Strukturkanter.SingleAsync(k => k.Id == rad.KantId);
         Assert.Equal(("manuelt_foreslatt", "uavklart", "fasit:test:l1", gammel.Id), (ny.Status, ny.Kunnskapsstatus, ny.OppdagelsesKilde, ny.ErstatterKantId!.Value));
         Assert.Contains("sikkerhet lav", ny.Begrunnelse);
         Assert.Equal("foreldet", (await db.Strukturkanter.IgnoreQueryFilters().SingleAsync(k => k.Id == gammel.Id)).Entitetsstatus);
 
-        Assert.Equal(Fasitutfall.Uendret, (await laster.ImporterFasitAsync(fil, false, false, "Test")).Rader.Single().Utfall);
+        Assert.All((await laster.ImporterFasitAsync(fil, false, false, "Test")).Rader, x => Assert.Equal(Fasitutfall.Uendret, x.Utfall));
     }
 
     [Fact]
