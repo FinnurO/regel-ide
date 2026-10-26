@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Forslag til norsk profil — DigRett showcase</title>
-<meta name="description" content="Forslag til norsk profil for maskinlesbar rett: hva det er og ikke er, hvilke internasjonale standarder det bygger på, rettslig metode og status for hvert utsagn, og hva som er planlagt i DigRett.">
+<meta name="description" content="Forslag til norsk profil for maskinlesbar rett: hva det er og ikke er, hvilke internasjonale standarder det bygger på, rettslig metode og status for hvert utsagn, og hva som er bygget og planlagt i DigRett.">
 <link rel="canonical" href="https://finnuro.github.io/regel-ide/profil/">
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="../assets/css/fonts.css">
@@ -64,9 +64,9 @@
 
   <div class="wrap">
     <div class="purpose-box">
-      <span class="purpose-box__label">Status per 15. oktober 2026</span>
+      <span class="purpose-box__label">Status per 27. oktober 2026</span>
       <div class="purpose-box__pills">
-        <span class="pill" data-tone="warning">Forslag, ikke vedtatt</span><span class="pill" data-tone="warning">Endringene i DigRett er planlagt, ikke bygget</span>
+        <span class="pill" data-tone="warning">Forslag, ikke vedtatt</span><span class="pill" data-tone="success">Utvidelse 1–4 er bygget i DigRett</span><span class="pill" data-tone="warning">Kravsrett og eksport er ikke bygget</span>
       </div>
       <p>Grunnlaget er et forslag fra fagansvarlig Finnur Olafsson, revidert 9. oktober 2026. Dokumentene er arbeidsutkast. Ingen organisasjon har gitt profilen formell status, og den kalles derfor «forslag til norsk profil». DigRett (kildekoden heter regel-ide) er utprøvingsarena og kandidatreferanseimplementasjon. Det betyr at den prøver å følge forslaget, men ennå ikke er vist å gjøre det.</p>
     </div>
@@ -272,7 +272,7 @@
             <tr><th scope="row">Kompetanse</th><td>UFO-L: power, med subjection hos motparten</td><td>Delvis. Ikke bruk LegalRuleML <code>Authority</code></td></tr>
             <tr><th scope="row">«Kan ikke» (negativ kompetanse)</th><td>UFO-L: disability, med immunity hos motparten</td><td>Delvis. Skilles fra forbud ved eksport</td></tr>
             <tr><th scope="row">Plikt overfor en motpart</th><td>UFO-L: duty</td><td>Nært beslektet. Ikke et krav for motparten uten videre</td></tr>
-            <tr><th scope="row">Oppgave eller funksjon (planlagt)</th><td>LKIF Core: Function</td><td>Nært beslektet. Ingen motpart i UFO-L eller LegalRuleML</td></tr>
+            <tr><th scope="row">Oppgave eller funksjon (kategori F)</th><td>LKIF Core: Function</td><td>Nært beslektet. Ingen motpart i UFO-L eller LegalRuleML</td></tr>
           </tbody>
         </table>
       </div>
@@ -409,7 +409,7 @@
             <text class="nf-tekst" x="150" y="376">faglig vurdert</text>
             <text class="nf-tekst" x="150" y="394">godkjent · avvist</text>
           </svg>
-          <figcaption>To spørsmål som holdes fra hverandre. Et godkjent utsagn kan ha status fortolkning, og et tekstfunn kan være ikke vurdert. Begge feltene er planlagt i <a href="https://github.com/FinnurO/regel-ide/issues/367" target="_blank" rel="noopener">#367</a>, ikke bygget.</figcaption>
+          <figcaption>To spørsmål som holdes fra hverandre. Et godkjent utsagn kan ha status fortolkning, og et tekstfunn kan være ikke vurdert. Begge feltene er bygget i DigRett (<a href="https://github.com/FinnurO/regel-ide/issues/367" target="_blank" rel="noopener">#367</a>). Utsagn som fantes fra før, står som «ikke vurdert» til et menneske har vurdert dem.</figcaption>
         </figure>
         <div class="prose">
           <h3>Fire regler som følger av statusen</h3>
@@ -419,6 +419,7 @@
             <li><strong>Uenighet bevares.</strong> Trekker kildene i ulike retninger, står alle tolkningene med status omstridt. Ingen av dem velges i stillhet.</li>
             <li><strong>«Ikke funnet» er ikke «finnes ikke».</strong> At modellen ikke finner hjemmel, betyr ikke at handlingen er forbudt eller at myndigheten mangler.</li>
           </ul>
+          <p>Et helt eksempel: <a href="../strukturmodell/#departementet">Hvem er «departementet»?</a> følger ordet i reindriftsloven § 82 a til aktøren. Der vises binding, standardregel, sekundær kilde og premiss, med statusen for hvert ledd.</p>
         </div>
       </div>
     </div>
@@ -500,30 +501,30 @@
   <section class="section" id="endringer">
     <div class="wrap">
       <div class="section-head">
-        <span class="kicker">Hva som endres i DigRett <span class="pill" data-tone="warning">Planlagt, ikke bygget</span></span>
+        <span class="kicker">Hva som endres i DigRett <span class="pill" data-tone="success">Punkt 1–4 bygget i oktober 2026</span> <span class="pill" data-tone="warning">Punkt 5 og eksport ikke bygget</span></span>
         <h2>Grunnarkitekturen holder, men trenger fem utvidelser</h2>
-        <p>Arkitekturvurderingen konkluderer med at DigRett ikke må bygges om. Hver kobling i strukturmodellen har allerede hjemmel, avgrensning, gyldighet, status og opphav, og er i praksis et utsagn med grunnlag. Det som mangler, er dette:</p>
+        <p>Arkitekturvurderingen konkluderer med at DigRett ikke må bygges om. Hver kobling i strukturmodellen har allerede hjemmel, avgrensning, gyldighet, status og opphav, og er i praksis et utsagn med grunnlag. Det som manglet, er dette. De fire første er bygget:</p>
       </div>
       <div class="nytt-kort-grid">
         <div class="nytt-kort">
           <h3>1. Kunnskapsstatus og godkjenning</h3>
           <p>Hvert utsagn får en av de åtte statusene, og godkjenning blir et eget felt. Eksisterende utsagn får ikke en gjettet status. De vises som «ikke vurdert» til de er vurdert.</p>
-          <p class="status">Planlagt i <a href="https://github.com/FinnurO/regel-ide/issues/367" target="_blank" rel="noopener">#367</a>, sammen med delegeringsadgang fra #335.</p>
+          <p class="status">Bygget i <a href="https://github.com/FinnurO/regel-ide/issues/367" target="_blank" rel="noopener">#367</a>, sammen med delegeringsadgang fra #335 (<a href="https://github.com/FinnurO/regel-ide/pull/373" target="_blank" rel="noopener">PR #373</a>, 15. oktober 2026).</p>
         </div>
         <div class="nytt-kort">
           <h3>2. Analysehistorikk</h3>
           <p>En revidert analyse gir en ny rad, og den gamle blir foreldet i stedet for å slettes. Begrunnelse og tolkningsargumenter lagres, en slutning peker på premissene sine, og to omstridte tolkninger kan stå side om side.</p>
-          <p class="status">Planlagt i <a href="https://github.com/FinnurO/regel-ide/issues/367" target="_blank" rel="noopener">#367</a>.</p>
+          <p class="status">Bygget i <a href="https://github.com/FinnurO/regel-ide/issues/367" target="_blank" rel="noopener">#367</a> (<a href="https://github.com/FinnurO/regel-ide/pull/373" target="_blank" rel="noopener">PR #373</a>).</p>
         </div>
         <div class="nytt-kort">
           <h3>3. Versjonert hjemmel</h3>
           <p>Hjemmelen peker på den versjonen av lovteksten analysen bygger på. Endres teksten, blir utsagnet flagget «hjemmel endret, vurder på nytt». Ingenting endres automatisk.</p>
-          <p class="status">Planlagt i <a href="https://github.com/FinnurO/regel-ide/issues/367" target="_blank" rel="noopener">#367</a>.</p>
+          <p class="status">Bygget i <a href="https://github.com/FinnurO/regel-ide/issues/367" target="_blank" rel="noopener">#367</a> (<a href="https://github.com/FinnurO/regel-ide/pull/373" target="_blank" rel="noopener">PR #373</a>).</p>
         </div>
         <div class="nytt-kort">
           <h3>4. Oppgave eller funksjon (kategori F)</h3>
-          <p>«Skal samordne», «sørge for», «forvalte», «føre oversikt» og «være sekretariat» presses i dag inn som myndighet, plikt eller relasjon. En oppgave blir et eget begrep, og den gir aldri myndighet eller plikt i seg selv. Ingenting flyttes før kandidatene er vurdert i en juristrunde.</p>
-          <p class="status">Planlagt i <a href="https://github.com/FinnurO/regel-ide/issues/368" target="_blank" rel="noopener">#368</a>.</p>
+          <p>«Skal samordne», «sørge for», «forvalte», «føre oversikt» og «være sekretariat» ble tidligere presset inn som myndighet, plikt eller relasjon. En oppgave blir et eget begrep, og den gir aldri myndighet eller plikt i seg selv. Ingenting flyttes før kandidatene er vurdert i en juristrunde.</p>
+          <p class="status">Bygget i <a href="https://github.com/FinnurO/regel-ide/issues/368" target="_blank" rel="noopener">#368</a> (<a href="https://github.com/FinnurO/regel-ide/pull/381" target="_blank" rel="noopener">PR #381</a>, 15. oktober 2026). Juristrunden er gjort, og ingen kant ble flyttet automatisk.</p>
         </div>
         <div class="nytt-kort">
           <h3>5. Plikt er ikke kravsrett</h3>
@@ -537,7 +538,7 @@
         </div>
       </div>
       <div class="prose struktur-etter-tabell">
-        <p>Fagansvarlig besluttet 15. oktober 2026 at punkt 1–3 bygges i én migrasjon (<a href="https://github.com/FinnurO/regel-ide/issues/367" target="_blank" rel="noopener">#367</a>), og at oppgave eller funksjon blir et eget begrep (<a href="https://github.com/FinnurO/regel-ide/issues/368" target="_blank" rel="noopener">#368</a>). Det som <strong>ikke</strong> endres: myndighet, plikt og relasjon holdes fra hverandre, kompetansefamiliene står, og prinsippet om å ikke gjette gjelder fortsatt.</p>
+        <p>Fagansvarlig besluttet 15. oktober 2026 at punkt 1–3 bygges i én migrasjon (<a href="https://github.com/FinnurO/regel-ide/issues/367" target="_blank" rel="noopener">#367</a>), og at oppgave eller funksjon blir et eget begrep (<a href="https://github.com/FinnurO/regel-ide/issues/368" target="_blank" rel="noopener">#368</a>). Begge ble bygget og flettet samme dag. Det som <strong>ikke</strong> endres: myndighet, plikt og relasjon holdes fra hverandre, kompetansefamiliene står, og prinsippet om å ikke gjette gjelder fortsatt.</p>
       </div>
       <ul class="source-list struktur-lenker">
         <li><span class="dot" aria-hidden="true"></span><span><a href="https://github.com/FinnurO/regel-ide/blob/HEAD/docs/profil/README.md" target="_blank" rel="noopener">Profilmappen (docs/profil)</a><span class="desc">Oversikt over dokumentene, terminologien og rangordningen.</span></span></li>
