@@ -15,6 +15,7 @@ export function generiskKildeTekst(kilde: 'binding' | 'regel' | null | undefined
   if (kilde === 'regel' && regel) {
     if (regel.rute === 'ressortfordeling') return 'standardregel: ressortfordelingen';
     if (regel.rute === 'lovdata') return 'standardregel: Lovdata, sekundær kilde';
+    if (regel.rute === 'lovdata_utgatt_navn') return 'standardregel: Lovdata, sekundær kilde, utgått navn';
     return 'standardregel';
   }
   return 'ikke avklart';
@@ -42,9 +43,12 @@ export function GeneriskKildeTagger({ oppslag }: { oppslag: Pick<GeneriskTaggOpp
         <Tag data-size="sm" data-color="neutral" title={`${regel.regelnavn}: ${regel.forklaring}${regel.merknader.length ? ` ${regel.merknader.join(' ')}` : ''}`}>
           Standardregel
         </Tag>
+        {/* [ENDRET, Johanns beslutning på PR #398] Et utgått navn i Lovdatas felt, ført til aktøren via navnehistorikken, sier det i merket. */}
         {regel.dokumentasjon === 'sekundaer' && (
-          <Tag data-size="sm" data-color="warning" title="Svaret bygger på Lovdatas felt «Ansvarlig departement», ikke på en vurdert ressortfordeling.">
-            Sekundær kilde
+          <Tag data-size="sm" data-color="warning" title={regel.rute === 'lovdata_utgatt_navn'
+            ? 'Lovdatas felt «Ansvarlig departement» bruker et utgått navn; navnehistorikken fra organiseringsvedtakene fører det til dette departementet.'
+            : 'Svaret bygger på Lovdatas felt «Ansvarlig departement», ikke på en vurdert ressortfordeling.'}>
+            {regel.rute === 'lovdata_utgatt_navn' ? 'Sekundær kilde, utgått navn' : 'Sekundær kilde'}
           </Tag>
         )}
       </>

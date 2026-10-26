@@ -23,6 +23,9 @@ public static class StandardregelRute
     public const string Ressortfordeling = "ressortfordeling";
     /// <summary>Lovdatas felt «Ansvarlig departement». Sekundær kilde, brukt bare når ressortfordelingen ikke gir et vurdert svar.</summary>
     public const string Lovdata = "lovdata";
+    /// <summary>[Ny, Johanns beslutning på PR #398 2026-10-26] Lovdatas felt bruker et UTGÅTT navn, og navnehistorikken fra
+    /// organiseringsvedtakene (#395) fører det til nøyaktig ett levende departement. Sekundær kilde, utgått navn.</summary>
+    public const string LovdataUtgattNavn = "lovdata_utgatt_navn";
     /// <summary>En fast referent (en klasse): «kommunen» → klassen kommune.</summary>
     public const string FastReferent = "fast_referent";
 }
@@ -36,7 +39,7 @@ public static class StandardregelUtfall
 }
 
 /// <summary>Ett premiss et standardregelsvar bygger på. <see cref="Type"/>: <c>ressortkant</c> (F forvaltning; <see cref="KantId"/> og
-/// <see cref="Status"/> er kantens), <c>lovdata_felt</c> (Lovdatas «Ansvarlig departement»), <c>klasse</c> (den faste referenten, med
+/// <see cref="Status"/> er kantens), <c>lovdata_felt</c> (Lovdatas «Ansvarlig departement»), <c>navnehistorikk</c> (en navneform med samme navn, #395), <c>klasse</c> (den faste referenten, med
 /// klassens hjemmel).</summary>
 public sealed record StandardregelPremiss(
     string Type, string Tekst, Guid? KantId = null, string? Status = null, string? Kunnskapsstatus = null,
@@ -59,7 +62,7 @@ public sealed record StandardregelSvar(
 
 /// <summary>Andelen rettskilder der ordet står, per utfall og rute — målingen i PR-en og på oversikten.</summary>
 public sealed record StandardregelDekning(
-    string Term, int Rettskilder, int Ressortfordeling, int Lovdata, int FastReferent, int IkkeLost, int Flertydig,
+    string Term, int Rettskilder, int Ressortfordeling, int Lovdata, int LovdataUtgattNavn, int FastReferent, int IkkeLost, int Flertydig,
     int RessortforslagVenter, IReadOnlyDictionary<string, int> IkkeLostGrunner, IReadOnlyList<StandardregelDekningRad> Eksempler);
 
 public sealed record StandardregelDekningRad(Guid RettskildeId, string Tittel, string Utfall, string? Rute, string? Referent, string Forklaring);
@@ -78,7 +81,11 @@ public sealed record StandardregelDekningRad(Guid RettskildeId, string Tittel, s
 /// <item>Ellers Lovdatas felt, når det oppgir nøyaktig ett departement som finnes i katalogen i dag (<see cref="VirksomhetOppslagTjeneste"/>,
 /// som aldri treffer et nedlagt departement). Sekundær kilde. Står det en ressortkant som FORSLAG (ikke vurdert), sier merknaden at den
 /// venter og om den sier det samme — forslaget brukes ikke som svar (det er ikke vurdert av noen).</item>
-/// <item>Ellers ikke løst, med grunnen (ingen kilde, flere departementer i Lovdata, navnet finnes ikke i katalogen).</item>
+/// <item>[Ny, Johanns beslutning på PR #398] Bruker Lovdatas felt et UTGÅTT navn, og navnehistorikken (navneformer «utgått» fra
+/// livsløpet, #395) fører det til nøyaktig én levende aktør uten at andre identiteter har brukt navnet, er den aktøren svaret — merket
+/// «sekundær kilde, utgått navn». Brukt av flere identiteter → flertydig.</item>
+/// <item>Ellers ikke løst, med grunnen (ingen kilde, flere departementer i Lovdata, navnet finnes ikke i katalogen eller i historikken, eller
+/// bare et nedlagt departement har hatt det).</item>
 /// </list>
 /// <para>
 /// <b>Gyldighet over tid.</b> Datoen er oppslagsdatoen (standard: i dag) for den gjeldende versjonen, og versjonens egen dato
@@ -364,20 +371,52 @@ public sealed class GeneriskStandardregelTjeneste(RegelIdeDbContext db)
         var id = await new VirksomhetOppslagTjeneste(db).FinnVirksomhetIdForNavnAsync(lovdata[0]);
         if (id is null)
         {
-            // Et gammelt navn: livsløpet (#395) kan ha registrert det som utgått navneform for et levende departement. Det sies, men brukes
-            // ikke: et navn kobles aldri til en aktør på navnet alene (navn gjenbrukes, #395).
+            // [ENDRET, Johanns beslutning på PR #398 2026-10-26] Et gammelt navn i Lovdatas felt gir svar når navnehistorikken fra
+            // organiseringsvedtakene (#395, navneformer «utgått») fører det til NØYAKTIG ÉN levende aktør, og ingen annen identitet har brukt
+            // navnet. Navn gjenbrukes (Barne- og likestillingsdepartementet var et eget departement 2006–2019 OG et tidligere navn for Barne- og
+            // familiedepartementet), så et navn som peker på flere identiteter er flertydig, ikke et svar. Et navn som bare fører til et nedlagt
+            // departement, eller ikke finnes i historikken, gir fortsatt ikke svar. Før: bare en merknad.
             var lower = lovdata[0].ToLower();
-            var utgatt = await db.Begreper.Where(b => b.Navneformgrunn == "utgatt" && b.Entitetsstatus == "gjeldende" && b.VirksomhetReferanseId != null
-                    && b.Term.ToLower() == lower)
-                .Join(db.Virksomheter, b => b.VirksomhetReferanseId, v => v.Id, (b, v) => new { v.Navn, v.Livsstatus, b.Godkjenning, b.GyldigTil })
+            var historikk = await db.Begreper.Where(b => b.Begrepskategori == "virksomhet" && b.Entitetsstatus == "gjeldende"
+                    && b.VirksomhetReferanseId != null && b.Godkjenning != Strukturkanter.Avvist && b.Term.ToLower() == lower)
+                .Join(db.Virksomheter, b => b.VirksomhetReferanseId, v => v.Id,
+                    (b, v) => new { Vid = v.Id, v.Livsstatus, v.GyldigTil, b.Navneformgrunn, b.Godkjenning, NfFra = b.GyldigFra, NfTil = b.GyldigTil, b.LovkildeId, b.LovreferanseEid })
                 .ToListAsync(ct);
-            foreach (var u in utgatt)
+            var levendeUtgatt = historikk.Where(h => h.Livsstatus == null && h.Navneformgrunn == "utgatt").ToList();
+            var identiteter = historikk.Select(h => h.Vid).Distinct().ToList();
+            foreach (var h in historikk)
             {
-                merknader.Add($"«{lovdata[0]}» er registrert som utgått navn for {u.Navn}"
-                    + (u.GyldigTil is { } gt ? $" (til {gt:yyyy-MM-dd})" : "") + (u.Livsstatus == "nedlagt" ? ", som er nedlagt" : "")
-                    + $" — {(u.Godkjenning is null or Strukturkanter.Godkjent ? "godkjent" : "forslag")}. Bind manuelt om det er riktig.");
+                var n = await NavnAsync(h.Vid);
+                premisser.Add(new StandardregelPremiss("navnehistorikk",
+                    $"«{lovdata[0]}» er {(h.Navneformgrunn == "utgatt" ? "et utgått navn" : "navnet")} for {n.Navn}"
+                    + (h.NfTil is { } gt ? $" (i bruk til {gt:yyyy-MM-dd})" : "") + (h.Livsstatus == "nedlagt" ? ", som er nedlagt" : ""),
+                    Status: h.Godkjenning, HjemmelRettskildeId: h.LovkildeId, HjemmelEid: h.LovreferanseEid, Dokumentasjon: "sekundaer"));
             }
-            return IkkeLost(r, d, $"Lovdata oppgir «{lovdata[0]}», men det navnet finnes ikke som et departement i katalogen i dag. Ingen gjettet fallback.",
+            if (levendeUtgatt.Count > 0 && identiteter.Count == 1)
+            {
+                var u = levendeUtgatt[0];
+                var nv = await NavnAsync(u.Vid);
+                if (u.Godkjenning is not null && u.Godkjenning != Strukturkanter.Godkjent)
+                {
+                    merknader.Add($"Navnehistorikken (det utgåtte navnet «{lovdata[0]}») er et forslag som ikke er vurdert ennå.");
+                }
+                if (forslagNavn.Count > 0 && !forslagNavn.Contains(nv.Navn, StringComparer.OrdinalIgnoreCase))
+                {
+                    merknader.Add($"Ressortforslaget ({string.Join(", ", forslagNavn.Distinct())}) avviker fra Lovdata.");
+                }
+                return new StandardregelSvar(r.Term, r.Regelkode, r.Navn, StandardregelUtfall.Lost, StandardregelRute.LovdataUtgattNavn,
+                    Kantnode.Virksomhet(u.Vid), new KantnodeVisning("virksomhet", u.Vid, nv.Navn, null), r.Kunnskapsstatus, "sekundaer", d, null, null,
+                    $"«departementet» betyr {nv.Navn}: Lovdatas felt «Ansvarlig departement» (sekundær kilde) oppgir det utgåtte navnet «{lovdata[0]}», "
+                    + $"og navnehistorikken fra organiseringsvedtakene fører det til {nv.Navn}.", premisser, merknader);
+            }
+            if (levendeUtgatt.Count > 0)
+            {
+                return IkkeLost(r, d, $"Lovdata oppgir «{lovdata[0]}», og navnet er brukt av flere departementer over tid ({identiteter.Count}). Ingen er valgt.",
+                    premisser, merknader, StandardregelUtfall.Flertydig);
+            }
+            return IkkeLost(r, d, historikk.Count > 0
+                    ? $"Lovdata oppgir «{lovdata[0]}», og navnehistorikken fører bare til et nedlagt departement. Ingen gjettet fallback."
+                    : $"Lovdata oppgir «{lovdata[0]}», men det navnet finnes ikke som et departement i katalogen i dag eller i navnehistorikken. Ingen gjettet fallback.",
                 premisser, merknader);
         }
         var lv = await NavnAsync(id.Value);
@@ -409,7 +448,7 @@ public sealed class GeneriskStandardregelTjeneste(RegelIdeDbContext db)
             SELECT DISTINCT r."Id" AS "Value" FROM rettskilder r JOIN rettskilde_noder n ON n.rettskilde_id = r."Id"
             WHERE r.entitetsstatus = 'gjeldende' AND r.importrolle = 'primaer' AND n.entitetsstatus = 'gjeldende' AND n.tekst ~* {0}
             """, monster).ToListAsync(ct);
-        int ressort = 0, lovdata = 0, fast = 0, ikke = 0, fler = 0, venter = 0;
+        int ressort = 0, lovdata = 0, utgatt = 0, fast = 0, ikke = 0, fler = 0, venter = 0;
         var grunner = new Dictionary<string, int>();
         var rader = new List<StandardregelDekningRad>();
         var titler = await db.Rettskilder.Where(r => ider.Contains(r.Id)).Select(r => new { r.Id, T = r.Kortnavn ?? r.Tittel }).ToDictionaryAsync(r => r.Id, r => r.T, ct);
@@ -421,6 +460,7 @@ public sealed class GeneriskStandardregelTjeneste(RegelIdeDbContext db)
             {
                 case (StandardregelUtfall.Lost, StandardregelRute.Ressortfordeling): ressort++; break;
                 case (StandardregelUtfall.Lost, StandardregelRute.Lovdata): lovdata++; break;
+                case (StandardregelUtfall.Lost, StandardregelRute.LovdataUtgattNavn): utgatt++; break;
                 case (StandardregelUtfall.Lost, _): fast++; break;
                 case (StandardregelUtfall.Flertydig, _): fler++; break;
                 default: ikke++; break;
@@ -429,6 +469,8 @@ public sealed class GeneriskStandardregelTjeneste(RegelIdeDbContext db)
             {
                 var g = s.Forklaring.StartsWith("Ingen vurdert ressortfordeling for rettskilden, og Lovdata oppgir ikke", StringComparison.Ordinal) ? "ingen_kilde"
                     : s.Forklaring.Contains("finnes ikke som et departement", StringComparison.Ordinal) ? "navnet_finnes_ikke_i_katalogen"
+                    : s.Forklaring.Contains("bare til et nedlagt departement", StringComparison.Ordinal) ? "navnet_tilhorer_nedlagt_departement"
+                    : s.Forklaring.Contains("brukt av flere departementer over tid", StringComparison.Ordinal) ? "navnet_brukt_av_flere_identiteter"
                     : s.Forklaring.Contains("flere departementer", StringComparison.Ordinal) ? "flere_departementer"
                     : s.Forklaring.StartsWith("Kilden definerer", StringComparison.Ordinal) ? "kilden_definerer_ordet"
                     : s.Forklaring.StartsWith("Kilden navngir", StringComparison.Ordinal) ? "kilden_navngir_embete"
@@ -441,7 +483,7 @@ public sealed class GeneriskStandardregelTjeneste(RegelIdeDbContext db)
                 rader.Add(new StandardregelDekningRad(id, titler.GetValueOrDefault(id) ?? "(ukjent)", s.Utfall, s.Rute, s.ReferentVisning?.Navn, s.Forklaring));
             }
         }
-        return new StandardregelDekning(t, ider.Count, ressort, lovdata, fast, ikke, fler, venter, grunner, rader);
+        return new StandardregelDekning(t, ider.Count, ressort, lovdata, utgatt, fast, ikke, fler, venter, grunner, rader);
     }
 
     private static string GodkjenningTekst(string status) => status switch

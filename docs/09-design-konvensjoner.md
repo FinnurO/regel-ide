@@ -1132,7 +1132,8 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
   rettskilde. Så «Bare marker som generisk» eller «Marker og bind for denne rettskilden»: referent (virksomhet, eller klasse/rolle), spenn
   (kapittel/paragraf, tomt = hele rettskilden), egen gyldighet («Gjelder fra/til», valgfri — vises som «gjelder fra …» i oversikten), hvor betydningen kommer fra (bestemmelse eller kilde utenfor korpus, `KildeUtenforKorpusVelger`)
   og kunnskapsstatus (`KUNNSKAPSSTATUS_VISNING`, med begrunnelse og tolkningsargumenter ved fortolkning). **Ingenting forhåndsvelges**
-  (CLAUDE.md §8). En binding registrert i veiviseren er en menneskelig avgjørelse og lagres som godkjent.
+  (CLAUDE.md §8). En binding registrert i veiviseren er en menneskelig avgjørelse og lagres som godkjent. [ENDRET, #394/PR #398, Johann
+  2026-10-26] Gjelder fortsatt for statusen: én-skjermen (§42) forhåndsutfyller grunnlaget, men godkjenningen velges alltid aktivt.
 - **`NavneformgrunnTag`** viser `generisk` som «Generisk omtale» i `brand1` — en klassifisering, ikke en status, og alle de andre rollene er
   tatt (§15). Den finnes bare i visningen, ikke i `NavneformgrunnVelger`: en navneform for én virksomhet kan aldri være generisk.
 - **Taggen i løpeteksten** følger bindingen: «styret» → [Generisk omtale] → referenten for den rettskilden og paragrafen. Uten godkjent
@@ -1218,7 +1219,9 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
   LÅST: «Binding» og «Standardregel» er `neutral` (hvor svaret kommer fra, en klassifisering); bindingens godkjenning følger §35 (faglig
   vurdert → `info`, godkjent → ingen merke); «Sekundær kilde» er `warning` (svaret bygger på Lovdatas felt, ikke en vurdert
   ressortfordeling — en slutning er ikke sterkere enn det svakeste premisset); «Ikke avklart» er `neutral` `outline` (som «Navneform
-  mangler», §40). Ordene er profilsidens: standardregel, binding, avledet slutning, premiss, sekundær kilde.
+  mangler», §40). Ordene er profilsidens: standardregel, binding, avledet slutning, premiss, sekundær kilde. [Ny, PR #398-oppfølging]
+  Når Lovdatas felt bruker et utgått departementsnavn og navnehistorikken fører det til aktøren, er merket «Sekundær kilde, utgått navn»
+  (samme `warning`).
 - **Veiviseren: generisk omtale er ÉN skjerm** (`kandidater/GeneriskEnSkjerm.tsx`), steg 3 «Hva betyr den her?», og erstatter de fire
   stegene fra §38/§40 (betydning, grunnlag, sikkerhet, bekreft). Et ord med standardregel, eller som alt er registrert som generisk, åpner
   rett her med en `info`-melding og «Behandle som noe annet». Skjermen har, i rekkefølge:
@@ -1229,10 +1232,13 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
      Standardregelen som ikke gir svar, står som `warning`-`Alert` med grunnen.
   3. Søk på tvers av aktører, klasser og roller med treff mens man skriver (fra to tegn, åtte treff, de som begynner med søket først).
   4. «Hvor gjelder det?»: hele rettskilden (med antall forekomster), bare paragrafen ordet står i, eller et annet spenn.
-  5. «Detaljer: grunnlag og sikkerhet» i en lukket `Details` med sammendraget i tittelen. **Ferdig utfylt** (Johanns AK 4, avvik fra §38
+  5. «Detaljer: grunnlaget» i en lukket `Details` med sammendraget i tittelen. **Ferdig utfylt** (Johanns AK 4, avvik fra §38
      «ingenting forhåndsvelges»): hjemmel = bestemmelsen der ordet står, kunnskapsstatus «Fortolkning» med «Sammenhengen i loven» og en
-     begrunnelse som sier hvor referenten er funnet, godkjenning «Faglig vurdert». Avviket er bevisst: verdiene sier hvordan svaret ble
-     funnet (ikke en påstand om at det er riktig), de vises i tittelen, og «Godkjent» velges aldri for brukeren.
+     begrunnelse som sier hvor referenten er funnet. Avviket er bevisst: verdiene sier hvordan svaret ble funnet (ikke en påstand om at det
+     er riktig), og de vises i tittelen.
+  5b. [ENDRET, Johanns beslutning på PR #398, 2026-10-26] «Hvor sikkert er det?» (Faglig vurdert / Godkjent) står **synlig, utenfor
+     «Detaljer»**, og **ingenting er forhåndsvalgt**: statusen er en menneskelig vurdering og velges aktivt. «Lagre bindingen» er av, med
+     `Metatekst` «Velg hvor sikkert det er», til den er valgt. Før: «Faglig vurdert» forhåndsvalgt inne i «Detaljer».
   6. «Slik blir det»: leddet med ordet markert, kjeden med de samme merkene som rettskildesiden, kunnskapsstatus, og hvor bindingen gjelder.
   7. «Lagre bindingen» / «Marker som generisk». Kvitteringen er veiviserens «Dette skjedde» (§15) med lenke til rettskilden og referenten.
 - **Ny aktør fra en navnekandidat:** et forslag med merket «Ny aktør» (en navnekandidat i samme rettskilde som inneholder ordet,
