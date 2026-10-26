@@ -22,6 +22,15 @@ public sealed record Navneformforslagrad(
     Guid VirksomhetId, string Registernavn, string? Organisasjonsnummer, string Utfall, string? Form, string? Kunnskapsstatus,
     Guid? RettskildeId, string? RettskildeTittel, string? Eid, int Forekomster, int Rettskilder, IReadOnlyList<string> Former, Guid? NavneformId);
 
+/// <summary>[Ny, issue #386] Utfallet av <see cref="AktoridentitetTjeneste.RegistrerNavnetSomGjeldendeAsync"/>. <c>Merknad</c> sier det
+/// som ikke kunne følge med (hjemmelen viser ikke navnet), eller hvorfor ingenting ble gjort.</summary>
+public sealed record NavnetSomGjeldende(BegrepEntitet? Navneform, string Utfall, string? Merknad)
+{
+    public const string Opprettet = "opprettet";
+    public const string Utfylt = "utfylt";
+    public const string Fantes = "fantes";
+}
+
 public sealed record NavneformforslagRapport(bool Skrevet, int AktorerUtenGjeldendeNavneform, int Foreslatt, IReadOnlyList<Navneformforslagrad> Rader);
 
 /// <summary>Tallene fra <see cref="AktoridentitetTjeneste.SikreTreffAsync"/>: hva et navnetreff ga av navneform, kilde, tagger og aktørtype.</summary>
@@ -241,6 +250,14 @@ public sealed class AktoridentitetTjeneste(RegelIdeDbContext db, TekstTaggTjenes
         {
             throw new ArgumentException($"Navneformen «{b.Term}» er ikke et forslag. En godkjent navneform fjernes med «Fjern».");
         }
+        // [Ny, issue #386] Navneformen arvet taggene fra et rolle-, klasse- eller gruppebegrep ved en omgjøring. Å avvise den her ville
+        // slettet de flyttede taggene; angringen setter dem tilbake på begrepet først (OmgjoringTjeneste.AngreAsync).
+        if (b.ErstatterId is { } eid && await db.Begreper.AnyAsync(x => x.Id == eid && x.Entitetsstatus == "erstattet"
+                && OmgjoringTjeneste.Nodebegrepkategorier.Contains(x.Begrepskategori), ct))
+        {
+            throw new ArgumentException($"«{b.Term}» kommer fra en omgjøring av et rolle-, klasse- eller gruppebegrep. Bruk «Angre omgjøring» "
+                + $"(POST /api/begreper/{eid}/angre-omgjoring), så taggene settes tilbake og ikke slettes.");
+        }
         var tagger = await db.TekstTagger.Where(t => t.RefId == id).ToListAsync(ct);
         db.TekstTagger.RemoveRange(tagger);
         b.Godkjenning = Strukturkanter.Avvist;
@@ -284,6 +301,83 @@ public sealed class AktoridentitetTjeneste(RegelIdeDbContext db, TekstTaggTjenes
         await db.SaveChangesAsync(ct);
         return true;
     }
+
+    /// <summary>
+    /// [Ny, issue #386, Johanns tillegg 2026-10-23] En aktør som opprettes med bare et navn (veiviseren, eller omgjøring fra et
+    /// rollebegrep), får navnet som GJELDENDE navneform samtidig, med grunnlaget og statusen som er valgt. Før fikk den «Navneform
+    /// mangler». Reglene:
+    /// <list type="bullet">
+    /// <item>Har aktøren alt en gjeldende navneform (ikke avvist), skjer ingenting — et menneskes valg overskrives ikke.</item>
+    /// <item>Finnes navnet alt som navneform uten grunn eller uten grunnlag (f.eks. SNL-bekreftelsen ved opprettelsen, #194), brukes den
+    /// raden: grunnen settes til gjeldende og grunnlaget skrives på. Ingen dublett.</item>
+    /// <item><b>Hjemmelen må vise navnet</b> (prinsippet fra #395: navnet er hjemlet i kilden som etablerer eller navngir aktøren). Står
+    /// navnet ikke som hele ord, med samme skrivemåte, i bestemmelsen som er valgt, lagres navneformen med «hjemmel mangler»
+    /// (<c>uavklart</c>) og en begrunnelse som sier det. Det gjettes ikke en annen bestemmelse (CLAUDE.md §8).</item>
+    /// </list>
+    /// </summary>
+    public async Task<NavnetSomGjeldende> RegistrerNavnetSomGjeldendeAsync(Guid virksomhetId, Utsagnsgrunnlag g, string bruker, CancellationToken ct)
+    {
+        var v = await db.Virksomheter.FirstOrDefaultAsync(x => x.Id == virksomhetId, ct)
+            ?? throw new ArgumentException($"Fant ingen aktør med id '{virksomhetId}'. Ingen gjettet fallback.");
+        var navn = v.Navn.Trim();
+        var former = await db.Begreper.Where(b => b.Begrepskategori == "virksomhet" && b.VirksomhetReferanseId == virksomhetId
+                && b.Entitetsstatus == "gjeldende" && b.Godkjenning != Strukturkanter.Avvist)
+            .ToListAsync(ct);
+        var gjeldende = former.FirstOrDefault(b => b.Navneformgrunn == "gjeldende");
+        var samme = former.FirstOrDefault(b => string.Equals(b.Term.Trim(), navn, StringComparison.OrdinalIgnoreCase));
+        if (gjeldende is not null && (samme is null || gjeldende.Id != samme.Id || HarGrunnlag(gjeldende)))
+        {
+            return new NavnetSomGjeldende(gjeldende, NavnetSomGjeldende.Fantes, $"Aktøren har alt den gjeldende navneformen «{gjeldende.Term}».");
+        }
+        if (samme is not null && samme.Navneformgrunn is not null && samme.Navneformgrunn != "gjeldende")
+        {
+            return new NavnetSomGjeldende(null, NavnetSomGjeldende.Fantes,
+                $"Navnet «{samme.Term}» er alt registrert som {samme.Navneformgrunn}; grunnen endres ikke stille.");
+        }
+
+        await ValiderAsync(g, ct);
+        string? merknad = null;
+        if (g.Grunnlag == Utsagnsgrunnlag.Hjemmel)
+        {
+            var tekst = await db.RettskildeNoder.Where(n => n.RettskildeId == g.HjemmelRettskildeId && n.Eid == g.HjemmelEid!.Trim()
+                    && n.Entitetsstatus == "gjeldende").Select(n => n.Tekst).FirstOrDefaultAsync(ct);
+            if (tekst is null || !HeleOrd(navn).IsMatch(tekst))
+            {
+                merknad = $"Navnet «{navn}» står ikke i bestemmelsen som ble valgt ({g.HjemmelEid}). Hjemmelen for navnet mangler og velges på "
+                    + "aktørsiden: bestemmelsen som oppretter eller navngir aktøren (#395).";
+                g = new Utsagnsgrunnlag
+                {
+                    Grunnlag = Utsagnsgrunnlag.Mangler, Kunnskapsstatus = Strukturkanter.Uavklart, Godkjenning = g.Godkjenning, Begrunnelse = merknad,
+                };
+            }
+        }
+
+        var varNy = samme is null;
+        var navneform = samme ?? new BegrepEntitet
+        {
+            Id = Guid.NewGuid(),
+            VirksomhetId = null,
+            Begrepskategori = "virksomhet",
+            VirksomhetReferanseId = virksomhetId,
+            Term = navn,
+            Status = "publisert",
+            OpprettetAv = bruker,
+            OpprettetTidspunkt = DateTimeOffset.UtcNow,
+        };
+        navneform.Navneformgrunn = "gjeldende";
+        // En alt godkjent rad med samme navn får bare grunnen; grunnlaget et menneske godkjente, røres ikke.
+        if (navneform.Godkjenning != Strukturkanter.Godkjent) g.SkrivTil(navneform, "veiviser:ny-aktor");
+        navneform.SistEndretAv = bruker;
+        navneform.SistEndretTidspunkt = DateTimeOffset.UtcNow;
+        if (varNy) db.Begreper.Add(navneform);
+        db.Proveniens.Add(ProveniensHjelper.NyRad("begrep", navneform.Id, virksomhetId: null, varNy ? "opprettet" : "endret", bruker));
+        await db.SaveChangesAsync(ct);
+        return new NavnetSomGjeldende(navneform, varNy ? NavnetSomGjeldende.Opprettet : NavnetSomGjeldende.Utfylt, merknad);
+    }
+
+    /// <summary>Om navneformen har et registrert grunnlag (hjemmel, kilde utenfor korpus eller en vurdert status).</summary>
+    private static bool HarGrunnlag(BegrepEntitet b) =>
+        b.LovreferanseEid is not null || b.KildeUtenforKorpusTekst is not null || b.Kunnskapsstatus is not null || b.Godkjenning is not null;
 
     // ---------------------------------------------------------------- Aktørtype som modellutsagn
 

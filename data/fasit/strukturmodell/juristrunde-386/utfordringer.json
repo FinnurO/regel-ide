@@ -1,0 +1,80 @@
+[
+  {
+    "id": "K1",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "lav",
+    "innvending": "Hovedinnholdet holder. Utfallet aktør og aktørtypen organ er riktige. Den gjeldende navneformen har hjemmel i § 235 første ledd første punktum, med kunnskapsstatus tekstfunn. Kortformen har hjemmel i annet punktum, med kunnskapsstatus fortolkning (ordlyd, kontekst_system). Kortformen er ikke definert i loven, så tekstfunn ville vært feil. Å flytte taggen 0–15 til den gjeldende navneformen og utvide den til 0–27 er riktig. Teksten der er det fulle navnet, så taggen må ikke bli en kortform-tagg. Utvidelsen er en endring av spennet og skal logges med proveniens. Tre mangler: (1) Aktørtypen er et modellutsagn (aktortype_utsagn) og trenger grunnlag. Loven bruker ikke ordet «organ». [slutning] Organ følger av § 235 første ledd (oppgaver og sammensetning) og § 238 første ledd. § 238 første ledd sier at avgjørelsene om disiplinærtiltak er enkeltvedtak etter forvaltningsloven, og at fvl. og offentleglova gjelder for saksbehandlingen. Kunnskapsstatus er da fortolkning (ordlyd, kontekst_system). (2) Å tagge kortformen bare i annet punktum er ufullstendig. Den står alene fire ganger i § 235 første ledd (2., 3. og to ganger i 4. punktum) og 17 ganger i §§ 121c, 236–238 og 240. Bøyningsformen «Tilsynsutvalgets» står 7 ganger (§§ 237–239), og den treffes ikke av regelen om eksakt likhet (#385). Enten tagges alle eksakte forekomster ved etterfyllingen, eller så sies det uttrykkelig at bare hjemmelsforekomsten tagges nå. «utvalget» (§ 238) er en tilbakevisning og skal ikke registreres som kortform. (3) Diskrimineringsombudsloven § 1 femte ledd bruker det fulle navnet. Den forekomsten tagges som navnetreff for den gjeldende navneformen, men hjemmelen blir i domstolloven § 235, i tråd med #395. Brreg er ikke kontrollert av meg.",
+    "retting": {
+      "aktortype": {"verdi": "organ", "hjemmel": "domstolloven § 235 første ledd og § 238 første ledd", "kunnskapsstatus": "fortolkning", "tolkningsargumenter": ["ordlyd", "kontekst_system"], "godkjenning": "maskinelt_foreslatt"},
+      "tagger": "Taggen 0–15 flyttes til den gjeldende navneformen og utvides til 0–27 (spennendringen logges). Kortformen tagges der teksten er nøyaktig «Tilsynsutvalget» og ikke etterfølges av « for dommere»: 4 ganger i § 235 første ledd og 17 andre steder i domstolloven (§§ 121c tredje ledd, 236–238, 240). «Tilsynsutvalgets» (7 ganger) tagges ikke automatisk, og det må avgjøres om bøyningsformer tagges. «utvalget» tagges ikke. Det fulle navnet i diskrimineringsombudsloven § 1 femte ledd tagges som navnetreff."
+    },
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {"ref": "domstolloven § 235 første ledd", "funksjon": "direkte_hjemmel"},
+      {"ref": "domstolloven § 238 første ledd", "funksjon": "forutsatt_kilde"},
+      {"ref": "diskrimineringsombudsloven § 1 femte ledd", "funksjon": "forutsatt_kilde"},
+      {"ref": "Enhetsregisteret (orgnr for Tilsynsutvalget for dommere)", "funksjon": "ikke_funnet"}
+    ]
+  },
+  {
+    "id": "K2",
+    "dom": "innvending",
+    "gjelder": "utenfor_raden",
+    "alvor": "lav",
+    "innvending": "Utfallet rolle holder. «en reguleringsmyndighet» er en funksjon som departementet utpeker (§ 2-5 første ledd), og loven navngir ingen aktør. To mangler: (1) Rollebegrepet har ingen hjemmel (lovreferanse_eid er tom). Etter #395 er hjemmelen bestemmelsen som etablerer rollen, altså energiloven § 2-5 første ledd, med kunnskapsstatus tekstfunn. (2) Utpekingen står i korpuset. NEM-forskriften (FOR-2019-10-24-1413) § 2-1 første ledd sier: «Reguleringsmyndigheten for energi er reguleringsmyndighet for omsetning av elektrisk energi og naturgass etter energiloven § 2-5 …». K3 har den tilsvarende I-kanten, mens K2 ikke har den. Fasitkommentaren i energiloven.json (a3) sier at dette «står IKKE i korpuset». Det er utdatert.",
+    "retting": {"utfall": "rolle (beholdes), med hjemmel energiloven § 2-5 første ledd (tekstfunn)"},
+    "ny_rad": {"kanter": [{"kategori": "I", "type": "innehar", "fra": "Reguleringsmyndigheten for energi", "til": "reguleringsmyndighet (energiloven)", "hjemmel": "FOR-2019-10-24-1413 (NEM) § 2-1 første ledd", "kunnskapsstatus": "tekstfunn", "godkjenning": "manuelt_foreslatt"}]},
+    "implementeringsstatus": null,
+    "kilder": [
+      {"ref": "energiloven § 2-5 første ledd", "funksjon": "direkte_hjemmel"},
+      {"ref": "FOR-2019-10-24-1413 (NEM-forskriften) § 2-1 første ledd", "funksjon": "direkte_hjemmel"}
+    ]
+  },
+  {
+    "id": "K3",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "lav",
+    "innvending": "Utfallet rolle holder, og den godkjente I-kanten fra RME har riktig hjemmel (naturgassforskriften § 1-4 første ledd). Taggen i § 1-4 peker riktig til rollen etter naturgassloven. Rollebegrepet mangler hjemmel (lovreferanse_eid er tom). Den bør være naturgassloven § 4 første ledd, med kunnskapsstatus tekstfunn. NEM § 2-1 første ledd sier det samme som § 1-4 og kan legges til som tilleggshjemmel på I-kanten. Det er ikke påkrevd.",
+    "retting": {"utfall": "rolle (beholdes), med hjemmel naturgassloven § 4 første ledd (tekstfunn)"},
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {"ref": "naturgassloven § 4 første ledd", "funksjon": "direkte_hjemmel"},
+      {"ref": "FOR-2003-11-14-1342 (naturgassforskriften) § 1-4 første ledd", "funksjon": "direkte_hjemmel"},
+      {"ref": "FOR-2019-10-24-1413 (NEM-forskriften) § 2-1 første ledd", "funksjon": "forutsatt_kilde"}
+    ]
+  },
+  {
+    "id": "K4",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "middels",
+    "innvending": "Utfallet holder: «departementet» er en generisk omtale (docs/33 §5.7, §5.10), og ikke en rolle. Men å la de to K-forslagene stå urørt er ikke forsvarlig. De har denne rollen, som er bundet til helse- og omsorgstjenesteloven (HOD), som subjekt for forskriftskompetanse etter domstolloven §§ 55g fjerde ledd og 124a fjerde ledd. Der er «departementet» etter standardregelen ansvarlig departement for domstolloven, ikke HOD. Subjektet er altså feil. Forslagene står i køen og kan godkjennes. Når rollen senere gjøres om, blir de flyttet med proveniens til feil aktør. Det er greit at selve omgjøringen tas i en egen sak, men de to forslagene må avvises eller merkes nå. Den egne saken må opprettes før #386 lukkes.",
+    "retting": {"omgjoring": "Omgjøringen av rollen til den generiske navneformen «departementet» tas i en egen sak, som opprettes før #386 lukkes. De 26 taggene og rollen røres ikke her. De to K-forslagene (domstolloven § 55g fjerde ledd og § 124a fjerde ledd) avvises nå med begrunnelsen «feil subjekt: rollen er bundet til helse- og omsorgstjenesteloven; i domstolloven løses ‹departementet› ved standardregelen». De flyttes ikke ved omgjøringen. Riktige kanter lages av lasteren for domstolloven."},
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {"ref": "domstolloven § 55g fjerde ledd", "funksjon": "forutsatt_kilde"},
+      {"ref": "domstolloven § 124a fjerde ledd", "funksjon": "forutsatt_kilde"},
+      {"ref": "helse- og omsorgstjenesteloven § 3-2 fjerde ledd", "funksjon": "forutsatt_kilde"}
+    ]
+  },
+  {
+    "id": "K5",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "middels",
+    "innvending": "Utfallet klasse holder. Statsforvalterne er ti selvstendige embeter (organer), og «statsforvalter» er mengden av dem, ikke ett organ. Men klassens hjemmel er reindriftsloven § 62 fjerde ledd. Det er en tilfeldig forekomst av ordet, som docs/33 §5.10 selv påpeker, og det er i strid med prinsippet fra #395. Kilden som navngir embetene, ligger i korpuset: FOR-2020-12-18-2867 punkt 1 («Navn på fylkesmannsembetene endres fra «Fylkesmannen» til «Statsforvalteren» på bokmål og «Statsforvaltaren» på nynorsk»), gjeldende fra 1. januar 2021 (punkt 4). Raden har også lovreferanse_eid uten lovkilde_id, og det er inkonsistent. [slutning] Navnevedtaket er navngivende kilde, ikke opprettende. Ingen kilde i korpuset som oppretter embetene, er kontrollert. Klassetermen er grunnformen av «Statsforvalteren», så kunnskapsstatus er normalisering. Utenfor raden: vedtaket gir også grunnlag for «Statsforvaltaren» (nynorsk) som parallellnavn og «fylkesmann» som utgått navn. Det tetter hullet docs/33 §5.10 nevner for disse ordformene. Om standardregelen skal utvides til dem, må Johann avgjøre.",
+    "retting": {"utfall": "klasse (beholdes). Hjemmelen flyttes fra reindriftsloven § 62 fjerde ledd til FOR-2020-12-18-2867 punkt 1 (kunnskapsstatus normalisering, gyldig fra 2021-01-01) og legges inn som forslag. Den gamle hjemmelen settes som erstattet.", "godkjenning": "manuelt_foreslatt"},
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {"ref": "FOR-2020-12-18-2867 punkt 1 og 4", "funksjon": "direkte_hjemmel"},
+      {"ref": "reindriftsloven § 62 fjerde ledd", "funksjon": "forutsatt_kilde"},
+      {"ref": "opprettelsesvedtak for statsforvalterembetene", "funksjon": "ikke_funnet"}
+    ]
+  }
+]

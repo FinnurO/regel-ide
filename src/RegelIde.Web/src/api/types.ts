@@ -369,6 +369,10 @@ export interface VirksomhetDto {
 export interface OpprettVirksomhetRequest {
   navn: string;
   overordnetEnhetId: string | null;
+  /** [Ny, issue #386] Navnet registreres som gjeldende navneform med dette grunnlaget og denne statusen. */
+  grunnlag?: UtsagnsgrunnlagRequest | null;
+  /** [Ny, issue #386] Navnet kommer fra denne navnekandidaten; hjemmelen er noden der navnet står. */
+  navnFraNavnekandidatId?: string | null;
 }
 
 /**
@@ -873,6 +877,9 @@ export interface NavnekandidatKoblingResultatDto {
   taggId: string | null;
   rettskildeId: string;
   nodeEid: string;
+  /** [Ny, issue #386] Navnet som gjeldende navneform når aktøren ble opprettet med bare et navn; ellers null. */
+  gjeldendeNavneform?: BegrepDto | null;
+  gjeldendeNavneformMerknad?: string | null;
 }
 
 /** [Ny, gruppemedlemskap-runden, 2026-09-08] POST /api/navnekandidater/{id}/kobl-til-gruppemedlemskap.
@@ -892,6 +899,9 @@ export interface NavnekandidatGruppemedlemskapResultatDto {
   nodeEid: string;
   /** [ENDRET, issue #311] Kanten (M, eller I når gruppebegrepet er en rolle). */
   tildeling: StrukturkantRadDto;
+  /** [Ny, issue #386] Navnet som gjeldende navneform når aktøren ble opprettet med bare et navn; ellers null. */
+  gjeldendeNavneform?: BegrepDto | null;
+  gjeldendeNavneformMerknad?: string | null;
 }
 
 export interface NavnekandidatDto {
@@ -961,6 +971,9 @@ export interface NavnekandidatMyndighetstildelingResultatDto {
   rettskildeId: string;
   nodeEid: string;
   tildeling: StrukturkantRadDto;
+  /** [Ny, issue #386] Navnet som gjeldende navneform når aktøren ble opprettet med bare et navn; ellers null. */
+  gjeldendeNavneform?: BegrepDto | null;
+  gjeldendeNavneformMerknad?: string | null;
 }
 
 /** [Ny, navnekandidat-alle-mekanismer-runden, 2026-09-21, issue #283 AC7/AC8] POST /api/navnekandidater/
@@ -987,6 +1000,9 @@ export interface NavnekandidatRelasjonResultatDto {
   nodeEid: string;
   /** [ENDRET, issue #311] R-kanten. */
   relasjon: StrukturkantRadDto;
+  /** [Ny, issue #386] Navnet som gjeldende navneform når aktøren ble opprettet med bare et navn; ellers null. */
+  gjeldendeNavneform?: BegrepDto | null;
+  gjeldendeNavneformMerknad?: string | null;
 }
 
 /** [Ny, navnekandidat-alle-mekanismer-runden, 2026-09-21, issue #283 AC9] POST /api/navnekandidater/
@@ -2621,4 +2637,6 @@ export interface VeivisergrunnlagFelt {
   grunnlag?: UtsagnsgrunnlagRequest | null;
   aktortype?: Aktortype | null;
   ordningstype?: Ordningstype | null;
+  /** [Ny, issue #386] Aktøren ble opprettet med bare et navn i denne veiviserkjøringen: navnet blir gjeldende navneform med samme grunnlag. */
+  nyAktorMedBareNavn?: boolean;
 }

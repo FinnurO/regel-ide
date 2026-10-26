@@ -915,7 +915,12 @@ public sealed record OpprettVirksomhetFraBrregRequest(string Organisasjonsnummer
 /// virksomhet knyttes til en allerede eksisterende virksomhet i katalogen, samme felt som Brreg-
 /// berikelse ellers fyller automatisk (docs/20 §2.1), her satt manuelt siden Brreg ikke har dataen.
 /// </summary>
-public sealed record OpprettVirksomhetRequest(string Navn, Guid? OverordnetEnhetId);
+/// <param name="Grunnlag">[Ny, issue #386] Valgfritt: navnet registreres som gjeldende navneform med dette grunnlaget og denne statusen
+/// (<see cref="AktoridentitetTjeneste.RegistrerNavnetSomGjeldendeAsync"/>). Uten: som før.</param>
+/// <param name="NavnFraNavnekandidatId">[Ny, issue #386] Navnet kommer fra denne navnekandidaten: hjemmelen er da noden der navnet står
+/// (kandidatens rettskilde og eId), ikke bestemmelsen i <c>Grunnlag</c>. Bare når grunnlaget er hjemmel.</param>
+public sealed record OpprettVirksomhetRequest(string Navn, Guid? OverordnetEnhetId,
+    UtsagnsgrunnlagRequest? Grunnlag = null, Guid? NavnFraNavnekandidatId = null);
 
 /// <param name="Navneformgrunn">
 /// [Ny, navneformgrunn-runden, 2026-09-07] Hvorfor navneformen peker på denne virksomheten —
@@ -1097,9 +1102,10 @@ public sealed record OppdaterNavnekandidatRequest(string? ForeslattTekst, string
 /// uspesifisert) — se <see cref="BegrepEntitet.Navneformgrunn"/>.</summary>
 public sealed record KoblNavnekandidatTilVirksomhetRequest(Guid VirksomhetId, string? Navneformgrunn,
     // [Ny, issue #385 AC6–AC10] Veiviserens grunnlag og status, og aktørtypen fra steg 2. Valgfrie (uten dem: som før).
-    UtsagnsgrunnlagRequest? Grunnlag = null, string? Aktortype = null, string? Ordningstype = null)
+    UtsagnsgrunnlagRequest? Grunnlag = null, string? Aktortype = null, string? Ordningstype = null,
+    bool NyAktorMedBareNavn = false)
 {
-    public Veivisergrunnlag? Veiviser() => UtsagnsgrunnlagRequest.Veiviser(Grunnlag, Aktortype, Ordningstype);
+    public Veivisergrunnlag? Veiviser() => UtsagnsgrunnlagRequest.Veiviser(Grunnlag, Aktortype, Ordningstype, NyAktorMedBareNavn);
 }
 
 /// <summary>
@@ -1120,11 +1126,11 @@ public sealed record UtsagnsgrunnlagRequest(
     };
 
     /// <summary>Null når verken grunnlag eller aktørtype er sendt. En aktørtype krever et grunnlag (CLAUDE.md §8: ingen type uten kilde).</summary>
-    public static Veivisergrunnlag? Veiviser(UtsagnsgrunnlagRequest? g, string? aktortype, string? ordningstype)
+    public static Veivisergrunnlag? Veiviser(UtsagnsgrunnlagRequest? g, string? aktortype, string? ordningstype, bool nyAktorMedBareNavn = false)
     {
         if (g is null && aktortype is null) return null;
         if (g is null) throw new ArgumentException("En aktørtype må ha et grunnlag («Hva bygger dette på?») og en status («Hvor sikkert er det?»).");
-        return new Veivisergrunnlag(g.TilGrunnlag(), aktortype, ordningstype);
+        return new Veivisergrunnlag(g.TilGrunnlag(), aktortype, ordningstype, nyAktorMedBareNavn);
     }
 }
 
@@ -1162,11 +1168,12 @@ public sealed record AktortypeUtsagnDto(
 /// det — navneformkoblingen lyktes uansett.
 /// </param>
 public sealed record NavnekandidatKoblingResultatDto(
-    NavnekandidatDto Kandidat, BegrepDto Navneform, Guid? TaggId, Guid RettskildeId, string NodeEid)
+    NavnekandidatDto Kandidat, BegrepDto Navneform, Guid? TaggId, Guid RettskildeId, string NodeEid,
+    BegrepDto? GjeldendeNavneform = null, string? GjeldendeNavneformMerknad = null) // [Ny, issue #386]
 {
     public static NavnekandidatKoblingResultatDto FraResultat(NavnekandidatKoblingResultat r) => new(
         NavnekandidatDto.FraEntitet(r.Kandidat), BegrepDto.FraEntitet(r.Navneform), r.TaggId,
-        r.Kandidat.RettskildeId, r.NodeEid);
+        r.Kandidat.RettskildeId, r.NodeEid, r.GjeldendeNavneform?.Navneform is { } gn ? BegrepDto.FraEntitet(gn) : null, r.GjeldendeNavneform?.Merknad);
 }
 
 /// <summary>
@@ -1179,9 +1186,10 @@ public sealed record NavnekandidatKoblingResultatDto(
 /// </summary>
 public sealed record KoblNavnekandidatTilGruppemedlemskapRequest(
     Guid VirksomhetId, Guid GruppeBegrepId, string? Navneformgrunn,
-    UtsagnsgrunnlagRequest? Grunnlag = null, string? Aktortype = null, string? Ordningstype = null) // [Ny, issue #385]
+    UtsagnsgrunnlagRequest? Grunnlag = null, string? Aktortype = null, string? Ordningstype = null,
+    bool NyAktorMedBareNavn = false) // [Ny, issue #385]
 {
-    public Veivisergrunnlag? Veiviser() => UtsagnsgrunnlagRequest.Veiviser(Grunnlag, Aktortype, Ordningstype);
+    public Veivisergrunnlag? Veiviser() => UtsagnsgrunnlagRequest.Veiviser(Grunnlag, Aktortype, Ordningstype, NyAktorMedBareNavn);
 }
 
 /// <summary>
@@ -1191,11 +1199,12 @@ public sealed record KoblNavnekandidatTilGruppemedlemskapRequest(
 /// <remarks>[ENDRET, issue #311] <c>Tildeling</c> er nå kanten (M, eller I for en rolle).</remarks>
 public sealed record NavnekandidatGruppemedlemskapResultatDto(
     NavnekandidatDto Kandidat, BegrepDto Navneform, Guid? TaggId, Guid RettskildeId, string NodeEid,
-    StrukturkantRadDto Tildeling)
+    StrukturkantRadDto Tildeling,
+    BegrepDto? GjeldendeNavneform = null, string? GjeldendeNavneformMerknad = null) // [Ny, issue #386]
 {
     public static NavnekandidatGruppemedlemskapResultatDto FraResultat(NavnekandidatGruppemedlemskapResultat r) => new(
         NavnekandidatDto.FraEntitet(r.Kandidat), BegrepDto.FraEntitet(r.Navneform), r.TaggId,
-        r.Kandidat.RettskildeId, r.NodeEid, StrukturkantRadDto.FraEntitet(r.Tildeling));
+        r.Kandidat.RettskildeId, r.NodeEid, StrukturkantRadDto.FraEntitet(r.Tildeling), r.GjeldendeNavneform?.Navneform is { } gn ? BegrepDto.FraEntitet(gn) : null, r.GjeldendeNavneform?.Merknad);
 }
 
 /// <summary>
@@ -1222,20 +1231,22 @@ public sealed record NavnekandidatManuellRequest(
 public sealed record KoblNavnekandidatTilMyndighetstildelingRequest(
     Guid VirksomhetId, Guid RolleBegrepId, string? HjemmelEid, IReadOnlyList<ParagrafspennParDto>? Paragrafspenn,
     string? Vilkaar, string? Navneformgrunn,
-    UtsagnsgrunnlagRequest? Grunnlag = null, string? Aktortype = null, string? Ordningstype = null) // [Ny, issue #385]
+    UtsagnsgrunnlagRequest? Grunnlag = null, string? Aktortype = null, string? Ordningstype = null,
+    bool NyAktorMedBareNavn = false) // [Ny, issue #385]
 {
-    public Veivisergrunnlag? Veiviser() => UtsagnsgrunnlagRequest.Veiviser(Grunnlag, Aktortype, Ordningstype);
+    public Veivisergrunnlag? Veiviser() => UtsagnsgrunnlagRequest.Veiviser(Grunnlag, Aktortype, Ordningstype, NyAktorMedBareNavn);
 }
 
 /// <summary>Som <see cref="NavnekandidatGruppemedlemskapResultatDto"/>, men <c>Tildeling</c> gjelder et
 /// fritt valgt rollebegrep — se <see cref="NavnekandidatMyndighetstildelingResultat"/>.</summary>
 public sealed record NavnekandidatMyndighetstildelingResultatDto(
     NavnekandidatDto Kandidat, BegrepDto Navneform, Guid? TaggId, Guid RettskildeId, string NodeEid,
-    StrukturkantRadDto Tildeling)
+    StrukturkantRadDto Tildeling,
+    BegrepDto? GjeldendeNavneform = null, string? GjeldendeNavneformMerknad = null) // [Ny, issue #386]
 {
     public static NavnekandidatMyndighetstildelingResultatDto FraResultat(NavnekandidatMyndighetstildelingResultat r) => new(
         NavnekandidatDto.FraEntitet(r.Kandidat), BegrepDto.FraEntitet(r.Navneform), r.TaggId,
-        r.Kandidat.RettskildeId, r.NodeEid, StrukturkantRadDto.FraEntitet(r.Tildeling));
+        r.Kandidat.RettskildeId, r.NodeEid, StrukturkantRadDto.FraEntitet(r.Tildeling), r.GjeldendeNavneform?.Navneform is { } gn ? BegrepDto.FraEntitet(gn) : null, r.GjeldendeNavneform?.Merknad);
 }
 
 /// <summary>
@@ -1251,9 +1262,10 @@ public sealed record KoblNavnekandidatTilRelasjonRequest(
     bool HjemletHer, string? Kommentar,
     // [Ny, issue #311 / Johanns beslutning 2026-10-07] Begge påkrevd når HjemletHer er false.
     string? KildeUtenforKorpusType = null, string? KildeUtenforKorpusDokumentasjon = null,
-    UtsagnsgrunnlagRequest? Grunnlag = null, string? Aktortype = null, string? Ordningstype = null) // [Ny, issue #385]
+    UtsagnsgrunnlagRequest? Grunnlag = null, string? Aktortype = null, string? Ordningstype = null,
+    bool NyAktorMedBareNavn = false) // [Ny, issue #385]
 {
-    public Veivisergrunnlag? Veiviser() => UtsagnsgrunnlagRequest.Veiviser(Grunnlag, Aktortype, Ordningstype);
+    public Veivisergrunnlag? Veiviser() => UtsagnsgrunnlagRequest.Veiviser(Grunnlag, Aktortype, Ordningstype, NyAktorMedBareNavn);
 }
 
 // [FJERNET, issue #311] NavnekandidatRelasjonDto — erstattet av StrukturkantRadDto (R-kanten).
@@ -1261,11 +1273,12 @@ public sealed record KoblNavnekandidatTilRelasjonRequest(
 /// <summary>Som <see cref="NavnekandidatKoblingResultatDto"/>, pluss selve relasjonsraden.</summary>
 public sealed record NavnekandidatRelasjonResultatDto(
     NavnekandidatDto Kandidat, BegrepDto Navneform, Guid? TaggId, Guid RettskildeId, string NodeEid,
-    StrukturkantRadDto Relasjon)
+    StrukturkantRadDto Relasjon,
+    BegrepDto? GjeldendeNavneform = null, string? GjeldendeNavneformMerknad = null) // [Ny, issue #386]
 {
     public static NavnekandidatRelasjonResultatDto FraResultat(NavnekandidatRelasjonResultat r) => new(
         NavnekandidatDto.FraEntitet(r.Kandidat), BegrepDto.FraEntitet(r.Navneform), r.TaggId,
-        r.Kandidat.RettskildeId, r.NodeEid, StrukturkantRadDto.FraEntitet(r.Relasjon));
+        r.Kandidat.RettskildeId, r.NodeEid, StrukturkantRadDto.FraEntitet(r.Relasjon), r.GjeldendeNavneform?.Navneform is { } gn ? BegrepDto.FraEntitet(gn) : null, r.GjeldendeNavneform?.Merknad);
 }
 
 /// <summary>
@@ -1933,3 +1946,19 @@ public sealed record AvvisNavneformBindingRequest(string? Begrunnelse);
 
 /// <summary>[Ny, issue #378 B4] Opprett (eller finn) en generisk navneform for en term.</summary>
 public sealed record GeneriskNavneformRequest(string Term);
+
+/// <summary>[Ny, issue #386] Forespørsel for POST /api/begreper/{id}/omgjor-til-aktor. Se <see cref="OmgjoringTjeneste"/>.</summary>
+public sealed record OmgjorTilAktorRequest(
+    string Aktornavn, Guid? EksisterendeVirksomhetId, List<OmgjortNavneformRequest> Navneformer,
+    string? Aktortype = null, UtsagnsgrunnlagRequest? AktortypeGrunnlag = null)
+{
+    public OmgjoringTilAktor TilSpesifikasjon() => new(Aktornavn, EksisterendeVirksomhetId,
+        Navneformer.Select(n => new OmgjortNavneform(n.Term, n.Grunn, n.Grunnlag.TilGrunnlag(), n.ArverTaggene)).ToList(),
+        Aktortype, AktortypeGrunnlag?.TilGrunnlag());
+}
+
+public sealed record OmgjortNavneformRequest(string Term, string Grunn, UtsagnsgrunnlagRequest Grunnlag, bool ArverTaggene = false);
+
+public sealed record OmgjoringResultatDto(
+    Guid BegrepId, VirksomhetDto Aktor, bool AktorVarNy, List<BegrepDto> Navneformer, int TaggerFlyttet, int TaggerUtvidet, int KanterFlyttet,
+    Treffidentitet Navnetreff, Guid? AktortypeUtsagnId);

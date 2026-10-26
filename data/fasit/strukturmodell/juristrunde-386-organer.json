@@ -1,0 +1,90 @@
+{
+  "issue": 386,
+  "beskrivelse": "Organer registrert som rolle-, gruppe- eller klassebegrep. Kandidatene er målt i lokal regelide 2026-10-26: alle begreper med kategori rolle, gruppe eller klasse (gjeldende) der termen inneholder et organord (utvalg, nemnd, råd, direktorat, tilsyn, tjeneste, myndighet, departement, forvalter, styre, kontor, etat, ombud, kommisjon, organ), eller som er tagget som aktør (kind virksomhet) i rettskildene. 10 gjeldende rader har kategori rolle/klasse (4 rolle, 6 klasse, 0 gruppe); 5 treffer organordene; 0 er tagget som aktør. Utfallene: aktor (organ, rettssubjekt, organisatorisk enhet) / rolle (beholdes) / klasse (beholdes eller endres til). Juristen kan foreslå et annet utfall når ingen av de tre passer.",
+  "prinsipper": [
+    "Lovens navn er primært, registeret er attributt (docs/33 §5.8, #385).",
+    "En aktørs identitet og navn er hjemlet i kilden som etablerer eller navngir den, ikke i en tilfeldig kilde. For et organ opprettet ved lov brukes den etablerende bestemmelsen som hjemmel for den gjeldende navneformen. Finnes den ikke, sies det, det gjettes ikke (Johann 2026-10-23, #395).",
+    "Generiske omtaler («departementet», «styret», «retten») er navneformer med betydning bundet per rettskilde, ikke roller (docs/33 §5.7, §5.10).",
+    "Rolle = en funksjon loven tildeler og som en aktør innehar (I innehar); klasse = en mengde aktører med medlemskap (M medlem_av) (docs/33 §4.1, §4.2).",
+    "Omgjøring sletter ingenting: det gamle begrepet settes som erstattet, taggene følger med, kanter flyttes med proveniens."
+  ],
+  "kort": [
+    {
+      "id": "K1",
+      "begrep_id": "7c51e6dc",
+      "term": "Tilsynsutvalget for dommere",
+      "kategori_i_dag": "rolle",
+      "lovkilde": "domstolloven (LOV-1915-08-13-5)",
+      "lovreferanse_eid": "§235/ledd-1",
+      "hele_leddet": "Tilsynsutvalget for dommere behandler klager og vurderer disiplinærtiltak mot dommere. Tilsynsutvalget skal bestå av to dommere fra Høyesterett, lagmannsrettene eller tingrettene, en advokat og to medlemmer som representanter for allmennheten. Når Tilsynsutvalget behandler saker som gjelder en jordskiftelagdommer eller en jordskiftedommer, deltar en jordskiftelagdommer eller jordskiftedommer i stedet for en av dommerne.",
+      "andre_forekomster": "domstolloven §§ 121c tredje ledd, 236–240 bruker «Tilsynsutvalget»; diskrimineringsombudsloven (LOV-2017-06-16-50) § 1 femte ledd bruker «Tilsynsutvalget for dommere».",
+      "tagger_i_dag": [{"node": "§235/ledd-1", "offset": "0–15", "tekst": "Tilsynsutvalget", "etterfolges_av": " for dommere behandler klager"}],
+      "kanter_i_dag": [],
+      "brreg": "Ikke funnet i Enhetsregisteret (søk navn=tilsynsutvalget, 2026-10-26). Opprettes uten orgnr.",
+      "foreslatt": {
+        "utfall": "aktor",
+        "aktortype": "organ",
+        "navneformer": [
+          {"term": "Tilsynsutvalget for dommere", "grunn": "gjeldende", "hjemmel": "domstolloven § 235 første ledd første punktum", "kunnskapsstatus": "tekstfunn"},
+          {"term": "Tilsynsutvalget", "grunn": "kortform", "hjemmel": "domstolloven § 235 første ledd annet punktum", "kunnskapsstatus": "fortolkning", "tolkningsargumenter": ["ordlyd", "kontekst_system"]}
+        ],
+        "tagger": "Den eksisterende taggen (0–15) flyttes til den gjeldende navneformen og utvides til hele navnet (0–27), fordi teksten der er «Tilsynsutvalget for dommere». Kortformen tagges der den står alene i samme ledd (annet punktum).",
+        "kanter": "Ingen å flytte.",
+        "godkjenning": "Navneformene og aktørtypen som forslag (venter på godkjenning). Rollebegrepet settes som erstattet av den gjeldende navneformen."
+      }
+    },
+    {
+      "id": "K2",
+      "begrep_id": "3466d93c",
+      "term": "reguleringsmyndighet",
+      "kategori_i_dag": "rolle",
+      "lovkilde": "energiloven (LOV-1990-06-29-50)",
+      "lovreferanse_eid": "(ingen)",
+      "hele_leddet": "§ 2-5 første ledd: Departementet utpeker en reguleringsmyndighet og klagenemnd etter denne loven og gir forskrift om organisering, oppgaver og myndighet.",
+      "tagger_i_dag": [{"node": "energiloven §2-5/ledd-1", "tekst": "reguleringsmyndighet"}],
+      "kanter_i_dag": [],
+      "foreslatt": {"utfall": "rolle"}
+    },
+    {
+      "id": "K3",
+      "begrep_id": "ba1c5bff",
+      "term": "reguleringsmyndighet",
+      "kategori_i_dag": "rolle",
+      "lovkilde": "naturgassloven (LOV-2002-06-28-61)",
+      "lovreferanse_eid": "(ingen)",
+      "hele_leddet": "§ 4 første ledd: Departementet utpeker en reguleringsmyndighet og klagenemnd etter denne loven og gir forskrift om organisering, oppgaver og myndighet.",
+      "tagger_i_dag": [{"node": "naturgassloven §4/ledd-1", "tekst": "reguleringsmyndighet"}, {"node": "FOR-2003-11-14-1342 §1-4/ledd-1", "tekst": "reguleringsmyndighet"}],
+      "kanter_i_dag": [{"kategori": "I", "type": "innehar", "fra": "Reguleringsmyndigheten for energi", "til": "reguleringsmyndighet", "hjemmel": "FOR-2003-11-14-1342 § 1-4 første ledd: «Reguleringsmyndigheten for energi (RME) er reguleringsmyndighet for omsetning av naturgass, jf. naturgassloven § 4.»", "status": "godkjent"}],
+      "foreslatt": {"utfall": "rolle"}
+    },
+    {
+      "id": "K4",
+      "begrep_id": "0ca5320d",
+      "term": "departementet",
+      "kategori_i_dag": "rolle",
+      "lovkilde": "helse- og omsorgstjenesteloven (LOV-2011-06-24-30)",
+      "lovreferanse_eid": "§3-2/ledd-4",
+      "hele_leddet": "Departementet kan i forskrift gi nærmere bestemmelser om privat helse- og omsorgsvirksomhet i kommunen, herunder om kvalitets- og funksjonskrav. Dette gjelder også private tjenesteytere som ikke har avtale med kommunen.",
+      "tagger_i_dag": "26 tagger «departementet/Departementet» i helse- og omsorgstjenesteloven.",
+      "kanter_i_dag": [
+        {"kategori": "K", "type": "normgivning", "fra": "departementet (denne rollen)", "hjemmel": "domstolloven § 124a fjerde ledd", "sitat": "Departementet kan gi forskrift om strømming etter første ledd, blant annet om behandling av personopplysninger.", "status": "maskinelt_foreslatt", "kunnskapsstatus": "normalisering"},
+        {"kategori": "K", "type": "normgivning", "fra": "departementet (denne rollen)", "hjemmel": "domstolloven § 55g fjerde ledd", "sitat": "Departementet kan gi nærmere bestemmelser om tilsetting av dommerfullmektiger og jordskiftedommerfullmektiger.", "status": "maskinelt_foreslatt", "kunnskapsstatus": "normalisering"}
+      ],
+      "finnes_alt": "Den generiske navneformen «departementet» (docs/33 §5.7) finnes, med standardregelen «departementet → ansvarlig departement» (§5.10).",
+      "foreslatt": {"utfall": "generisk omtale (ikke aktør, rolle eller klasse)", "omgjoring": "Ikke i denne saken: å gjøre rollen om til den generiske navneformen er ikke et av utfallene i #386. Foreslås som egen sak; rollebegrepet, taggene og de to K-forslagene røres ikke her."}
+    },
+    {
+      "id": "K5",
+      "begrep_id": "99f62b57",
+      "term": "statsforvalter",
+      "kategori_i_dag": "klasse",
+      "lovkilde": "(fast, ingen lovkilde)",
+      "lovreferanse_eid": "reindriftsloven §62/ledd-4",
+      "hele_leddet": "Kommune, fylkeskommune og statsforvalter bør orienteres om planarbeidet og skal gjøres kjent med hovedinnholdet i planen før den vedtas. Kommune, fylkeskommune og statsforvalter, samt berørte nabodistrikter, skal få tilsendt den vedtatte planen.",
+      "tagger_i_dag": [{"node": "reindriftsloven §62/ledd-4", "tekst": "statsforvalter"}],
+      "kanter_i_dag": [],
+      "finnes_alt": "Klassen er referent for standardregelen «statsforvalteren» → klassen statsforvalter (docs/33 §5.10).",
+      "foreslatt": {"utfall": "klasse"}
+    }
+  ]
+}

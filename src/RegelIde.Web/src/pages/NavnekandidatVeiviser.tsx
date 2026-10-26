@@ -227,6 +227,9 @@ export default function NavnekandidatVeiviser() {
   const [brregSoker, setBrregSoker] = useState(false);
   const [nyttNavn, setNyttNavn] = useState('');
   const [oppretterVirksomhet, setOppretterVirksomhet] = useState(false);
+  // [Ny, issue #386] Aktøren som ble opprettet med bare et navn i denne kjøringen. Er den valgt ved lagring, blir navnet gjeldende
+  // navneform med samme grunnlag og status (Johanns tillegg 2026-10-23).
+  const [opprettetMedBareNavnId, setOpprettetMedBareNavnId] = useState<string | null>(null);
 
   // Steg 3, gruppemedlem-veien (gruppemedlemskap-runden). `null` = ikke lastet ennå — brukes for å
   // skille «laster» fra «ingen gruppebegrep finnes» (docs/09 §15: den negative påstanden er
@@ -497,6 +500,7 @@ export default function NavnekandidatVeiviser() {
         : await api.opprettVirksomhet({ navn: nyttNavn.trim(), overordnetEnhetId: null });
       await oppdaterVirksomheter();
       setValgtVirksomhetId(ny.id);
+      setOpprettetMedBareNavnId(fra === 'kunNavn' ? ny.id : null);
       setVei('eksisterende'); // den er nå nettopp det — en eksisterende, valgt virksomhet.
     } catch (e) {
       setFeil(e instanceof ApiError ? e.message : 'Kunne ikke opprette aktøren.');
@@ -641,6 +645,7 @@ export default function NavnekandidatVeiviser() {
         grunnlag: tilRequest(grunnlagUtkast, sikkerhetUtkast, kandidat.rettskildeId),
         aktortype: aktortypeValg && aktortypeValg !== 'uavklart' ? aktortypeValg : null,
         ordningstype: aktortypeValg === 'ordning' && ordningstype ? ordningstype : null,
+        nyAktorMedBareNavn: valgtVirksomhetId === opprettetMedBareNavnId,
       };
       // [Ny, issue #385] Kandidater fra aktørsveipet har kategorien «gruppe» (uavklart). Kobl-til-endepunktene krever «virksomhet»,
       // så kategorien rettes først — det er saksbehandlerens valg i steg 2, ikke en gjetning.
@@ -708,6 +713,11 @@ export default function NavnekandidatVeiviser() {
               ? `Aktørtypen er satt til «${AKTORTYPE_VISNING[veiviser.aktortype].tekst}».`
               : `Aktørtypen «${AKTORTYPE_VISNING[veiviser.aktortype].tekst}» er registrert som faglig vurdert — den settes på aktøren først når den godkjennes.`]
             : ['Aktørtypen er ikke registrert (uavklart).']),
+          // [Ny, issue #386] Navnet på en aktør opprettet med bare et navn er nå gjeldende navneform — eller hvorfor ikke helt.
+          ...(resultat.gjeldendeNavneform && resultat.gjeldendeNavneform.id !== resultat.navneform.id
+            ? [`Aktørens navn «${resultat.gjeldendeNavneform.term}» er registrert som gjeldende navneform med samme grunnlag og status.`]
+            : []),
+          ...(resultat.gjeldendeNavneformMerknad ? [resultat.gjeldendeNavneformMerknad] : []),
           ...(slag === 'gruppemedlem' ? [`Medlemskapet har samme godkjenning (${g.godkjenning === 'godkjent' ? 'godkjent' : 'faglig vurdert'}).`] : []),
           navneformgrunn
             ? `Begrunnelsen er lagret som «${navneformgrunn}».`

@@ -669,6 +669,21 @@ docs/34 §3–5 og metodenotatet (docs/profil/03 §5 og §8). Hvert felt på `st
 områdekjeden, instansens ansvarsområde, medlemskapet); pliktoppslaget for en kommune merker et treff `avledet` når det bygger på mer enn
 den ene lagrede plikten (medlemskap, motpartsoppløsning).
 
+**[Ny, Johanns beslutning 2026-10-27] Svakeste premiss — en generell regel.** Et avledet utsagn (en kant eller et svar som bygger på
+andre utsagn) får **aldri** sterkere kunnskapsstatus enn det svakeste premisset. Regelen gjelder alle avledninger, lagrede og beregnede
+(etterfølger, utledet medlemskap, standardregler, ankeinstans, pliktoppslag, F-kanter fra migrasjoner), ikke bare etterfølgeren i §5.9.3.
+Den samme setningen står i metodenotatet (docs/profil/03 §5, «Statusen følger utsagnet»). Konkret:
+- Et premiss som er `uavklart`, `omstridt` eller **ikke vurdert** (NULL) gir ikke et `avledet` svar som om det var avgjort: utsagnet
+  blir `uavklart` (eller `omstridt`), og premisset nevnes.
+- En lesning som selv er `tekstfunn` eller `normalisering`, men som bare gjelder fordi et annet utsagn er `fortolkning`, blir
+  `fortolkning` (som etterfølgeren etter P2/S2 når opphøret er lest etter P1).
+- Et premiss som er avvist eller foreldet, bærer ikke slutningen lenger.
+- **Rangering** [Johanns beslutning 2026-10-27], sterkest først: `tekstfunn` = `eksternt_dokumentert` > `normalisering` > `avledet` >
+  `fortolkning` > `uavklart` > `omstridt`. Et premiss uten vurdert kunnskapsstatus (NULL) regnes ikke som sterkere enn `uavklart`.
+  `foreldet` bærer ingen slutning. Rangeringen gjelder bare når premisser sammenlignes i en avledning. Den gjør ikke vokabularet i
+  docs/profil/03 §5 til en generell kvalitetsskala.
+- **Målt 2026-10-27 (lokal base)** mot regelen: se §5.11 (#386). Bruddene er registrert i #411 og ikke rettet i #386.
+
 **Kategorier bundet til en lov** (docs/profil/03 §8): typekonfigurasjonen har `fvl_kategori_hjemmel` («forvaltningsloven (LOV-1967-02-10)
 § 2»), `fvl_kategori_gjelder_fra` (1970-01-01, lovens ikrafttredelse slik korpuset har den) og `fvl_kategori_gjelder_til` (tom: den nye
 forvaltningsloven er ikke i kraft).
@@ -1305,7 +1320,8 @@ Ressortfordelingen gir fortsatt 0, fordi ingen ressortkant er vurdert.
   (reversibelt). Målt: 58 bekreftelser på 56 kanter, 58 duplikater avvist.
 - **S2:** også «… overføres/tilbakeføres fra X til Y», «Y får overført fra X» og «Y overtar … Xs oppgaver» (og overskriften «Lover som
   overføres fra X til Y») gir R etterfolger når X opphører i samme vedtak — samme vilkår og samme kunnskapsstatus som P2 (`normalisering`;
-  `fortolkning` når opphøret selv er lest etter P1, slik at kanten ikke er sterkere enn premisset). Et vedtak med bare vanlige
+  `fortolkning` når opphøret selv er lest etter P1, slik at kanten ikke er sterkere enn premisset — den generelle regelen står i §4.6,
+  «Svakeste premiss»). Et vedtak med bare vanlige
   overføringer er ikke et livsløpsvedtak. Nye: Arbeids- og administrasjonsdepartementet ← Kommunal- og arbeidsdepartementet,
   Nærings- og handelsdepartementet ← Planleggings- og samordningsdepartementet, Finansdepartementet ← Planleggings- og
   samordningsdepartementet (1998), Samferdselsdepartementet ← Fornyings-, administrasjons- og kirkedepartementet (2014, bredbånd).
@@ -1381,6 +1397,33 @@ eldste vedtaket i korpuset: Utenriks-, Samferdsels- og Forsvarsdepartementet), 8
 aktørsiden (fanen Navneformer) med Godkjenn/Avvis.
 
 **Veiviseren** for generisk omtale er én skjerm (docs/09 §42), med forslag fra `GET /api/navnekandidater/{id}/generisk-kontekst`.
+
+### 5.11 Organer registrert som rolle-, klasse- eller gruppebegrep blir aktører (#386, bygget 2026-10-27)
+
+Restene fra den eldre begrepstaggingen («Tilsynsutvalget for dommere» som rolle) gjøres om til aktører. Ingenting skjer uten en
+juristrunde (CLAUDE.md §23).
+- **Kandidatene (AK 1)**, målt i lokal base 2026-10-26: begreper med kategori rolle, klasse eller gruppe der termen har et organord, eller
+  som er tagget som aktør. 10 gjeldende rader (4 rolle, 6 klasse, 0 gruppe), 5 med organord, 0 tagget som aktør. Juristrunden
+  (`data/fasit/strukturmodell/juristrunde-386-organer.json` og mappen `juristrunde-386/`, to runder, ingen uenighet): **aktør** Tilsynsutvalget
+  for dommere; **rolle** reguleringsmyndighet (energiloven og naturgassloven); **klasse** statsforvalter; **generisk omtale** «departementet»
+  (helse- og omsorgstjenesteloven), som gjøres om i en egen sak.
+- **Omgjøringen** (`OmgjoringTjeneste`, `POST /api/begreper/{id}/omgjor-til-aktor`): aktøren opprettes (eller en eksisterende kobles), med
+  navneformene og aktørtypen som forslag med grunnlag. Den gjeldende navneformen er hjemlet i bestemmelsen som oppretter eller navngir
+  aktøren (#395); tjenesten nekter uten nøyaktig én gjeldende. Begrepet settes `erstattet`, og navneformen som arver taggene har
+  `erstatter_id` = begrepet. Taggene og kantene flyttes; står navneformen i teksten fra taggens start, utvides spennet til hele navnet.
+  Hver flytting har en proveniensrad (`flyttet`, de gamle verdiene i `kilde_referanser`). Etterpå tagges navnetreff med regelen fra §5.8
+  (nøyaktig lik tekst, hele ord): alle navneformer i rettskilden der de er hjemlet, og den gjeldende også i andre rettskilder. En kortform
+  tagges ikke alene i andre rettskilder («Tilsynsutvalget» i politiarrestforskriften er et annet organ). Bøyningsformer («Tilsynsutvalgets»)
+  tagges ikke (#385-regelen for hele korpuset).
+- **Angring** (`POST /api/begreper/{id}/angre-omgjoring`): begrepet, taggene og kantene settes tilbake fra proveniensen, og navneformene og
+  aktørtypen fra omgjøringen avvises (ikke slettet). Er noe av det godkjent, angres det ikke. Å avvise den arvende navneformen direkte
+  nektes, fordi det ville slettet de flyttede taggene.
+- **Ny aktør med bare et navn** (Johanns tillegg 2026-10-23, `AktoridentitetTjeneste.RegistrerNavnetSomGjeldendeAsync`): navnet blir
+  gjeldende navneform samtidig, med grunnlaget og statusen fra veiviseren (kobl-til-endepunktene med `nyAktorMedBareNavn`, og
+  `POST /api/virksomheter` med `grunnlag`). Står navnet ikke som hele ord i bestemmelsen som er valgt, lagres «hjemmel mangler»
+  (`uavklart`) med begrunnelsen; det gjettes ikke en annen bestemmelse. Har aktøren alt en gjeldende navneform, skjer ingenting; en
+  navneform med samme navn uten grunnlag (SNL-bekreftelsen) fylles ut, ingen dublett. I generisk omtale (docs/09 §42) er hjemmelen noden
+  der navnekandidaten står, med `tekstfunn` og bindingens godkjenning.
 
 ### 5.6 Konvertering av eksisterende data
 

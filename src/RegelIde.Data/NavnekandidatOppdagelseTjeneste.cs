@@ -2043,7 +2043,7 @@ public sealed class NavnekandidatOppdagelseTjeneste(
         // Steg 2: nøyaktig samme kjedelukking som virksomhet-veien.
         var kobling = await LukkKjedenMotVirksomhetAsync(kandidat, virksomhetId, navneformgrunn, behandletAv, ct, veiviser);
         return new NavnekandidatGruppemedlemskapResultat(
-            kobling!.Kandidat, kobling.Navneform, kobling.TaggId, kobling.NodeEid, tildeling);
+            kobling!.Kandidat, kobling.Navneform, kobling.TaggId, kobling.NodeEid, tildeling) { GjeldendeNavneform = kobling.GjeldendeNavneform };
     }
 
     /// <summary>
@@ -2085,7 +2085,7 @@ public sealed class NavnekandidatOppdagelseTjeneste(
 
         var kobling = await LukkKjedenMotVirksomhetAsync(kandidat, virksomhetId, navneformgrunn, behandletAv, ct, veiviser);
         return new NavnekandidatMyndighetstildelingResultat(
-            kobling!.Kandidat, kobling.Navneform, kobling.TaggId, kobling.NodeEid, tildeling);
+            kobling!.Kandidat, kobling.Navneform, kobling.TaggId, kobling.NodeEid, tildeling) { GjeldendeNavneform = kobling.GjeldendeNavneform };
     }
 
     /// <summary>
@@ -2143,7 +2143,7 @@ public sealed class NavnekandidatOppdagelseTjeneste(
 
         var kobling = await LukkKjedenMotVirksomhetAsync(kandidat, virksomhetId, navneformgrunn, behandletAv, ct, veiviser);
         return new NavnekandidatRelasjonResultat(
-            kobling!.Kandidat, kobling.Navneform, kobling.TaggId, kobling.NodeEid, relasjon);
+            kobling!.Kandidat, kobling.Navneform, kobling.TaggId, kobling.NodeEid, relasjon) { GjeldendeNavneform = kobling.GjeldendeNavneform };
     }
 
     /// <summary>
@@ -2342,6 +2342,7 @@ public sealed class NavnekandidatOppdagelseTjeneste(
         // raden taggen skal peke på.
         var tagg = await OpprettEllerKobleVirksomhetTaggAsync(kandidat, navneform.Id, behandletAv, ct);
 
+        NavnetSomGjeldende? gjeldendeNavn = null;
         // [Ny, issue #385 AC8–AC10] Veiviserens grunnlag og status på navneformen (ny, eller et forslag som nå er vurdert) og
         // aktørtypen som eget utsagn. En eldre eller alt godkjent navneform røres ikke (AktoridentitetTjeneste.SkrivGrunnlagPaaNavneformAsync).
         if (veiviser is not null)
@@ -2353,6 +2354,10 @@ public sealed class NavnekandidatOppdagelseTjeneste(
                 await identitet.RegistrerAktortypeAsync(virksomhetId, veiviser.Aktortype, veiviser.Ordningstype, veiviser.Grunnlag,
                     "veiviser", behandletAv, ct);
             }
+            if (veiviser.NyAktorMedBareNavn)
+            {
+                gjeldendeNavn = await identitet.RegistrerNavnetSomGjeldendeAsync(virksomhetId, veiviser.Grunnlag, behandletAv, ct);
+            }
         }
 
         kandidat.Status = "Godkjent";
@@ -2360,7 +2365,7 @@ public sealed class NavnekandidatOppdagelseTjeneste(
         kandidat.BehandletTidspunkt = DateTimeOffset.UtcNow;
         await db.SaveChangesAsync(ct);
 
-        return new NavnekandidatKoblingResultat(kandidat, navneform, tagg?.Id, kandidat.NodeEid);
+        return new NavnekandidatKoblingResultat(kandidat, navneform, tagg?.Id, kandidat.NodeEid) { GjeldendeNavneform = gjeldendeNavn };
     }
 
     /// <summary>
@@ -2552,7 +2557,11 @@ public sealed record NavnekandidatSveipResultat(int AntallTreffFunnet, int Antal
 /// </param>
 /// <param name="NodeEid">eId-en for noden taggen står i — klientens «Se i rettskilden ↗»-lenke.</param>
 public sealed record NavnekandidatKoblingResultat(
-    NavnekandidatEntitet Kandidat, BegrepEntitet Navneform, Guid? TaggId, string NodeEid);
+    NavnekandidatEntitet Kandidat, BegrepEntitet Navneform, Guid? TaggId, string NodeEid)
+{
+    /// <summary>[Ny, issue #386] Navnet som gjeldende navneform når aktøren ble opprettet med bare et navn; ellers null.</summary>
+    public NavnetSomGjeldende? GjeldendeNavneform { get; init; }
+}
 
 /// <summary>
 /// [Ny, gruppemedlemskap-runden, 2026-09-08, issue #164] Utfallet av
@@ -2564,7 +2573,11 @@ public sealed record NavnekandidatKoblingResultat(
 /// <param name="Tildeling">Tildelingskanten (M/I, før #311 myndighetstildeling) som ble opprettet ELLER gjenbrukt.</param>
 public sealed record NavnekandidatGruppemedlemskapResultat(
     NavnekandidatEntitet Kandidat, BegrepEntitet Navneform, Guid? TaggId, string NodeEid,
-    StrukturkantEntitet Tildeling);
+    StrukturkantEntitet Tildeling)
+{
+    /// <summary>[Ny, issue #386] Se <see cref="NavnekandidatKoblingResultat.GjeldendeNavneform"/>.</summary>
+    public NavnetSomGjeldende? GjeldendeNavneform { get; init; }
+}
 
 /// <summary>
 /// [Ny, navnekandidat-alle-mekanismer-runden, 2026-09-21, issue #283] Utfallet av
@@ -2574,7 +2587,11 @@ public sealed record NavnekandidatGruppemedlemskapResultat(
 /// </summary>
 public sealed record NavnekandidatMyndighetstildelingResultat(
     NavnekandidatEntitet Kandidat, BegrepEntitet Navneform, Guid? TaggId, string NodeEid,
-    StrukturkantEntitet Tildeling);
+    StrukturkantEntitet Tildeling)
+{
+    /// <summary>[Ny, issue #386] Se <see cref="NavnekandidatKoblingResultat.GjeldendeNavneform"/>.</summary>
+    public NavnetSomGjeldende? GjeldendeNavneform { get; init; }
+}
 
 /// <summary>
 /// [Ny, navnekandidat-alle-mekanismer-runden, 2026-09-21, issue #283] Utfallet av
@@ -2582,7 +2599,11 @@ public sealed record NavnekandidatMyndighetstildelingResultat(
 /// </summary>
 public sealed record NavnekandidatRelasjonResultat(
     NavnekandidatEntitet Kandidat, BegrepEntitet Navneform, Guid? TaggId, string NodeEid,
-    StrukturkantEntitet Relasjon);
+    StrukturkantEntitet Relasjon)
+{
+    /// <summary>[Ny, issue #386] Se <see cref="NavnekandidatKoblingResultat.GjeldendeNavneform"/>.</summary>
+    public NavnetSomGjeldende? GjeldendeNavneform { get; init; }
+}
 
 /// <summary>
 /// [Ny, navnekandidat-alle-mekanismer-runden, 2026-09-21, issue #283] Utfallet av
@@ -2620,4 +2641,6 @@ public sealed record NavnekandidatGruppeBatchRad(Guid Id, bool Ok, string? Feil,
 
 /// <summary>[Ny, issue #385 AC8–AC10] Veiviserens to nye steg — «Hva bygger dette på?» og «Hvor sikkert er det?» — og aktørtypen fra steg 2
 /// («navngitt aktør, med valg av type»). Valgfri for bakoverkompatibilitet: uten den oppfører kobl-til-endepunktene seg som før.</summary>
-public sealed record Veivisergrunnlag(Utsagnsgrunnlag Grunnlag, string? Aktortype = null, string? Ordningstype = null);
+/// <remarks>[ENDRET, issue #386] <c>NyAktorMedBareNavn</c>: aktøren ble opprettet med bare et navn i denne veiviserkjøringen. Da registreres
+/// navnet som gjeldende navneform med samme grunnlag og status (<see cref="AktoridentitetTjeneste.RegistrerNavnetSomGjeldendeAsync"/>).</remarks>
+public sealed record Veivisergrunnlag(Utsagnsgrunnlag Grunnlag, string? Aktortype = null, string? Ordningstype = null, bool NyAktorMedBareNavn = false);
