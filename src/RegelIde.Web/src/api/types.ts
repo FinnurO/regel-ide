@@ -2526,13 +2526,14 @@ export interface GeneriskStandardregel {
 }
 /** [Ny, issue #394 AK 1] Ett premiss et standardregelsvar bygger på. */
 export interface StandardregelPremiss {
-  type: 'ressortkant' | 'lovdata_felt' | 'klasse'; tekst: string; kantId: string | null; status: Godkjenning | null;
+  type: 'ressortkant' | 'lovdata_felt' | 'klasse' | 'navnehistorikk'; tekst: string; kantId: string | null; status: Godkjenning | null;
   kunnskapsstatus: Kunnskapsstatus | null; hjemmelRettskildeId: string | null; hjemmelEid: string | null; dokumentasjon: 'primaer' | 'sekundaer' | null;
 }
 /** [Ny, issue #394 AK 1] Svaret fra en standardregel for én rettskilde. */
 export interface StandardregelSvar {
   term: string; regelkode: string; regelnavn: string; utfall: 'lost' | 'ikke_lost' | 'flertydig';
-  rute: 'ressortfordeling' | 'lovdata' | 'fast_referent' | null; referentVisning: StrukturnodeDto | null;
+  // [ENDRET, Johanns beslutning på PR #398] + 'lovdata_utgatt_navn': Lovdatas felt bruker et utgått navn som navnehistorikken fører til én aktør.
+  rute: 'ressortfordeling' | 'lovdata' | 'lovdata_utgatt_navn' | 'fast_referent' | null; referentVisning: StrukturnodeDto | null;
   kunnskapsstatus: Kunnskapsstatus; dokumentasjon: 'primaer' | 'sekundaer' | null; oppslagsdato: string;
   gyldigFra: string | null; gyldigTil: string | null; forklaring: string; premisser: StandardregelPremiss[]; merknader: string[];
   referentNedlagt: string | null;
