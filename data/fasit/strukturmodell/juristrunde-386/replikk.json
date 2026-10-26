@@ -1,0 +1,23 @@
+[
+  {
+    "id": "K1",
+    "punkt": "tagging av kortformen (21 forekomster, bøyningsformer, diskrimineringsombudsloven)",
+    "replikk": "presiserer",
+    "tekst": "Jeg godtar at omgjøringen bare tagger hjemmelnoden, og at resten overlates til den eksisterende navnetreffmekanismen fra #385. Én taggeregel er bedre enn to. Jeg godtar også at bøyningsformer er et spørsmål for hele korpuset og ikke for denne aktøren. Presisering: sveipet med navnetreff i skrivemodus må faktisk kjøres på domstolloven og diskrimineringsombudsloven før #386 lukkes. Kaldsjekken i AK 4 må vise at de 21 eksakte forekomstene av kortformen og den fulle formen i diskrimineringsombudsloven § 1 femte ledd er tagget. Ellers står 20 av 21 forekomster av kortformen uten tagg, selv om saken er ferdig. De 7 forekomstene av «Tilsynsutvalgets» skal listes som kjent hull i kaldsjekken.",
+    "kilder": [
+      {"ref": "domstolloven §§ 121c, 235–238, 240", "funksjon": "direkte_hjemmel"},
+      {"ref": "diskrimineringsombudsloven § 1 femte ledd", "funksjon": "forutsatt_kilde"},
+      {"ref": "docs/33 §5.8 (navnetreff, #385)", "funksjon": "forutsatt_kilde"}
+    ]
+  },
+  {
+    "id": "K5",
+    "punkt": "lovreferanse_eid uten lovkilde_id er inkonsistent",
+    "replikk": "godtar",
+    "tekst": "Kontrollert i lokal base: også den faste klassen «kommune» har lovkilde_id NULL og hjemmelen i lovreferanse_eid (kommuneloven § 2-1 første ledd, tekstfunn). Den unike indeksen for faste begreper krever at lovkilde_id er NULL. Det er altså modellen og ikke en feil. Innvendingen trekkes. Rettingen av selve hjemmelen (til FOR-2020-12-18-2867 punkt 1) står ved lag og er akseptert.",
+    "kilder": [
+      {"ref": "lokal regelide, begreper: klassene «kommune» og «statsforvalter» (lovkilde_id NULL)", "funksjon": "direkte_hjemmel"},
+      {"ref": "docs/33 §5.7 (klassen kommune, #384)", "funksjon": "forutsatt_kilde"}
+    ]
+  }
+]
