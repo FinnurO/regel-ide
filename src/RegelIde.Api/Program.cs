@@ -681,7 +681,7 @@ app.MapGet("/api/virksomheter", async (
         var hull = await EtterfolgerHull.HovedetterfolgerUkjentAsync(db, virksomheter.Where(v => v.Livsstatus == "nedlagt").Select(v => v.Id), ct);
         return virksomheter.Select(v => VirksomhetDto.FraEntitet(v, visningsnavn) with
         {
-            HovedetterfolgerUkjent = v.Livsstatus == "nedlagt" ? hull.Contains(v.Id) : null,
+            HovedetterfolgerUkjent = v.Livsstatus == "nedlagt" && v.ErstattetAvId is null ? hull.Contains(v.Id) : null,
         });
     })
     .WithOpenApi()

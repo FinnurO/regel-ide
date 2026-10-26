@@ -1223,6 +1223,12 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
 - **«Sekundær kilde, utgått navn, valgt etter dato»** (`warning`) i stedet for «Sekundær kilde, utgått navn» når navnet er brukt av flere
   identiteter og svaret er valgt etter dato (`GeneriskKilde.tsx`).
 
+## 45. Hovedetterfølger ukjent og erstattet aktør (Johanns avgjørelser 2026-10-27, #397)
+
+- **«Hovedetterfølger ukjent»** (`HovedetterfolgerUkjentTag`, `warning`) ved «Nedlagt» på aktørsiden og i aktørlisten: et synlig hull, ikke
+  en påstand om hvem som overtok. Regnes ut av API-et (`hovedetterfolgerUkjent`).
+- **«Erstattet (duplikat)»** (`ErstattetTag`, `neutral`) på aktørsiden for en aktør med `erstattetAvId`. Aktørlisten skjuler slike.
+
 ## 42. Generisk omtale: kjeden i lovteksten og veiviseren på én skjerm (issue #394, 2026-10-24)
 
 - **Kjeden vises alltid, aldri en rå id.** En tagg mot en generisk navneform viser «departementet» → [Generisk omtale] [kilde] → referenten,

@@ -1297,6 +1297,26 @@ to nedlagte aktører (gyldig til 1987-12-17 fra #405, og 1987-12-31 etter U1); d
 **«departementet» (§5.10) etter datoskillet:** Lovdata, utgått navn 14 → 34, flertydig 27 → 7 (bare «flere departementer i Lovdata»).
 Ressortfordelingen gir fortsatt 0, fordi ingen ressortkant er vurdert.
 
+### 5.9.3 S1–S3 og duplikatet (Johanns avgjørelser 2026-10-27)
+
+- **S1, bekreftelse:** en statsrådliste («etter endringene», innledningen nevner en statsråd) som gir SAMME identitet samme del av en lov
+  som den alt har på datoen, gir ingen ny F-kant. Vedtaket legges til som grunnlag på den eksisterende kanten i den nye tabellen
+  `strukturkant_bekreftelser` (kant, hjemmel, dato, kommentar). Egne, uvurderte duplikater fra #405 er avvist med begrunnelse
+  (reversibelt). Målt: 58 bekreftelser på 56 kanter, 58 duplikater avvist.
+- **S2:** også «… overføres/tilbakeføres fra X til Y», «Y får overført fra X» og «Y overtar … Xs oppgaver» (og overskriften «Lover som
+  overføres fra X til Y») gir R etterfolger når X opphører i samme vedtak — samme vilkår og samme kunnskapsstatus som P2 (`normalisering`;
+  `fortolkning` når opphøret selv er lest etter P1, slik at kanten ikke er sterkere enn premisset). Et vedtak med bare vanlige
+  overføringer er ikke et livsløpsvedtak. Nye: Arbeids- og administrasjonsdepartementet ← Kommunal- og arbeidsdepartementet,
+  Nærings- og handelsdepartementet ← Planleggings- og samordningsdepartementet, Finansdepartementet ← Planleggings- og
+  samordningsdepartementet (1998), Samferdselsdepartementet ← Fornyings-, administrasjons- og kirkedepartementet (2014, bredbånd).
+- **S3, «Hovedetterfølger ukjent»:** regnet ut (`EtterfolgerHull`, ikke lagret) for en nedlagt aktør uten en avledet etterfølger, uten en
+  som overtok alle (de resterende) oppgavene, og uten en faglig vurdert eller godkjent etterfølger. Vises som `warning` på aktørsiden og i
+  aktørlisten (docs/09 §45). Ingen etterfølger gjettes; hullet fylles ved å registrere en etterfølger med faglig vurdering. Målt: 13 aktører,
+  blant dem Fiskeri- og kystdepartementet, Sosial- og helsedepartementet og Nærings- og energidepartementet (delt mellom to).
+- **Duplikatet Industridepartementet:** R avvikler `5d354af1` og navneformen `44d84785` er avvist, og aktøren `257389e5` er merket
+  erstattet av `dc29e208` (`virksomheter.erstattet_av_id`, `POST /api/virksomheter/{id}/erstattet-av`, null angrer). Ingenting er
+  slettet. En erstattet aktør vises ikke i aktørlisten og brukes ikke av livsløpet.
+
 ### 5.10 Standardregler for generiske omtaler og navnevedtaket som hjemmel (#394, bygget 2026-10-24)
 
 Johann 2026-10-23: det var tungvint å binde «departementet» til lovens eierdepartement, bindingen han lagde ble ikke brukt (bare godkjente
