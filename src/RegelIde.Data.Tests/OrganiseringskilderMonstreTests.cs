@@ -157,8 +157,10 @@ public class OrganiseringskilderMonstreTests
     [Fact]
     public void Overforing_og_vedlegg_gir_lovens_datokode()
     {
+        // [ENDRET, S2 på #397] Leddet gir også en «overtar»-hendelse (etterfølgerkandidat når X opphører); her gjelder overføringen.
         var h = Assert.Single(DepartementLivslopMonstre.LesLedd(
-            "Forvaltningsansvaret for lov 29. april 2005 nr. 20 om innkreving av underholdsbidrag mv. (bidragsinnkrevingsloven) overføres fra Arbeids- og sosialdepartementet til Finansdepartementet.", out _));
+            "Forvaltningsansvaret for lov 29. april 2005 nr. 20 om innkreving av underholdsbidrag mv. (bidragsinnkrevingsloven) overføres fra Arbeids- og sosialdepartementet til Finansdepartementet.", out _),
+            x => x.Type == DepartementLivslopMonstre.Overforing);
         Assert.Equal("Finansdepartementet", h.Til!.Value.Navn);
         Assert.Equal("LOV-2005-04-29-20", DepartementLivslopMonstre.LovDatokode(h.Objekt!));
         Assert.Equal("LOV-1925-07-17-11", DepartementLivslopMonstre.LovDatokode("Lov 17. juli 1925 nr. 11 om Svalbard, § 4"));
@@ -277,7 +279,7 @@ public class OrganiseringskilderMonstreTests
             && x.Til!.Value.Navn == "Planleggings- og samordningsdepartementet");
         var fkd = DepartementLivslopMonstre.LesLedd(
             "Samferdselsdepartementet overtar ansvaret for Fornyings-, administrasjons- og kirkedepartementets oppgaver knyttet til bredbånd samt ansvaret for kyst- og miljøsaker fra Fiskeri- og kystdepartementet.", out _);
-        var o = Assert.Single(fkd, x => x.Type == DepartementLivslopMonstre.Overtar);
+        var o = Assert.Single(fkd, x => x.Type == DepartementLivslopMonstre.Overtar && x.Fra!.Value.Navn == "Fiskeri- og kystdepartementet");
         Assert.Equal(("Fiskeri- og kystdepartementet", "Samferdselsdepartementet"), (o.Fra!.Value.Navn, o.Til!.Value.Navn));
         Assert.Equal("Nærings- og energidepartementet",
             DepartementLivslopMonstre.LesOverskrift("Organisatorisk deling av det tidligere Nærings- og energidepartementet").Single().Navn.Single().Navn);
@@ -291,5 +293,25 @@ public class OrganiseringskilderMonstreTests
         Assert.Null(DepartementLivslopMonstre.LesForvaltningenOverforesFra("Myndighet etter følgende lover overføres fra Sosialdepartementet:"));
         Assert.Equal("Utdannings- og forskningsdepartementet",
             DepartementLivslopMonstre.LesTilOverforesFolgende("Til Utdannings- og forskningsdepartementet overføres følgende:")!.Value.Navn);
+    }
+    [Fact]
+    public void Overforingsformene_gir_overtar_hendelser_S2()
+    {
+        // Johanns avgjørelse S2 på #397: «overføres/tilbakeføres fra X til Y», «Y får overført fra X», «Y overtar … Xs oppgaver».
+        var a = Assert.Single(DepartementLivslopMonstre.LesLedd(
+            "Ansvarsområdet arbeidsmarkedspolitikk overføres fra det nåværende Kommunal- og arbeidsdepartementet til det nye Arbeids- og administrasjonsdepartementet (AAD) (se punkt 1).", out _),
+            x => x.Type == DepartementLivslopMonstre.Overtar);
+        Assert.Equal(("Kommunal- og arbeidsdepartementet", "Arbeids- og administrasjonsdepartementet"), (a.Fra!.Value.Navn, a.Til!.Value.Navn));
+        var b = Assert.Single(DepartementLivslopMonstre.LesLedd(
+            "Ansvaret for nasjonal planlegging og arbeidet med langtidsprogrammet tilbakeføres fra Planleggings- og samordningsdepartementet til Finansdepartementet.", out _),
+            x => x.Type == DepartementLivslopMonstre.Overtar);
+        Assert.Equal("Finansdepartementet", b.Til!.Value.Navn);
+        var c = DepartementLivslopMonstre.LesLedd(
+            "Samferdselsdepartementet overtar ansvaret for Fornyings-, administrasjons- og kirkedepartementets oppgaver knyttet til bredbånd samt ansvaret for kyst- og miljøsaker fra Fiskeri- og kystdepartementet.", out _);
+        Assert.Contains(c, x => x.Type == DepartementLivslopMonstre.Overtar && x.Fra!.Value.Navn == "Fornyings-, administrasjons- og kirkedepartementet");
+        Assert.Contains(c, x => x.Type == DepartementLivslopMonstre.Overtar && x.Fra!.Value.Navn == "Fiskeri- og kystdepartementet");
+        var d = Assert.Single(DepartementLivslopMonstre.LesOverskrift("Lover som overføres fra Nærings- og energidepartementet til Nærings- og handelsdepartementet:"),
+            x => x.Type == DepartementLivslopMonstre.Overtar);
+        Assert.Equal("Nærings- og handelsdepartementet", d.Til!.Value.Navn);
     }
 }
