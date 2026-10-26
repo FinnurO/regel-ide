@@ -130,8 +130,13 @@ public sealed record FasitimportRapport(
     bool Torrkjoring, int UtsagnTotalt, IReadOnlyList<FasitUtfalltall> PerUtfall, IReadOnlyList<ForslagArsaktall> IkkeLastetPerArsak,
     IReadOnlyList<FasitUloestAktor> UloesteAktorer, IReadOnlyList<FasitimportRad> Konflikter, IReadOnlyList<FasitimportRad> Rader)
 {
-    /// <summary>Rader med <c>sikkerhet: lav</c> i fasiten som ble lastet (faglig vurdert). Listet fordi annotatøren var usikker.</summary>
-    public int LavSikkerhetLastet { get; init; }
+    /// <summary>[ENDRET, Johanns avgjørelse 2026-10-26 på #387] Rader med <c>sikkerhet: lav</c> i fasiten. De lastes som
+    /// <c>manuelt_foreslatt</c> med kunnskapsstatus <c>uavklart</c>, ikke som faglig vurdert, og vurderes i forslagskøen.</summary>
+    public int LavSikkerhetSomForslag { get; init; }
+    /// <summary>[Ny, Johanns avgjørelse 2026-10-26 på #387] Fasiten lagt til som bekreftelse (S1, <c>strukturkant_bekreftelser</c>) på kanter
+    /// som alt var godkjent eller faglig vurdert med samme innhold — nye og som fantes fra en tidligere kjøring.</summary>
+    public int BekreftelserNye { get; init; }
+    public int BekreftelserFantes { get; init; }
     /// <summary>Rader der kunnskapsstatusen ble svekket fordi en aktør er løst via en binding/standardregel med svakere status.</summary>
     public int SvektEtterPremiss { get; init; }
     /// <summary>Aktører løst ved at et flertydig navn ble skilt på fasitens entitetstype, og ved fasitens referent (antall utsagn).</summary>
@@ -201,6 +206,7 @@ public sealed partial class StrukturforslagTjeneste
         var uloest = new Dictionary<string, (string Arsak, string Status, int Antall, Guid RettskildeId, string Eid, IReadOnlyList<string> Treff, IReadOnlyList<string> Kandidater)>(StringComparer.Ordinal);
         var settIKjoringen = new HashSet<(Nokkel, string?)>();
         var lavSikkerhet = 0;
+        var bekreftelser = new Bekreftelsestall();
         var svekket = 0;
         var viaEntitetstype = 0;
         var viaReferent = 0;
@@ -352,17 +358,28 @@ public sealed partial class StrukturforslagTjeneste
                 u.Kunnskapsstatus, u.Begrunnelse ?? (u.Kunnskapsstatus == Strukturkanter.Normalisering ? "Regel: fasiten (#367)" : null),
                 u.Tolkningsargumenter, [fra.Premiss, til?.Premiss]);
             if (ks != u.Kunnskapsstatus) svekket++;
+            // [Ny, Johanns avgjørelse 2026-10-26 på #387] Lav sikkerhet i fasiten = annotatøren var usikker. Raden er da ikke faglig vurdert:
+            // den blir et manuelt forslag med kunnskapsstatus uavklart (eller omstridt, om et premiss er det), og vurderes i forslagskøen.
+            var lav = u.Sikkerhet == "lav";
+            if (lav && Svakestepremiss.Rang(ks) < Svakestepremiss.Rang(Strukturkanter.Uavklart))
+            {
+                begrunnelse = $"Fasiten markerer sikkerhet lav (annotatøren var usikker){(ks is null ? "" : $"; fasitens kunnskapsstatus var {ks}")}"
+                    + $"{(begrunnelse is null ? "" : $" ({begrunnelse})")}. Johanns avgjørelse 2026-10-26 på #387: manuelt forslag, vurderes i forslagskøen.";
+                ks = Strukturkanter.Uavklart;
+                argumenter = null;
+                premisser = null;
+            }
             var ny = new NyStrukturkant(
                 kat, kode, fra.Node!, til?.Node,
                 HjemmelRettskildeId: rid, HjemmelEid: u.Eid,
                 AvgrensningTekst: u.Avgrensning, Objekt: u.Objekt, Polaritet: u.Polaritet,
                 Kommentar: $"«{u.Sitat}»" + (string.IsNullOrWhiteSpace(u.Kommentar) ? "" : $" — {u.Kommentar}") + merknader,
-                Status: Strukturkanter.FagligVurdert, OppdagelsesKilde: kilde,
+                Status: lav ? Strukturkanter.ManueltForeslatt : Strukturkanter.FagligVurdert, OppdagelsesKilde: kilde,
                 Normform: u.Normform, Grunnlag: u.Grunnlag, Delegeringsadgang: u.Delegeringsadgang, DelegeringSlutning: u.DelegeringSlutning,
                 Undertype: u.Undertype, Modalitet: u.Modalitet,
                 Kunnskapsstatus: ks, Begrunnelse: begrunnelse, Tolkningsargumenter: argumenter, Premisser: premisser);
-            var (utfall, detalj, kantId) = await SkrivFasitradAsync(ny, kilde, rid, settIKjoringen, torrkjoring, bruker, ct);
-            if (utfall is not Fasitutfall.IkkeLastet && u.Sikkerhet == "lav") lavSikkerhet++;
+            var (utfall, detalj, kantId) = await SkrivFasitradAsync(ny, kilde, rid, settIKjoringen, torrkjoring, bruker, bekreftelser, ct);
+            if (utfall is not Fasitutfall.IkkeLastet && lav) lavSikkerhet++;
             var via = new[] { fra.Via, til?.Via }.OfType<string>().Distinct().ToList();
             if (via.Contains("entitetstype")) viaEntitetstype++;
             if (via.Contains("referent")) viaReferent++;
@@ -407,7 +424,7 @@ public sealed partial class StrukturforslagTjeneste
                 Kommentar: (u.Kommentar ?? "").Trim() + Merknader(null, null, u.VerifisertAv),
                 Status: Strukturkanter.FagligVurdert, OppdagelsesKilde: kilde,
                 Kunnskapsstatus: u.Kunnskapsstatus, Begrunnelse: u.Begrunnelse);
-            var (utfall, detalj, kantId) = await SkrivFasitradAsync(ny, kilde, null, settIKjoringen, torrkjoring, bruker, ct);
+            var (utfall, detalj, kantId) = await SkrivFasitradAsync(ny, kilde, null, settIKjoringen, torrkjoring, bruker, bekreftelser, ct);
             rader.Add(Rad(kat, kode, utfall, utfall == Fasitutfall.IkkeLastet ? Forslagsarsak.AvvistAvValideringen : null, detalj, kantId, u.Kunnskapsstatus));
         }
 
@@ -437,7 +454,8 @@ public sealed partial class StrukturforslagTjeneste
 
         return Rapport(torrkjoring, rader, uloesteAktorer) with
         {
-            LavSikkerhetLastet = lavSikkerhet, SvektEtterPremiss = svekket, LostViaEntitetstype = viaEntitetstype, LostViaReferent = viaReferent,
+            LavSikkerhetSomForslag = lavSikkerhet, BekreftelserNye = bekreftelser.Nye, BekreftelserFantes = bekreftelser.Fantes,
+            SvektEtterPremiss = svekket, LostViaEntitetstype = viaEntitetstype, LostViaReferent = viaReferent,
             Aktoridentitet = identitet,
         };
     }
@@ -449,7 +467,9 @@ public sealed partial class StrukturforslagTjeneste
         var identitet = rapporter.Select(x => x.Aktoridentitet).OfType<Treffidentitet>().ToList();
         return r with
         {
-            LavSikkerhetLastet = rapporter.Sum(x => x.LavSikkerhetLastet),
+            LavSikkerhetSomForslag = rapporter.Sum(x => x.LavSikkerhetSomForslag),
+            BekreftelserNye = rapporter.Sum(x => x.BekreftelserNye),
+            BekreftelserFantes = rapporter.Sum(x => x.BekreftelserFantes),
             SvektEtterPremiss = rapporter.Sum(x => x.SvektEtterPremiss),
             LostViaEntitetstype = rapporter.Sum(x => x.LostViaEntitetstype),
             LostViaReferent = rapporter.Sum(x => x.LostViaReferent),
@@ -526,6 +546,7 @@ public sealed partial class StrukturforslagTjeneste
             Sjekk("tolkningsargumenter", string.Join(",", k.Tolkningsargumenter ?? []), string.Join(",", ny.Tolkningsargumenter ?? []));
             Sjekk("kommentar", k.Kommentar, ny.Kommentar);
             Sjekk("kategori/type", $"{k.Kategori}/{k.Typekode}", $"{ny.Kategori}/{ny.Typekode}");
+            Sjekk("godkjenning", k.Status, ny.Status); // [Ny, #387-oppfølgingen] lav sikkerhet: faglig vurdert → manuelt forslag
             Sjekk("fra", $"{k.FraVirksomhetId}{k.FraBegrepId}", $"{ny.Fra.VirksomhetId}{ny.Fra.BegrepId}");
             Sjekk("til", $"{k.TilVirksomhetId}{k.TilBegrepId}", $"{ny.Til?.VirksomhetId}{ny.Til?.BegrepId}");
             Sjekk("hjemmel", $"{k.HjemmelRettskildeId} {k.HjemmelEid}", $"{ny.HjemmelRettskildeId} {ny.HjemmelEid}");
@@ -536,8 +557,36 @@ public sealed partial class StrukturforslagTjeneste
     }
 
     /// <summary>[Ny, issue #387] Skriver (eller tørrkjører) én fasitrad etter reglene i <see cref="ImporterFasitAsync"/>.</summary>
+    private sealed class Bekreftelsestall { public int Nye; public int Fantes; }
+
+    /// <summary>
+    /// [Ny, Johanns avgjørelse 2026-10-26 på #387] Fasiten som BEKREFTELSE på en kant som alt var godkjent eller faglig vurdert med samme innhold:
+    /// samme mekanisme som S1 i #408 (<see cref="StrukturkantBekreftelseEntitet"/>). Bare et ekstra grunnlag — kantens status, hjemmel og
+    /// opphav endres ikke. Opphavet står i bekreftelsens oppdagelseskilde (<c>fasit:&lt;fil&gt;:&lt;id&gt;</c>). Bare for rader med hjemmel i korpus
+    /// (tabellen krever det). Idempotent på (kant, rettskilde, eId).
+    /// </summary>
+    private async Task BekreftAsync(Guid kantId, NyStrukturkant ny, string kilde, bool torrkjoring, string bruker, Bekreftelsestall tall, CancellationToken ct)
+    {
+        if (ny.HjemmelRettskildeId is not { } rid || ny.HjemmelEid is not { } eid) return;
+        if (await db.StrukturkantBekreftelser.AnyAsync(b => b.KantId == kantId && b.HjemmelRettskildeId == rid && b.HjemmelEid == eid, ct))
+        {
+            tall.Fantes++;
+            return;
+        }
+        tall.Nye++;
+        if (torrkjoring) return;
+        db.StrukturkantBekreftelser.Add(new StrukturkantBekreftelseEntitet
+        {
+            Id = Guid.NewGuid(), KantId = kantId, HjemmelRettskildeId = rid, HjemmelEid = eid, OppdagelsesKilde = kilde,
+            Kommentar = "Fasiten (faglig vurdert, ikke uavhengig kontrollert): " + ny.Kommentar, OpprettetAv = bruker,
+            OpprettetTidspunkt = DateTimeOffset.UtcNow,
+        });
+        await db.SaveChangesAsync(ct);
+    }
+
     private async Task<(string Utfall, string? Detalj, Guid? KantId)> SkrivFasitradAsync(
-        NyStrukturkant ny, string kilde, Guid? rettskildeId, HashSet<(Nokkel, string?)> settIKjoringen, bool torrkjoring, string bruker, CancellationToken ct)
+        NyStrukturkant ny, string kilde, Guid? rettskildeId, HashSet<(Nokkel, string?)> settIKjoringen, bool torrkjoring, string bruker,
+        Bekreftelsestall bekreftelser, CancellationToken ct)
     {
         var nokkel = new Nokkel(ny.HjemmelEid ?? "", ny.Kategori, ny.Typekode, ny.Fra.VirksomhetId, ny.Fra.BegrepId, ny.Til?.VirksomhetId, ny.Til?.BegrepId,
             string.IsNullOrWhiteSpace(ny.Undertype) ? null : ny.Undertype.Trim(), string.IsNullOrWhiteSpace(ny.Normform) ? null : ny.Normform.Trim(),
@@ -554,6 +603,12 @@ public sealed partial class StrukturforslagTjeneste
                 return (utfall, null, nyKant!.Id);
             }
             catch (ArgumentException ex) { return (Fasitutfall.IkkeLastet, ex.Message, null); }
+        }
+
+        async Task<(string, string?, Guid?)> BekreftOgSvarAsync(StrukturkantEntitet k)
+        {
+            await BekreftAsync(k.Id, ny, kilde, torrkjoring, bruker, bekreftelser, ct);
+            return (Fasitutfall.FantesVurdert, $"{k.Status}, {k.OppdagelsesKilde}", k.Id);
         }
 
         // 1. Samme opphav fra en tidligere import.
@@ -583,8 +638,8 @@ public sealed partial class StrukturforslagTjeneste
             if (fantes.Status is Strukturkanter.Godkjent or Strukturkanter.FagligVurdert)
             {
                 var f = Forskjeller(fantes, ny, helt: false);
-                return f.Count == 0 ? (Fasitutfall.FantesVurdert, $"{fantes.Status}, {fantes.OppdagelsesKilde}", fantes.Id)
-                    : (Fasitutfall.Konflikt, $"{fantes.Status}, {fantes.OppdagelsesKilde}: " + string.Join("; ", f), fantes.Id);
+                if (f.Count > 0) return (Fasitutfall.Konflikt, $"{fantes.Status}, {fantes.OppdagelsesKilde}: " + string.Join("; ", f), fantes.Id);
+                return await BekreftOgSvarAsync(fantes);
             }
             return await ReviderAsync(fantes, Fasitutfall.ErstattetForslag);
         }
@@ -599,7 +654,7 @@ public sealed partial class StrukturforslagTjeneste
             var k = resultat.Kant;
             return k.Status == Strukturkanter.Avvist ? (Fasitutfall.TidligereAvvist, null, k.Id)
                 : k.Status is Strukturkanter.Godkjent or Strukturkanter.FagligVurdert
-                    ? (Forskjeller(k, ny, false) is { Count: > 0 } f ? (Fasitutfall.Konflikt, string.Join("; ", f), k.Id) : (Fasitutfall.FantesVurdert, null, k.Id))
+                    ? (Forskjeller(k, ny, false) is { Count: > 0 } f ? (Fasitutfall.Konflikt, string.Join("; ", f), k.Id) : await BekreftOgSvarAsync(k))
                     : await ReviderAsync(k, Fasitutfall.ErstattetForslag);
         }
         catch (ArgumentException ex) { return (Fasitutfall.IkkeLastet, ex.Message, null); }

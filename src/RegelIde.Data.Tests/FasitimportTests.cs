@@ -161,6 +161,68 @@ public class FasitimportTests
         Assert.Equal(("faglig_vurdert", "fasit:test:k2", forslag.Id), (ny.Status, ny.OppdagelsesKilde, ny.ErstatterKantId!.Value));
     }
 
+    /// <summary>[Ny, Johanns avgjørelse 2026-10-26 på #387] Fasiten bekrefter et godkjent utsagn med samme innhold: ett ekstra grunnlag
+    /// (S1, <c>strukturkant_bekreftelser</c>), statusen og opphavet står, og ny kjøring lager ingen ny bekreftelse.</summary>
+    [Fact]
+    public async Task Godkjent_med_samme_innhold_faar_fasiten_som_bekreftelse()
+    {
+        await using var db = _fixture.NyDbContext();
+        var (lovId, eli, node, sitat) = await NyLovAsync(db);
+        var g = Guid.NewGuid().ToString("N")[..8];
+        var (x, y) = (new Virksomhet { Id = Guid.NewGuid(), Navn = $"Bekreftet {g}" }, new Virksomhet { Id = Guid.NewGuid(), Navn = $"Bekreftleder {g}" });
+        db.Virksomheter.AddRange(x, y);
+        await db.SaveChangesAsync();
+        var godkjent = (await new StrukturkantTjeneste(db).OpprettAsync(new NyStrukturkant(Strukturkanter.Relasjon, "ledes_av", Kantnode.Virksomhet(x.Id),
+            Kantnode.Virksomhet(y.Id), HjemmelRettskildeId: lovId, HjemmelEid: node.Eid), "Kari Jurist")).Kant;
+        var fil = Fil(eli, [A("x", x.Navn), A("y", y.Navn)], [U("b1", node.Eid, sitat, "relasjon", "ledes_av", "x", "y")]);
+        var laster = NyLaster(db);
+
+        var torr = await laster.ImporterFasitAsync(fil, true, false, "Test");
+        Assert.Equal((1, 0), (torr.BekreftelserNye, await db.StrukturkantBekreftelser.CountAsync(b => b.KantId == godkjent.Id)));
+
+        var r = await laster.ImporterFasitAsync(fil, false, false, "Test");
+        Assert.Equal((Fasitutfall.FantesVurdert, godkjent.Id), (r.Rader.Single().Utfall, r.Rader.Single().KantId!.Value));
+        var b = await db.StrukturkantBekreftelser.SingleAsync(b => b.KantId == godkjent.Id);
+        Assert.Equal(("fasit:test:b1", lovId, node.Eid), (b.OppdagelsesKilde, b.HjemmelRettskildeId, b.HjemmelEid));
+        var kant = await db.Strukturkanter.SingleAsync(k => k.Id == godkjent.Id);
+        Assert.Equal(("godkjent", "manuell"), (kant.Status, kant.OppdagelsesKilde));
+
+        var r2 = await laster.ImporterFasitAsync(fil, false, false, "Test");
+        Assert.Equal((0, 1), (r2.BekreftelserNye, r2.BekreftelserFantes));
+        Assert.Equal(1, await db.StrukturkantBekreftelser.CountAsync(b => b.KantId == godkjent.Id));
+    }
+
+    /// <summary>[Ny, Johanns avgjørelse 2026-10-26 på #387] Lav sikkerhet i fasiten gir manuelt forslag med kunnskapsstatus uavklart — også når
+    /// raden alt ligger som faglig vurdert fra en tidligere import (revisjon: den gamle raden blir foreldet, ikke slettet).</summary>
+    [Fact]
+    public async Task Lav_sikkerhet_blir_manuelt_forslag_uavklart_ogsaa_for_tidligere_lastet_rad()
+    {
+        await using var db = _fixture.NyDbContext();
+        var (lovId, eli, node, sitat) = await NyLovAsync(db);
+        var g = Guid.NewGuid().ToString("N")[..8];
+        var organ = new Virksomhet { Id = Guid.NewGuid(), Navn = $"Usikkert organ {g}" };
+        db.Virksomheter.Add(organ);
+        await db.SaveChangesAsync();
+        // Slik importen før oppfølgingen skrev raden: faglig vurdert, fasitens normalisering.
+        var gammel = (await new StrukturkantTjeneste(db).OpprettAsync(new NyStrukturkant(Strukturkanter.Kompetanse, "tilsyn", Kantnode.Virksomhet(organ.Id),
+            null, HjemmelRettskildeId: lovId, HjemmelEid: node.Eid, Objekt: "salg", Status: Strukturkanter.FagligVurdert,
+            OppdagelsesKilde: "fasit:test:l1", Kunnskapsstatus: "normalisering", Begrunnelse: "regel z"), "Test")).Kant;
+        var l1 = new StrukturUtsagn("l1", node.Eid, sitat, "kompetanse", "tilsynskompetanse", "o", null, "salg", "positiv", null, false, false, "lav", "")
+            { Kunnskapsstatus = "normalisering", Begrunnelse = "regel z" };
+        var fil = Fil(eli, [A("o", organ.Navn)], [l1]);
+        var laster = NyLaster(db);
+
+        var r = await laster.ImporterFasitAsync(fil, false, false, "Test");
+        var rad = r.Rader.Single();
+        Assert.Equal((Fasitutfall.Oppdatert, "uavklart", 1), (rad.Utfall, rad.Kunnskapsstatus, r.LavSikkerhetSomForslag));
+        var ny = await db.Strukturkanter.SingleAsync(k => k.Id == rad.KantId);
+        Assert.Equal(("manuelt_foreslatt", "uavklart", "fasit:test:l1", gammel.Id), (ny.Status, ny.Kunnskapsstatus, ny.OppdagelsesKilde, ny.ErstatterKantId!.Value));
+        Assert.Contains("sikkerhet lav", ny.Begrunnelse);
+        Assert.Equal("foreldet", (await db.Strukturkanter.IgnoreQueryFilters().SingleAsync(k => k.Id == gammel.Id)).Entitetsstatus);
+
+        Assert.Equal(Fasitutfall.Uendret, (await laster.ImporterFasitAsync(fil, false, false, "Test")).Rader.Single().Utfall);
+    }
+
     [Fact]
     public async Task Flertydig_navn_skilles_paa_entitetstype_og_premisset_svekker_kunnskapsstatusen()
     {
