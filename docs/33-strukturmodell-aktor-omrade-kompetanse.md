@@ -1452,6 +1452,12 @@ forslagskøens tjenestevei (§5.3): samme aktørklassifisering (§5.7, §5.8), s
   kilde: avvist → respektert; godkjent eller faglig vurdert → uendret, eller **konflikt** når objekt, avgrensning, kunnskapsstatus,
   delegering eller grunnlag er ulikt (aldri overskrevet); ventende forslag → revidert til fasitraden. Nøkkelen er forslagskøens pluss objektet.
 - **Synlig (AK 4):** merket «Fra fasiten, faglig vurdert, ikke uavhengig kontrollert» (docs/09 §46).
+- **[Ny, Johanns avgjørelser 2026-10-26 på #387]** **Lav sikkerhet** (`sikkerhet: lav` i fasiten, annotatøren var usikker) lastes ikke som
+  faglig vurdert, men som `manuelt_foreslatt` med kunnskapsstatus `uavklart` (begrunnelsen sier hvorfor) og vurderes i forslagskøen. De to
+  radene som alt var lastet (energiloven u254, helse- og omsorgstjenesteloven u19), er revidert: ny rad, den gamle `foreldet` med
+  `sist_endret_av`, ingenting slettet. **Bekreftelse:** finnes utsagnet alt som godkjent eller faglig vurdert med samme innhold, legges fasiten
+  til som et ekstra grunnlag i `strukturkant_bekreftelser` (samme mekanisme som S1 i #408), med oppdagelseskilde `fasit:<fil>:<id>`. Kantens
+  status, hjemmel og opphav endres ikke. Målt 2026-10-27: 401 bekreftelser (387 domstolinndelingen, 14 manuelle); ny kjøring gir 0 nye.
 - **Målt 2026-10-27, lokal base** (første kjøring, så andre kjøring): 1 826 utsagn (1 825 + `x1`). 350 nye, 1 ventende forslag erstattet,
   401 fantes alt godkjent med samme innhold (387 domstolinndelingen fra mønsterlaget, 14 manuelle), 0 konflikter, 1 dublett, 1 073 ikke
   lastet: 733 aktør ikke i katalogen, 281 type uten databasetype (`annet:*`, `inngar_i`), 42 uten fra-aktør i teksten, 11 avvist av
