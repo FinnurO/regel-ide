@@ -711,12 +711,30 @@ app.MapPost("/api/virksomheter/{id:guid}/erstattet-av", async (Guid id, Erstatte
     .WithSummary("Issue #397 — markerer aktøren som en duplikat erstattet av en annen ({ erstattetAvId }), eller angrer ({ erstattetAvId: null }). Ingenting slettes.");
 
 app.MapPost("/api/virksomheter", async (
-    OpprettVirksomhetRequest body, RegelIdeDbContext db,
+    OpprettVirksomhetRequest body, RegelIdeDbContext db, HttpRequest request, AktoridentitetTjeneste identitet,
     EksternNavneoppslagTjeneste eksternOppslag, VirksomhetsbegrepTjeneste virksomhetsbegrep, CancellationToken ct) =>
     {
         if (string.IsNullOrWhiteSpace(body.Navn))
         {
             return Results.BadRequest(new { feil = "Navn er påkrevd." });
+        }
+        // [Ny, issue #386] Grunnlaget valideres FØR aktøren opprettes, så et ugyldig grunnlag ikke etterlater en aktør uten navneform.
+        Utsagnsgrunnlag? grunnlag = null;
+        string? bruker = null;
+        if (body.Grunnlag is not null)
+        {
+            var b = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+            if (b is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+            bruker = b.Navn;
+            grunnlag = body.Grunnlag.TilGrunnlag();
+            if (body.NavnFraNavnekandidatId is { } kid && grunnlag.Grunnlag == Utsagnsgrunnlag.Hjemmel)
+            {
+                var k = await db.Navnekandidater.FirstOrDefaultAsync(x => x.Id == kid, ct);
+                if (k is null) return Results.BadRequest(new { feil = $"Fant ingen navnekandidat med id '{kid}'. Ingen gjettet fallback." });
+                grunnlag = grunnlag with { HjemmelRettskildeId = k.RettskildeId, HjemmelEid = k.NodeEid };
+            }
+            try { await identitet.ValiderAsync(grunnlag, ct); }
+            catch (ArgumentException ex) { return Results.BadRequest(new { feil = ex.Message }); }
         }
         if (body.OverordnetEnhetId is { } overordnetId && !await db.Virksomheter.AnyAsync(v => v.Id == overordnetId, ct))
         {
@@ -751,6 +769,12 @@ app.MapPost("/api/virksomheter", async (
             await virksomhetsbegrep.OpprettVirksomhetsbegrepAsync(
                 virksomhet.Id, snl.BekreftetNavn, "manuell-opprettelse", snl.EksternUrl,
                 navneformgrunn: "gjeldende", ct: ct);
+        }
+
+        // [Ny, issue #386, Johanns tillegg 2026-10-23] Navnet blir gjeldende navneform med grunnlaget og statusen fra veiviseren.
+        if (grunnlag is not null)
+        {
+            await identitet.RegistrerNavnetSomGjeldendeAsync(virksomhet.Id, grunnlag, bruker!, ct);
         }
 
         return Results.Created($"/api/virksomheter/{virksomhet.Id}", await VirksomhetDto.FraEntitetAsync(virksomhet, db, ct));
