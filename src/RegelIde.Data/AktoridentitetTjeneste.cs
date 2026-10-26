@@ -203,11 +203,22 @@ public sealed class AktoridentitetTjeneste(RegelIdeDbContext db, TekstTaggTjenes
             var annen = await db.Begreper.Where(x => x.Id != id && x.Begrepskategori == "virksomhet" && x.VirksomhetReferanseId == vid
                     && x.Entitetsstatus == "gjeldende" && x.Navneformgrunn == "gjeldende"
                     && (x.Godkjenning == null || x.Godkjenning == Strukturkanter.Godkjent))
-                .Select(x => x.Term).FirstOrDefaultAsync(ct);
-            if (annen is not null)
+                .FirstOrDefaultAsync(ct);
+            // [Ny, issue #394 AK 9] Et forslag som ERSTATTER den gjeldende navneformen (ny hjemmel i navnevedtaket): den gamle settes som
+            // erstattet (slettes ikke — historikken står), og taggene som pekte på den, flyttes til den nye. Bare når forslaget selv sier at
+            // det erstatter nettopp den raden; ellers gjelder regelen under (én gjeldende per aktør, et menneske avgjør hvilken).
+            if (annen is not null && b.ErstatterId == annen.Id)
+            {
+                annen.Entitetsstatus = "erstattet";
+                annen.SistEndretAv = bruker;
+                annen.SistEndretTidspunkt = DateTimeOffset.UtcNow;
+                db.Proveniens.Add(ProveniensHjelper.NyRad("begrep", annen.Id, virksomhetId: null, "erstattet", bruker));
+                foreach (var t in await db.TekstTagger.Where(t => t.RefId == annen.Id).ToListAsync(ct)) t.RefId = b.Id;
+            }
+            else if (annen is not null)
             {
                 throw new ArgumentException(
-                    $"Aktøren har alt den gjeldende navneformen «{annen}». Endre grunnen på den først (f.eks. til utgått), så godkjenn denne.");
+                    $"Aktøren har alt den gjeldende navneformen «{annen.Term}». Endre grunnen på den først (f.eks. til utgått), så godkjenn denne.");
             }
         }
         b.Godkjenning = Strukturkanter.Godkjent;

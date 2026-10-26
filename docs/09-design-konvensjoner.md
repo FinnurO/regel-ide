@@ -1127,7 +1127,7 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
 - **Ingen ny side** (#264). Aktørsveipet er knappen «1. Aktørsveip» ved siden av «2. Last forslag» i forslagskøen (§36). Rapporten viser
   antall per status i en tabell og aktørene i en lukket `Details` med status (`Tag` `neutral` — en klassifisering, §31), treff, binding
   eller kandidater og lenke til veiviseren. «Legg N i navnekandidatkøen» er et eget, eksplisitt klikk: sveipet i seg selv skriver ingenting.
-- **Veiviseren** får et femte valg i steg 2, «Generisk omtale — «styret», «retten», «departementet»» (`kandidater/GeneriskOmtale.tsx`).
+- [ERSTATTET av §42, issue #394] **Veiviseren** får et femte valg i steg 2, «Generisk omtale — «styret», «retten», «departementet»» (`kandidater/GeneriskOmtale.tsx`).
   Øverst vises hvor termen alt brukes og hva den betyr per rettskilde (AC7), med Godkjenn/Avvis på foreslåtte bindinger i kandidatens
   rettskilde. Så «Bare marker som generisk» eller «Marker og bind for denne rettskilden»: referent (virksomhet, eller klasse/rolle), spenn
   (kapittel/paragraf, tomt = hele rettskilden), egen gyldighet («Gjelder fra/til», valgfri — vises som «gjelder fra …» i oversikten), hvor betydningen kommer fra (bestemmelse eller kilde utenfor korpus, `KildeUtenforKorpusVelger`)
@@ -1208,3 +1208,34 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
 - **[Ny, #395 M5] `NedlagtTag`** (`virksomhet/NedlagtTag.tsx`): «Nedlagt (til ÅÅÅÅ-MM-DD)» som `warning` på aktørsiden og i aktørlisten for
   en aktør med `livsstatus = 'nedlagt'`, med perioden i `title`. Samme rolle som en utgått navneform (§15): en nedlagt aktør skal aldri kunne
   leses som en som finnes i dag. Ikke forveksle med «sovende» (`aktiv = false` alene), som ikke sier at noe er nedlagt (CLAUDE.md §9).
+
+## 42. Generisk omtale: kjeden i lovteksten og veiviseren på én skjerm (issue #394, 2026-10-24)
+
+- **Kjeden vises alltid, aldri en rå id.** En tagg mot en generisk navneform viser «departementet» → [Generisk omtale] [kilde] → referenten,
+  både i løpeteksten (`title`) og i taggraden under. Uten svar: «generisk omtale, ikke avklart», som tekst uten lenke. `resolveRef` i
+  `TagTekst` kan derfor gi `href: null`: kjeden står, men har ikke noe lenkemål.
+- **Én delt kilde for kilden til svaret:** `kandidater/GeneriskKilde.tsx` (`GeneriskKildeTagger`, `generiskKildeTekst`). Fargerollene er
+  LÅST: «Binding» og «Standardregel» er `neutral` (hvor svaret kommer fra, en klassifisering); bindingens godkjenning følger §35 (faglig
+  vurdert → `info`, godkjent → ingen merke); «Sekundær kilde» er `warning` (svaret bygger på Lovdatas felt, ikke en vurdert
+  ressortfordeling — en slutning er ikke sterkere enn det svakeste premisset); «Ikke avklart» er `neutral` `outline` (som «Navneform
+  mangler», §40). Ordene er profilsidens: standardregel, binding, avledet slutning, premiss, sekundær kilde.
+- **Veiviseren: generisk omtale er ÉN skjerm** (`kandidater/GeneriskEnSkjerm.tsx`), steg 3 «Hva betyr den her?», og erstatter de fire
+  stegene fra §38/§40 (betydning, grunnlag, sikkerhet, bekreft). Et ord med standardregel, eller som alt er registrert som generisk, åpner
+  rett her med en `info`-melding og «Behandle som noe annet». Skjermen har, i rekkefølge:
+  1. Forklaring i klart språk med eksempel.
+  2. «Hva betyr «‹ord›» her?» som radioknapper: standardregelen med svaret og kildemerkene (forhåndsvalgt når den løser — da lagres ingen
+     binding), forslagene fra konteksten med grunnen som beskrivelse og et `neutral`-merke for hvor de kommer fra («Nevnt i samme
+     rettskilde», «Ny aktør», «Navneform», «Bundet før», «Lovens departement»), og «Ingen av dem — bare marker som generisk».
+     Standardregelen som ikke gir svar, står som `warning`-`Alert` med grunnen.
+  3. Søk på tvers av aktører, klasser og roller med treff mens man skriver (fra to tegn, åtte treff, de som begynner med søket først).
+  4. «Hvor gjelder det?»: hele rettskilden (med antall forekomster), bare paragrafen ordet står i, eller et annet spenn.
+  5. «Detaljer: grunnlag og sikkerhet» i en lukket `Details` med sammendraget i tittelen. **Ferdig utfylt** (Johanns AK 4, avvik fra §38
+     «ingenting forhåndsvelges»): hjemmel = bestemmelsen der ordet står, kunnskapsstatus «Fortolkning» med «Sammenhengen i loven» og en
+     begrunnelse som sier hvor referenten er funnet, godkjenning «Faglig vurdert». Avviket er bevisst: verdiene sier hvordan svaret ble
+     funnet (ikke en påstand om at det er riktig), de vises i tittelen, og «Godkjent» velges aldri for brukeren.
+  6. «Slik blir det»: leddet med ordet markert, kjeden med de samme merkene som rettskildesiden, kunnskapsstatus, og hvor bindingen gjelder.
+  7. «Lagre bindingen» / «Marker som generisk». Kvitteringen er veiviserens «Dette skjedde» (§15) med lenke til rettskilden og referenten.
+- **Ny aktør fra en navnekandidat:** et forslag med merket «Ny aktør» (en navnekandidat i samme rettskilde som inneholder ordet,
+  «Styret for domstoladministrasjonen» for «styret») oppretter aktøren med bare navnet ved lagring. Kvitteringen sier at kandidaten står
+  igjen i køen for navneform, kilde og type.
+

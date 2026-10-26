@@ -19,7 +19,8 @@ import { VirksomhetVelger } from '../virksomhet/VirksomhetVelger';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 import { KonfidensTag, konfidensGrunnTekst } from '../kandidater/KonfidensTag';
 import { Metatekst } from '../entitet/Metatekst';
-import { GeneriskOmtale, generiskFeil, tilBinding, TOMT_GENERISK_VALG, type GeneriskValg } from '../kandidater/GeneriskOmtale';
+import { TOMT_GENERISK_VALG, type GeneriskValg } from '../kandidater/GeneriskOmtale';
+import { GeneriskEnSkjerm, type GeneriskKvittering } from '../kandidater/GeneriskEnSkjerm';
 import { AKTORTYPE_VISNING, KANDIDATNODETYPER, NODETYPE_VISNING, NodetypeVelger, ORDNINGSTYPE_VISNING } from '../begrep/Nodetype';
 import type { Aktortype, Kandidatnodetype, Ordningstype } from '../api/types';
 import { GrunnlagSteg, SikkerhetSteg } from '../kandidater/Utsagnssteg';
@@ -142,8 +143,10 @@ function stegFor(slag: Slag | null, bind: boolean | null): { nokkel: Stegnokkel;
     return [...start, { nokkel: 'aktor', tittel: slag === 'gruppemedlem' ? 'Hvilken aktør og klasse?' : 'Hvilken aktør?' },
       { nokkel: 'tillegg', tittel: 'Utover navneform?' }, ...utsagn];
   }
-  // «Bare marker som generisk» lager ingen binding, og har derfor ikke de to stegene.
-  if (slag === 'generisk') return [...start, { nokkel: 'generisk', tittel: 'Hva betyr den her?' }, ...(bind === false ? [] : utsagn)];
+  // [ENDRET, issue #394 AK 4] Generisk omtale er ÉN skjerm (kandidater/GeneriskEnSkjerm.tsx): forslag, søk, ferdig utfylt grunnlag under
+  // «Detaljer» og forhåndsvisning. Før #394 fire steg (betydning, grunnlag, sikkerhet, bekreft); `bind` brukes ikke lenger her.
+  void bind;
+  if (slag === 'generisk') return [...start, { nokkel: 'generisk', tittel: 'Hva betyr den her?' }];
   return start;
 }
 
@@ -284,7 +287,9 @@ export default function NavnekandidatVeiviser() {
   // [Ny, issue #385 AC8/AC9] De to nye stegene, og generisk omtale som eget steg.
   const [grunnlagUtkast, setGrunnlagUtkast] = useState<GrunnlagUtkast>(TOMT_GRUNNLAG);
   const [sikkerhetUtkast, setSikkerhetUtkast] = useState<SikkerhetUtkast>(TOM_SIKKERHET);
-  const [generiskValg, setGeneriskValg] = useState<GeneriskValg>(TOMT_GENERISK_VALG);
+  const [generiskValg] = useState<GeneriskValg>(TOMT_GENERISK_VALG);
+  // [Ny, issue #394 AK 4] Veiviseren åpnet rett på generisk omtale fordi ordet har en standardregel eller er registrert som generisk.
+  const [autoGenerisk, setAutoGenerisk] = useState(false);
 
   // Bekreft / avslutning
   const [fullfører, setFullfører] = useState(false);
@@ -350,6 +355,16 @@ export default function NavnekandidatVeiviser() {
         setNodetype((KANDIDATNODETYPER as readonly string[]).includes(k.kategori) ? k.kategori as Kandidatnodetype : null);
         setNyttNavn(k.foreslattTekst);
         setBrregSok(k.foreslattTekst);
+        // [Ny, issue #394 AK 4] Et ord med standardregel («departementet», «statsforvalteren», «kommunen») eller som alt er registrert
+        // som generisk omtale («styret» etter første gang), går rett til én-skjermen. «Behandle som noe annet» fører tilbake til steg 2.
+        if (k.status === 'Venter') {
+          api.hentGeneriskKandidatkontekst(k.id).then((g) => {
+            if (!g.standardregel && !g.navneformId) return;
+            setSlag('generisk');
+            setSteg(3);
+            setAutoGenerisk(true);
+          }).catch(() => undefined);
+        }
         return Promise.all([api.hentRettskilde(k.rettskildeId), api.hentNoder(k.rettskildeId)]);
       })
       .then(([r, n]) => {
@@ -764,45 +779,13 @@ export default function NavnekandidatVeiviser() {
     return '—';
   }
 
-  /** [ENDRET, issue #385] Generisk omtale fullføres her (før: inne i GeneriskOmtale). Med binding får den grunnlaget og statusen fra de
-   * to nye stegene — «faglig vurdert» står som forslag; før #385 ble en binding herfra alltid lagret som godkjent. */
-  async function fullførGenerisk(bind: boolean) {
-    if (!id || !kandidat) return;
-    if (bind && (generiskFeil(generiskValg) !== null || !utsagnKlart)) return;
-    setFullfører(true);
-    setFeil(null);
-    try {
-      const binding = bind ? tilBinding(generiskValg, tilRequest(grunnlagUtkast, sikkerhetUtkast, kandidat.rettskildeId)) : null;
-      const r = await api.markerNavnekandidatSomGenerisk(id, binding);
-      setFerdig({
-        tittel: r.binding
-          ? `«${r.navneform.term}» er markert som generisk omtale og bundet for denne rettskilden.`
-          : `«${r.navneform.term}» er markert som generisk omtale.`,
-        detaljer: [
-          r.varNyNavneform
-            ? 'Den generiske navneformen er opprettet — én for hele korpuset.'
-            : 'Den generiske navneformen fantes alt og er gjenbrukt.',
-          r.binding
-            ? (sikkerhetUtkast.godkjenning === 'godkjent'
-              ? 'Bindingen er godkjent: omtalen oppløses til referenten i denne rettskilden (smaleste paragrafspenn vinner).'
-              : 'Bindingen er faglig vurdert og står som forslag — omtalen oppløses først når den er godkjent.')
-              + ` Grunnlag: ${grunnlagTekst(grunnlagUtkast)}.`
-            : 'Ingen binding: omtalen står som generisk, uten kobling, til noen binder den.',
-          r.taggId ? 'Taggen på forekomsten peker på den generiske navneformen.' : 'Ingen tagg kunne opprettes (se rettskildens ansvarlige departement).',
-          'Navnekandidaten er satt til «Godkjent».',
-        ],
-        rettskildeLenke: rettskildeLenkeForId(kandidat.rettskildeId, kandidat.nodeEid),
-        taggLag: r.taggId ? 'Virksomhet' : null,
-        virksomhetLenke: null,
-        virksomhetForSveip: null,
-        gruppeLenke: null,
-        advarsel: null,
-      });
-    } catch (e) {
-      setFeil(e instanceof ApiError ? e.message : 'Kunne ikke markere som generisk.');
-    } finally {
-      setFullfører(false);
-    }
+  /** [ENDRET, issue #394 AK 4] Generisk omtale lagres i én-skjermen (GeneriskEnSkjerm); her blir kvitteringen veiviserens «Dette skjedde». */
+  function generiskFerdig(k: GeneriskKvittering) {
+    setFerdig({
+      tittel: k.tittel, detaljer: k.detaljer, rettskildeLenke: k.rettskildeLenke, taggLag: 'Virksomhet',
+      virksomhetLenke: k.referentErBegrep ? null : k.referentLenke, virksomhetForSveip: null,
+      gruppeLenke: k.referentErBegrep ? k.referentLenke : null, advarsel: null,
+    });
   }
 
   if (lasteFeil) {
@@ -1650,25 +1633,12 @@ export default function NavnekandidatVeiviser() {
             </Card>
           )}
 
-          {/* ---------------- [Ny, issue #385] Generisk omtale: «Hva betyr den her?» ---------------- */}
-          {vis('generisk') && (
+          {/* ---------------- [ENDRET, issue #394 AK 4] Generisk omtale: én skjerm ---------------- */}
+          {vis('generisk') && aktiv('generisk') && (
             <Card style={{ padding: '1rem', marginBottom: '1rem' }}>
               <Heading level={2} data-size="sm" style={{ marginBottom: '0.35rem' }}>{nr('generisk')}. Hva betyr den her?</Heading>
-              <GeneriskOmtale kandidat={kandidat} noder={noder} virksomheter={virksomheter} verdi={generiskValg} onEndre={setGeneriskValg}
-                disabled={!aktiv('generisk')} />
-              {aktiv('generisk') && (
-                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                  {generiskValg.bind === false ? (
-                    <Button data-size="sm" onClick={() => fullførGenerisk(false)} disabled={fullfører}>
-                      {fullfører ? 'Lagrer …' : 'Marker som generisk'}
-                    </Button>
-                  ) : (
-                    <Button data-size="sm" onClick={() => setSteg(nr('grunnlag'))} disabled={generiskFeil(generiskValg) !== null}>Neste</Button>
-                  )}
-                  <Button data-size="sm" variant="tertiary" onClick={() => setSteg(2)}>Tilbake</Button>
-                </div>
-              )}
-              {aktiv('generisk') && generiskFeil(generiskValg) && generiskValg.bind !== null && <Metatekst>{generiskFeil(generiskValg)}</Metatekst>}
+              <GeneriskEnSkjerm kandidat={kandidat} noder={noder} virksomheter={virksomheter} autoApnet={autoGenerisk}
+                onAnnet={() => { setAutoGenerisk(false); setSlag(null); setSteg(2); }} onFerdig={generiskFerdig} />
             </Card>
           )}
 
@@ -1838,7 +1808,7 @@ export default function NavnekandidatVeiviser() {
                 </Table.Body>
               </Table>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <Button data-size="sm" onClick={() => (slag === 'generisk' ? fullførGenerisk(true) : fullførVirksomhet())}
+                <Button data-size="sm" onClick={() => fullførVirksomhet()}
                   disabled={fullfører || !utsagnKlart || (slag !== 'generisk' && (!steg3Klart || !tilleggKlart))}>
                   {fullfører ? 'Fullfører …' : 'Fullfør'}
                 </Button>

@@ -38,6 +38,8 @@ historikk (en revisjon gir en ny rad), og hjemmelen peker på den versjonerte no
 Konverteringen av en rettskilde lastes (#313) inn som forslag i en forslagskø: et menneske godkjenner eller avviser, og en avvisning
 blir stående som historikk i stedet for å slettes. Før forslagene kjøres et aktørsveip (#378) som viser hvilke aktører som er kjent,
 og generiske omtaler («styret», «departementet») er navneformer for hele korpuset der betydningen bindes per rettskilde.
+Uten binding gir en standardregel svaret (#394): «departementet» er lovens ansvarlige departement etter ressortfordelingen (Lovdatas felt
+som sekundær kilde), «statsforvalteren» og «kommunen» er klassene — med kilden og premissene synlige i lovteksten.
 En aktørs identitet (#385) er lovens navn — den gjeldende navneformen — og aktørtypen, begge modellutsagn med grunnlag og godkjenning;
 organisasjonsnummer og registernavn fra Enhetsregisteret er attributter. Navneformer foreslås fra lovteksten, og et navnetreff gir
 navneformen en kilde og en tagg på nøyaktig spenn.

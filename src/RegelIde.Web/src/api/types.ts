@@ -2513,7 +2513,42 @@ export interface GeneriskNavneformOversikt {
 /** [Ny, issue #378 B6] Oppløsningen av én tagg mot en generisk navneform. */
 export interface GeneriskTaggOppslag {
   // [ENDRET, issue #384] + 'spenn_endret': en godkjent binding kunne ikke flyttes entydig til denne versjonen (ingen referent).
-  taggId: string; navneformId: string; status: 'bundet' | 'ubundet' | 'flertydig' | 'spenn_endret'; bindingId: string | null; referent: StrukturnodeDto | null;
+  // [ENDRET, issue #394] + 'regel': standardregelen ga referenten (ingen vurdert binding dekker forekomsten).
+  taggId: string; navneformId: string; status: 'bundet' | 'regel' | 'ubundet' | 'flertydig' | 'spenn_endret'; bindingId: string | null;
+  referent: StrukturnodeDto | null;
+  /** [Ny, issue #394 AK 2] Termen, kilden (binding/regel), bindingens godkjenning og standardregelens svar. */
+  term?: string; kilde?: 'binding' | 'regel' | null; bindingStatus?: Godkjenning | null; bindingKunnskapsstatus?: Kunnskapsstatus | null;
+  regel?: StandardregelSvar | null;
+}
+/** [Ny, issue #394 AK 1] En standardregel for en generisk navneform. */
+export interface GeneriskStandardregel {
+  term: string; regelkode: string; navn: string; forklaring: string; grunnlag: string; kunnskapsstatus: Kunnskapsstatus;
+}
+/** [Ny, issue #394 AK 1] Ett premiss et standardregelsvar bygger på. */
+export interface StandardregelPremiss {
+  type: 'ressortkant' | 'lovdata_felt' | 'klasse'; tekst: string; kantId: string | null; status: Godkjenning | null;
+  kunnskapsstatus: Kunnskapsstatus | null; hjemmelRettskildeId: string | null; hjemmelEid: string | null; dokumentasjon: 'primaer' | 'sekundaer' | null;
+}
+/** [Ny, issue #394 AK 1] Svaret fra en standardregel for én rettskilde. */
+export interface StandardregelSvar {
+  term: string; regelkode: string; regelnavn: string; utfall: 'lost' | 'ikke_lost' | 'flertydig';
+  rute: 'ressortfordeling' | 'lovdata' | 'fast_referent' | null; referentVisning: StrukturnodeDto | null;
+  kunnskapsstatus: Kunnskapsstatus; dokumentasjon: 'primaer' | 'sekundaer' | null; oppslagsdato: string;
+  gyldigFra: string | null; gyldigTil: string | null; forklaring: string; premisser: StandardregelPremiss[]; merknader: string[];
+  referentNedlagt: string | null;
+}
+/** [Ny, issue #394 AK 4] Ett forslag til hva en generisk omtale betyr, med ferdig utfylt grunnlag. */
+export interface GeneriskReferentforslag {
+  kilde: 'standardregel' | 'ansvarlig_departement' | 'samme_rettskilde' | 'navneform' | 'tidligere_binding' | 'ny_aktor_fra_kandidat';
+  /** `type: 'ny'` = en navnekandidat som ikke finnes som aktør ennå (id-en er kandidatens); aktøren opprettes ved lagring. */
+  referent: Omit<StrukturnodeDto, 'type'> & { type: StrukturnodeDto['type'] | 'ny' }; grunn: string; rang: number; kunnskapsstatus: Kunnskapsstatus; tolkningsargumenter: Tolkningsargument[];
+  begrunnelse: string; trengerIkkeBinding: boolean;
+}
+/** [Ny, issue #394 AK 4] Alt veiviserens én-skjerm trenger for én kandidat. */
+export interface GeneriskKandidatkontekst {
+  kandidatId: string; term: string; rettskildeId: string; rettskildeTittel: string; nodeEid: string; navneformId: string | null;
+  standardregel: GeneriskStandardregel | null; regelsvar: StandardregelSvar | null; forslag: GeneriskReferentforslag[];
+  forekomsterIRettskilden: number; bindingerHer: NavneformBindingDto[];
 }
 /** [Ny, issue #378 B5] Bindingen veiviseren og API-et sender. */
 export interface NavneformBindingRequest {

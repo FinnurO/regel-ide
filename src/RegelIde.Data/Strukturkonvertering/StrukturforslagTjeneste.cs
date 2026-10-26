@@ -577,7 +577,9 @@ internal sealed class Aktorklassifiserer(
     {
         if (g.GeneriskNavneformId is not { } nid || g.Status != Aktorstatus.Generisk) return (g.Status, g.Node, g.Referent, 0);
         var o = await generiske.LosOppAsync(nid, rettskildeId, eid, ct);
-        if (o.Status == GeneriskOppslagstatus.Bundet)
+        // [ENDRET, issue #394 AK 1] Også når standardregelen gir referenten («departementet» → ansvarlig departement): forslagene som lastes,
+        // er uansett forslag, og regelens kilde (ressortfordeling eller Lovdata, sekundær) står i oppslaget.
+        if (o.Status is GeneriskOppslagstatus.Bundet or GeneriskOppslagstatus.Regel)
         {
             var r = o.Referent!;
             KantnodeVisning? v = r.VirksomhetId is { } vid

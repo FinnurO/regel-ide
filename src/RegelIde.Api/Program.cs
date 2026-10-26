@@ -52,6 +52,9 @@ builder.Services.AddScoped<StrukturkantTjeneste>();
 // [Ny, issue #313] Forslagslasteren (konvertering → forslag) og KI-konverteringen den kan kjøre (#308).
 builder.Services.AddScoped<RegelIde.Data.Strukturkonvertering.StrukturforslagTjeneste>();
 builder.Services.AddScoped<GeneriskNavneformTjeneste>(); // [Ny, issue #378] generiske navneformer og bindingen per rettskilde
+builder.Services.AddScoped<GeneriskStandardregelTjeneste>(); // [Ny, issue #394] standardreglene for generiske navneformer
+builder.Services.AddScoped<GeneriskForslagTjeneste>(); // [Ny, issue #394 AK 4] veiviserens forslag for generisk omtale
+builder.Services.AddScoped<DepartementNavneformHjemmelTjeneste>(); // [Ny, issue #394 AK 9] navneformenes hjemmel i navnevedtaket
 // [Ny, issue #385] Aktøridentitet: forslag til gjeldende navneform og aktørtype, navnetreff → kilde og tagg. Skriver bare via endepunkt
 // (ingen oppstartsjobb, CLAUDE.md §4).
 builder.Services.AddScoped<AktoridentitetTjeneste>();
@@ -4339,6 +4342,20 @@ app.MapPost("/api/departementer/livslop", async (bool? skriv, HttpRequest reques
         "Lovdatas «Ansvarlig departement» (sekundær kontroll). ?skriv=true legger R oppretter, navneform «utgått» og F forvaltning inn som " +
         "forslag (maskinelt_foreslatt, forslagskøen); ingenting godkjennes.");
 
+// [Ny, issue #394 AK 9] Departementenes navneformer får hjemmel i navnevedtaket, som forslag.
+app.MapPost("/api/departementer/navneform-hjemmel", async (bool? skriv, HttpRequest request, RegelIdeDbContext db,
+        DepartementNavneformHjemmelTjeneste tjeneste, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        return Results.Ok(await tjeneste.KjorAsync(skriv ?? false, bruker.Navn, ct));
+    })
+    .WithOpenApi()
+    .WithName("DepartementNavneformHjemmel")
+    .WithSummary("Issue #394 AK 9 — for hvert levende departement: navnevedtaket for gjeldende navn (fra livsløpet) mot hjemmelen navneformen " +
+        "har i dag. ?skriv=true legger inn en ny navneform med hjemmel i navnevedtaket som forslag (maskinelt_foreslatt) som erstatter den " +
+        "gamle; den gamle settes som erstattet først når forslaget godkjennes. Uten er det en tørrkjøring.");
+
 app.MapPost("/api/aktorer/navneformforslag", async (bool? skriv, HttpRequest request, RegelIdeDbContext db, AktoridentitetTjeneste identitet,
         CancellationToken ct) =>
     {
@@ -4493,6 +4510,55 @@ app.MapPost("/api/navneformer/generiske", async (GeneriskNavneformRequest body, 
     .WithOpenApi()
     .WithName("OpprettGeneriskNavneform")
     .WithSummary("Issue #378 B4 — finner eller oppretter den generiske navneformen for termen (små bokstaver, én per term for hele korpuset).");
+
+// [Ny, issue #394 AK 1] Standardreglene: navneform → hvordan referenten utledes, med grunnlag og kunnskapsstatus.
+app.MapGet("/api/navneformer/generiske/standardregler", () => Results.Ok(GeneriskStandardregelTjeneste.Alle))
+    .WithOpenApi()
+    .WithName("HentGeneriskeStandardregler")
+    .WithSummary("Issue #394 AK 1 — standardreglene for generiske navneformer («departementet» → ansvarlig departement etter " +
+        "ressortfordelingen, Lovdata som sekundær kilde; «statsforvalteren» → klassen statsforvalter; «kommunen» → klassen kommune).");
+
+// [Ny, issue #394 AK 1/3/5] Oppslaget med kilden og premissene: binding (godkjent eller faglig vurdert) foran regel. ?bareRegel=true gir
+// regelen alene (kaldsjekken: gir regelen samme svar som Johanns binding?).
+app.MapGet("/api/navneformer/generiske/oppslag", async (Guid rettskildeId, Guid? navneformId, string? term, string? eid, DateOnly? dato,
+        bool? bareRegel, GeneriskNavneformTjeneste generiske, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var nf = navneformId is { } nid ? await db.Begreper.FirstOrDefaultAsync(b => b.Id == nid, ct)
+            : term is not null ? await generiske.FinnAsync(term, ct) : null;
+        if (nf is null || nf.Navneformgrunn != VirksomhetsbegrepTjeneste.Generisk)
+        {
+            return Results.NotFound(new { feil = "Fant ingen generisk navneform (oppgi navneformId eller term)." });
+        }
+        try
+        {
+            var o = await generiske.LosOppAsync(nf.Id, rettskildeId, eid, ct, dato, brukBindinger: bareRegel != true);
+            var binding = o.Binding is null ? null : (await generiske.HentBindingerAsync(ider: [o.Binding.Id], visAvviste: true, ct: ct)).FirstOrDefault();
+            KantnodeVisning? referent = o.Status == GeneriskOppslagstatus.Regel ? o.Regel?.ReferentVisning
+                : o.Status == GeneriskOppslagstatus.Bundet ? binding?.Referent : null;
+            return Results.Ok(new { navneformId = nf.Id, term = nf.Term, o.Status, o.Kilde, referent, binding, o.AntallForeslatteBindinger, regel = o.Regel });
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithOpenApi()
+    .WithName("SlaOppGeneriskOmtale")
+    .WithSummary("Issue #394 AK 1/3 — hva en generisk navneform betyr i en rettskilde (og valgfritt en node): status bundet | regel | " +
+        "ubundet | flertydig | spenn_endret, kilde (binding/regel), bindingen som vant og standardregelens svar med premisser. " +
+        "?bareRegel=true ser bort fra bindingene.");
+
+// [Ny, issue #394] Målingen: hvor stor andel av rettskildene der ordet står, regelen løser — via ressortfordeling, via Lovdata, eller ikke.
+app.MapGet("/api/navneformer/generiske/standardregel-dekning", async (string term, int? eksempler, GeneriskStandardregelTjeneste regler,
+        CancellationToken ct) =>
+    {
+        try { return Results.Ok(await regler.DekningAsync(term, eksempler ?? 15, ct)); }
+        catch (ArgumentException ex) { return Results.BadRequest(new { feil = ex.Message }); }
+    })
+    .WithOpenApi()
+    .WithName("StandardregelDekning")
+    .WithSummary("Issue #394 — for hver gjeldende primærrettskilde der termen står som eget ord: hva standardregelen gir (ressortfordeling, " +
+        "Lovdata som sekundær kilde, fast referent, ikke løst, flertydig), med eksempler. Regelen alene, uten bindinger.");
 
 navneformBindinger.MapGet("/", async (Guid? navneformId, Guid? rettskildeId, bool? visAvviste, bool? hjemmelEndret, GeneriskNavneformTjeneste generiske,
         CancellationToken ct) => Results.Ok(await generiske.HentBindingerAsync(navneformId, rettskildeId, visAvviste ?? false, ct,
@@ -4804,6 +4870,14 @@ navnekandidater.MapPost("/{id:guid}/kobl-til-virksomhet", async (Guid id, HttpRe
     })
     .WithName("KoblNavnekandidatTilVirksomhet")
     .WithSummary("Oppretter/gjenbruker navneformen med navneformgrunn, godkjenner raden, og kobler tekst-taggen til virksomheten.");
+
+// [Ny, issue #394 AK 4] Veiviserens én-skjerm for generisk omtale: forslagene (mest sannsynlige øverst) med ferdig utfylt grunnlag.
+navnekandidater.MapGet("/{id:guid}/generisk-kontekst", async (Guid id, GeneriskForslagTjeneste forslag, CancellationToken ct) =>
+        await forslag.ForKandidatAsync(id, ct) is { } k ? Results.Ok(k) : Results.NotFound(new { feil = $"Ingen kandidat med id '{id}'." }))
+    .WithName("HentGeneriskKandidatkontekst")
+    .WithSummary("Issue #394 AK 4 — for en kandidat som er en generisk omtale: standardregelen og svaret den gir, forslag til referent " +
+        "(standardregel, nevnt i samme rettskilde, navneformer som inneholder ordet, tidligere bindinger, ansvarlig departement) med grunn " +
+        "og forhåndsutfylt grunnlag, antall forekomster i rettskilden og bindingene som alt finnes der. Skriver ingenting.");
 
 // [Ny, issue #378 A2] «Marker som generisk» — valgfritt med binding for kandidatens rettskilde («bind generisk navneform for denne
 // rettskilden»). Se NavnekandidatOppdagelseTjeneste.MarkerSomGeneriskAsync.
