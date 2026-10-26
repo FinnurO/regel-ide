@@ -257,7 +257,7 @@ hver lov. Den er én generisk navneform for hele korpuset (docs/33 §5.7). Hva d
 
 | Ord | Standardregel | Premisser | Når regelen ikke gir svar |
 |---|---|---|---|
-| «departementet» | Ansvarlig departement | En **ressortkant** (F forvaltning med lovens ELI, #395) for hele loven på datoen, godkjent eller faglig vurdert — primær kilde. Ellers Lovdatas felt «Ansvarlig departement» — **sekundær kilde** | Ingen kilde; flere departementer; navnet finnes ikke i katalogen i dag |
+| «departementet» | Ansvarlig departement | En **ressortkant** (F forvaltning med lovens ELI, #395) for hele loven på datoen, godkjent eller faglig vurdert — primær kilde. Ellers Lovdatas felt «Ansvarlig departement» — **sekundær kilde**; bruker feltet et utgått navn, fører navnehistorikken det til aktøren — **sekundær kilde, utgått navn** | Ingen kilde; flere departementer; navnet finnes verken i katalogen eller historikken; navnet tilhører bare et nedlagt departement; navnet er brukt av flere departementer over tid |
 | «statsforvalteren» | Klassen statsforvalter | Klassen | Kilden definerer ordet, navngir et embete («Statsforvalteren i Nordland»), er et virksomhetsdokument, eller gjelder Svalbard, Jan Mayen eller Longyearbyen |
 | «kommunen» | Klassen kommune | Klassen (kommuneloven § 2-1 første ledd) | Som over, unntatt navngitt embete |
 
@@ -266,6 +266,9 @@ hver lov. Den er én generisk navneform for hele korpuset (docs/33 §5.7). Hva d
 - **Ressortfordeling først:** «departementet» i reindriftsloven er Landbruks- og matdepartementet. I dag kommer svaret fra Lovdatas felt,
   merket sekundær kilde: ingen ressortkant er vurdert ennå (de 503 fra #395 er maskinelt foreslått). Når en ressortkant godkjennes, slår den
   igjennom straks, uten ny kjøring.
+- **Utgått navn:** Lovdatas felt for en eldre forskrift kan si «Olje- og energidepartementet». Navnehistorikken fra
+  organiseringsvedtakene fører navnet til Energidepartementet, og det er svaret, merket «sekundær kilde, utgått navn». Har navnet vært
+  brukt av to departementer (Barne- og likestillingsdepartementet), velges ingen.
 - **Forslag er ikke svar:** et ressortforslag som venter, står som merknad («et ressortforslag venter»), og som avvik når det sier noe annet
   enn Lovdata. Det brukes aldri som svaret.
 - **Over tid:** svaret gjelder på datoen. En eldre versjon av loven slås opp på versjonens dato. Et nedlagt departement er svaret for en dato

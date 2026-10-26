@@ -1213,7 +1213,12 @@ teller bare bindinger.
   **godkjent eller faglig vurdert**. Én referent → svar, primær kilde; flere → flertydig. Ellers Lovdatas «Ansvarlig departement» når
   det er nøyaktig ett navn som finnes i katalogen i dag — **sekundær kilde**. Et ressortforslag som ikke er vurdert, brukes ALDRI som svar;
   det står i merknadene («et ressortforslag venter», og om det avviker fra Lovdata). Del av loven til et annet departement gir en merknad.
-  Et gammelt navn i Lovdatas felt som er utgått navneform for et levende departement, gir en merknad, ikke et svar (navn gjenbrukes, §5.9).
+  [ENDRET, Johanns beslutning på PR #398, 2026-10-26] Et gammelt navn i Lovdatas felt gir svar når navnehistorikken (navneformer
+  «utgått» fra §5.9) fører det til NØYAKTIG ÉN levende aktør, og ingen annen identitet har hatt navnet: rute `lovdata_utgatt_navn`,
+  merket «Sekundær kilde, utgått navn», med navneformen som premiss (og en merknad når den bare er et forslag). Har flere identiteter
+  hatt navnet (navn gjenbrukes, §5.9: Barne- og likestillingsdepartementet, Arbeids- og sosialdepartementet, Kulturdepartementet), er
+  svaret flertydig. Fører navnet bare til et nedlagt departement (Fiskeridepartementet, Sosialdepartementet), eller finnes det ikke i
+  historikken, gir det ikke svar. Før: bare en merknad.
 - **Gyldighet:** datoen er i dag for den gjeldende versjonen og versjonens dato (konsolidert dato, ellers ikrafttredelse) for en eldre.
   En ressortkant til et nedlagt departement er svaret før nedleggelsen (`referentNedlagt`); etter den er kanten utløpt (§5.9).
 - **Forskrifter:** ingen ressortkant (vedtakene fordeler lover); Lovdatas felt er eneste kilde. Hjemmelslovens departement brukes ikke.
@@ -1228,14 +1233,14 @@ teller bare bindinger.
   der binder et menneske paragrafen. Sperre (a) fanger bare «med X menes/forstås». Ordformene «statsforvaltaren» (200 noder i 43 kilder),
   «fylkesmannen» (187 noder i 88 kilder, også eldre versjoner av samme verk) og «kommuna» har ingen regel — det er Johanns valg.
 
-**Målt 2026-10-24 (lokal base, regelen alene, gjeldende primærrettskilder der ordet står som eget ord;
-`GET /api/navneformer/generiske/standardregel-dekning?term=`):**
+**Målt 2026-10-24, «departementet» på nytt 2026-10-26 etter regelen om utgått navn (lokal base, regelen alene, gjeldende
+primærrettskilder der ordet står som eget ord; `GET /api/navneformer/generiske/standardregel-dekning?term=`):**
 
-| Ord | Rettskilder | Ressortfordeling | Lovdata (sekundær) | Fast klasse | Ikke løst | Flertydig |
-|---|---|---|---|---|---|---|
-| departementet | 1 543 | 0 | 1 489 | – | 47 (navnet finnes ikke i katalogen i dag) | 7 (flere departementer i Lovdata) |
-| statsforvalteren | 324 | – | – | 297 | 27 (sperret) | 0 |
-| kommunen | 533 | – | – | 519 | 14 (sperret) | 0 |
+| Ord | Rettskilder | Ressortfordeling | Lovdata (sekundær) | Lovdata, utgått navn | Fast klasse | Ikke løst | Flertydig |
+|---|---|---|---|---|---|---|---|
+| departementet | 1 543 | 0 | 1 489 | 29 | – | 13 (11 navnet tilhører bare et nedlagt departement, 2 ikke i katalogen eller historikken) | 12 (7 flere departementer i Lovdata, 5 navnet brukt av flere identiteter) |
+| statsforvalteren | 324 | – | – | – | 297 | 27 (sperret) | 0 |
+| kommunen | 533 | – | – | – | 519 | 14 (sperret) | 0 |
 
 Null ressortsvar fordi ingen av ressortkantene fra §5.9 er vurdert ennå; 167 av «departementet»-kildene har et ressortforslag som venter.
 
