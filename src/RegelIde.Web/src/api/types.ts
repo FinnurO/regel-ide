@@ -2539,6 +2539,8 @@ export interface StandardregelSvar {
   kunnskapsstatus: Kunnskapsstatus; dokumentasjon: 'primaer' | 'sekundaer' | null; oppslagsdato: string;
   gyldigFra: string | null; gyldigTil: string | null; forklaring: string; premisser: StandardregelPremiss[]; merknader: string[];
   referentNedlagt: string | null;
+  /** [Ny, Johanns avgjørelse på #397] Navnet er brukt av flere identiteter; svaret er valgt etter dato. */
+  valgtEtterDato?: boolean;
 }
 /** [Ny, issue #394 AK 4] Ett forslag til hva en generisk omtale betyr, med ferdig utfylt grunnlag. */
 export interface GeneriskReferentforslag {

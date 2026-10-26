@@ -15,7 +15,9 @@ export function generiskKildeTekst(kilde: 'binding' | 'regel' | null | undefined
   if (kilde === 'regel' && regel) {
     if (regel.rute === 'ressortfordeling') return 'standardregel: ressortfordelingen';
     if (regel.rute === 'lovdata') return 'standardregel: Lovdata, sekundær kilde';
-    if (regel.rute === 'lovdata_utgatt_navn') return 'standardregel: Lovdata, sekundær kilde, utgått navn';
+    if (regel.rute === 'lovdata_utgatt_navn') {
+      return `standardregel: Lovdata, sekundær kilde, utgått navn${regel.valgtEtterDato ? ', valgt etter dato' : ''}`;
+    }
     return 'standardregel';
   }
   return 'ikke avklart';
@@ -46,9 +48,13 @@ export function GeneriskKildeTagger({ oppslag }: { oppslag: Pick<GeneriskTaggOpp
         {/* [ENDRET, Johanns beslutning på PR #398] Et utgått navn i Lovdatas felt, ført til aktøren via navnehistorikken, sier det i merket. */}
         {regel.dokumentasjon === 'sekundaer' && (
           <Tag data-size="sm" data-color="warning" title={regel.rute === 'lovdata_utgatt_navn'
-            ? 'Lovdatas felt «Ansvarlig departement» bruker et utgått navn; navnehistorikken fra organiseringsvedtakene fører det til dette departementet.'
+            ? (regel.valgtEtterDato
+              ? 'Lovdatas felt bruker et navn flere departementer har hatt; svaret er det som hadde navnet sist (gjeldende versjon) eller på versjonens dato (Johanns avgjørelse på #397).'
+              : 'Lovdatas felt «Ansvarlig departement» bruker et utgått navn; navnehistorikken fra organiseringsvedtakene fører det til dette departementet.')
             : 'Svaret bygger på Lovdatas felt «Ansvarlig departement», ikke på en vurdert ressortfordeling.'}>
-            {regel.rute === 'lovdata_utgatt_navn' ? 'Sekundær kilde, utgått navn' : 'Sekundær kilde'}
+            {regel.rute === 'lovdata_utgatt_navn'
+              ? (regel.valgtEtterDato ? 'Sekundær kilde, utgått navn, valgt etter dato' : 'Sekundær kilde, utgått navn')
+              : 'Sekundær kilde'}
           </Tag>
         )}
       </>
