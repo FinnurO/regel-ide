@@ -678,9 +678,11 @@ Den samme setningen står i metodenotatet (docs/profil/03 §5, «Statusen følge
 - En lesning som selv er `tekstfunn` eller `normalisering`, men som bare gjelder fordi et annet utsagn er `fortolkning`, blir
   `fortolkning` (som etterfølgeren etter P2/S2 når opphøret er lest etter P1).
 - Et premiss som er avvist eller foreldet, bærer ikke slutningen lenger.
-- **Rekkefølgen** mellom `fortolkning`, `eksternt_dokumentert` og `avledet` er ikke fastsatt (vokabularet i docs/profil/03 §5 er ingen
-  skala). Inntil Johann bestemmer den, gjelder bare de tre punktene over; ingen kode sammenligner disse tre.
-- **Målt 2026-10-27 (lokal base)** mot regelen: se §5.11 (#386). Bruddene er registrert som egen sak, ikke rettet i #386.
+- **Rangering** [Johanns beslutning 2026-10-27], sterkest først: `tekstfunn` = `eksternt_dokumentert` > `normalisering` > `avledet` >
+  `fortolkning` > `uavklart` > `omstridt`. Et premiss uten vurdert kunnskapsstatus (NULL) regnes ikke som sterkere enn `uavklart`.
+  `foreldet` bærer ingen slutning. Rangeringen gjelder bare når premisser sammenlignes i en avledning. Den gjør ikke vokabularet i
+  docs/profil/03 §5 til en generell kvalitetsskala.
+- **Målt 2026-10-27 (lokal base)** mot regelen: se §5.11 (#386). Bruddene er registrert i #411 og ikke rettet i #386.
 
 **Kategorier bundet til en lov** (docs/profil/03 §8): typekonfigurasjonen har `fvl_kategori_hjemmel` («forvaltningsloven (LOV-1967-02-10)
 § 2»), `fvl_kategori_gjelder_fra` (1970-01-01, lovens ikrafttredelse slik korpuset har den) og `fvl_kategori_gjelder_til` (tom: den nye
