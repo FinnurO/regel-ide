@@ -1261,6 +1261,42 @@ navnehistorikken viser nå at «Olje- og energidepartementet» er brukt av to id
 #398 gir et navn flere identiteter har hatt, ikke svar (15 kilder). Dette er regelen som virker, ikke en feil; om datoen skal kunne
 skille dem, er Johanns valg.
 
+### 5.9.2 Johanns avgjørelser etter #405 (2026-10-26, bygget i oppfølgeren)
+
+- **Datoskille for utgåtte navn** (§5.10): når flere identiteter har hatt navnet i Lovdatas felt, er svaret for gjeldende versjon den som
+  SIST hadde navnet (navneformenes gyldig til), og for en eldre versjon den som hadde det på versjonens dato. Merket «Sekundær kilde, utgått
+  navn, valgt etter dato» (`valgtEtterDato`). Ingen entydig → flertydig som før.
+- **U1:** står «med virkning fra <dato>» i leddet, gjelder den datoen for hendelsene i leddet (FOR-1987-12-18-971: 1. januar 1988). Bare
+  der; ellers vedtakets dato. En nedlagt aktør og egne uvurderte R-forslag får datoen flyttet (ikke en ny aktør).
+- **U2:** «Forvaltningen av følgende lover overføres fra X» under «Til Y overføres følgende» (FOR-1989-12-22-1273 vedlegg 4) gir F
+  forvaltning til Y. Y må finnes på vedtaksdatoen; vedlegg 3 bruker 2002-navnet «Kultur- og kirkedepartementet» og står som ulest.
+- **P1:** opphør uten «nedlegges» («overtar alle arbeidsoppgavene til [det nåværende] X», «overtar de resterende oppgavene til X»,
+  «det tidligere X», også i en overskrift) gir R avvikler med kunnskapsstatus `fortolkning` (ordlyd, kontekst_system). Leses bare i et
+  vedtak som også oppretter et departement, og bare for et departement som finnes i livsløpet.
+- **P2:** «Y overtar … fra X» (og «Y overtar alle arbeidsoppgavene/de resterende oppgavene til X») gir R etterfolger når X opphører i
+  samme vedtak, også uten forvaltningskanter (`monster:livslop-etterfolger-tekst`, `normalisering`, eller `fortolkning` når opphøret selv
+  er lest etter P1). Kommentaren sier at omfanget er det teksten sier, ikke lovdeler. Et par som alt er avledet, skrives ikke på nytt.
+- **P3:** statsrådlistene «etter endringene» (2018, 2019) er nye tildelinger, som bygget i #405. Begrunnelsen sier at departementet er
+  tatt fra overskriften.
+- **P4:** en navneform med hjemmel i konsolidert `DEL/`-tekst fra før 2001 får merket «Ikke kontrollert mot kunngjort tekst»
+  (`KunngjortKontroll`, avledet av hjemmelen, ikke lagret; `ikkeKontrollertMotKunngjort` på `/api/virksomheter/{id}/begrep`). Merket
+  hindrer ikke godkjenning. Målt: 19 navneformer.
+
+**Målt etterpå (lokal base):** nye forslag 5 nedlagte aktører (Nærings- og energidepartementet, Administrasjonsdepartementet,
+Planleggings- og samordningsdepartementet, Kommunal- og arbeidsdepartementet 1993–1997, og Industridepartementet på ny dato, se under),
+4 R avvikler `fortolkning` + 1 `normalisering`, 4 R oppretter, 15 F forvaltning (1990 vedlegg 4), 1 avledet R etterfolger og 5 R
+etterfolger lest av teksten: Planleggings- og samordningsdepartementet ← Administrasjonsdepartementet, Nærings- og handelsdepartementet ←
+Nærings- og energidepartementet, Energidepartementet (OED 1997) ← Nærings- og energidepartementet, Arbeids- og administrasjonsdepartementet ←
+Planleggings- og samordningsdepartementet (1998), Samferdselsdepartementet ← Fiskeri- og kystdepartementet (2014 punkt 6, kyst- og
+miljøsaker). Kommunal- og regionaldepartementet ← Kommunal- og arbeidsdepartementet er lest, men ikke skrevet: KRD (1998–) er ikke en aktør
+fordi navnebyttet til KMD 2014 har skrivefeilen «regionaldepartementel» (ulest). **Fortsatt ikke:** Sosial- og helsedepartementet får
+ingen etterfølger (2002-teksten sier ikke «fra»), og Fiskeri- og kystdepartementet ingen hovedetterfølger (NFD; teksten sier ikke «fra
+Fiskeri- og kystdepartementet»). Juristrunden stiller tre spørsmål til Johann (PR-en). **Kjent rest:** Industridepartementet finnes nå som
+to nedlagte aktører (gyldig til 1987-12-17 fra #405, og 1987-12-31 etter U1); den gamle og dens forslag bør avvises.
+
+**«departementet» (§5.10) etter datoskillet:** Lovdata, utgått navn 14 → 34, flertydig 27 → 7 (bare «flere departementer i Lovdata»).
+Ressortfordelingen gir fortsatt 0, fordi ingen ressortkant er vurdert.
+
 ### 5.10 Standardregler for generiske omtaler og navnevedtaket som hjemmel (#394, bygget 2026-10-24)
 
 Johann 2026-10-23: det var tungvint å binde «departementet» til lovens eierdepartement, bindingen han lagde ble ikke brukt (bare godkjente

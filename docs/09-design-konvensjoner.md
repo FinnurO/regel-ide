@@ -1216,6 +1216,13 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
   utsagnsteksten i `StrukturkantTabell`. Tallet kommer fra API-et (`omfang`), talt fra premissene; det lagres ikke og er ikke et felt.
   Kommentaren begynner med det samme tallet.
 
+## 44. Ikke kontrollert mot kunngjort tekst, og utgått navn valgt etter dato (Johanns avgjørelser på #397, 2026-10-26)
+
+- **«Ikke kontrollert mot kunngjort tekst»** som `warning`-merke i statuskolonnen på aktørens navneformer, når hjemmelen er en konsolidert
+  `DEL/`-tekst fra før 2001 (Lovdata kan ha oppdatert departementsnavn i ettertid). Hindrer ikke godkjenning; forklaringen står i `title`.
+- **«Sekundær kilde, utgått navn, valgt etter dato»** (`warning`) i stedet for «Sekundær kilde, utgått navn» når navnet er brukt av flere
+  identiteter og svaret er valgt etter dato (`GeneriskKilde.tsx`).
+
 ## 42. Generisk omtale: kjeden i lovteksten og veiviseren på én skjerm (issue #394, 2026-10-24)
 
 - **Kjeden vises alltid, aldri en rå id.** En tagg mot en generisk navneform viser «departementet» → [Generisk omtale] [kilde] → referenten,
