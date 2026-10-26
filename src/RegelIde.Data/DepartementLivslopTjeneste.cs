@@ -44,6 +44,10 @@ public sealed record LivslopSkriving(int OpprettetNye, int OpprettetFantes, int 
     public int AvviklerFantes { get; init; }
     public int EtterfolgerNye { get; init; }
     public int EtterfolgerFantes { get; init; }
+    /// <summary>[Ny, issue #397] Egne, uvurderte F-forslag som fikk ny gyldig til fordi et nytt vedtak er lest.</summary>
+    public int RessortGyldigTilOppdatert { get; init; }
+    /// <summary>[Ny, issue #397] Nedlagte aktører og deres maskinelle navneformer som fikk gyldig fra fylt inn (var tom).</summary>
+    public int GyldigFraFylt { get; init; }
 }
 
 /// <summary>[Ny, issue #395, Johanns avgjørelse 2] Et avledet R etterfolger: <see cref="Etterfolger"/> overtar ansvaret for lover
@@ -356,7 +360,14 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
             }
         }
         // En nedlagt identitet har ikke ansvaret etter nedleggelsen, selv om intet vedtak vi leser ga loven videre.
-        DateOnly? Til(Tildeling t) => tilDato.GetValueOrDefault(t) ?? (t.Id.Nedlagt is { } nd && nd > t.Fra ? nd.AddDays(-1) : null);
+        // [ENDRET etter juristrunden på #397] Det TIDLIGSTE av neste vedtak og nedleggelsen: AAD (nedlagt 2004) hadde en kant til 2019, fordi
+        // neste vedtak for loven kom først da.
+        DateOnly? Til(Tildeling t)
+        {
+            var neste = tilDato.GetValueOrDefault(t);
+            DateOnly? nedlagt = t.Id.Nedlagt is { } nd && nd > t.Fra ? nd.AddDays(-1) : null;
+            return neste is { } a && nedlagt is { } b ? (a < b ? a : b) : neste ?? nedlagt;
+        }
 
         // ---- Katalogen: bare levende identiteter, på nåværende navn ----
         var katalog = new Dictionary<Identitet, (Guid Id, string Navn)>();
@@ -369,14 +380,27 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
         // opprettelsen (når den er kjent) til dagen før nedleggelsen. Nøkkelen er (nedlagt, navn, gyldig til): et gjenbrukt navn (Barne- og
         // familiedepartementet til 2006) er en annen aktør enn dagens. I en tørrkjøring opprettes ingenting; de telles.
         var historiske = new Dictionary<Identitet, (Guid Id, string Navn)>();
-        int historiskeNye = 0, historiskeFantes = 0;
+        int historiskeNye = 0, historiskeFantes = 0, gyldigFraFylt = 0;
         foreach (var i in identiteter.Where(i => i.Nedlagt is not null))
         {
             var sisteDag = i.Nedlagt!.Value.AddDays(-1);
             var navn = i.Gjeldende;
             var finnes = await db.Virksomheter.Where(v => v.Livsstatus == "nedlagt" && v.Navn == navn && v.GyldigTil == sisteDag)
                 .Select(v => new { v.Id, v.Navn }).FirstOrDefaultAsync(ct);
-            if (finnes is not null) { historiske[i] = (finnes.Id, finnes.Navn); historiskeFantes++; continue; }
+            if (finnes is not null)
+            {
+                historiske[i] = (finnes.Id, finnes.Navn); historiskeFantes++;
+                // [Ny etter juristrunden på #397] Aktøren ble opprettet da starten var ukjent; nå er opprettelsen lest (1990–1998). Bare en
+                // TOM gyldig fra fylles, og bare i en skrivekjøring.
+                var start = i.Opprettet ?? i.Navn[0].Fra;
+                if (skriv && start is not null && await db.Virksomheter.FirstOrDefaultAsync(v => v.Id == finnes.Id && v.GyldigFra == null, ct) is { } tom)
+                {
+                    tom.GyldigFra = start;
+                    gyldigFraFylt++;
+                    await db.SaveChangesAsync(ct);
+                }
+                continue;
+            }
             historiskeNye++;
             if (!skriv) continue;
             var aktor = new Virksomhet
@@ -455,7 +479,7 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
         var skriving = skriv
             ? await SkrivAsync(alle, historiske.Keys.ToHashSet(), opprettetKanter, tildelinger, avledede, Til, bruker, ct)
             : TellUtenSkriving(katalog, opprettetKanter, tildelinger);
-        skriving = skriving with { HistoriskeAktorerNye = historiskeNye, HistoriskeAktorerFantes = historiskeFantes };
+        skriving = skriving with { HistoriskeAktorerNye = historiskeNye, HistoriskeAktorerFantes = historiskeFantes, GyldigFraFylt = skriving.GyldigFraFylt + gyldigFraFylt };
 
         var ressortRader = tildelinger.Select(t => new LivslopRessort(t.Id.Nr, t.NavnDaVedtaket, t.Objekt, t.Eli, t.Hele, t.Fra, Til(t), t.Hjemmel,
             t.Funksjonsord ? Strukturkanter.Tekstfunn : Strukturkanter.Normalisering)).ToList();
@@ -544,7 +568,7 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
         List<(Identitet X, Identitet Y, List<(Tildeling Gammel, Tildeling Ny)> Par)> avledede,
         Func<Tildeling, DateOnly?> til, string bruker, CancellationToken ct)
     {
-        int oNye = 0, oFantes = 0, nNye = 0, nFantes = 0, rNye = 0, rFantes = 0, avvist = 0, aNye = 0, aFantes = 0, eNye = 0, eFantes = 0;
+        int oNye = 0, oFantes = 0, nNye = 0, nFantes = 0, rNye = 0, rFantes = 0, avvist = 0, aNye = 0, aFantes = 0, eNye = 0, eFantes = 0, rOppdatert = 0, nfFylt = 0;
         var kantFor = new Dictionary<Tildeling, Guid>();
         var feil = new List<string>();
         var kongen = await FinnAktorAsync(KongenIStatsrad, ct);
@@ -593,7 +617,7 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
                         : "")
                     + (normalisert ? "; navnet står i ubestemt form i vedtaket og er gjort bestemt" : "")
                     + (i.Navn.Count > 1
-                        ? $". Opprettet som «{i.Navn[0].Navn}»; dagens navn etter navnebytte: " + string.Join(" → ",
+                        ? $". Opprettet som «{i.Navn[0].Navn}»; {(i.Nedlagt is null ? "dagens navn" : "siste navn før nedleggelsen")} etter navnebytte: " + string.Join(" → ",
                             i.Navn.Skip(1).Select(n => $"«{n.Navn}» fra {n.Fra:yyyy-MM-dd} ({n.Gitt?.Tittel})")) + "."
                         : ".")),
                 () => oNye++, () => oFantes++);
@@ -611,7 +635,20 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
             {
                 var finnes = await db.Begreper.IgnoreQueryFilters().AnyAsync(b => b.Begrepskategori == "virksomhet" && b.VirksomhetReferanseId == aktor.Id
                     && b.Term.ToLower() == n.Navn.ToLower(), ct);
-                if (finnes) { nFantes++; continue; }
+                if (finnes)
+                {
+                    nFantes++;
+                    // [Ny etter juristrunden på #397] Egen, uvurdert navneform med tom gyldig fra, der starten nå er lest.
+                    if (n.Fra is not null && await db.Begreper.FirstOrDefaultAsync(b => b.Begrepskategori == "virksomhet" && b.VirksomhetReferanseId == aktor.Id
+                            && b.Term.ToLower() == n.Navn.ToLower() && b.GyldigFra == null && b.Godkjenning == Strukturkanter.MaskineltForeslatt
+                            && b.OppdagelsesKilde == OppdagelsesKilde, ct) is { } tomNf)
+                    {
+                        tomNf.GyldigFra = n.Fra;
+                        nfFylt++;
+                        await db.SaveChangesAsync(ct);
+                    }
+                    continue;
+                }
                 var erSiste = n == sisteNavn;
                 var h = (erHistorisk ? n.Gitt ?? n.Endret ?? i.NedlagtVed : n.Endret)!;
                 // Hele ord: «Landbruksdepartementets» (genitiv) inneholder «Landbruksdepartementet», men er ikke ordrett.
@@ -662,17 +699,34 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
                 Status: Strukturkanter.MaskineltForeslatt, OppdagelsesKilde: OppdagelsesKilde,
                 Kunnskapsstatus: t.Funksjonsord ? Strukturkanter.Tekstfunn : Strukturkanter.Normalisering,
                 // Modalitet null: en ressortfordeling er en TILDELING av ansvar, ikke en plikt til å utføre noe («skal ha» er tildelingens form).
-                Begrunnelse: (t.Funksjonsord
+                // [ENDRET etter juristrunden på #397] Når lista er fordelt på statsråder, er departementet hentet fra overskriften; det er
+                // grunnen til normalisering, ikke ordet «ansvaret».
+                Begrunnelse: (t.Innledning is { } inn && inn.Contains("statsråd", StringComparison.OrdinalIgnoreCase) && !t.Funksjonsord
+                    ? "Regel: monster:livslop-ressortfordeling. Vedlegget fordeler lovene på statsråder («" + Avkort(inn) + "»); departementet er "
+                      + "tatt fra overskriften lista står under, ikke fra teksten som bruker funksjonsordet (issue #397)."
+                    : t.Funksjonsord
                     ? "Regel: monster:livslop-ressortfordeling. Vedtaket bruker funksjonsordet «forvaltningsansvaret» (begrepsmanualen §F)."
                     : "Regel: monster:livslop-ressortfordeling. «… skal ha ansvaret for» lover er lest som forvaltningsansvar fordi objektet er et "
                       + "regelverk og vedtaket overfører ansvaret for lover (begrepsmanualen §F).")
-                    + (t.Innledning is { } inn && inn.Contains("statsråd", StringComparison.OrdinalIgnoreCase)
-                        ? " Vedlegget fordeler lovene på statsråder (innledningen i kommentaren); departementet er det kapitlet eller overskriften "
-                          + "lista står under, ikke statsråden (issue #397)."
-                        : "")
                     + " Modalitet er ikke satt: vedtaket tildeler ansvaret, det pålegger ingen plikt."),
                 () => rNye++, () => rFantes++);
-            if (fId is { } fid) kantFor[t] = fid;
+            if (fId is { } fid)
+            {
+                kantFor[t] = fid;
+                // [Ny etter juristrunden på #397] Et eget, uvurdert forslag som fantes, får ny gyldig til og kommentar når et senere lest vedtak
+                // endrer dem (gyldig til er ikke en del av utsagnets identitet). Et vurdert eller avvist utsagn røres ikke.
+                var nyTil = gyldigTil is { } g2 && g2 >= t.Fra ? g2 : (DateOnly?)null;
+                if (await db.Strukturkanter.FirstOrDefaultAsync(k => k.Id == fid, ct) is { Status: Strukturkanter.MaskineltForeslatt } fk
+                    && fk.OppdagelsesKilde == OppdagelsesKilde && fk.GyldigTil != nyTil)
+                {
+                    fk.GyldigTil = nyTil;
+                    fk.Kommentar = $"«{Avkort(t.Hjemmel.Tekst)}» (departementet het {t.NavnDaVedtaket} i vedtaket)"
+                        + (t.Innledning is null ? "" : $" Innledningen i vedlegget: «{Avkort(t.Innledning)}».")
+                        + (gyldigTil is null ? "" : TilGrunn(t, gyldigTil.Value));
+                    await db.SaveChangesAsync(ct);
+                    rOppdatert++;
+                }
+            }
         }
 
         // [Ny, issue #395 M5] R avvikler fra Kongen i statsråd til det nedlagte departementet, når nedleggelsen er fastsatt ved kgl.res.
@@ -680,8 +734,9 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
         {
             if (kongen is null) { feil.Add($"R avvikler {i.Gjeldende}: fant ikke «{KongenIStatsrad}» i katalogen"); continue; }
             var h = i.NedlagtVed!;
-            var ordrett = h.Tekst.Contains(i.Gjeldende + " ", StringComparison.Ordinal) || h.Tekst.Contains(i.Gjeldende + ",", StringComparison.Ordinal)
-                || h.Tekst.Contains(i.Gjeldende + ".", StringComparison.Ordinal);
+            // [ENDRET etter juristrunden på #397] Hele ord, også sist i teksten («… samt Arbeids- og administrasjonsdepartementet»).
+            var ordrett = System.Text.RegularExpressions.Regex.IsMatch(h.Tekst,
+                $@"(?<!\p{{L}}){System.Text.RegularExpressions.Regex.Escape(i.Gjeldende)}(?!\p{{L}})");
             await Opprett(new NyStrukturkant(Strukturkanter.Relasjon, "avvikler", Kantnode.Virksomhet(kongen.Value.Id), Kantnode.Virksomhet(katalog[i].Id),
                 HjemmelRettskildeId: h.RettskildeId, HjemmelEid: h.Eid, GyldigFra: i.Nedlagt,
                 Kommentar: $"«{Avkort(h.Tekst)}»", Status: Strukturkanter.MaskineltForeslatt, OppdagelsesKilde: OppdagelsesKilde,
@@ -725,7 +780,7 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
 
         return new LivslopSkriving(oNye, oFantes, nNye, nFantes, rNye, rFantes, avvist, feil)
         {
-            AvviklerNye = aNye, AvviklerFantes = aFantes, EtterfolgerNye = eNye, EtterfolgerFantes = eFantes,
+            AvviklerNye = aNye, AvviklerFantes = aFantes, EtterfolgerNye = eNye, EtterfolgerFantes = eFantes, RessortGyldigTilOppdatert = rOppdatert, GyldigFraFylt = nfFylt,
         };
     }
 

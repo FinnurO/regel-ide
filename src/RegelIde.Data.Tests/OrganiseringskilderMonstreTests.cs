@@ -232,4 +232,22 @@ public class OrganiseringskilderMonstreTests
     public void Lov_om_endring_i_en_annen_lov_gir_ikke_tittel_foer_dato() =>
         // Datoen tilhører den endrede loven; tittel-først-formen brukes ikke når en annen lov nevnes før datoen.
         Assert.Null(DepartementLivslopMonstre.LovDatokode("Lov om endring i statsborgerlova av 10. juni 2005"));
+
+    [Fact]
+    public void Formene_fra_1972_og_1988_og_sammenslaaing()
+    {
+        // Juristrunden på #397: kommaformen (FOR-1972-05-05-8645) og «… og det opprettes et nytt departementet, X» (FOR-1987-12-18-971).
+        var o = Assert.Single(DepartementLivslopMonstre.LesLedd(
+            "Med virkning fra samme dato opprettes to nye departementer, Miljøverndepartementet og Forbruker- og administrasjonsdepartementet.", out _));
+        Assert.Equal(["Miljøverndepartementet", "Forbruker- og administrasjonsdepartementet"], o.Navn.Select(n => n.Navn));
+        var h = DepartementLivslopMonstre.LesLedd(
+            "Med virkning fra 1. januar 1988 nedlegges Industridepartementet og det opprettes et nytt departementet, Næringsdepartementet.", out var ulest);
+        Assert.Null(ulest);
+        Assert.Contains(h, x => x.Type == DepartementLivslopMonstre.Nedleggelse && x.Navn.Single().Navn == "Industridepartementet");
+        Assert.Contains(h, x => x.Type == DepartementLivslopMonstre.Oppretting && x.Navn.Single().Navn == "Næringsdepartementet");
+        // Sammenslåing leses ikke, men rapporteres.
+        Assert.Empty(DepartementLivslopMonstre.LesLedd(
+            "Med virkning fra 1. januar 1990 slås Utenriksdepartementet og Departementet for utviklingshjelp sammen til ett departement, Utenriksdepartementet.", out var u2));
+        Assert.StartsWith("sammenslåing", u2);
+    }
 }

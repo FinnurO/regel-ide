@@ -49,7 +49,7 @@ public static partial class DepartementLivslopMonstre
     [GeneratedRegex(@"^\s*Opprettelse av (?<liste>.+)$", RegexOptions.CultureInvariant)] private static partial Regex OpprettRegex();
     [GeneratedRegex(@"^\s*Nedleggelse av (?<liste>.+)$", RegexOptions.CultureInvariant)] private static partial Regex NedleggRegex();
     // «Det opprettes et Digitaliserings- og forvaltningsdepartementet med virkning fra 1. januar 2024.» (FOR-2023-12-20-2166)
-    [GeneratedRegex(@"\bDet opprettes (?:et |en )?(?<d>" + Dept + ")", RegexOptions.CultureInvariant)] private static partial Regex DetOpprettesRegex();
+    [GeneratedRegex(@"\bDet opprettes (?:et |en )?(?:nytt departement(?:et)?,\s*)?(?<d>" + Dept + ")", RegexOptions.CultureInvariant)] private static partial Regex DetOpprettesRegex();
 
     [GeneratedRegex(@"(?<fra>" + Dept + @")\s+navn\s+endres\s+(?:fra\s+\d{1,2}\.\s+\p{Ll}+\s+\d{4}\s+)?til\s+(?<til>" + Dept + ")", RegexOptions.CultureInvariant)]
     private static partial Regex NavnEndresRegex();
@@ -67,7 +67,9 @@ public static partial class DepartementLivslopMonstre
     // [Ny, issue #397] Formene i vedtakene fra 1990 og 1993 (FOR-1989-12-22-1273, FOR-1992-12-18-1074, konsoliderte): «Med virkning fra
     // 1. januar 1990 opprettes fire nye departementer med funksjoner og myndighet som beskrevet i foredraget og vedlegg til denne
     // resolusjon: A, B, C samt D.» og «Fra samme dato nedlegges A, B og C.»
-    [GeneratedRegex(@"\bopprettes\s+(?:\p{L}+\s+)?nye\s+departementer\b[^:]*:\s*(?<liste>.+)$", RegexOptions.CultureInvariant)]
+    // [ENDRET etter juristrunden på #397] + kommaformen i FOR-1972-05-05-8645: «… opprettes to nye departementer, Miljøverndepartementet og
+    // Forbruker- og administrasjonsdepartementet.»
+    [GeneratedRegex(@"\bopprettes\s+(?:\p{L}+\s+)?nye\s+departementer\b(?:[^:]*:|,)\s*(?<liste>.+)$", RegexOptions.CultureInvariant)]
     private static partial Regex OpprettesNyeRegex();
     [GeneratedRegex(@"\bnedlegges\s+(?<liste>.+)$", RegexOptions.CultureInvariant)] private static partial Regex NedleggesRegex();
     // [Ny, issue #397] Navnebytte som liste (FOR-1990-12-21-1022 punkt 2): «Med virkning fra 1. januar 1991 endrer følgende departementer
@@ -149,7 +151,9 @@ public static partial class DepartementLivslopMonstre
         ulest = null;
         var h = new List<Livslopshendelse>();
         // «Opprettelse av Næringsdepartementet og nedleggelse av Industridepartementet.» (FOR-1987-12-18) — to hendelser i ett ledd.
-        var deler = Regex.Split(tekst, @"\s+og\s+(?=nedleggelse av\b)", RegexOptions.CultureInvariant);
+        // [ENDRET etter juristrunden på #397] + «nedlegges Industridepartementet og det opprettes et nytt departementet, Næringsdepartementet»
+        // (FOR-1987-12-18-971).
+        var deler = Regex.Split(tekst, @"\s+og\s+(?=nedleggelse av\b|det opprettes\b)", RegexOptions.CultureInvariant);
         if (deler.Length == 2)
         {
             var a = LesLedd(deler[0], out var ua);
@@ -207,6 +211,11 @@ public static partial class DepartementLivslopMonstre
         {
             h.Add(new(Overforing, [], (Normaliser(m.Groups["fra"].Value), m.Groups["fra"].Value),
                 (Normaliser(m.Groups["til"].Value), m.Groups["til"].Value), m.Groups["obj"].Value.Trim(), Regel: "monster:livslop-forvaltningsansvaret-overfores"));
+        }
+        // [Ny etter juristrunden på #397] «slås … sammen til ett departement» (FOR-1989-12-22-1273 kap-IV) leses ikke, men rapporteres.
+        if (h.Count == 0 && ulest is null && Regex.IsMatch(tekst, @"\bslås\b.*\bsammen\b") && tekst.Contains("departement"))
+        {
+            ulest = "sammenslåing: «slås … sammen» leses ikke (hvem som opphører, sier ikke teksten med et mønster vi har)";
         }
         if (h.Count == 0 && ulest is null && Regex.IsMatch(tekst, @"\bnavn\b.*\b(endres|endrer|skifter)\b|\b(endrer|skifter)\b.*\bnavn\b") && tekst.Contains("departement"))
         {
