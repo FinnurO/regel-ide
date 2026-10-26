@@ -1946,3 +1946,19 @@ public sealed record AvvisNavneformBindingRequest(string? Begrunnelse);
 
 /// <summary>[Ny, issue #378 B4] Opprett (eller finn) en generisk navneform for en term.</summary>
 public sealed record GeneriskNavneformRequest(string Term);
+
+/// <summary>[Ny, issue #386] Forespørsel for POST /api/begreper/{id}/omgjor-til-aktor. Se <see cref="OmgjoringTjeneste"/>.</summary>
+public sealed record OmgjorTilAktorRequest(
+    string Aktornavn, Guid? EksisterendeVirksomhetId, List<OmgjortNavneformRequest> Navneformer,
+    string? Aktortype = null, UtsagnsgrunnlagRequest? AktortypeGrunnlag = null)
+{
+    public OmgjoringTilAktor TilSpesifikasjon() => new(Aktornavn, EksisterendeVirksomhetId,
+        Navneformer.Select(n => new OmgjortNavneform(n.Term, n.Grunn, n.Grunnlag.TilGrunnlag(), n.ArverTaggene)).ToList(),
+        Aktortype, AktortypeGrunnlag?.TilGrunnlag());
+}
+
+public sealed record OmgjortNavneformRequest(string Term, string Grunn, UtsagnsgrunnlagRequest Grunnlag, bool ArverTaggene = false);
+
+public sealed record OmgjoringResultatDto(
+    Guid BegrepId, VirksomhetDto Aktor, bool AktorVarNy, List<BegrepDto> Navneformer, int TaggerFlyttet, int TaggerUtvidet, int KanterFlyttet,
+    Treffidentitet Navnetreff, Guid? AktortypeUtsagnId);

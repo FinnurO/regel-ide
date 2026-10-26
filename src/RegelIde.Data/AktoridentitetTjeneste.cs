@@ -250,6 +250,14 @@ public sealed class AktoridentitetTjeneste(RegelIdeDbContext db, TekstTaggTjenes
         {
             throw new ArgumentException($"Navneformen «{b.Term}» er ikke et forslag. En godkjent navneform fjernes med «Fjern».");
         }
+        // [Ny, issue #386] Navneformen arvet taggene fra et rolle-, klasse- eller gruppebegrep ved en omgjøring. Å avvise den her ville
+        // slettet de flyttede taggene; angringen setter dem tilbake på begrepet først (OmgjoringTjeneste.AngreAsync).
+        if (b.ErstatterId is { } eid && await db.Begreper.AnyAsync(x => x.Id == eid && x.Entitetsstatus == "erstattet"
+                && OmgjoringTjeneste.Nodebegrepkategorier.Contains(x.Begrepskategori), ct))
+        {
+            throw new ArgumentException($"«{b.Term}» kommer fra en omgjøring av et rolle-, klasse- eller gruppebegrep. Bruk «Angre omgjøring» "
+                + $"(POST /api/begreper/{eid}/angre-omgjoring), så taggene settes tilbake og ikke slettes.");
+        }
         var tagger = await db.TekstTagger.Where(t => t.RefId == id).ToListAsync(ct);
         db.TekstTagger.RemoveRange(tagger);
         b.Godkjenning = Strukturkanter.Avvist;

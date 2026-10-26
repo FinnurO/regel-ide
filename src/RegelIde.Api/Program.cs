@@ -58,6 +58,7 @@ builder.Services.AddScoped<DepartementNavneformHjemmelTjeneste>(); // [Ny, issue
 // [Ny, issue #385] Aktøridentitet: forslag til gjeldende navneform og aktørtype, navnetreff → kilde og tagg. Skriver bare via endepunkt
 // (ingen oppstartsjobb, CLAUDE.md §4).
 builder.Services.AddScoped<AktoridentitetTjeneste>();
+builder.Services.AddScoped<OmgjoringTjeneste>(); // [Ny, issue #386]
 builder.Services.AddScoped<KlassemedlemskapTjeneste>(); // [Ny, issue #384] utledet medlemskap («kommune» fra områderegisteret)
 builder.Services.AddScoped<RegelIde.Data.Strukturkonvertering.KiStrukturkonverterer>();
 // [Ny, issue #312 «områderegister»] «Gitt kommune X → fylke, tingrett, lagdømme, statsforvalter, RHF» (AC5).
@@ -3338,6 +3339,45 @@ begreper.MapGet("/forslag", async (HttpRequest request, RegelIdeDbContext db, Ca
 // (godkjenn/avvis via SAMME BegrepsregisterTjeneste.SettStatusAsync som enkeltrad-endepunktet
 // «/{id}/status»). Ingen egen «slett-batch» her — begrepsforslag har ikke noe «Slett»-enkeltrad-
 // endepunkt i BegrepsforslagKo.tsx (kun Avvis/Rediger/Godkjenn), så det er intet å speile i batch heller.
+
+// [Ny, issue #386] Et organ registrert som rolle-, klasse- eller gruppebegrep gjøres om til en aktør med navneformer. Bare etter en
+// juristrunde (CLAUDE.md §23); ingenting slettes, og POST .../angre-omgjoring setter alt tilbake. Se OmgjoringTjeneste.
+begreper.MapPost("/{id:guid}/omgjor-til-aktor", async (Guid id, HttpRequest request, OmgjorTilAktorRequest body, OmgjoringTjeneste omgjoring,
+        RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var r = await omgjoring.OmgjorTilAktorAsync(id, body.TilSpesifikasjon(), bruker.Navn, ct);
+            return Results.Ok(new OmgjoringResultatDto(r.BegrepId, VirksomhetDto.FraEntitet(r.Aktor), r.AktorVarNy,
+                r.Navneformer.Select(BegrepDto.FraEntitet).ToList(), r.TaggerFlyttet, r.TaggerUtvidet, r.KanterFlyttet, r.Navnetreff,
+                r.Aktortype?.Id));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("OmgjorBegrepTilAktor")
+    .WithSummary("Issue #386 — gjør et rolle-, klasse- eller gruppebegrep om til en aktør: navneformer og aktørtype som forslag, taggene og kantene flyttes med proveniens, begrepet settes som erstattet.");
+
+begreper.MapPost("/{id:guid}/angre-omgjoring", async (Guid id, HttpRequest request, AvvisForslagRequest? body, OmgjoringTjeneste omgjoring,
+        RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            return Results.Ok(await omgjoring.AngreAsync(id, body?.Begrunnelse, bruker.Navn, ct));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("AngreOmgjoring")
+    .WithSummary("Issue #386 — setter en omgjøring tilbake: begrepet gjeldende, taggene og kantene tilbake, navneformene og aktørtypen avvist (ikke slettet).");
 
 begreper.MapPost("/forslag/godkjenn-batch", async (HttpRequest request, BegrepsforslagBatchRequest body,
         BegrepsregisterTjeneste begrepsregister, RegelIdeDbContext db, CancellationToken ct) =>
