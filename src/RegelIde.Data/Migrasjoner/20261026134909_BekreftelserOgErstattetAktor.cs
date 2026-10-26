@@ -11,11 +11,8 @@ namespace RegelIde.Data.Migrasjoner
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<Guid>(
-                name: "erstattet_av_id",
-                table: "virksomheter",
-                type: "uuid",
-                nullable: true);
+            // [Ny, issue #397] IF NOT EXISTS som i NedlagteAktorerOgEndringsmarkor: migrasjonstestene (HistoriskSkjema) legger kolonnen til.
+            migrationBuilder.Sql("ALTER TABLE virksomheter ADD COLUMN IF NOT EXISTS erstattet_av_id uuid;");
 
             migrationBuilder.CreateTable(
                 name: "strukturkant_bekreftelser",

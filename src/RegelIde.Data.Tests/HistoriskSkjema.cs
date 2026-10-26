@@ -158,7 +158,9 @@ internal static class HistoriskSkjema
                 + "ALTER TABLE virksomheter ADD COLUMN IF NOT EXISTS gyldig_fra date; "
                 + "ALTER TABLE virksomheter ADD COLUMN IF NOT EXISTS gyldig_til date; "
                 + "ALTER TABLE rettskilder ADD COLUMN IF NOT EXISTS rent_endringsvedtak boolean; "
-                + "ALTER TABLE rettskilder ADD COLUMN IF NOT EXISTS rent_endringsvedtak_grunnlag text;");
+                + "ALTER TABLE rettskilder ADD COLUMN IF NOT EXISTS rent_endringsvedtak_grunnlag text; "
+                // [Ny, issue #397] BekreftelserOgErstattetAktor.
+                + "ALTER TABLE virksomheter ADD COLUMN IF NOT EXISTS erstattet_av_id uuid;");
         }
     }
 
