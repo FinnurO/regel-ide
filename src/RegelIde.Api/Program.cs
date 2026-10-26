@@ -63,6 +63,9 @@ builder.Services.AddScoped<KlassemedlemskapTjeneste>(); // [Ny, issue #384] utle
 builder.Services.AddScoped<RegelIde.Data.Strukturkonvertering.KiStrukturkonverterer>();
 // [Ny, issue #312 «områderegister»] «Gitt kommune X → fylke, tingrett, lagdømme, statsforvalter, RHF» (AC5).
 builder.Services.AddScoped<OmradeOppslagTjeneste>();
+builder.Services.AddScoped<OmradeTilhorighetTjeneste>(); // [Ny, issue #390] «Område og tilhørighet» sett fra aktøren
+builder.Services.AddScoped<RegisterkantKunnskapsstatusTjeneste>(); // [Ny, issue #390 AK 4] registerkanter → eksternt dokumentert
+builder.Services.AddScoped<KommuneKortformTjeneste>(); // [Ny, issue #390 AK 2] kortform per kommune, som forslag
 builder.Services.AddScoped<VirksomhetWhereUsedTjeneste>();
 builder.Services.AddScoped<VirksomhetKandidatTjeneste>();
 builder.Services.AddScoped<VirksomhetKandidatSveipTjeneste>();
@@ -4056,6 +4059,21 @@ omrader.MapGet("/kommuner/{kommunenummer}/plikter", async (string kommunenummer,
         "konsultasjon): pliktene som gjelder kommunen (direkte, via registrert medlemskap, eller fra en klasse uten registrert " +
         "medlemskap — med hull), og motparten per plikt: konkret | entydig | ikke_entydig | mangler | ikke_angitt.");
 
+// [Ny, issue #390 AK 1, docs/33 §5.13] «Område og tilhørighet» sett fra aktøren: det som avledes via territoriet (fylke, tingrett og
+// rettssted, lagsogn, lagdømme, lagmannsrett, statsforvalter, helseregion, RHF, valgkrets, klasser), hvert svar med premissene og det
+// svakeste premisset. Ingenting lagres (#345).
+app.MapGet("/api/virksomheter/{id:guid}/omrade-tilhorighet", async (Guid id, OmradeTilhorighetTjeneste tjeneste, CancellationToken ct) =>
+    {
+        var svar = await tjeneste.ForVirksomhetAsync(id, ct);
+        return svar is null
+            ? Results.NotFound(new { feil = $"Ingen virksomhet med id '{id}'." })
+            : Results.Ok(VirksomhetTilhorighetDto.Fra(svar));
+    })
+    .WithName("HentVirksomhetOmradeTilhorighet")
+    .WithSummary("Issue #390 AK 1 — for en aktør med eget territorium (kommunen): fylke, tingrett, rettssted, lagsogn, lagdømme, " +
+        "lagmannsrett, statsforvalter, helseregion, RHF, valgkrets og klasser, avledet via territoriekanten. Hvert svar har premissene i " +
+        "kjedens rekkefølge og det svakeste premisset; kunnskapsstatusen er aldri sterkere enn det (docs/33 §4.6).");
+
 // [Ny, issue #355 AC4, Johanns beslutning 4 2026-10-09, docs/32 S6] «Hvem er ankeinstans for X tingrett?» — AVLEDET: K overprøving/anke
 // fra lagmannsretten til tingretten (klassen), avgrenset til eget lagdømme, paret via tingrett → lagsogn → lagdømme (#345). Paret lagres
 // ikke. Ved flere kandidater velges ingen.
@@ -4490,6 +4508,46 @@ app.MapPost("/api/departementer/livslop", async (bool? skriv, HttpRequest reques
         "forslag (maskinelt_foreslatt, forslagskøen); ingenting godkjennes.");
 
 // [Ny, issue #394 AK 9] Departementenes navneformer får hjemmel i navnevedtaket, som forslag.
+// [Ny, issue #390 AK 4] Registerkanter (kilde utenfor korpus av typen register) → kunnskapsstatus eksternt dokumentert, etter regel, med
+// proveniens per kant. Bare kanter uten vurdert kunnskapsstatus. ?skriv=true skriver; uten er det en telling. /angre setter tilbake.
+app.MapPost("/api/strukturkanter/registerkanter/eksternt-dokumentert", async (bool? skriv, HttpRequest request, RegelIdeDbContext db,
+        RegisterkantKunnskapsstatusTjeneste tjeneste, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        return Results.Ok(await tjeneste.EtterfyllAsync(skriv ?? false, bruker.Navn, ct));
+    })
+    .WithOpenApi()
+    .WithName("RegisterkanterEksterntDokumentert")
+    .WithSummary("Issue #390 AK 4 — kanter med kilde utenfor korpus av typen register (Kartverket, Enhetsregisteret) og kunnskapsstatus ikke " +
+        "vurdert får eksternt_dokumentert, med en proveniensrad per kant. Godkjenningen endres ikke. ?skriv=true skriver; uten er det en telling.");
+
+app.MapPost("/api/strukturkanter/registerkanter/eksternt-dokumentert/angre", async (bool? skriv, HttpRequest request, RegelIdeDbContext db,
+        RegisterkantKunnskapsstatusTjeneste tjeneste, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        return Results.Ok(await tjeneste.AngreAsync(skriv ?? false, bruker.Navn, ct));
+    })
+    .WithOpenApi()
+    .WithName("RegisterkanterEksterntDokumentertAngre")
+    .WithSummary("Issue #390 AK 4 — angrer etterfyllingen: registerkanter der siste kunnskapsstatus-endring var regelen, settes tilbake til " +
+        "ikke vurdert, med en ny proveniensrad. ?skriv=true skriver; uten er det en telling.");
+
+// [Ny, issue #390 AK 2] Kortformen for hver kommune (kommunenavnet fra Kartverket) som navneform med grunn kortform, som FORSLAG.
+app.MapPost("/api/omrader/kommuner/kortformer", async (bool? skriv, HttpRequest request, RegelIdeDbContext db,
+        KommuneKortformTjeneste tjeneste, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        return Results.Ok(await tjeneste.ForeslaAsync(skriv ?? false, bruker.Navn, ct));
+    })
+    .WithOpenApi()
+    .WithName("KommuneKortformer")
+    .WithSummary("Issue #390 AK 2 — for hver kommune med territoriekant: kortformen (Kartverkets kommunenavn, «Alta») som navneform med grunn " +
+        "kortform, registeret som kilde, eksternt_dokumentert og maskinelt_foreslatt. Kollisjoner (samme tekst som et annet område, en annen " +
+        "aktør eller navneform) og kommuner med parallellnavn listes; referenten avgjøres av binding eller kontekst. ?skriv=true skriver.");
+
 app.MapPost("/api/departementer/navneform-hjemmel", async (bool? skriv, HttpRequest request, RegelIdeDbContext db,
         DepartementNavneformHjemmelTjeneste tjeneste, CancellationToken ct) =>
     {
