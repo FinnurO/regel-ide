@@ -44,6 +44,8 @@ public sealed record LivslopSkriving(int OpprettetNye, int OpprettetFantes, int 
     public int AvviklerFantes { get; init; }
     public int EtterfolgerNye { get; init; }
     public int EtterfolgerFantes { get; init; }
+    /// <summary>[Ny, issue #397 U1] Nedlagte aktører og egne uvurderte R oppretter/R avvikler som fikk ny dato fordi leddet sier «med virkning fra».</summary>
+    public int DatoFlyttet { get; init; }
     /// <summary>[Ny, Johanns avgjørelse P2 på #397] R etterfolger lest av «overtar … fra X».</summary>
     public int EtterfolgerTekstNye { get; init; }
     public int EtterfolgerTekstFantes { get; init; }
@@ -384,14 +386,6 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
                     if (v.KglRes) opprettetKanter.Add((i, oDato, h, raa != navn));
                 }
             }
-            // [Ny, Johanns avgjørelse P2 på #397] «Y overtar … fra X», der X opphører i SAMME vedtak og Y finnes etter det: Y etterfølger X,
-            // lest av teksten, også uten forvaltningskanter. En vanlig overføring mellom to departementer som begge finnes videre, gir ingenting.
-            foreach (var (h, e) in v.Hendelser.Where(x => x.E.Type == DepartementLivslopMonstre.Overtar))
-            {
-                if (!nedlagtIdent.TryGetValue(e.Fra!.Value.Navn, out var xi) || !levende.TryGetValue(e.Til!.Value.Navn, out var yi) || xi == yi) continue;
-                if (tekstEtterfolgere.Any(t => t.X == xi && t.Y == yi)) continue;
-                tekstEtterfolgere.Add((xi, yi, h, e.Regel));
-            }
             if (opprettetHer.Count > 0 && nedlagtHer.Count > 0)
             {
                 etterfolgere.Add(new EtterfolgerKandidat(v.Hendelser[0].H with { Eid = "", Tekst = v.Tittel }, opprettetHer, nedlagtHer));
@@ -419,6 +413,17 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
                 var datokode = DepartementLivslopMonstre.LovDatokode(h.Tekst)!;
                 tildelinger.Add(new Tildeling(i, dept, h.Tekst.Trim(), LovdataIdentifikatorer.AvledEliFraDatokode(datokode, out _),
                     ErHeleLoven(h.Tekst) && !harUnderpunkter, v.Dato, h, funksjonsord, innledning, fraDept));
+            }
+            // [Ny, Johanns avgjørelse P2 på #397] «Y overtar … fra X», der X opphører i SAMME vedtak og Y finnes etter det: Y etterfølger X,
+            // lest av teksten, også uten forvaltningskanter. En vanlig overføring mellom to departementer som begge finnes videre, gir ingenting.
+            foreach (var (h, e) in v.Hendelser.Where(x => x.E.Type == DepartementLivslopMonstre.Overtar))
+            {
+                // Y kan være et departement som fantes før det eldste vedtaket i korpuset (Samferdselsdepartementet): da som i vedleggene.
+                if (!nedlagtIdent.TryGetValue(e.Fra!.Value.Navn, out var xi) || nedlagtHer.Contains(e.Til!.Value.Navn)) continue;
+                var yi = Hent(e.Til.Value.Navn, h);
+                if (xi == yi) continue;
+                if (tekstEtterfolgere.Any(t => t.X == xi && t.Y == yi)) continue;
+                tekstEtterfolgere.Add((xi, yi, h, e.Regel));
             }
         }
 
@@ -454,20 +459,45 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
         // opprettelsen (når den er kjent) til dagen før nedleggelsen. Nøkkelen er (nedlagt, navn, gyldig til): et gjenbrukt navn (Barne- og
         // familiedepartementet til 2006) er en annen aktør enn dagens. I en tørrkjøring opprettes ingenting; de telles.
         var historiske = new Dictionary<Identitet, (Guid Id, string Navn)>();
-        int historiskeNye = 0, historiskeFantes = 0, gyldigFraFylt = 0;
+        int historiskeNye = 0, historiskeFantes = 0, gyldigFraFylt = 0, datoFlyttet = 0;
         foreach (var i in identiteter.Where(i => i.Nedlagt is not null))
         {
             var sisteDag = i.Nedlagt!.Value.AddDays(-1);
             var navn = i.Gjeldende;
             var finnes = await db.Virksomheter.Where(v => v.Livsstatus == "nedlagt" && v.Navn == navn && v.GyldigTil == sisteDag)
                 .Select(v => new { v.Id, v.Navn }).FirstOrDefaultAsync(ct);
+            // [Ny, issue #397 U1] Datoen kan flytte seg når et ledd sier «med virkning fra» (Industridepartementet: 1987-12-17 → 1987-12-31).
+            // Samme aktør er da den nedlagte med samme navn som har livsløpets R avvikler med hjemmel i SAMME ledd; datoene oppdateres der.
+            if (finnes is null && i.NedlagtVed is { } nv)
+            {
+                var flyttet = await db.Virksomheter.Where(v => v.Livsstatus == "nedlagt" && v.Navn == navn
+                        && db.Strukturkanter.Any(k => k.Typekode == "avvikler" && k.OppdagelsesKilde == OppdagelsesKilde && k.TilVirksomhetId == v.Id
+                            && k.HjemmelEid == nv.Eid))
+                    .OrderBy(v => v.OpprettetTidspunkt).FirstOrDefaultAsync(ct);
+                if (flyttet is not null)
+                {
+                    if (skriv)
+                    {
+                        flyttet.GyldigTil = sisteDag;
+                        flyttet.GyldigFra = i.Opprettet ?? i.Navn[0].Fra ?? flyttet.GyldigFra;
+                        await db.SaveChangesAsync(ct);
+                    }
+                    datoFlyttet++;
+                    finnes = new { flyttet.Id, flyttet.Navn };
+                }
+            }
             if (finnes is not null)
             {
                 historiske[i] = (finnes.Id, finnes.Navn); historiskeFantes++;
                 // [Ny etter juristrunden på #397] Aktøren ble opprettet da starten var ukjent; nå er opprettelsen lest (1990–1998). Bare en
                 // TOM gyldig fra fylles, og bare i en skrivekjøring.
                 var start = i.Opprettet ?? i.Navn[0].Fra;
-                if (skriv && start is not null && await db.Virksomheter.FirstOrDefaultAsync(v => v.Id == finnes.Id && v.GyldigFra == null, ct) is { } tom)
+                // [ENDRET, issue #397 U1] Også en annen dato når aktøren er livsløpets egen (R avvikler fra livsløpet med hjemmel i samme ledd)
+                // og opprettelsen nå har en dato fra «med virkning fra» (Næringsdepartementet 1987-12-18 → 1988-01-01).
+                var nvEid = i.NedlagtVed?.Eid;
+                if (skriv && start is not null && await db.Virksomheter.FirstOrDefaultAsync(v => v.Id == finnes.Id && (v.GyldigFra == null
+                        || (v.GyldigFra != start && db.Strukturkanter.Any(k => k.Typekode == "avvikler" && k.OppdagelsesKilde == OppdagelsesKilde
+                            && k.TilVirksomhetId == v.Id && k.HjemmelEid == nvEid))), ct) is { } tom)
                 {
                     tom.GyldigFra = start;
                     gyldigFraFylt++;
@@ -553,7 +583,8 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
         var skriving = skriv
             ? await SkrivAsync(alle, historiske.Keys.ToHashSet(), opprettetKanter, tildelinger, avledede, tekstEtterfolgere, Til, bruker, ct)
             : TellUtenSkriving(katalog, opprettetKanter, tildelinger);
-        skriving = skriving with { HistoriskeAktorerNye = historiskeNye, HistoriskeAktorerFantes = historiskeFantes, GyldigFraFylt = skriving.GyldigFraFylt + gyldigFraFylt };
+        skriving = skriving with { HistoriskeAktorerNye = historiskeNye, HistoriskeAktorerFantes = historiskeFantes, GyldigFraFylt = skriving.GyldigFraFylt + gyldigFraFylt,
+            DatoFlyttet = skriving.DatoFlyttet + datoFlyttet };
 
         var ressortRader = tildelinger.Select(t => new LivslopRessort(t.Id.Nr, t.NavnDaVedtaket, t.Objekt, t.Eli, t.Hele, t.Fra, Til(t), t.Hjemmel,
             t.Funksjonsord ? Strukturkanter.Tekstfunn : Strukturkanter.Normalisering)).ToList();
@@ -646,12 +677,27 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
         List<(Identitet X, Identitet Y, LivslopHjemmel H, string Regel)> tekstEtterfolgere,
         Func<Tildeling, DateOnly?> til, string bruker, CancellationToken ct)
     {
-        int oNye = 0, oFantes = 0, nNye = 0, nFantes = 0, rNye = 0, rFantes = 0, avvist = 0, aNye = 0, aFantes = 0, eNye = 0, eFantes = 0, rOppdatert = 0, nfFylt = 0;
+        int oNye = 0, oFantes = 0, nNye = 0, nFantes = 0, rNye = 0, rFantes = 0, avvist = 0, aNye = 0, aFantes = 0, eNye = 0, eFantes = 0, rOppdatert = 0, nfFylt = 0, rDatoFlyttet = 0;
         var kantFor = new Dictionary<Tildeling, Guid>();
         var feil = new List<string>();
         var kongen = await FinnAktorAsync(KongenIStatsrad, ct);
 
         async Task<Guid?> Opprett(NyStrukturkant ny, Action nye, Action fantes)
+        {
+            var id = await OpprettIndre(ny, nye, fantes);
+            // [Ny, issue #397 U1] Et eget, uvurdert R-forslag som fantes, får ny gyldig fra når datoen er flyttet («med virkning fra»).
+            if (id is { } kid && ny.Kategori == Strukturkanter.Relasjon && ny.Typekode is "oppretter" or "avvikler"
+                && await db.Strukturkanter.FirstOrDefaultAsync(k => k.Id == kid, ct) is { Status: Strukturkanter.MaskineltForeslatt } rk
+                && rk.OppdagelsesKilde == OppdagelsesKilde && rk.GyldigFra != ny.GyldigFra)
+            {
+                rk.GyldigFra = ny.GyldigFra;
+                await db.SaveChangesAsync(ct);
+                rDatoFlyttet++;
+            }
+            return id;
+        }
+
+        async Task<Guid?> OpprettIndre(NyStrukturkant ny, Action nye, Action fantes)
         {
             try
             {
@@ -716,9 +762,9 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
                 if (finnes)
                 {
                     nFantes++;
-                    // [Ny etter juristrunden på #397] Egen, uvurdert navneform med tom gyldig fra, der starten nå er lest.
+                    // [Ny etter juristrunden på #397] Egen, uvurdert navneform med tom (eller, etter U1, en annen) gyldig fra, der starten nå er lest.
                     if (n.Fra is not null && await db.Begreper.FirstOrDefaultAsync(b => b.Begrepskategori == "virksomhet" && b.VirksomhetReferanseId == aktor.Id
-                            && b.Term.ToLower() == n.Navn.ToLower() && b.GyldigFra == null && b.Godkjenning == Strukturkanter.MaskineltForeslatt
+                            && b.Term.ToLower() == n.Navn.ToLower() && b.GyldigFra != n.Fra && b.Godkjenning == Strukturkanter.MaskineltForeslatt
                             && b.OppdagelsesKilde == OppdagelsesKilde, ct) is { } tomNf)
                     {
                         tomNf.GyldigFra = n.Fra;
@@ -887,7 +933,7 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
         return new LivslopSkriving(oNye, oFantes, nNye, nFantes, rNye, rFantes, avvist, feil)
         {
             EtterfolgerTekstNye = tNye, EtterfolgerTekstFantes = tFantes,
-            AvviklerNye = aNye, AvviklerFantes = aFantes, EtterfolgerNye = eNye, EtterfolgerFantes = eFantes, RessortGyldigTilOppdatert = rOppdatert, GyldigFraFylt = nfFylt,
+            AvviklerNye = aNye, AvviklerFantes = aFantes, EtterfolgerNye = eNye, EtterfolgerFantes = eFantes, RessortGyldigTilOppdatert = rOppdatert, GyldigFraFylt = nfFylt, DatoFlyttet = rDatoFlyttet,
         };
     }
 
