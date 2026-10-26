@@ -58,6 +58,10 @@ public sealed record StandardregelSvar(
 {
     /// <summary>[#395 M5] Satt når referenten er en nedlagt aktør (svaret gjelder en dato før nedleggelsen).</summary>
     public DateOnly? ReferentNedlagt { get; init; }
+    /// <summary>[Ny, Johanns avgjørelse på #397 2026-10-26] Navnet er brukt av flere identiteter, og svaret er valgt etter dato: identiteten
+    /// som SIST hadde navnet (gjeldende versjon), eller som hadde det på versjonens dato (eldre versjon). Merket «utgått navn, valgt etter
+    /// dato».</summary>
+    public bool ValgtEtterDato { get; init; }
 }
 
 /// <summary>Andelen rettskilder der ordet står, per utfall og rute — målingen i PR-en og på oversikten.</summary>
@@ -411,6 +415,40 @@ public sealed class GeneriskStandardregelTjeneste(RegelIdeDbContext db)
             }
             if (levendeUtgatt.Count > 0)
             {
+                // [Ny, Johanns avgjørelse på #397 2026-10-26] Datoskille: for gjeldende versjon identiteten som SIST hadde navnet (Olje- og
+                // energidepartementet 1997–2023 → Energidepartementet, ikke det som ble nedlagt 1993); for en eldre versjon den som hadde navnet på
+                // versjonens dato. Ingen entydig → flertydig som før. Navneformenes gyldighet er grunnlaget (premissene over).
+                Guid? valgt = null;
+                if (!eldreVersjon)
+                {
+                    var sisteTil = historikk.Max(h => h.NfTil ?? DateOnly.MaxValue);
+                    var sist = historikk.Where(h => (h.NfTil ?? DateOnly.MaxValue) == sisteTil).Select(h => h.Vid).Distinct().ToList();
+                    if (sist.Count == 1 && historikk.First(h => h.Vid == sist[0]).Livsstatus == null) valgt = sist[0];
+                }
+                else
+                {
+                    var paaDato = historikk.Where(h => (h.NfFra is null || h.NfFra <= d) && (h.NfTil is null || h.NfTil >= d)).Select(h => h.Vid).Distinct().ToList();
+                    if (paaDato.Count == 1) valgt = paaDato[0];
+                }
+                if (valgt is { } vv)
+                {
+                    var nv = await NavnAsync(vv);
+                    var rad = historikk.First(h => h.Vid == vv);
+                    if (rad.Godkjenning is not null && rad.Godkjenning != Strukturkanter.Godkjent)
+                    {
+                        merknader.Add($"Navnehistorikken (navnet «{lovdata[0]}» hos {nv.Navn}) er et forslag som ikke er vurdert ennå.");
+                    }
+                    if (forslagNavn.Count > 0 && !forslagNavn.Contains(nv.Navn, StringComparer.OrdinalIgnoreCase))
+                    {
+                        merknader.Add($"Ressortforslaget ({string.Join(", ", forslagNavn.Distinct())}) avviker fra Lovdata.");
+                    }
+                    return new StandardregelSvar(r.Term, r.Regelkode, r.Navn, StandardregelUtfall.Lost, StandardregelRute.LovdataUtgattNavn,
+                        Kantnode.Virksomhet(vv), new KantnodeVisning("virksomhet", vv, nv.Navn, null), r.Kunnskapsstatus, "sekundaer", d, null, null,
+                        $"«departementet» betyr {nv.Navn}: Lovdatas felt «Ansvarlig departement» (sekundær kilde) oppgir «{lovdata[0]}», som er brukt av "
+                        + $"{identiteter.Count} departementer over tid; valgt etter dato ({(eldreVersjon ? $"hadde navnet {d:yyyy-MM-dd}" : "hadde navnet sist")}).",
+                        premisser, merknader)
+                    { ValgtEtterDato = true, ReferentNedlagt = nv.Livsstatus == "nedlagt" ? nv.GyldigTil : null };
+                }
                 return IkkeLost(r, d, $"Lovdata oppgir «{lovdata[0]}», og navnet er brukt av flere departementer over tid ({identiteter.Count}). Ingen er valgt.",
                     premisser, merknader, StandardregelUtfall.Flertydig);
             }

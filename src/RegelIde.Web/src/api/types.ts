@@ -412,6 +412,8 @@ export interface BrregEnhetDto {
 }
 
 export interface VirksomhetsbegrepDto {
+  /** [Ny, Johanns avgjørelse P4 på #397] Hjemmel i konsolidert DEL-tekst fra før 2001: «ikke kontrollert mot kunngjort tekst». */
+  ikkeKontrollertMotKunngjort?: boolean;
   id: string;
   virksomhetId: string | null;
   begrepskategori: string | null;
@@ -2539,6 +2541,8 @@ export interface StandardregelSvar {
   kunnskapsstatus: Kunnskapsstatus; dokumentasjon: 'primaer' | 'sekundaer' | null; oppslagsdato: string;
   gyldigFra: string | null; gyldigTil: string | null; forklaring: string; premisser: StandardregelPremiss[]; merknader: string[];
   referentNedlagt: string | null;
+  /** [Ny, Johanns avgjørelse på #397] Navnet er brukt av flere identiteter; svaret er valgt etter dato. */
+  valgtEtterDato?: boolean;
 }
 /** [Ny, issue #394 AK 4] Ett forslag til hva en generisk omtale betyr, med ferdig utfylt grunnlag. */
 export interface GeneriskReferentforslag {

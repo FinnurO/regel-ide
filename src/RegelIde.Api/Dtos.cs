@@ -748,6 +748,10 @@ public sealed record BegrepDto(
     public string? OppdagelsesKilde { get; init; }
     public string? AvvisningBegrunnelse { get; init; }
     public string? SistEndretAv { get; init; }
+    /// <summary>[Ny, Johanns avgjørelse P4 på #397] Navnet har hjemmel i en konsolidert DEL-tekst fra før 2001: merket «ikke kontrollert mot
+    /// kunngjort tekst» (Lovdata kan ha oppdatert departementsnavn i ettertid, og kunngjort tekst før 2001 finnes ikke i åpne data). Merket
+    /// hindrer ikke godkjenning. Satt bare der endepunktet fyller det ut.</summary>
+    public bool IkkeKontrollertMotKunngjort { get; init; }
 
     // [ENDRET, issue #312] Omradetype/Omradekode — BegrepDetalj viser sammensetning og tilhørighet for et registrert område.
     // [ENDRET, issue #384] Medlemskapsregel/Kunnskapsstatus — BegrepDetalj viser at medlemskapet i «kommune» er utledet.

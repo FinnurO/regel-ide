@@ -157,6 +157,41 @@ public class GeneriskStandardregelTests(EmbeddedPostgresFixture fixture)
     }
 
     [Fact]
+    public async Task Departementet_utgatt_navn_brukt_av_flere_velges_etter_dato()
+    {
+        // [Ny, Johanns avgjørelse på #397 2026-10-26] Olje- og energidepartementet-mønsteret: et nedlagt departement hadde navnet til 1992,
+        // dagens departement hadde det 1997–2023. Gjeldende versjon → den som sist hadde navnet; eldre versjon → den som hadde det på datoen.
+        await using var db = fixture.NyDbContext();
+        var n = Guid.NewGuid().ToString("N")[..8];
+        var navn = $"Gjenbrukt dato {n}";
+        var levende = await NyVirksomhetAsync(db, $"Dagens departement {n}");
+        var nedlagt = await NyVirksomhetAsync(db, $"Nedlagt departement {n}", "nedlagt", new DateOnly(1992, 12, 31));
+        foreach (var (vid, grunn, fra, til) in new[] { (nedlagt.Id, "gjeldende", (DateOnly?)null, new DateOnly(1992, 12, 31)),
+                     (levende.Id, "utgatt", (DateOnly?)new DateOnly(1997, 1, 1), new DateOnly(2023, 12, 31)) })
+        {
+            db.Begreper.Add(new BegrepEntitet
+            {
+                Id = Guid.NewGuid(), Begrepskategori = "virksomhet", VirksomhetReferanseId = vid, Navneformgrunn = grunn, Term = navn, Status = "publisert",
+                GyldigFra = fra, GyldigTil = til, Godkjenning = Strukturkanter.MaskineltForeslatt, OpprettetAv = "Test",
+            });
+        }
+        await db.SaveChangesAsync();
+
+        var gjeldende = (await new GeneriskStandardregelTjeneste(db).LosAsync("departementet", (await NyLovAsync(db, [navn])).Id))!;
+        Assert.Equal((StandardregelUtfall.Lost, StandardregelRute.LovdataUtgattNavn, levende.Id, true),
+            (gjeldende.Utfall, gjeldende.Rute, gjeldende.Referent!.VirksomhetId!.Value, gjeldende.ValgtEtterDato));
+
+        var eldre = await NyLovAsync(db, [navn]);
+        eldre.Entitetsstatus = "erstattet";
+        eldre.KonsolidertDato = new DateOnly(1990, 6, 1);
+        eldre.Ikrafttredelse = new DateOnly(1990, 6, 1);
+        await db.SaveChangesAsync();
+        var s = (await new GeneriskStandardregelTjeneste(db).LosAsync("departementet", eldre.Id))!;
+        Assert.Equal((StandardregelUtfall.Lost, nedlagt.Id, true), (s.Utfall, s.Referent!.VirksomhetId!.Value, s.ValgtEtterDato));
+        Assert.NotNull(s.ReferentNedlagt);
+    }
+
+    [Fact]
     public async Task Binding_faglig_vurdert_gaar_foran_regelen_og_regelen_alene_kan_slaas_opp()
     {
         await using var db = fixture.NyDbContext();

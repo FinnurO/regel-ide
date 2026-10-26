@@ -3470,10 +3470,18 @@ app.MapPost("/api/virksomhetsbegrep", async (HttpRequest request, Virksomhetsbeg
     .WithSummary("Navneform brukt om en virksomhet i rettskildetekst (docs/20 §2.3) — f.eks. 'Mattilsynet'.");
 
 app.MapGet("/api/virksomheter/{id:guid}/begrep", async (Guid id, bool? visAvviste, VirksomhetsbegrepTjeneste register,
-        AktoridentitetTjeneste identitet, CancellationToken ct) =>
+        AktoridentitetTjeneste identitet, RegelIdeDbContext db, CancellationToken ct) =>
+    {
         // [ENDRET, issue #385] ?visAvviste=true tar med avviste navneforslag (arkivert, med hvem og hvorfor).
-        Results.Ok((await register.AlleVirksomhetsbegrepForAsync(id, ct))
-            .Concat(visAvviste == true ? await identitet.AvvisteNavneformerAsync(id, ct) : []).Select(BegrepDto.FraEntitet)))
+        var begreper = (await register.AlleVirksomhetsbegrepForAsync(id, ct))
+            .Concat(visAvviste == true ? await identitet.AvvisteNavneformerAsync(id, ct) : []).ToList();
+        // [Ny, Johanns avgjørelse P4 på #397] Hjemmel i konsolidert DEL-tekst fra før 2001 → «ikke kontrollert mot kunngjort tekst».
+        var ukontrollert = await KunngjortKontroll.UkontrollerteAsync(db, begreper.Where(b => b.LovkildeId is not null).Select(b => b.LovkildeId!.Value), ct);
+        return Results.Ok(begreper.Select(b => BegrepDto.FraEntitet(b) with
+        {
+            IkkeKontrollertMotKunngjort = b.LovkildeId is { } k && ukontrollert.Contains(k),
+        }));
+    })
     .WithOpenApi()
     .WithName("HentVirksomhetsbegrepForVirksomhet")
     .WithSummary("Lister navneformer (inkl. synonymer) brukt om denne virksomheten i rettskildetekst.");
