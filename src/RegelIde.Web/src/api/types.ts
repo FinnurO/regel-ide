@@ -568,6 +568,8 @@ export interface StrukturkantDto {
   sistEndretAv?: string | null;
   sistEndretTidspunkt?: string | null;
   avvisningBegrunnelse?: string | null;
+  /** [Ny, issue #397] Omfanget av en avledet R etterfolger: antall lovdeler som gikk over (talt fra premissene). Null ellers. */
+  omfang?: number | null;
 }
 
 /** [Ny, issue #313 AC4] Forhåndsvisning: slik kanten blir seende ut på fra-siden, til-siden og rettskildesiden. */

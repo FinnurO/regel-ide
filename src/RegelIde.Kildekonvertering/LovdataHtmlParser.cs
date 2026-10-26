@@ -661,6 +661,24 @@ public static partial class LovdataHtmlParser
 
     private static bool ErLeddKlasse(string klasseattributt) => LeddKlasser.Any(k => HarKlasse(klasseattributt, k));
     private static bool ErAvsnittKlasse(string klasseattributt) => AvsnittKlasser.Any(k => HarKlasse(klasseattributt, k));
+
+    /// <summary>[Ny, issue #397] Seksjonen eller en seksjon over den er et vedlegg: <c>data-name="vedlegg…"</c> eller en overskrift som
+    /// begynner med «Vedlegg» (FOR-2018-04-27-638 har «Vedlegg» som overordnet kapittel og departementene som underkapitler).</summary>
+    private static bool ErIVedlegg(HtmlNode container)
+    {
+        for (var s = container; s is not null; s = s.ParentNode)
+        {
+            if (s.Name != "section") continue;
+            if (s.GetAttributeValue("data-name", "").StartsWith("vedlegg", StringComparison.OrdinalIgnoreCase)) return true;
+            var overskrift = HtmlEntity.DeEntitize(s.SelectSingleNode(OverskriftXPath)?.InnerText.Trim() ?? "");
+            if (overskrift.StartsWith("Vedlegg", StringComparison.OrdinalIgnoreCase)) return true;
+        }
+        return false;
+    }
+
+    /// <summary>[Ny, issue #397] Elementet har en direkte &lt;ul&gt;/&lt;ol&gt; med minst ett &lt;li&gt;.</summary>
+    private static bool HarIkkeTomListe(HtmlNode element) =>
+        element.ChildNodes.Any(c => c.Name is "ul" or "ol" && c.SelectNodes("./li") is { Count: > 0 });
     private static bool ErIkkeGjeldendeInnhold(string klasseattributt) => IkkeGjeldendeInnholdKlasser.Any(k => HarKlasse(klasseattributt, k));
 
     /// <summary>Overskriftsnivå for en section/paragraf — h2-h6, ELLER (dypere enn 5 nivåer, bekreftet
@@ -1011,6 +1029,24 @@ public static partial class LovdataHtmlParser
             {
                 // endringshistorikk for hele kapittelet/underinndelingen -> proveniens, ikke tekstinnhold
                 // (samme begrunnelse som i ParseParagraf; utenfor scope uten proveniens-lager i denne byggeøkten).
+            }
+            else if (child.Name == "article" && ErAvsnittKlasse(klasse) && ErIVedlegg(container) && HarIkkeTomListe(child))
+            {
+                // [Ny, issue #397, 2026-10-26] Et avsnitt med en liste i et VEDLEGG er innhold, ikke en merknad. Omorganiseringsvedtakene
+                // legger lovlistene slik: «<article class="defaultP">Helsedepartementet (HD) overtar forvaltningsansvaret for følgende
+                // lovverk:<ul>…</ul></article>» (FOR-2001-12-21-1485 vedlegg 3 og 4), «<i>Statsråd Monica Mæland</i><ul>…» (FOR-2013-12-13-1455
+                // vedlegg 3), «Oversikt over lover statsråd … har forvaltningsansvar for etter endringene:<ul>…» (FOR-2018-04-27-638,
+                // FOR-2019-05-03-560) og «Oversikt over lover som Digitaliserings- og forvaltningsdepartementet skal ha ansvaret for …:<ul>…»
+                // (FOR-2023-12-20-2166). Før ble hele lista borte. Avsnittet blir et ledd (innledningen) med punktene under, som i
+                // paragraf-tilfellet over (FOR-2001-03-09-439 § 4): syntetisk kilde-id, fordi Lovdata ikke gir avsnittet en id.
+                // Bare i vedlegg og bare med en ikke-tom liste: målt 2026-10-26 i korpuset er det 91 dokumenter (712 avsnitt); uten
+                // vedleggsgrensen 325 dokumenter (1 429 avsnitt), der resten ikke er vurdert (se PR-en for #397). Et avsnitt uten liste
+                // er fortsatt en merknad (GDPR-fortalen under).
+                leddIndeks++;
+                var leddEid = GjørEidUnik(LovdataIdentifikatorer.LeddEid(containerEid, leddIndeks), noder);
+                var containerKildeId = container.Attributes["id"]?.Value ?? containerEid;
+                LeggTilLeddEllerPunktNode(child, leddEid, containerEid, NodeType.Ledd, kontekst, noder, referanser, sortering,
+                    leddIndeks.ToString(), kildeIdNårIdMangler: $"{containerKildeId}-avsnitt-{leddIndeks}");
             }
             else if (child.Name == "article" && ErAvsnittKlasse(klasse))
             {

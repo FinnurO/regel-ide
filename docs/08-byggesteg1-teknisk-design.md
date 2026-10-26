@@ -389,6 +389,23 @@ i korpuset etter importen; 809 importert (663 nye, 146 forfremmede stubber); 8 f
 `leddfortsettelse` direkte i et kapittel, et `Endrer`-mål med paragraf) og står i rapporten. 66 av de importerte gir ikke lenger en
 organiseringstype etter juristrundens strammere regler (stort sett følgeendringer «som følge av omorganiseringen»); de ble stående.
 
+
+### 3.1.3 Avsnitt med liste i et vedlegg, og ny konvertering av én kilde (issue #397, 2026-10-26)
+
+**Parserendring.** Et `defaultP`-avsnitt direkte under et kapittel er fortsatt en merknad (GDPR-fortalen), **unntatt** når det står i et
+vedlegg (seksjonen eller en seksjon over har `data-name="vedlegg…"` eller en overskrift som begynner med «Vedlegg») og har en ikke-tom
+liste. Da blir avsnittet et ledd (innledningen, syntetisk kilde-id `<kapittel-id>-avsnitt-N`) med punktene under, som i paragraf-tilfellet
+(FOR-2001-03-09-439 § 4). Lovlistene i omorganiseringsvedtakene 2002, 2014, 2018, 2019, 2020 og 2024 sto slik og ble borte.
+Målt 2026-10-26 i korpuset: 91 dokumenter (712 avsnitt) får nye noder. Uten vedleggsgrensen ville det vært 325 dokumenter (1 429 avsnitt);
+resten er ikke vurdert og er ikke med. De 91 får ny versjon ved neste resynk (AKN endres), som ved #361. Bare nye eId-er: i de fem vedtakene
+som er konvertert på nytt, forsvant og endret ingen eksisterende eId.
+
+**Ny konvertering av én kilde.** `POST /api/rettskilder/{id}/konverter-paa-nytt[?skriv=true]` (`RettskildeKonverterPaaNyttTjeneste`)
+konverterer den LAGREDE kilde-HTML-en med dagens parser. Tørrkjøring viser eId-er som kommer til, forsvinner eller får ny tekst; med
+`skriv=true` importeres den som ved en resynk (ny versjon når AKN endres, ellers `Uendret`), og den nye versjonen klassifiseres med
+disposisjonstyper med en gang. [Kjent hull, gjelder også resynken] En ny versjon fra resynken klassifiseres ikke automatisk, og livsløpet
+finner vedtakene gjennom disposisjonstypene.
+
 ### 3.2 Kjente vanskelige tilfeller
 
 Funnet i den ekte teksten, ikke antatt:

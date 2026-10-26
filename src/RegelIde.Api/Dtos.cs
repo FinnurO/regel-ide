@@ -585,7 +585,9 @@ public sealed record StrukturkantDto(
     IReadOnlyList<Guid>? PremissIder = null, string Entitetsstatus = "gjeldende", Guid? ErstatterKantId = null, string? Profilversjon = null,
     Guid? HjemmelNodeId = null, string? HjemmelVersjonMerknad = null, DateTimeOffset? HjemmelEndretTidspunkt = null,
     // [Ny, issue #313 / #374] Hvem som godkjente/avviste sist, når, og begrunnelsen for en avvisning.
-    string? SistEndretAv = null, DateTimeOffset? SistEndretTidspunkt = null, string? AvvisningBegrunnelse = null)
+    string? SistEndretAv = null, DateTimeOffset? SistEndretTidspunkt = null, string? AvvisningBegrunnelse = null,
+    // [Ny, issue #397] Omfanget av en avledet R etterfolger: antall lovdeler som gikk over (fra premissene). Null for andre kanter.
+    int? Omfang = null)
 {
     public static StrukturkantDto FraVisning(StrukturkantVisning v) => new(
         v.Id, v.Kategori, v.Typekode, v.Retning, v.Visningstekst,
@@ -596,7 +598,7 @@ public sealed record StrukturkantDto(
         v.Kommentar, v.OpprettetAv, v.OpprettetTidspunkt,
         v.Normform, v.Grunnlag, v.Delegeringsadgang, v.DelegeringSlutning, v.Selvregulering, v.Familie, v.FvlKategori, v.Undertype, v.Modalitet,
         v.Kunnskapsstatus, v.Begrunnelse, v.Tolkningsargumenter, v.PremissIder, v.Entitetsstatus, v.ErstatterKantId, v.Profilversjon,
-        v.HjemmelNodeId, v.HjemmelVersjonMerknad, v.HjemmelEndretTidspunkt, v.SistEndretAv, v.SistEndretTidspunkt, v.AvvisningBegrunnelse);
+        v.HjemmelNodeId, v.HjemmelVersjonMerknad, v.HjemmelEndretTidspunkt, v.SistEndretAv, v.SistEndretTidspunkt, v.AvvisningBegrunnelse, v.Omfang);
 }
 
 /// <summary>[Ny, issue #313 / #374] Kroppen til «avvis» (én eller alle per hjemmel): en valgfri begrunnelse.</summary>
