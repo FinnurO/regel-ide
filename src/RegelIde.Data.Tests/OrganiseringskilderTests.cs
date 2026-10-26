@@ -154,6 +154,26 @@ public class OrganiseringskilderTests(EmbeddedPostgresFixture fixture)
         // HOD finnes før og etter 2006 (ikke nedlagt), så HOD får ingen etterfølger selv om vedlegg 2 gjentas.
         Assert.False(await db.Strukturkanter.AnyAsync(k => k.Typekode == "etterfolger" && k.TilVirksomhetId == hod));
 
+        // [Ny, issue #397, Johann 2026-10-24 på #134] Omfanget er antall lovdeler som gikk over: i kommentaren og i visningen (fra premissene).
+        var visning = Assert.Single(await new StrukturkantTjeneste(db).ByggVisningerAsync([etterfolger], perspektiv: null));
+        var premissFraEtterfolger = await db.Strukturkanter.CountAsync(k => k.Kategori == "F" && k.FraVirksomhetId == aid
+            && db.StrukturkantPremisser.Any(p => p.KantId == etterfolger.Id && p.PremissKantId == k.Id));
+        Assert.True(premissFraEtterfolger > 0);
+        Assert.Equal(premissFraEtterfolger, visning.Omfang);
+        Assert.StartsWith($"Omfang: {premissFraEtterfolger} ", etterfolger.Kommentar);
+        Assert.DoesNotContain("hoved- eller delvis", etterfolger.Begrunnelse);
+
+        // [Ny, issue #397] En ny versjon av vedtaket (resynk eller ny konvertering) gir ikke forslagene på nytt: samme ELI og eId er samme utsagn.
+        var nyVersjonHtml = html.Replace("<dd class=\"title\">Omorganisering av departementsstrukturen fra 1. oktober 2004.</dd>",
+            "<dd class=\"title\">Omorganisering av departementsstrukturen fra 1. oktober 2004 (ny versjon).</dd>");
+        var nyVersjon = await new RettskildeImportTjeneste(db).ImporterMedUtfallAsync(RegelIde.Kildekonvertering.LovdataKonverterer.Konverter(nyVersjonHtml));
+        Assert.Equal(RettskildeImportUtfall.NyVersjon, nyVersjon.Utfall);
+        await klassifiserer.KlassifiserAsync(skriv: true, rettskildeId: nyVersjon.RettskildeId);
+        var r4 = await livslop.KjorAsync(skriv: true);
+        Assert.True(r4.Skriving.Feil.Count == 0, string.Join(" || ", r4.Skriving.Feil));
+        Assert.Equal(0, r4.Skriving.OpprettetNye + r4.Skriving.RessortNye + r4.Skriving.AvviklerNye + r4.Skriving.EtterfolgerNye);
+        Assert.False(await db.Strukturkanter.AnyAsync(k => k.HjemmelRettskildeId == nyVersjon.RettskildeId));
+
         // ---- Markøren for rene endringsvedtak (Johanns avgjørelse 6): hodet sier at kilden endrer et annet dokument, OG tittelen har
         // endringsform, OG ingen organiseringstype. Sveipene hopper over den uten å lese tittelen.
         var endring = html.Replace("FOR-2004-10-01-1304", "FOR-2004-10-03-9997").Replace("2004-10-01-1304", "2004-10-03-9997")

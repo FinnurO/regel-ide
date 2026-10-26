@@ -102,6 +102,7 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
         public int Nr;
         public List<(string Navn, DateOnly? Fra, DateOnly? Til, LivslopHjemmel? Gitt, LivslopHjemmel? Endret, string? Raa)> Navn = [];
         public DateOnly? Opprettet; public LivslopHjemmel? OpprettetVed;
+        public string? OpprettetRegel; public string? NedlagtRegel; // [Ny, issue #397] mønsteret som leste opprettelsen
         public DateOnly? Nedlagt; public LivslopHjemmel? NedlagtVed; public bool NedlagtKglRes;
         public string Gjeldende => Navn[^1].Navn;
     }
@@ -180,14 +181,22 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
                 {
                     if (vedleggskapitler.TryGetValue(pid, out var v)) { kap = v; break; }
                     var pn = nodeVedId.GetValueOrDefault(pid);
-                    if (innledning is null && !string.IsNullOrWhiteSpace(pn?.Tekst)) innledning = pn.Tekst.Trim();
+                    // Teksten i et ledd over punktet, ellers overskriften på en underinndeling («Oversikt over lover som statsråd … skal ha …»).
+                    if (innledning is null && (string.IsNullOrWhiteSpace(pn?.Tekst) ? pn?.Overskrift : pn.Tekst) is { } it && !string.IsNullOrWhiteSpace(it))
+                    {
+                        innledning = it.Trim();
+                    }
                     p = pn?.ParentNodeId;
                 }
                 if (kap is { } kv)
                 {
                     if (DepartementLivslopMonstre.LovDatokode(n.Tekst) is not null)
                     {
-                        var funksjonsord = kv.F || (innledning?.Contains("forvaltningsansvar", StringComparison.OrdinalIgnoreCase) ?? false);
+                        // Tekstfunn bare når SAMME tekst navngir departementet og bruker funksjonsordet: overskriften (kv.F), eller en
+                        // innledning som også nevner departementet. «Oversikt over lover statsråd … har forvaltningsansvar for» under en
+                        // overskrift som bare er departementsnavnet, er normalisering: departementet følger av strukturen.
+                        var funksjonsord = kv.F || (innledning is not null && innledning.Contains("forvaltningsansvar", StringComparison.OrdinalIgnoreCase)
+                            && innledning.Contains(kv.Raa, StringComparison.Ordinal));
                         vedlegg.Add((h, kv.Dept, kv.Raa, funksjonsord, harBarn.Contains(n.Id), innledning));
                     }
                     continue;
@@ -260,7 +269,7 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
                     // [Ny, issue #397] Samme nedleggelse to ganger i samme vedtak («Nedleggelse av X» og «X nedlegges») er én.
                     if (!levende.ContainsKey(navn) && nedlagtHer.Contains(navn)) continue;
                     var i = Hent(navn, h);
-                    i.Nedlagt = v.Dato; i.NedlagtVed = h; i.NedlagtKglRes = v.KglRes;
+                    i.Nedlagt = v.Dato; i.NedlagtVed = h; i.NedlagtKglRes = v.KglRes; i.NedlagtRegel = e.Regel;
                     i.Navn[^1] = i.Navn[^1] with { Til = v.Dato.AddDays(-1) };
                     levende.Remove(navn);
                     nedlagtHer.Add(navn);
@@ -307,7 +316,7 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
                         ulest.Add(new(h, $"«{navn}» opprettes, men et departement med samme navn finnes fra før uten å være nedlagt"));
                         continue;
                     }
-                    var i = new Identitet { Nr = ++lopenr, Opprettet = v.Dato, OpprettetVed = h };
+                    var i = new Identitet { Nr = ++lopenr, Opprettet = v.Dato, OpprettetVed = h, OpprettetRegel = e.Regel };
                     i.Navn.Add((navn, v.Dato, null, h, null, raa));
                     identiteter.Add(i);
                     levende[navn] = i;
@@ -577,7 +586,11 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
                 Kunnskapsstatus: Strukturkanter.Normalisering,
                 // [ENDRET etter juristrunden 2026-10-23, L12/L13/L15] Navnekjeden står i begrunnelsen: kanten går til dagens aktør, men vedtaket
                 // oppretter departementet under det navnet det hadde da («Opprettelse av Arbeidsdepartementet», 2010).
-                Begrunnelse: "Regel: monster:livslop-opprettelse-av. Vedtaket er fastsatt ved kgl.res. (fra = Kongen i statsråd)"
+                Begrunnelse: $"Regel: {i.OpprettetRegel ?? "monster:livslop-opprettelse-av"}. Vedtaket er fastsatt ved kgl.res. (fra = Kongen i statsråd)"
+                    // [Ny, issue #397] 1997/1998-formen sier ikke «opprettes»; den har overskriften «Nytt X» og leddet «X organiseres ved opprettelsen».
+                    + (i.OpprettetRegel == "monster:livslop-nytt-departement"
+                        ? "; opprettelsen er lest av overskriften «Nytt …» sammen med leddet «… organiseres ved opprettelsen», som er hjemmelen"
+                        : "")
                     + (normalisert ? "; navnet står i ubestemt form i vedtaket og er gjort bestemt" : "")
                     + (i.Navn.Count > 1
                         ? $". Opprettet som «{i.Navn[0].Navn}»; dagens navn etter navnebytte: " + string.Join(" → ",
@@ -653,6 +666,10 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
                     ? "Regel: monster:livslop-ressortfordeling. Vedtaket bruker funksjonsordet «forvaltningsansvaret» (begrepsmanualen §F)."
                     : "Regel: monster:livslop-ressortfordeling. «… skal ha ansvaret for» lover er lest som forvaltningsansvar fordi objektet er et "
                       + "regelverk og vedtaket overfører ansvaret for lover (begrepsmanualen §F).")
+                    + (t.Innledning is { } inn && inn.Contains("statsråd", StringComparison.OrdinalIgnoreCase)
+                        ? " Vedlegget fordeler lovene på statsråder (innledningen i kommentaren); departementet er det kapitlet eller overskriften "
+                          + "lista står under, ikke statsråden (issue #397)."
+                        : "")
                     + " Modalitet er ikke satt: vedtaket tildeler ansvaret, det pålegger ingen plikt."),
                 () => rNye++, () => rFantes++);
             if (fId is { } fid) kantFor[t] = fid;
@@ -669,7 +686,7 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
                 HjemmelRettskildeId: h.RettskildeId, HjemmelEid: h.Eid, GyldigFra: i.Nedlagt,
                 Kommentar: $"«{Avkort(h.Tekst)}»", Status: Strukturkanter.MaskineltForeslatt, OppdagelsesKilde: OppdagelsesKilde,
                 Kunnskapsstatus: Strukturkanter.Normalisering,
-                Begrunnelse: "Regel: monster:livslop-nedleggelse-av. Vedtaket er fastsatt ved kgl.res. (fra = Kongen i statsråd)"
+                Begrunnelse: $"Regel: {i.NedlagtRegel ?? "monster:livslop-nedleggelse-av"}. Vedtaket er fastsatt ved kgl.res. (fra = Kongen i statsråd)"
                     + (ordrett ? "." : "; navnet er gjort til bestemt grunnform.")),
                 () => aNye++, () => aFantes++);
         }

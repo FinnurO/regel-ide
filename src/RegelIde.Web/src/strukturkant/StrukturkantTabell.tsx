@@ -169,6 +169,12 @@ export function StrukturkantTabell({ kanter, tomTekst, visKategori = false, visH
                     <span style={{ display: 'inline-flex', gap: '0.4rem', alignItems: 'center', flexWrap: 'wrap' }}>
                       {visKategori && <StrukturkantKategoriTag kategori={k.kategori} />}
                       <span><KanttekstMedLenker tekst={k.visningstekst} noder={lenkenoder} /></span>
+                      {/* [Ny, issue #397, Johann 2026-10-24 på #134] Omfanget av en etterfølger: antall lovdeler som gikk over. Ikke hoved/del. */}
+                      {k.omfang != null && (
+                        <Tag data-size="sm" data-color="neutral" title="Antall lovdeler som gikk over i vedtaket, talt fra premissene (forvaltningskantene).">
+                          Omfang: {k.omfang} {k.omfang === 1 ? 'lovdel' : 'lovdeler'}
+                        </Tag>
+                      )}
                       {k.polaritet === 'negativ' && (
                         <Tag data-size="sm" data-color="warning" title="Teksten sier at dette IKKE gjelder.">Negativ</Tag>
                       )}
