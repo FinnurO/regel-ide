@@ -38,7 +38,8 @@ public sealed class KommuneKortformTjeneste(RegelIdeDbContext db)
 {
     public const string OppdagelsesKilde = "register:kartverket-kommunenavn";
 
-    public async Task<KortformResultat> ForeslaAsync(bool skriv, string bruker, CancellationToken ct = default)
+    /// <param name="kommunenumre">Bare disse kommunene (null = alle). Kollisjonene sjekkes uansett mot hele basen.</param>
+    public async Task<KortformResultat> ForeslaAsync(bool skriv, string bruker, IReadOnlyCollection<string>? kommunenumre = null, CancellationToken ct = default)
     {
         // Territoriekantene: kommunen (rettssubjektet) → kommuneområdet, kilde register (Enhetsregisteret + Kartverket).
         var territorier = await db.Strukturkanter
@@ -50,7 +51,7 @@ public sealed class KommuneKortformTjeneste(RegelIdeDbContext db)
             .ToListAsync(ct);
         var hull = new List<string>();
         var entydige = new List<(Guid Virksomhet, Guid Omrade, string Term, string Kode, string? Orgnr)>();
-        foreach (var g in territorier.Where(x => x.Kommunenummer == x.Kode).GroupBy(x => x.Virksomhet))
+        foreach (var g in territorier.Where(x => x.Kommunenummer == x.Kode && (kommunenumre == null || kommunenumre.Contains(x.Kode))).GroupBy(x => x.Virksomhet))
         {
             var omr = g.Select(x => x.Omrade).Distinct().ToList();
             if (omr.Count != 1) { hull.Add($"{g.First().Kode}: {omr.Count} territorier for samme aktør — ikke entydig, ingen kortform."); continue; }

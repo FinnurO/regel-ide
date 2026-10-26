@@ -52,8 +52,8 @@ public static class HjemmelEndretFlagg
     /// <summary>
     /// [Ny, issue #385 AC12, Johann 2026-10-16] «Hjemmel endret» på bindingene (<see cref="NavneformBindingEntitet"/>), som strukturkantene:
     /// en binding som gjelder VERKET den gamle versjonen hører til (#384), flagges når teksten i hjemmelen eller i paragrafspennet den
-    /// gjelder, er endret i den nye versjonen. Et tomt spenn er hele rettskilden: da flagger enhver tekstendring i rettskilden (den
-    /// bokstavelige lesningen av saken — betydningen kan ha endret seg hvor som helst; se PR-en for avveiningen). Ingenting annet endres:
+    /// gjelder, er endret i den nye versjonen. Et tomt spenn er hele rettskilden: [ENDRET, issue #390, Johanns tillegg 2026-10-23] da flagger
+    /// bare en endring i en node der navneformen er TAGGET (før: enhver tekstendring i rettskilden, som ga for mye støy). Ingenting annet endres:
     /// bindingen oppløser som før og står i lista til faglig vurdering til den godkjennes på nytt.
     /// </summary>
     private static async Task<int> FlaggBindingerAsync(
@@ -88,7 +88,19 @@ public static class HjemmelEndretFlagg
                 var spenn = JsonSerializer.Deserialize<List<ParagrafspennPar>>(b.ParagrafspennJson, JsonSerialiseringHjelper.Innstillinger) ?? [];
                 if (spenn.Count == 0)
                 {
-                    if (helEndret) hvorfor = "hele rettskilden";
+                    // [ENDRET, issue #390, Johanns tillegg 2026-10-23 fra #385] Før: enhver tekstendring i rettskilden flagget, og det ga for
+                    // mye støy. Nå bare når en node med en TAGGET forekomst av navneformen er endret (eller borte) i den nye versjonen. Taggene
+                    // leses som de står i basen (AsNoTracking): det er forekomstene i versjonen bindingen ble vurdert mot. En endring i et ledd
+                    // uten forekomst gir ikke flagg. En forekomst som ikke er tagget, kan ikke ses her — den flagger ikke (CLAUDE.md §8).
+                    if (helEndret)
+                    {
+                        var taggedeNoder = await db.TekstTagger.AsNoTracking()
+                            .Where(t => t.RefId == b.NavneformId && t.Kind == "virksomhet" && t.Entitetsstatus == "gjeldende"
+                                        && hjemmelIVerket.Contains(t.RettskildeId))
+                            .Select(t => t.NodeEid).Distinct().ToListAsync(ct);
+                        var endretForekomst = taggedeNoder.OrderBy(e => e, StringComparer.Ordinal).FirstOrDefault(Endret);
+                        if (endretForekomst is not null) hvorfor = endretForekomst;
+                    }
                 }
                 else
                 {

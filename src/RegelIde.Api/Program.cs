@@ -4535,18 +4535,20 @@ app.MapPost("/api/strukturkanter/registerkanter/eksternt-dokumentert/angre", asy
         "ikke vurdert, med en ny proveniensrad. ?skriv=true skriver; uten er det en telling.");
 
 // [Ny, issue #390 AK 2] Kortformen for hver kommune (kommunenavnet fra Kartverket) som navneform med grunn kortform, som FORSLAG.
-app.MapPost("/api/omrader/kommuner/kortformer", async (bool? skriv, HttpRequest request, RegelIdeDbContext db,
+app.MapPost("/api/omrader/kommuner/kortformer", async (bool? skriv, string? kommunenummer, HttpRequest request, RegelIdeDbContext db,
         KommuneKortformTjeneste tjeneste, CancellationToken ct) =>
     {
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
-        return Results.Ok(await tjeneste.ForeslaAsync(skriv ?? false, bruker.Navn, ct));
+        var numre = string.IsNullOrWhiteSpace(kommunenummer) ? null : kommunenummer.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+        return Results.Ok(await tjeneste.ForeslaAsync(skriv ?? false, bruker.Navn, numre, ct));
     })
     .WithOpenApi()
     .WithName("KommuneKortformer")
     .WithSummary("Issue #390 AK 2 — for hver kommune med territoriekant: kortformen (Kartverkets kommunenavn, «Alta») som navneform med grunn " +
         "kortform, registeret som kilde, eksternt_dokumentert og maskinelt_foreslatt. Kollisjoner (samme tekst som et annet område, en annen " +
-        "aktør eller navneform) og kommuner med parallellnavn listes; referenten avgjøres av binding eller kontekst. ?skriv=true skriver.");
+        "aktør eller navneform) og kommuner med parallellnavn listes; referenten avgjøres av binding eller kontekst. ?kommunenummer=5601,1515 " +
+        "avgrenser. ?skriv=true skriver.");
 
 app.MapPost("/api/departementer/navneform-hjemmel", async (bool? skriv, HttpRequest request, RegelIdeDbContext db,
         DepartementNavneformHjemmelTjeneste tjeneste, CancellationToken ct) =>
