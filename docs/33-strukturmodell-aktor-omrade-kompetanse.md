@@ -1255,6 +1255,12 @@ helsedepartementet og Fiskeri- og kystdepartementet. Korpuset viser ikke at de h
 (vedleggene 2002 sier ikke «fra»), og avgjørelse 2 krever forvaltningskanter før og etter. Om en etterfølger skal kunne leses der vedtaket
 selv sier «overtar ansvaret … fra» (2014 punkt 6), er juristrundens P2, til Johann.
 
+**Virkning på «departementet» (§5.10), målt 2026-10-26.** Ressortfordelingen gir fortsatt 0 svar, fordi ingen ressortkant er vurdert
+(207 kilder har et ressortforslag som venter, før 167). Ruten «Lovdata, utgått navn» gikk fra 29 til 14 og «flertydig» fra 12 til 27:
+navnehistorikken viser nå at «Olje- og energidepartementet» er brukt av to identiteter (1978–1992 og 1997–2023), og etter regelen fra PR
+#398 gir et navn flere identiteter har hatt, ikke svar (15 kilder). Dette er regelen som virker, ikke en feil; om datoen skal kunne
+skille dem, er Johanns valg.
+
 ### 5.10 Standardregler for generiske omtaler og navnevedtaket som hjemmel (#394, bygget 2026-10-24)
 
 Johann 2026-10-23: det var tungvint å binde «departementet» til lovens eierdepartement, bindingen han lagde ble ikke brukt (bare godkjente
