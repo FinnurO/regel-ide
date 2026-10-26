@@ -109,4 +109,42 @@ public class DefaultPSomLeddKonverteringTests
         Assert.Single(ledd);
         Assert.Equal("Fra den tiden loven her trer i kraft, gjøres følgende endringer i andre lover:", ledd[0].Tekst);
     }
+
+    /// <summary>
+    /// [Ny, issue #397] Et avsnitt med en liste direkte i et vedleggskapittel er innhold: innledningen blir et ledd, og punktene blir
+    /// punkter under det. Formen er ordrett fra FOR-2001-12-21-1485 vedlegg 3 (forkortet til to lover).
+    /// </summary>
+    [Fact]
+    public void Defaultp_med_liste_i_vedlegg_blir_ledd_med_punkter()
+    {
+        var kropp = """
+            <section class="section" data-name="vedlegg3" id="kapittel-3"><h2>Vedlegg 3. Oversikt over lover Helsedepartementet skal ha forvaltningsansvaret for:</h2><article class="defaultP">Helsedepartementet (HD) overtar forvaltningsansvaret for følgende lovverk:<ul class="defaultList"><li data-li-identifier="-" data-name="-"><article class="listArticle" id="kapittel-3-punkt-1"><article class="legalP" id="kapittel-3-punkt-1-ledd-1"><a href="lov/1984-03-30-15">Lov av 30. mars 1984 nr. 15</a> om statlig tilsyn med helsetjenesten</article></article></li><li data-li-identifier="-" data-name="-"><article class="listArticle" id="kapittel-3-punkt-2"><article class="legalP" id="kapittel-3-punkt-2-ledd-1"><a href="lov/1999-07-02-61">Lov av 2. juli 1999 nr. 61</a> om spesialisthelsetjenesten m.m.</article></article></li></ul></article></section>
+            """;
+        var html = string.Format(MinimalDokumentMal, "Omorganisering i departementsstrukturen fra 1. januar 2002.", "FOR-2001-12-21-1485", kropp);
+
+        var resultat = LovdataKonverterer.Konverter(html);
+
+        var kapittel = resultat.Noder.Single(n => n.NodeType == NodeType.Kapittel);
+        var ledd = Assert.Single(resultat.Noder, n => n.ParentEid == kapittel.Eid && n.NodeType == NodeType.Ledd);
+        Assert.Equal("Helsedepartementet (HD) overtar forvaltningsansvaret for følgende lovverk:", ledd.Tekst);
+        Assert.Contains("-avsnitt-", ledd.KildeId);
+        var punkter = resultat.Noder.Where(n => n.ParentEid == ledd.Eid).OrderBy(n => n.SorteringsRekkefolge).ToList();
+        Assert.Equal(2, punkter.Count);
+        Assert.StartsWith("Lov av 30. mars 1984 nr. 15 om statlig tilsyn", punkter[0].Tekst);
+        Assert.Equal($"{ledd.Eid}/punkt-1", punkter[0].Eid);
+    }
+
+    /// <summary>[Ny, issue #397] Utenfor et vedlegg er et avsnitt med liste direkte under et kapittel fortsatt en merknad (uendret).</summary>
+    [Fact]
+    public void Defaultp_med_liste_utenfor_vedlegg_hoppes_fortsatt_over()
+    {
+        var kropp = """
+            <section class="section" data-name="kap1" id="kapittel-1"><h2>Kapittel 1. Innledning</h2><article class="defaultP">Merknad:<ul class="defaultList"><li data-li-identifier="-" data-name="-"><article class="listArticle" id="kapittel-1-punkt-1"><article class="legalP" id="kapittel-1-punkt-1-ledd-1">Noe</article></article></li></ul></article></section>
+            """;
+        var html = string.Format(MinimalDokumentMal, "Testforskrift", "FOR-2001-01-01-1", kropp);
+
+        var resultat = LovdataKonverterer.Konverter(html);
+
+        Assert.DoesNotContain(resultat.Noder, n => n.NodeType is NodeType.Ledd or NodeType.Punkt);
+    }
 }
