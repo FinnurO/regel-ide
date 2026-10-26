@@ -363,6 +363,13 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
                     {
                         if (tildelinger[x].Id == forut) tildelinger[x] = tildelinger[x] with { Id = i };
                     }
+                    // [Ny, S2 på #397] Også etterfølgere lest av teksten (FOR-1997-12-19-1316 kap-5 sier «Finansdepartementet» om 1998).
+                    for (var x = 0; x < tekstEtterfolgere.Count; x++)
+                    {
+                        var te = tekstEtterfolgere[x];
+                        if (te.Y == forut) tekstEtterfolgere[x] = te with { Y = i };
+                        if (te.X == forut) tekstEtterfolgere[x] = tekstEtterfolgere[x] with { X = i };
+                    }
                     identiteter.Remove(forut);
                     levende.Remove(til);
                     merknader.Add($"«{til}» er brukt i vedtak fra før navnebyttet «{fraRaa}» → «{tilRaa}» ({v.Tittel}, {v.Dato:yyyy-MM-dd}). " +
