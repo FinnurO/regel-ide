@@ -812,7 +812,7 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
         foreach (var t in tildelinger.Where(t => katalog.ContainsKey(t.Id)))
         {
             var gyldigTil = til(t);
-            var fId = await Opprett(new NyStrukturkant(Strukturkanter.Oppgave, "forvaltning", Kantnode.Virksomhet(katalog[t.Id].Id), null,
+            var fny = new NyStrukturkant(Strukturkanter.Oppgave, "forvaltning", Kantnode.Virksomhet(katalog[t.Id].Id), null,
                 HjemmelRettskildeId: t.Hjemmel.RettskildeId, HjemmelEid: t.Hjemmel.Eid, Objekt: t.Objekt, ObjektEli: t.Eli,
                 GyldigFra: t.Fra, GyldigTil: gyldigTil is { } g && g >= t.Fra ? g : null,
                 // [ENDRET etter juristrunden 2026-10-23, M4] Kommentaren sier hvor gyldig-til kommer fra: neste vedtak som gir samme hele lov til
@@ -835,8 +835,8 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
                     ? "Regel: monster:livslop-ressortfordeling. Vedtaket bruker funksjonsordet «forvaltningsansvaret» (begrepsmanualen §F)."
                     : "Regel: monster:livslop-ressortfordeling. «… skal ha ansvaret for» lover er lest som forvaltningsansvar fordi objektet er et "
                       + "regelverk og vedtaket overfører ansvaret for lover (begrepsmanualen §F).")
-                    + " Modalitet er ikke satt: vedtaket tildeler ansvaret, det pålegger ingen plikt."),
-                () => rNye++, () => rFantes++);
+                    + " Modalitet er ikke satt: vedtaket tildeler ansvaret, det pålegger ingen plikt.");
+            var fId = await Opprett(fny, () => rNye++, () => rFantes++);
             if (fId is { } fid)
             {
                 kantFor[t] = fid;
@@ -844,8 +844,10 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
                 // endrer dem (gyldig til er ikke en del av utsagnets identitet). Et vurdert eller avvist utsagn røres ikke.
                 var nyTil = gyldigTil is { } g2 && g2 >= t.Fra ? g2 : (DateOnly?)null;
                 if (await db.Strukturkanter.FirstOrDefaultAsync(k => k.Id == fid, ct) is { Status: Strukturkanter.MaskineltForeslatt } fk
-                    && fk.OppdagelsesKilde == OppdagelsesKilde && fk.GyldigTil != nyTil)
+                    && fk.OppdagelsesKilde == OppdagelsesKilde && (fk.GyldigTil != nyTil || fk.Begrunnelse != fny.Begrunnelse))
                 {
+                    // [ENDRET etter juristrunden på #397, P3] Også begrunnelsen, når regelen er presisert (statsrådlistene).
+                    fk.Begrunnelse = fny.Begrunnelse;
                     fk.GyldigTil = nyTil;
                     fk.Kommentar = $"«{Avkort(t.Hjemmel.Tekst)}» (departementet het {t.NavnDaVedtaket} i vedtaket)"
                         + (t.Innledning is null ? "" : $" Innledningen i vedlegget: «{Avkort(t.Innledning)}».")
@@ -917,7 +919,7 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
                      && !avledede.Any(a => a.X == t.X && a.Y == t.Y)))
         {
             var fortolkning = x.NedlagtFortolkning;
-            await Opprett(new NyStrukturkant(Strukturkanter.Relasjon, "etterfolger", Kantnode.Virksomhet(katalog[y].Id), Kantnode.Virksomhet(katalog[x].Id),
+            var tny = new NyStrukturkant(Strukturkanter.Relasjon, "etterfolger", Kantnode.Virksomhet(katalog[y].Id), Kantnode.Virksomhet(katalog[x].Id),
                 HjemmelRettskildeId: h.RettskildeId, HjemmelEid: h.Eid, GyldigFra: x.Nedlagt,
                 Kommentar: $"Omfang: det teksten sier, ikke talt i lovdeler: «{Avkort(h.Tekst)}»",
                 Status: Strukturkanter.MaskineltForeslatt, OppdagelsesKilde: "monster:livslop-etterfolger-tekst",
@@ -925,9 +927,17 @@ public sealed class DepartementLivslopTjeneste(RegelIdeDbContext db, Strukturkan
                 Tolkningsargumenter: fortolkning ? ["ordlyd", "kontekst_system"] : null,
                 Begrunnelse: $"Regel: {regel} (Johanns avgjørelse P2 på #397). Leddet sier at {NavnPaa(y, x.Nedlagt!.Value)} overtar ansvar fra "
                     + $"{NavnPaa(x, x.Nedlagt.Value.AddDays(-1))}, som "
-                    + (fortolkning ? "opphører i samme vedtak (lest uten «nedlegges», P1)" : $"nedlegges i samme vedtak («{x.NedlagtVed!.Tittel}»)")
-                    + ". Ansvaret går over til et annet organ. Ingen forvaltningskanter er premisser; omfanget er det teksten sier."),
-                () => tNye++, () => tFantes++);
+                    // [ENDRET etter juristrunden] Belegget for nedleggelsen er leddet, ikke tittelen.
+                    + (fortolkning ? $"opphører i samme vedtak (lest uten «nedlegges», P1: «{Avkort(x.NedlagtVed!.Tekst)}»)"
+                        : $"nedlegges i samme vedtak («{Avkort(x.NedlagtVed!.Tekst)}», {x.NedlagtVed.Eid})")
+                    + ". Ansvaret går over til et annet organ. Ingen forvaltningskanter er premisser; omfanget er det teksten sier.");
+            var tId = await Opprett(tny, () => tNye++, () => tFantes++);
+            if (tId is { } tid && await db.Strukturkanter.FirstOrDefaultAsync(k => k.Id == tid, ct) is { Status: Strukturkanter.MaskineltForeslatt } tk
+                && tk.Begrunnelse != tny.Begrunnelse)
+            {
+                tk.Begrunnelse = tny.Begrunnelse;
+                await db.SaveChangesAsync(ct);
+            }
         }
 
         return new LivslopSkriving(oNye, oFantes, nNye, nFantes, rNye, rFantes, avvist, feil)
