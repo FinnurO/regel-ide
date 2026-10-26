@@ -273,6 +273,12 @@ lovteksten, der registernavnet er normalisert til lovens skrivemåte — er ikke
 navnet ikke utledes av registernavnet «ved strengmanipulasjon», står: forslaget bygger på en tekst som viser skrivemåten, ikke på en regel
 for store og små bokstaver, og det godkjennes. Se docs/33 §5.8.
 
+[Ny, issue #386, 2026-10-27] **En aktør opprettet med bare et navn får navnet som gjeldende navneform** samtidig, med grunnlaget og
+statusen fra veiviseren; står navnet ikke i bestemmelsen som er valgt, lagres «hjemmel mangler». Et organ som er registrert som rolle-,
+klasse- eller gruppebegrep, kan gjøres om til en aktør (`POST /api/begreper/{id}/omgjor-til-aktor`, og angres med
+`…/angre-omgjoring`): navneformene og aktørtypen blir forslag, taggene og kantene flyttes med proveniens, og ingenting slettes. Se
+docs/33 §5.11.
+
 [FIKSET, tagg-synlig, 2026-09-08] **Teksten er faktisk markert når siden åpnes.** Aktivt tagg-lag
 ble forhåndsvalgt til det første konfigurerte laget («Begrep») uten å se på nodens innhold. Åpnet
 man forskrift 2005-06-17-657 § 1 ledd-1, som kun har `virksomhet`-tagger, listet tagg-tabellen 14
