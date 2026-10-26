@@ -97,6 +97,10 @@ public sealed record StrukturkantVisning(
     public DateTimeOffset? SistEndretTidspunkt { get; init; }
     /// <summary>[Ny, issue #313 / #374] Den valgfrie begrunnelsen for en avvisning.</summary>
     public string? AvvisningBegrunnelse { get; init; }
+    /// <summary>[Ny, issue #397, Johann 2026-10-24 på #134] Omfanget av en avledet R etterfolger: antall lovdeler som gikk over, talt fra
+    /// premissene (forvaltningskantene FRA etterfølgeren). Ikke et felt for hoved- eller deletterfølger, og ikke lagret: det følger av
+    /// premissene. Null for alle andre kanter.</summary>
+    public int? Omfang { get; init; }
 }
 
 /// <summary>[Ny, issue #313] Forhåndsvisningen av ett forslag: slik det blir seende ut på fra-nodens side, på til-nodens side (null uten
@@ -910,6 +914,17 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
         var premisser = avledetIder.Count == 0 ? [] : (await db.StrukturkantPremisser.Where(p => avledetIder.Contains(p.KantId)).ToListAsync(ct))
             .GroupBy(p => p.KantId).ToDictionary(g => g.Key, g => (IReadOnlyList<Guid>)g.Select(p => p.PremissKantId).OrderBy(x => x).ToList());
 
+        // [Ny, issue #397] Omfanget av avledede etterfølgere: premissene som er F forvaltning fra etterfølgeren.
+        var etterfolgerPremisser = kanter.Where(k => k.Typekode == "etterfolger" && premisser.ContainsKey(k.Id))
+            .SelectMany(k => premisser[k.Id]).Distinct().ToList();
+        var forvaltningsPremisser = etterfolgerPremisser.Count == 0 ? [] : await db.Strukturkanter.IgnoreQueryFilters()
+            .Where(p => etterfolgerPremisser.Contains(p.Id) && p.Kategori == Strukturkanter.Oppgave && p.Typekode == "forvaltning")
+            .Select(p => new { p.Id, p.FraVirksomhetId }).ToDictionaryAsync(p => p.Id, p => p.FraVirksomhetId, ct);
+        int? Omfang(StrukturkantEntitet k) =>
+            k.Typekode == "etterfolger" && premisser.TryGetValue(k.Id, out var pr)
+                ? pr.Count(id => forvaltningsPremisser.TryGetValue(id, out var fra) && fra == k.FraVirksomhetId)
+                : null;
+
         KantnodeVisning Node(Guid? virksomhetId, Guid? begrepId)
         {
             if (virksomhetId is { } v)
@@ -997,6 +1012,7 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
                 k.HjemmelEndretTidspunkt)
             {
                 SistEndretAv = k.SistEndretAv, SistEndretTidspunkt = k.SistEndretTidspunkt, AvvisningBegrunnelse = k.AvvisningBegrunnelse,
+                Omfang = Omfang(k),
             };
         }).ToList();
     }

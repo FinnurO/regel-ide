@@ -150,6 +150,7 @@ builder.Services.AddScoped<LovdataKatalogTjeneste>();
 builder.Services.AddScoped<LovdataFullimportTjeneste>();
 builder.Services.AddScoped<DisposisjonstypeTjeneste>(); // [Ny, issue #395]
 builder.Services.AddScoped<LovtidendImportTjeneste>(); // [Ny, issue #395]
+builder.Services.AddScoped<RettskildeKonverterPaaNyttTjeneste>(); // [Ny, issue #397]
 builder.Services.AddScoped<DepartementLivslopTjeneste>(); // [Ny, issue #395]
 builder.Services.AddScoped<LovdataImportstatusTjeneste>();
 // Full Lovdata-synkronisering ved oppstart (docs/13-backlog.md §6) — se klassekommentaren for
@@ -4313,6 +4314,20 @@ app.MapPost("/api/rettskilder/disposisjonstyper/klassifiser", async (bool? skriv
         "nedleggelse, omorganisering, overforing_ressortfordeling, delegering, instruks, ikrafttredelse, regulering): tittel først, mønster på " +
         "innholdet der tittelen ikke avgjør. Ingen treff = uklassifisert. ?skriv=true lagrer (erstatter bare maskinens egne rader); " +
         "?medRader=true tar med treffene per kilde.");
+
+// [Ny, issue #397] Konverter den lagrede kilde-HTML-en til én rettskilde på nytt med dagens parser (ny versjon hvis AKN endres).
+app.MapPost("/api/rettskilder/{id:guid}/konverter-paa-nytt", async (Guid id, bool? skriv, HttpRequest request, RegelIdeDbContext db,
+        RettskildeKonverterPaaNyttTjeneste tjeneste, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        var rapport = await tjeneste.KjorAsync(id, skriv ?? false, bruker.Navn, ct);
+        return rapport is null ? Results.NotFound(new { feil = "Fant ingen gjeldende primærkilde med lagret kilde-HTML." }) : Results.Ok(rapport);
+    })
+    .WithOpenApi()
+    .WithName("KonverterRettskildePaaNytt")
+    .WithSummary("Issue #397 — konverterer den lagrede kilde-HTML-en med dagens parser. Tørrkjøring viser eId-er som kommer til, " +
+        "forsvinner eller får ny tekst; ?skriv=true importerer som en resynk (ny versjon når AKN endres) og klassifiserer den nye versjonen.");
 
 app.MapPost("/api/lovdata/lovtidend-import", async (bool? skriv, HttpRequest request, RegelIdeDbContext db, LovdataBulkHenter henter,
         LovtidendImportTjeneste tjeneste, CancellationToken ct) =>

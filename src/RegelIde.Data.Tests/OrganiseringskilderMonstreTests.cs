@@ -168,4 +168,68 @@ public class OrganiseringskilderMonstreTests
         Assert.Equal("Helse- og omsorgsdepartementet", v!.Value.Navn);
         Assert.True(v.Value.Funksjonsord);
     }
+
+    // ---- [Ny, issue #397] Vedtakene 1990–1998 og vedleggene 2002–2024 (ordrette ledd fra korpuset, målt 2026-10-26) ----
+
+    [Fact]
+    public void Opprettelse_og_nedleggelse_i_1990_formen_leses()
+    {
+        var o = Assert.Single(DepartementLivslopMonstre.LesLedd(
+            "Med virkning fra 1. januar 1990 opprettes fire nye departementer med funksjoner og myndighet som beskrevet i foredraget og vedlegg til denne resolusjon: Familie- og forbrukerdepartementet, Arbeids- og administrasjonsdepartementet, Utdannings- og forskningsdepartementet samt Kirke- og kulturdepartementet.", out _));
+        Assert.Equal(DepartementLivslopMonstre.Oppretting, o.Type);
+        Assert.Equal(["Familie- og forbrukerdepartementet", "Arbeids- og administrasjonsdepartementet", "Utdannings- og forskningsdepartementet",
+            "Kirke- og kulturdepartementet"], o.Navn.Select(n => n.Navn));
+        var n = Assert.Single(DepartementLivslopMonstre.LesLedd(
+            "Fra samme dato nedlegges Næringsdepartementet, Olje- og energidepartementet, Kommunaldepartementet samt Arbeids- og administrasjonsdepartementet", out _));
+        Assert.Equal(DepartementLivslopMonstre.Nedleggelse, n.Type);
+        Assert.Equal(4, n.Navn.Count);
+        // En liste med noe annet enn departementer gir ingen hendelse.
+        Assert.Empty(DepartementLivslopMonstre.LesLedd("Fra samme dato nedlegges Statens forurensningstilsyn og Miljøverndepartementet.", out _));
+    }
+
+    [Fact]
+    public void Navnebytte_som_liste_gir_ett_bytte_per_par()
+    {
+        var h = DepartementLivslopMonstre.LesLedd(
+            "Med virkning fra 1. januar 1991 endrer følgende departementer navn; Kirke- og kulturdepartementet til Kulturdepartementet, Familie- og forbrukerdepartementet til Barne- og familiedepartementet, og Utdannings- og forskningsdepartementet til Kirke-, utdannings- og forskningsdepartementet.", out var ulest);
+        Assert.Null(ulest);
+        Assert.Equal(3, h.Count);
+        Assert.All(h, x => Assert.Equal(DepartementLivslopMonstre.Navnebytte, x.Type));
+        Assert.Equal("Utdannings- og forskningsdepartementet", h[2].Fra!.Value.Navn);
+        Assert.Equal("Kirke-, utdannings- og forskningsdepartementet", h[2].Til!.Value.Navn);
+    }
+
+    [Fact]
+    public void Nytt_departement_krever_overskrift_og_opprettelsesleddet()
+    {
+        Assert.Equal("Planleggings- og samordningsdepartementet",
+            DepartementLivslopMonstre.LesNyttDepartement("Nytt Planleggings- og samordningsdepartement (PSD)")!.Value.Navn);
+        Assert.Null(DepartementLivslopMonstre.LesNyttDepartement("Ny intern organisering"));
+        Assert.Equal("Arbeids- og administrasjonsdepartementet",
+            DepartementLivslopMonstre.LesOrganiseresVedOpprettelsen("Arbeids- og administrasjonsdepartementet organiseres ved opprettelsen i 6 avdelinger:")!.Value.Navn);
+        Assert.Null(DepartementLivslopMonstre.LesOrganiseresVedOpprettelsen("Nærings- og handelsdepartementet overtar ansvaret for …"));
+    }
+
+    [Fact]
+    public void Departementsoverskrift_og_ledd_som_vedleggsoverskrift()
+    {
+        Assert.Equal("Utenriksdepartementet", DepartementLivslopMonstre.LesBareDepartement("Utenriksdepartementet")!.Value.Navn);
+        Assert.Null(DepartementLivslopMonstre.LesBareDepartement("Vedlegg"));
+        var v = DepartementLivslopMonstre.LesVedleggsoverskrift(
+            "Oversikt over lover som Digitaliserings- og forvaltningsdepartementet skal ha ansvaret for (med virkning fra 1. januar 2024):");
+        Assert.Equal("Digitaliserings- og forvaltningsdepartementet", v!.Value.Navn);
+        Assert.False(v.Value.Funksjonsord);
+    }
+
+    [Theory]
+    [InlineData("Lov om folkebibliotek av 20. desember 1985 nr. 108.", "LOV-1985-12-20-108")]
+    [InlineData("Lov om grunnskolen og den vidaregåande opplæringa (opplæringslova) av 17. juli 1998 nr. 61", "LOV-1998-07-17-61")]
+    [InlineData("Lov om særavgift på utstyr for opptak eller gjengivelse av lyd og bilder av 12. juni 1981 nr. 69.", "LOV-1981-06-12-69")]
+    public void Lov_med_tittelen_foer_datoen_gir_datokoden(string tekst, string forventet) =>
+        Assert.Equal(forventet, DepartementLivslopMonstre.LovDatokode(tekst));
+
+    [Fact]
+    public void Lov_om_endring_i_en_annen_lov_gir_ikke_tittel_foer_dato() =>
+        // Datoen tilhører den endrede loven; tittel-først-formen brukes ikke når en annen lov nevnes før datoen.
+        Assert.Null(DepartementLivslopMonstre.LovDatokode("Lov om endring i statsborgerlova av 10. juni 2005"));
 }
