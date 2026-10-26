@@ -86,6 +86,7 @@
         <li><a href="#nytt-arbeidsmaten">Juristagenten</a></li>
         <li><a href="#nytt-ikke-gjett">«Ikke gjett» i praksis</a></li>
         <li><a href="#nytt-tall">Tallene så langt</a></li>
+        <li><a href="#departementet">Hvem er «departementet»?</a></li>
       </ul>
     </div>
   </section>
@@ -591,6 +592,168 @@
         <p>Står det bare «kommunen skal tilby …», trengs det ikke noe område. Da gjelder regelen hver kommune for seg. Området trengs når lovteksten kobler to grupper til hverandre.</p>
         <p>Den samme Karasjok kommune er hovedpersonen på <a href="../kjeden/">Kjeden</a>, som følger én rettighet fra lovtekst til vedtak.</p>
       </div>
+    </div>
+  </section>
+
+  <!-- [Ny, nettside-departementet, 2026-10-27] Eksempelet «Hvem er «departementet»?». Hver opplysning er lest fra den kjørende appen
+       (master f6d2859, lokal base) 26. oktober 2026, bare med GET-kall: /api/navneformer/generiske/oppslag (med og uten bareRegel),
+       /api/navneformer/generiske/standardregler, /api/navneformer/generiske/standardregel-dekning?term=departementet,
+       /api/rettskilder/ og /api/rettskilder/{id}[/noder], /api/virksomheter, /api/virksomheter/{id}/begrep og /api/strukturkanter/?virksomhetId=.
+       Reglene er fra docs/33 §4.6 og §5.9–5.11 og PR #396, #398, #404, #405, #407, #408 og #409.
+       NB: FOR-2004-10-01-1304 ligger i korpuset som konsolidert tekst (DEL/), ikke som kunngjort tekst fra Lovtidend. -->
+  <section class="section" id="departementet">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Eksempel · nytt oktober 2026 <span class="pill" data-tone="warning">Underveis per 26. oktober 2026</span></span>
+        <h2>Hvem er «departementet»?</h2>
+        <p>Lovene skriver sjelden navnet på departementet. De skriver «departementet». Ordet står som eget ord i 1&nbsp;543 gjeldende rettskilder i DigRett. Her følger vi ett av dem, fra ordet i lovteksten til aktøren, og viser hva hvert ledd i kjeden bygger på.</p>
+      </div>
+      <blockquote class="quote-block struktur-merk">Etter retningslinjer fastsatt av Stortinget kan departementet fastsette forskrifter om fordeling, vilkår for utbetaling og tilbakebetaling av tilskudd etter reindriftsavtalen …<cite><a href="https://lovdata.no/dokument/NL/lov/2007-06-15-40/§82a" target="_blank" rel="noopener">Reindriftsloven § 82 a første ledd</a></cite></blockquote>
+
+      <div class="nytt-to-kol">
+        <figure class="nytt-figur">
+          <svg viewBox="0 0 320 496" role="img" aria-label="Kjeden fra ordet «departementet» til aktøren. Reindriftsloven paragraf 82 a første ledd bruker ordet «departementet», som er en generisk omtale. En binding, som er uavklart, eller standardregelen, som gir en avledet slutning, gir svaret Landbruks- og matdepartementet. Navnet er hjemlet i vedtaket om omorganisering av departementsstrukturen fra 1. oktober 2004, punkt 6, som tekstfunn. Det tidligere navnet Landbruksdepartementet er en utgått navneform, i bruk til 30. september 2004, og er en normalisering av samme punkt.">
+            <defs>
+              <marker id="dep-pil" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="nf-pilspiss" d="M0,0 L10,5 L0,10 z"/></marker>
+            </defs>
+            <rect class="nf-boks" x="10" y="10" width="300" height="76" rx="6"/>
+            <text class="nf-etikett" x="24" y="32">LOVTEKSTEN</text>
+            <text class="nf-navn" x="24" y="54">«departementet»</text>
+            <text class="nf-dempet" x="24" y="74">reindriftsloven § 82 a første ledd</text>
+
+            <line class="nf-linje" x1="44" y1="86" x2="44" y2="140" marker-end="url(#dep-pil)"/>
+            <text class="nf-tekst" x="58" y="108">binding eller standardregel</text>
+            <text class="nf-uthevet" x="58" y="126">uavklart · avledet</text>
+
+            <rect class="nf-boks nf-boks--slutt" x="10" y="142" width="300" height="76" rx="6"/>
+            <text class="nf-etikett" x="24" y="164">AKTØREN · SVARET</text>
+            <text class="nf-navn" x="24" y="186">Landbruks- og matdepartementet</text>
+            <text class="nf-dempet" x="24" y="206">regelen alene: sekundær kilde</text>
+
+            <line class="nf-linje" x1="44" y1="218" x2="44" y2="272" marker-end="url(#dep-pil)"/>
+            <text class="nf-tekst" x="58" y="240">navnet er hjemlet i</text>
+            <text class="nf-uthevet" x="58" y="258">tekstfunn · forslag</text>
+
+            <rect class="nf-boks" x="10" y="274" width="300" height="76" rx="6"/>
+            <text class="nf-etikett" x="24" y="296">NAVNEVEDTAKET · KGL.RES.</text>
+            <text class="nf-navn" x="24" y="318">FOR-2004-10-01-1304</text>
+            <text class="nf-dempet" x="24" y="338">punkt 6 · konsolidert tekst</text>
+
+            <line class="nf-linje" x1="44" y1="350" x2="44" y2="404" marker-end="url(#dep-pil)"/>
+            <text class="nf-tekst" x="58" y="372">tidligere navn</text>
+            <text class="nf-uthevet" x="58" y="390">normalisering · forslag</text>
+
+            <rect class="nf-boks" x="10" y="406" width="300" height="76" rx="6"/>
+            <text class="nf-etikett" x="24" y="428">UTGÅTT NAVNEFORM</text>
+            <text class="nf-navn" x="24" y="450">Landbruksdepartementet</text>
+            <text class="nf-dempet" x="24" y="470">i bruk til 30. september 2004</text>
+          </svg>
+          <figcaption>Fra ordet i loven til aktøren og navnet. Under hver pil står kunnskapsstatusen og om et menneske har vurdert utsagnet.</figcaption>
+        </figure>
+
+        <ol class="svar-liste">
+          <li>
+            <h3>1. Ordet er en generisk omtale</h3>
+            <p>«departementet» er ikke et navn. I DigRett er det en <em>generisk navneform</em>: én for hele korpuset, men betydningen avgjøres for hver rettskilde. Det kan skje på to måter. Et menneske kan registrere en <strong>binding</strong> for loven, eller en <strong>standardregel</strong> kan gi svaret. En binding som er godkjent eller faglig vurdert, går foran regelen.</p>
+            <p class="status">Bygget i <a href="https://github.com/FinnurO/regel-ide/issues/394" target="_blank" rel="noopener">#394</a> (<a href="https://github.com/FinnurO/regel-ide/pull/398" target="_blank" rel="noopener">#398</a>, <a href="https://github.com/FinnurO/regel-ide/pull/404" target="_blank" rel="noopener">#404</a>). Svarene regnes ut når noen spør, og lagres ikke.</p>
+          </li>
+          <li>
+            <h3>2. Svaret, og hva det bygger på</h3>
+            <p class="svaret">Landbruks- og matdepartementet.</p>
+            <p><strong>Bindingen.</strong> For reindriftsloven finnes en binding til Landbruks- og matdepartementet, og den er faglig vurdert. Derfor er det den som svarer. Men bindingen har ingen hjemmel. Begrunnelsen er en generell beskrivelse: «departementet» skal alltid forstås som eierdepartementet. Kunnskapsstatusen er derfor <em>uavklart</em>. At noen har vurdert et utsagn, sier ikke hvordan det er kommet fram. Det er to ulike spørsmål.</p>
+            <p><strong>Standardregelen alene</strong> gir samme svar, men av en annen grunn. Regelen leter i denne rekkefølgen:</p>
+            <ol>
+              <li>en binding som er godkjent eller faglig vurdert,</li>
+              <li>ressortfordelingen: hvilket departement organiseringsvedtakene gir forvaltningsansvaret for hele loven,</li>
+              <li>Lovdatas felt «Ansvarlig departement», merket <strong>sekundær kilde</strong>.</li>
+            </ol>
+            <p>For reindriftsloven gir ressortvedtakene i korpuset ikke loven til noe departement. Regelen faller derfor tilbake på Lovdatas felt. Svaret er en avledet slutning med ett premiss: Lovdata oppgir «Ansvarlig departement: Landbruks- og matdepartementet».</p>
+            <p class="status">Ingen ressortkant er vurdert ennå. For «departementet» i hele korpuset gir ressortfordelingen derfor 0 svar. 207 rettskilder har et ressortforslag som venter på et menneske, og et forslag brukes aldri som svar.</p>
+          </li>
+          <li>
+            <h3>3. Aktørens navn er hjemlet i vedtaket som gir det</h3>
+            <p>En aktørs identitet og navn hjemles i vedtaket som oppretter eller navngir den, ikke i en tilfeldig paragraf der navnet står. For Landbruks- og matdepartementet er det omorganiseringen fra 1. oktober 2004, fastsatt ved kongelig resolusjon:</p>
+            <blockquote class="quote-block">Landbruksdepartementets navn endres til Landbruks- og matdepartementet.<cite>FOR-2004-10-01-1304 punkt 6</cite></blockquote>
+            <p>Det nye navnet står ordrett, så navneformen er et <em>tekstfunn</em>. Det gamle navnet, «Landbruksdepartementet», står i genitiv og er gjort til grunnform. Det er en <em>normalisering</em>. Navnet ligger i modellen som en utgått navneform, i bruk til 30. september 2004.</p>
+            <p>Før dette var navnet hjemlet i forskrift om avlsfremmende tiltak på bier § 3, fordi navnet tilfeldigvis sto der. Det nye forslaget erstatter det.</p>
+            <p class="status">Bygget i <a href="https://github.com/FinnurO/regel-ide/issues/395" target="_blank" rel="noopener">#395</a> (<a href="https://github.com/FinnurO/regel-ide/pull/396" target="_blank" rel="noopener">#396</a>) og #394. Begge navneformene er maskinelle forslag som ikke er vurdert.</p>
+          </li>
+        </ol>
+      </div>
+
+      <div class="prose struktur-etter-tabell">
+        <h3>Kildeform og disposisjonstype</h3>
+        <p>Vedtaket fra 2004 er hjemmelen. Men hvilken tekst av vedtaket har vi? Og hva slags vedtak er det? Det er to egenskaper ved rettskilden.</p>
+      </div>
+      <div class="nytt-kort-grid">
+        <div class="nytt-kort">
+          <h3>Kildeform: konsolidert eller kunngjort</h3>
+          <p><strong>Konsolidert</strong> er teksten slik Lovdata holder den oppdatert. <strong>Kunngjort</strong> er teksten slik den ble kunngjort i Norsk Lovtidend avd. I.</p>
+          <p>Vedtaket fra 2004 ligger i korpuset som <strong>konsolidert</strong> tekst. Det kommer fra delegeringsbasen, som er en del av Lovdatas «gjeldende sentrale forskrifter» (dokument-ID <code>DEL/forskrift/2004-10-01-1304</code>).</p>
+          <p>Et eksempel på kunngjort tekst er vedtaket en uke senere om Arbeids- og sosialdepartementets forskriftsverk (<code>LTI/forskrift/2004-10-08-1395</code>). Det er hentet fra Lovtidend avd. I og er «fastsatt av Arbeids- og sosialdepartementet 8. oktober 2004 med hjemmel i omorganiseringsvedtak 1. oktober 2004 nr. 1304».</p>
+        </div>
+        <div class="nytt-kort">
+          <h3>Disposisjonstype: hva vedtaket gjør</h3>
+          <p>Hver kilde får én eller flere typer fra en lukket liste: oppretting, navneendring, nedleggelse, omorganisering, overføring eller ressortfordeling, delegering, instruks, ikrafttredelse og regulering. Vedtaket fra 2004 har seks av dem: oppretting, navneendring, nedleggelse, omorganisering, overføring eller ressortfordeling, og delegering. Typene er satt maskinelt, med kunnskapsstatus normalisering.</p>
+          <p>Typene gjør det mulig å velge kilder. Sveipene som leter etter nye aktører og begreper i hele korpuset, hopper som standard over kilder som bare setter noe i kraft, og rene endringsvedtak. De kan tas med når noen ber om det. En kilde uten type tas alltid med.</p>
+        </div>
+      </div>
+
+      <div class="prose struktur-etter-tabell">
+        <h3>4. Livsløpet: hvem kom før og etter</h3>
+        <p>Departementer opprettes, skifter navn og legges ned. DigRett bygger hvert departement som en identitet over tid fra organiseringsvedtakene. Et navnebytte er samme aktør. En <strong>etterfølger</strong> registreres bare når ansvar går over til et <em>annet</em> organ. Det skal kunne leses ut av at en lov det nedlagte departementet hadde ansvaret for, går til et annet departement i samme vedtak, eller av at vedtaket selv sier hvem som overtar «fra» det.</p>
+        <p>Navn gjenbrukes, så navnet alene kobler aldri et vedtak til en aktør. «Arbeids- og sosialdepartementet» er navnet på to forskjellige identiteter i tabellen under.</p>
+      </div>
+      <div class="table-scroll">
+        <table class="ds-table struktur-tabell">
+          <thead>
+            <tr><th scope="col">Vedtak</th><th scope="col">Hva vedtaket sier</th><th scope="col">Hva modellen leser</th><th scope="col">Status</th></tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">FOR-2004-10-01-1304</th><td>Sosialdepartementet og Arbeids- og administrasjonsdepartementet legges ned. Et Arbeids- og sosialdepartement opprettes.</td><td>Arbeids- og sosialdepartementet etterfølger begge, fordi lover de hadde ansvaret for, går dit i samme vedtak</td><td>Avledet slutning, forslag</td></tr>
+            <tr><th scope="row">FOR-2005-12-16-1479</th><td>Arbeids- og sosialdepartementet legges ned. Arbeids- og inkluderingsdepartementet opprettes.</td><td>Arbeids- og inkluderingsdepartementet etterfølger det. Noen lover går også til Barne- og likestillingsdepartementet og Helse- og omsorgsdepartementet</td><td>Avledet slutning, forslag</td></tr>
+            <tr><th scope="row">FOR-2009-12-18-1582</th><td>Arbeids- og inkluderingsdepartementet legges ned. Arbeidsdepartementet opprettes.</td><td>Arbeidsdepartementet etterfølger det</td><td>Avledet slutning, forslag</td></tr>
+            <tr><th scope="row">FOR-2013-12-13-1455</th><td>Punkt 10: «Arbeidsdepartementet endrer navn til Arbeids- og sosialdepartementet (ASD).»</td><td>Samme aktør, nytt navn. Ingen etterfølger</td><td>Tekstfunn, godkjent</td></tr>
+            <tr><th scope="row">FOR-2021-12-22-3828</th><td>Punkt 1: «Arbeids- og sosialdepartementet endrer navn til Arbeids- og inkluderingsdepartementet.»</td><td>Samme aktør. Navnet som gjelder i dag</td><td>Tekstfunn, godkjent</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="prose struktur-etter-tabell">
+        <p>Etterfølgerne er avledede slutninger. Premissene er forvaltningskantene før og etter vedtaket: hvilket departement som har ansvaret for hvilken lov, lest fra lovlistene i vedleggene. De fleste er tekstfunn, noen er normalisering, og alle er forslag.</p>
+      </div>
+      <div class="no-callout struktur-merk">
+        <p><strong>Et ærlig hull: Fiskeri- og kystdepartementet.</strong> Departementet fikk navnet i det samme vedtaket fra 2004 (punkt 7) og ble lagt ned fra 1. januar 2014 (FOR-2013-12-13-1455 punkt 4). Vedtaket oppretter Nærings- og fiskeridepartementet, men sier ikke at det overtar noe «fra» Fiskeri- og kystdepartementet. Det eneste vedtaket sier om hvem som overtar, er at «Samferdselsdepartementet overtar … ansvaret for kyst- og miljøsaker fra Fiskeri- og kystdepartementet» (punkt 6). Det er en etterfølger for en del av oppgavene. Hvem som overtok resten, står ikke i korpuset. Aktøren vises derfor med merket «Hovedetterfølger ukjent». Modellen gjetter ikke. Hullet tettes når et menneske registrerer en etterfølger med en faglig vurdering.</p>
+      </div>
+
+      <div class="prose struktur-etter-tabell">
+        <h3>5. Hvor sikkert er hvert ledd?</h3>
+        <p>Hvert ledd i kjeden har sin egen <a href="../profil/#kunnskapsstatus">kunnskapsstatus</a>, og sin egen godkjenning. Slik står de i appen nå:</p>
+      </div>
+      <div class="table-scroll">
+        <table class="ds-table struktur-tabell">
+          <thead>
+            <tr><th scope="col">Ledd</th><th scope="col">Hva det er</th><th scope="col">Kunnskapsstatus</th><th scope="col">Godkjenning</th></tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">Bindingen</th><td>«departementet» i reindriftsloven betyr Landbruks- og matdepartementet</td><td>Uavklart (hjemmel mangler)</td><td>Faglig vurdert</td></tr>
+            <tr><th scope="row">Standardregelen</th><td>Samme svar, via Lovdatas «Ansvarlig departement»</td><td>Avledet slutning, sekundær kilde</td><td>Regnes ut, lagres ikke</td></tr>
+            <tr><th scope="row">Navnet</th><td>«Landbruks- og matdepartementet», hjemlet i 2004-vedtaket punkt 6</td><td>Tekstfunn</td><td>Maskinelt foreslått</td></tr>
+            <tr><th scope="row">Det gamle navnet</th><td>«Landbruksdepartementet» (utgått), samme punkt</td><td>Normalisering (genitiv til grunnform)</td><td>Maskinelt foreslått</td></tr>
+            <tr><th scope="row">Disposisjonstypene</th><td>De seks typene til 2004-vedtaket</td><td>Normalisering</td><td>Satt maskinelt</td></tr>
+            <tr><th scope="row">Etterfølgerne</th><td>Kjeden fra Sosialdepartementet til Arbeidsdepartementet</td><td>Avledet slutning</td><td>Maskinelt foreslått</td></tr>
+            <tr><th scope="row">Premissene</th><td>Forvaltningskantene etterfølgerne bygger på</td><td>Tekstfunn eller normalisering</td><td>Maskinelt foreslått</td></tr>
+            <tr><th scope="row">Navnebyttene</th><td>Arbeidsdepartementet 2014 og Arbeids- og sosialdepartementet 2022</td><td>Tekstfunn</td><td>Godkjent</td></tr>
+            <tr><th scope="row">Delvis etterfølger</th><td>Samferdselsdepartementet overtar kyst- og miljøsaker fra Fiskeri- og kystdepartementet</td><td>Normalisering</td><td>Maskinelt foreslått</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="prose struktur-etter-tabell">
+        <p>Ingen ledd i denne kjeden er fortolkning eller eksternt dokumentert. Lovdatas felt er ikke en rettskilde. Det er en sekundær kilde, og det står ved svaret.</p>
+        <p><strong>Den generelle regelen:</strong> en avledet slutning er aldri sterkere enn det svakeste premisset. Det gjelder alle avledninger, både de som lagres og de som regnes ut. Premissene rangeres slik, sterkest først:</p>
+        <p>tekstfunn = eksternt dokumentert &gt; normalisering &gt; avledet slutning &gt; fortolkning &gt; uavklart &gt; omstridt</p>
+        <p>Et premiss som ikke er vurdert, regnes ikke som sterkere enn uavklart. Et premiss som er avvist eller foreldet, bærer ikke slutningen. Rangeringen brukes bare når premisser sammenlignes. Den er ikke en generell kvalitetsskala.</p>
+      </div>
+      <p class="struktur-forbehold"><strong>Forbehold.</strong> Ressortkantene fra organiseringsvedtakene er fortsatt forslag. Ingen av dem er vurdert. Det samme gjelder navneformene for Landbruks- og matdepartementet og etterfølgerne i tabellen. Regelen om svakeste premiss er beskrevet (<a href="https://github.com/FinnurO/regel-ide/blob/master/docs/33-strukturmodell-aktor-omrade-kompetanse.md" target="_blank" rel="noopener">docs/33</a> §4.6), men den håndheves ikke ennå i all koden. Det arbeidet står i <a href="https://github.com/FinnurO/regel-ide/issues/411" target="_blank" rel="noopener">#411</a>. Livsløpet er bygget i <a href="https://github.com/FinnurO/regel-ide/pull/396" target="_blank" rel="noopener">#396</a>, <a href="https://github.com/FinnurO/regel-ide/pull/405" target="_blank" rel="noopener">#405</a>, <a href="https://github.com/FinnurO/regel-ide/pull/407" target="_blank" rel="noopener">#407</a> og <a href="https://github.com/FinnurO/regel-ide/pull/408" target="_blank" rel="noopener">#408</a>. Statusene er lest fra appen 26. oktober 2026.</p>
     </div>
   </section>
 
