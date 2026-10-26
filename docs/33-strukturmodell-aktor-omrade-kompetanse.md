@@ -254,7 +254,8 @@ Felles egenskaper på **alle** kanter:
 - `Polaritet` (`positiv`|`negativ`) — funn 6. «Kommunestyret selv» = K med `delegerbar = false` ([Bygget, #341] — se under;
   [ENDRET, #367] nå `delegeringsadgang = uttrykkelig_forbudt`, §4.6).
 - `GyldigFra`/`GyldigTil`, `Status` (`foreslatt_av_ai`|`validert`, `docs/20` §2.7), `OppdagelsesKilde`
-  (`manuell` | `monster:<id>` | `ki:<modell>`) — proveniens for automatisk konvertering (§5).
+  (`manuell` | `monster:<id>` | `ki:<modell>` | [Ny, #387] `fasit:<fil>:<id>`) — proveniens for automatisk konvertering (§5) og for
+  utsagn lastet fra fasiten (§5.12).
 - **[Ny, Johanns beslutninger 2026-10-07] `KildeUtenforKorpusType`** — kildens ART: `kgl_res` |
   `instruks` | `tildelingsbrev` | `vedtekter` | `styrevedtak` | `forarbeider` | `nettside_annet`.
   **`KildeUtenforKorpusDokumentasjon`** — HVOR den er dokumentert: `primaer` (lenken/teksten er selve
@@ -1424,6 +1425,40 @@ juristrunde (CLAUDE.md §23).
   (`uavklart`) med begrunnelsen; det gjettes ikke en annen bestemmelse. Har aktøren alt en gjeldende navneform, skjer ingenting; en
   navneform med samme navn uten grunnlag (SNL-bekreftelsen) fylles ut, ingen dublett. I generisk omtale (docs/09 §42) er hjemmelen noden
   der navnekandidaten står, med `tekstfunn` og bindingens godkjenning.
+
+### 5.12 Fasiten i appen: verifiserte utsagn som faglig vurdert (#387, bygget 2026-10-27)
+
+Johann 2026-10-16: det som er verifisert i fasiten (`data/fasit/strukturmodell`, 1 825 utsagn, kontrollert i #309 og juristrundene), fantes
+ikke i appen. `POST /api/fasit/strukturmodell/import` (`StrukturforslagTjeneste.ImporterFasitAsync`, `Fasitimport.cs`) laster det inn gjennom
+forslagskøens tjenestevei (§5.3): samme aktørklassifisering (§5.7, §5.8), samme typeavbildning (`KanttypeFor`) og samme skrivevei
+(`StrukturkantTjeneste.OpprettAsync`/`ReviderAsync`).
+- **Godkjenning** `faglig_vurdert`, aldri `godkjent`: fasiten er ikke uavhengig kontrollert (docs/profil/03 §10). **Opphav** i
+  oppdagelseskilden: `fasit:<fil>:<id>`. **Kunnskapsstatus** er fasitens egen (NULL = ikke vurdert står som NULL). **Hjemmel** er eId-en;
+  `kilde_utenfor_korpus: true` i fasiten (feltet gjelder hjemmelen, FORMAT.md #356) står i kommentaren, fordi en kant har hjemmel ELLER
+  kilde utenfor korpus (`ck_strukturkanter_kilde`). Utsagn som ikke står i lovteksten, ligger i fasitens `utsagn_utenfor_korpus` med en
+  strukturert kilde (FORMAT.md); første rad er Domstoladministrasjonen `sekretariat_for` Tilsynsutvalget for dommere (§4.3, #311).
+- **Rettskilde og eId-drift:** rettskilden er ELI-en før «/nor» i eId-en (gjeldende versjon), eller for en eId uten ELI («kap-I/ledd-1»)
+  den ene av fasitens kilder som har noden. eId-en må finnes som gjeldende node, og sitatet må stå i nodens tekst; ellers `eid_drift`,
+  ingen ny avbildning gjettes.
+- **Aktører (AK 2):** eksakt navn eller navneform, eller generisk omtale med vurdert binding eller standardregel (§5.7, §5.10). To
+  tillegg, begge uten gjetting: et navn som treffer flere noder eksakt (Karasjok kommune og området Karasjok), skilles på fasitens
+  `entitetstype` når nøyaktig ett treff har den arten; og fasitens `referent` (satt bare når teksten alene avgjør den) slås opp eksakt.
+  Resten listes som uløst. Ingen aktør opprettes; navnekandidater bare med `?navnekandidater=true`.
+- **Svakeste premiss (§4.6):** er en aktør løst via en binding eller standardregel, er det et premiss. Er premisset svakere enn fasitens
+  kunnskapsstatus, får raden premissets nivå: fortolkning (med argumentene), avledet (med premisskantene), ellers uavklart eller omstridt,
+  og begrunnelsen nevner premisset.
+- **Kjøres på nytt (AK 3):** samme opphav og likt innhold → uendret; endret fasit → revisjon (ny rad, den gamle foreldet), men bare når raden
+  fortsatt er faglig vurdert — er den godkjent etter importen, listes den som konflikt; avvist → respektert. Samme utsagn fra en annen
+  kilde: avvist → respektert; godkjent eller faglig vurdert → uendret, eller **konflikt** når objekt, avgrensning, kunnskapsstatus,
+  delegering eller grunnlag er ulikt (aldri overskrevet); ventende forslag → revidert til fasitraden. Nøkkelen er forslagskøens pluss objektet.
+- **Synlig (AK 4):** merket «Fra fasiten, faglig vurdert, ikke uavhengig kontrollert» (docs/09 §46).
+- **Målt 2026-10-27, lokal base** (første kjøring, så andre kjøring): 1 826 utsagn (1 825 + `x1`). 350 nye, 1 ventende forslag erstattet,
+  401 fantes alt godkjent med samme innhold (387 domstolinndelingen fra mønsterlaget, 14 manuelle), 0 konflikter, 1 dublett, 1 073 ikke
+  lastet: 733 aktør ikke i katalogen, 281 type uten databasetype (`annet:*`, `inngar_i`), 42 uten fra-aktør i teksten, 11 avvist av
+  skriveveien (nodetype passer ikke kategorien), 6 flertydig aktør. 0 eId-drift, 0 rader markert omstridt eller uavklart i fasiten. 169
+  rader løst via entitetstype, 0 via referent. 76 rader svekket normalisering → uavklart: «departementet» løst via standardregelen
+  `ansvarlig_departement`, der ressortforslaget ikke er vurdert. 280 uløste aktører (260 ny aktør, 14 ny navneform for kjent aktør, 6
+  flertydige). Andre kjøring: 351 uendret, 0 nye rader. Detaljene står i #387.
 
 ### 5.6 Konvertering av eksisterende data
 

@@ -1268,3 +1268,10 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
   navneform med grunnlaget og statusen fra «Hva bygger dette på?» og «Hvor sikkert er det?». Kvitteringen («Dette skjedde», §15) har en
   linje for det, og en linje til når hjemmelen ikke viser navnet («hjemmel mangler», velges på aktørsiden). Før: «Navneform mangler».
 
+## 46. Fra fasiten, faglig vurdert (issue #387, 2026-10-27)
+
+- **Merket** (`GodkjenningTag` i `strukturkant/Utsagnsstatus.tsx`): en kant med godkjenning `faglig_vurdert` og oppdagelseskilde
+  `fasit:<fil>:<id>` viser «Fra fasiten, faglig vurdert, ikke uavhengig kontrollert» i stedet for «Faglig vurdert». Samme `info` som andre
+  ventende (§35, fargen er låst per betydning); teksten skiller dem. `title` har fil og id og sier at fasiten er kontrollert i #309 og
+  juristrundene, men ikke av to uavhengige menneskelige jurister (docs/profil/03 §10).
+- Hele teksten står synlig, ikke bare i `title`: AK 4 krever at en leser ser at vurderingen ikke er uavhengig kontrollert.
