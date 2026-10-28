@@ -1,0 +1,272 @@
+[
+ {
+  "id": "f1",
+  "svar": "aksepter",
+  "tekst": "Aksepter. Delegeringen var tidsbegrenset til 21.6.–31.8.2017 og viser til en eldre § 14. Anbefaling til Johann: avvis som gjeldende kant. Konverteringen leser ikke tidsavgrensning i teksten."
+ },
+ {
+  "id": "f2",
+  "svar": "aksepter",
+  "tekst": "Aksepter. Som f1: kanten mangler gyldig_til 2017-08-31. Anbefaling: avvis (eller registrer på nytt som historisk kant med gyldighet)."
+ },
+ {
+  "id": "f3",
+  "svar": "aksepter",
+  "tekst": "Aksepter: beslutning, ikke vedtak (fvl. § 2). Mønsteret vedtak-avgjor skiller ikke generell avklaring fra enkeltvedtak; samme kjente svakhet som i #309."
+ },
+ {
+  "id": "f6",
+  "svar": "aksepter",
+  "tekst": "Aksepter: undertype oppnevning og objekt null."
+ },
+ {
+  "id": "f7",
+  "svar": "aksepter",
+  "tekst": "Aksepter: identifiserende beskrivelse gir ingen F (begrepsmanualen). Anbefaling: avvis."
+ },
+ {
+  "id": "f9",
+  "svar": "aksepter",
+  "tekst": "Aksepter: avgrensningen er kuttet; vilkårene føres inn ved godkjenning."
+ },
+ {
+  "id": "f10",
+  "svar": "aksepter",
+  "tekst": "Aksepter: beregningsregel, regellaget. Anbefaling: avvis. Vedtakskompetansen i § 3 første ledd falt bort på p2."
+ },
+ {
+  "id": "f11",
+  "svar": "aksepter",
+  "tekst": "Aksepter. Noder med eId kap-veiledning-*/kap-merknader-* er departementets veiledning og merknader, ikke forskriftstekst. Anbefaling: avvis. Meldes som feil i konverteringsgrunnlaget (egen sak)."
+ },
+ {
+  "id": "f12",
+  "svar": "aksepter",
+  "tekst": "Aksepter, som f11. Anbefaling: avvis."
+ },
+ {
+  "id": "f13",
+  "svar": "aksepter",
+  "tekst": "Aksepter: forskriften forutsetter Stortingets kompetanse og hjemler den ikke; avgrensningen føres inn."
+ },
+ {
+  "id": "f14",
+  "svar": "aksepter",
+  "tekst": "Aksepter: utredningsplikt (fvl. § 17) og snudd retning. Anbefaling: avvis."
+ },
+ {
+  "id": "f15",
+  "svar": "aksepter",
+  "tekst": "Aksepter, som f14. Anbefaling: avvis."
+ },
+ {
+  "id": "f16",
+  "svar": "aksepter",
+  "tekst": "Aksepter: uttømt overgangsregel og beslutning, ikke vedtak."
+ },
+ {
+  "id": "f17",
+  "svar": "aksepter",
+  "tekst": "Aksepter: motparten (Direktoratet for høyere utdanning og kompetanse) skal stå som til. Mulig motstrid mellom FOR-2008-09-12-1071 § 11 og FOR-2025-07-02-1462 § 6 andre ledd om klageinstans er et spørsmål om gjeldende rett, ikke om modellen; det legges fram for Johann som kontrollpunkt."
+ },
+ {
+  "id": "f18",
+  "svar": "aksepter",
+  "tekst": "Aksepter: K tilsyn, ikke F kontroll. Rettingen kan ikke skrives før p2 er avgjort (K tar ikke klasse som fra)."
+ },
+ {
+  "id": "f19",
+  "svar": "aksepter",
+  "tekst": "Aksepter, som f18."
+ },
+ {
+  "id": "f20",
+  "svar": "aksepter",
+  "tekst": "Aksepter: avgrensning og kunnskapsstatus fortolkning."
+ },
+ {
+  "id": "f21",
+  "svar": "aksepter",
+  "tekst": "Aksepter: beslutning om rapporteringsform; normform forskrift er ikke vist."
+ },
+ {
+  "id": "f22",
+  "svar": "aksepter",
+  "tekst": "Aksepter: saksbehandlingsregel, regellaget. Anbefaling: avvis."
+ },
+ {
+  "id": "f23",
+  "svar": "aksepter",
+  "tekst": "Aksepter: begrunnelsesplikt, regellaget. Anbefaling: avvis."
+ },
+ {
+  "id": "f24",
+  "svar": "aksepter",
+  "tekst": "Aksepter: beregningsregel. Anbefaling: avvis. Tverrgående: KI-laget gjør «Kommunen skal + verb» til F forvaltning."
+ },
+ {
+  "id": "f25",
+  "svar": "aksepter",
+  "tekst": "Aksepter, som f7. Anbefaling: avvis."
+ },
+ {
+  "id": "f26",
+  "svar": "aksepter",
+  "tekst": "Aksepter: beregnings- og bevisregel. Anbefaling: avvis."
+ },
+ {
+  "id": "f27",
+  "svar": "aksepter",
+  "tekst": "Aksepter. Anbefaling: avvis."
+ },
+ {
+  "id": "f28",
+  "svar": "aksepter",
+  "tekst": "Aksepter. Anbefaling: avvis."
+ },
+ {
+  "id": "f29",
+  "svar": "aksepter",
+  "tekst": "Aksepter: merknad, ikke forskriftstekst. Anbefaling: avvis."
+ },
+ {
+  "id": "f30",
+  "svar": "aksepter",
+  "tekst": "Aksepter. Anbefaling: avvis."
+ },
+ {
+  "id": "f31",
+  "svar": "aksepter",
+  "tekst": "Aksepter. Anbefaling: avvis. Refusjonsforholdet i § 15 første ledd er ikke funnet av konverteringen."
+ },
+ {
+  "id": "f32",
+  "svar": "aksepter",
+  "tekst": "Aksepter. Anbefaling: avvis."
+ },
+ {
+  "id": "f34",
+  "svar": "aksepter",
+  "tekst": "Aksepter: barnekoordinatorens samordning (unntaket i § 2 b andre ledd tredje punktum) og § 2 b første og tredje ledd ble ikke lastet fordi aktørene mangler i katalogen. Det samme unntaket mangler hos BU (b6_1)."
+ },
+ {
+  "id": "f36",
+  "svar": "aksepter",
+  "tekst": "Aksepter: unntaket for kapittel V hører i avgrensning. Mønsterlaget legger det i objektet."
+ },
+ {
+  "id": "f37",
+  "svar": "aksepter",
+  "tekst": "Aksepter, som f36."
+ },
+ {
+  "id": "f38",
+  "svar": "aksepter",
+  "tekst": "Aksepter: registerplikten i § 10 fjerde ledd første punktum ble ikke funnet av noe lag."
+ },
+ {
+  "id": "f39",
+  "svar": "aksepter",
+  "tekst": "Aksepter. § 13 andre ledd (Utdanningsdirektoratet) falt bort fordi aktøren ikke er i katalogen."
+ },
+ {
+  "id": "f41",
+  "svar": "aksepter",
+  "tekst": "Aksepter: objektet kuttes ved omtrent 200 tegn i mønsterlaget. Meldes som feil."
+ },
+ {
+  "id": "f46",
+  "svar": "aksepter",
+  "tekst": "Aksepter: fravikshjemmelen føres i avgrensning."
+ },
+ {
+  "id": "f47",
+  "svar": "aksepter",
+  "tekst": "Aksepter: K har ingen modalitet (formatmangel); «skal gi forskrift» føres i avgrensning til feltet finnes."
+ },
+ {
+  "id": "f48",
+  "svar": "aksepter",
+  "tekst": "Aksepter, som f46."
+ },
+ {
+  "id": "f49",
+  "svar": "aksepter",
+  "tekst": "Aksepter, som f47. Eiendomstilskuddet (P betaling) falt bort fordi «private barnehager» ikke er i katalogen."
+ },
+ {
+  "id": "f55",
+  "svar": "aksepter",
+  "tekst": "Aksepter: nemndas oppgave i avgrensning; forskriftshjemmelen om klagenemnda ble ikke lastet (se f67)."
+ },
+ {
+  "id": "f56",
+  "svar": "aksepter",
+  "tekst": "Aksepter, som f41."
+ },
+ {
+  "id": "f59",
+  "svar": "aksepter",
+  "tekst": "Aksepter, som f41."
+ },
+ {
+  "id": "f64",
+  "svar": "aksepter",
+  "tekst": "Aksepter, som f41."
+ },
+ {
+  "id": "f66",
+  "svar": "aksepter",
+  "tekst": "Aksepter: utleveringsforbud med SSB som eneste mottaker, ikke negativ kompetanse for SSB. Anbefaling: avvis."
+ },
+ {
+  "id": "f67",
+  "svar": "aksepter",
+  "tekst": "Aksepter. Lasterens idempotensnøkkel har ikke objekt (docs/33 §5.3), så to forskriftshjemler fra samme aktør i samme ledd slås sammen. Kjøringen hadde 4 «dublett_i_kjoringen». Meldes som feil."
+ },
+ {
+  "id": "f69",
+  "svar": "aksepter",
+  "tekst": "Aksepter: uttømt; avgrensningen føres inn."
+ },
+ {
+  "id": "f70",
+  "svar": "aksepter",
+  "tekst": "Aksepter: utvidelsen i andre punktum føres i avgrensning."
+ },
+ {
+  "id": "f71",
+  "svar": "aksepter",
+  "tekst": "Aksepter: beregningsskritt. Anbefaling: avvis. P betaling i første punktum falt bort på til = «Private barnehager» (ikke i katalogen)."
+ },
+ {
+  "id": "p1",
+  "svar": "delvis",
+  "tekst": "Aksepter rettingen av merknaden: loven gjør rollen til et rettslig poeng (§ 10 første ledd «lokal barnehagemyndighet», § 11 atskillelse, § 30 andre ledd «kommunen som barnehagemyndighet»), så det holder ikke å skille i kanttypen. Avvis likevel å registrere rollen «lokal barnehagemyndighet» i denne piloten: en ny rolle med hjemmel er et modellvalg (#395-prinsippet), og pilotoppdraget sier at ingenting opprettes uten Johanns beslutning. Rollen legges fram sammen med p2."
+ },
+ {
+  "id": "p2",
+  "svar": "prinsipiell",
+  "tekst": "Enig i observasjonen og i at konsekvensen er alvorlig. Modellereren og juristen er enige om retningen (K tar klasse som fra med distributiv lesning, som P og F). Det er en endring i modellregelen (docs/33 §4.3) og går til Johann som beslutning."
+ },
+ {
+  "id": "b2_7",
+  "svar": "aksepter",
+  "tekst": "Aksepter: feilen er plikt gjort til adgang, speilbildet av 17.4 første punkt, og den står ikke på lista. Merkes slik i sammenligningen."
+ },
+ {
+  "id": "b3_1",
+  "svar": "aksepter",
+  "tekst": "Aksepter: BU mangler også fylkeskommunens ansvar i § 31 femte ledd."
+ },
+ {
+  "id": "b6_2",
+  "svar": "aksepter",
+  "tekst": "Aksepter: barnehagen er ikke et rettssubjekt; BUs plassering under kommunen er samme slutning via § 7 som i 4.1, ikke feil aktør."
+ },
+ {
+  "id": "b6_6",
+  "svar": "aksepter",
+  "tekst": "Aksepter: BUs «barnehageeiere» er forsvarlig etter § 7. Modellererens «feil aktør» var selv feilen «antar at grammatisk subjekt er rettssubjekt». BU 6.6 regnes som ingen feil."
+ }
+]

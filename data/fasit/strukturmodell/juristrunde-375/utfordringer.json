@@ -1,0 +1,1834 @@
+[
+  {
+    "id": "f1",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "hoy",
+    "innvending": "Delegeringen gjaldt bare fra 21. juni til 31. august 2017 (står i leddet; Lovdata-metadata: «2017-06-21 – 2017-08-31»). Den viser til barnehageloven § 14 tredje ledd andre punktum slik den lød i 2017. Dagens § 14 tredje ledd handler om at en etableringsgodkjenning faller bort, og har ingen forskriftshjemmel. Raden viser en utløpt kompetanse som om den gjelder i dag (17.4: mister vilkår; bruker feil lovversjon). Dessuten er «slik at departementet kan fastsette forskrift …» rekkevidden til delegeringen i f2, ikke departementets egen normgivning (FORMAT, #356: «Delegeringen omfatter …» er delegeringens rekkevidde). «departementet» viser tilbake til «Kunnskapsdepartementet» i samme punktum. Det er et tekstfunn, og standardregelen (Lovdatas felt, sekundær kilde) trengs ikke her. Raden bør avvises, og innholdet føres som avgrensning på f2.",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "FOR-2017-06-21-837 ledd-1",
+        "funksjon": "direkte_hjemmel"
+      },
+      {
+        "ref": "barnehageloven § 14 tredje ledd (gjeldende tekst)",
+        "funksjon": "forutsatt_kilde"
+      },
+      {
+        "ref": "Lovdata-metadata for FOR-2017-06-21-837 (ikrafttredelse 2017-06-21 – 2017-08-31)",
+        "funksjon": "forutsatt_kilde"
+      }
+    ]
+  },
+  {
+    "id": "f2",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "hoy",
+    "innvending": "Typen (R har_delegert_til, Kongen → KD) er riktig, men kanten mangler tidsavgrensningen, som står i sitatet: «med virkning fra 21. juni 2017 til 31. august 2017». Vedtaket er uttømt. Som gjeldende kant svarer modellen i dag at Kongen har delegert til KD, og det er en styringslinje som ikke finnes. Avgrensningen mangler også hjemmelsstedet, som er en eldre versjon av § 14, og rekkevidden. Formatet har ikke gyldig_til i `foreslatt`; datoen må stå i avgrensningen inntil feltet settes.",
+    "retting": {
+      "avgrensning": "barnehageloven § 14 tredje ledd andre punktum slik den lød i 2017; omfatter forskrift om endringer i forskrift 9. oktober 2015 nr. 1166; virkning 21. juni–31. august 2017 (utløpt)"
+    },
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "FOR-2017-06-21-837 ledd-1",
+        "funksjon": "direkte_hjemmel"
+      },
+      {
+        "ref": "Lovdata-metadata for FOR-2017-06-21-837",
+        "funksjon": "forutsatt_kilde"
+      }
+    ]
+  },
+  {
+    "id": "f3",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "middels",
+    "innvending": "«avgjør» er ikke nok for vedtak (fvl. § 2). Det departementet avgjør, er hvilke bestemmelser i forskriftene i første ledd som ikke skal gjelde for Longyearbyen lokalstyres barnehagevirksomhet. Det er en generell avklaring av hvor langt regelverket rekker, ikke et enkeltvedtak overfor en part, og hører derfor til familien beslutning. Normaliseringen fra mønsteret vedtak-avgjor bygger på et ordformsignal som ikke avgjør typen. Den bør være fortolkning med tolkningsargumentene ordlyd og kontekst_system (feltet finnes ikke i `foreslatt`). Vilkåret «i tvilstilfeller» og rammen står ikke i avgrensning.",
+    "retting": {
+      "type": "beslutning",
+      "objekt": "hvilke forskriftsbestemmelser i § 6 første ledd som ikke passer på Svalbard",
+      "avgrensning": "i tvilstilfeller; forskriftene listet i § 6 første ledd; Longyearbyen lokalstyres barnehagevirksomhet",
+      "kunnskapsstatus": "fortolkning"
+    },
+    "ny_rad": null,
+    "implementeringsstatus": "bygget",
+    "kilder": [
+      {
+        "ref": "FOR-2022-06-17-1219 § 6 andre ledd",
+        "funksjon": "direkte_hjemmel"
+      },
+      {
+        "ref": "FOR-2022-06-17-1219 § 6 første ledd",
+        "funksjon": "forutsatt_kilde"
+      },
+      {
+        "ref": "forvaltningsloven § 2",
+        "funksjon": "forutsatt_kilde"
+      }
+    ]
+  },
+  {
+    "id": "f4",
+    "dom": "holder",
+    "gjelder": "raden",
+    "alvor": null,
+    "innvending": "«Klagenemnda» er løst tekstlig via overskriften til kapittel 3 (Klagenemnd for godkjenning av utenlandsk utdanning og yrkesgodkjenning), og § 1 første ledd nr. 2 sier at nemnda finnes. K klage med objekt holder. Førsteinstansen er ikke nevnt i leddet, så til = null er riktig.",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "FOR-2025-07-02-1462 § 6 første ledd",
+        "funksjon": "direkte_hjemmel"
+      },
+      {
+        "ref": "FOR-2025-07-02-1462 § 1 første ledd nr. 2 og kap. 3",
+        "funksjon": "forutsatt_kilde"
+      }
+    ]
+  },
+  {
+    "id": "f5",
+    "dom": "holder",
+    "gjelder": "raden",
+    "alvor": null,
+    "innvending": "Holder som f4. Se likevel f17: FOR-2008-09-12-1071 § 11 tredje ledd sier at HK-dirs vedtak etter den forskriften kan påklages til Kunnskapsdepartementet. Forholdet mellom de to klageordningene bør kontrolleres; det svekker ikke denne raden.",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "FOR-2025-07-02-1462 § 6 andre ledd",
+        "funksjon": "direkte_hjemmel"
+      },
+      {
+        "ref": "barnehageloven § 24 fjerde ledd",
+        "funksjon": "forutsatt_kilde"
+      }
+    ]
+  },
+  {
+    "id": "f6",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "lav",
+    "innvending": "«oppnevnes» skal gi undertype oppnevning (#352). Objektet «Klagenemnda» gjentar bare til-noden. «departementet» via Lovdatas felt er eneste kilde for en forskrift (§5.10) og får støtte av tittelen («på Kunnskapsdepartementets område»). Utenfor raden: «Departementet utpeker leder og nestleder» (§ 7 andre ledd nr. 1) er en egen oppnevningskompetanse med undertype utpeking. Den står på punktnivå og vises ikke i lista over det som ikke ble lastet.",
+    "retting": {
+      "undertype": "oppnevning",
+      "objekt": null
+    },
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "FOR-2025-07-02-1462 § 7 første ledd",
+        "funksjon": "direkte_hjemmel"
+      },
+      {
+        "ref": "FOR-2025-07-02-1462 § 7 andre ledd nr. 1",
+        "funksjon": "forutsatt_kilde"
+      }
+    ]
+  },
+  {
+    "id": "f7",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "middels",
+    "innvending": "«sentralitetsindeksen som utarbeides av Statistisk sentralbyrå» er en identifiserende beskrivelse i en definisjon av sentralitetssone. Den legger ingen oppgave til SSB (begrepsmanualen §F: en identifiserende beskrivelse tildeler ingenting og gir ingen F). modalitet «skal» er en slutning fra en beskrivende relativsetning. Raden bør avvises.",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "FOR-2026-03-23-454 (finansieringsforskriften) § 7 andre ledd",
+        "funksjon": "direkte_hjemmel"
+      },
+      {
+        "ref": "docs/profil/02-begrepsmanual.md §F (grenser: F forvaltning)",
+        "funksjon": "forutsatt_kilde"
+      }
+    ]
+  },
+  {
+    "id": "f8",
+    "dom": "holder",
+    "gjelder": "raden",
+    "alvor": null,
+    "innvending": "«legge til rette for at …» er innsats, ikke resultatansvar. Inntil typen er avgjort (begrepsmanualen §F, åpent spørsmål 1), skal det føres som sorge_for med objektet ordrett, og det er gjort. De private barnehagene er begunstigede, så til = null er riktig. Første punktum («kan holde utgifter … utenfor») er en beregningsadgang og hører til regellaget. Kunnskapsstatus: se p3.",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "FOR-2026-03-23-454 (finansieringsforskriften) § 8 første ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "f9",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "lav",
+    "innvending": "Leddet sier selv «Kommunens plikt til å dekke barnehagens pensjonsutgifter», så P betaling med til = null holder. De private barnehagene er begunstigede, og til = null følger presedensen for begunstigede i #353. Avgrensningen er kuttet («av gjennomsnittlig pensjonsgivende lønn i barnehagen de tre siste årene»). Vilkårene for plikten står i første ledd og mangler: etter søknad, og mer enn 5 prosent høyere pensjonsutgifter enn dekningen etter § 19b over de tre siste årene. Forskriften gjelder fra tilskuddsåret 2027 (§ 25).",
+    "retting": {
+      "avgrensning": "etter søknad, når pensjonsutgiftene de tre siste årene er mer enn 5 prosent høyere enn dekningen etter barnehageloven § 19b første ledd (§ 15 første ledd); dekker det som overstiger 5 prosent, oppad begrenset til 16 prosent av gjennomsnittlig pensjonsgivende lønn i barnehagen de tre siste årene (§ 15 tredje ledd); fra tilskuddsåret 2027"
+    },
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "FOR-2026-03-23-454 (finansieringsforskriften) § 15 tredje ledd",
+        "funksjon": "direkte_hjemmel"
+      },
+      {
+        "ref": "FOR-2026-03-23-454 (finansieringsforskriften) § 15 første ledd",
+        "funksjon": "direkte_hjemmel"
+      },
+      {
+        "ref": "FOR-2026-03-23-454 (finansieringsforskriften) § 25 første ledd",
+        "funksjon": "forutsatt_kilde"
+      }
+    ]
+  },
+  {
+    "id": "f10",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "middels",
+    "innvending": "«Kommunen beregner tilskudd … ut fra hvor mange barn …» er en beregningsregel (regellaget, L16), ikke et arbeidsfelt eller en forvaltningsoppgave i F-forstand. Det strukturelle innholdet er kommunens vedtakskompetanse om tilskudd («Kommunen skal fatte enkeltvedtak om tilskudd», § 3 første ledd). Den ble ikke lastet fordi K ikke tar klasse som fra (p2). Raden bør avvises.",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "FOR-2026-03-23-454 (finansieringsforskriften) § 18 tredje ledd",
+        "funksjon": "direkte_hjemmel"
+      },
+      {
+        "ref": "FOR-2026-03-23-454 (finansieringsforskriften) § 3 første ledd",
+        "funksjon": "forutsatt_kilde"
+      }
+    ]
+  },
+  {
+    "id": "f11",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "hoy",
+    "innvending": "Noden ligger i «Veiledning til de enkelte bestemmelsene» og er departementets veiledning, ikke forskriftstekst (eId uten ELI). Innholdet er at Finansdepartementet anslår kommunal deflator i nasjonalbudsjettet. Det er et økonomisk anslag, ikke et enkeltvedtak og ingen rettslig kompetanse (17.4: forveksler kompetanse med faktisk handling; feil rettsgrunnlag). Raden bør avvises.",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "FOR-2026-03-23-454, kap. Veiledning til § 4 første ledd",
+        "funksjon": "forutsatt_kilde"
+      },
+      {
+        "ref": "FOR-2026-03-23-454 (finansieringsforskriften) § 4",
+        "funksjon": "forutsatt_kilde"
+      }
+    ]
+  },
+  {
+    "id": "f12",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "hoy",
+    "innvending": "Samme som f11, og verre: anslaget for kommunal deflator er gjort til normgivning med normform forskrift. Noden er veiledning, ikke forskriftstekst, og Finansdepartementet gir ingen forskrift om deflatoren. Raden bør avvises.",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "FOR-2026-03-23-454, kap. Veiledning til § 15 tiende ledd",
+        "funksjon": "forutsatt_kilde"
+      }
+    ]
+  },
+  {
+    "id": "f13",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "lav",
+    "innvending": "K beslutning for Stortinget kan stå, men forskriften (fastsatt ved kgl.res.) hjemler ikke Stortingets kompetanse. Den forutsetter at maksimalgrensen fastsettes i budsjettvedtaket. Hjemmelen er Stortingets bevilgningsmyndighet etter Grunnloven § 75 [slutning], og kanten bør vise at forskriften er forutsatt kilde. «årlige budsjettvedtak» bør stå i avgrensning. Samme form i § 3c («inntektsgrensen fastsatt av Stortinget») er ikke lastet.",
+    "retting": {
+      "avgrensning": "i Stortingets årlige budsjettvedtak; forskriften forutsetter Stortingets kompetanse (Grl. § 75) og hjemler den ikke"
+    },
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "FOR-2005-12-16-1478 § 1 andre ledd",
+        "funksjon": "forutsatt_kilde"
+      },
+      {
+        "ref": "Grunnloven § 75 (i korpus)",
+        "funksjon": "forutsatt_kilde"
+      }
+    ]
+  },
+  {
+    "id": "f14",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "hoy",
+    "innvending": "«Kommunen skal innhente de opplysninger den trenger for å behandle søknader» er utredningsplikt i saksbehandlingen (jf. fvl. § 17), og den hører til regellaget. Opplysningene kommer fra søkeren, som er en privat part. P informasjon betyr at fra skylder opplysninger. Raden snur dermed retningen og gjør kommunen til den som skylder informasjon (17.4: plasserer plikten på feil aktør). Raden bør avvises. Det strukturelle i § 3e, kommunens adgang til grunnlag fra skattemyndighetene uten hinder av taushetsplikt i andre ledd, er en annen rad og hører til regellaget.",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "FOR-2005-12-16-1478 § 3e første ledd",
+        "funksjon": "direkte_hjemmel"
+      },
+      {
+        "ref": "forvaltningsloven § 17",
+        "funksjon": "forutsatt_kilde"
+      }
+    ]
+  },
+  {
+    "id": "f15",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "hoy",
+    "innvending": "Som f14: kommunen skal be søkeren levere skattemelding. Det er et saksbehandlingsskritt overfor en privat part, ikke en plikt for kommunen til å gi informasjon. Retningen er snudd. Raden bør avvises.",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "FOR-2005-12-16-1478 § 3e fjerde ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "f16",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "middels",
+    "innvending": "«For 2006 fastsettes maksimalgrensen av Kongen i Statsråd» er en overgangsregel som er uttømt. Avgrensningen «for 2006» mangler, så kanten ser gjeldende ut (17.4: mister vilkår). Å fastsette en maksimalgrense for alle barnehager er generelt og ikke et enkeltvedtak (fvl. § 2). Uten fvl. § 2 hører det til familien beslutning.",
+    "retting": {
+      "type": "beslutning",
+      "avgrensning": "bare for 2006 (overgangsregel, uttømt)"
+    },
+    "ny_rad": null,
+    "implementeringsstatus": "bygget",
+    "kilder": [
+      {
+        "ref": "FOR-2005-12-16-1478 § 6 første ledd tredje punktum",
+        "funksjon": "direkte_hjemmel"
+      },
+      {
+        "ref": "forvaltningsloven § 2",
+        "funksjon": "forutsatt_kilde"
+      }
+    ]
+  },
+  {
+    "id": "f17",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "middels",
+    "innvending": "K klage skal ha motparten som til (#341). Leddet navngir den: «Direktoratet for høyere utdanning og kompetanses vedtak». til = null mister motparten, og objekt mangler. Kontroller i tillegg: FOR-2025-07-02-1462 § 6 andre ledd legger klager over enkeltvedtak om godkjenning av utenlandske yrkeskvalifikasjoner som styrer og pedagogisk leder (barnehageloven §§ 24 og 25) til Klagenemnd for godkjenning av utenlandsk utdanning og yrkesgodkjenning. FOR-2008-09-12-1071 er sist konsolidert 2023-01-01 og har fortsatt departementet som klageinstans. Det må avklares om § 11 tredje ledd er fortrengt (lex posterior) eller gjelder en annen gruppe søkere, ellers kan raden vise en klageinstans som ikke lenger gjelder.",
+    "retting": {
+      "til": "Direktoratet for høyere utdanning og kompetanse",
+      "til_art": "aktør",
+      "objekt": "vedtak eller mangel på vedtak etter forskriften (godkjenning av yrkeskvalifikasjoner som styrer og pedagogisk leder)"
+    },
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "FOR-2008-09-12-1071 § 11 tredje ledd",
+        "funksjon": "direkte_hjemmel"
+      },
+      {
+        "ref": "FOR-2025-07-02-1462 § 6 andre ledd",
+        "funksjon": "forutsatt_kilde"
+      }
+    ]
+  },
+  {
+    "id": "f18",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "middels",
+    "innvending": "«skal fullføre pågående tilsyn» er ikke F kontroll («påse at»). Overgangsforskriften viderefører kommunens og statsforvalterens tilsynskompetanse i saker etter kap. V, med innsyn (§ 3), pålegg, stenging og økonomiske reaksjoner (§ 4) og klage (§ 5). Det er K tilsyn (begrepsmanualen §F: «påse» er F, tilsyn med reaksjon er K). Vilkåret «dersom varsel om vedtak er utsendt før 1. januar 2022» og saksområdet i § 1 står bare i sitatet, ikke i avgrensning, og overgangsregelen er i praksis uttømt. L13 er ivaretatt (statsforvalteren er f19). Merk: K med klassen kommune som fra avvises i dag av skriveveien (p2), så rettingen forutsetter at p2 avgjøres.",
+    "retting": {
+      "kategori": "K",
+      "type": "tilsyn",
+      "modalitet": null,
+      "objekt": "pågående tilsyn med private barnehager etter barnehageloven kap. V",
+      "avgrensning": "bare tilsyn etter § 1 der varsel om vedtak er sendt før 1. januar 2022; overgangsregel (FOR-2021-10-06-3079 §§ 1–2)"
+    },
+    "ny_rad": null,
+    "implementeringsstatus": "bygget",
+    "kilder": [
+      {
+        "ref": "FOR-2021-10-06-3079 § 2 første ledd",
+        "funksjon": "direkte_hjemmel"
+      },
+      {
+        "ref": "FOR-2021-10-06-3079 §§ 1, 3–5",
+        "funksjon": "forutsatt_kilde"
+      },
+      {
+        "ref": "barnehageloven § 57 fjerde ledd",
+        "funksjon": "forutsatt_kilde"
+      }
+    ]
+  },
+  {
+    "id": "f19",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "middels",
+    "innvending": "Samme som f18, for statsforvalteren. Statsforvalteren som klasse er heller ikke lov som fra i K (p2). Klassen har i tillegg en hjemmel som ikke er grunnlaget for den (reindriftsloven § 62, #402), og det premisset er svakt (p3).",
+    "retting": {
+      "kategori": "K",
+      "type": "tilsyn",
+      "modalitet": null,
+      "objekt": "pågående tilsyn med private barnehager etter barnehageloven kap. V",
+      "avgrensning": "bare tilsyn etter § 1 der varsel om vedtak er sendt før 1. januar 2022; overgangsregel (FOR-2021-10-06-3079 §§ 1–2)"
+    },
+    "ny_rad": null,
+    "implementeringsstatus": "bygget",
+    "kilder": [
+      {
+        "ref": "FOR-2021-10-06-3079 § 2 første ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "f20",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "lav",
+    "innvending": "P informasjon kommune → statsforvalter for et stengingsvedtak som sendes til orientering, holder som type. Det er orientering, ikke oversending til behandling. Setningen er passiv («skal sendes»). At kommunen er avsender, sluttes fra genitiven «Kommunens stengingsvedtak» og bør merkes som fortolkning, ikke stå som tekstfunn. Avgrensningen mangler at regelen bare gjelder tilsyn etter overgangsforskriften (§ 1). Utenfor raden, men vesentlig: pålegg, stenging (§ 4 første ledd) og økonomiske reaksjoner (andre til fjerde ledd) for kommunen og statsforvalteren er ikke lastet. Det skyldes at K ikke tar klasse som fra (p2).",
+    "retting": {
+      "avgrensning": "stengingsvedtak etter § 4 første ledd i tilsyn som omfattes av § 1 (overgangsregel)",
+      "kunnskapsstatus": "fortolkning"
+    },
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "FOR-2021-10-06-3079 § 4 første ledd tredje punktum",
+        "funksjon": "direkte_hjemmel"
+      },
+      {
+        "ref": "FOR-2021-10-06-3079 § 1",
+        "funksjon": "forutsatt_kilde"
+      }
+    ]
+  },
+  {
+    "id": "f21",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "middels",
+    "innvending": "normform forskrift er KI-lagets egen slutning («kan anses som forskrift»). Leddet sier bare at rapporteringen skal skje på et standardisert skjema som departementet fastsetter. Det er ikke vist at skjemaet er en forskrift (fvl. § 2 c, kunngjøring). Det sikre er en beslutning om rapporteringsformen. Fristen «fastsatt av departementet» i første punktum er en tilsvarende fastsetting.",
+    "retting": {
+      "type": "beslutning",
+      "normform": null,
+      "objekt": "standardisert skjema og frist for barnehagenes rapportering",
+      "kunnskapsstatus": "fortolkning"
+    },
+    "ny_rad": null,
+    "implementeringsstatus": "bygget",
+    "kilder": [
+      {
+        "ref": "FOR-2022-12-16-2322 § 8 første ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "f22",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "middels",
+    "innvending": "«Kommunen skal sørge for at saken er så godt opplyst som mulig før det fattes vedtak» er utredningsplikten i saksbehandlingen (jf. fvl. § 17). Den hører til regellaget og er ikke F sorge_for. Begrepsmanualen §F sier at «sørge for at» ikke avgjør typen alene, og saksbehandling er moteksempel. Raden bør avvises. Merk også at FOR-2015-10-09-1166 oppheves 31. desember 2026 (finansieringsforskriften § 25 første ledd); raden trenger gyldighet til den datoen.",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "FOR-2015-10-09-1166 (tildelingsforskriften) § 2 første ledd",
+        "funksjon": "direkte_hjemmel"
+      },
+      {
+        "ref": "forvaltningsloven § 17",
+        "funksjon": "forutsatt_kilde"
+      }
+    ]
+  },
+  {
+    "id": "f23",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "middels",
+    "innvending": "Begrunnelsesplikten (jf. fvl. §§ 24–25) er en saksbehandlingsregel, ikke en forvaltningsoppgave. Raden bør avvises.",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "FOR-2015-10-09-1166 (tildelingsforskriften) § 2 andre ledd",
+        "funksjon": "direkte_hjemmel"
+      },
+      {
+        "ref": "forvaltningsloven §§ 24–25",
+        "funksjon": "forutsatt_kilde"
+      }
+    ]
+  },
+  {
+    "id": "f24",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "middels",
+    "innvending": "«Kommunen skal beregne satsene … i samsvar med forholdstall …» er en beregningsregel (regellaget). F forvaltning gjelder ansvar for et regelverk, en ordning eller et apparat, ikke et beregningsskritt. KI-laget gjør gjennomgående «Kommunen skal + verb» til F forvaltning (f10, f23–f28, f71). Raden bør avvises. Merk også at FOR-2015-10-09-1166 oppheves 31. desember 2026 (finansieringsforskriften § 25 første ledd); raden trenger gyldighet til den datoen.",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "FOR-2015-10-09-1166 (tildelingsforskriften) § 3 tredje ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "f25",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "middels",
+    "innvending": "Samme som f7: en identifiserende beskrivelse («som utarbeides av Statistisk sentralbyrå (oppdatert juni 2023)») gir ingen F. Raden bør avvises.",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "FOR-2015-10-09-1166 (tildelingsforskriften) § 3 sjette ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "f26",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "middels",
+    "innvending": "«skal legge til grunn barnehagens pensjonsutgifter som fremgår av regnskapet» er en beregnings- og bevisregel (regellaget), ikke en oppgave. Raden bør avvises. Merk også at FOR-2015-10-09-1166 oppheves 31. desember 2026 (finansieringsforskriften § 25 første ledd); raden trenger gyldighet til den datoen.",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "FOR-2015-10-09-1166 (tildelingsforskriften) § 4a andre ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "f27",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "middels",
+    "innvending": "Indeksregulering er et beregningsskritt (regellaget), ikke F forvaltning. Raden bør avvises.",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "FOR-2015-10-09-1166 (tildelingsforskriften) § 4a fjerde ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "f28",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "middels",
+    "innvending": "«Kommunen skal gjøre fratrekk etter § 11 første ledd» er et beregningsskritt i refusjonskravet (regellaget). Det strukturelle utsagnet om refusjon mellom kommuner står i § 15 første ledd (se f31). Raden bør avvises.",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "FOR-2015-10-09-1166 (tildelingsforskriften) § 15 andre ledd",
+        "funksjon": "direkte_hjemmel"
+      },
+      {
+        "ref": "FOR-2015-10-09-1166 (tildelingsforskriften) § 15 første ledd",
+        "funksjon": "forutsatt_kilde"
+      }
+    ]
+  },
+  {
+    "id": "f29",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "hoy",
+    "innvending": "Noden ligger i «Merknader til de enkelte bestemmelsene» og er departementets kommentar, ikke forskriftstekst (relativ eId uten ELI). Satsene den beskriver, står i selve forskriften (§ 7 femte til sjuende ledd, tabeller) og fastsettes ved forskriftsendring. Det er normgivning, ikke enkeltvedtak, og hjemmelen er forskriftsendringen (jf. f1/f2), ikke merknaden. Raden har feil rettsgrunnlag og feil type og bør avvises.",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "FOR-2015-10-09-1166, Merknader til § 7 femte ledd",
+        "funksjon": "forutsatt_kilde"
+      },
+      {
+        "ref": "FOR-2015-10-09-1166 (tildelingsforskriften) § 7 femte ledd",
+        "funksjon": "forutsatt_kilde"
+      }
+    ]
+  },
+  {
+    "id": "f30",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "hoy",
+    "innvending": "Som f29: merknad, ikke forskriftstekst. «satser … fastsatt av departementet» beskriver tabellene i forskriften. Normform forskrift kan være riktig for selve satsfastsettingen, men hjemmelen kan ikke være merknaden. Raden bør avvises.",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "FOR-2015-10-09-1166, Merknader til § 15 andre ledd",
+        "funksjon": "forutsatt_kilde"
+      }
+    ]
+  },
+  {
+    "id": "f31",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "hoy",
+    "innvending": "Merknad, ikke forskriftstekst. Sitatet er dessuten en beregningsregel («bruke satser … i beregningen»), ikke en betalingsplikt, og til = null mister motparten. Betalingsforholdet står i forskriftsteksten, § 15 første ledd: kommunen der barnehagen ligger, «har rett til refusjon … fra kommunen der barnet er folkeregistrert». Det er et P betaling-forhold mellom to offentlige rettssubjekter, altså struktur. At bostedskommunen har plikt, er en korrelasjonsslutning fra rettigheten og skal merkes som fortolkning. Samme regel står i finansieringsforskriften § 23 første ledd fra 2027. Raden bør avvises og erstattes av ny rad.",
+    "retting": null,
+    "ny_rad": {
+      "kategori": "P",
+      "type": "betaling",
+      "fra": "kommune",
+      "fra_art": "klasse",
+      "til": "kommune",
+      "til_art": "klasse",
+      "objekt": "refusjon for barnehageplassen",
+      "modalitet": "skal",
+      "polaritet": "positiv",
+      "avgrensning": "fra = kommunen der barnet er folkeregistrert, til = kommunen med den private barnehagen; tildelingsforskriften § 15 første ledd (til 31.12.2026), finansieringsforskriften § 23 første ledd (fra tilskuddsåret 2027)",
+      "kunnskapsstatus": "fortolkning",
+      "eid": "https://lovdata.no/eli/forskrift/2015/10/09/1166/nor/§15/ledd-1"
+    },
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "FOR-2015-10-09-1166 (tildelingsforskriften) § 15 første ledd",
+        "funksjon": "direkte_hjemmel"
+      },
+      {
+        "ref": "FOR-2026-03-23-454 (finansieringsforskriften) § 23 første ledd",
+        "funksjon": "direkte_hjemmel"
+      },
+      {
+        "ref": "FOR-2015-10-09-1166, Merknader til § 15",
+        "funksjon": "forutsatt_kilde"
+      }
+    ]
+  },
+  {
+    "id": "f32",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "hoy",
+    "innvending": "Duplikat av f31 i en annen merknadsnode (rom-andre-ledd). Feil rettsgrunnlag og samme beregningsregel. Raden bør avvises; se ny rad på f31.",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "FOR-2015-10-09-1166, Merknader til § 15 andre ledd",
+        "funksjon": "forutsatt_kilde"
+      }
+    ]
+  },
+  {
+    "id": "f33",
+    "dom": "holder",
+    "gjelder": "raden",
+    "alvor": null,
+    "innvending": "Forskriftshjemmel i loven: K normgivning, normform forskrift, objektet ordrett. Holder. «fastsetter … ved forskrift» er normativ presens: departementet skal gi rammeplanen (FOR-2017-04-24-487). Kunnskapsstatus: se p3 (aktøren er løst med standardregelen).",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 2 sjuende ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "f34",
+    "dom": "innvending",
+    "gjelder": "utenfor_raden",
+    "alvor": "lav",
+    "innvending": "F samordning for kommunen holder (begrepsmanualen §F: «skal samordne» uten bindende virkning). Det samme leddet har to ting til. (1) «Dersom det er oppnevnt barnekoordinator etter helse- og omsorgstjenesteloven § 7-2 a, skal koordinatoren sørge for samordning». Det er en egen F samordning for rollen barnekoordinator, og den er verken lastet eller listet. Kommunens rad bør få avgrensning for dette tilfellet (17.4: mister unntak). (2) «Ved behov skal kommunen bestemme hvilken kommunal tjenesteyter som skal ivareta samordningen» er intern organisering i samme rettssubjekt og gir ingen K overfor andre. Normalisering kan stå for typen, men leddet har et organiseringssignal, så fortolkning er mer presist.",
+    "retting": null,
+    "ny_rad": {
+      "kategori": "F",
+      "type": "samordning",
+      "fra": "barnekoordinator",
+      "fra_art": "rolle",
+      "objekt": "samordning av tjenestetilbudet etter § 2 b første ledd",
+      "modalitet": "skal",
+      "polaritet": "positiv",
+      "avgrensning": "når barnekoordinator er oppnevnt etter helse- og omsorgstjenesteloven § 7-2 a; da ivaretar koordinatoren kommunens samordning",
+      "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§2b/ledd-2"
+    },
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 2 b andre ledd",
+        "funksjon": "direkte_hjemmel"
+      },
+      {
+        "ref": "helse- og omsorgstjenesteloven § 7-2 a",
+        "funksjon": "forutsatt_kilde"
+      }
+    ]
+  },
+  {
+    "id": "f35",
+    "dom": "holder",
+    "gjelder": "raden",
+    "alvor": null,
+    "innvending": "Forskriftshjemmel i loven: K normgivning, normform forskrift, objektet ordrett. Holder. «i særlige tilfeller» står i objektet og bør helst stå i avgrensning, men det har ingen betydning for innholdet. Kunnskapsstatus: se p3 (aktøren er løst med standardregelen).",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 7 a fjerde ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "f36",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "lav",
+    "innvending": "F veiledning holder, og §10 er lærebokeksempelet i begrepsmanualen. Men (1) objektet tar med «og påse at …», som er f37. (2) Unntaket «med unntak av bestemmelsene i kapittel V med forskrifter» står i objektet og ikke i avgrensning. Det må stå i avgrensning for å kunne søkes og brukes (17.4: unntak; jf. b1_1). Utenfor raden: første punktum «Kommunen er lokal barnehagemyndighet» er en rolletildeling (I innehar). Den er verken lastet eller listet. Loven skiller selv rollen barnehagemyndighet fra rollen eier (§ 11), så rollen har selvstendig betydning (se p1 og p2).",
+    "retting": {
+      "objekt": "veiledning om at barnehagene drives i samsvar med loven med forskrifter",
+      "avgrensning": "unntatt barnehageloven kapittel V med forskrifter (der veileder Utdanningsdirektoratet, § 13 andre ledd)"
+    },
+    "ny_rad": {
+      "kategori": "I",
+      "type": "innehar",
+      "fra": "kommune",
+      "fra_art": "klasse",
+      "til": "lokal barnehagemyndighet",
+      "til_art": "rolle",
+      "polaritet": "positiv",
+      "kunnskapsstatus": "tekstfunn",
+      "sitat": "Kommunen er lokal barnehagemyndighet.",
+      "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§10/ledd-1"
+    },
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 10 første ledd",
+        "funksjon": "direkte_hjemmel"
+      },
+      {
+        "ref": "barnehageloven § 11",
+        "funksjon": "forutsatt_kilde"
+      },
+      {
+        "ref": "barnehageloven § 13 andre ledd",
+        "funksjon": "forutsatt_kilde"
+      }
+    ]
+  },
+  {
+    "id": "f37",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "lav",
+    "innvending": "F kontroll for «påse at» er riktig (begrepsmanualen: §10 er oppgaven, §53 er K tilsyn). Unntaket for kapittel V står i objektet, ikke i avgrensning.",
+    "retting": {
+      "objekt": "påse at barnehagene drives i samsvar med loven med forskrifter",
+      "avgrensning": "unntatt barnehageloven kapittel V med forskrifter"
+    },
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 10 første ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "f38",
+    "dom": "innvending",
+    "gjelder": "utenfor_raden",
+    "alvor": "lav",
+    "innvending": "Normgivningsraden holder. Første punktum i samme ledd er verken lastet eller listet: «Hver kommune skal opprette og føre register til bruk for Arbeids- og velferdsetaten». Det er F oversikt med distributiv lesning («Hver kommune»), og registeret skal brukes av NAV. Om det også er P informasjon overfor NAV, avhenger av forskriften (FOR-2005-12-16-1510) og bør vurderes der. Til da: F med til = Arbeids- og velferdsetaten som den oppgaven gjelder.",
+    "retting": null,
+    "ny_rad": {
+      "kategori": "F",
+      "type": "oversikt",
+      "fra": "kommune",
+      "fra_art": "klasse",
+      "til": "Arbeids- og velferdsetaten",
+      "til_art": "aktør",
+      "objekt": "register til bruk for Arbeids- og velferdsetaten ved kontroll av beregning og utbetaling av kontantstøtte",
+      "modalitet": "skal",
+      "polaritet": "positiv",
+      "kunnskapsstatus": "fortolkning",
+      "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§10/ledd-4"
+    },
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 10 fjerde ledd",
+        "funksjon": "direkte_hjemmel"
+      },
+      {
+        "ref": "barnehageloven § 49",
+        "funksjon": "forutsatt_kilde"
+      }
+    ]
+  },
+  {
+    "id": "f39",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "lav",
+    "innvending": "F veiledning holder. Unntaket for kapittel V står i objektet og ikke i avgrensning, som i f36. Det er også det unntaket som gir mening til § 13 andre ledd (Utdanningsdirektoratet veileder om kap. V). Den raden er ikke blant de lastede forslagene, og det bør kontrolleres om den ble funnet. Statsforvalteren som klasse har et svakt premiss (#402, p3).",
+    "retting": {
+      "objekt": "veiledning til kommuner, fylkeskommuner og barnehager om loven med forskrifter",
+      "avgrensning": "unntatt barnehageloven kapittel V med forskrifter (Utdanningsdirektoratet, § 13 andre ledd)"
+    },
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 13 første ledd",
+        "funksjon": "direkte_hjemmel"
+      },
+      {
+        "ref": "barnehageloven § 13 andre ledd",
+        "funksjon": "forutsatt_kilde"
+      }
+    ]
+  },
+  {
+    "id": "f40",
+    "dom": "holder",
+    "gjelder": "raden",
+    "alvor": null,
+    "innvending": "Forskriftshjemmel i loven: K normgivning, normform forskrift, objektet ordrett. Holder. Samme hjemmel står også i § 15 tredje ledd (f43). Det er to hjemmelssteder for samme kompetanse, ikke en feil i raden. Kunnskapsstatus: se p3 (aktøren er løst med standardregelen).",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 14 fjerde ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "f41",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "lav",
+    "innvending": "Typen holder. Objektet er kuttet ved om lag 200 tegn («… fordrevne barn under»), og dermed er avgrensningen «under opplæringspliktig alder fra Ukraina» borte. Avgrensningen er det som gjør hjemmelen midlertidig og snever (17.4: mister vilkår). Mønsterlaget kutter objektet også i f56, f59 og f64.",
+    "retting": {
+      "objekt": "forskrift om midlertidig godkjenning ved etablering av barnehager og barnehageplasser",
+      "avgrensning": "som opprettes for å dekke et midlertidig behov som følge av at det kommer svært mange fordrevne barn under opplæringspliktig alder fra Ukraina"
+    },
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 14 b første ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "f42",
+    "dom": "holder",
+    "gjelder": "raden",
+    "alvor": null,
+    "innvending": "Forskriftshjemmel i loven: K normgivning, normform forskrift, objektet ordrett. Holder. Kunnskapsstatus: se p3 (aktøren er løst med standardregelen).",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 14 b andre ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "f43",
+    "dom": "holder",
+    "gjelder": "raden",
+    "alvor": null,
+    "innvending": "Forskriftshjemmel i loven: K normgivning, normform forskrift, objektet ordrett. Holder. Kunnskapsstatus: se p3 (aktøren er løst med standardregelen).",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 15 tredje ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "f44",
+    "dom": "holder",
+    "gjelder": "raden",
+    "alvor": null,
+    "innvending": "Forskriftshjemmel i loven: K normgivning, normform forskrift, objektet ordrett. Holder. Første punktum (fvl. kap. IV–VI gjelder ikke for opptak) er en saksbehandlingsregel og hører til regellaget. Kunnskapsstatus: se p3 (aktøren er løst med standardregelen).",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 17 andre ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "f45",
+    "dom": "holder",
+    "gjelder": "raden",
+    "alvor": null,
+    "innvending": "Forskriftshjemmel i loven: K normgivning, normform forskrift, objektet ordrett. Holder. Kunnskapsstatus: se p3 (aktøren er løst med standardregelen).",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 19 fjerde ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "f46",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "lav",
+    "innvending": "Andre punktum, «Forskrift etter første punktum kan gjøre unntak fra reglene i første og andre ledd», gir forskriften adgang til å fravike loven. Det er en vesentlig utvidelse av hjemmelen, og den står verken i objekt eller avgrensning.",
+    "retting": {
+      "avgrensning": "forskriften kan gjøre unntak fra § 19 a første og andre ledd"
+    },
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 19 a åttende ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "f47",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "lav",
+    "innvending": "«Departementet skal gi forskrift» er en plikt til å gi forskrift. K har ingen modalitet (#355), og plikten forsvinner i kanten. Formatmangel: inntil feltet finnes, bør plikten stå i avgrensning. Første punktum (private barnehager med historiske OTP-forpliktelser «skal få dekket») er en rettighet for private og hører til regellaget.",
+    "retting": {
+      "avgrensning": "pålagt: departementet skal gi forskriften (lovens «skal»)"
+    },
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 19 b tredje ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "f48",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "lav",
+    "innvending": "Som f46: «Forskrift gitt etter første punktum kan gjøre unntak fra reglene i første og andre ledd» mangler.",
+    "retting": {
+      "avgrensning": "forskriften kan gjøre unntak fra § 19 b første og andre ledd"
+    },
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 19 b femte ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "f49",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "lav",
+    "innvending": "Som f47: «Departementet skal gi forskrift» er pålagt normgivning, og «skal» forsvinner. Første punktum, «Kommunen skal gi eiendomstilskudd til private barnehager …», er P betaling (kommune → null). Den er verken lastet eller listet og bør kontrolleres.",
+    "retting": {
+      "avgrensning": "pålagt: departementet skal gi forskriften (lovens «skal»)"
+    },
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 19 c første ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "f50",
+    "dom": "holder",
+    "gjelder": "raden",
+    "alvor": null,
+    "innvending": "Departementets forskriftshjemmel holder. Andre punktum, kommunens kompetanse til å gi forskrift om lavere foreldrebetaling, er avvist av skriveveien fordi K ikke tar klasse som fra. Det er p2 og ikke en feil i denne raden. Kunnskapsstatus: se p3 (aktøren er løst med standardregelen).",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 20 første ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "f51",
+    "dom": "holder",
+    "gjelder": "raden",
+    "alvor": null,
+    "innvending": "Forskriftshjemmel i loven: K normgivning, normform forskrift, objektet ordrett. Holder. Kunnskapsstatus: se p3 (aktøren er løst med standardregelen).",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 23 sjette ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "f52",
+    "dom": "holder",
+    "gjelder": "raden",
+    "alvor": null,
+    "innvending": "Forskriftshjemmel i loven: K normgivning, normform forskrift, objektet ordrett. Holder. Kunnskapsstatus: se p3 (aktøren er løst med standardregelen).",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 23 a andre ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "f53",
+    "dom": "holder",
+    "gjelder": "raden",
+    "alvor": null,
+    "innvending": "Forskriftshjemmel i loven: K normgivning, normform forskrift, objektet ordrett. Holder. Meldeplikten for barnehagen i første punktum er en plikt for private og hører til regellaget. Kunnskapsstatus: se p3 (aktøren er løst med standardregelen).",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 23 c første ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "f54",
+    "dom": "holder",
+    "gjelder": "raden",
+    "alvor": null,
+    "innvending": "Forskriftshjemmel i loven: K normgivning, normform forskrift, objektet ordrett. Holder. Kunnskapsstatus: se p3 (aktøren er løst med standardregelen).",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 24 tredje ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "f55",
+    "dom": "innvending",
+    "gjelder": "utenfor_raden",
+    "alvor": "lav",
+    "innvending": "K oppretting holder («kan opprette en klagenemnd»). Avgrensningen mangler hva nemnda skal gjøre: behandle klager på enkeltvedtak om godkjenning av yrkeskvalifikasjoner fra utlandet. Utenfor raden: siste del av setningen, «og kan gi forskrift om klagenemnda og saksbehandlingen i nemnda», er en egen normgivningskompetanse. Den er verken lastet eller listet. Nemnda som er opprettet, er trolig Klagenemnd for godkjenning av utenlandsk utdanning og yrkesgodkjenning i FOR-2025-07-02-1462 kap. 3 (f4–f6) [slutning].",
+    "retting": null,
+    "ny_rad": {
+      "kategori": "K",
+      "type": "normgivning",
+      "fra": "Kunnskapsdepartementet",
+      "fra_art": "aktør",
+      "objekt": "forskrift om klagenemnda og saksbehandlingen i nemnda",
+      "normform": "forskrift",
+      "polaritet": "positiv",
+      "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§24/ledd-4"
+    },
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 24 fjerde ledd",
+        "funksjon": "direkte_hjemmel"
+      },
+      {
+        "ref": "FOR-2025-07-02-1462 kap. 3",
+        "funksjon": "forutsatt_kilde"
+      }
+    ]
+  },
+  {
+    "id": "f56",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "lav",
+    "innvending": "Objektet er kuttet («… arbeider i barnehagen på»). Avgrensningen «på nattid» er borte, og uten den ser unntakshjemmelen generell ut (17.4: mister vilkår).",
+    "retting": {
+      "objekt": "forskrift om pedagogisk bemanning og dispensasjon, forskrift om godkjenning av yrkeskvalifikasjoner fra utlandet og forskrift om unntak fra utdanningskravet for personale som arbeider i barnehagen på nattid"
+    },
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 25 andre ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "f57",
+    "dom": "holder",
+    "gjelder": "raden",
+    "alvor": null,
+    "innvending": "Forskriftshjemmel i loven: K normgivning, normform forskrift, objektet ordrett. Holder. Kunnskapsstatus: se p3 (aktøren er løst med standardregelen).",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 28 fjerde ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "f58",
+    "dom": "holder",
+    "gjelder": "raden",
+    "alvor": null,
+    "innvending": "Forskriftshjemmel i loven: K normgivning, normform forskrift, objektet ordrett. Holder. Kunnskapsstatus: se p3 (aktøren er løst med standardregelen).",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 30 fjerde ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "f59",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "lav",
+    "innvending": "Objektet er kuttet midt i oppregningen. Fylkeskommunens ansvar for barn i barnevernsinstitusjon og helseinstitusjon er borte. Det er de delene av hjemmelen som flytter ansvar mellom forvaltningsnivåer.",
+    "retting": {
+      "objekt": "forskrift om ansvar for utgifter til spesialpedagogisk hjelp, hvem som skal regnes som bosatt i kommunen, refusjon av andre kommuners eller fylkeskommuners utgifter, og fylkeskommunens ansvar for retten til spesialpedagogisk hjelp for barn i barnevernsinstitusjon og i helseinstitusjon eid av eller med avtale med regionalt helseforetak"
+    },
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 31 sjette ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "f60",
+    "dom": "holder",
+    "gjelder": "raden",
+    "alvor": null,
+    "innvending": "Forskriftshjemmel i loven: K normgivning, normform forskrift, objektet ordrett. Holder. Kunnskapsstatus: se p3 (aktøren er løst med standardregelen).",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 33 tredje ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "f61",
+    "dom": "holder",
+    "gjelder": "raden",
+    "alvor": null,
+    "innvending": "Forskriftshjemmel i loven: K normgivning, normform forskrift, objektet ordrett. Holder. Kunnskapsstatus: se p3 (aktøren er løst med standardregelen).",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 34 tredje ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "f62",
+    "dom": "holder",
+    "gjelder": "raden",
+    "alvor": null,
+    "innvending": "Forskriftshjemmel i loven: K normgivning, normform forskrift, objektet ordrett. Holder. Kunnskapsstatus: se p3 (aktøren er løst med standardregelen).",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 38 sjuende ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "f63",
+    "dom": "holder",
+    "gjelder": "raden",
+    "alvor": null,
+    "innvending": "Forskriftshjemmel i loven: K normgivning, normform forskrift, objektet ordrett. Holder. Første punktum (offentlige myndigheter kan innhente fra Folkeregisteret) er en adgang til informasjon uten hinder av taushetsplikt og hører til regellaget. Kunnskapsstatus: se p3 (aktøren er løst med standardregelen).",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 47 første ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "f64",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "lav",
+    "innvending": "Typen holder. Objektet er kuttet («… hvem det kan»), og oppregningen (automatiserte avgjørelser, viderebehandling, utlevering og tilgang) er borte. Det er innholdsavgrensning, ikke vilkår, så alvoret er lavt.",
+    "retting": {
+      "objekt": "forskrift om behandling av personopplysninger etter § 47 a første og andre ledd (blant annet formål, behandlingsansvar, hvilke opplysninger, om hvem, automatiserte avgjørelser, viderebehandling, utlevering og tilgang)"
+    },
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 47 a tredje ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "f65",
+    "dom": "holder",
+    "gjelder": "raden",
+    "alvor": null,
+    "innvending": "Forskriftshjemmel i loven: K normgivning, normform forskrift, objektet ordrett. Holder. Rapporteringsplikten for barnehagene (første og andre punktum) er en plikt for private og hører til regellaget. Kunnskapsstatus: se p3 (aktøren er løst med standardregelen).",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 48 første ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "f66",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "hoy",
+    "innvending": "«Personopplysninger fra registeret kan ikke utleveres til andre enn Statistisk sentralbyrå» er et utleveringsforbud med SSB som eneste tillatte mottaker. Raden gjør SSB til fra-node for en negativ vedtakskompetanse. Det snur rollen: SSB er mottakeren som unntaket gjelder, ikke en aktør som er nektet noe (jf. #309 lærdom 4, negasjoner med komplement). Det finnes heller ingen vedtakskompetanse i leddet. Forbudet retter seg mot den som har registeret (departementet, § 48 a første ledd) og hører til regellaget som personvernregel. Raden bør avvises (17.4: antar at grammatisk subjekt er rettssubjekt; feil polaritet og subjekt).",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 48 a fjerde ledd",
+        "funksjon": "direkte_hjemmel"
+      },
+      {
+        "ref": "barnehageloven § 48 a første ledd",
+        "funksjon": "forutsatt_kilde"
+      }
+    ]
+  },
+  {
+    "id": "f67",
+    "dom": "innvending",
+    "gjelder": "utenfor_raden",
+    "alvor": "lav",
+    "innvending": "Raden holder for første punktum. Andre punktum, «Departementet kan videre gi forskrift om behandlingen av personopplysninger …», er en egen forskriftshjemmel som verken er lastet eller listet. Kontroller om den ble funnet og slått sammen. Lasterens idempotensnøkkel (docs/33 §5.3: hjemmel + eId + kategori + type + fra + til + undertype + normform) har ikke objekt, så to normgivningskanter fra samme aktør i samme ledd blir én. Tabellnøkkelen i §4.3 har objekt med. Det kan også gjelde andre ledd med to forskriftshjemler. Utenfor raden: § 48 a første ledd, «Departementet kan etablere et register», er opprettingskompetanse og er ikke blant forslagene.",
+    "retting": null,
+    "ny_rad": {
+      "kategori": "K",
+      "type": "normgivning",
+      "fra": "Kunnskapsdepartementet",
+      "fra_art": "aktør",
+      "objekt": "forskrift om behandlingen av personopplysninger i registeret (behandlingsansvar, hvilke opplysninger og om hvem, tilgang, viderebehandling og utlevering)",
+      "normform": "forskrift",
+      "polaritet": "positiv",
+      "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§48a/ledd-5"
+    },
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 48 a femte ledd",
+        "funksjon": "direkte_hjemmel"
+      },
+      {
+        "ref": "docs/33 §5.3 og §4.3 (idempotens)",
+        "funksjon": "forutsatt_kilde"
+      }
+    ]
+  },
+  {
+    "id": "f68",
+    "dom": "holder",
+    "gjelder": "raden",
+    "alvor": null,
+    "innvending": "«Kongen kan gi forskrift om lovens anvendelse på Svalbard» holder. Det er normgivning, og «særlige regler under hensyn til de stedlige forhold» er en del av samme hjemmel. «Kongen» uten «i statsråd» gir trolig_delegerbar som slutning (#367 D5). Det står ikke i `foreslatt`, men fra = Kongen i statsråd er riktig etter #335. Hjemmelen er brukt i FOR-2022-06-17-1219 (Longyearbyen, f3).",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 52 første ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "f69",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "lav",
+    "innvending": "K beslutning for ikrafttredelse holder som type, men kompetansen er brukt og uttømt (loven trådte i kraft 1. januar 2006). Uten avgrensning ser den gjeldende ut.",
+    "retting": {
+      "avgrensning": "uttømt: loven trådte i kraft 1. januar 2006"
+    },
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 57 første ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "f70",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "lav",
+    "innvending": "Andre punktum utvider hjemmelen: «Det kan også gis bestemmelser som viderefører bestemmelser i loven her om tilsyn, veiledning og reaksjonsmidler etter §§ 8 …, 16 og 16 a, slik disse lød før 1. januar 2021». Det er passivt, men en fortsettelse av departementets hjemmel. Utvidelsen er grunnlaget for FOR-2021-10-06-3079 (f18–f20) og mangler i avgrensning.",
+    "retting": {
+      "avgrensning": "omfatter også bestemmelser som viderefører §§ 8 første ledd andre punktum, 8 femte ledd, 9, 9 a, 9 b, 16 og 16 a slik de lød før 1. januar 2021"
+    },
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 57 fjerde ledd",
+        "funksjon": "direkte_hjemmel"
+      },
+      {
+        "ref": "FOR-2021-10-06-3079",
+        "funksjon": "forutsatt_kilde"
+      }
+    ]
+  },
+  {
+    "id": "f71",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "middels",
+    "innvending": "«skal … beregne tilskuddet … på nytt» er et beregningsskritt (regellaget), ikke F forvaltning (som f24). Leddets strukturelle innhold, «Kommunen skal tildele tilskuddet» (P betaling, kommune → begunstigede), falt bort fordi KI-laget satte til = «Private barnehager», som ikke er i katalogen. Etter presedensen i #353 skulle til vært null, og raden lastet. Forskriften viser dessuten til FOR-2015-10-09-1166, som oppheves 31.12.2026.",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "FOR-2023-06-27-1136 § 3 andre ledd",
+        "funksjon": "direkte_hjemmel"
+      },
+      {
+        "ref": "FOR-2026-03-23-454 § 25 første ledd",
+        "funksjon": "forutsatt_kilde"
+      }
+    ]
+  },
+  {
+    "id": "p1",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "middels",
+    "innvending": "Handlingen og virkningen følger #394 og holder. Merknaden holder ikke. Barnehageloven nøyer seg ikke med å bruke «kommunen» om to roller. Den gjør rollen til et rettslig poeng: § 10 første ledd sier «Kommunen er lokal barnehagemyndighet», og § 11 krever at kommunen likebehandler private og kommunale barnehager og organiserer oppgavene som barnehagemyndighet adskilt fra oppgavene som eier. At rollen «skilles i kanttypen», er derfor en slutning som ikke fanger lovens eget rolleskille. Rollen barnehagemyndighet bør være en node (I innehar, tekstfunn i § 10), slik at K-, F- og tilsynskanter kan knyttes til rollen og ikke bare til klassen (se p2). To svakheter til: (1) Standardregelen fyller ikke ut relasjonelle omtaler. «barnets bostedskommune» (§ 49) og «kommunen der barnet er folkeregistrert» (refusjon, f31) blir klassen kommune på begge sider, og det må stå i avgrensning. (2) Klassen statsforvalter har en hjemmel som ikke er grunnlaget for den (#402). Alle rader som løses via den, har derfor et ikke vurdert premiss (p3).",
+    "retting": {
+      "merknad": "Barnehageloven skiller selv rollen barnehagemyndighet (§ 10 første ledd) fra rollen eier (§ 7 første ledd) og krever organisatorisk atskillelse (§ 11). Referenten er samme rettssubjekt, men rollen bør registreres som egen node (I innehar), ikke bare skilles i kanttypen. Relasjonelle omtaler («barnets bostedskommune») løses ikke av standardregelen og må stå i avgrensning."
+    },
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 10 første ledd",
+        "funksjon": "direkte_hjemmel"
+      },
+      {
+        "ref": "barnehageloven § 11",
+        "funksjon": "direkte_hjemmel"
+      },
+      {
+        "ref": "barnehageloven § 7 første ledd",
+        "funksjon": "forutsatt_kilde"
+      },
+      {
+        "ref": "docs/33 §5.10",
+        "funksjon": "forutsatt_kilde"
+      }
+    ]
+  },
+  {
+    "id": "p2",
+    "dom": "prinsipiell",
+    "gjelder": "raden",
+    "alvor": null,
+    "innvending": "Observasjonen er riktig, og konsekvensen er alvorlig. Lovens kjerne om kommunens og statsforvalterens myndighet falt bort: godkjenning (§§ 14, 14 a), dispensasjon (§ 26), lokal forskrift (§§ 20, 26), tilsyn, pålegg og stenging (§§ 53, 55), klage (§ 12, overgangsforskriften § 5) og tilskuddsvedtak. De lastede forslagene domineres derfor av «departementet kan gi forskrift» og av F- og P-rader. Utvalget er skjevt, og 17.4 «mister vilkår, unntak eller negasjon» rammer hele kompetanselaget for kommunen. Modellregelen bør endres. Mitt syn: (a) La K ta klasse som fra med distributiv lesning, som P og F gjør. «Kommunen kan …» i en lov som retter seg mot alle kommuner, gir hver kommune som rettssubjekt kompetansen, og organet som utøver den, følger av kommuneloven. Det er ikke en slutning om lovens innhold. (b) I tillegg, ikke i stedet: der loven selv navngir rollen («lokal barnehagemyndighet», § 10), registreres I innehar. K kan da knyttes til rollen når teksten sier at kompetansen hører til rollen. Å kreve rolle for all K er ikke mulig i lover som ikke har en rollebetegnelse, og da må rollen gjettes (CLAUDE.md §8). (c) Klageinstans-kanter fra klassen statsforvalter (§ 12) trenger samme regel. Ankeinstans-/klageinstansoppslaget via utledet medlemskap (#384) virker allerede for P.",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven §§ 12, 14, 14 a, 20, 26, 53, 55",
+        "funksjon": "direkte_hjemmel"
+      },
+      {
+        "ref": "docs/33 §4.3 (Noderegler) og §5.3",
+        "funksjon": "forutsatt_kilde"
+      },
+      {
+        "ref": "FORMAT.md, #353 (P fra klasse), #368 (F fra klasse)",
+        "funksjon": "forutsatt_kilde"
+      }
+    ]
+  },
+  {
+    "id": "p3",
+    "dom": "holder",
+    "gjelder": "raden",
+    "alvor": null,
+    "innvending": "Observasjonen er riktig. Svar: Et utsagn der typen er avgjort ved ordform (normalisering), men aktøren bare er kjent gjennom standardregelen, kan etter regelen om svakeste premiss (§4.6) ikke stå som normalisering. «avledet» krever en premisskant i strukturkant_premisser, og standardregelens svar lagres ikke (#345). Det ærlige valget nå er derfor at kunnskapsstatus står som ikke vurdert (NULL), med regelen og premisset i begrunnelsen. Når ressortkanten (F forvaltning for barnehageloven) er faglig vurdert, kan raden bli avledet med den som premiss. For klassen statsforvalter er premisset uavklart (#402). To presiseringer: (1) Rekkefølgen i oppslaget (binding → standardregel) hopper over tekstlig antesedent. I f1 viser «departementet» til «Kunnskapsdepartementet» i samme punktum, og da er aktøren tekstfunn, ikke regel. Lasteren bør prøve tekstlig tilbakevisning i samme ledd før standardregelen. (2) For forskrifter er Lovdatas felt eneste kilde (§5.10). Der tittelen eller kapitlet navngir departementet (FOR-2025-07-02-1462), finnes det en sterkere kilde i teksten.",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "docs/33 §4.6 (svakeste premiss), §5.10",
+        "funksjon": "forutsatt_kilde"
+      },
+      {
+        "ref": "FOR-2017-06-21-837 ledd-1",
+        "funksjon": "forutsatt_kilde"
+      }
+    ]
+  },
+  {
+    "id": "b1_1",
+    "dom": "holder",
+    "gjelder": "raden",
+    "alvor": null,
+    "innvending": "Modellereren leser § 10 første ledd riktig: unntaket for kapittel V mangler hos BU, og kap. V-veiledningen ligger hos Utdanningsdirektoratet (§ 13 andre ledd). Feilklassen og middels alvor holder. BU sier i tillegg «alle barnehager». Det stemmer for veiledning og påse etter § 10, men ikke for kap. V.",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 10 første ledd",
+        "funksjon": "direkte_hjemmel"
+      },
+      {
+        "ref": "barnehageloven § 13 andre ledd",
+        "funksjon": "forutsatt_kilde"
+      }
+    ]
+  },
+  {
+    "id": "b2_1",
+    "dom": "holder",
+    "gjelder": "raden",
+    "alvor": null,
+    "innvending": "Riktig. Etableringsgodkjenning (§ 14, «kan godkjenne», vilkår med saklig sammenheng, bortfall etter § 14 tredje ledd) og driftsgodkjenning (§ 14 a, «avgjør», krav om antall barn, alder og oppholdstid i andre ledd) er to kompetanser med ulike vilkår.",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 14 første og andre ledd",
+        "funksjon": "direkte_hjemmel"
+      },
+      {
+        "ref": "barnehageloven § 14 a første og andre ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "b2_6",
+    "dom": "holder",
+    "gjelder": "raden",
+    "alvor": null,
+    "innvending": "Riktig. Vilkåret «når særlige hensyn tilsier det» og klageadgangen til statsforvalteren (§ 26 fjerde ledd) mangler hos BU. Lav alvor holder, fordi hovedinnholdet er riktig.",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 26 tredje og fjerde ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "b2_7",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "lav",
+    "innvending": "Lesningen holder: loven sier «skal gi tilskudd» (§ 19 første og andre ledd), og BU har gjort det til «kan». Men feilen er det motsatte av 17.4 første punkt. BU har gjort en plikt til adgang, ikke en adgang til plikt. Den speilvendte feilen står ikke på lista i 17.4 og bør merkes som det, ikke presses inn i feil etikett. Høy alvor holder, siden rettsfølgen blir motsatt for barnehagens tilskuddsrett. BU mangler også bortfallsregelen i § 19 andre ledd (1. juni 2031).",
+    "retting": {
+      "feilklasse_17_4": "plikt gjort til adgang (speilbildet av 17.4 «omdanner adgang til plikt»; ikke på lista)"
+    },
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 19 første og andre ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "b3_1",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "lav",
+    "innvending": "Lesningen av § 32 første ledd (passiv, ingen pliktsubjekt) og plasseringen av foreldrerådgivningen i § 31 tredje ledd holder. Men «§ 31 fjerde ledd stemmer» gjelder bare med unntaket i femte ledd. Fylkeskommunen, ikke kommunen, skal oppfylle retten for barn i barnevernsinstitusjon og helseinstitusjon. BU mangler det unntaket, og modellererens kontroll fanger det ikke opp (17.4: mister unntak).",
+    "retting": {
+      "modellererens_kontroll": "§ 31 fjerde ledd stemmer, men med unntak av barn i barnevernsinstitusjon og helseinstitusjon, der fylkeskommunen skal oppfylle retten (§ 31 femte ledd). § 32 første ledd er passiv uten pliktsubjekt; at det er kommunen, er en slutning. Foreldrerådgivningen står i § 31 tredje ledd."
+    },
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 31 fjerde og femte ledd",
+        "funksjon": "direkte_hjemmel"
+      },
+      {
+        "ref": "barnehageloven § 32 første ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "b4_1",
+    "dom": "holder",
+    "gjelder": "raden",
+    "alvor": null,
+    "innvending": "Riktig. Pliktsubjektet i § 41 er barnehagen. Presisering som styrker lesningen: koblingen via § 7 første ledd gjelder bare kommunale barnehager. For private barnehager ligger ansvaret hos styret eller det bestemmende organet (§ 7 andre ledd). BUs «kommunen som eier» er derfor ikke bare en slutning, men feil for de private barnehagene.",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 41 første og andre ledd",
+        "funksjon": "direkte_hjemmel"
+      },
+      {
+        "ref": "barnehageloven § 7 første og andre ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "b4_2",
+    "dom": "holder",
+    "gjelder": "raden",
+    "alvor": null,
+    "innvending": "Riktig: aktivitetsplikten og planen i § 42 tredje til femte ledd har barnehagen som pliktsubjekt, og BUs plassering hos kommunen er samme slutning som i b4_1.",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 42 tredje–femte ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "b5_1",
+    "dom": "holder",
+    "gjelder": "raden",
+    "alvor": null,
+    "innvending": "Riktig: § 24 har barnehagen som pliktsubjekt, og § 25 er et kvalifikasjonskrav.",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven §§ 24–25",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "b5_2",
+    "dom": "holder",
+    "gjelder": "raden",
+    "alvor": null,
+    "innvending": "Riktig. Kommunens kompetanse til å gi forskrift om høyere bemanning (§ 26 andre ledd tredje punktum) er nettopp en av K-radene p2 viser falt bort i lastingen.",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 26 andre ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "b5_3",
+    "dom": "holder",
+    "gjelder": "raden",
+    "alvor": null,
+    "innvending": "Riktig: adgangene i § 27 tredje ledd og § 28 andre ledd ligger hos barnehagen.",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 27 tredje ledd",
+        "funksjon": "direkte_hjemmel"
+      },
+      {
+        "ref": "barnehageloven § 28 andre ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "b6_1",
+    "dom": "holder",
+    "gjelder": "raden",
+    "alvor": null,
+    "innvending": "Riktig, og i samsvar med f34: «Kommunen skal samordne» står, mens barnekoordinatorens samordning (tredje punktum) mangler hos BU.",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 2 b andre ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "b6_2",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "lav",
+    "innvending": "Tekstlesningen holder (barnehagepersonalet og barnehagen). Men «barnehagen» er ikke et rettssubjekt. For kommunale barnehager er det kommunen som er bundet (§ 7 første ledd), for private barnehager eieren (§ 7 andre ledd). BU tar altså ikke feil om aktøren for kommunale barnehager. Feilen er den samme slutningen som i b4_1 og b5_1–b5_3, og den bør ha samme feilklasse. Å kalle den «feil aktør» er selv en 17.4-feil: å anta at grammatisk subjekt er rettssubjekt.",
+    "retting": {
+      "feilklasse_17_4": "presenterer slutninger som tekstfunn",
+      "alvor": "lav"
+    },
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 45 første ledd",
+        "funksjon": "direkte_hjemmel"
+      },
+      {
+        "ref": "barnehageloven § 7 første og andre ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "b6_4",
+    "dom": "holder",
+    "gjelder": "raden",
+    "alvor": null,
+    "innvending": "Riktig: «kan behandle personopplysninger … når det er nødvendig» er en adgang (et behandlingsgrunnlag) og hører til regellaget. Det er ingen plikt.",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 47 a første ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "b6_6",
+    "dom": "innvending",
+    "gjelder": "raden",
+    "alvor": "middels",
+    "innvending": "Modellererens konklusjon holder ikke. «Barnehagen plikter å gi barnets bostedskommune …» har barnehagen som grammatisk subjekt. Barnehagen er ikke et rettssubjekt, og den som er bundet, er eieren (§ 7: kommunen for kommunale barnehager, styret eller det bestemmende organet i rettssubjektet for private). BUs «barnehageeiere» er derfor en forsvarlig lesning av rettssubjektet. Å kalle det feil aktør er 17.4 «antar at grammatisk subjekt er rettssubjekt». Det BU mangler, er at mottakeren er barnets bostedskommune, ikke kommunen der barnehagen ligger. Det betyr noe når barnet bor i en annen kommune.",
+    "retting": {
+      "modellererens_kontroll": "Loven: «Barnehagen plikter å gi barnets bostedskommune …». Barnehagen er ikke et rettssubjekt; den som er bundet, er eieren (§ 7), så BUs «barnehageeiere» er forsvarlig. BU presiserer ikke at mottakeren er barnets bostedskommune.",
+      "feilklasse_17_4": "ingen for aktøren; mottakeren er upresis (bostedskommunen)",
+      "alvor": "lav"
+    },
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 49 første ledd",
+        "funksjon": "direkte_hjemmel"
+      },
+      {
+        "ref": "barnehageloven § 7",
+        "funksjon": "direkte_hjemmel"
+      },
+      {
+        "ref": "barnehageloven § 10 fjerde ledd",
+        "funksjon": "forutsatt_kilde"
+      }
+    ]
+  },
+  {
+    "id": "b7_1",
+    "dom": "holder",
+    "gjelder": "raden",
+    "alvor": null,
+    "innvending": "Riktig: unntaket for kapittel V i § 53 første ledd og tilskuddsreaksjonen i tredje ledd mangler. Kap. V-tilsynet ligger hos Utdanningsdirektoratet (§ 56). Middels alvor holder.",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "barnehageloven § 53 første og tredje ledd",
+        "funksjon": "direkte_hjemmel"
+      },
+      {
+        "ref": "barnehageloven § 56",
+        "funksjon": "forutsatt_kilde"
+      }
+    ]
+  },
+  {
+    "id": "b8_1",
+    "dom": "holder",
+    "gjelder": "raden",
+    "alvor": null,
+    "innvending": "Kontrollert: rammeplanen (FOR-2017-04-24-487) har ingen bestemmelse om at kommunen skal påse etterlevelse. Den nevner bare «kommunen som barnehagemyndighet» som mottaker av dokumentasjon (kap. 7). Plikten følger av loven § 10. Lesningen holder.",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "FOR-2017-04-24-487 kap. 7",
+        "funksjon": "forutsatt_kilde"
+      },
+      {
+        "ref": "barnehageloven § 10 første ledd",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "b8_3",
+    "dom": "holder",
+    "gjelder": "raden",
+    "alvor": null,
+    "innvending": "Riktig: § 1 er passiv («skal ikke settes høyere»). Foreldrebetalingen fastsettes av barnehagen eller eieren (merknadene, § 4), og kommunens uttrykkelige plikter står i §§ 3–3c. Det som mangler hos BU i tillegg, er § 3f (kommunen dekker eierens reduksjon, P betaling) og statsforvalterens påleggskompetanse og klage (§ 5).",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "FOR-2005-12-16-1478 §§ 1, 3–3c, 3f, 5",
+        "funksjon": "direkte_hjemmel"
+      }
+    ]
+  },
+  {
+    "id": "b8_7",
+    "dom": "holder",
+    "gjelder": "raden",
+    "alvor": null,
+    "innvending": "Kontrollert: godkjenning (§ 15) og tilsyn (§ 19) stemmer, og ordet «psykososial» står ikke i FOR-2023-03-28-449. Presisering: forskriften er fastsatt av Helse- og omsorgsdepartementet etter folkehelselovgivningen. Kommunen opptrer der som myndighet for miljørettet helsevern, ikke som barnehagemyndighet etter barnehageloven. BU blander dermed også rollene.",
+    "retting": null,
+    "ny_rad": null,
+    "implementeringsstatus": null,
+    "kilder": [
+      {
+        "ref": "FOR-2023-03-28-449 §§ 15, 19",
+        "funksjon": "direkte_hjemmel"
+      },
+      {
+        "ref": "barnehageloven kap. VIII",
+        "funksjon": "forutsatt_kilde"
+      }
+    ]
+  }
+]
