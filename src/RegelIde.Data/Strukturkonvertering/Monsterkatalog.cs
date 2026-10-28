@@ -259,7 +259,10 @@ internal static class Monsterkatalog
             "Ikke målt i docs/33 §1 (finansiering sto utenfor strukturlaget til #353). Tatt inn etter Johanns godkjenning av #353 (spesialisthelsetjenesteloven:u269, a39).",
             new RegexMonsteroppsett(KreverFra: true, ObjektForan: true, AlleUttrykk: true, PresensErSkal: true),
             Betalingsmottaker,
-            @"\b(?:(?<modal>skal|kan|bør)\s+(?:de\s+|disse\s+)?(?:også\s+)?)?dekkes\s+(?:også\s+|bare\s+)?av\s+" + Frase("fra")),
+            // [ENDRET, piloten #375] Ikke i en relativsetning uten modalverb: «utgifter som dekkes av andre tilskudd enn
+            // rammetilskuddet» (barnehageloven § 19 a første ledd) beskriver hvilke utgifter som trekkes fra, og ga
+            // «andre tilskudd enn rammetilskuddet» som pliktsubjekt og navnekandidat.
+            @"\b(?:(?<modal>skal|kan|bør)\s+(?:de\s+|disse\s+)?(?:også\s+)?)?(?<!\bsom\s+)dekkes\s+(?:også\s+|bare\s+)?av\s+" + Frase("fra")),
 
         Regex("plikt-dekke-utgifter",
             "«X skal dekke (behandlings- og forpleinings)utgift(er/ene) …», «X dekker utgiftene …» ([ENDRET, juristgjennomgangen] normativ presens = skal). Til = null: objektet står etter verbet og sier hva utgiftene går til.",

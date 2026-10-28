@@ -222,5 +222,17 @@ public class MonsterStrukturkonvertererTests
         }
     }
 
+    [Fact]
+    public void Dekkes_av_i_relativsetning_gir_ingen_betalingsplikt()
+    {
+        // [Ny, piloten #375] Barnehageloven § 19 a første ledd: relativsetningen sier hvilke utgifter som trekkes fra.
+        var d = Konverter("Grunntilskuddet skal beregnes ut fra driftsutgifter, fratrukket utgifter som dekkes av andre tilskudd enn rammetilskuddet til kommunen.");
+        Assert.DoesNotContain(d.Utsagn, u => u.Oppdagelseskilde == "monster:plikt-dekkes-av");
+
+        var hoved = Konverter("Utgiftene skal dekkes av staten.");
+        var p = Assert.Single(hoved.Utsagn, u => u.Oppdagelseskilde == "monster:plikt-dekkes-av");
+        Assert.Equal("staten", Tekstform(hoved, p.Fra));
+    }
+
     private static HashSet<string> Feltnavn(JsonNode node) => node.AsObject().Select(p => p.Key).ToHashSet();
 }
