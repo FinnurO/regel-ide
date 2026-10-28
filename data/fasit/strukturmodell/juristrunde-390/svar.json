@@ -1,0 +1,24 @@
+[
+  {
+    "id": "k1",
+    "svar": "aksepter",
+    "tekst": "Holder. Begrunnelsen i bindingen får med forskriften § 1 første ledd («dekker én eller flere kommuner»). Bindingen går til områdenoden (begrep-id), ikke kommunenummeret. docs/33 §5.7 får en linje om at en kortform kan bindes, også til et område (§5.13)."
+  },
+  {
+    "id": "k2",
+    "svar": "delvis",
+    "tekst": "(a) Aksepter: kortformene får kunnskapsstatus fortolkning (kontekst_system) med begrunnelsen at registeret navngir kommuneområdet, og at rettssubjektet bærer områdets navn (kommuneloven § 3-1). Registeret står fortsatt som kilde. De 209 forslagene er ikke vurdert av noen og rettes på raden. (c) Aksepter: kortformer som bare er forslag (maskinelt eller manuelt foreslått), brukes ikke i navneoppslaget før de er vurdert. Da blir ikke «Fjord», «Sel» eller «Os» flertydige i korpuset av forslagene alene. En binding på en kortform brukes fortsatt når bindingen er vurdert. (b) Avvis som innvending mot modellen: modellen sier ikke at «Alta» betyr kommunen i andre rettskilder. Kortformens egen referent er kommunen, men et treff på både området og kommunen er flertydig til en binding eller konteksten avgjør, og det lages ingen binding utenfor rettskretsforskriften. Premisset i saksteksten er Johanns; at ordet betyr et sted i 15 av 16 kilder, legges fram for ham som et funn, ikke som en endring i modellen.",
+    "kilder": ["docs/33 §5.7", "docs/33 §5.8", "issue #390 bakgrunn (Johann 2026-10-16)"]
+  },
+  {
+    "id": "k3",
+    "svar": "delvis",
+    "tekst": "Aksepter at listen er ufullstendig, og at det sies. Avvis å utvide sjekken i denne saken: tidligere kommunenavn (Bø, Os, Nes, Sande før 2020) finnes ikke i områderegisteret, som bare har dagens inndeling, og en liste over vanlige ord har vi ikke som kilde. Begge skrives som kjente hull i docs/33 §5.13 og i PR-en. Etter (c) i k2 gjør kortformforslagene ingenting med oppslaget før de er vurdert, så et menneske ser hver kortform før den kan gi flertydighet.",
+    "kilder": ["docs/33 §4.1 [Bygget, issue #312] områderegisteret har dagens inndeling"]
+  },
+  {
+    "id": "k4",
+    "svar": "aksepter",
+    "tekst": "Begrunnelsen rettes: øyeblikksbildet ble hentet med filteret kommunenavnNorsk, og Kartverket har gyldigeNavn. Samiske og kvenske kortformer lages ikke ved å kutte organisasjonsnavnene. Å hente gyldigeNavn på nytt er en ny sak (nettverkskall og nytt øyeblikksbilde), meldt som oppfølging. Eksempelet «Álttá» fjernes."
+  }
+]

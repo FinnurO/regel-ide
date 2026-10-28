@@ -510,6 +510,10 @@ internal sealed record Aktorgrunnlag(
     /// <summary>[Ny, issue #387] De eksakte treffene med arten sin («virksomhet», «omrade», «klasse», «rolle», «gruppe») — fasitimporten skiller
     /// et flertydig navn på fasitens entitetstype (Karasjok kommune og området Karasjok).</summary>
     public IReadOnlyList<(Kantnode Node, string Art)> Treffnoder { get; init; } = [];
+
+    /// <summary>[Ny, issue #390 AK 2] Kortformene for en aktør som tekstformen treffer, og som har minst én binding i korpuset («Alta» for
+    /// Alta kommune). Bindingen per rettskilde avgjør hva ordet betyr der (<see cref="Aktorklassifiserer.ForekomstAsync"/>).</summary>
+    public IReadOnlyList<Guid> BundneKortformer { get; init; } = [];
 }
 
 /// <summary>
@@ -534,6 +538,7 @@ internal sealed class Aktorklassifiserer(
         var treffnoder = new List<(Kantnode, string)>(); // [Ny, issue #387]
         var former = new[] { aktor.Tekstform }.Concat(aktor.Varianter).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
         Guid? generisk = null;
+        var kortformer = new List<Guid>(); // [Ny, issue #390]
         foreach (var form in former)
         {
             var lower = form.ToLower();
@@ -547,6 +552,9 @@ internal sealed class Aktorklassifiserer(
                 var flere = await db.Begreper
                     .Where(b => b.Begrepskategori == "virksomhet" && b.Entitetsstatus == "gjeldende" && b.VirksomhetReferanseId != null
                                 && b.Term.ToLower() == lower)
+                    // [Ny, issue #390] Samme regel som VirksomhetOppslagTjeneste: et kortformforslag som ikke er vurdert, teller ikke.
+                    .Where(b => !((b.Navneformgrunn == GeneriskNavneformTjeneste.Kortform || b.OppdagelsesKilde == KommuneKortformTjeneste.OppdagelsesKilde)
+                                  && (b.Godkjenning == Strukturkanter.MaskineltForeslatt || b.Godkjenning == Strukturkanter.ManueltForeslatt)))
                     .Select(b => b.VirksomhetReferanseId!.Value).Distinct().Take(3).ToListAsync(ct);
                 foreach (var id in flere.Count > 1 ? flere : [])
                 {
@@ -562,6 +570,12 @@ internal sealed class Aktorklassifiserer(
                 if (treff.Add(Kantnode.Begrep(b.Id))) { treffnavn.Add($"{b.Begrepskategori}:{form}"); treffnoder.Add((Kantnode.Begrep(b.Id), b.Begrepskategori!)); }
             }
             generisk ??= (await generiske.FinnAsync(form, ct))?.Id;
+            // [Ny, issue #390 AK 2] Kortformer med binding: ordet kan bety noe annet her enn aktøren navneformen hører til.
+            kortformer.AddRange(await db.Begreper
+                .Where(b => b.Navneformgrunn == GeneriskNavneformTjeneste.Kortform && b.VirksomhetReferanseId != null && b.Entitetsstatus == "gjeldende"
+                            && b.Term.ToLower() == lower
+                            && db.NavneformBindinger.Any(nb => nb.NavneformId == b.Id && nb.Entitetsstatus == "gjeldende" && nb.Status != Strukturkanter.Avvist))
+                .Select(b => b.Id).ToListAsync(ct));
         }
 
         Aktorgrunnlag svar;
@@ -573,7 +587,7 @@ internal sealed class Aktorklassifiserer(
             var kandidater = await KandidaterAsync(former, ct);
             svar = new(kandidater.Count > 0 ? Aktorstatus.NyNavneformForKjentAktor : Aktorstatus.NyAktor, null, null, treffnavn, kandidater, null);
         }
-        svar = svar with { Treffnoder = treffnoder };
+        svar = svar with { Treffnoder = treffnoder, BundneKortformer = kortformer.Distinct().ToList() };
         _cache[aktor.Id] = svar;
         return svar;
     }
@@ -582,6 +596,24 @@ internal sealed class Aktorklassifiserer(
     public async Task<(string Status, Kantnode? Node, KantnodeVisning? Referent, int ForeslatteBindinger)> ForekomstAsync(
         Aktorgrunnlag g, string eid, CancellationToken ct)
     {
+        // [Ny, issue #390 AK 2] En kortform med vurdert binding som dekker noden, avgjør hva ordet betyr her («Alta» i forskriften om
+        // rettskretser → området Alta). Én referent → kjent; ulike referenter fra flere kortformer → flertydig. Ingen binding dekker noden →
+        // som før (kortformen er en vanlig navneform, og et treff også på området gir flertydig). Ingen standardregel for kortformer.
+        if (g.BundneKortformer.Count > 0)
+        {
+            var bundne = new List<(Kantnode Referent, int Foreslatte)>();
+            var foreslatte = 0;
+            foreach (var kid in g.BundneKortformer)
+            {
+                var ko = await generiske.LosOppAsync(kid, rettskildeId, eid, ct, brukRegel: false);
+                foreslatte += ko.AntallForeslatteBindinger;
+                if (ko.Status == GeneriskOppslagstatus.Bundet) bundne.Add((ko.Referent!, ko.AntallForeslatteBindinger));
+                else if (ko.Status == GeneriskOppslagstatus.Flertydig) return (Aktorstatus.Flertydig, null, null, foreslatte);
+            }
+            var referenter = bundne.Select(b => b.Referent).Distinct().ToList();
+            if (referenter.Count > 1) return (Aktorstatus.Flertydig, null, null, foreslatte);
+            if (referenter.Count == 1) return (Aktorstatus.Kjent, referenter[0], await ReferentvisningAsync(referenter[0], ct), foreslatte);
+        }
         if (g.GeneriskNavneformId is not { } nid || g.Status != Aktorstatus.Generisk) return (g.Status, g.Node, g.Referent, 0);
         var o = await generiske.LosOppAsync(nid, rettskildeId, eid, ct);
         // [ENDRET, issue #394 AK 1] Også når standardregelen gir referenten («departementet» → ansvarlig departement): forslagene som lastes,
@@ -589,17 +621,19 @@ internal sealed class Aktorklassifiserer(
         if (o.Status is GeneriskOppslagstatus.Bundet or GeneriskOppslagstatus.Regel)
         {
             var r = o.Referent!;
-            KantnodeVisning? v = r.VirksomhetId is { } vid
-                // [ENDRET, issue #385 AC2] Visningsnavnet, ikke registernavnet.
-                ? await db.Virksomheter.Where(x => x.Id == vid).Select(x => new KantnodeVisning("virksomhet", x.Id, x.Navn, x.Aktortype)).FirstOrDefaultAsync(ct)
-                    is { } kv ? kv with { Navn = await new VirksomhetVisningsnavnTjeneste(db).ForAsync(kv.Id, ct) ?? kv.Navn } : null
-                : await db.Begreper.Where(x => x.Id == r.BegrepId).Select(x => new KantnodeVisning("begrep", x.Id, x.Term, x.Begrepskategori)).FirstOrDefaultAsync(ct);
-            return (Aktorstatus.Kjent, r, v, o.AntallForeslatteBindinger);
+            return (Aktorstatus.Kjent, r, await ReferentvisningAsync(r, ct), o.AntallForeslatteBindinger);
         }
         // [ENDRET, issue #384] spenn_endret (ingen gyldig binding dekker noden, og en godkjent binding kunne ikke flyttes til denne
         // versjonen) gir generisk: omtalen er ikke bundet her før bindingen er registrert på nytt.
         return (o.Status == GeneriskOppslagstatus.Flertydig ? Aktorstatus.Flertydig : Aktorstatus.Generisk, null, null, o.AntallForeslatteBindinger);
     }
+
+    /// <summary>Visningen av en referent fra en binding eller standardregel. [ENDRET, issue #385 AC2] Visningsnavnet, ikke registernavnet.
+    /// [ENDRET, issue #390] Skilt ut, så kortformens binding bruker samme visning.</summary>
+    private async Task<KantnodeVisning?> ReferentvisningAsync(Kantnode r, CancellationToken ct) => r.VirksomhetId is { } vid
+        ? await db.Virksomheter.Where(x => x.Id == vid).Select(x => new KantnodeVisning("virksomhet", x.Id, x.Navn, x.Aktortype)).FirstOrDefaultAsync(ct)
+            is { } kv ? kv with { Navn = await new VirksomhetVisningsnavnTjeneste(db).ForAsync(kv.Id, ct) ?? kv.Navn } : null
+        : await db.Begreper.Where(x => x.Id == r.BegrepId).Select(x => new KantnodeVisning("begrep", x.Id, x.Term, x.Begrepskategori)).FirstOrDefaultAsync(ct);
 
     /// <summary>Kjente aktørnavn (registernavn og ikke-generiske navneformer) der tekstformen står som hele ord, i rekkefølge.</summary>
     private async Task<List<string>> KandidaterAsync(IReadOnlyList<string> former, CancellationToken ct)

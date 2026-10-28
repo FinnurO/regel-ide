@@ -556,9 +556,10 @@ public sealed record RelasjonsTypeKonfigurasjonDto(string Kategori, string Kode,
 // ---------- Strukturkanter (issue #311, docs/33 §4.3) ----------
 
 /// <summary>[Ny, issue #311] Én node i en kant — se <see cref="KantnodeVisning"/>.</summary>
-public sealed record StrukturnodeDto(string Type, Guid Id, string Navn, string? Nodetype)
+public sealed record StrukturnodeDto(string Type, Guid Id, string Navn, string? Nodetype, string? Omradetype = null)
 {
-    public static StrukturnodeDto FraVisning(KantnodeVisning n) => new(n.Type, n.Id, n.Navn, n.Nodetype);
+    // [ENDRET, issue #390 AK 3] + områdetypen, for grupperingen på områdesiden.
+    public static StrukturnodeDto FraVisning(KantnodeVisning n) => new(n.Type, n.Id, n.Navn, n.Nodetype, n.Omradetype);
 }
 
 /// <summary>[Ny, issue #311] Én strukturkant med navn og visningstekst — se <see cref="StrukturkantVisning"/>.</summary>
@@ -779,6 +780,31 @@ public sealed record KommuneTilhorighetDto(
         t.Kommune, t.Rubrikker.Select(r => new TilhorighetsrubrikkDto(r.Rubrikk, r.Status,
             r.Kandidater.Select((navn, i) => new TilhorighetskandidatDto(r.Ider[i], navn, r.Forslag[i])).ToList())).ToList(),
         t.Overordnede, t.Ansvarlige);
+}
+
+/// <summary>[Ny, issue #390 AK 1] Svaret på GET /api/virksomheter/{id}/omrade-tilhorighet — se <see cref="OmradeTilhorighetTjeneste"/>.
+/// <c>premisser</c> er kantene svarene bygger på (én gang hver); hvert svar viser til dem med id, i kjedens rekkefølge.</summary>
+public sealed record VirksomhetTilhorighetDto(
+    StrukturnodeDto Aktor, OmradeVisning? Territorium, Guid? TerritoriekantId, string? Hull,
+    IReadOnlyList<TilhorighetSvarDto> Svar, IReadOnlyList<TilhorighetKandidatDto> Klasser, IReadOnlyList<StrukturkantDto> Premisser)
+{
+    public static VirksomhetTilhorighetDto Fra(VirksomhetTilhorighet t) => new(
+        StrukturnodeDto.FraVisning(t.Aktor), t.Territorium, t.TerritoriekantId, t.Hull,
+        t.Svar.Select(s => new TilhorighetSvarDto(s.Rubrikk, s.Status, s.Kandidater.Select(TilhorighetKandidatDto.Fra).ToList(), s.Hull)).ToList(),
+        t.Klasser.Select(TilhorighetKandidatDto.Fra).ToList(),
+        t.Premisser.Select(StrukturkantDto.FraVisning).ToList());
+}
+
+/// <summary>[Ny, issue #390 AK 1] Én rubrikk: entydig | ikke_entydig | flere | mangler (med hull).</summary>
+public sealed record TilhorighetSvarDto(string Rubrikk, string Status, IReadOnlyList<TilhorighetKandidatDto> Kandidater, string? Hull);
+
+/// <summary>[Ny, issue #390 AK 1] Ett svar med premissene og det svakeste premisset (docs/33 §4.6).</summary>
+public sealed record TilhorighetKandidatDto(
+    StrukturnodeDto Node, bool Avledet, string? Kunnskapsstatus, IReadOnlyList<Guid> Premisser,
+    Guid? SvakestePremissId, string? SvakestePremissStatus, bool Forslag)
+{
+    public static TilhorighetKandidatDto Fra(TilhorighetKandidat k) => new(StrukturnodeDto.FraVisning(k.Node), k.Avledet, k.Kunnskapsstatus,
+        k.Premisser, k.SvakestePremissId, k.SvakestePremissStatus, k.Forslag);
 }
 
 /// <summary>[Ny, issue #353 AC5] Svaret på GET /api/omrader/kommuner/{kommunenummer}/plikter — se

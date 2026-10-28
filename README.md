@@ -33,7 +33,8 @@ klasse, område) og åtte koblinger, testet mot en fasit på 1 825 utsagn fra fe
 appen (#387): det som kan knyttes til aktører i katalogen, står som «fra fasiten, faglig vurdert, ikke uavhengig kontrollert»
 (`POST /api/fasit/strukturmodell/import`, docs/33 §5.12). Områderegisteret (#312) gir
 fylker og kommuner fra Kartverket, domstolstrukturen fra inndelingsforskriften, statsforvalterne og helseregionene,
-og svarer på «gitt kommune X: hvilket fylke, hvilken tingrett, statsforvalter og RHF?». Lettlest innføring
+og svarer på «gitt kommune X: hvilket fylke, hvilken tingrett, statsforvalter og RHF?». Svaret står også på kommunens egen side, med
+kjeden og det svakeste premisset (#390, docs/33 §5.13). Lettlest innføring
 for lesere uten forkunnskap: [finnuro.github.io/regel-ide/strukturmodell/](https://finnuro.github.io/regel-ide/strukturmodell/).
 Hvert utsagn har (#367) en **kunnskapsstatus** (tekstfunn, normalisering, fortolkning, avledet …) atskilt fra **godkjenningen**,
 historikk (en revisjon gir en ny rad), og hjemmelen peker på den versjonerte noden, så resynken kan flagge «hjemmel endret».

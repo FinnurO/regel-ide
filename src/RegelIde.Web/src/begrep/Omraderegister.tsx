@@ -3,7 +3,7 @@ import { Link as RouterLink } from 'react-router';
 import { Alert, Button, Card, Heading, Link, Paragraph, Spinner, Table, Tag } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { KommunePlikterDto, KommuneTilhorighetDto, Omradetype, StrukturkantDto, TilhorighetsrubrikkDto } from '../api/types';
-import { StrukturkantTabell } from '../strukturkant/StrukturkantTabell';
+import { StrukturkantTabell, nodeHref } from '../strukturkant/StrukturkantTabell';
 import { motpartStatusVisning, pliktGrunnlagTekst, pliktRetningTekst } from '../strukturkant/plikt';
 import { Metatekst } from '../entitet/Metatekst';
 
@@ -210,6 +210,111 @@ function KommunensPlikter({ kommunenummer }: { kommunenummer: string }) {
   );
 }
 
+/** [Ny, issue #390 AK 3] Flertallsform av en områdetype i overskriften «Består av …». */
+const OMRADETYPE_FLERTALL: Record<Omradetype, string> = {
+  fylke: 'fylker', kommune: 'kommuner', tettsted: 'tettsteder', lagsogn: 'lagsogn', lagdomme: 'lagdømmer', helseregion: 'helseregioner',
+  annet: 'andre områder',
+};
+
+/** [Ny, issue #390 AK 3] Entallsform i overskriften «Ligger i …». */
+const OMRADETYPE_ENTALL: Record<Omradetype, string> = {
+  fylke: 'fylke', kommune: 'kommune', tettsted: 'tettsted', lagsogn: 'lagsogn', lagdomme: 'lagdømme', helseregion: 'helseregion',
+  annet: 'annet område',
+};
+
+/** [Ny, issue #390 AK 3] Én gruppe relasjoner med samme betydning sett fra området. */
+interface Relasjonsgruppe { nokkel: string; tittel: string; kolonne: string; teknisk: string; kanter: StrukturkantDto[] }
+
+/**
+ * [Ny, issue #390 AK 3] Grupperer områdets kanter etter BETYDNING. Reglene:
+ * <ul>
+ *   <li>A har_ansvarsomrade fra kommunens eget rettssubjekt (rubrikken «kommune» i tilhørigheten) → «Er territoriet til».</li>
+ *   <li>A har_ansvarsomrade ellers: fra tingretten (kanten er lest ut av inndelingsforskriften, oppdagelseskilde `monster:inndeling-*`) →
+ *       «Domstol (tingrett)»; fra lagmannsretten (`monster:lagdomme-*`) → «Lagmannsrett»; på et fylke → «Statsforvalter»; på en
+ *       helseregion → «Regionalt helseforetak» (samme rubrikkregel som tilhørigheten, docs/33 §4.1); ellers «Har ansvarsområde her».
+ *       Navnet på aktøren brukes aldri.</li>
+ *   <li>A har_sete_i → «Rettssted for»; A sogner_til → «Tingretter som sogner hit» (#345).</li>
+ *   <li>O der området er delen → «Ligger i ‹type›» (den andre nodens områdetype); der området er helheten → «Består av ‹typer›».</li>
+ *   <li>Alt annet → «Andre strukturutsagn», med kategorien som merke.</li>
+ * </ul>
+ */
+function grupperRelasjoner(kanter: StrukturkantDto[], omradetype: Omradetype, egne: Set<string>): Relasjonsgruppe[] {
+  const grupper = new Map<string, Relasjonsgruppe>();
+  const legg = (nokkel: string, tittel: string, kolonne: string, teknisk: string, k: StrukturkantDto) => {
+    if (!grupper.has(nokkel)) grupper.set(nokkel, { nokkel, tittel, kolonne, teknisk, kanter: [] });
+    grupper.get(nokkel)!.kanter.push(k);
+  };
+  for (const k of kanter) {
+    const annen = k.retning === 'til' ? k.fra : k.til;
+    if (k.kategori === 'A' && k.retning === 'til') {
+      if (k.typekode === 'har_ansvarsomrade' && egne.has(k.fra.id)) {
+        legg('1-territorie', 'Er territoriet til', 'Rettssubjekt',
+          'Ansvarsområde (A har_ansvarsomrade) fra rettssubjektet med samme kommunenummer i Enhetsregisteret.', k);
+      } else if (k.typekode === 'har_ansvarsomrade' && k.oppdagelsesKilde.startsWith('monster:inndeling')) {
+        legg('3-domstol', 'Domstol (tingrett)', 'Tingrett',
+          'Ansvarsområde (A har_ansvarsomrade) fra tingretten: domssognet, lest ut av forskrift om inndelingen av rettskretser og lagdømmer.', k);
+      } else if (k.typekode === 'har_ansvarsomrade' && k.oppdagelsesKilde.startsWith('monster:lagdomme')) {
+        legg('6-lagmannsrett', 'Lagmannsrett', 'Lagmannsrett',
+          'Ansvarsområde (A har_ansvarsomrade) fra lagmannsretten for lagdømmet (inndelingsforskriften § 10 første ledd).', k);
+      } else if (k.typekode === 'har_ansvarsomrade' && omradetype === 'fylke') {
+        legg('5-statsforvalter', 'Statsforvalter', 'Embete', 'Ansvarsområde (A har_ansvarsomrade) fra embetet til fylket (embetsinndelingen).', k);
+      } else if (k.typekode === 'har_ansvarsomrade' && omradetype === 'helseregion') {
+        legg('7-rhf', 'Regionalt helseforetak', 'Helseforetak', 'Ansvarsområde (A har_ansvarsomrade) fra helseforetaket (vedtektene § 3).', k);
+      } else if (k.typekode === 'har_sete_i') {
+        legg('4-rettssted', 'Rettssted for', 'Tingrett', 'Sete (A har_sete_i): tingretten har rettssted her.', k);
+      } else if (k.typekode === 'sogner_til') {
+        legg('4-sogner', 'Tingretter som sogner hit', 'Tingrett',
+          'A sogner_til: kommunene i lagsognet er kommunene disse tingrettene dekker (#345).', k);
+      } else {
+        legg('8-ansvar', 'Har ansvarsområde her', 'Aktør', `Ansvarsområde (A ${k.typekode}).`, k);
+      }
+    } else if (k.kategori === 'O' && k.retning === 'til') {
+      const t = annen?.omradetype ?? null;
+      legg(`2-ligger-${t ?? 'x'}`, t ? `Ligger i ${OMRADETYPE_ENTALL[t]}` : 'Ligger i', 'Område',
+        'Områdesammensetning (O bestar_av) sett fra delen.', k);
+    } else if (k.kategori === 'O' && k.retning === 'fra') {
+      const t = annen?.omradetype ?? null;
+      legg(`9-bestar-${t ?? 'x'}`, t ? `Består av ${OMRADETYPE_FLERTALL[t]}` : 'Består av', 'Område',
+        'Områdesammensetning (O bestar_av) sett fra helheten.', k);
+    } else {
+      legg('99-andre', 'Andre strukturutsagn', 'Utsagn', 'Andre kategorier; kategorien står som merke på raden.', k);
+    }
+  }
+  return [...grupper.values()].sort((a, b) => a.nokkel.localeCompare(b.nokkel, 'nb', { numeric: true }));
+}
+
+/** [Ny, issue #390 AK 3] Relasjonstabellen i klart språk: én `StrukturkantTabell` (docs/09 §31) per gruppe, med den andre noden i første
+ * kolonne og kilden i egen kolonne. Samme mønster som kompetansefamiliene (docs/09 §33). */
+function OmradeRelasjoner({ kanter, omradetype, egneRettssubjekter }: {
+  kanter: StrukturkantDto[] | null; omradetype: Omradetype; egneRettssubjekter: Set<string>;
+}) {
+  const grupper = kanter ? grupperRelasjoner(kanter, omradetype, egneRettssubjekter) : null;
+  return (
+    <section style={{ marginBottom: '2rem' }}>
+      <Heading level={3} data-size="xs" style={{ marginBottom: '0.5rem' }}>Relasjoner</Heading>
+      <Metatekst style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
+        Gruppert etter hva relasjonen betyr for området. Kilden (hjemmel i lovteksten eller registeret) står i egen kolonne, og den tekniske
+        kategorien står under hver overskrift.
+      </Metatekst>
+      {!grupper && <Spinner aria-label="Laster …" data-size="sm" />}
+      {grupper && grupper.length === 0 && (
+        <Card style={{ padding: '1rem' }}><Paragraph style={{ margin: 0 }}>Området har ingen registrerte relasjoner.</Paragraph></Card>
+      )}
+      {grupper?.map((g) => (
+        <div key={g.nokkel} style={{ marginBottom: '1.25rem' }}>
+          <Heading level={4} data-size="2xs" style={{ marginBottom: '0.25rem' }}>{g.tittel}</Heading>
+          <Metatekst style={{ marginBottom: '0.5rem', color: 'var(--ds-color-neutral-text-subtle)' }}>{g.teknisk}</Metatekst>
+          <StrukturkantTabell kanter={g.kanter} tomTekst="" visKategori={g.nokkel === '99-andre'} utsagnOverskrift={g.kolonne}
+            utsagn={g.nokkel === '99-andre' ? undefined : (k) => {
+              const annen = k.retning === 'til' ? k.fra : k.til;
+              return annen ? <Link asChild><RouterLink to={nodeHref(annen)}>{annen.navn}</RouterLink></Link> : k.visningstekst;
+            }} />
+        </div>
+      ))}
+    </section>
+  );
+}
+
 export function Omraderegister({ omradeId, omradetype }: { omradeId: string; omradetype: Omradetype }) {
   const [kanter, setKanter] = useState<StrukturkantDto[] | null>(null);
   const [tilhorighet, setTilhorighet] = useState<KommuneTilhorighetDto | null>(null);
@@ -226,13 +331,8 @@ export function Omraderegister({ omradeId, omradetype }: { omradeId: string; omr
     }
   }, [omradeId, omradetype, versjon]);
 
-  const sammensetning = kanter && kanter.filter((k) => k.kategori === 'O' && k.retning === 'fra');
-  const inngarI = kanter && kanter.filter((k) => k.kategori === 'O' && k.retning === 'til');
-  // [ENDRET, issue #345] «sogner_til» (tingrett → lagsogn) er ikke ansvar i området, men tingrettens domssogn som
-  // inngår i det — egen seksjon «Sogner hit», vist bare når den har innhold (lagsognene).
-  const ansvar = kanter && kanter.filter((k) => k.kategori === 'A' && k.retning === 'til' && k.typekode !== 'sogner_til');
-  const sognerHit = kanter && kanter.filter((k) => k.kategori === 'A' && k.retning === 'til' && k.typekode === 'sogner_til');
-  const ovrige = kanter && kanter.filter((k) => k.kategori !== 'O' && k.kategori !== 'A');
+  // [FJERNET, issue #390 AK 3] sammensetning / inngarI / ansvar / sognerHit / ovrige — grupperingen bor nå i `grupperRelasjoner`.
+  // [Fra #345] «sogner_til» (tingrett → lagsogn) er fortsatt egen gruppe, «Tingretter som sogner hit».
 
   return (
     <>
@@ -288,41 +388,11 @@ export function Omraderegister({ omradeId, omradetype }: { omradeId: string; omr
         <KommunensPlikter kommunenummer={tilhorighet.kommune.omradekode} />
       )}
 
-      <section style={{ marginBottom: '2rem' }}>
-        <Heading level={3} data-size="xs" style={{ marginBottom: '0.75rem' }}>Hvem har ansvar her</Heading>
-        <Metatekst style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
-          Aktører med ansvarsområde i (eller sete i) nettopp dette området. Ansvar i et overordnet område (fylket,
-          lagdømmet) står på det områdets side — og i tilhørigheten over for en kommune.
-        </Metatekst>
-        <StrukturkantTabell kanter={ansvar} tomTekst="Ingen aktør har ansvarsområde direkte i dette området." />
-      </section>
-
-      {sognerHit && sognerHit.length > 0 && (
-        <section style={{ marginBottom: '2rem' }}>
-          <Heading level={3} data-size="xs" style={{ marginBottom: '0.75rem' }}>Sogner hit</Heading>
-          <Metatekst style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
-            Tingrettene som sogner til lagsognet. Kommunene i lagsognet er kommunene disse tingrettene dekker.
-          </Metatekst>
-          <StrukturkantTabell kanter={sognerHit} tomTekst="" />
-        </section>
-      )}
-
-      <section style={{ marginBottom: '2rem' }}>
-        <Heading level={3} data-size="xs" style={{ marginBottom: '0.75rem' }}>Består av</Heading>
-        <StrukturkantTabell kanter={sammensetning} tomTekst="Området er ikke registrert med delområder." />
-      </section>
-
-      <section style={{ marginBottom: '2rem' }}>
-        <Heading level={3} data-size="xs" style={{ marginBottom: '0.75rem' }}>Inngår i</Heading>
-        <StrukturkantTabell kanter={inngarI} tomTekst="Området er ikke registrert som del av et annet område." />
-      </section>
-
-      {ovrige && ovrige.length > 0 && (
-        <section style={{ marginBottom: '2rem' }}>
-          <Heading level={3} data-size="xs" style={{ marginBottom: '0.75rem' }}>Andre strukturutsagn</Heading>
-          <StrukturkantTabell kanter={ovrige} tomTekst="" visKategori />
-        </section>
-      )}
+      {/* [ENDRET, issue #390 AK 3, Johann 2026-10-16] Relasjonene i klart språk, gruppert etter betydning («Er territoriet til», «Ligger i
+        * fylke», «Domstol», «Rettssted for» …). Før: fire seksjoner med kanttekst sett fra områdets side («er ansvarsområde for Alta
+        * kommune»), som var vanskelig å lese. Kilden står i egen kolonne; den tekniske kategorien står som forklaring under overskriften. */}
+      <OmradeRelasjoner kanter={kanter} omradetype={omradetype}
+        egneRettssubjekter={new Set(tilhorighet?.rubrikker.find((r) => r.rubrikk === 'kommune')?.kandidater.map((k) => k.id) ?? [])} />
     </>
   );
 }

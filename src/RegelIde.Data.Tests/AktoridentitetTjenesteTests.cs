@@ -283,15 +283,59 @@ public class AktoridentitetTjenesteTests
         var etter = await db.NavneformBindinger.AsNoTracking().Where(b => b.NavneformId == navneform.Id).ToDictionaryAsync(b => b.Id);
         Assert.NotNull(etter[iHjemmelen.Id].HjemmelEndretTidspunkt);
         Assert.Null(etter[urort.Id].HjemmelEndretTidspunkt);
-        Assert.NotNull(etter[hele.Id].HjemmelEndretTidspunkt);
+        // [ENDRET, issue #390, Johanns tillegg 2026-10-23] Hele rettskilden uten en tagget forekomst av navneformen flagges ikke lenger ved
+        // enhver tekstendring (se testen under for tilfellene med tagger).
+        Assert.Null(etter[hele.Id].HjemmelEndretTidspunkt);
         Assert.Equal(2, etter[hele.Id].KildeUtenforKorpusLenker!.Count);
         Assert.Equal("https://www.regjeringen.no/", etter[hele.Id].KildeUtenforKorpusLenke);
         Assert.Equal(Strukturkanter.Godkjent, etter[iHjemmelen.Id].Status); // ingenting annet endres
-        Assert.Equal(2, (await generiske.HentBindingerAsync(navneformId: navneform.Id, bareHjemmelEndret: true)).Count);
+        Assert.Single(await generiske.HentBindingerAsync(navneformId: navneform.Id, bareHjemmelEndret: true));
 
         await generiske.GodkjennAsync(iHjemmelen.Id, "Jurist");
         Assert.Null((await db.NavneformBindinger.AsNoTracking().SingleAsync(b => b.Id == iHjemmelen.Id)).HjemmelEndretTidspunkt);
     }
+
+    /// <summary>[Ny, issue #390, Johanns tillegg 2026-10-23 fra #385] En binding for hele rettskilden (uten paragrafspenn) får «hjemmel endret»
+    /// bare når en node med en TAGGET forekomst av navneformen endres: en endring i et ledd uten forekomst gir ikke flagg, en endring i et
+    /// ledd med forekomst gir flagg.</summary>
+    [Fact]
+    public async Task Binding_for_hele_rettskilden_flagges_bare_naar_en_tagget_forekomst_endres()
+    {
+        await using var db = _fixture.NyDbContext();
+        var import = new RettskildeImportTjeneste(db);
+        const string datokode = "LOV-2098-08-07-390";
+        var v1 = (await import.ImporterMedUtfallAsync(LovdataKonverterer.Konverter(Isolert(datokode), new DateOnly(2026, 10, 1)))).RettskildeId;
+        var endret = await db.RettskildeNoder.FirstAsync(n => n.RettskildeId == v1 && n.Overskrift != null && n.Overskrift.Contains("Lovens virkeområde"));
+        var uendret = await db.RettskildeNoder.Where(n => n.RettskildeId == v1 && n.NodeType == "paragraf" && n.Id != endret.Id
+                && !n.Eid.StartsWith(endret.Eid) && !endret.Eid.StartsWith(n.Eid))
+            .OrderByDescending(n => n.Sorteringsrekkefolge).FirstAsync();
+        var a = await NyVirksomhetAsync(db, $"Flagg B {Guid.NewGuid():N}");
+        var generiske = new GeneriskNavneformTjeneste(db);
+        var (utenForekomst, _) = await generiske.OpprettEllerFinnAsync($"styret{Guid.NewGuid():N}", "Test");
+        var (medForekomst, _) = await generiske.OpprettEllerFinnAsync($"styret{Guid.NewGuid():N}", "Test");
+        db.TekstTagger.AddRange(
+            Tagg(v1, uendret.Eid, utenForekomst.Id, a.Id), // ordet står bare i et ledd som ikke endres
+            Tagg(v1, endret.Eid, medForekomst.Id, a.Id));  // ordet står i leddet som endres
+        await db.SaveChangesAsync();
+        NyNavneformBinding HeleKilden(Guid navneformId) => new(navneformId, v1, Kantnode.Virksomhet(a.Id),
+            KildeUtenforKorpusTekst: "Kgl.res.", KildeUtenforKorpusType: "kgl_res", KildeUtenforKorpusDokumentasjon: "primaer", Status: "godkjent");
+        var ikkeFlagg = await generiske.OpprettBindingAsync(HeleKilden(utenForekomst.Id), "Test");
+        var flagg = await generiske.OpprettBindingAsync(HeleKilden(medForekomst.Id), "Test");
+
+        var resynk = await import.ImporterMedUtfallAsync(LovdataKonverterer.Konverter(
+            Isolert(datokode, h => h.Replace("Lovens virkeområde.", "Lovens virkeområde og formål.")), new DateOnly(2026, 10, 16)));
+        Assert.Equal(RettskildeImportUtfall.NyVersjon, resynk.Utfall);
+
+        await using var les = _fixture.NyDbContext();
+        Assert.Null((await les.NavneformBindinger.SingleAsync(b => b.Id == ikkeFlagg.Id)).HjemmelEndretTidspunkt);
+        Assert.NotNull((await les.NavneformBindinger.SingleAsync(b => b.Id == flagg.Id)).HjemmelEndretTidspunkt);
+    }
+
+    private static TekstTaggEntitet Tagg(Guid rettskildeId, string eid, Guid navneformId, Guid virksomhetId) => new()
+    {
+        Id = Guid.NewGuid(), RettskildeId = rettskildeId, NodeEid = eid, StartOffset = 0, EndOffset = 5, QuotePrefix = "", QuoteExact = "styre",
+        QuoteSuffix = "", NodeTekstHash = "x", Kind = "virksomhet", RefId = navneformId, OpprettetAv = "Test", VirksomhetId = virksomhetId,
+    };
 
     // ---------------------------------------------------------------- [Ny, issue #386] Navnet som gjeldende navneform
 

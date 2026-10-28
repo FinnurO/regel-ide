@@ -488,6 +488,8 @@ export interface StrukturnodeDto {
   id: string;
   navn: string;
   nodetype: string | null;
+  /** [Ny, issue #390 AK 3] Områdetypen når noden er et registrert område, ellers null. */
+  omradetype?: Omradetype | null;
 }
 
 /** [Ny, issue #311] GET /api/strukturkanter?virksomhetId|begrepId=… — én kant med navn og visningstekst.
@@ -1726,6 +1728,38 @@ export interface KommuneTilhorighetDto {
   rubrikker: TilhorighetsrubrikkDto[];
   overordnede: OmradeVisningDto[];
   ansvarlige: { virksomhetId: string; navn: string; typekode: string; via: OmradeVisningDto; kantId: string }[];
+}
+
+/** [Ny, issue #390 AK 1] Ett svar i «Område og tilhørighet»: noden, premissene (kant-id-er i kjedens rekkefølge, slått opp i
+ * `VirksomhetTilhorighetDto.premisser`) og det svakeste premisset. `kunnskapsstatus` er aldri sterkere enn det svakeste premisset
+ * (docs/33 §4.6). `avledet` = false bare for en lagret kant fra aktøren selv (et registrert medlemskap). */
+export interface TilhorighetKandidatDto {
+  node: StrukturnodeDto;
+  avledet: boolean;
+  kunnskapsstatus: Kunnskapsstatus | null;
+  premisser: string[];
+  svakestePremissId: string | null;
+  svakestePremissStatus: Kunnskapsstatus | null;
+  forslag: boolean;
+}
+
+/** [Ny, issue #390 AK 1] `flere` = flere svar er riktig (en tingrett med to rettssteder); `ikke_entydig` = flere, ingen valgt. */
+export interface TilhorighetSvarDto {
+  rubrikk: string;
+  status: 'entydig' | 'ikke_entydig' | 'flere' | 'mangler';
+  kandidater: TilhorighetKandidatDto[];
+  hull: string | null;
+}
+
+/** [Ny, issue #390 AK 1] GET /api/virksomheter/{id}/omrade-tilhorighet. `territorium` = null: aktøren har ikke eget territorium (`hull`). */
+export interface VirksomhetTilhorighetDto {
+  aktor: StrukturnodeDto;
+  territorium: OmradeVisningDto | null;
+  territoriekantId: string | null;
+  hull: string | null;
+  svar: TilhorighetSvarDto[];
+  klasser: TilhorighetKandidatDto[];
+  premisser: StrukturkantDto[];
 }
 
 /** [Ny, issue #353] Hvorfor en plikt gjelder (eller kan gjelde) kommunen: fra kommunens egen virksomhet, fra en klasse

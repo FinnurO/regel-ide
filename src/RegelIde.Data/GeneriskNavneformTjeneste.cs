@@ -141,6 +141,10 @@ public sealed class GeneriskNavneformTjeneste(RegelIdeDbContext db)
     /// aktøromtale; et uavklart <c>gruppe</c>-begrep må først få type (#310).</summary>
     public static readonly string[] ReferentBegrepstyper = [Nodetyper.Klasse, Nodetyper.Rolle];
 
+    /// <summary>[Ny, issue #390] Navneformgrunnen for en kortform («Alta» for Alta kommune). En kortform for en aktør kan bindes per
+    /// rettskilde, og da også til et område (se <see cref="OpprettBindingAsync"/>).</summary>
+    public const string Kortform = "kortform";
+
     public static string NormaliserTerm(string term) => term.Trim().ToLowerInvariant();
 
     /// <summary>Den generiske navneformen for termen, eller null.</summary>
@@ -200,9 +204,14 @@ public sealed class GeneriskNavneformTjeneste(RegelIdeDbContext db)
     {
         var navneform = await db.Begreper.FirstOrDefaultAsync(b => b.Id == ny.NavneformId && b.Entitetsstatus == "gjeldende", ct)
             ?? throw new ArgumentException($"Fant ingen navneform med id '{ny.NavneformId}'. Ingen gjettet fallback.");
-        if (navneform.Navneformgrunn != VirksomhetsbegrepTjeneste.Generisk)
+        // [ENDRET, issue #390 AK 2, Johann 2026-10-16] Også en KORTFORM for en aktør kan bindes: «Alta» er kortform for Alta kommune, men
+        // betyr området Alta i forskriften om rettskretser. Uten binding er referenten aktøren navneformen hører til; bindingen sier hva
+        // ordet betyr i én rettskilde (eller et spenn av den). Andre navneformer (gjeldende, utgått, parallellnavn …) bindes ikke.
+        var kortform = navneform.Navneformgrunn == Kortform && navneform.VirksomhetReferanseId is not null;
+        if (navneform.Navneformgrunn != VirksomhetsbegrepTjeneste.Generisk && !kortform)
         {
-            throw new ArgumentException($"«{navneform.Term}» er ikke en generisk navneform — bare generiske navneformer bindes per rettskilde.");
+            throw new ArgumentException(
+                $"«{navneform.Term}» er verken en generisk navneform eller en kortform for en aktør — bare de bindes per rettskilde.");
         }
         if (!await db.Rettskilder.AnyAsync(r => r.Id == ny.RettskildeId, ct))
         {
@@ -217,10 +226,13 @@ public sealed class GeneriskNavneformTjeneste(RegelIdeDbContext db)
         {
             var kategori = await db.Begreper.Where(b => b.Id == bid && b.Entitetsstatus == "gjeldende").Select(b => b.Begrepskategori)
                 .FirstOrDefaultAsync(ct);
-            if (kategori is null || !ReferentBegrepstyper.Contains(kategori))
+            // [ENDRET, issue #390] En kortform kan også bindes til et OMRÅDE (kommunenavnet som stedsnavn). En generisk omtale kan ikke:
+            // «styret» er alltid en aktøromtale.
+            if (kategori is null || !(ReferentBegrepstyper.Contains(kategori) || (kortform && kategori == Nodetyper.Omrade)))
             {
-                throw new ArgumentException(
-                    $"Referenten må være en virksomhet eller et begrep av typen klasse eller rolle (fant '{kategori ?? "ingen"}').");
+                throw new ArgumentException(kortform
+                    ? $"Referenten for en kortform må være en virksomhet, et område eller et begrep av typen klasse eller rolle (fant '{kategori ?? "ingen"}')."
+                    : $"Referenten må være en virksomhet eller et begrep av typen klasse eller rolle (fant '{kategori ?? "ingen"}').");
             }
         }
 

@@ -638,6 +638,11 @@ public static class OmraderegisterSeed
         // docs/33 §5.3). Registerkanter (kildetype register: Kartverket, Enhetsregisteret, SSR) og de kuraterte filene
         // (lest av et menneske, kilden oppgitt) lagres som validert: de er data fra en kilde, ikke tolket lovtekst.
         var status = oppdagelseskilde.StartsWith("monster:", StringComparison.Ordinal) ? Strukturkanter.MaskineltForeslatt : Strukturkanter.Godkjent;
+        // [Ny, issue #390 AK 4] Registerkanter er eksternt dokumentert etter regel (RegisterkantKunnskapsstatusTjeneste) — også de nye.
+        if (ny.KildeUtenforKorpusType == Strukturkanter.Register && ny.Kunnskapsstatus is null)
+        {
+            ny = ny with { Kunnskapsstatus = Strukturkanter.EksterntDokumentert };
+        }
         var opprettet = await t.Kanter.OpprettAsync(ny with { OppdagelsesKilde = oppdagelseskilde, Status = status }, OpprettetAv, ct);
         t.Kantnokler.Add(nokkel);
         if (opprettet.VarNy) t.NyeKanter++;

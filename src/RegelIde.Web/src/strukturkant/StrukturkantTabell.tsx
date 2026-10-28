@@ -115,13 +115,19 @@ export interface StrukturkantTabellProps {
   handlinger?: (kant: StrukturkantDto) => ReactNode;
   /** [Ny, issue #341] Vis kompetansefamilien som tag — når tabellen blander familier. */
   visFamilie?: boolean;
+  /** [Ny, issue #390 AK 3] Erstatter utsagnsteksten i første kolonne (merkene står som før). Brukes når overskriften over tabellen
+   * alt sier hva relasjonen er («Ligger i fylke»), og raden bare trenger den andre noden. */
+  utsagn?: (kant: StrukturkantDto) => ReactNode;
+  /** [Ny, issue #390 AK 3] Overskriften på første kolonne (standard «Utsagn»). */
+  utsagnOverskrift?: string;
 }
 
 /**
  * Tabellen. Kolonner: utsagnet (med lenker og tagger), avgrensningen (paragrafspenn + tekst + egen gyldighet)
  * og hjemmelen/kilden. `Card` ALLTID rendret med tom-tilstand inni (docs/09 §14/§28).
  */
-export function StrukturkantTabell({ kanter, tomTekst, visKategori = false, visHjemmelKilde = true, handlinger, visFamilie = false }: StrukturkantTabellProps) {
+export function StrukturkantTabell({ kanter, tomTekst, visKategori = false, visHjemmelKilde = true, handlinger, visFamilie = false, utsagn,
+  utsagnOverskrift = 'Utsagn' }: StrukturkantTabellProps) {
   // Nodene per rettskilde, for «§ 36 sjette ledd» i stedet for rå eId (docs/09 §18) — lazy, samme mønster
   // som VirksomhetDetalj hadde for tildelingene.
   const [noder, setNoder] = useState<Map<string, RettskildeNodeDto[]>>(new Map());
@@ -150,7 +156,7 @@ export function StrukturkantTabell({ kanter, tomTekst, visKategori = false, visH
         <Table data-density="compact">
           <Table.Head>
             <Table.Row>
-              <Table.HeaderCell>Utsagn</Table.HeaderCell>
+              <Table.HeaderCell>{utsagnOverskrift}</Table.HeaderCell>
               <Table.HeaderCell>Avgrensning</Table.HeaderCell>
               <Table.HeaderCell>Hjemmel / kilde</Table.HeaderCell>
               {handlinger && <Table.HeaderCell>Handlinger</Table.HeaderCell>}
@@ -168,7 +174,7 @@ export function StrukturkantTabell({ kanter, tomTekst, visKategori = false, visH
                   <Table.Cell>
                     <span style={{ display: 'inline-flex', gap: '0.4rem', alignItems: 'center', flexWrap: 'wrap' }}>
                       {visKategori && <StrukturkantKategoriTag kategori={k.kategori} />}
-                      <span><KanttekstMedLenker tekst={k.visningstekst} noder={lenkenoder} /></span>
+                      <span>{utsagn ? utsagn(k) : <KanttekstMedLenker tekst={k.visningstekst} noder={lenkenoder} />}</span>
                       {/* [Ny, issue #397, Johann 2026-10-24 på #134] Omfanget av en etterfølger: antall lovdeler som gikk over. Ikke hoved/del. */}
                       {k.omfang != null && (
                         <Tag data-size="sm" data-color="neutral" title="Antall lovdeler som gikk over i vedtaket, talt fra premissene (forvaltningskantene).">

@@ -9,6 +9,7 @@ import { NavneformgrunnTag, NavneformgrunnVelger } from '../virksomhet/Navneform
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 import { LeggTilMyndighetstildelingForm } from '../virksomhet/LeggTilMyndighetstildelingForm';
 import { StrukturkantTabell } from '../strukturkant/StrukturkantTabell';
+import { OmradeOgTilhorighet } from '../virksomhet/OmradeOgTilhorighet';
 import { KompetanseTabell } from '../strukturkant/KompetanseTabell';
 import { paragrafEtikett } from '../rettskilde/paragrafEtikett';
 import { LeggTilVirksomhetRelasjonForm } from '../virksomhet/LeggTilVirksomhetRelasjonForm';
@@ -49,7 +50,8 @@ const SLETT_OVERSIKT_ETIKETTER: [key: keyof VirksomhetSlettOversiktDto, etikett:
  * og "Rettskilder" er to ulike spørsmål (hvem styrer virksomheten vs. hvilke rettskilder den selv har
  * fastsatt), holdt adskilt. Se docs/design-canvas/VirksomhetDetalj.dc.html.
  */
-type Fane = 'grunndata' | 'navneformer' | 'myndighet' | 'rettskilder' | 'kandidater' | 'farligSone';
+// [ENDRET, issue #390] + 'omrade' («Område og tilhørighet»), bare for et rettssubjekt.
+type Fane = 'grunndata' | 'navneformer' | 'omrade' | 'myndighet' | 'rettskilder' | 'kandidater' | 'farligSone';
 
 export default function VirksomhetDetalj() {
   const { id } = useParams<{ id: string }>();
@@ -308,6 +310,8 @@ export default function VirksomhetDetalj() {
         <Tabs.List>
           <Tabs.Tab value="grunndata">Grunndata</Tabs.Tab>
           <Tabs.Tab value="navneformer">Navneformer</Tabs.Tab>
+          {/* [Ny, issue #390 AK 1] Det rettssubjektet hører til via territoriet (fylke, tingrett, lagdømme …), med kjeden. */}
+          {aktortype === 'rettssubjekt' && <Tabs.Tab value="omrade">Område og tilhørighet</Tabs.Tab>}
           <Tabs.Tab value="myndighet">Myndighet &amp; relasjoner</Tabs.Tab>
           <Tabs.Tab value="rettskilder">Rettskilder</Tabs.Tab>
           <Tabs.Tab value="kandidater">Kandidater</Tabs.Tab>
@@ -364,6 +368,8 @@ export default function VirksomhetDetalj() {
           overordnetNavn={virksomhet.overordnetEnhetId ? virksomheterPerId.get(virksomhet.overordnetEnhetId)?.visningsnavn ?? virksomhet.overordnetEnhetId : null} />
       </section>
       )}
+
+      {fane === 'omrade' && id && aktortype === 'rettssubjekt' && <OmradeOgTilhorighet virksomhetId={id} />}
 
       {/* [Ny, issue #341 «kompetanse med motpart», 2026-10-08] Kompetansen først, gruppert på familie: «hvilken kompetanse
         * har virksomheten, overfor hvem?» og, fra motpartens side, «hvem har kompetanse overfor denne?» (docs/32 S9). Før

@@ -1072,7 +1072,7 @@ term som alt er navneform for én virksomhet, kan ikke gjøres generisk (oppslag
 eller begrep av typen klasse eller rolle). Et modellutsagn med samme egenskaper som strukturkantene etter #367: hjemmel i korpus ELLER kilde
 utenfor korpus (type og dokumentasjon), kunnskapsstatus (docs/profil/03 §5: `tekstfunn` når loven definerer ordet, ellers `fortolkning` med
 tolkningsargumenter, eller `eksternt_dokumentert`; `avledet` og `foreldet` avvises), godkjenning, avvisning med hvem/hvorfor (slettes ikke).
-Bare godkjente bindinger oppløser ([ENDRET, #394, Johanns beslutning 2 2026-10-23] godkjente OG faglig vurderte; se §5.10); det smaleste spennet som dekker noden vinner (et spenn dekker nodene fra–til i dokumentrekkefølge og alt
+[Ny, #390] En kortform for en aktør kan også bindes, og da også til et område (§5.13). Bare godkjente bindinger oppløser ([ENDRET, #394, Johanns beslutning 2 2026-10-23] godkjente OG faglig vurderte; se §5.10); det smaleste spennet som dekker noden vinner (et spenn dekker nodene fra–til i dokumentrekkefølge og alt
 under dem; tomt = hele rettskilden). [ENDRET før merge, Johanns beslutning 2026-10-16 etter juristrunden B1] Bindingen har egen gyldighet
 (`gyldig_fra`/`gyldig_til`): «departementet» følger ressortfordelingen ved kgl.res., som kan endres uten at loven endres (docs/profil/03 §8).
 Oppslaget bruker bare bindinger som gjelder på datoen (standard i dag). Samme virkeområde kan ha bindinger etter hverandre i tid;
@@ -1139,7 +1139,7 @@ rettskildene. Migrasjonen `Aktoridentitet`:
   NØYAKTIG lik navneformen. Konverteringens entitetstype gir et aktørtypeforslag (`maskinelt_foreslatt`, kunnskapsstatus ikke vurdert).
   Treff som alt finnes (strukturkanter med hjemmel-eId og en aktør i en ende) etterfylles med `POST /api/aktorer/etterfyll-kilde-og-tagger`.
 - **Bindingene** har «hjemmel endret» (AC12) etter samme regel som kantene: hjemmelen eller spennet har annen tekst i den nye versjonen av
-  verket. Et tomt spenn (hele rettskilden) flagges ved enhver tekstendring. «Hjemmel mangler» er lov som uavklart med begrunnelse.
+  verket. Et tomt spenn (hele rettskilden) flagges [ENDRET, #390, Johanns tillegg 2026-10-23] bare når en node med en tagget forekomst av navneformen endres (§5.13). «Hjemmel mangler» er lov som uavklart med begrunnelse.
 - **Målt på en kopi av lokal `regelide` 2026-10-23:** 55 aktører uten gjeldende navneform → 31 forslag, 11 har navneformen uten grunnen
   «gjeldende», 7 uten treff, 6 med flere skrivemåter. Etterfyllingen: 133 kanttreff for 61 aktører → 53 kilder, 103 nye tagger (27
   fantes), 3 ikke tagget (annen skrivemåte), 0 uten eier.
@@ -1465,6 +1465,78 @@ forslagskøens tjenestevei (§5.3): samme aktørklassifisering (§5.7, §5.8), s
   rader løst via entitetstype, 0 via referent. 76 rader svekket normalisering → uavklart: «departementet» løst via standardregelen
   `ansvarlig_departement`, der ressortforslaget ikke er vurdert. 280 uløste aktører (260 ny aktør, 14 ny navneform for kjent aktør, 6
   flertydige). Andre kjøring: 351 uendret, 0 nye rader. Detaljene står i #387.
+
+### 5.13 Kommunens tilhørighet via territoriet, kortform og registerkanter (#390, bygget 2026-10-27)
+
+Johann 2026-10-16 (Alta-eksempelet): området «Alta» og rettssubjektet «Alta kommune» er bevisst skilt (§4.1). Tingretten har domsmyndighet over
+territoriet, ikke over kommunen som juridisk person. Den som åpnet Alta kommune, så likevel ikke hvilken tingrett kommunen hører til.
+
+**Område og tilhørighet sett fra aktøren (AK 1)** (`OmradeTilhorighetTjeneste`, `GET /api/virksomheter/{id}/omrade-tilhorighet`, fanen
+«Område og tilhørighet» på et rettssubjekt, docs/09 §47):
+- Territoriet er aktørens `A har_ansvarsomrade` til kommuneområdet med samme kommunenummer (regelen fra #384). Ingen eller flere → ingen svar,
+  og hullet sies.
+- Rubrikkene er fylke, tingrett, rettssted, lagsogn, lagdømme, lagmannsrett, statsforvalter, helseregion, RHF og valgkrets, pluss medlemskap i
+  klasser. Kjedene er de samme som tilhørigheten på områdesiden, med territoriekanten først: kommune ← fylke (O), kommune ← tingrett →
+  lagsogn (A + A sogner_til) → lagdømme (O) ← lagmannsrett (A), tingrett → rettssted (A har_sete_i).
+- Ingenting lagres (#345). Hvert svar har premissene i kjedens rekkefølge.
+- **Svakeste premiss (§4.6)** håndheves her: svaret er `avledet` bare når det svakeste premisset er minst like sterkt som `avledet`. Ellers
+  får det premissets nivå, og et premiss som ikke er vurdert, gir `uavklart` (`SvakestePremiss`). Det svakeste premisset står i svaret.
+  Å håndheve regelen i de andre avledningene er #411.
+- Valgkretsen er ikke en områdetype i registeret og står som «mangler». Den utledes ikke av fylket.
+
+**Registerkanter er eksternt dokumentert (AK 4)** (`RegisterkantKunnskapsstatusTjeneste`,
+`POST /api/strukturkanter/registerkanter/eksternt-dokumentert[/angre]?skriv=`):
+- Regel: kilde utenfor korpus av typen `register` og kunnskapsstatus ikke vurdert → `eksternt_dokumentert`. Godkjenningen endres ikke, og
+  en kant med vurdert status overskrives aldri. Vedtekter, kgl.res. og kanter med hjemmel røres ikke.
+- Endringen gjøres på raden, med én proveniensrad per kant (`regel = register_eksternt_dokumentert`). En revisjon ville gitt nye kant-id-er
+  og brutt premisser og bekreftelser. `/angre` setter tilbake de kantene der siste kunnskapsstatus-endring var regelen.
+- Nye registerkanter fra `OmraderegisterSeed` får statusen når de opprettes.
+
+**Kortform per kommune (AK 2)** (`KommuneKortformTjeneste`, `POST /api/omrader/kommuner/kortformer?skriv=&kommunenummer=`):
+- Kortformen er Kartverkets kommunenavn (`kommunenavnNorsk`). Den lages ikke ved å kutte «kommune» av registernavnet.
+- Navneformen har grunn `kortform`, registeret som kilde og `maskinelt_foreslatt`. Den får ingen tagger (§5.11).
+- [ENDRET, juristrunden k2] Kunnskapsstatus er `fortolkning` (`kontekst_system`), ikke eksternt dokumentert. Kartverket navngir
+  kommuneområdet, og Enhetsregisteret gir orgnr og kommunenummer. At rettssubjektet bærer områdets navn, er en slutning
+  (kommuneloven § 3-1).
+- Kommuner som alt har kortformen, eller der et menneske har avvist den, hoppes over.
+- [Ny, juristrunden k2] **Et kortformforslag som ikke er vurdert, brukes ikke i navneoppslaget** (`VirksomhetOppslagTjeneste`,
+  aktørklassifisereren). Ellers ville forslagene gjort kommunenavn som før traff bare området, flertydige i hele korpuset.
+- **Kollisjoner listes og stoppes ikke.** To kommuner med samme navn får hver sin kortform, og oppslaget blir flertydig til en binding
+  eller konteksten avgjør. Kommunens eget territorium er ikke en kollisjon.
+- Kjente hull (juristrunden k3/k4): sjekken ser bare dagens inndeling, ikke tidligere kommunenavn (Bø, Os, Nes, Sande før 2020). Den ser
+  heller ikke kortformer som også er vanlige ord (Time, Sel, Ås, Fjord); oppslaget skiller ikke store og små bokstaver.
+- [Ny, #390-oppfølging 2026-10-28] **Samiske og kvenske navn.** Kartverket-øyeblikksbildet er fornyet med `gyldigeNavn` (samme 357
+  kommuner og norske navn som før). Hvert navn som ikke er norsk, foreslås som navneform med grunn `parallellnavn`, ikke `kortform`.
+  Det er samme regel som registernavn-synken: et navn på et annet språk er likestilt, ikke en kortform. Ellers gjelder samme regel som
+  for kortformen: registeret som kilde, `fortolkning`, forslag, og forslaget brukes ikke i navneoppslaget før det er vurdert. Språket og
+  Kartverkets prioritet står i kildeteksten. Kartverket oppgir slike navn for 26 kommuner: 15 nordsamiske, 8 sørsamiske, 3 lulesamiske og
+  4 kvenske, til sammen 30. Tallet 41 over teller kommuner som alt hadde et parallellnavn fra registernavn-synken (fulle navn som
+  «Gáivuona suohkan»), ikke Kartverkets kortnavn.
+
+**Binding av en kortform (AK 2)** (§5.7): en kortform for en aktør kan bindes per rettskilde, og da også til et **område**. En generisk
+navneform kan fortsatt ikke bindes til et område. Aktørklassifisereren (§5.7) bruker en vurdert binding på en kortform når den dekker noden
+(én referent → kjent), uten standardregel. «Alta» i forskrift om inndelingen av rettskretser og lagdømmer er bundet til området Alta. Hjemmelen er
+§ 2 første ledd nr. 1, med kunnskapsstatus `fortolkning` (ordlyd, kontekst_system). Bindingen er et forslag, og juristrunden sa at den holder.
+Utenfor den forskriften finnes ingen binding.
+
+**«Hjemmel endret» for en binding uten spenn** (Johanns tillegg 2026-10-23, `HjemmelEndretFlagg`): flagget settes bare når en node med en
+**tagget** forekomst av navneformen er endret eller borte i den nye versjonen. Før #390 ble flagget satt ved enhver tekstendring. Taggene
+leses fra versjonen bindingen ble vurdert mot. En forekomst som ikke er tagget, gir ikke flagg.
+
+**Relasjonstabellen på områdesiden (AK 3)** grupperes etter betydning: Er territoriet til, Ligger i ‹type›, Domstol (tingrett), Rettssted
+for, Tingretter som sogner hit, Statsforvalter, Lagmannsrett, Regionalt helseforetak, Består av ‹typer›. Kilden står i egen kolonne
+(docs/09 §47). `StrukturnodeDto` har fått `omradetype`.
+
+**Målt og skrevet i lokal `regelide` 2026-10-26/27:**
+- 730 registerkanter er satt til `eksternt_dokumentert`: 357 A territorium (Enhetsregisteret + Kartverket), 357 O fylke → kommune og
+  16 O kommune → tettsted (Kartverket SSR). Det gir 730 proveniensrader.
+- Av de 739 A-premissene i #411 er de 357 territoriekantene løftet. Det utledede medlemskapet i «kommune» har nå bare eksternt dokumenterte
+  premisser, og det samme gjelder fylkessvaret på kommunesiden. Tingrett-, lagmannsrett-, statsforvalter- og RHF-kantene (382) er ikke vurdert.
+  Svarene som bygger på dem, vises derfor som `uavklart`.
+- 357 kommuner: 209 nye kortformforslag og 148 som hadde kortformen fra før. Kollisjoner: Herøy (1515/1818), Våler (3114/3419) og Oslo
+  (kommune og fylke 03). 41 kommuner har samiske eller kvenske parallellnavn.
+- Én binding: «Alta» → området Alta i forskrift om inndelingen av rettskretser og lagdømmer (forslag).
+- Juristrunden ligger i `data/fasit/strukturmodell/juristrunde-390-kortform.json` og `juristrunde-390/`.
 
 ### 5.6 Konvertering av eksisterende data
 

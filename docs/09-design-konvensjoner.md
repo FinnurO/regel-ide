@@ -1020,6 +1020,7 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
 - **Samlet godkjenning:** når området har forslag, vises «Godkjenn alle N forslag hjemlet i X» øverst på områdefanen —
   to klikk (knapp → «Bekreft»), fordi handlingen gjelder alle forslag med samme hjemmel, også i andre områder.
   Tilhørigheten merker en kandidat «Forslag» (`info`) når svaret hviler på en ikke-godkjent kant.
+- **[ENDRET, issue #390] Seksjonene under tilhørigheten er erstattet av «Relasjoner» gruppert etter betydning (§47).**
 - **[Ny, issue #345] «Sogner hit»:** `A sogner_til` (tingrett → lagsogn) vises ikke under «Hvem har ansvar her», men i
   en egen seksjon «Sogner hit». Seksjonen rendres bare når den har innhold, og det har den i praksis bare for lagsogn.
   En kommunes lagsogn og lagdømme står ikke som kant på kommunen. De avledes i tilhørigheten gjennom tingretten.
@@ -1275,3 +1276,24 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
   ventende (§35, fargen er låst per betydning); teksten skiller dem. `title` har fil og id og sier at fasiten er kontrollert i #309 og
   juristrundene, men ikke av to uavhengige menneskelige jurister (docs/profil/03 §10).
 - Hele teksten står synlig, ikke bare i `title`: AK 4 krever at en leser ser at vurderingen ikke er uavhengig kontrollert.
+
+## 47. Område og tilhørighet på aktørsiden, og relasjonene på områdesiden (issue #390, 2026-10-27)
+
+- **Fanen «Område og tilhørighet»** (`virksomhet/OmradeOgTilhorighet.tsx`) vises på VirksomhetDetalj for et rettssubjekt. Den har først en
+  linje med territoriet (lenke, `OmradetypeTag`, kunnskapsstatus). Deretter kommer en kompakt tabell med to kolonner, «Hører til» og «Svar,
+  status og kjede», og til slutt «Medlem av klasser».
+- **Hvert svar** har lenke til noden og `KunnskapsstatusTag` (§35). Statusen er aldri sterkere enn det svakeste premisset: et svar som
+  hviler på en kant som ikke er vurdert, er «Uavklart» (`warning`), ikke «Avledet». Under svaret står «Svakeste premiss: «‹kant›»
+  (‹status›)» som `Metatekst`. «Forslag» (`info`) vises når et premiss ikke er godkjent.
+- **Kjeden** står i en lukket `Details` («Kjeden (N premisser)»), med premissene i rekkefølge i `StrukturkantTabell` (§31). Ingen egen
+  kanttabell.
+- **Rubrikkstatus** følger tilhørigheten (§32): «Ikke entydig» `warning`, «Mangler» `neutral` med hullet som `Metatekst`. Rettssted kan
+  ha flere svar (`flere`). Det får ingen tag.
+- **Relasjonene på områdesiden** (`begrep/Omraderegister.tsx`, `OmradeRelasjoner`) erstatter «Hvem har ansvar her», «Sogner hit», «Består
+  av», «Inngår i» og «Andre strukturutsagn». Gruppene er sortert etter betydning: Er territoriet til, Ligger i ‹type›, Domstol (tingrett),
+  Rettssted for, Tingretter som sogner hit, Statsforvalter, Lagmannsrett, Regionalt helseforetak, Består av ‹typer›, Andre.
+- **Hver gruppe** har overskrift (`Heading level={4} data-size="2xs"`) og den tekniske kategorien som `Metatekst`. Under står én
+  `StrukturkantTabell` med den andre noden i første kolonne (`utsagn`-propen, kolonnenavn fra gruppen) og kilden i egen kolonne. Mønsteret
+  er det samme som kompetansefamiliene (§33).
+- **Grupperingen bruker aldri navnet på aktøren.** Den bruker områdetypen (`StrukturnodeDto.omradetype`), kanttypen og oppdagelseskilden
+  (`monster:inndeling-*` for tingretten).

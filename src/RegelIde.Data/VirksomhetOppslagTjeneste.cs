@@ -77,6 +77,11 @@ public sealed class VirksomhetOppslagTjeneste(RegelIdeDbContext db)
                         && b.Entitetsstatus == "gjeldende"
                         && b.VirksomhetReferanseId != null
                         && b.Term.ToLower() == navnLower)
+            // [Ny, issue #390, juristrunden k2] En kortform som bare er et FORSLAG (ikke vurdert av noen), brukes ikke i oppslaget. Ellers ville
+            // de 209 kortformforslagene gjort kommunenavn som før traff bare området («Fjord», «Sel», «Os»), flertydige i hele korpuset.
+            // [ENDRET, #390-oppfølging] Det samme gjelder parallellnavnforslagene fra Kartverket (samme oppdagelseskilde).
+            .Where(b => !((b.Navneformgrunn == GeneriskNavneformTjeneste.Kortform || b.OppdagelsesKilde == KommuneKortformTjeneste.OppdagelsesKilde)
+                          && (b.Godkjenning == Strukturkanter.MaskineltForeslatt || b.Godkjenning == Strukturkanter.ManueltForeslatt)))
             // [ENDRET, issue #395 M5] Ikke navneformene til en nedlagt aktør (se over).
             .Where(b => db.Virksomheter.Any(v => v.Id == b.VirksomhetReferanseId && v.Livsstatus == null))
             .Select(b => b.VirksomhetReferanseId!.Value)

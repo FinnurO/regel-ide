@@ -1,0 +1,21 @@
+[
+  {
+    "id": "k2",
+    "replikk": "presiserer",
+    "tekst": "(a) og (c) godtas. Jeg godtar også at (b) ikke er en feil i modellen: flertydig er ikke gjetting. Men (c) løser problemet bare til forslagene blir godkjent. Når en kortform godkjennes, gir den sammen med områdenavnet et dobbelttreff igjen, og kommunenavnet blir flertydig i alle rettskilder der det ikke finnes en binding. Det gjelder også der ordet bare kan bety stedet: valgloven § 11-1, politidistriktsforskriften og satstabellene. Godkjenning av kortformer er derfor ikke en ren formalitet per kommune. Den er en avveining Johann må gjøre bevisst. Fortsatt flertydig er trygt, men mister presisjon. Alternativet er at området er standardreferenten når ingen binding finnes, og at kommunen som rettssubjekt krever en binding. [slutning]",
+    "kilder": [
+      {"ref": "Korpusmåling 2026-10-26: «Alta» alene viser til sted eller område i 15 av 16 gjeldende rettskilder", "funksjon": "forutsatt_kilde"},
+      {"ref": "stadnamnlova § 2 bokstav a (kommunenavn er stadnamn for et administrativt område)", "funksjon": "direkte_hjemmel"},
+      {"ref": "src/RegelIde.Data/Strukturkonvertering/StrukturforslagTjeneste.cs, Aktorklassifiserer.GrunnlagAsync (et treff på både området og aktøren gir flertydig)", "funksjon": "forutsatt_kilde"}
+    ],
+    "sluttreplikk": "Et kommunenavn som står alene, som «Alta», betyr nesten alltid stedet. Det gjelder i 15 av 16 regelverk der ordet står. Kommunen som organisasjon kalles «Alta kommune». Når kortformen «Alta» godkjennes som navn på kommunen, vet ikke appen lenger om ordet betyr stedet eller kommunen. Det gjelder i alle regelverk, ikke bare i rettskretsforskriften. Appen gjetter ikke, men lar spørsmålet stå åpent, så du får flere spørsmål å svare på. Du må velge mellom to løsninger. Den ene er å la det være slik: det er trygt, men gir mer manuelt arbeid. Den andre er at ordet betyr stedet med mindre en binding sier noe annet, og det stemmer med loven og med hvordan ordet brukes."
+  },
+  {
+    "id": "k3",
+    "replikk": "godtar",
+    "tekst": "Det er godt nok i denne saken. Hullene beskrives i docs/33 §5.13 og i PR-en, og etter (c) i k2 virker ingen kortform før et menneske har vurdert den. Den som godkjenner, bør se kollisjonslisten med merknaden om tidligere kommunenavn og vanlige ord ved siden av forslaget.",
+    "kilder": [
+      {"ref": "docs/33 §4.1 (#312: områderegisteret har bare dagens inndeling)", "funksjon": "forutsatt_kilde"}
+    ]
+  }
+]

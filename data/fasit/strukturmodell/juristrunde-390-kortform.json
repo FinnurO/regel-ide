@@ -1,0 +1,61 @@
+{
+  "issue": 390,
+  "beskrivelse": "Kortformen for kommunene og bindingen av «Alta». Målt i lokal regelide 2026-10-26: 357 kommuner med territoriekant (Enhetsregisteret KOMM ↔ Kartverkets kommunenummer); 148 hadde alt en navneform lik Kartverkets kommunenavn, 209 fikk kortformen som forslag. Kortformen er Kartverkets kommunenavnNorsk, ikke registernavnet med «kommune» kuttet bort. Ordet «Alta» står i 16 gjeldende rettskilder; i forskrift om inndelingen av rettskretser og lagdømmer bare i § 2 første ledd nr. 1.",
+  "prinsipper": [
+    "Området (territoriet, begrep omrade) og rettssubjektet (kommunen, virksomhet) er bevisst skilt. Tingretten har domsmyndighet over territoriet, ikke over kommunen som juridisk person (docs/33 §4.1).",
+    "Loven definerer, registeret beskriver. En navneform er et modellutsagn med grunnlag og status (docs/33 §5.8).",
+    "En navneform peker på én aktør. En binding (navneform, rettskilde, valgfritt paragrafspenn) sier hva ordet betyr i én rettskilde og går foran (docs/33 §5.7). Bare vurderte bindinger (godkjent eller faglig vurdert) brukes i oppslaget.",
+    "Ingen gjetting: treffer et ord både området og aktøren, er oppslaget flertydig til en binding eller konteksten avgjør (CLAUDE.md §8).",
+    "En kortform tagges ikke alene i andre rettskilder (docs/33 §5.11)."
+  ],
+  "kort": [
+    {
+      "id": "k1",
+      "tema": "Bindingen av «Alta» i forskrift om inndelingen av rettskretser og lagdømmer",
+      "rettskilde": "Forskrift om inndelingen av rettskretser og lagdømmer (FOR-2021-01-22-163), gjeldende versjon i korpus",
+      "hele_leddet": "§ 2 første ledd nr. 1: «Vestre Finnmark tingrett, med rettssteder i Alta og Hámmerfeasta/Hammerfest, som dekker kommunene Alta, Hammerfest/Hámmerfeasta, Hasvik, Kvænangen, Loppa, Måsøy, Nordkapp og Porsáŋgu/Porsanger/Porsanki,»",
+      "foreslatt": {
+        "navneform": "«Alta» (grunn kortform) for Alta kommune (rettssubjektet, orgnr 944588132)",
+        "binding_rettskilde": "hele forskriften (ingen paragrafspenn)",
+        "referent": "området Alta (kommuneterritoriet, kommunenummer 5601, Kartverket)",
+        "grunnlag": "hjemmel § 2 første ledd nr. 1",
+        "kunnskapsstatus": "fortolkning",
+        "tolkningsargumenter": ["ordlyd", "kontekst_system"],
+        "begrunnelse": "Forskriften deler inn domstolenes stedlige virkeområde. «Kommunene Alta …» angir hvilke kommuneområder rettskretsen dekker, og «rettssteder i Alta» angir et sted. Ingen av dem gjør kommunen som rettssubjekt til part eller motpart.",
+        "godkjenning": "forslag (ikke vurdert)",
+        "utenfor_denne_forskriften": "Ingen binding. Kortformens egen referent er Alta kommune, men et treff på både området og kommunen gir «flertydig» til en binding eller konteksten avgjør."
+      }
+    },
+    {
+      "id": "k2",
+      "tema": "Kortform som navneform for kommunen, med registeret som kilde",
+      "foreslatt": {
+        "navneform": "«Alta» for Alta kommune; tilsvarende for alle 357 kommuner (kommunenavnet uten «kommune»)",
+        "grunn": "kortform",
+        "kilde": "Kartverket kommuneinfo (kommunenavnNorsk for kommunenummeret) og Enhetsregisteret (organisasjonsform KOMM med kommunenummeret), primærkilde",
+        "kunnskapsstatus": "eksternt_dokumentert",
+        "godkjenning": "maskinelt_foreslatt",
+        "tagging": "ingen nye tagger"
+      }
+    },
+    {
+      "id": "k3",
+      "tema": "Kollisjoner: kortformer med samme tekst som et annet område eller en annen aktør",
+      "foreslatt": {
+        "Herøy": "1515 Herøy (Møre og Romsdal) og 1818 Herøy (Nordland) får begge kortformen «Herøy». Oppslaget på «Herøy» blir flertydig; ingen kommune velges.",
+        "Våler": "3114 Våler (Østfold) hadde kortformen «Våler» fra før; 3419 Våler (Innlandet) får den nå som forslag. Flertydig; ingen velges.",
+        "Oslo": "0301 Oslo kommune har kortformen «Oslo» fra før. «Oslo» er også fylket Oslo (03). Flertydig mellom kommunen, kommuneområdet og fylket.",
+        "ikke_kollisjon": "Kommunens eget territorium (området «Alta») regnes ikke som kollisjon; det er skillet bindingen finnes for. «Bø» finnes bare én gang i dagens inndeling (1867 Bø i Nordland).",
+        "handling": "Alle kortformene lagres som forslag og listes. Referenten avgjøres av binding eller kontekst, aldri ved gjetting."
+      }
+    },
+    {
+      "id": "k4",
+      "tema": "Samiske og kvenske parallellnavn",
+      "foreslatt": {
+        "regel": "Kortform foreslås bare for det norske kommunenavnet fra Kartverket. 41 kommuner har parallellnavn som navneform (for eksempel Álttá suohkan, Kárášjoga gielda, Porsangin komuuni). Kortformer som «Álttá» eller «Porsáŋgu» foreslås ikke, fordi registeret i øyeblikksbildet bare gir det norske navnet.",
+        "merknad": "Forskriftsteksten bruker sammensatte former som «Porsáŋgu/Porsanger/Porsanki» og «Hammerfest/Hámmerfeasta»."
+      }
+    }
+  ]
+}
