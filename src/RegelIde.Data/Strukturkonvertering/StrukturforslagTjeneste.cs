@@ -553,7 +553,7 @@ internal sealed class Aktorklassifiserer(
                     .Where(b => b.Begrepskategori == "virksomhet" && b.Entitetsstatus == "gjeldende" && b.VirksomhetReferanseId != null
                                 && b.Term.ToLower() == lower)
                     // [Ny, issue #390] Samme regel som VirksomhetOppslagTjeneste: et kortformforslag som ikke er vurdert, teller ikke.
-                    .Where(b => !(b.Navneformgrunn == GeneriskNavneformTjeneste.Kortform
+                    .Where(b => !((b.Navneformgrunn == GeneriskNavneformTjeneste.Kortform || b.OppdagelsesKilde == KommuneKortformTjeneste.OppdagelsesKilde)
                                   && (b.Godkjenning == Strukturkanter.MaskineltForeslatt || b.Godkjenning == Strukturkanter.ManueltForeslatt)))
                     .Select(b => b.VirksomhetReferanseId!.Value).Distinct().Take(3).ToListAsync(ct);
                 foreach (var id in flere.Count > 1 ? flere : [])

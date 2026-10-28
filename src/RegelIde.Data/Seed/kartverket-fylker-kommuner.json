@@ -1,18 +1,35 @@
 {
   "_kilde": "Kartverket, kommuneinfo-API (fylker med kommuner). Rått svar, bare sortert på nummer.",
-  "_url": "https://ws.geonorge.no/kommuneinfo/v1/fylkerkommuner?filtrer=fylkesnummer,fylkesnavn,kommuner.kommunenummer,kommuner.kommunenavnNorsk",
-  "_hentet": "2026-10-08",
+  "_url": "https://ws.geonorge.no/kommuneinfo/v1/fylkerkommuner?filtrer=fylkesnummer,fylkesnavn,kommuner.kommunenummer,kommuner.kommunenavnNorsk,kommuner.gyldigeNavn",
+  "_hentet": "2026-10-28",
   "_antall": {
     "fylker": 15,
     "kommuner": 357
   },
-  "_bruk": "Issue #312: OmraderegisterSeed oppretter fylke- og kommuneområdene og O-kantene fylke -> kommune herfra. Fornyes med fornye-omraderegister.py.",
+  "_bruk": "Issue #312: OmraderegisterSeed oppretter fylke- og kommuneområdene og O-kantene fylke -> kommune herfra. Issue #390: KommuneKortformTjeneste foreslår samiske og kvenske parallellnavn fra gyldigeNavn. Fornyes med fornye-omraderegister.py.",
   "svar": [
     {
       "fylkesnavn": "Oslo",
       "fylkesnummer": "03",
       "kommuner": [
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Oslo",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Oslo",
           "kommunenummer": "0301"
         }
@@ -23,94 +40,485 @@
       "fylkesnummer": "11",
       "kommuner": [
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Eigersund",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Eigersund",
           "kommunenummer": "1101"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Stavanger",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Stavanger",
           "kommunenummer": "1103"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Haugesund",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Haugesund",
           "kommunenummer": "1106"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Sandnes",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Sandnes",
           "kommunenummer": "1108"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Sokndal",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Sokndal",
           "kommunenummer": "1111"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Lund",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Lund",
           "kommunenummer": "1112"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Bjerkreim",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Bjerkreim",
           "kommunenummer": "1114"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Hå",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Hå",
           "kommunenummer": "1119"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Klepp",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Klepp",
           "kommunenummer": "1120"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Time",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Time",
           "kommunenummer": "1121"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Gjesdal",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Gjesdal",
           "kommunenummer": "1122"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Sola",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Sola",
           "kommunenummer": "1124"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Randaberg",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Randaberg",
           "kommunenummer": "1127"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Strand",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Strand",
           "kommunenummer": "1130"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Hjelmeland",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Hjelmeland",
           "kommunenummer": "1133"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Suldal",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Suldal",
           "kommunenummer": "1134"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Sauda",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Sauda",
           "kommunenummer": "1135"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Kvitsøy",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Kvitsøy",
           "kommunenummer": "1144"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Bokn",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Bokn",
           "kommunenummer": "1145"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Tysvær",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Tysvær",
           "kommunenummer": "1146"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Karmøy",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Karmøy",
           "kommunenummer": "1149"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Utsira",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Utsira",
           "kommunenummer": "1151"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Vindafjord",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Vindafjord",
           "kommunenummer": "1160"
         }
@@ -121,110 +529,569 @@
       "fylkesnummer": "15",
       "kommuner": [
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Kristiansund",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Kristiansund",
           "kommunenummer": "1505"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Molde",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Molde",
           "kommunenummer": "1506"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Ålesund",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Ålesund",
           "kommunenummer": "1508"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Vanylven",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Vanylven",
           "kommunenummer": "1511"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Sande",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Sande",
           "kommunenummer": "1514"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Herøy",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Herøy",
           "kommunenummer": "1515"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Ulstein",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Ulstein",
           "kommunenummer": "1516"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Hareid",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Hareid",
           "kommunenummer": "1517"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Ørsta",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Ørsta",
           "kommunenummer": "1520"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Stranda",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Stranda",
           "kommunenummer": "1525"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Sykkylven",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Sykkylven",
           "kommunenummer": "1528"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Sula",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Sula",
           "kommunenummer": "1531"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Giske",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Giske",
           "kommunenummer": "1532"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Vestnes",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Vestnes",
           "kommunenummer": "1535"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Rauma",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Rauma",
           "kommunenummer": "1539"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Aukra",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Aukra",
           "kommunenummer": "1547"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Averøy",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Averøy",
           "kommunenummer": "1554"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Gjemnes",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Gjemnes",
           "kommunenummer": "1557"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Tingvoll",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Tingvoll",
           "kommunenummer": "1560"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Sunndal",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Sunndal",
           "kommunenummer": "1563"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Surnadal",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Surnadal",
           "kommunenummer": "1566"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Smøla",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Smøla",
           "kommunenummer": "1573"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Aure",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Aure",
           "kommunenummer": "1576"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Volda",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Volda",
           "kommunenummer": "1577"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Fjord",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Fjord",
           "kommunenummer": "1578"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Hustadvika",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Hustadvika",
           "kommunenummer": "1579"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Haram",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Haram",
           "kommunenummer": "1580"
         }
@@ -235,166 +1102,863 @@
       "fylkesnummer": "18",
       "kommuner": [
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Bodø",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Bodø",
           "kommunenummer": "1804"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Narvik",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Narvik",
           "kommunenummer": "1806"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Bindal",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Bindal",
           "kommunenummer": "1811"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Sømna",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Sømna",
           "kommunenummer": "1812"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Brønnøy",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Brønnøy",
           "kommunenummer": "1813"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Vega",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Vega",
           "kommunenummer": "1815"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Vevelstad",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Vevelstad",
           "kommunenummer": "1816"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Herøy",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Herøy",
           "kommunenummer": "1818"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Alstahaug",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Alstahaug",
           "kommunenummer": "1820"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Leirfjord",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Leirfjord",
           "kommunenummer": "1822"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Vefsn",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Vefsn",
           "kommunenummer": "1824"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Grane",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Grane",
           "kommunenummer": "1825"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Aarborte",
+              "prioritet": 1,
+              "sprak": "Southern Sami"
+            },
+            {
+              "navn": "Hattfjelldal",
+              "prioritet": 2,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Hattfjelldal",
           "kommunenummer": "1826"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Dønna",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Dønna",
           "kommunenummer": "1827"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Nesna",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Nesna",
           "kommunenummer": "1828"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Hemnes",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Hemnes",
           "kommunenummer": "1832"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Rana",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": "Raane",
+              "prioritet": 2,
+              "sprak": "Southern Sami"
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Rana",
           "kommunenummer": "1833"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Lurøy",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Lurøy",
           "kommunenummer": "1834"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Træna",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Træna",
           "kommunenummer": "1835"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Rødøy",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Rødøy",
           "kommunenummer": "1836"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Meløy",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Meløy",
           "kommunenummer": "1837"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Gildeskål",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Gildeskål",
           "kommunenummer": "1838"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Beiarn",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Beiarn",
           "kommunenummer": "1839"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Saltdal",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Saltdal",
           "kommunenummer": "1840"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Fauske",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": "Fuossko",
+              "prioritet": 2,
+              "sprak": "Lule Sami"
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Fauske",
           "kommunenummer": "1841"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Sørfold",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": "Fuolldá",
+              "prioritet": 2,
+              "sprak": "Lule Sami"
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Sørfold",
           "kommunenummer": "1845"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Steigen",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Steigen",
           "kommunenummer": "1848"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Lødingen",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Lødingen",
           "kommunenummer": "1851"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Evenes",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": "Evenášši",
+              "prioritet": 2,
+              "sprak": "Northern Sami"
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Evenes",
           "kommunenummer": "1853"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Røst",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Røst",
           "kommunenummer": "1856"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Værøy",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Værøy",
           "kommunenummer": "1857"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Flakstad",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Flakstad",
           "kommunenummer": "1859"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Vestvågøy",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Vestvågøy",
           "kommunenummer": "1860"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Vågan",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Vågan",
           "kommunenummer": "1865"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Hadsel",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Hadsel",
           "kommunenummer": "1866"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Bø",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Bø",
           "kommunenummer": "1867"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Øksnes",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Øksnes",
           "kommunenummer": "1868"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Sortland",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": "Suortá",
+              "prioritet": 2,
+              "sprak": "Northern Sami"
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Sortland",
           "kommunenummer": "1870"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Andøy",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Andøy",
           "kommunenummer": "1871"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Moskenes",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Moskenes",
           "kommunenummer": "1874"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Hábmer",
+              "prioritet": 1,
+              "sprak": "Lule Sami"
+            },
+            {
+              "navn": "Hamarøy",
+              "prioritet": 2,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Hamarøy",
           "kommunenummer": "1875"
         }
@@ -405,50 +1969,254 @@
       "fylkesnummer": "31",
       "kommuner": [
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Halden",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Halden",
           "kommunenummer": "3101"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Moss",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Moss",
           "kommunenummer": "3103"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Sarpsborg",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Sarpsborg",
           "kommunenummer": "3105"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Fredrikstad",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Fredrikstad",
           "kommunenummer": "3107"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Hvaler",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Hvaler",
           "kommunenummer": "3110"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Råde",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Råde",
           "kommunenummer": "3112"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Våler",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Våler",
           "kommunenummer": "3114"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Skiptvet",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Skiptvet",
           "kommunenummer": "3116"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Indre Østfold",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Indre Østfold",
           "kommunenummer": "3118"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Rakkestad",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Rakkestad",
           "kommunenummer": "3120"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Marker",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Marker",
           "kommunenummer": "3122"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Aremark",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Aremark",
           "kommunenummer": "3124"
         }
@@ -459,86 +2227,443 @@
       "fylkesnummer": "32",
       "kommuner": [
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Bærum",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Bærum",
           "kommunenummer": "3201"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Asker",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Asker",
           "kommunenummer": "3203"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Lillestrøm",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Lillestrøm",
           "kommunenummer": "3205"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Nordre Follo",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Nordre Follo",
           "kommunenummer": "3207"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Ullensaker",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Ullensaker",
           "kommunenummer": "3209"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Nesodden",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Nesodden",
           "kommunenummer": "3212"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Frogn",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Frogn",
           "kommunenummer": "3214"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Vestby",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Vestby",
           "kommunenummer": "3216"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Ås",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Ås",
           "kommunenummer": "3218"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Enebakk",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Enebakk",
           "kommunenummer": "3220"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Lørenskog",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Lørenskog",
           "kommunenummer": "3222"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Rælingen",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Rælingen",
           "kommunenummer": "3224"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Aurskog-Høland",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Aurskog-Høland",
           "kommunenummer": "3226"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Nes",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Nes",
           "kommunenummer": "3228"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Gjerdrum",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Gjerdrum",
           "kommunenummer": "3230"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Nittedal",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Nittedal",
           "kommunenummer": "3232"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Lunner",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Lunner",
           "kommunenummer": "3234"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Jevnaker",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Jevnaker",
           "kommunenummer": "3236"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Nannestad",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Nannestad",
           "kommunenummer": "3238"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Eidsvoll",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Eidsvoll",
           "kommunenummer": "3240"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Hurdal",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Hurdal",
           "kommunenummer": "3242"
         }
@@ -549,74 +2674,380 @@
       "fylkesnummer": "33",
       "kommuner": [
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Drammen",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Drammen",
           "kommunenummer": "3301"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Kongsberg",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Kongsberg",
           "kommunenummer": "3303"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Ringerike",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Ringerike",
           "kommunenummer": "3305"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Hole",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Hole",
           "kommunenummer": "3310"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Lier",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Lier",
           "kommunenummer": "3312"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Øvre Eiker",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Øvre Eiker",
           "kommunenummer": "3314"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Modum",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Modum",
           "kommunenummer": "3316"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Krødsherad",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Krødsherad",
           "kommunenummer": "3318"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Flå",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Flå",
           "kommunenummer": "3320"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Nesbyen",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Nesbyen",
           "kommunenummer": "3322"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Gol",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Gol",
           "kommunenummer": "3324"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Hemsedal",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Hemsedal",
           "kommunenummer": "3326"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Ål",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Ål",
           "kommunenummer": "3328"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Hol",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Hol",
           "kommunenummer": "3330"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Sigdal",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Sigdal",
           "kommunenummer": "3332"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Flesberg",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Flesberg",
           "kommunenummer": "3334"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Rollag",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Rollag",
           "kommunenummer": "3336"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Nore og Uvdal",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Nore og Uvdal",
           "kommunenummer": "3338"
         }
@@ -627,186 +3058,968 @@
       "fylkesnummer": "34",
       "kommuner": [
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Kongsvinger",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Kongsvinger",
           "kommunenummer": "3401"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Hamar",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Hamar",
           "kommunenummer": "3403"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Lillehammer",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Lillehammer",
           "kommunenummer": "3405"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Gjøvik",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Gjøvik",
           "kommunenummer": "3407"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Ringsaker",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Ringsaker",
           "kommunenummer": "3411"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Løten",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Løten",
           "kommunenummer": "3412"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Stange",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Stange",
           "kommunenummer": "3413"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Nord-Odal",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Nord-Odal",
           "kommunenummer": "3414"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Sør-Odal",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Sør-Odal",
           "kommunenummer": "3415"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Eidskog",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Eidskog",
           "kommunenummer": "3416"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Grue",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Grue",
           "kommunenummer": "3417"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Åsnes",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Åsnes",
           "kommunenummer": "3418"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Våler",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Våler",
           "kommunenummer": "3419"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Elverum",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Elverum",
           "kommunenummer": "3420"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Trysil",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Trysil",
           "kommunenummer": "3421"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Åmot",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Åmot",
           "kommunenummer": "3422"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Stor-Elvdal",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Stor-Elvdal",
           "kommunenummer": "3423"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Rendalen",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Rendalen",
           "kommunenummer": "3424"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Engerdal",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Engerdal",
           "kommunenummer": "3425"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Tolga",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Tolga",
           "kommunenummer": "3426"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Tynset",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Tynset",
           "kommunenummer": "3427"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Alvdal",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Alvdal",
           "kommunenummer": "3428"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Folldal",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Folldal",
           "kommunenummer": "3429"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Os",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Os",
           "kommunenummer": "3430"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Dovre",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Dovre",
           "kommunenummer": "3431"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Lesja",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Lesja",
           "kommunenummer": "3432"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Skjåk",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Skjåk",
           "kommunenummer": "3433"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Lom",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Lom",
           "kommunenummer": "3434"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Vågå",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Vågå",
           "kommunenummer": "3435"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Nord-Fron",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Nord-Fron",
           "kommunenummer": "3436"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Sel",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Sel",
           "kommunenummer": "3437"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Sør-Fron",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Sør-Fron",
           "kommunenummer": "3438"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Ringebu",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Ringebu",
           "kommunenummer": "3439"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Øyer",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Øyer",
           "kommunenummer": "3440"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Gausdal",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Gausdal",
           "kommunenummer": "3441"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Østre Toten",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Østre Toten",
           "kommunenummer": "3442"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Vestre Toten",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Vestre Toten",
           "kommunenummer": "3443"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Gran",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Gran",
           "kommunenummer": "3446"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Søndre Land",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Søndre Land",
           "kommunenummer": "3447"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Nordre Land",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Nordre Land",
           "kommunenummer": "3448"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Sør-Aurdal",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Sør-Aurdal",
           "kommunenummer": "3449"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Etnedal",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Etnedal",
           "kommunenummer": "3450"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Nord-Aurdal",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Nord-Aurdal",
           "kommunenummer": "3451"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Vestre Slidre",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Vestre Slidre",
           "kommunenummer": "3452"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Øystre Slidre",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Øystre Slidre",
           "kommunenummer": "3453"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Vang",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Vang",
           "kommunenummer": "3454"
         }
@@ -817,26 +4030,128 @@
       "fylkesnummer": "39",
       "kommuner": [
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Horten",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Horten",
           "kommunenummer": "3901"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Holmestrand",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Holmestrand",
           "kommunenummer": "3903"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Tønsberg",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Tønsberg",
           "kommunenummer": "3905"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Sandefjord",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Sandefjord",
           "kommunenummer": "3907"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Larvik",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Larvik",
           "kommunenummer": "3909"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Færder",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Færder",
           "kommunenummer": "3911"
         }
@@ -847,70 +4162,359 @@
       "fylkesnummer": "40",
       "kommuner": [
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Porsgrunn",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Porsgrunn",
           "kommunenummer": "4001"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Skien",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Skien",
           "kommunenummer": "4003"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Notodden",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Notodden",
           "kommunenummer": "4005"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Siljan",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Siljan",
           "kommunenummer": "4010"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Bamble",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Bamble",
           "kommunenummer": "4012"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Kragerø",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Kragerø",
           "kommunenummer": "4014"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Drangedal",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Drangedal",
           "kommunenummer": "4016"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Nome",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Nome",
           "kommunenummer": "4018"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Midt-Telemark",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Midt-Telemark",
           "kommunenummer": "4020"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Seljord",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Seljord",
           "kommunenummer": "4022"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Hjartdal",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Hjartdal",
           "kommunenummer": "4024"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Tinn",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Tinn",
           "kommunenummer": "4026"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Kviteseid",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Kviteseid",
           "kommunenummer": "4028"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Nissedal",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Nissedal",
           "kommunenummer": "4030"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Fyresdal",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Fyresdal",
           "kommunenummer": "4032"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Tokke",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Tokke",
           "kommunenummer": "4034"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Vinje",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Vinje",
           "kommunenummer": "4036"
         }
@@ -921,102 +4525,527 @@
       "fylkesnummer": "42",
       "kommuner": [
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Risør",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Risør",
           "kommunenummer": "4201"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Grimstad",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Grimstad",
           "kommunenummer": "4202"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Arendal",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Arendal",
           "kommunenummer": "4203"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Kristiansand",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Kristiansand",
           "kommunenummer": "4204"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Lindesnes",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Lindesnes",
           "kommunenummer": "4205"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Farsund",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Farsund",
           "kommunenummer": "4206"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Flekkefjord",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Flekkefjord",
           "kommunenummer": "4207"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Gjerstad",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Gjerstad",
           "kommunenummer": "4211"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Vegårshei",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Vegårshei",
           "kommunenummer": "4212"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Tvedestrand",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Tvedestrand",
           "kommunenummer": "4213"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Froland",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Froland",
           "kommunenummer": "4214"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Lillesand",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Lillesand",
           "kommunenummer": "4215"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Birkenes",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Birkenes",
           "kommunenummer": "4216"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Åmli",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Åmli",
           "kommunenummer": "4217"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Iveland",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Iveland",
           "kommunenummer": "4218"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Evje og Hornnes",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Evje og Hornnes",
           "kommunenummer": "4219"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Bygland",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Bygland",
           "kommunenummer": "4220"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Valle",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Valle",
           "kommunenummer": "4221"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Bykle",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Bykle",
           "kommunenummer": "4222"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Vennesla",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Vennesla",
           "kommunenummer": "4223"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Åseral",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Åseral",
           "kommunenummer": "4224"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Lyngdal",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Lyngdal",
           "kommunenummer": "4225"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Hægebostad",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Hægebostad",
           "kommunenummer": "4226"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Kvinesdal",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Kvinesdal",
           "kommunenummer": "4227"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Sirdal",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Sirdal",
           "kommunenummer": "4228"
         }
@@ -1027,174 +5056,905 @@
       "fylkesnummer": "46",
       "kommuner": [
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Bergen",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Bergen",
           "kommunenummer": "4601"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Kinn",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Kinn",
           "kommunenummer": "4602"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Etne",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Etne",
           "kommunenummer": "4611"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Sveio",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Sveio",
           "kommunenummer": "4612"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Bømlo",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Bømlo",
           "kommunenummer": "4613"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Stord",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Stord",
           "kommunenummer": "4614"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Fitjar",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Fitjar",
           "kommunenummer": "4615"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Tysnes",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Tysnes",
           "kommunenummer": "4616"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Kvinnherad",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Kvinnherad",
           "kommunenummer": "4617"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Ullensvang",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Ullensvang",
           "kommunenummer": "4618"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Eidfjord",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Eidfjord",
           "kommunenummer": "4619"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Ulvik",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Ulvik",
           "kommunenummer": "4620"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Voss",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Voss",
           "kommunenummer": "4621"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Kvam",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Kvam",
           "kommunenummer": "4622"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Samnanger",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Samnanger",
           "kommunenummer": "4623"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Bjørnafjorden",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Bjørnafjorden",
           "kommunenummer": "4624"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Austevoll",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Austevoll",
           "kommunenummer": "4625"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Øygarden",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Øygarden",
           "kommunenummer": "4626"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Askøy",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Askøy",
           "kommunenummer": "4627"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Vaksdal",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Vaksdal",
           "kommunenummer": "4628"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Modalen",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Modalen",
           "kommunenummer": "4629"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Osterøy",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Osterøy",
           "kommunenummer": "4630"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Alver",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Alver",
           "kommunenummer": "4631"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Austrheim",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Austrheim",
           "kommunenummer": "4632"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Fedje",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Fedje",
           "kommunenummer": "4633"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Masfjorden",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Masfjorden",
           "kommunenummer": "4634"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Gulen",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Gulen",
           "kommunenummer": "4635"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Solund",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Solund",
           "kommunenummer": "4636"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Hyllestad",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Hyllestad",
           "kommunenummer": "4637"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Høyanger",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Høyanger",
           "kommunenummer": "4638"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Vik",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Vik",
           "kommunenummer": "4639"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Sogndal",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Sogndal",
           "kommunenummer": "4640"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Aurland",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Aurland",
           "kommunenummer": "4641"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Lærdal",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Lærdal",
           "kommunenummer": "4642"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Årdal",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Årdal",
           "kommunenummer": "4643"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Luster",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Luster",
           "kommunenummer": "4644"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Askvoll",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Askvoll",
           "kommunenummer": "4645"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Fjaler",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Fjaler",
           "kommunenummer": "4646"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Sunnfjord",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Sunnfjord",
           "kommunenummer": "4647"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Bremanger",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Bremanger",
           "kommunenummer": "4648"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Stad",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Stad",
           "kommunenummer": "4649"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Gloppen",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Gloppen",
           "kommunenummer": "4650"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Stryn",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Stryn",
           "kommunenummer": "4651"
         }
@@ -1205,154 +5965,800 @@
       "fylkesnummer": "50",
       "kommuner": [
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Trondheim",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": "Tråante",
+              "prioritet": 2,
+              "sprak": "Southern Sami"
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Trondheim",
           "kommunenummer": "5001"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Steinkjer",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Steinkjer",
           "kommunenummer": "5006"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Namsos",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": "Nåavmesjenjaelmie",
+              "prioritet": 2,
+              "sprak": "Southern Sami"
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Namsos",
           "kommunenummer": "5007"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Frøya",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Frøya",
           "kommunenummer": "5014"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Osen",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Osen",
           "kommunenummer": "5020"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Oppdal",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Oppdal",
           "kommunenummer": "5021"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Rennebu",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Rennebu",
           "kommunenummer": "5022"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Rosse",
+              "prioritet": 1,
+              "sprak": "Southern Sami"
+            },
+            {
+              "navn": "Røros",
+              "prioritet": 2,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Røros",
           "kommunenummer": "5025"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Holtålen",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Holtålen",
           "kommunenummer": "5026"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Midtre Gauldal",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Midtre Gauldal",
           "kommunenummer": "5027"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Melhus",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Melhus",
           "kommunenummer": "5028"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Skaun",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Skaun",
           "kommunenummer": "5029"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Malvik",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Malvik",
           "kommunenummer": "5031"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Selbu",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Selbu",
           "kommunenummer": "5032"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Tydal",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Tydal",
           "kommunenummer": "5033"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Meråker",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Meråker",
           "kommunenummer": "5034"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Stjørdal",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Stjørdal",
           "kommunenummer": "5035"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Frosta",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Frosta",
           "kommunenummer": "5036"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Levanger",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": "Levangke",
+              "prioritet": 2,
+              "sprak": "Southern Sami"
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Levanger",
           "kommunenummer": "5037"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Verdal",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Verdal",
           "kommunenummer": "5038"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Snåase",
+              "prioritet": 1,
+              "sprak": "Southern Sami"
+            },
+            {
+              "navn": "Snåsa",
+              "prioritet": 2,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Snåsa",
           "kommunenummer": "5041"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Lierne",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Lierne",
           "kommunenummer": "5042"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Raarvihke",
+              "prioritet": 1,
+              "sprak": "Southern Sami"
+            },
+            {
+              "navn": "Røyrvik",
+              "prioritet": 2,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Røyrvik",
           "kommunenummer": "5043"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Namsskogan",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Namsskogan",
           "kommunenummer": "5044"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Grong",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Grong",
           "kommunenummer": "5045"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Høylandet",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Høylandet",
           "kommunenummer": "5046"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Overhalla",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Overhalla",
           "kommunenummer": "5047"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Flatanger",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Flatanger",
           "kommunenummer": "5049"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Leka",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Leka",
           "kommunenummer": "5052"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Inderøy",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Inderøy",
           "kommunenummer": "5053"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Indre Fosen",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Indre Fosen",
           "kommunenummer": "5054"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Heim",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Heim",
           "kommunenummer": "5055"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Hitra",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Hitra",
           "kommunenummer": "5056"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Ørland",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Ørland",
           "kommunenummer": "5057"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Åfjord",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Åfjord",
           "kommunenummer": "5058"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Orkland",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Orkland",
           "kommunenummer": "5059"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Nærøysund",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Nærøysund",
           "kommunenummer": "5060"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Rindal",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Rindal",
           "kommunenummer": "5061"
         }
@@ -1363,86 +6769,443 @@
       "fylkesnummer": "55",
       "kommuner": [
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Tromsø",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Tromsø",
           "kommunenummer": "5501"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Harstad",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": "Hárstták",
+              "prioritet": 2,
+              "sprak": "Northern Sami"
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Harstad",
           "kommunenummer": "5503"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Kvæfjord",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Kvæfjord",
           "kommunenummer": "5510"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Dielddanuorri",
+              "prioritet": 1,
+              "sprak": "Northern Sami"
+            },
+            {
+              "navn": "Tjeldsund",
+              "prioritet": 2,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Tjeldsund",
           "kommunenummer": "5512"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Ibestad",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Ibestad",
           "kommunenummer": "5514"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Gratangen",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": "Rivttàk",
+              "prioritet": 2,
+              "sprak": "Northern Sami"
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Gratangen",
           "kommunenummer": "5516"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Loabák",
+              "prioritet": 1,
+              "sprak": "Northern Sami"
+            },
+            {
+              "navn": "Lavangen",
+              "prioritet": 2,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Lavangen",
           "kommunenummer": "5518"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Bardu",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Bardu",
           "kommunenummer": "5520"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Salangen",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Salangen",
           "kommunenummer": "5522"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Målselv",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Målselv",
           "kommunenummer": "5524"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Sørreisa",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Sørreisa",
           "kommunenummer": "5526"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Dyrøy",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Dyrøy",
           "kommunenummer": "5528"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Senja",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Senja",
           "kommunenummer": "5530"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Balsfjord",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Balsfjord",
           "kommunenummer": "5532"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Karlsøy",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Karlsøy",
           "kommunenummer": "5534"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Lyngen",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Lyngen",
           "kommunenummer": "5536"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Storfjord",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": "Omasvuotna",
+              "prioritet": 2,
+              "sprak": "Northern Sami"
+            },
+            {
+              "navn": "Omasvuono",
+              "prioritet": 3,
+              "sprak": "Kven Finnish"
+            }
+          ],
           "kommunenavnNorsk": "Storfjord",
           "kommunenummer": "5538"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Gáivuotna",
+              "prioritet": 1,
+              "sprak": "Northern Sami"
+            },
+            {
+              "navn": "Kåfjord",
+              "prioritet": 2,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": "Kaivuono",
+              "prioritet": 3,
+              "sprak": "Kven Finnish"
+            }
+          ],
           "kommunenavnNorsk": "Kåfjord",
           "kommunenummer": "5540"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Skjervøy",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Skjervøy",
           "kommunenummer": "5542"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Nordreisa",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": "Ráisa",
+              "prioritet": 2,
+              "sprak": "Northern Sami"
+            },
+            {
+              "navn": "Raisi",
+              "prioritet": 3,
+              "sprak": "Kven Finnish"
+            }
+          ],
           "kommunenavnNorsk": "Nordreisa",
           "kommunenummer": "5544"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Kvænangen",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Kvænangen",
           "kommunenummer": "5546"
         }
@@ -1453,74 +7216,380 @@
       "fylkesnummer": "56",
       "kommuner": [
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Alta",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Alta",
           "kommunenummer": "5601"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Hammerfest",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": "Hámmerfeasta",
+              "prioritet": 2,
+              "sprak": "Northern Sami"
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Hammerfest",
           "kommunenummer": "5603"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Sør-Varanger",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Sør-Varanger",
           "kommunenummer": "5605"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Vadsø",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Vadsø",
           "kommunenummer": "5607"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Kárášjohka",
+              "prioritet": 1,
+              "sprak": "Northern Sami"
+            },
+            {
+              "navn": "Karasjok",
+              "prioritet": 2,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Karasjok",
           "kommunenummer": "5610"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Guovdageaidnu",
+              "prioritet": 1,
+              "sprak": "Northern Sami"
+            },
+            {
+              "navn": "Kautokeino",
+              "prioritet": 2,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Kautokeino",
           "kommunenummer": "5612"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Loppa",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Loppa",
           "kommunenummer": "5614"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Hasvik",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Hasvik",
           "kommunenummer": "5616"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Måsøy",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Måsøy",
           "kommunenummer": "5618"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Nordkapp",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Nordkapp",
           "kommunenummer": "5620"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Porsanger",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": "Porsáŋgu",
+              "prioritet": 2,
+              "sprak": "Northern Sami"
+            },
+            {
+              "navn": "Porsanki",
+              "prioritet": 3,
+              "sprak": "Kven Finnish"
+            }
+          ],
           "kommunenavnNorsk": "Porsanger",
           "kommunenummer": "5622"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Lebesby",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Lebesby",
           "kommunenummer": "5624"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Gamvik",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Gamvik",
           "kommunenummer": "5626"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Deatnu",
+              "prioritet": 1,
+              "sprak": "Northern Sami"
+            },
+            {
+              "navn": "Tana",
+              "prioritet": 2,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Tana",
           "kommunenummer": "5628"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Berlevåg",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Berlevåg",
           "kommunenummer": "5630"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Båtsfjord",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Båtsfjord",
           "kommunenummer": "5632"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Vardø",
+              "prioritet": 1,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 2,
+              "sprak": null
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Vardø",
           "kommunenummer": "5634"
         },
         {
+          "gyldigeNavn": [
+            {
+              "navn": "Unjárga",
+              "prioritet": 1,
+              "sprak": "Northern Sami"
+            },
+            {
+              "navn": "Nesseby",
+              "prioritet": 2,
+              "sprak": "Norwegian"
+            },
+            {
+              "navn": null,
+              "prioritet": 3,
+              "sprak": null
+            }
+          ],
           "kommunenavnNorsk": "Nesseby",
           "kommunenummer": "5636"
         }

@@ -30,7 +30,7 @@ IDAG = datetime.date.today().isoformat()
 
 KARTVERKET_URL = (
     "https://ws.geonorge.no/kommuneinfo/v1/fylkerkommuner"
-    "?filtrer=fylkesnummer,fylkesnavn,kommuner.kommunenummer,kommuner.kommunenavnNorsk"
+    "?filtrer=fylkesnummer,fylkesnavn,kommuner.kommunenummer,kommuner.kommunenavnNorsk,kommuner.gyldigeNavn"
 )
 BRREG_KOMM_URL = "https://data.brreg.no/enhetsregisteret/api/enheter?organisasjonsform=KOMM&size=1000"
 BRREG_SOK_URL = "https://data.brreg.no/enhetsregisteret/api/enheter?navn={navn}&size=200"
@@ -76,6 +76,7 @@ def kartverket():
         "_hentet": IDAG,
         "_antall": {"fylker": len(svar), "kommuner": antall},
         "_bruk": "Issue #312: OmraderegisterSeed oppretter fylke- og kommuneområdene og O-kantene fylke -> kommune herfra. "
+                 "Issue #390: KommuneKortformTjeneste foreslår samiske og kvenske parallellnavn fra gyldigeNavn. "
                  "Fornyes med fornye-omraderegister.py.",
         "svar": svar,
     })

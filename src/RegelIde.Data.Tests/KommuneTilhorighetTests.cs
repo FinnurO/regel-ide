@@ -243,6 +243,44 @@ public class KommuneTilhorighetTests
         Assert.Equal((0, 2), ((await tjeneste.ForeslaAsync(skriv: true, "test", [a, b])).Nye, (await tjeneste.ForeslaAsync(skriv: false, "test", [a, b])).Fantes));
     }
 
+    /// <summary>[Ny, #390-oppfølging] Samiske og kvenske navn fra Kartverkets gyldigeNavn blir parallellnavn-forslag med språket i kilden. Det
+    /// norske navnet og tomme plasser hoppes over, og forslaget brukes ikke i navneoppslaget før det er vurdert.</summary>
+    [Fact]
+    public async Task Samiske_og_kvenske_navn_fra_Kartverket_foreslas_som_parallellnavn()
+    {
+        await using var db = await DbAsync();
+        var kanter = new StrukturkantTjeneste(db);
+        var kode = Kode();
+        var norsk = $"Kåfjord{kode}";
+        var samisk = $"Gáivuotna{kode}";
+        var kvensk = $"Kaivuono{kode}";
+        var omrade = await OmradeAsync(db, Omradetyper.Kommune, kode, norsk);
+        var kommune = await AktorAsync(db, $"{norsk} kommune", kode);
+        await KantAsync(kanter, Strukturkanter.Ansvarsomrade, "har_ansvarsomrade", Kantnode.Virksomhet(kommune), Kantnode.Begrep(omrade));
+        var kartverket = new OmraderegisterKilder.Kartverketsnapshot("test", "2026-10-28",
+        [
+            new("54", "Testfylke", [new(kode, norsk, [new(samisk, 1, "Northern Sami"), new(norsk, 2, "Norwegian"), new(kvensk, 3, "Kven Finnish"), new(null, 4, null)])]),
+        ]);
+        var tjeneste = new KommuneKortformTjeneste(db);
+
+        var torr = await tjeneste.ForeslaAsync(skriv: false, "test", [kode], kartverket: kartverket);
+        Assert.Equal([$"{kode} {samisk} (nordsamisk)", $"{kode} {kvensk} (kvensk)"], torr.NyeParallellnavn);
+
+        await tjeneste.ForeslaAsync(skriv: true, "test", [kode], kartverket: kartverket);
+        var parallell = await db.Begreper.AsNoTracking().Where(x => x.VirksomhetReferanseId == kommune && x.Navneformgrunn == "parallellnavn").ToListAsync();
+        Assert.Equal(new[] { samisk, kvensk }.Order(StringComparer.Ordinal), parallell.Select(x => x.Term).Order(StringComparer.Ordinal));
+        Assert.All(parallell, x => Assert.Equal((Strukturkanter.MaskineltForeslatt, Strukturkanter.Fortolkning, KommuneKortformTjeneste.OppdagelsesKilde),
+            (x.Godkjenning, x.Kunnskapsstatus, x.OppdagelsesKilde)));
+        Assert.Contains("nordsamisk", parallell.Single(x => x.Term == samisk).KildeUtenforKorpusTekst);
+
+        // Forslaget teller ikke i oppslaget før det er vurdert.
+        Assert.Null(await new VirksomhetOppslagTjeneste(db).FinnVirksomhetIdForNavnEllerNavneformAsync(samisk));
+
+        // Kjørt på nytt: ingenting nytt.
+        var igjen = await tjeneste.ForeslaAsync(skriv: false, "test", [kode], kartverket: kartverket);
+        Assert.Equal((0, 2), (igjen.NyeParallellnavn.Count, igjen.ParallellnavnFantes));
+    }
+
     /// <summary>AK 2, Alta: kortformen bindes til OMRÅDET i én rettskilde; der betyr ordet området, andre steder er det flertydig (området og
     /// kommunen har samme navn) til en binding eller konteksten avgjør. En generisk navneform kan ikke bindes til et område.</summary>
     [Fact]

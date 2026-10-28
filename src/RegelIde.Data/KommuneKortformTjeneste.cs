@@ -10,10 +10,13 @@ public sealed record KortformKollisjon(string Kommunenummer, string Kortform, st
 public sealed record KortformParallellnavn(string Kommunenummer, string Kortform, IReadOnlyList<string> Parallellnavn);
 
 /// <summary>[Ny, issue #390 AK 2] Resultatet av forslagsrunden. <see cref="Nye"/> er forslagene (skrevet når <see cref="Skrevet"/>),
-/// <see cref="Fantes"/> kommuner som alt har kortformen, <see cref="AvvistFor"/> kommuner der et menneske har avvist den.</summary>
+/// <see cref="Fantes"/> kommuner som alt har kortformen, <see cref="AvvistFor"/> kommuner der et menneske har avvist den.
+/// [Ny, #390-oppfølging] <see cref="NyeParallellnavn"/> er de samiske og kvenske navnene fra Kartverket som foreslås
+/// («5610 Kárášjohka (nordsamisk)»), <see cref="ParallellnavnFantes"/> de som alt finnes.</summary>
 public sealed record KortformResultat(
     bool Skrevet, int Kommuner, int Nye, int Fantes, int AvvistFor, IReadOnlyList<string> NyeKortformer,
-    IReadOnlyList<KortformKollisjon> Kollisjoner, IReadOnlyList<KortformParallellnavn> Parallellnavn, IReadOnlyList<string> Hull);
+    IReadOnlyList<KortformKollisjon> Kollisjoner, IReadOnlyList<KortformParallellnavn> Parallellnavn, IReadOnlyList<string> Hull,
+    IReadOnlyList<string> NyeParallellnavn, int ParallellnavnFantes);
 
 /// <summary>
 /// [Ny, issue #390 AK 2, Johann 2026-10-16] <b>Kortformen for hver kommune</b>: kommunenavnet uten «kommune» («Alta» for Alta kommune), som
@@ -31,8 +34,14 @@ public sealed record KortformResultat(
 /// <b>Hoppes over:</b> kommunen har alt en gjeldende navneform med samme tekst (stor/liten bokstav likegyldig), eller et menneske har avvist
 /// en slik (respekteres, foreslås ikke på nytt). <b>Kollisjoner</b> listes og stoppes ikke: to kommuner med samme navn (Herøy, Våler) får
 /// hver sin kortform, og oppslaget blir flertydig til en binding eller konteksten avgjør. Kommunens eget territorium (området «Alta») er
-/// ikke en kollisjon — det er nettopp skillet bindingen finnes for. Kortformer for samiske og kvenske parallellnavn foreslås ikke:
-/// registeret gir bare det norske navnet, og de listes.
+/// ikke en kollisjon — det er nettopp skillet bindingen finnes for.
+/// </para>
+/// <para>
+/// <b>[Ny, #390-oppfølging] Samiske og kvenske navn.</b> Kartverkets <c>gyldigeNavn</c> (øyeblikksbildet, fornyet med
+/// <c>fornye-omraderegister.py</c>) gir kommunens navn på hvert språk. Hvert navn som ikke er norsk, foreslås som navneform med grunn
+/// <c>parallellnavn</c> — samme regel som registernavn-synken (<see cref="VirksomhetRegisternavnSynkTjeneste"/>): et navn på et annet
+/// språk er et likestilt navn, ikke en kortform. Ellers samme regel som kortformen: kilden er registeret, kunnskapsstatus
+/// <c>fortolkning</c>, forslag, og forslaget brukes ikke i navneoppslaget før det er vurdert. Språket står i kildeteksten.
 /// </para>
 /// <para>Taggene røres ikke: en kortform tagges ikke alene i andre rettskilder (docs/33 §5.11).</para>
 /// </summary>
@@ -45,8 +54,21 @@ public sealed class KommuneKortformTjeneste(RegelIdeDbContext db)
         + "rettssubjektet til kommunenummeret; at rettssubjektet bærer områdets navn, er en slutning (kommuneloven § 3-1). Hva ordet viser til i "
         + "en rettskilde (kommunen eller området), avgjøres av en binding eller konteksten.";
 
+    /// <summary>[Ny, #390-oppfølging] Begrunnelsen for et parallellnavn.</summary>
+    public const string BegrunnelseParallellnavn = "Parallellnavn: kommunens navn på et annet språk enn norsk, fra Kartverkets gyldigeNavn (#390). "
+        + "Kartverket navngir kommuneområdet, og Enhetsregisteret knytter rettssubjektet til kommunenummeret; at rettssubjektet bærer områdets "
+        + "navn, er en slutning (kommuneloven § 3-1). Hva ordet viser til i en rettskilde (kommunen eller området), avgjøres av en binding eller konteksten.";
+
+    /// <summary>[Ny, #390-oppfølging] Kartverkets språkbetegnelser på norsk. En ukjent betegnelse beholdes som den står.</summary>
+    private static readonly Dictionary<string, string> Sprak = new(StringComparer.Ordinal)
+    {
+        ["Northern Sami"] = "nordsamisk", ["Lule Sami"] = "lulesamisk", ["Southern Sami"] = "sørsamisk", ["Kven Finnish"] = "kvensk",
+    };
+
     /// <param name="kommunenumre">Bare disse kommunene (null = alle). Kollisjonene sjekkes uansett mot hele basen.</param>
-    public async Task<KortformResultat> ForeslaAsync(bool skriv, string bruker, IReadOnlyCollection<string>? kommunenumre = null, CancellationToken ct = default)
+    /// <param name="kartverket">Kartverket-øyeblikksbildet parallellnavnene leses fra (null = <c>Seed/</c>-fila; testene sender sitt eget).</param>
+    public async Task<KortformResultat> ForeslaAsync(bool skriv, string bruker, IReadOnlyCollection<string>? kommunenumre = null, CancellationToken ct = default,
+        OmraderegisterKilder.Kartverketsnapshot? kartverket = null)
     {
         // Territoriekantene: kommunen (rettssubjektet) → kommuneområdet, kilde register (Enhetsregisteret + Kartverket).
         var territorier = await db.Strukturkanter
@@ -85,8 +107,28 @@ public sealed class KommuneKortformTjeneste(RegelIdeDbContext db)
             nye.Add(x);
         }
 
-        // Kollisjoner: alle kortformene (nye og de som fantes) mot andre noder med samme tekst.
-        var kortformer = entydige.Select(x => (x.Kode, x.Term, x.Virksomhet, x.Omrade)).ToList();
+        // [Ny, #390-oppfølging] Samiske og kvenske navn fra Kartverkets gyldigeNavn.
+        kartverket ??= OmraderegisterKilder.LesKartverket(OmraderegisterKilder.StandardMappe);
+        if (kartverket is null) hull.Add($"{OmraderegisterKilder.Kartverketfil} mangler: ingen parallellnavn foreslått.");
+        var gyldige = kartverket?.Kommuner.ToDictionary(k => k.Kommune.Kommunenummer, k => k.Kommune.GyldigeNavn ?? [], StringComparer.Ordinal)
+                      ?? new Dictionary<string, IReadOnlyList<OmraderegisterKilder.KartverketNavn>>(StringComparer.Ordinal);
+        var nyeParallell = new List<(Guid Virksomhet, string Navn, string Sprak, int? Prioritet, string Kode, string? Orgnr)>();
+        var parallellFantes = 0;
+        foreach (var x in entydige)
+        {
+            foreach (var g in gyldige.GetValueOrDefault(x.Kode, []).Where(g => g.Navn is not null && g.Sprak is not null && g.Sprak != "Norwegian"))
+            {
+                var samme = navneformer.Where(n => n.Virksomhet == x.Virksomhet && string.Equals(n.Term, g.Navn, StringComparison.OrdinalIgnoreCase)).ToList();
+                if (samme.Any(n => n.Entitetsstatus == "gjeldende")) { parallellFantes++; continue; }
+                if (samme.Any(n => n.Godkjenning == Strukturkanter.Avvist)) continue;
+                nyeParallell.Add((x.Virksomhet, g.Navn!, Sprak.GetValueOrDefault(g.Sprak!, g.Sprak!), g.Prioritet, x.Kode, x.Orgnr));
+            }
+        }
+
+        // Kollisjoner: alle kortformene (nye og de som fantes) og de nye parallellnavnene mot andre noder med samme tekst.
+        var omradeFor = entydige.ToDictionary(x => x.Virksomhet, x => x.Omrade);
+        var kortformer = entydige.Select(x => (x.Kode, x.Term, x.Virksomhet, x.Omrade))
+            .Concat(nyeParallell.Select(p => (p.Kode, Term: p.Navn, p.Virksomhet, Omrade: omradeFor[p.Virksomhet]))).ToList();
         var termer = kortformer.Select(k => k.Term.ToLower()).Distinct().ToList();
         var begreper = await db.Begreper
             .Where(b => b.Entitetsstatus == "gjeldende" && termer.Contains(b.Term.ToLower()))
@@ -154,6 +196,34 @@ public sealed class KommuneKortformTjeneste(RegelIdeDbContext db)
                 db.Begreper.Add(b);
                 db.Proveniens.Add(ProveniensHjelper.NyRad("begrep", b.Id, virksomhetId: null, "foreslatt", bruker));
             }
+            foreach (var p in nyeParallell)
+            {
+                var b = new BegrepEntitet
+                {
+                    Id = Guid.NewGuid(),
+                    Begrepskategori = "virksomhet",
+                    VirksomhetReferanseId = p.Virksomhet,
+                    Navneformgrunn = "parallellnavn",
+                    Term = p.Navn,
+                    Status = "publisert",
+                    Kunnskapsstatus = Strukturkanter.Fortolkning,
+                    Tolkningsargumenter = ["kontekst_system"],
+                    KildeUtenforKorpusType = Strukturkanter.Register,
+                    KildeUtenforKorpusDokumentasjon = Strukturkanter.Primaer,
+                    KildeUtenforKorpusTekst = $"Kartverket kommuneinfo: gyldigeNavn «{p.Navn}» ({p.Sprak}, prioritet {p.Prioritet?.ToString() ?? "ikke oppgitt"}) "
+                        + $"for kommune {p.Kode} (øyeblikksbildet i Seed/{OmraderegisterKilder.Kartverketfil}, hentet {kartverket!.Hentet}); "
+                        + $"Enhetsregisteret: organisasjonsform KOMM {p.Orgnr} har kommunenummer {p.Kode}",
+                    KildeUtenforKorpusLenker = [$"https://ws.geonorge.no/kommuneinfo/v1/kommuner/{p.Kode}",
+                        .. p.Orgnr is null ? Array.Empty<string>() : [$"https://data.brreg.no/enhetsregisteret/api/enheter/{p.Orgnr}"]],
+                    Begrunnelse = BegrunnelseParallellnavn,
+                    Godkjenning = Strukturkanter.MaskineltForeslatt,
+                    OppdagelsesKilde = OppdagelsesKilde,
+                    OpprettetAv = bruker,
+                    OpprettetTidspunkt = DateTimeOffset.UtcNow,
+                };
+                db.Begreper.Add(b);
+                db.Proveniens.Add(ProveniensHjelper.NyRad("begrep", b.Id, virksomhetId: null, "foreslatt", bruker));
+            }
             // [Ny, juristrunden #390 k2] Forslag fra første kjøring (eksternt dokumentert) rettes på raden til fortolkning. Bare forslag som
             // ingen har vurdert; en proveniensrad per rad.
             var gamle = await db.Begreper.Where(b => b.OppdagelsesKilde == OppdagelsesKilde && b.Godkjenning == Strukturkanter.MaskineltForeslatt
@@ -175,6 +245,7 @@ public sealed class KommuneKortformTjeneste(RegelIdeDbContext db)
         }
         return new KortformResultat(skriv, entydige.Count, nye.Count, fantes, avvistFor,
             nye.Select(n => $"{n.Kode} {n.Term}").ToList(),
-            kollisjoner.DistinctBy(k => (k.Kommunenummer, k.NodeId)).OrderBy(k => k.Kommunenummer, StringComparer.Ordinal).ToList(), parallell, hull);
+            kollisjoner.DistinctBy(k => (k.Kommunenummer, k.NodeId)).OrderBy(k => k.Kommunenummer, StringComparer.Ordinal).ToList(), parallell, hull,
+            nyeParallell.Select(p => $"{p.Kode} {p.Navn} ({p.Sprak})").ToList(), parallellFantes);
     }
 }

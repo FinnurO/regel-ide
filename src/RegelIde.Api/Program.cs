@@ -4547,8 +4547,8 @@ app.MapPost("/api/omrader/kommuner/kortformer", async (bool? skriv, string? komm
     .WithName("KommuneKortformer")
     .WithSummary("Issue #390 AK 2 — for hver kommune med territoriekant: kortformen (Kartverkets kommunenavn, «Alta») som navneform med grunn " +
         "kortform, registeret som kilde, eksternt_dokumentert og maskinelt_foreslatt. Kollisjoner (samme tekst som et annet område, en annen " +
-        "aktør eller navneform) og kommuner med parallellnavn listes; referenten avgjøres av binding eller kontekst. ?kommunenummer=5601,1515 " +
-        "avgrenser. ?skriv=true skriver.");
+        "aktør eller navneform) og kommuner med parallellnavn listes; referenten avgjøres av binding eller kontekst. Samiske og kvenske navn fra " +
+        "Kartverkets gyldigeNavn foreslås som navneform med grunn parallellnavn (NyeParallellnavn). ?kommunenummer=5601,1515 avgrenser. ?skriv=true skriver.");
 
 app.MapPost("/api/departementer/navneform-hjemmel", async (bool? skriv, HttpRequest request, RegelIdeDbContext db,
         DepartementNavneformHjemmelTjeneste tjeneste, CancellationToken ct) =>

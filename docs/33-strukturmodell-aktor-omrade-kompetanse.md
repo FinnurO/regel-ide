@@ -1504,8 +1504,14 @@ territoriet, ikke over kommunen som juridisk person. Den som åpnet Alta kommune
 - **Kollisjoner listes og stoppes ikke.** To kommuner med samme navn får hver sin kortform, og oppslaget blir flertydig til en binding
   eller konteksten avgjør. Kommunens eget territorium er ikke en kollisjon.
 - Kjente hull (juristrunden k3/k4): sjekken ser bare dagens inndeling, ikke tidligere kommunenavn (Bø, Os, Nes, Sande før 2020). Den ser
-  heller ikke kortformer som også er vanlige ord (Time, Sel, Ås, Fjord); oppslaget skiller ikke store og små bokstaver. Samiske og
-  kvenske kortformer mangler fordi øyeblikksbildet ble hentet med filteret `kommunenavnNorsk`. Kartverket har `gyldigeNavn`.
+  heller ikke kortformer som også er vanlige ord (Time, Sel, Ås, Fjord); oppslaget skiller ikke store og små bokstaver.
+- [Ny, #390-oppfølging 2026-10-28] **Samiske og kvenske navn.** Kartverket-øyeblikksbildet er fornyet med `gyldigeNavn` (samme 357
+  kommuner og norske navn som før). Hvert navn som ikke er norsk, foreslås som navneform med grunn `parallellnavn`, ikke `kortform`.
+  Det er samme regel som registernavn-synken: et navn på et annet språk er likestilt, ikke en kortform. Ellers gjelder samme regel som
+  for kortformen: registeret som kilde, `fortolkning`, forslag, og forslaget brukes ikke i navneoppslaget før det er vurdert. Språket og
+  Kartverkets prioritet står i kildeteksten. Kartverket oppgir slike navn for 26 kommuner: 15 nordsamiske, 8 sørsamiske, 3 lulesamiske og
+  4 kvenske, til sammen 30. Tallet 41 over teller kommuner som alt hadde et parallellnavn fra registernavn-synken (fulle navn som
+  «Gáivuona suohkan»), ikke Kartverkets kortnavn.
 
 **Binding av en kortform (AK 2)** (§5.7): en kortform for en aktør kan bindes per rettskilde, og da også til et **område**. En generisk
 navneform kan fortsatt ikke bindes til et område. Aktørklassifisereren (§5.7) bruker en vurdert binding på en kortform når den dekker noden

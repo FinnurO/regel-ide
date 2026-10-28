@@ -33,9 +33,17 @@ public static class OmraderegisterKilder
 
     // ---------------- Kartverket ----------------
 
+    /// <summary>[Ny, issue #390] Ett av Kartverkets <c>gyldigeNavn</c> for en kommune. Kartverket fyller opp til tre plasser; tomme har
+    /// <c>navn</c> null. <c>sprak</c> er Kartverkets egen engelske betegnelse («Northern Sami», «Kven Finnish»).</summary>
+    public sealed record KartverketNavn(
+        [property: JsonPropertyName("navn")] string? Navn,
+        [property: JsonPropertyName("prioritet")] int? Prioritet,
+        [property: JsonPropertyName("sprak")] string? Sprak);
+
     public sealed record KartverketKommune(
         [property: JsonPropertyName("kommunenummer")] string Kommunenummer,
-        [property: JsonPropertyName("kommunenavnNorsk")] string KommunenavnNorsk);
+        [property: JsonPropertyName("kommunenavnNorsk")] string KommunenavnNorsk,
+        [property: JsonPropertyName("gyldigeNavn")] IReadOnlyList<KartverketNavn>? GyldigeNavn = null);
 
     public sealed record KartverketFylke(
         [property: JsonPropertyName("fylkesnummer")] string Fylkesnummer,
@@ -138,6 +146,13 @@ public static class OmraderegisterKilder
     public sealed record Kilder(
         Kartverketsnapshot Kartverket, BrregKommunesnapshot BrregKommuner, BrregDomstolsnapshot BrregDomstoler,
         SsrSnapshot Ssr, SsbSnapshot Ssb, StatsforvalterKilde Statsforvaltere, HelseregionKilde Helseregioner);
+
+    /// <summary>[Ny, issue #390] Bare Kartverket-fila (kortformer og parallellnavn trenger ikke resten). Null hvis den mangler.</summary>
+    public static Kartverketsnapshot? LesKartverket(string mappe)
+    {
+        var sti = Path.Combine(mappe, Kartverketfil);
+        return File.Exists(sti) ? JsonSerializer.Deserialize<Kartverketsnapshot>(File.ReadAllText(sti), Valg) : null;
+    }
 
     /// <summary>Leser alle filene fra <paramref name="mappe"/>. Null hvis én mangler (ingen halv inndeling).</summary>
     public static Kilder? Les(string mappe)
