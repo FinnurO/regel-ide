@@ -866,6 +866,34 @@ i forslagskøen for strukturkanter, og et menneske godkjenner — samme prinsipp
   nøkkelen (forslag, godkjent eller avvist), lages ingen rad; utfallet blir `fantes_som_forslag`, `fantes_godkjent` eller
   `tidligere_avvist`. Et avvist utsagn foreslås ikke på nytt (#374). `OpprettAsync` returnerer også selv den avviste raden for et identisk
   maskinelt forslag; et menneske som registrerer det samme, får en ny rad.
+  - **[ENDRET, #420, Johanns valg 2026-10-29] Setningen hører til nøkkelen, og paringen er en-til-en.** Nøkkelen over manglet hva utsagnet
+    gjaldt. To utsagn med samme aktør og type i samme ledd ble derfor ett: pålegget og stengingen i bhl. § 53 andre ledd, og tilsvarende i
+    § 55 andre ledd og to steder i finansieringsforskriften. I pilotlastingen 2026-10-29 ble 4 utsagn i mønsterlaget og om lag 10 i KI-laget tapt.
+    Nå er nøkkelen den samme pluss **setningsnummeret** til sitatet: den setningen sitatet starter i, med mønsterlagets setningsdeling
+    (`MonsterStrukturkonverterer.Setningsnummer`). Hvert utsagn bruker opp høyst én eksisterende rad med samme nøkkel, og hver rad brukes
+    høyst én gang per kjøring. Rekkefølgen er:
+    1. eksakt samme sitat og objekt (mønsterlaget er deterministisk, så en ny kjøring parer alt her);
+    2. samme setning (KI omformulerer objekt og sitatspenn, men holder seg i setningen);
+    3. en rad eller et utsagn der setningen er ukjent.
+
+    Et utsagn uten ledig rad blir et nytt forslag. Ulike setninger er altså ulike utsagn, og flere utsagn i samme setning enn det finnes rader
+    gir nye forslag (§ 23 a andre ledd). `dublett_i_kjoringen` betyr nå identisk innhold: skriveveiens identitet, med objektet, traff en rad
+    som alt er laget eller brukt i samme kjøring.
+  - **Sitatet** leses fra `kommentar` («sitat» eller «sitat» — kommentar) og har ingen egen kolonne (Q2 = a, ingen migrering). Setningen regnes i
+    den gjeldende nodeteksten. Rader uten sitat på den formen (fasit, manuell, de fleste livsløps- og inndelingsrader), og rader der sitatet
+    ikke lenger står i noden, har ukjent setning og blokkerer som før.
+  - **Avviste alternativer:**
+    - *Objekt i nøkkelen:* KI omformulerer objektet. 0 av 6 par fra KI og mønsterlaget i samme setning i piloten hadde likt objekt, så nesten
+      alle KI-forslag ville kommet på nytt ved neste kjøring. I korpuset skiller objektet dessuten bare 547 av 566 falske dubletter i
+      mønsterlaget, mot 565 for setningen.
+    - *Tegnspenn eller sitat-hash:* KI-sitatet er hele setningen i bare 44 av 129 KI-rader i piloten.
+    - *Setningsnummer alene:* mister § 23 a, der to utsagn står i samme setning.
+  - **Kjent restrisiko:** siterer KI en annen setning for samme utsagn, blir det et nytt forslag. Det gjelder også et utsagn som er avvist i
+    den første setningen. Følgen er en synlig dublett i køen, ikke et stille tap.
+  - **Eksisterende data** (målt i den delte basen 2026-10-29, bare SELECT): 251 av 252 rader skrevet av lasteren har et sitat som står i noden.
+    Ingen av dem kolliderer under den nye nøkkelen. En ny mønsterkjøring av piloten gjenskaper alle 81 mønsterrader eksakt (sitat og objekt).
+    De tapte utsagnene lastes ved neste pilotlasting (#375); de fra KI-laget bare hvis KI gir dem igjen. Testene står i
+    `StrukturforslagTjenesteTests` (#420-delen).
 - **Kaldsjekk, domstolloven (mønsterlaget, lokal base 2026-10-15):** 954 noder, 77 utsagn. K 71: 42 nye forslag, 1 dublett i kjøringen,
   28 ikke lastet. P 1, A 1 og G 4: ikke lastet. Ikke lastet med årsak: 32 `aktor_ikke_i_katalogen` (23 aktører, alle lagt i
   navnekandidatkøen: blant annet «Høyesterett» (katalogen har «Norges Høyesterett»), «Innstillingsrådet», «domstollederen»,
@@ -874,7 +902,7 @@ i forslagskøen for strukturkanter, og et menneske godkjenner — samme prinsipp
   avvist, ingen nye rader. Testgodkjenningene og -avvisningene er tilbakestilt; de 42 forslagene og 23 navnekandidatene står igjen lokalt
   som ordinære forslag. KI-laget er ikke kjørt i kaldsjekken.
 - **Pilot, barnehageloven med 19 forskrifter (#375, lokal base 2026-10-28, begge lag):** 472 utsagn, 71 nye forslag (38 mønster, 33 KI). Ikke lastet: 240 aktør ikke i katalogen, 103 avvist fordi K ikke tar klasse som fra (#418), 17 uten fra-aktør, 10 uten databasetype. Detaljer og sammenligning med BU: docs/profil/07.
-- **Ny lasting etter #418 (lokal base 2026-10-29, begge lag):** 468 utsagn, 139 nye forslag (43 mønster, 96 KI), hvorav 106 K med klasse som fra. Ingen avvist for klasse som fra. 13 tapt som falske dubletter fordi idempotensnøkkelen mangler objekt (#420). KI-laget er kjørt på nytt og er ikke deterministisk. Detaljer: docs/profil/07 §8.
+- **Ny lasting etter #418 (lokal base 2026-10-29, begge lag):** 468 utsagn, 139 nye forslag (43 mønster, 96 KI), hvorav 106 K med klasse som fra. Ingen avvist for klasse som fra. 13 tapt som falske dubletter fordi idempotensnøkkelen mangler objekt (#420, rettet: setningen er nå med i nøkkelen, se Idempotens over). KI-laget er kjørt på nytt og er ikke deterministisk. Detaljer: docs/profil/07 §8.
 
 ### 5.4 Måling
 

@@ -13,7 +13,9 @@ public static class Forslagsutfall
     public const string FantesGodkjent = "fantes_godkjent";
     /// <summary>Samme nøkkel er AVVIST tidligere — foreslås ikke på nytt (issue #374 AC4).</summary>
     public const string TidligereAvvist = "tidligere_avvist";
-    /// <summary>Samme nøkkel to ganger i samme kjøring (to sitater i samme node) — den første vant.</summary>
+    /// <summary>[ENDRET, issue #420] Samme INNHOLD to ganger i samme kjøring: skriveveiens identitet (med objekt) traff en rad som alt er laget
+    /// eller brukt i denne kjøringen. Før #420 betydde det «samme nøkkel», og nøkkelen manglet setningen — da ble pålegget og stengingen i
+    /// bhl. § 53 andre ledd regnet som ett utsagn.</summary>
     public const string DublettIKjoringen = "dublett_i_kjoringen";
     /// <summary>Ikke lastet — se årsaken.</summary>
     public const string IkkeLastet = "ikke_lastet";
@@ -142,6 +144,9 @@ public sealed record StrukturforslagRapport(
 /// <b>Idempotens per rettskilde:</b> nøkkelen er hjemmel + eId + kategori + typekode + fra + til + undertype + normform (#313), pluss
 /// polaritet og modalitet («kan ikke instruere» og «skal samarbeide» er andre utsagn enn «kan instruere» og «kan samarbeide»). Finnes
 /// nøkkelen alt — som forslag, godkjent eller AVVIST — lages ingen ny rad. Et avvist utsagn foreslås ikke på nytt (#374 AC4).
+/// [ENDRET, issue #420, Johanns valg 2026-10-29] Setningen sitatet starter i, hører også til nøkkelen, og paringen er EN-TIL-EN: hvert utsagn
+/// bruker opp høyst én eksisterende rad, og hver rad brukes høyst én gang per kjøring (se <see cref="LastAsync"/>). Objektet er ikke med,
+/// fordi KI-laget omformulerer det fra kjøring til kjøring.
 /// </para>
 /// </summary>
 public sealed partial class StrukturforslagTjeneste(
@@ -206,6 +211,27 @@ public sealed partial class StrukturforslagTjeneste(
     private static Nokkel NokkelFor(StrukturkantEntitet k) => new(k.HjemmelEid ?? "", k.Kategori, k.Typekode, k.FraVirksomhetId, k.FraBegrepId,
         k.TilVirksomhetId, k.TilBegrepId, k.Undertype, k.Normform, k.Polaritet, k.Modalitet);
 
+    /// <summary>[Ny, issue #420] En eksisterende kant med sitatet lest fra kommentaren og setningen det starter i (null = ukjent).</summary>
+    private sealed record Eksisterende(StrukturkantEntitet Kant, string? Sitat, int? Setning);
+
+    /// <summary>[Ny, issue #420] Et utsagn som har kommet gjennom aktøroppslaget og venter på paring mot eksisterende kanter.</summary>
+    private sealed record Kandidat(int Indeks, StrukturUtsagn U, string Kilde, string Kat, string Kode, NyStrukturkant Ny, Nokkel Nokkel, int? Setning);
+
+    /// <summary>
+    /// [Ny, issue #420, Johanns valg 2026-10-29 (Q2 = a, ingen migrering)] Sitatet en kant ble lastet med. Lasteren skriver det som
+    /// <c>«sitat»</c> eller <c>«sitat» — kommentar</c> i <c>kommentar</c> (docs/33 §5.3); sitatet har ingen egen kolonne. Null når kommentaren
+    /// ikke har den formen (fasit, manuell, de fleste livsløps- og inndelingsrader).
+    /// </summary>
+    internal static string? SitatFraKommentar(string? kommentar)
+    {
+        if (string.IsNullOrEmpty(kommentar) || !kommentar.StartsWith('«')) return null;
+        var slutt = kommentar.IndexOf("» — ", StringComparison.Ordinal);
+        if (slutt < 0) slutt = kommentar.EndsWith('»') ? kommentar.Length - 1 : -1;
+        return slutt > 1 ? kommentar[1..slutt] : null;
+    }
+
+    private static string? Objekt(string? objekt) => string.IsNullOrWhiteSpace(objekt) ? null : objekt.Trim();
+
     /// <summary>
     /// Laster <paramref name="dokument"/> (konverteringen av <paramref name="rettskildeId"/>) som forslag. <paramref name="lag"/> er
     /// <c>monster</c> eller <c>ki</c>; utsagn uten egen oppdagelseskilde får <paramref name="standardOppdagelseskilde"/>.
@@ -219,12 +245,24 @@ public sealed partial class StrukturforslagTjeneste(
         // [Ny, issue #378 C9] «kommune del_av fylke» lastes som «fylke bestar_av kommune» (Strukturkontrakt.NormaliserOmradesammensetning).
         dokument = dokument with { Utsagn = dokument.Utsagn.Select(Strukturkontrakt.NormaliserOmradesammensetning).ToList() };
 
+        // [Ny, issue #420] Nodetekstene (gjeldende versjon) — setningsnummeret regnes i dem, både for utsagnene og for eksisterende kanter,
+        // så de to sammenlignes i samme tekst.
+        var nodetekster = await db.RettskildeNoder
+            .Where(n => n.RettskildeId == rettskildeId && n.Entitetsstatus == "gjeldende")
+            .Select(n => new { n.Eid, n.Tekst }).ToDictionaryAsync(n => n.Eid, n => n.Tekst, StringComparer.Ordinal, ct);
+        int? Setning(string eid, string? sitat) => MonsterStrukturkonverterer.Setningsnummer(nodetekster.GetValueOrDefault(eid), sitat);
+
         // Eksisterende kanter hjemlet i rettskilden, også de avviste — nøkkelen avgjør om et utsagn alt er lastet eller avvist.
-        var eksisterende = new Dictionary<Nokkel, StrukturkantEntitet>();
-        foreach (var k in await kanter.GjeldendeInklAvviste.Where(k => k.HjemmelRettskildeId == rettskildeId && k.HjemmelEid != null).ToListAsync(ct))
+        // [ENDRET, issue #420] En LISTE per nøkkel (før: den første raden), med sitat og setning, for en-til-en-paringen under. Står samme
+        // nøkkel flere ganger (to avgrensninger, et omstridt par, to setninger), teller hver rad for seg. Rekkefølgen er fast (eldste først).
+        var eksisterende = new Dictionary<Nokkel, List<Eksisterende>>();
+        foreach (var k in await kanter.GjeldendeInklAvviste.Where(k => k.HjemmelRettskildeId == rettskildeId && k.HjemmelEid != null)
+                     .OrderBy(k => k.OpprettetTidspunkt).ThenBy(k => k.Id).ToListAsync(ct))
         {
-            // Står samme nøkkel flere ganger (to avgrensninger, et omstridt par), teller den første — ingen av dem lages på nytt.
-            eksisterende.TryAdd(NokkelFor(k), k);
+            var sitat = SitatFraKommentar(k.Kommentar);
+            var nokkelK = NokkelFor(k);
+            if (!eksisterende.TryGetValue(nokkelK, out var liste)) eksisterende[nokkelK] = liste = [];
+            liste.Add(new Eksisterende(k, sitat, Setning(k.HjemmelEid!, sitat)));
         }
 
         var aktorer = dokument.Aktorer.ToDictionary(a => a.Id, StringComparer.Ordinal);
@@ -244,30 +282,34 @@ public sealed partial class StrukturforslagTjeneste(
             };
         }
 
-        var rader = new List<ForslagsutfallRad>();
+        // [ENDRET, issue #420] Radene samles per utsagn og skrives ut i utsagnsrekkefølge; paringen mot eksisterende kanter skjer i egne pass
+        // etter aktøroppslaget.
+        var utfallsrader = new ForslagsutfallRad?[dokument.Utsagn.Count];
         var uloest = new Dictionary<string, (string Arsak, int Antall, string Eid, IReadOnlyList<string> Treff)>(StringComparer.Ordinal);
-        var settIKjoringen = new HashSet<Nokkel>();
+        var kandidater = new List<Kandidat>();
 
-        foreach (var u in dokument.Utsagn)
+        for (var indeks = 0; indeks < dokument.Utsagn.Count; indeks++)
         {
+            var u = dokument.Utsagn[indeks];
             var kilde = u.Oppdagelseskilde ?? standardOppdagelseskilde;
-            ForslagsutfallRad Rad(string? kat, string? kode, string utfall, string? arsak, string? detalj, Guid? kantId) =>
-                new(u.Id, u.Eid, u.Sitat, u.Kategori, u.Type, kat, kode, utfall, arsak, detalj, kantId, kilde);
+            var i = indeks;
+            void Rad(string? kat, string? kode, string utfall, string? arsak, string? detalj, Guid? kantId) =>
+                utfallsrader[i] = new(u.Id, u.Eid, u.Sitat, u.Kategori, u.Type, kat, kode, utfall, arsak, detalj, kantId, kilde);
 
             if (KanttypeFor(u.Kategori, u.Type) is not { } kanttype)
             {
-                rader.Add(Rad(null, null, Forslagsutfall.IkkeLastet, Forslagsarsak.TypeUtenTypekode, $"{u.Kategori}/{u.Type}", null));
+                Rad(null, null, Forslagsutfall.IkkeLastet, Forslagsarsak.TypeUtenTypekode, $"{u.Kategori}/{u.Type}", null);
                 continue;
             }
             var (kat, kode) = kanttype;
             if (lag == "ki" && kat == Strukturkanter.Medlemskap)
             {
-                rader.Add(Rad(kat, kode, Forslagsutfall.IkkeLastet, Forslagsarsak.KiMedlemskapSendesIkke, null, null));
+                Rad(kat, kode, Forslagsutfall.IkkeLastet, Forslagsarsak.KiMedlemskapSendesIkke, null, null);
                 continue;
             }
             if (u.Fra is null)
             {
-                rader.Add(Rad(kat, kode, Forslagsutfall.IkkeLastet, Forslagsarsak.FraIkkeITeksten, null, null));
+                Rad(kat, kode, Forslagsutfall.IkkeLastet, Forslagsarsak.FraIkkeITeksten, null, null);
                 continue;
             }
             var fra = await SlaOppAsync(u.Fra, u.Eid);
@@ -279,8 +321,8 @@ public sealed partial class StrukturforslagTjeneste(
                 {
                     uloest[id!] = uloest.TryGetValue(id!, out var f) ? f with { Antall = f.Antall + 1 } : (o!.Arsak!, 1, u.Eid, o!.Treff);
                 }
-                rader.Add(Rad(kat, kode, Forslagsutfall.IkkeLastet, mislyktes[0].O!.Arsak,
-                    string.Join("; ", mislyktes.Select(m => $"«{aktorer[m.Id!].Tekstform}»")), null));
+                Rad(kat, kode, Forslagsutfall.IkkeLastet, mislyktes[0].O!.Arsak,
+                    string.Join("; ", mislyktes.Select(m => $"«{aktorer[m.Id!].Tekstform}»")), null);
                 continue;
             }
 
@@ -300,32 +342,67 @@ public sealed partial class StrukturforslagTjeneste(
                 Tolkningsargumenter: u.Tolkningsargumenter);
             var nokkel = new Nokkel(u.Eid, kat, kode, ny.Fra.VirksomhetId, ny.Fra.BegrepId, ny.Til?.VirksomhetId, ny.Til?.BegrepId,
                 ny.Undertype, ny.Normform, ny.Polaritet, ny.Modalitet);
-            if (eksisterende.TryGetValue(nokkel, out var fantes))
+            kandidater.Add(new Kandidat(indeks, u, kilde, kat, kode, ny, nokkel, Setning(u.Eid, u.Sitat)));
+        }
+
+        // ---- [Ny, issue #420, Johanns valg 2026-10-29 (Q1 = A)] En-til-en-paring mot eksisterende kanter ----
+        // Før: finnes nøkkelen, lages ingen rad. Nøkkelen manglet hva utsagnet gjaldt, så to utsagn med samme aktør og type i samme ledd ble
+        // ett (bhl. § 53 andre ledd: pålegget og stengingen; 4 tapt i mønsterlaget og ~10 i KI-laget i pilotlastingen 2026-10-29).
+        // Nå bruker hvert utsagn opp høyst ÉN eksisterende rad med samme nøkkel, og hver rad brukes høyst én gang per kjøring:
+        //   1. eksakt samme sitat og objekt (mønsterlaget er deterministisk, så en ny kjøring parer alt her);
+        //   2. samme setning (sitatet starter i samme setning — KI omformulerer objekt og sitatspenn, men holder seg i setningen);
+        //   3. en rad eller et utsagn der setningen er ukjent (fasit, manuell, livsløp, inndeling: ingen «sitat» i kommentaren) — de blokkerer
+        //      som før;
+        // og et utsagn uten ledig rad blir et nytt forslag. Ulike setninger er ulike utsagn. Objektet er IKKE med i nøkkelen (avvist
+        // alternativ B i #420): KI omformulerer det, og 0 av 6 KI/mønster-par i samme setning i piloten hadde likt objekt.
+        // Hvert pass går gjennom alle utsagnene før neste, så et svakere treff ikke tar raden et sterkere treff trenger.
+        var brukt = new HashSet<Guid>();
+        var paret = new Dictionary<int, StrukturkantEntitet>();
+        void Par(Func<Kandidat, Eksisterende, bool> passer)
+        {
+            foreach (var k in kandidater)
             {
-                var utfall = !settIKjoringen.Add(nokkel) ? Forslagsutfall.DublettIKjoringen
-                    : fantes.Status == Strukturkanter.Avvist ? Forslagsutfall.TidligereAvvist
-                    : Strukturkanter.Ventende.Contains(fantes.Status) ? Forslagsutfall.FantesSomForslag
-                    : Forslagsutfall.FantesGodkjent;
-                rader.Add(Rad(kat, kode, utfall, null, null, fantes.Id));
+                if (paret.ContainsKey(k.Indeks) || !eksisterende.TryGetValue(k.Nokkel, out var liste)) continue;
+                if (liste.FirstOrDefault(e => !brukt.Contains(e.Kant.Id) && passer(k, e)) is not { } treff) continue;
+                brukt.Add(treff.Kant.Id);
+                paret[k.Indeks] = treff.Kant;
+            }
+        }
+        Par((k, e) => e.Sitat is not null && e.Sitat == k.U.Sitat && e.Kant.Objekt == Objekt(k.Ny.Objekt));
+        Par((k, e) => e.Setning is not null && e.Setning == k.Setning);
+        Par((k, e) => e.Setning is null || k.Setning is null);
+
+        static string UtfallFor(StrukturkantEntitet k) =>
+            k.Status == Strukturkanter.Avvist ? Forslagsutfall.TidligereAvvist
+            : Strukturkanter.Ventende.Contains(k.Status) ? Forslagsutfall.FantesSomForslag
+            : Forslagsutfall.FantesGodkjent;
+
+        foreach (var k in kandidater)
+        {
+            ForslagsutfallRad Rad(string utfall, string? arsak, string? detalj, Guid? kantId) =>
+                new(k.U.Id, k.U.Eid, k.U.Sitat, k.U.Kategori, k.U.Type, k.Kat, k.Kode, utfall, arsak, detalj, kantId, k.Kilde);
+            if (paret.TryGetValue(k.Indeks, out var fantes))
+            {
+                utfallsrader[k.Indeks] = Rad(UtfallFor(fantes), null, null, fantes.Id);
                 continue;
             }
             try
             {
-                var resultat = await kanter.OpprettAsync(ny, opprettetAv, ct);
-                // OpprettAsync har sin egen (strengere) identitet; treffer den en eksisterende rad, er det samme utsagn.
+                var resultat = await kanter.OpprettAsync(k.Ny, opprettetAv, ct);
+                // OpprettAsync har sin egen (strengere) identitet, med objektet; treffer den en eksisterende rad, er det samme utsagn.
+                // [ENDRET, issue #420] Er raden alt laget eller brukt i denne kjøringen, er innholdet identisk med et annet utsagn: dublett.
                 var utfall = resultat.VarNy ? Forslagsutfall.Ny
-                    : resultat.Kant.Status == Strukturkanter.Avvist ? Forslagsutfall.TidligereAvvist
-                    : Strukturkanter.Ventende.Contains(resultat.Kant.Status) ? Forslagsutfall.FantesSomForslag
-                    : Forslagsutfall.FantesGodkjent;
-                eksisterende[nokkel] = resultat.Kant;
-                settIKjoringen.Add(nokkel);
-                rader.Add(Rad(kat, kode, utfall, null, null, resultat.Kant.Id));
+                    : !brukt.Add(resultat.Kant.Id) ? Forslagsutfall.DublettIKjoringen
+                    : UtfallFor(resultat.Kant);
+                brukt.Add(resultat.Kant.Id);
+                utfallsrader[k.Indeks] = Rad(utfall, null, null, resultat.Kant.Id);
             }
             catch (ArgumentException ex)
             {
-                rader.Add(Rad(kat, kode, Forslagsutfall.IkkeLastet, Forslagsarsak.AvvistAvValideringen, ex.Message, null));
+                utfallsrader[k.Indeks] = Rad(Forslagsutfall.IkkeLastet, Forslagsarsak.AvvistAvValideringen, ex.Message, null);
             }
         }
+        var rader = utfallsrader.Select(r => r!).ToList();
 
         // [Ny, issue #385 AC3] Navnetreffene: navneform, kilde, tagg og aktørtypeforslag.
         var aktoridentitet = await SikreAktoridentitetAsync(rettskildeId, dokument, klassifiserer, $"strukturforslag:{standardOppdagelseskilde}", opprettetAv, ct);
