@@ -10,6 +10,7 @@ import { useVirksomheter } from '../virksomhet/useVirksomheter';
 import { LeggTilMyndighetstildelingForm } from '../virksomhet/LeggTilMyndighetstildelingForm';
 import { StrukturkantTabell } from '../strukturkant/StrukturkantTabell';
 import { OmradeOgTilhorighet } from '../virksomhet/OmradeOgTilhorighet';
+import { KompetanseViaKlasse } from '../virksomhet/KompetanseViaKlasse';
 import { KompetanseTabell } from '../strukturkant/KompetanseTabell';
 import { paragrafEtikett } from '../rettskilde/paragrafEtikett';
 import { LeggTilVirksomhetRelasjonForm } from '../virksomhet/LeggTilVirksomhetRelasjonForm';
@@ -390,6 +391,8 @@ export default function VirksomhetDetalj() {
           kanter={kanter && kanter.filter((k) => k.kategori === 'K')}
           tomTekst="Ingen kompetanse registrert."
         />
+        {/* [Ny, issue #418] Kompetanse som står på en klasse virksomheten er medlem av, eller på en rolle — avledet, ikke lagret. */}
+        {id && <KompetanseViaKlasse virksomhetId={id} />}
       </section>
       )}
 
