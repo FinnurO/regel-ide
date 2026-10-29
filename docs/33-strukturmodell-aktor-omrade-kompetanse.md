@@ -874,6 +874,7 @@ i forslagskøen for strukturkanter, og et menneske godkjenner — samme prinsipp
   avvist, ingen nye rader. Testgodkjenningene og -avvisningene er tilbakestilt; de 42 forslagene og 23 navnekandidatene står igjen lokalt
   som ordinære forslag. KI-laget er ikke kjørt i kaldsjekken.
 - **Pilot, barnehageloven med 19 forskrifter (#375, lokal base 2026-10-28, begge lag):** 472 utsagn, 71 nye forslag (38 mønster, 33 KI). Ikke lastet: 240 aktør ikke i katalogen, 103 avvist fordi K ikke tar klasse som fra (#418), 17 uten fra-aktør, 10 uten databasetype. Detaljer og sammenligning med BU: docs/profil/07.
+- **Ny lasting etter #418 (lokal base 2026-10-29, begge lag):** 468 utsagn, 139 nye forslag (43 mønster, 96 KI), hvorav 106 K med klasse som fra. Ingen avvist for klasse som fra. 13 tapt som falske dubletter fordi idempotensnøkkelen mangler objekt (#420). KI-laget er kjørt på nytt og er ikke deterministisk. Detaljer: docs/profil/07 §8.
 
 ### 5.4 Måling
 
