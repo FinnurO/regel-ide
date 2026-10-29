@@ -150,6 +150,27 @@ public sealed class MonsterStrukturkonverterer : IStrukturkonverterer
         Setningsgrense.Split(tekst).Select(s => s.Trim()).Where(s => s.Length > 0).ToList();
 
     /// <summary>
+    /// [Ny, issue #420, Johanns valg 2026-10-29] Nummeret (fra 0) på setningen der <paramref name="sitat"/> STARTER i
+    /// <paramref name="tekst"/>, med samme setningsdeling som <see cref="Setninger"/> — samme <c>s</c> som mønsterlaget bruker i sin egen
+    /// dublettsjekk. Første forekomst (ordinalt). Null når sitatet ikke står i teksten: da er setningen ukjent, og ingenting gjettes.
+    /// Lasteren bruker nummeret i idempotensnøkkelen (docs/33 §5.3): to utsagn med samme aktør og type i ulike setninger i samme ledd er
+    /// ulike utsagn (bhl. § 53 andre ledd: pålegg og stenging).
+    /// </summary>
+    public static int? Setningsnummer(string? tekst, string? sitat)
+    {
+        if (string.IsNullOrEmpty(tekst) || string.IsNullOrEmpty(sitat)) return null;
+        var start = tekst.IndexOf(sitat, StringComparison.Ordinal);
+        if (start < 0) return null;
+        var nummer = 0;
+        foreach (Match m in Setningsgrense.Matches(tekst))
+        {
+            if (m.Index + m.Length > start) break;
+            nummer++;
+        }
+        return nummer;
+    }
+
+    /// <summary>
     /// Samler aktørene: én per distinkt tekstform (uten skille på store/små bokstaver, som i
     /// målingens treffregel). Første forekomst blir <c>tekstform</c>; andre skrivemåter og — for navn med
     /// skråstrek («Hammerfest/Hámmerfeasta», «Østre valgkrets/Nuortaguovllu válgabiire») — hver av
