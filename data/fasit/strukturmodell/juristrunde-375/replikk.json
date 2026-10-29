@@ -1,0 +1,24 @@
+[
+  {
+    "id": "p1",
+    "replikk": "presiserer",
+    "tekst": "Jeg godtar at rollen «lokal barnehagemyndighet» ikke opprettes i piloten uten Johanns beslutning. Ny rad var et forslag, ikke et krav til piloten. Henvisningen til § 30 andre ledd («kommunen som barnehagemyndighet») styrker tekstgrunnlaget. To presiseringer til det som legges fram. (1) Rollen er et tekstfunn, ikke en slutning: § 10 første ledd sier ordrett «Kommunen er lokal barnehagemyndighet». Beslutningen gjelder derfor bare om modellen skal registrere en rolle loven selv navngir, ikke om rollen finnes. (2) Rollen er et tillegg til p2, ikke et alternativ. Den løser ikke tapet av K-kanter alene, fordi mange kompetanser i loven står på «kommunen» uten rollebetegnelse (for eksempel § 20 første ledd andre punktum). Den rettede merknaden bør også ta med de to andre punktene fra runde 1: relasjonelle omtaler som «barnets bostedskommune» løses ikke av standardregelen og må stå i avgrensning, og klassen statsforvalter har et premiss som ikke er vurdert (#402).",
+    "kilder": [
+      {"ref": "barnehageloven § 10 første ledd", "funksjon": "direkte_hjemmel"},
+      {"ref": "barnehageloven § 11", "funksjon": "direkte_hjemmel"},
+      {"ref": "barnehageloven § 30 andre ledd", "funksjon": "forutsatt_kilde"},
+      {"ref": "barnehageloven § 20 første ledd", "funksjon": "forutsatt_kilde"}
+    ],
+    "sluttreplikk": "Vi er enige om at loven gir kommunen en egen rolle som «lokal barnehagemyndighet», atskilt fra rollen som eier av kommunale barnehager. Uenigheten var bare om rollen skal legges inn nå. Den skal ikke det før du har bestemt det. Det du må ta stilling til, er om modellen skal registrere roller som loven selv navngir. Rollen er et tillegg til p2 og løser ikke p2 alene."
+  },
+  {
+    "id": "p2",
+    "replikk": "godtar",
+    "tekst": "Modellereren og jeg er enige om observasjonen, om alvoret og om retningen: K bør ta klasse som fra med distributiv lesning, som P og F. Det er en endring i modellregelen (docs/33 §4.3) og hører hjemme hos Johann. Til beslutningsgrunnlaget: (a) og (b) i runde 1 er to separate valg. (a) avgjør om kompetansene i loven kan lastes i det hele tatt (103 utsagn). (b), rollen fra p1, avgjør bare om kompetanser som teksten knytter til barnehagemyndighetsrollen, kan vises på rollen. Klageinstanskantene fra klassen statsforvalter (§ 12) bør følge samme regel som (a).",
+    "kilder": [
+      {"ref": "docs/33 §4.3 (Noderegler for K)", "funksjon": "forutsatt_kilde"},
+      {"ref": "barnehageloven §§ 12, 14, 14 a, 20, 26, 53, 55", "funksjon": "direkte_hjemmel"}
+    ],
+    "sluttreplikk": "I dag kan modellen ikke si at «kommunen» har myndighet, bare at den har plikter og oppgaver. Derfor forsvant det viktigste i barnehageloven ved lastingen: hvem som godkjenner barnehager, fører tilsyn, kan stenge og behandler klager. Modellereren og jeg anbefaler begge at myndighet skal kunne ligge hos «kommunen» som gruppe, slik at regelen gjelder hver kommune for seg, slik plikter og oppgaver allerede gjør. Det er en endring i modellen, og den krever din beslutning."
+  }
+]

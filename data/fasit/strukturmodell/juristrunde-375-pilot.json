@@ -1,0 +1,2307 @@
+{
+ "issue": "#375 (pilot barnehageloven)",
+ "beskrivelse": "Piloten konverterte barnehageloven (LOV-2005-06-17-64, konsolidert 2026-08-01) og 19 forskrifter med mønster- og KI-laget og lastet resultatet som forslag (maskinelt_foreslatt) i lokal base 2026-10-28. 71 forslag ble lastet (38 mønster, 33 KI). Kortene f1–f71 er forslagene. p1–p3 er modellvalg som påvirker lastingen. b-kortene er modellererens kontroll av en kartlegging et annet prosjekt (BU) har gjort av kommunens plikter etter barnehageloven; vurder om modellererens lesning av lovteksten og feilklassen holder, ikke BU-teksten i seg selv. Det finnes ingen fasit for barnehageloven i data/fasit/strukturmodell; «ikke_lastet_i_samme_ledd» viser utsagn konverteringen fant i samme ledd, men som ikke ble lastet, med årsak.",
+ "prinsipper": [
+  "Uttrekket er bare forslag; ingenting er godkjent (docs/33 §5.3).",
+  "Aktører løses bare ved eksakt treff, generisk navneform med binding eller standardregel (docs/33 §5.7, §5.10). Ingenting gjettes (CLAUDE.md §8).",
+  "Svakeste premiss (docs/33 §4.6).",
+  "Kritiske feilklasser: docs/profil/00 §17.4.",
+  "F (oppgave/funksjon) gir aldri K eller P i seg selv (#368)."
+ ],
+ "kort": [
+  {
+   "id": "f1",
+   "kant_id": "d793e18a-bd54-4b1f-af86-b1aca07861a9",
+   "rettskilde": "Delegering av Kongens myndighet etter barnehageloven § 14 tredje ledd til Kunnskapsdepartementet",
+   "eid": "https://lovdata.no/eli/forskrift/2017/06/21/837/nor/ledd-1",
+   "hele_leddet": "Kongens myndighet etter barnehageloven § 14 tredje ledd andre punktum delegeres til Kunnskapsdepartementet med virkning fra 21. juni 2017 til 31. august 2017, slik at departementet kan fastsette forskrift om endringer i forskrift 9. oktober 2015 nr. 1166 om tildeling av tilskudd til private barnehager.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "normgivning",
+    "fra": "Kunnskapsdepartementet",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "forskriftsendringer",
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": "forskrift",
+    "undertype": null,
+    "avgrensning": "forskrift 9. oktober 2015 nr. 1166 om tildeling av tilskudd til private barnehager",
+    "kunnskapsstatus": null,
+    "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+    "sitat": "«slik at departementet kan fastsette forskrift om endringer i forskrift 9. oktober 2015 nr. 1166 om tildeling av tilskudd til private barnehager» — Departementet får kompetanse til å fastsette forskrift om endringer",
+    "aktor_lost_via": "«departementet» løst med standardregelen ansvarlig_departement (Lovdatas felt, sekundær kilde; ressortkanten er ikke vurdert)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f2",
+   "kant_id": "3de360a0-b1dd-4eaf-a2a9-bf34c2c4762f",
+   "rettskilde": "Delegering av Kongens myndighet etter barnehageloven § 14 tredje ledd til Kunnskapsdepartementet",
+   "eid": "https://lovdata.no/eli/forskrift/2017/06/21/837/nor/ledd-1",
+   "hele_leddet": "Kongens myndighet etter barnehageloven § 14 tredje ledd andre punktum delegeres til Kunnskapsdepartementet med virkning fra 21. juni 2017 til 31. august 2017, slik at departementet kan fastsette forskrift om endringer i forskrift 9. oktober 2015 nr. 1166 om tildeling av tilskudd til private barnehager.",
+   "foreslatt": {
+    "kategori": "R",
+    "type": "har_delegert_til",
+    "fra": "Kongen i statsråd",
+    "fra_art": "aktør",
+    "til": "Kunnskapsdepartementet",
+    "til_art": "aktør",
+    "objekt": null,
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": null,
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": "normalisering",
+    "oppdagelseskilde": "monster:delegerer-delegeres-til",
+    "sitat": "«Kongens myndighet etter barnehageloven § 14 tredje ledd andre punktum delegeres til Kunnskapsdepartementet med virkning fra 21. juni 2017 til 31. august 2017, slik at departementet kan fastsette forskrift om endringer i forskrift 9. oktober 2015 nr. 1166 om tildeling»",
+    "aktor_lost_via": null
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f3",
+   "kant_id": "ed0f0675-647b-4f89-8807-8b38502d5872",
+   "rettskilde": "Forskrift om barnehagevirksomhet i Longyearbyen",
+   "eid": "https://lovdata.no/eli/forskrift/2022/06/17/1219/nor/§6/ledd-2",
+   "hele_leddet": "Stedlige forhold kan gjøre at reglene i forskriftene i første ledd ikke passer på Svalbard og derfor ikke skal gjelde. Kunnskapsdepartementet avgjør i tvilstilfeller hvilke forskriftsbestemmelser som ikke passer.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "vedtak",
+    "fra": "Kunnskapsdepartementet",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "i tvilstilfeller hvilke forskriftsbestemmelser som ikke passer",
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": null,
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": "normalisering",
+    "oppdagelseskilde": "monster:vedtak-avgjor",
+    "sitat": "«Kunnskapsdepartementet avgjør i tvilstilfeller hvilke forskriftsbestemmelser som ikke passer.»",
+    "aktor_lost_via": null
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f4",
+   "kant_id": "8aca59ba-bfe7-4f84-a4f4-4c5e7ba7a41e",
+   "rettskilde": "Forskrift om enkelte klagenemnder på Kunnskapsdepartementets område",
+   "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§6/ledd-1",
+   "hele_leddet": "Klagenemnda skal behandle klager over enkeltvedtak om godkjenning av utenlandsk fag- og yrkesopplæring etter opplæringsloven § 23-3, om generell godkjenning av utenlandsk fagskoleutdanning etter fagskoleloven § 7, og om generell godkjenning av utenlandsk høyere utdanning etter universitets- og høyskoleloven §§ 9-7 og 9-8.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "klage",
+    "fra": "Klagenemnda for godkjenning av utenlandsk utdanning og yrkesgodkjenning",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "klager over enkeltvedtak om godkjenning av utenlandsk fag- og yrkesopplæring etter opplæringsloven § 23-3, om generell godkjenning av utenlandsk fagskoleutdanning etter fagskoleloven § 7, og om generell godkjenning av utenlandsk høyere utdanning etter universitets- og høyskoleloven §§ 9-7 og 9-8",
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": null,
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": null,
+    "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+    "sitat": "«Klagenemnda skal behandle klager over enkeltvedtak om godkjenning av utenlandsk fag- og yrkesopplæring etter opplæringsloven § 23-3, om generell godkjenning av utenlandsk fagskoleutdanning etter fagskoleloven § 7, og om generell godkjenning av utenlandsk høyere utdanning etter universitets- og høyskoleloven §§ 9-7 og 9-8.»",
+    "aktor_lost_via": null
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f5",
+   "kant_id": "5b47ad12-cad0-4efd-96e8-5a0b3a41a3aa",
+   "rettskilde": "Forskrift om enkelte klagenemnder på Kunnskapsdepartementets område",
+   "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§6/ledd-2",
+   "hele_leddet": "Klagenemnda skal også behandle klager over enkeltvedtak om godkjenning av utenlandske yrkeskvalifikasjoner som lærer etter opplæringsloven § 17-3, og som styrer og pedagogisk leder i barnehage etter barnehageloven §§ 24 og 25.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "klage",
+    "fra": "Klagenemnda for godkjenning av utenlandsk utdanning og yrkesgodkjenning",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "klager over enkeltvedtak om godkjenning av utenlandske yrkeskvalifikasjoner som lærer etter opplæringsloven § 17-3, og som styrer og pedagogisk leder i barnehage etter barnehageloven §§ 24 og 25",
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": null,
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": null,
+    "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+    "sitat": "«Klagenemnda skal også behandle klager over enkeltvedtak om godkjenning av utenlandske yrkeskvalifikasjoner som lærer etter opplæringsloven § 17-3, og som styrer og pedagogisk leder i barnehage etter barnehageloven §§ 24 og 25.»",
+    "aktor_lost_via": null
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f6",
+   "kant_id": "48b1da76-1011-4827-89c0-a7518320a387",
+   "rettskilde": "Forskrift om enkelte klagenemnder på Kunnskapsdepartementets område",
+   "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§7/ledd-1",
+   "hele_leddet": "Klagenemnda oppnevnes av departementet.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "oppnevning",
+    "fra": "Kunnskapsdepartementet",
+    "fra_art": "aktør",
+    "til": "Klagenemnda for godkjenning av utenlandsk utdanning og yrkesgodkjenning",
+    "til_art": "aktør",
+    "objekt": "Klagenemnda",
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": null,
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": null,
+    "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+    "sitat": "«Klagenemnda oppnevnes av departementet.»",
+    "aktor_lost_via": "«departementet» løst med standardregelen ansvarlig_departement (Lovdatas felt, sekundær kilde; ressortkanten er ikke vurdert)"
+   },
+   "ikke_lastet_i_samme_ledd": [
+    {
+     "lag": "monster",
+     "kategori": "kompetanse",
+     "type": "oppnevningskompetanse",
+     "sitat": "Klagenemnda oppnevnes av departementet.",
+     "arsak": "aktor_ikke_i_katalogen",
+     "detalj": "«Klagenemnda»"
+    }
+   ]
+  },
+  {
+   "id": "f7",
+   "kant_id": "1631b58e-8b15-451d-9e64-9b82be84527a",
+   "rettskilde": "Forskrift om finansiering av private barnehager (finansieringsforskriften)",
+   "eid": "https://lovdata.no/eli/forskrift/2026/03/23/454/nor/§7/ledd-2",
+   "hele_leddet": "Kommuner som ligger i sentralitetssone 5 eller sentralitetssone 6 som ikke har kommunale ordinære barnehager, skal gi grunntilskudd ut fra følgende satser: Grunntilskuddssats, inklusive administrasjonspåslag\nOrdinære barnehager, barn fra null år til to år | [Satsene fastsettes årlig av KD]\nOrdinære barnehager, barn fra tre år til seks år | [Satsene fastsettes årlig av KD]Med sentralitetssone 5 og sentralitetssone 6 menes kommuner som grupperes i nest-minst sentrale kommuner (klasse 5) eller minst sentrale kommuner (klasse 6) i den siste versjonen av sentralitetsindeksen som utarbeides av Statistisk sentralbyrå.",
+   "foreslatt": {
+    "kategori": "F",
+    "type": "forvaltning",
+    "fra": "STATISTISK SENTRALBYRÅ",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "sentralitetsindeksen",
+    "polaritet": "positiv",
+    "modalitet": "skal",
+    "normform": null,
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": null,
+    "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+    "sitat": "«sentralitetsindeksen som utarbeides av Statistisk sentralbyrå»",
+    "aktor_lost_via": null
+   },
+   "ikke_lastet_i_samme_ledd": [
+    {
+     "lag": "ki",
+     "kategori": "kompetanse",
+     "type": "normgivningskompetanse",
+     "sitat": "[Satsene fastsettes årlig av KD]",
+     "arsak": "aktor_ikke_i_katalogen",
+     "detalj": "«KD»"
+    }
+   ]
+  },
+  {
+   "id": "f8",
+   "kant_id": "c61c7d69-e04e-42d5-9d15-bd51e6490c23",
+   "rettskilde": "Forskrift om finansiering av private barnehager (finansieringsforskriften)",
+   "eid": "https://lovdata.no/eli/forskrift/2026/03/23/454/nor/§8/ledd-1",
+   "hele_leddet": "Kommunen kan holde utgifter som følger av en kommunal satsing utenfor beregningen av grunntilskuddet etter barnehageloven § 19a første ledd andre punktum. Med kommunal satsing menes finansiering av særskilte tiltak utover lov- eller forskriftskrav, hvor kommunen har bestemt hvordan midlene skal brukes. Kommunen skal legge til rette for at private barnehager kan delta i satsingen.",
+   "foreslatt": {
+    "kategori": "F",
+    "type": "sorge_for",
+    "fra": "kommune",
+    "fra_art": "klasse",
+    "til": null,
+    "til_art": null,
+    "objekt": "legge til rette for at private barnehager kan delta i satsingen",
+    "polaritet": "positiv",
+    "modalitet": "skal",
+    "normform": null,
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": null,
+    "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+    "sitat": "«Kommunen skal legge til rette for at private barnehager kan delta i satsingen»",
+    "aktor_lost_via": "«kommune» via generisk navneform og standardregelen klasse_kommune (avledet)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f9",
+   "kant_id": "7d59c136-8945-40f9-8944-a4fadd7fede7",
+   "rettskilde": "Forskrift om finansiering av private barnehager (finansieringsforskriften)",
+   "eid": "https://lovdata.no/eli/forskrift/2026/03/23/454/nor/§15/ledd-3",
+   "hele_leddet": "Kommunens plikt til å dekke barnehagens pensjonsutgifter etter første ledd er oppad begrenset til 16 prosent av gjennomsnittlig pensjonsgivende lønn i barnehagen de tre siste årene.",
+   "foreslatt": {
+    "kategori": "P",
+    "type": "betaling",
+    "fra": "kommune",
+    "fra_art": "klasse",
+    "til": null,
+    "til_art": null,
+    "objekt": "barnehagens pensjonsutgifter",
+    "polaritet": "positiv",
+    "modalitet": "skal",
+    "normform": null,
+    "undertype": null,
+    "avgrensning": "oppad begrenset til 16 prosent",
+    "kunnskapsstatus": null,
+    "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+    "sitat": "«Kommunens plikt til å dekke barnehagens pensjonsutgifter»",
+    "aktor_lost_via": "«kommune» via generisk navneform og standardregelen klasse_kommune (avledet)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f10",
+   "kant_id": "d15bd28c-f7a2-4f55-8948-e3ca8a6b4a76",
+   "rettskilde": "Forskrift om finansiering av private barnehager (finansieringsforskriften)",
+   "eid": "https://lovdata.no/eli/forskrift/2026/03/23/454/nor/§18/ledd-3",
+   "hele_leddet": "Kommunen beregner tilskudd etter første ledd ut fra hvor mange barn den private barnehagen er godkjent for. Hvis det over tid viser seg at fremmøtet i barnehagen er vesentlig lavere enn dette, kan kommunen legge et lavere barnetall til grunn.",
+   "foreslatt": {
+    "kategori": "F",
+    "type": "forvaltning",
+    "fra": "kommune",
+    "fra_art": "klasse",
+    "til": null,
+    "til_art": null,
+    "objekt": "beregning av tilskudd",
+    "polaritet": "positiv",
+    "modalitet": "skal",
+    "normform": null,
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": null,
+    "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+    "sitat": "«Kommunen beregner tilskudd etter første ledd»",
+    "aktor_lost_via": "«kommune» via generisk navneform og standardregelen klasse_kommune (avledet)"
+   },
+   "ikke_lastet_i_samme_ledd": [
+    {
+     "lag": "ki",
+     "kategori": "kompetanse",
+     "type": "vedtakskompetanse",
+     "sitat": "kan kommunen legge et lavere barnetall til grunn",
+     "arsak": "avvist_av_valideringen",
+     "detalj": "«kommune» er klasse og kan ikke være fra-node i kategori K (kompetanse) — fra skal være aktør eller rolle."
+    }
+   ]
+  },
+  {
+   "id": "f11",
+   "kant_id": "f227c4f5-73d4-4380-901f-69f028d8ff62",
+   "rettskilde": "Forskrift om finansiering av private barnehager (finansieringsforskriften)",
+   "eid": "kap-veiledning-til-de-enkelte-bestemmelsene-i-forskrift-om-finansiering-av-private-barnehager-finansieringsforskriften/rom-til-4-indeksregulering-av-satsgrunnlaget/ledd-1",
+   "hele_leddet": "Med kommunal deflator menes faktoren for forventet pris- og kostnadsvekst i kommunesektoren som brukes i prisomregningen av det kommunale rammetilskuddet (kommunal deflator inkludert pensjonskostnader). Dette fastsettes av Finansdepartementet, og offentliggjøres hver høst i Nasjonalbudsjettet. Ved indeksregulering etter første og andre ledd er det anslag fra siste tilgjengelige nasjonalbudsjett som skal brukes.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "vedtak",
+    "fra": "Finansdepartementet",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "kommunal deflator",
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": null,
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": null,
+    "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+    "sitat": "«Dette fastsettes av Finansdepartementet»",
+    "aktor_lost_via": null
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f12",
+   "kant_id": "0aaaf03d-d88d-433f-989e-9687344ce518",
+   "rettskilde": "Forskrift om finansiering av private barnehager (finansieringsforskriften)",
+   "eid": "kap-veiledning-til-de-enkelte-bestemmelsene-i-forskrift-om-finansiering-av-private-barnehager-finansieringsforskriften/rom-til-15-soknadsordning-for-pensjonstilskudd/ledd-10",
+   "hele_leddet": "Etter fjerde ledd skal både barnehagens pensjonstilskudd, lønn, pensjonsutgifter og innvilget søknadsbeløp for tidligere år indeksjusteres med kommunal deflator før kommunen beregner hva barnehagen har rett på å få dekket etter regelen. Med kommunal deflator menes faktoren for forventet pris- og kostnadsvekst i kommunesektoren som brukes i prisomregningen av det kommunale rammetilskuddet (kommunal deflator inkludert pensjonskostnader). Dette fastsettes av Finansdepartementet, og offentliggjøres hver høst i Nasjonalbudsjettet. Ved indeksregulering etter første og andre ledd er det anslag fra siste tilgjengelige nasjonalbudsjett som skal brukes.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "normgivning",
+    "fra": "Finansdepartementet",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "kommunal deflator",
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": "forskrift",
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": null,
+    "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+    "sitat": "«Dette fastsettes av Finansdepartementet, og offentliggjøres hver høst i Nasjonalbudsjettet»",
+    "aktor_lost_via": null
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f13",
+   "kant_id": "e444de1c-b762-4bab-8f71-6240d9d4a8cc",
+   "rettskilde": "Forskrift om foreldrebetaling i barnehager",
+   "eid": "https://lovdata.no/eli/forskrift/2005/12/16/1478/nor/§1/ledd-2",
+   "hele_leddet": "Maksimalgrensen blir fastsatt i Stortingets årlige budsjettvedtak. Maksimalgrensen gjelder for et heldags ordinært barnehagetilbud innenfor gjeldende lov og forskrifter. Med heldagstilbud menes avtalt ukentlig oppholdstid på 41 timer eller mer.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "beslutning",
+    "fra": "STORTINGET",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "maksimalgrensen",
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": null,
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": null,
+    "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+    "sitat": "«Maksimalgrensen blir fastsatt i Stortingets årlige budsjettvedtak.»",
+    "aktor_lost_via": null
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f14",
+   "kant_id": "27130ee2-9796-48c0-9453-4b87553f2148",
+   "rettskilde": "Forskrift om foreldrebetaling i barnehager",
+   "eid": "https://lovdata.no/eli/forskrift/2005/12/16/1478/nor/§3e/ledd-1",
+   "hele_leddet": "Kommunen skal innhente de opplysninger den trenger for å behandle søknader om redusert foreldrebetaling og gratis kjernetid. Kommunen må innhente navn på barnet som det søkes om moderasjon for og navn på personer i husholdningen der barnet er folkeregistrert fra søker, jf. § 3d andre ledd.",
+   "foreslatt": {
+    "kategori": "P",
+    "type": "informasjon",
+    "fra": "kommune",
+    "fra_art": "klasse",
+    "til": null,
+    "til_art": null,
+    "objekt": null,
+    "polaritet": "positiv",
+    "modalitet": "skal",
+    "normform": null,
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": null,
+    "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+    "sitat": "«Kommunen skal innhente de opplysninger den trenger for å behandle søknader om redusert foreldrebetaling og gratis kjernetid.» — Plikt til å innhente opplysninger, men motpart er ikke spesifisert",
+    "aktor_lost_via": "«kommune» via generisk navneform og standardregelen klasse_kommune (avledet)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f15",
+   "kant_id": "8d3fbf12-54b6-4e4c-acdd-75ce73167779",
+   "rettskilde": "Forskrift om foreldrebetaling i barnehager",
+   "eid": "https://lovdata.no/eli/forskrift/2005/12/16/1478/nor/§3e/ledd-4",
+   "hele_leddet": "Hvis grunnlaget for siste fastsetting av formues- og inntektsskatt for husholdningen ikke kan utleveres av skattemyndighetene og kommunen av den grunn ikke klarer å fatte vedtak før 1. august, skal kommunen be søker om å levere det siste årets skattemelding og eventuell skattepliktig kapital- eller personinntekt som ikke er forhåndsutfylt.",
+   "foreslatt": {
+    "kategori": "P",
+    "type": "informasjon",
+    "fra": "kommune",
+    "fra_art": "klasse",
+    "til": null,
+    "til_art": null,
+    "objekt": null,
+    "polaritet": "positiv",
+    "modalitet": "skal",
+    "normform": null,
+    "undertype": null,
+    "avgrensning": "hvis grunnlaget ikke kan utleveres av skattemyndighetene",
+    "kunnskapsstatus": null,
+    "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+    "sitat": "«skal kommunen be søker om å levere det siste årets skattemelding»",
+    "aktor_lost_via": "«kommune» via generisk navneform og standardregelen klasse_kommune (avledet)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f16",
+   "kant_id": "4e107acd-7c6d-4e5e-8626-4eea6e0e131d",
+   "rettskilde": "Forskrift om foreldrebetaling i barnehager",
+   "eid": "https://lovdata.no/eli/forskrift/2005/12/16/1478/nor/§6/ledd-1",
+   "hele_leddet": "Forskriften trer i kraft 1. januar 2006. Fra samme tidspunkt oppheves forskrift om foreldrebetaling i barnehager fastsatt ved kgl.res. 23. april 2004 nr. 666 med hjemmel i lov 5. mai 1995 nr. 19 om barnehager (barnehageloven) § 15a og § 4 fjerde ledd. For 2006 fastsettes maksimalgrensen av Kongen i Statsråd.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "vedtak",
+    "fra": "Kongen i statsråd",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "maksimalgrensen",
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": null,
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": null,
+    "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+    "sitat": "«For 2006 fastsettes maksimalgrensen av Kongen i Statsråd»",
+    "aktor_lost_via": null
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f17",
+   "kant_id": "f52c5bf3-683c-4d40-bfab-9932a98dd38d",
+   "rettskilde": "Forskrift om godkjenning av yrkeskvalifikasjoner for styrer og pedagogisk leder i barnehage fra annen stat",
+   "eid": "https://lovdata.no/eli/forskrift/2008/09/12/1071/nor/§11/ledd-3",
+   "hele_leddet": "Direktoratet for høyere utdanning og kompetanses vedtak eller mangel på vedtak, kan påklages til Kunnskapsdepartementet.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "klage",
+    "fra": "Kunnskapsdepartementet",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": null,
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": null,
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": "normalisering",
+    "oppdagelseskilde": "monster:klage-paklages-til",
+    "sitat": "«Direktoratet for høyere utdanning og kompetanses vedtak eller mangel på vedtak, kan påklages til Kunnskapsdepartementet.»",
+    "aktor_lost_via": null
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f18",
+   "kant_id": "a67f6b72-f5be-4294-a37a-b4cae03c793e",
+   "rettskilde": "Forskrift om overgangsregler til barnehageloven – overføring av ansvaret for å føre tilsyn med økonomiske forhold i private barnehager fra kommunen og statsforvalteren til Utdanningsdirektoratet",
+   "eid": "https://lovdata.no/eli/forskrift/2021/10/06/3079/nor/§2/ledd-1",
+   "hele_leddet": "Kommunen og statsforvalteren skal fullføre pågående tilsyn dersom varsel om vedtak er utsendt før 1. januar 2022.",
+   "foreslatt": {
+    "kategori": "F",
+    "type": "kontroll",
+    "fra": "kommune",
+    "fra_art": "klasse",
+    "til": null,
+    "til_art": null,
+    "objekt": "fullføre pågående tilsyn",
+    "polaritet": "positiv",
+    "modalitet": "skal",
+    "normform": null,
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": null,
+    "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+    "sitat": "«Kommunen og statsforvalteren skal fullføre pågående tilsyn dersom varsel om vedtak er utsendt før 1. januar 2022.»",
+    "aktor_lost_via": "«kommune» via generisk navneform og standardregelen klasse_kommune (avledet)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f19",
+   "kant_id": "bdd661d0-a22c-4ae4-a5e2-b978a649261f",
+   "rettskilde": "Forskrift om overgangsregler til barnehageloven – overføring av ansvaret for å føre tilsyn med økonomiske forhold i private barnehager fra kommunen og statsforvalteren til Utdanningsdirektoratet",
+   "eid": "https://lovdata.no/eli/forskrift/2021/10/06/3079/nor/§2/ledd-1",
+   "hele_leddet": "Kommunen og statsforvalteren skal fullføre pågående tilsyn dersom varsel om vedtak er utsendt før 1. januar 2022.",
+   "foreslatt": {
+    "kategori": "F",
+    "type": "kontroll",
+    "fra": "statsforvalter",
+    "fra_art": "klasse",
+    "til": null,
+    "til_art": null,
+    "objekt": "fullføre pågående tilsyn",
+    "polaritet": "positiv",
+    "modalitet": "skal",
+    "normform": null,
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": null,
+    "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+    "sitat": "«Kommunen og statsforvalteren skal fullføre pågående tilsyn dersom varsel om vedtak er utsendt før 1. januar 2022.»",
+    "aktor_lost_via": "«statsforvalter» via generisk navneform og standardregelen klasse_statsforvalter (avledet)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f20",
+   "kant_id": "2cb9795a-1fdd-4c87-8acb-abb6c9230cda",
+   "rettskilde": "Forskrift om overgangsregler til barnehageloven – overføring av ansvaret for å føre tilsyn med økonomiske forhold i private barnehager fra kommunen og statsforvalteren til Utdanningsdirektoratet",
+   "eid": "https://lovdata.no/eli/forskrift/2021/10/06/3079/nor/§4/ledd-1",
+   "hele_leddet": "Kommunen og statsforvalteren kan gi pålegg om retting av forhold som er i strid med bestemmelser i barnehageloven § 21 til § 23. Hvis fristen for å etterkomme pålegget ikke overholdes, eller hvis forholdet ikke lar seg rette, kan kommunen og statsforvalteren vedta tidsbegrenset eller varig stenging av virksomheten. Kommunens stengingsvedtak skal sendes statsforvalteren til orientering.",
+   "foreslatt": {
+    "kategori": "P",
+    "type": "informasjon",
+    "fra": "kommune",
+    "fra_art": "klasse",
+    "til": "statsforvalter",
+    "til_art": "klasse",
+    "objekt": "stengingsvedtak sendes til orientering",
+    "polaritet": "positiv",
+    "modalitet": "skal",
+    "normform": null,
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": null,
+    "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+    "sitat": "«Kommunens stengingsvedtak skal sendes statsforvalteren til orientering.»",
+    "aktor_lost_via": "«kommune» via generisk navneform og standardregelen klasse_kommune (avledet)"
+   },
+   "ikke_lastet_i_samme_ledd": [
+    {
+     "lag": "monster",
+     "kategori": "kompetanse",
+     "type": "vedtakskompetanse",
+     "sitat": "Kommunen og statsforvalteren kan gi pålegg om retting av forhold som er i strid med bestemmelser i barnehageloven § 21 til § 23.",
+     "arsak": "avvist_av_valideringen",
+     "detalj": "«kommune» er klasse og kan ikke være fra-node i kategori K (kompetanse) — fra skal være aktør eller rolle."
+    },
+    {
+     "lag": "monster",
+     "kategori": "kompetanse",
+     "type": "vedtakskompetanse",
+     "sitat": "Kommunen og statsforvalteren kan gi pålegg om retting av forhold som er i strid med bestemmelser i barnehageloven § 21 til § 23.",
+     "arsak": "avvist_av_valideringen",
+     "detalj": "«statsforvalter» er klasse og kan ikke være fra-node i kategori K (kompetanse) — fra skal være aktør eller rolle."
+    },
+    {
+     "lag": "ki",
+     "kategori": "kompetanse",
+     "type": "vedtakskompetanse",
+     "sitat": "Kommunen og statsforvalteren kan gi pålegg om retting av forhold som er i strid med bestemmelser i barnehageloven § 21 til § 23.",
+     "arsak": "aktor_ikke_i_katalogen",
+     "detalj": "«private barnehager»"
+    },
+    {
+     "lag": "ki",
+     "kategori": "kompetanse",
+     "type": "vedtakskompetanse",
+     "sitat": "Kommunen og statsforvalteren kan gi pålegg om retting av forhold som er i strid med bestemmelser i barnehageloven § 21 til § 23.",
+     "arsak": "aktor_ikke_i_katalogen",
+     "detalj": "«private barnehager»"
+    },
+    {
+     "lag": "ki",
+     "kategori": "kompetanse",
+     "type": "sanksjonskompetanse",
+     "sitat": "kan kommunen og statsforvalteren vedta tidsbegrenset eller varig stenging av virksomheten.",
+     "arsak": "aktor_ikke_i_katalogen",
+     "detalj": "«private barnehager»"
+    },
+    {
+     "lag": "ki",
+     "kategori": "kompetanse",
+     "type": "sanksjonskompetanse",
+     "sitat": "kan kommunen og statsforvalteren vedta tidsbegrenset eller varig stenging av virksomheten.",
+     "arsak": "aktor_ikke_i_katalogen",
+     "detalj": "«private barnehager»"
+    }
+   ]
+  },
+  {
+   "id": "f21",
+   "kant_id": "1dda98a1-b820-4864-8335-a2d77336e2f6",
+   "rettskilde": "Forskrift om regnskapsplikt mv. for private barnehager (økonomiforskrift til barnehageloven)",
+   "eid": "https://lovdata.no/eli/forskrift/2022/12/16/2322/nor/§8/ledd-1",
+   "hele_leddet": "Barnehagen skal hvert år innen en frist fastsatt av departementet, gi regnskapsopplysninger om bruk av offentlige tilskudd og foreldrebetaling og opplysninger som underbygger barnehagens regnskap til departementet. Rapporteringen skal skje på standardisert skjema fastsatt av departementet.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "normgivning",
+    "fra": "Kunnskapsdepartementet",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "standardisert skjema for rapportering",
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": "forskrift",
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": null,
+    "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+    "sitat": "«Rapporteringen skal skje på standardisert skjema fastsatt av departementet» — Departementet fastsetter skjemaet; kan anses som forskrift.",
+    "aktor_lost_via": "«departementet» løst med standardregelen ansvarlig_departement (Lovdatas felt, sekundær kilde; ressortkanten er ikke vurdert)"
+   },
+   "ikke_lastet_i_samme_ledd": [
+    {
+     "lag": "ki",
+     "kategori": "plikt",
+     "type": "informasjonsplikt",
+     "sitat": "innen en frist fastsatt av departementet, gi regnskapsopplysninger om bruk av offentlige tilskudd og foreldrebetaling og opplysninger som underbygger barnehagens regnskap til departementet",
+     "arsak": "aktor_ikke_i_katalogen",
+     "detalj": "«barnehagen»"
+    }
+   ]
+  },
+  {
+   "id": "f22",
+   "kant_id": "9d48173f-c5e7-466c-8321-008637f29917",
+   "rettskilde": "Forskrift om tildeling av tilskudd til private barnehager",
+   "eid": "https://lovdata.no/eli/forskrift/2015/10/09/1166/nor/§2/ledd-1",
+   "hele_leddet": "Kommunen skal sørge for at saken er så godt opplyst som mulig før det fattes vedtak etter forskriften her.",
+   "foreslatt": {
+    "kategori": "F",
+    "type": "sorge_for",
+    "fra": "kommune",
+    "fra_art": "klasse",
+    "til": null,
+    "til_art": null,
+    "objekt": "at saken er så godt opplyst som mulig før det fattes vedtak",
+    "polaritet": "positiv",
+    "modalitet": "skal",
+    "normform": null,
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": null,
+    "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+    "sitat": "«Kommunen skal sørge for at saken er så godt opplyst som mulig før det fattes vedtak etter forskriften her»",
+    "aktor_lost_via": "«kommune» via generisk navneform og standardregelen klasse_kommune (avledet)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f23",
+   "kant_id": "e89da838-e1f3-4ef9-af7f-83c06458cdf4",
+   "rettskilde": "Forskrift om tildeling av tilskudd til private barnehager",
+   "eid": "https://lovdata.no/eli/forskrift/2015/10/09/1166/nor/§2/ledd-2",
+   "hele_leddet": "Kommunen skal begrunne vedtak den fatter etter forskriften her.",
+   "foreslatt": {
+    "kategori": "F",
+    "type": "forvaltning",
+    "fra": "kommune",
+    "fra_art": "klasse",
+    "til": null,
+    "til_art": null,
+    "objekt": "begrunne vedtak",
+    "polaritet": "positiv",
+    "modalitet": "skal",
+    "normform": null,
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": null,
+    "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+    "sitat": "«Kommunen skal begrunne vedtak den fatter etter forskriften her»",
+    "aktor_lost_via": "«kommune» via generisk navneform og standardregelen klasse_kommune (avledet)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f24",
+   "kant_id": "d107e66f-fd59-4ceb-aeb6-5d97ad81ce73",
+   "rettskilde": "Forskrift om tildeling av tilskudd til private barnehager",
+   "eid": "https://lovdata.no/eli/forskrift/2015/10/09/1166/nor/§3/ledd-3",
+   "hele_leddet": "Kommunen skal beregne satsene for driftstilskudd i samsvar med forholdstall for finansiering av plasser for barn over og under tre år. Barn under tre år skal vektes 1,8 ganger høyere enn barn over tre år. Kommunen skal beregne antall heltidsplasser i kommunale barnehager. Kommunen skal gjøre dette på én av følgende måter:",
+   "foreslatt": {
+    "kategori": "F",
+    "type": "forvaltning",
+    "fra": "kommune",
+    "fra_art": "klasse",
+    "til": null,
+    "til_art": null,
+    "objekt": "beregne satsene for driftstilskudd",
+    "polaritet": "positiv",
+    "modalitet": "skal",
+    "normform": null,
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": null,
+    "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+    "sitat": "«Kommunen skal beregne satsene for driftstilskudd i samsvar med forholdstall for finansiering av plasser for barn over og under tre år»",
+    "aktor_lost_via": "«kommune» via generisk navneform og standardregelen klasse_kommune (avledet)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f25",
+   "kant_id": "08d093f8-57e0-42f6-bd16-6d8ecb92581b",
+   "rettskilde": "Forskrift om tildeling av tilskudd til private barnehager",
+   "eid": "https://lovdata.no/eli/forskrift/2015/10/09/1166/nor/§3/ledd-6",
+   "hele_leddet": "Kommuner som ligger i sentralitetssone 5 eller sentralitetssone 6 som ikke har kommunale ordinære barnehager, skal gi driftstilskuddet ut fra følgende tabell: Kroner per heltidsplass driftsutgifter, inklusive administrasjonspåslag\nOrdinære barnehager, barn fra null år til to år | 332 000\nOrdinære barnehager, barn fra tre år til seks år | 179 000Med sentralitetssone 5 og sentralitetssone 6 menes kommuner som grupperes i nest-minst sentrale kommuner (klasse 5) eller minst sentrale kommuner (klasse 6) i den siste versjonen av sentralitetsindeksen som utarbeides av Statistisk sentralbyrå (oppdatert juni 2023).",
+   "foreslatt": {
+    "kategori": "F",
+    "type": "forvaltning",
+    "fra": "STATISTISK SENTRALBYRÅ",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "utarbeide sentralitetsindeksen",
+    "polaritet": "positiv",
+    "modalitet": "skal",
+    "normform": null,
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": null,
+    "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+    "sitat": "«sentralitetsindeksen som utarbeides av Statistisk sentralbyrå»",
+    "aktor_lost_via": null
+   },
+   "ikke_lastet_i_samme_ledd": [
+    {
+     "lag": "ki",
+     "kategori": "oppgave",
+     "type": "forvaltningsoppgave",
+     "sitat": "Kommuner som ligger i sentralitetssone 5 eller sentralitetssone 6 som ikke har kommunale ordinære barnehager, skal gi driftstilskuddet ut fra følgende tabell",
+     "arsak": "aktor_ikke_i_katalogen",
+     "detalj": "«Kommuner som ligger i sentralitetssone 5 eller sentralitetssone 6 som ikke har kommunale ordinære barnehager»; «private ordinære barnehager»"
+    }
+   ]
+  },
+  {
+   "id": "f26",
+   "kant_id": "3e33847e-3863-4160-9084-a17910d1ac2d",
+   "rettskilde": "Forskrift om tildeling av tilskudd til private barnehager",
+   "eid": "https://lovdata.no/eli/forskrift/2015/10/09/1166/nor/§4a/ledd-2",
+   "hele_leddet": "Kommunen skal legge til grunn barnehagens pensjonsutgifter som fremgår av barnehagens regnskap.",
+   "foreslatt": {
+    "kategori": "F",
+    "type": "forvaltning",
+    "fra": "kommune",
+    "fra_art": "klasse",
+    "til": null,
+    "til_art": null,
+    "objekt": "legge til grunn barnehagens pensjonsutgifter",
+    "polaritet": "positiv",
+    "modalitet": "skal",
+    "normform": null,
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": null,
+    "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+    "sitat": "«Kommunen skal legge til grunn barnehagens pensjonsutgifter som fremgår av barnehagens regnskap»",
+    "aktor_lost_via": "«kommune» via generisk navneform og standardregelen klasse_kommune (avledet)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f27",
+   "kant_id": "d0884493-c524-4c4b-b33d-14f15636d199",
+   "rettskilde": "Forskrift om tildeling av tilskudd til private barnehager",
+   "eid": "https://lovdata.no/eli/forskrift/2015/10/09/1166/nor/§4a/ledd-4",
+   "hele_leddet": "Kommunen skal indeksregulere søknadsgrunnlaget etter denne paragrafen med kommunal deflator.",
+   "foreslatt": {
+    "kategori": "F",
+    "type": "forvaltning",
+    "fra": "kommune",
+    "fra_art": "klasse",
+    "til": null,
+    "til_art": null,
+    "objekt": "indeksregulere søknadsgrunnlaget",
+    "polaritet": "positiv",
+    "modalitet": "skal",
+    "normform": null,
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": null,
+    "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+    "sitat": "«Kommunen skal indeksregulere søknadsgrunnlaget etter denne paragrafen med kommunal deflator»",
+    "aktor_lost_via": "«kommune» via generisk navneform og standardregelen klasse_kommune (avledet)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f28",
+   "kant_id": "49e663e3-748f-4071-b2da-720c1d750868",
+   "rettskilde": "Forskrift om tildeling av tilskudd til private barnehager",
+   "eid": "https://lovdata.no/eli/forskrift/2015/10/09/1166/nor/§15/ledd-2",
+   "hele_leddet": "Hvis barnet går i ordinær privat barnehage, skal kommunen i beregningen av refusjonskravet bruke satsene for drifts- og kapitaltilskudd i § 3 femte ledd og § 6 andre ledd for kommunen der barnet går i barnehage. Hvis barnet går i privat familiebarnehage skal kommune i beregningen av refusjonskravet bruke satsene for drifts- og kapitaltilskudd i § 7 femte og sjette ledd. Kommunen skal gjøre fratrekk etter § 11 første ledd.",
+   "foreslatt": {
+    "kategori": "F",
+    "type": "forvaltning",
+    "fra": "kommune",
+    "fra_art": "klasse",
+    "til": null,
+    "til_art": null,
+    "objekt": "gjøre fratrekk etter § 11 første ledd",
+    "polaritet": "positiv",
+    "modalitet": "skal",
+    "normform": null,
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": null,
+    "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+    "sitat": "«Kommunen skal gjøre fratrekk etter § 11 første ledd.»",
+    "aktor_lost_via": "«kommune» via generisk navneform og standardregelen klasse_kommune (avledet)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f29",
+   "kant_id": "258d5b7b-27b8-4cd9-9e43-a1f20452be78",
+   "rettskilde": "Forskrift om tildeling av tilskudd til private barnehager",
+   "eid": "kap-merknader-til-de-enkelte-bestemmelsene/rom-til-7/rom-femte-ledd/ledd-1",
+   "hele_leddet": "Det følger av bestemmelsen at kommuner som ikke har kommunale familiebarnehager, har plikt til å bruke satser fastsatt av departementet i utregningen av driftstilskudd til private familiebarnehager. Departementet fastsetter en sats per heltidsplass for barn over tre år og en sats per heltidsplass for barn under tre år. Departementet fastsetter egne satser for tiltakssonen i Finnmark og Nord-Troms og for kommuner i sentralitetssone 5 og 6, se sjette og sjuende ledd.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "vedtak",
+    "fra": "Kunnskapsdepartementet",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "satser for tilskudd til private familiebarnehager",
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": null,
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": null,
+    "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+    "sitat": "«Departementet fastsetter en sats per heltidsplass for barn over tre år og en sats per heltidsplass for barn under tre år»",
+    "aktor_lost_via": "«departementet» løst med standardregelen ansvarlig_departement (Lovdatas felt, sekundær kilde; ressortkanten er ikke vurdert)"
+   },
+   "ikke_lastet_i_samme_ledd": [
+    {
+     "lag": "ki",
+     "kategori": "kompetanse",
+     "type": "vedtakskompetanse",
+     "sitat": "Departementet fastsetter egne satser for tiltakssonen i Finnmark og Nord-Troms og for kommuner i sentralitetssone 5 og 6",
+     "arsak": "aktor_ikke_i_katalogen",
+     "detalj": "«tiltakssonen i Finnmark og Nord-Troms»"
+    }
+   ]
+  },
+  {
+   "id": "f30",
+   "kant_id": "6df36548-3f7c-4a99-a371-97a75c80e31e",
+   "rettskilde": "Forskrift om tildeling av tilskudd til private barnehager",
+   "eid": "kap-merknader-til-de-enkelte-bestemmelsene/rom-15-refusjon-for-barn-fra-andre-kommuner/ledd-2",
+   "hele_leddet": "Kommunen skal bruke satser for drift og kapital fastsatt av departementet i beregningen av refusjonskravet, og gjøre fratrekk etter § 11 første ledd.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "normgivning",
+    "fra": "Kunnskapsdepartementet",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "satser for drift og kapital",
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": "forskrift",
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": null,
+    "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+    "sitat": "«satser for drift og kapital fastsatt av departementet»",
+    "aktor_lost_via": "«departementet» løst med standardregelen ansvarlig_departement (Lovdatas felt, sekundær kilde; ressortkanten er ikke vurdert)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f31",
+   "kant_id": "d893eaa0-7e61-4be0-a528-a76c33f621a9",
+   "rettskilde": "Forskrift om tildeling av tilskudd til private barnehager",
+   "eid": "kap-merknader-til-de-enkelte-bestemmelsene/rom-15-refusjon-for-barn-fra-andre-kommuner/ledd-2",
+   "hele_leddet": "Kommunen skal bruke satser for drift og kapital fastsatt av departementet i beregningen av refusjonskravet, og gjøre fratrekk etter § 11 første ledd.",
+   "foreslatt": {
+    "kategori": "P",
+    "type": "betaling",
+    "fra": "kommune",
+    "fra_art": "klasse",
+    "til": null,
+    "til_art": null,
+    "objekt": "refusjonskravet",
+    "polaritet": "positiv",
+    "modalitet": "skal",
+    "normform": null,
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": null,
+    "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+    "sitat": "«Kommunen skal bruke satser for drift og kapital fastsatt av departementet i beregningen av refusjonskravet» — Kommunen skal bruke fastsatte satser i beregningen; refusjonsplikt overfor annen kommune er beskrevet i n133/n135.",
+    "aktor_lost_via": "«kommune» via generisk navneform og standardregelen klasse_kommune (avledet)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f32",
+   "kant_id": "e826d275-3908-4d88-a806-73ffdcb528d0",
+   "rettskilde": "Forskrift om tildeling av tilskudd til private barnehager",
+   "eid": "kap-merknader-til-de-enkelte-bestemmelsene/rom-15-refusjon-for-barn-fra-andre-kommuner/rom-andre-ledd/ledd-1",
+   "hele_leddet": "Kommunen skal bruke satser fastsatt av departementet ved beregningen av refusjonskravet. Kommunen skal gjøre fratrekk etter reglene i § 11 første ledd.",
+   "foreslatt": {
+    "kategori": "P",
+    "type": "betaling",
+    "fra": "kommune",
+    "fra_art": "klasse",
+    "til": null,
+    "til_art": null,
+    "objekt": "refusjonskravet",
+    "polaritet": "positiv",
+    "modalitet": "skal",
+    "normform": null,
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": null,
+    "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+    "sitat": "«Kommunen skal bruke satser fastsatt av departementet ved beregningen av refusjonskravet»",
+    "aktor_lost_via": "«kommune» via generisk navneform og standardregelen klasse_kommune (avledet)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f33",
+   "kant_id": "af9f04ba-f47d-4b70-a78b-1891e1fe1edd",
+   "rettskilde": "Lov om barnehager (barnehageloven)",
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§2/ledd-7",
+   "hele_leddet": "Departementet fastsetter nærmere regler om barnehagens innhold og oppgaver (rammeplan) ved forskrift.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "normgivning",
+    "fra": "Kunnskapsdepartementet",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "nærmere regler om barnehagens innhold og oppgaver (rammeplan) ved forskrift",
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": "forskrift",
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": "normalisering",
+    "oppdagelseskilde": "monster:forskrift-naermere-regler",
+    "sitat": "«Departementet fastsetter nærmere regler om barnehagens innhold og oppgaver (rammeplan) ved forskrift.»",
+    "aktor_lost_via": "«departementet» løst med standardregelen ansvarlig_departement (Lovdatas felt, sekundær kilde; ressortkanten er ikke vurdert)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f34",
+   "kant_id": "5fe9bcda-f5d4-49d9-9a7a-e9e60c9d546b",
+   "rettskilde": "Lov om barnehager (barnehageloven)",
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§2b/ledd-2",
+   "hele_leddet": "Kommunen skal samordne tjenestetilbudet etter første ledd. Ved behov skal kommunen bestemme hvilken kommunal tjenesteyter som skal ivareta samordningen. Dersom det er oppnevnt barnekoordinator etter helse- og omsorgstjenesteloven § 7-2 a , skal koordinatoren sørge for samordning av tjenestetilbudet.",
+   "foreslatt": {
+    "kategori": "F",
+    "type": "samordning",
+    "fra": "kommune",
+    "fra_art": "klasse",
+    "til": null,
+    "til_art": null,
+    "objekt": "samordne tjenestetilbudet etter første ledd",
+    "polaritet": "positiv",
+    "modalitet": "skal",
+    "normform": null,
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": "normalisering",
+    "oppdagelseskilde": "monster:samordning-samordne",
+    "sitat": "«Kommunen skal samordne tjenestetilbudet etter første ledd.»",
+    "aktor_lost_via": "«kommune» via generisk navneform og standardregelen klasse_kommune (avledet)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f35",
+   "kant_id": "17818a2c-88d1-4dcf-b64e-74f5c5167ecc",
+   "rettskilde": "Lov om barnehager (barnehageloven)",
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§7a/ledd-4",
+   "hele_leddet": "Departementet kan gi forskrift om unntak fra kravet i første ledd i særlige tilfeller.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "normgivning",
+    "fra": "Kunnskapsdepartementet",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "forskrift om unntak fra kravet i første ledd i særlige tilfeller",
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": "forskrift",
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": "normalisering",
+    "oppdagelseskilde": "monster:forskrift-gi",
+    "sitat": "«Departementet kan gi forskrift om unntak fra kravet i første ledd i særlige tilfeller.»",
+    "aktor_lost_via": "«departementet» løst med standardregelen ansvarlig_departement (Lovdatas felt, sekundær kilde; ressortkanten er ikke vurdert)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f36",
+   "kant_id": "9de1ff27-87a6-45d2-9822-94eb68a29ada",
+   "rettskilde": "Lov om barnehager (barnehageloven)",
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§10/ledd-1",
+   "hele_leddet": "Kommunen er lokal barnehagemyndighet. Kommunen skal gi veiledning om og påse at barnehagene drives i samsvar med bestemmelsene i denne loven med forskrifter, med unntak av bestemmelsene i kapittel V med forskrifter.",
+   "foreslatt": {
+    "kategori": "F",
+    "type": "veiledning",
+    "fra": "kommune",
+    "fra_art": "klasse",
+    "til": null,
+    "til_art": null,
+    "objekt": "gi veiledning om og påse at barnehagene drives i samsvar med bestemmelsene i denne loven med forskrifter, med unntak av bestemmelsene i kapittel V med forskrifter",
+    "polaritet": "positiv",
+    "modalitet": "skal",
+    "normform": null,
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": "normalisering",
+    "oppdagelseskilde": "monster:oppgave-veilede",
+    "sitat": "«Kommunen skal gi veiledning om og påse at barnehagene drives i samsvar med bestemmelsene i denne loven med forskrifter, med unntak av bestemmelsene i kapittel V med forskrifter.»",
+    "aktor_lost_via": "«kommune» via generisk navneform og standardregelen klasse_kommune (avledet)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f37",
+   "kant_id": "dd3475da-c112-4dd7-8daf-e8f0c00803cb",
+   "rettskilde": "Lov om barnehager (barnehageloven)",
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§10/ledd-1",
+   "hele_leddet": "Kommunen er lokal barnehagemyndighet. Kommunen skal gi veiledning om og påse at barnehagene drives i samsvar med bestemmelsene i denne loven med forskrifter, med unntak av bestemmelsene i kapittel V med forskrifter.",
+   "foreslatt": {
+    "kategori": "F",
+    "type": "kontroll",
+    "fra": "kommune",
+    "fra_art": "klasse",
+    "til": null,
+    "til_art": null,
+    "objekt": "barnehagene drives i samsvar med bestemmelsene i denne loven med forskrifter, med unntak av bestemmelsene i kapittel V med forskrifter",
+    "polaritet": "positiv",
+    "modalitet": "skal",
+    "normform": null,
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": "normalisering",
+    "oppdagelseskilde": "monster:oppgave-pase",
+    "sitat": "«Kommunen skal gi veiledning om og påse at barnehagene drives i samsvar med bestemmelsene i denne loven med forskrifter, med unntak av bestemmelsene i kapittel V med forskrifter.»",
+    "aktor_lost_via": "«kommune» via generisk navneform og standardregelen klasse_kommune (avledet)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f38",
+   "kant_id": "977d3413-b4aa-4f31-bfe3-66b4282a1300",
+   "rettskilde": "Lov om barnehager (barnehageloven)",
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§10/ledd-4",
+   "hele_leddet": "Hver kommune skal opprette og føre register til bruk for Arbeids- og velferdsetaten i forbindelse med kontroll av beregning og utbetaling av kontantstøtte etter kontantstøtteloven. Registeret kan samkjøres mot Arbeids- og velferdsetatens register over mottakere av kontantstøtte. Departementet gir forskrift om føringen av registeret, hvilke opplysninger registeret skal inneholde, og behandlingen av disse opplysningene.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "normgivning",
+    "fra": "Kunnskapsdepartementet",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "forskrift om føringen av registeret, hvilke opplysninger registeret skal inneholde, og behandlingen av disse opplysningene",
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": "forskrift",
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": "normalisering",
+    "oppdagelseskilde": "monster:forskrift-gi",
+    "sitat": "«Departementet gir forskrift om føringen av registeret, hvilke opplysninger registeret skal inneholde, og behandlingen av disse opplysningene.»",
+    "aktor_lost_via": "«departementet» løst med standardregelen ansvarlig_departement (Lovdatas felt, sekundær kilde; ressortkanten er ikke vurdert)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f39",
+   "kant_id": "ea4851cc-7593-42e4-b8e5-7363532dd3a1",
+   "rettskilde": "Lov om barnehager (barnehageloven)",
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§13/ledd-1",
+   "hele_leddet": "Statsforvalteren skal veilede kommuner, fylkeskommuner og barnehager om denne loven med forskrifter, med unntak av bestemmelsene i kapittel V med forskrifter.",
+   "foreslatt": {
+    "kategori": "F",
+    "type": "veiledning",
+    "fra": "statsforvalter",
+    "fra_art": "klasse",
+    "til": null,
+    "til_art": null,
+    "objekt": "veilede kommuner, fylkeskommuner og barnehager om denne loven med forskrifter, med unntak av bestemmelsene i kapittel V med forskrifter",
+    "polaritet": "positiv",
+    "modalitet": "skal",
+    "normform": null,
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": "normalisering",
+    "oppdagelseskilde": "monster:oppgave-veilede",
+    "sitat": "«Statsforvalteren skal veilede kommuner, fylkeskommuner og barnehager om denne loven med forskrifter, med unntak av bestemmelsene i kapittel V med forskrifter.»",
+    "aktor_lost_via": "«statsforvalter» via generisk navneform og standardregelen klasse_statsforvalter (avledet)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f40",
+   "kant_id": "522ee4c9-9428-4378-a400-2b6d983cb376",
+   "rettskilde": "Lov om barnehager (barnehageloven)",
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§14/ledd-4",
+   "hele_leddet": "Departementet kan gi forskrift om godkjenning og drift av familiebarnehager.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "normgivning",
+    "fra": "Kunnskapsdepartementet",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "forskrift om godkjenning og drift av familiebarnehager",
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": "forskrift",
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": "normalisering",
+    "oppdagelseskilde": "monster:forskrift-gi",
+    "sitat": "«Departementet kan gi forskrift om godkjenning og drift av familiebarnehager.»",
+    "aktor_lost_via": "«departementet» løst med standardregelen ansvarlig_departement (Lovdatas felt, sekundær kilde; ressortkanten er ikke vurdert)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f41",
+   "kant_id": "c92261cd-30d4-4963-8c97-f2e26a588061",
+   "rettskilde": "Lov om barnehager (barnehageloven)",
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§14b/ledd-1",
+   "hele_leddet": "Departementet kan gi forskrift om midlertidig godkjenning ved etablering av barnehager og barnehageplasser som opprettes for å dekke et midlertidig behov som følge av at det kommer svært mange fordrevne barn under opplæringspliktig alder fra Ukraina.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "normgivning",
+    "fra": "Kunnskapsdepartementet",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "forskrift om midlertidig godkjenning ved etablering av barnehager og barnehageplasser som opprettes for å dekke et midlertidig behov som følge av at det kommer svært mange fordrevne barn under",
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": "forskrift",
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": "normalisering",
+    "oppdagelseskilde": "monster:forskrift-gi",
+    "sitat": "«Departementet kan gi forskrift om midlertidig godkjenning ved etablering av barnehager og barnehageplasser som opprettes for å dekke et midlertidig behov som følge av at det kommer svært mange fordrevne barn under opplæringspliktig alder fra Ukraina.»",
+    "aktor_lost_via": "«departementet» løst med standardregelen ansvarlig_departement (Lovdatas felt, sekundær kilde; ressortkanten er ikke vurdert)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f42",
+   "kant_id": "f01680a8-4e4c-4707-9d66-2719b93e0b5e",
+   "rettskilde": "Lov om barnehager (barnehageloven)",
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§14b/ledd-2",
+   "hele_leddet": "Departementet kan gi forskrift om unntak fra kravene til organisering i § 7 a for ordinære barnehager som har fått midlertidig godkjenning etter forskrift med hjemmel i første ledd.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "normgivning",
+    "fra": "Kunnskapsdepartementet",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "forskrift om unntak fra kravene til organisering i § 7 a for ordinære barnehager som har fått midlertidig godkjenning etter forskrift med hjemmel i første ledd",
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": "forskrift",
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": "normalisering",
+    "oppdagelseskilde": "monster:forskrift-gi",
+    "sitat": "«Departementet kan gi forskrift om unntak fra kravene til organisering i § 7 a for ordinære barnehager som har fått midlertidig godkjenning etter forskrift med hjemmel i første ledd.»",
+    "aktor_lost_via": "«departementet» løst med standardregelen ansvarlig_departement (Lovdatas felt, sekundær kilde; ressortkanten er ikke vurdert)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f43",
+   "kant_id": "2d4d4176-f57e-4fba-9f6b-a1f927a4023f",
+   "rettskilde": "Lov om barnehager (barnehageloven)",
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§15/ledd-3",
+   "hele_leddet": "Departementet kan gi forskrifter om godkjenning og drift av familiebarnehager.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "normgivning",
+    "fra": "Kunnskapsdepartementet",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "forskrifter om godkjenning og drift av familiebarnehager",
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": "forskrift",
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": "normalisering",
+    "oppdagelseskilde": "monster:forskrift-gi",
+    "sitat": "«Departementet kan gi forskrifter om godkjenning og drift av familiebarnehager.»",
+    "aktor_lost_via": "«departementet» løst med standardregelen ansvarlig_departement (Lovdatas felt, sekundær kilde; ressortkanten er ikke vurdert)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f44",
+   "kant_id": "fe5de7f0-67dc-4069-81f6-b6da15c776cb",
+   "rettskilde": "Lov om barnehager (barnehageloven)",
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§17/ledd-2",
+   "hele_leddet": "Forvaltningsloven kapittel IV til VI gjelder ikke for opptak i barnehage. Departementet kan gi forskrift om behandling av søknader om opptak i barnehage.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "normgivning",
+    "fra": "Kunnskapsdepartementet",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "forskrift om behandling av søknader om opptak i barnehage",
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": "forskrift",
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": "normalisering",
+    "oppdagelseskilde": "monster:forskrift-gi",
+    "sitat": "«Departementet kan gi forskrift om behandling av søknader om opptak i barnehage.»",
+    "aktor_lost_via": "«departementet» løst med standardregelen ansvarlig_departement (Lovdatas felt, sekundær kilde; ressortkanten er ikke vurdert)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f45",
+   "kant_id": "e5fcfb76-a252-45e4-ae3c-15566140600d",
+   "rettskilde": "Lov om barnehager (barnehageloven)",
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§19/ledd-4",
+   "hele_leddet": "Departementet kan gi forskrift om midlertidig tilskudd til drift av barnehager og barnehageplasser som er godkjent med hjemmel i forskrift etter § 14 b.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "normgivning",
+    "fra": "Kunnskapsdepartementet",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "forskrift om midlertidig tilskudd til drift av barnehager og barnehageplasser som er godkjent med hjemmel i forskrift etter § 14 b",
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": "forskrift",
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": "normalisering",
+    "oppdagelseskilde": "monster:forskrift-gi",
+    "sitat": "«Departementet kan gi forskrift om midlertidig tilskudd til drift av barnehager og barnehageplasser som er godkjent med hjemmel i forskrift etter § 14 b.»",
+    "aktor_lost_via": "«departementet» løst med standardregelen ansvarlig_departement (Lovdatas felt, sekundær kilde; ressortkanten er ikke vurdert)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f46",
+   "kant_id": "d2a4d0b3-0b74-487b-ad53-090c7d8e107d",
+   "rettskilde": "Lov om barnehager (barnehageloven)",
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§19a/ledd-8",
+   "hele_leddet": "Departementet kan gi forskrift om tilskudd til drift. Forskrift etter første punktum kan gjøre unntak fra reglene i første og andre ledd.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "normgivning",
+    "fra": "Kunnskapsdepartementet",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "forskrift om tilskudd til drift",
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": "forskrift",
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": "normalisering",
+    "oppdagelseskilde": "monster:forskrift-gi",
+    "sitat": "«Departementet kan gi forskrift om tilskudd til drift.»",
+    "aktor_lost_via": "«departementet» løst med standardregelen ansvarlig_departement (Lovdatas felt, sekundær kilde; ressortkanten er ikke vurdert)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f47",
+   "kant_id": "ec5e0fbd-959a-4082-bb56-f55949dbc8cb",
+   "rettskilde": "Lov om barnehager (barnehageloven)",
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§19b/ledd-3",
+   "hele_leddet": "Private barnehager med historiske forpliktelser basert på avtaler om offentlig tjenestepensjon skal få dekket sine pensjonsutgifter opp til en øvre grense. Departementet skal gi forskrift om hvilke barnehager som har rett til pensjonstilskudd etter første punktum, og om en øvre grense for dekningen.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "normgivning",
+    "fra": "Kunnskapsdepartementet",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "forskrift om hvilke barnehager som har rett til pensjonstilskudd etter første punktum, og om en øvre grense for dekningen",
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": "forskrift",
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": "normalisering",
+    "oppdagelseskilde": "monster:forskrift-gi",
+    "sitat": "«Departementet skal gi forskrift om hvilke barnehager som har rett til pensjonstilskudd etter første punktum, og om en øvre grense for dekningen.»",
+    "aktor_lost_via": "«departementet» løst med standardregelen ansvarlig_departement (Lovdatas felt, sekundær kilde; ressortkanten er ikke vurdert)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f48",
+   "kant_id": "dc696543-08ef-4c1f-a80f-bdd87ff08888",
+   "rettskilde": "Lov om barnehager (barnehageloven)",
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§19b/ledd-5",
+   "hele_leddet": "Departementet kan gi forskrift om tilskudd til pensjon. Forskrift gitt etter første punktum kan gjøre unntak fra reglene i første og andre ledd.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "normgivning",
+    "fra": "Kunnskapsdepartementet",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "forskrift om tilskudd til pensjon",
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": "forskrift",
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": "normalisering",
+    "oppdagelseskilde": "monster:forskrift-gi",
+    "sitat": "«Departementet kan gi forskrift om tilskudd til pensjon.»",
+    "aktor_lost_via": "«departementet» løst med standardregelen ansvarlig_departement (Lovdatas felt, sekundær kilde; ressortkanten er ikke vurdert)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f49",
+   "kant_id": "8ab2df36-162a-472d-b4db-2381d38b3809",
+   "rettskilde": "Lov om barnehager (barnehageloven)",
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§19c/ledd-1",
+   "hele_leddet": "Kommunen skal gi eiendomstilskudd til private barnehager som har rett til tilskudd etter § 19 første eller andre ledd. Departementet skal gi forskrift om tildeling av, og satser for, eiendomstilskudd.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "normgivning",
+    "fra": "Kunnskapsdepartementet",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "forskrift om tildeling av, og satser for, eiendomstilskudd",
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": "forskrift",
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": "normalisering",
+    "oppdagelseskilde": "monster:forskrift-gi",
+    "sitat": "«Departementet skal gi forskrift om tildeling av, og satser for, eiendomstilskudd.»",
+    "aktor_lost_via": "«departementet» løst med standardregelen ansvarlig_departement (Lovdatas felt, sekundær kilde; ressortkanten er ikke vurdert)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f50",
+   "kant_id": "5e0c91f3-019c-4c73-978d-5dbf1a3307db",
+   "rettskilde": "Lov om barnehager (barnehageloven)",
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§20/ledd-1",
+   "hele_leddet": "Departementet kan gi forskrift om foreldrebetaling i barnehagen, blant annet om søskenmoderasjon, inntektsgradering og maksimalgrense. Kommunen kan gi forskrift om en lavere foreldrebetaling enn det som følger av forskrift gitt etter første punktum.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "normgivning",
+    "fra": "Kunnskapsdepartementet",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "forskrift om foreldrebetaling i barnehagen, blant annet om søskenmoderasjon, inntektsgradering og maksimalgrense",
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": "forskrift",
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": "normalisering",
+    "oppdagelseskilde": "monster:forskrift-gi",
+    "sitat": "«Departementet kan gi forskrift om foreldrebetaling i barnehagen, blant annet om søskenmoderasjon, inntektsgradering og maksimalgrense.»",
+    "aktor_lost_via": "«departementet» løst med standardregelen ansvarlig_departement (Lovdatas felt, sekundær kilde; ressortkanten er ikke vurdert)"
+   },
+   "ikke_lastet_i_samme_ledd": [
+    {
+     "lag": "monster",
+     "kategori": "kompetanse",
+     "type": "normgivningskompetanse",
+     "sitat": "Kommunen kan gi forskrift om en lavere foreldrebetaling enn det som følger av forskrift gitt etter første punktum.",
+     "arsak": "avvist_av_valideringen",
+     "detalj": "«kommune» er klasse og kan ikke være fra-node i kategori K (kompetanse) — fra skal være aktør eller rolle."
+    },
+    {
+     "lag": "ki",
+     "kategori": "kompetanse",
+     "type": "normgivningskompetanse",
+     "sitat": "Kommunen kan gi forskrift om en lavere foreldrebetaling",
+     "arsak": "avvist_av_valideringen",
+     "detalj": "«kommune» er klasse og kan ikke være fra-node i kategori K (kompetanse) — fra skal være aktør eller rolle."
+    }
+   ]
+  },
+  {
+   "id": "f51",
+   "kant_id": "bf51cb71-bd24-4408-af73-dba74c82ae17",
+   "rettskilde": "Lov om barnehager (barnehageloven)",
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§23/ledd-6",
+   "hele_leddet": "Departementet kan gi forskrift om regnskap, revisjon, rapportering og dokumentasjon.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "normgivning",
+    "fra": "Kunnskapsdepartementet",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "forskrift om regnskap, revisjon, rapportering og dokumentasjon",
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": "forskrift",
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": "normalisering",
+    "oppdagelseskilde": "monster:forskrift-gi",
+    "sitat": "«Departementet kan gi forskrift om regnskap, revisjon, rapportering og dokumentasjon.»",
+    "aktor_lost_via": "«departementet» løst med standardregelen ansvarlig_departement (Lovdatas felt, sekundær kilde; ressortkanten er ikke vurdert)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f52",
+   "kant_id": "e3a0b926-cd59-4eb2-98fd-ae1931e19287",
+   "rettskilde": "Lov om barnehager (barnehageloven)",
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§23a/ledd-2",
+   "hele_leddet": "Barnehagen kan likevel drive eller eie tilleggsvirksomhet som er nært knyttet til barnehagevirksomheten og utgjør en mindre del av den totale virksomheten. Forbudet i første ledd er heller ikke til hinder for at elever som går første trinn i en skole godkjent etter privatskolelova § 2-1, mottar opplæring etter privatskolelova i en barnehage dersom dette er i tråd med skolens godkjente læreplan etter privatskolelova § 2-3 første ledd. Departementet kan gi forskrift om hvilken tilleggsvirksomhet som er tillatt etter første punktum og krav til regnskap, revisjon, rapportering og dokumentasjon for tilleggsvirksomhet etter første og andre punktum.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "normgivning",
+    "fra": "Kunnskapsdepartementet",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "forskrift om hvilken tilleggsvirksomhet som er tillatt etter første punktum og krav til regnskap, revisjon, rapportering og dokumentasjon for tilleggsvirksomhet etter første og andre punktum",
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": "forskrift",
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": "normalisering",
+    "oppdagelseskilde": "monster:forskrift-gi",
+    "sitat": "«Departementet kan gi forskrift om hvilken tilleggsvirksomhet som er tillatt etter første punktum og krav til regnskap, revisjon, rapportering og dokumentasjon for tilleggsvirksomhet etter første og andre punktum.»",
+    "aktor_lost_via": "«departementet» løst med standardregelen ansvarlig_departement (Lovdatas felt, sekundær kilde; ressortkanten er ikke vurdert)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f53",
+   "kant_id": "704f1eb0-d33c-4351-abf7-5b3f8bb00daa",
+   "rettskilde": "Lov om barnehager (barnehageloven)",
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§23c/ledd-1",
+   "hele_leddet": "Barnehagen skal melde fra til kommunen og Utdanningsdirektoratet ved nedleggelse, eierskifte, overføring av eiendom og andre organisatoriske endringer. Meldingen skal gis så snart endringen er besluttet. Departementet kan gi forskrift om hva som skal regnes som organisatoriske endringer, og om hvordan meldeplikten skal gjennomføres.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "normgivning",
+    "fra": "Kunnskapsdepartementet",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "forskrift om hva som skal regnes som organisatoriske endringer, og om hvordan meldeplikten skal gjennomføres",
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": "forskrift",
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": "normalisering",
+    "oppdagelseskilde": "monster:forskrift-gi",
+    "sitat": "«Departementet kan gi forskrift om hva som skal regnes som organisatoriske endringer, og om hvordan meldeplikten skal gjennomføres.»",
+    "aktor_lost_via": "«departementet» løst med standardregelen ansvarlig_departement (Lovdatas felt, sekundær kilde; ressortkanten er ikke vurdert)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f54",
+   "kant_id": "76704899-2b83-4453-8aa7-8f4d05105c19",
+   "rettskilde": "Lov om barnehager (barnehageloven)",
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§24/ledd-3",
+   "hele_leddet": "Departementet kan gi forskrift om pedagogisk bemanning og dispensasjon og forskrift om godkjenning av yrkeskvalifikasjoner fra utlandet.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "normgivning",
+    "fra": "Kunnskapsdepartementet",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "forskrift om pedagogisk bemanning og dispensasjon og forskrift om godkjenning av yrkeskvalifikasjoner fra utlandet",
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": "forskrift",
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": "normalisering",
+    "oppdagelseskilde": "monster:forskrift-gi",
+    "sitat": "«Departementet kan gi forskrift om pedagogisk bemanning og dispensasjon og forskrift om godkjenning av yrkeskvalifikasjoner fra utlandet.»",
+    "aktor_lost_via": "«departementet» løst med standardregelen ansvarlig_departement (Lovdatas felt, sekundær kilde; ressortkanten er ikke vurdert)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f55",
+   "kant_id": "30190dda-6373-4db3-add3-e244e67651d7",
+   "rettskilde": "Lov om barnehager (barnehageloven)",
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§24/ledd-4",
+   "hele_leddet": "Departementet kan opprette en klagenemnd som skal behandle klager på enkeltvedtak om godkjenning av yrkeskvalifikasjoner fra utlandet, og kan gi forskrift om klagenemnda og saksbehandlingen i nemnda.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "oppretting",
+    "fra": "Kunnskapsdepartementet",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "klagenemnd",
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": null,
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": null,
+    "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+    "sitat": "«Departementet kan opprette en klagenemnd»",
+    "aktor_lost_via": "«departementet» løst med standardregelen ansvarlig_departement (Lovdatas felt, sekundær kilde; ressortkanten er ikke vurdert)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f56",
+   "kant_id": "650cbb30-9d15-4e1d-8044-a5bcab40e4f5",
+   "rettskilde": "Lov om barnehager (barnehageloven)",
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§25/ledd-2",
+   "hele_leddet": "Departementet kan gi forskrift om pedagogisk bemanning og dispensasjon, forskrift om godkjenning av yrkeskvalifikasjoner fra utlandet og forskrift om unntak fra utdanningskravet for personale som arbeider i barnehagen på nattid.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "normgivning",
+    "fra": "Kunnskapsdepartementet",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "forskrift om pedagogisk bemanning og dispensasjon, forskrift om godkjenning av yrkeskvalifikasjoner fra utlandet og forskrift om unntak fra utdanningskravet for personale som arbeider i barnehagen på",
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": "forskrift",
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": "normalisering",
+    "oppdagelseskilde": "monster:forskrift-gi",
+    "sitat": "«Departementet kan gi forskrift om pedagogisk bemanning og dispensasjon, forskrift om godkjenning av yrkeskvalifikasjoner fra utlandet og forskrift om unntak fra utdanningskravet for personale som arbeider i barnehagen på nattid.»",
+    "aktor_lost_via": "«departementet» løst med standardregelen ansvarlig_departement (Lovdatas felt, sekundær kilde; ressortkanten er ikke vurdert)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f57",
+   "kant_id": "d0953308-6fd3-4c18-a006-da9213107bb3",
+   "rettskilde": "Lov om barnehager (barnehageloven)",
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§28/ledd-4",
+   "hele_leddet": "Departementet kan gi forskrift om dispensasjon fra kravet om norskferdigheter.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "normgivning",
+    "fra": "Kunnskapsdepartementet",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "forskrift om dispensasjon fra kravet om norskferdigheter",
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": "forskrift",
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": "normalisering",
+    "oppdagelseskilde": "monster:forskrift-gi",
+    "sitat": "«Departementet kan gi forskrift om dispensasjon fra kravet om norskferdigheter.»",
+    "aktor_lost_via": "«departementet» løst med standardregelen ansvarlig_departement (Lovdatas felt, sekundær kilde; ressortkanten er ikke vurdert)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f58",
+   "kant_id": "1e8dc324-038d-4c1c-a18a-c2512b9caa52",
+   "rettskilde": "Lov om barnehager (barnehageloven)",
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§30/ledd-4",
+   "hele_leddet": "Departementet gir nærmere forskrifter om gjennomføring av denne paragrafen.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "normgivning",
+    "fra": "Kunnskapsdepartementet",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "nærmere forskrifter om gjennomføring av denne paragrafen",
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": "forskrift",
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": "normalisering",
+    "oppdagelseskilde": "monster:forskrift-gi",
+    "sitat": "«Departementet gir nærmere forskrifter om gjennomføring av denne paragrafen.»",
+    "aktor_lost_via": "«departementet» løst med standardregelen ansvarlig_departement (Lovdatas felt, sekundær kilde; ressortkanten er ikke vurdert)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f59",
+   "kant_id": "cc0809c4-e295-4f0f-9ad8-d225593e2fb7",
+   "rettskilde": "Lov om barnehager (barnehageloven)",
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§31/ledd-6",
+   "hele_leddet": "Departementet kan gi forskrift om ansvar for utgifter til spesialpedagogisk hjelp, hvem som skal regnes som bosatt i kommunen, refusjon av andre kommuners eller fylkeskommuners utgifter til spesialpedagogisk hjelp, fylkeskommunens ansvar for rett til spesialpedagogisk hjelp for barn i barnevernsinstitusjon og fylkeskommunens ansvar for rett til spesialpedagogisk hjelp for barn som er pasienter i helseinstitusjon eid av regionalt helseforetak, eller i privat helseinstitusjon med avtale med regionalt helseforetak.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "normgivning",
+    "fra": "Kunnskapsdepartementet",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "forskrift om ansvar for utgifter til spesialpedagogisk hjelp, hvem som skal regnes som bosatt i kommunen, refusjon av andre kommuners eller fylkeskommuners utgifter til spesialpedagogisk hjelp,",
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": "forskrift",
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": "normalisering",
+    "oppdagelseskilde": "monster:forskrift-gi",
+    "sitat": "«Departementet kan gi forskrift om ansvar for utgifter til spesialpedagogisk hjelp, hvem som skal regnes som bosatt i kommunen, refusjon av andre kommuners eller fylkeskommuners utgifter til spesialpedagogisk hjelp, fylkeskommunens ansvar for rett til spesialpedagogisk hjelp for barn i barnevernsinstitusjon»",
+    "aktor_lost_via": "«departementet» løst med standardregelen ansvarlig_departement (Lovdatas felt, sekundær kilde; ressortkanten er ikke vurdert)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f60",
+   "kant_id": "2a77af4f-ec98-4866-b8b5-8300d8c08938",
+   "rettskilde": "Lov om barnehager (barnehageloven)",
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§33/ledd-3",
+   "hele_leddet": "Departementet kan gi forskrift om andre oppgaver for den pedagogisk-psykologiske tjenesten.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "normgivning",
+    "fra": "Kunnskapsdepartementet",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "forskrift om andre oppgaver for den pedagogisk-psykologiske tjenesten",
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": "forskrift",
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": "normalisering",
+    "oppdagelseskilde": "monster:forskrift-gi",
+    "sitat": "«Departementet kan gi forskrift om andre oppgaver for den pedagogisk-psykologiske tjenesten.»",
+    "aktor_lost_via": "«departementet» løst med standardregelen ansvarlig_departement (Lovdatas felt, sekundær kilde; ressortkanten er ikke vurdert)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f61",
+   "kant_id": "582ab184-f1f7-4872-bb35-423bbfc64f18",
+   "rettskilde": "Lov om barnehager (barnehageloven)",
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§34/ledd-3",
+   "hele_leddet": "Departementet kan gi forskrift om innholdet i den sakkyndige vurderingen.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "normgivning",
+    "fra": "Kunnskapsdepartementet",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "forskrift om innholdet i den sakkyndige vurderingen",
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": "forskrift",
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": "normalisering",
+    "oppdagelseskilde": "monster:forskrift-gi",
+    "sitat": "«Departementet kan gi forskrift om innholdet i den sakkyndige vurderingen.»",
+    "aktor_lost_via": "«departementet» løst med standardregelen ansvarlig_departement (Lovdatas felt, sekundær kilde; ressortkanten er ikke vurdert)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f62",
+   "kant_id": "fa7c1286-015f-4f89-b98a-0b1aea5289a7",
+   "rettskilde": "Lov om barnehager (barnehageloven)",
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§38/ledd-7",
+   "hele_leddet": "Departementet kan gi forskrift om tegnspråkopplæring for barn under opplæringspliktig alder.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "normgivning",
+    "fra": "Kunnskapsdepartementet",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "forskrift om tegnspråkopplæring for barn under opplæringspliktig alder",
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": "forskrift",
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": "normalisering",
+    "oppdagelseskilde": "monster:forskrift-gi",
+    "sitat": "«Departementet kan gi forskrift om tegnspråkopplæring for barn under opplæringspliktig alder.»",
+    "aktor_lost_via": "«departementet» løst med standardregelen ansvarlig_departement (Lovdatas felt, sekundær kilde; ressortkanten er ikke vurdert)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f63",
+   "kant_id": "fb0fe85d-a27c-4421-9a45-8aaead232358",
+   "rettskilde": "Lov om barnehager (barnehageloven)",
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§47/ledd-1",
+   "hele_leddet": "Offentlige myndigheter kan uten hinder av taushetsplikt innhente opplysninger fra Folkeregisteret når det er nødvendig for å utføre oppgaver etter denne loven. Departementet gir forskrift om hvilke opplysninger som kan innhentes.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "normgivning",
+    "fra": "Kunnskapsdepartementet",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "forskrift om hvilke opplysninger som kan innhentes",
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": "forskrift",
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": "normalisering",
+    "oppdagelseskilde": "monster:forskrift-gi",
+    "sitat": "«Departementet gir forskrift om hvilke opplysninger som kan innhentes.»",
+    "aktor_lost_via": "«departementet» løst med standardregelen ansvarlig_departement (Lovdatas felt, sekundær kilde; ressortkanten er ikke vurdert)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f64",
+   "kant_id": "7a422ed7-7266-4341-b8bb-09c63c687f7b",
+   "rettskilde": "Lov om barnehager (barnehageloven)",
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§47a/ledd-3",
+   "hele_leddet": "Departementet kan gi forskrift om behandling av personopplysninger etter første og andre ledd, blant annet om formålet med behandlingen, behandlingsansvar, hvilke personopplysninger som kan behandles, hvem det kan behandles personopplysninger om, bruk av automatiserte avgjørelser, adgang til viderebehandling, utlevering og tilgang til personopplysninger.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "normgivning",
+    "fra": "Kunnskapsdepartementet",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "forskrift om behandling av personopplysninger etter første og andre ledd, blant annet om formålet med behandlingen, behandlingsansvar, hvilke personopplysninger som kan behandles, hvem det kan",
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": "forskrift",
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": "normalisering",
+    "oppdagelseskilde": "monster:forskrift-gi",
+    "sitat": "«Departementet kan gi forskrift om behandling av personopplysninger etter første og andre ledd, blant annet om formålet med behandlingen, behandlingsansvar, hvilke personopplysninger som kan behandles, hvem det kan behandles personopplysninger om, bruk av automatiserte avgjørelser, adgang til viderebehandling, utlevering og»",
+    "aktor_lost_via": "«departementet» løst med standardregelen ansvarlig_departement (Lovdatas felt, sekundær kilde; ressortkanten er ikke vurdert)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f65",
+   "kant_id": "ddf88732-e3e2-4525-a8ff-eecf80a11d96",
+   "rettskilde": "Lov om barnehager (barnehageloven)",
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§48/ledd-1",
+   "hele_leddet": "Barnehager skal rapportere tjenestedata til Utdanningsdirektoratet som er nødvendige for å evaluere, utvikle og forbedre barnehagesektoren. Private barnehager skal i tillegg rapportere slike tjenestedata til kommunen. Tjenestedataene skal ikke inneholde direkte identifiserbare personopplysninger. Departementet kan gi forskrift om rapportering av tjenestedata og om Utdanningsdirektoratets behandling av disse.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "normgivning",
+    "fra": "Kunnskapsdepartementet",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "forskrift om rapportering av tjenestedata og om Utdanningsdirektoratets behandling av disse",
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": "forskrift",
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": "normalisering",
+    "oppdagelseskilde": "monster:forskrift-gi",
+    "sitat": "«Departementet kan gi forskrift om rapportering av tjenestedata og om Utdanningsdirektoratets behandling av disse.»",
+    "aktor_lost_via": "«departementet» løst med standardregelen ansvarlig_departement (Lovdatas felt, sekundær kilde; ressortkanten er ikke vurdert)"
+   },
+   "ikke_lastet_i_samme_ledd": [
+    {
+     "lag": "ki",
+     "kategori": "plikt",
+     "type": "informasjonsplikt",
+     "sitat": "Barnehager skal rapportere tjenestedata til Utdanningsdirektoratet",
+     "arsak": "fra_ikke_i_teksten",
+     "detalj": null
+    },
+    {
+     "lag": "ki",
+     "kategori": "plikt",
+     "type": "informasjonsplikt",
+     "sitat": "Private barnehager skal i tillegg rapportere slike tjenestedata til kommunen",
+     "arsak": "aktor_ikke_i_katalogen",
+     "detalj": "«private barnehager»"
+    }
+   ]
+  },
+  {
+   "id": "f66",
+   "kant_id": "df824a60-0412-46b9-bbc3-d65860b981e5",
+   "rettskilde": "Lov om barnehager (barnehageloven)",
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§48a/ledd-4",
+   "hele_leddet": "Personopplysninger fra registeret kan ikke utleveres til andre enn Statistisk sentralbyrå.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "vedtak",
+    "fra": "STATISTISK SENTRALBYRÅ",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "personopplysninger fra registeret",
+    "polaritet": "negativ",
+    "modalitet": null,
+    "normform": null,
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": null,
+    "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+    "sitat": "«Personopplysninger fra registeret kan ikke utleveres til andre enn Statistisk sentralbyrå.» — Utsagnet er negativt og sier at ingen andre enn Statistisk sentralbyrå kan få personopplysninger fra registeret.",
+    "aktor_lost_via": null
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f67",
+   "kant_id": "3a903b9f-6706-472d-9652-d183061b3357",
+   "rettskilde": "Lov om barnehager (barnehageloven)",
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§48a/ledd-5",
+   "hele_leddet": "Departementet kan gi forskrift om registeret og om plikt for kommuner til, uten hinder av taushetsplikt, å innrapportere de opplysningene som er nødvendige for å oppnå formålet med registeret. Departementet kan videre gi forskrift om behandlingen av personopplysninger, blant annet om behandlingsansvar, hvilke opplysninger som kan behandles og om hvem, og om tilgang til, viderebehandling og utlevering av personopplysninger.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "normgivning",
+    "fra": "Kunnskapsdepartementet",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "forskrift om registeret og om plikt for kommuner til, uten hinder av taushetsplikt, å innrapportere de opplysningene som er nødvendige for å oppnå formålet med registeret",
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": "forskrift",
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": "normalisering",
+    "oppdagelseskilde": "monster:forskrift-gi",
+    "sitat": "«Departementet kan gi forskrift om registeret og om plikt for kommuner til, uten hinder av taushetsplikt, å innrapportere de opplysningene som er nødvendige for å oppnå formålet med registeret.»",
+    "aktor_lost_via": "«departementet» løst med standardregelen ansvarlig_departement (Lovdatas felt, sekundær kilde; ressortkanten er ikke vurdert)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f68",
+   "kant_id": "8829d38e-4ea4-457e-826f-d2d743ded487",
+   "rettskilde": "Lov om barnehager (barnehageloven)",
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§52/ledd-1",
+   "hele_leddet": "Kongen kan gi forskrift om lovens anvendelse på Svalbard og kan fastsette særlige regler under hensyn til de stedlige forhold.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "normgivning",
+    "fra": "Kongen i statsråd",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "forskrift om lovens anvendelse på Svalbard og kan fastsette særlige regler under hensyn til de stedlige forhold",
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": "forskrift",
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": "normalisering",
+    "oppdagelseskilde": "monster:forskrift-gi",
+    "sitat": "«Kongen kan gi forskrift om lovens anvendelse på Svalbard og kan fastsette særlige regler under hensyn til de stedlige forhold.»",
+    "aktor_lost_via": null
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f69",
+   "kant_id": "6fae8f14-1159-4394-a9b7-dc0bf12b9b71",
+   "rettskilde": "Lov om barnehager (barnehageloven)",
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§57/ledd-1",
+   "hele_leddet": "Loven trer i kraft fra den dag Kongen bestemmer.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "beslutning",
+    "fra": "Kongen i statsråd",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "ikrafttredelse av loven",
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": null,
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": null,
+    "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+    "sitat": "«Loven trer i kraft fra den dag Kongen bestemmer.»",
+    "aktor_lost_via": null
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f70",
+   "kant_id": "60420f6d-a3a4-4565-a2de-a09f46a849b4",
+   "rettskilde": "Lov om barnehager (barnehageloven)",
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§57/ledd-4",
+   "hele_leddet": "Departementet kan gi forskrift med nærmere overgangsregler, som bestemmelser om overføringen av ansvaret for å føre tilsyn med økonomiske forhold i private barnehager fra kommunen til Utdanningsdirektoratet. Det kan også gis bestemmelser som viderefører bestemmelser i loven her om tilsyn, veiledning og reaksjonsmidler etter §§ 8 første ledd andre punktum, 8 femte ledd, 9, 9 a, 9 b, 16 og 16 a, slik disse lød før 1. januar 2021.",
+   "foreslatt": {
+    "kategori": "K",
+    "type": "normgivning",
+    "fra": "Kunnskapsdepartementet",
+    "fra_art": "aktør",
+    "til": null,
+    "til_art": null,
+    "objekt": "forskrift med nærmere overgangsregler, som bestemmelser om overføringen av ansvaret for å føre tilsyn med økonomiske forhold i private barnehager fra kommunen til Utdanningsdirektoratet",
+    "polaritet": "positiv",
+    "modalitet": null,
+    "normform": "forskrift",
+    "undertype": null,
+    "avgrensning": null,
+    "kunnskapsstatus": "normalisering",
+    "oppdagelseskilde": "monster:forskrift-gi",
+    "sitat": "«Departementet kan gi forskrift med nærmere overgangsregler, som bestemmelser om overføringen av ansvaret for å føre tilsyn med økonomiske forhold i private barnehager fra kommunen til Utdanningsdirektoratet.»",
+    "aktor_lost_via": "«departementet» løst med standardregelen ansvarlig_departement (Lovdatas felt, sekundær kilde; ressortkanten er ikke vurdert)"
+   },
+   "ikke_lastet_i_samme_ledd": []
+  },
+  {
+   "id": "f71",
+   "kant_id": "4ae05c7d-f49c-4494-8080-5a02647788ab",
+   "rettskilde": "Midlertidig forskrift om midlertidig godkjenning av ordinære barnehager og midlertidig tilskudd for enklere bosetting av fordrevne fra Ukraina og flyktninger",
+   "eid": "https://lovdata.no/eli/forskrift/2023/06/27/1136/nor/§3/ledd-2",
+   "hele_leddet": "Kommunen skal tildele tilskuddet i samsvar med forskrift om tildeling av tilskudd til private barnehager. Private barnehager skal i tillegg til rapportering etter forskrift om tildeling av tilskudd til private barnehager § 12 første ledd første punktum, fortløpende rapportere om inntak av nye barn, barnas alder og oppholdstid i barnehagen. Kommunen skal i disse tilfellene beregne tilskuddet til de private barnehagene på nytt.",
+   "foreslatt": {
+    "kategori": "F",
+    "type": "forvaltning",
+    "fra": "kommune",
+    "fra_art": "klasse",
+    "til": null,
+    "til_art": null,
+    "objekt": "beregne tilskuddet til de private barnehagene på nytt",
+    "polaritet": "positiv",
+    "modalitet": "skal",
+    "normform": null,
+    "undertype": null,
+    "avgrensning": "i disse tilfellene",
+    "kunnskapsstatus": null,
+    "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+    "sitat": "«Kommunen skal i disse tilfellene beregne tilskuddet til de private barnehagene på nytt»",
+    "aktor_lost_via": "«kommune» via generisk navneform og standardregelen klasse_kommune (avledet)"
+   },
+   "ikke_lastet_i_samme_ledd": [
+    {
+     "lag": "ki",
+     "kategori": "plikt",
+     "type": "betalingsplikt",
+     "sitat": "Kommunen skal tildele tilskuddet i samsvar med forskrift om tildeling av tilskudd til private barnehager",
+     "arsak": "aktor_ikke_i_katalogen",
+     "detalj": "«Private barnehager»"
+    },
+    {
+     "lag": "ki",
+     "kategori": "plikt",
+     "type": "informasjonsplikt",
+     "sitat": "Private barnehager skal i tillegg til rapportering etter forskrift om tildeling av tilskudd til private barnehager § 12 første ledd første punktum, fortløpende rapportere om inntak av nye barn, barnas alder og oppholdstid i barnehagen",
+     "arsak": "aktor_ikke_i_katalogen",
+     "detalj": "«Private barnehager»"
+    }
+   ]
+  },
+  {
+   "id": "p1",
+   "tema": "Generiske navneformer «kommunen» og «statsforvalteren» opprettet før lasting",
+   "foreslatt": {
+    "handling": "Opprettet de korpusvide generiske navneformene «kommunen» og «statsforvalteren» (navneformgrunn generisk, ingen binding).",
+    "virkning": "Lasteren løser dem med Johanns standardregler fra #394: «kommunen» → klassen kommune, «statsforvalteren» → klassen statsforvalter, kunnskapsstatus avledet. Sperrene (definisjon i kilden, navngitt embete, virksomhetsdokument, Svalbard/Jan Mayen/Longyearbyen) gjelder.",
+    "grunnlag": "Johanns beslutning 1 i #394 (standardregler) og docs/33 §5.10. Klassen kommune er hjemlet i kommuneloven § 2-1 første ledd (tekstfunn). Klassen statsforvalter har i dag reindriftsloven § 62 fjerde ledd som hjemmel, som ikke er grunnlaget for klassen (#402).",
+    "merknad": "Barnehageloven bruker «kommunen» både om barnehagemyndigheten (§ 10) og om eieren av kommunale barnehager (§ 7). Begge er samme rettssubjekt; rollen skilles i kanttypen, ikke i referenten."
+   }
+  },
+  {
+   "id": "p2",
+   "tema": "Kompetanse (K) med en klasse som fra-node avvises av skriveveien",
+   "foreslatt": {
+    "observasjon": "Skriveveien tillater klasse som fra-node i P (plikt, #353) og F (oppgave, #368), men ikke i K (Strukturkanter.Noderegler: «aktør eller rolle»). Når «kommunen» løses til klassen kommune, avvises alle K-utsagn: 31 fra mønsterlaget og 43 fra KI-laget med klassen kommune, og 16 og 13 med klassen statsforvalter (103 utsagn i alt; noen er samme utsagn fra begge lag).",
+    "eksempler": [
+     "§ 14 første ledd: «Kommunen kan godkjenne søknader om etablering av private barnehager …» (K vedtak)",
+     "§ 26 tredje ledd: «Kommunen kan gi dispensasjon …» (K vedtak)",
+     "§ 26 andre ledd: «Kommunen kan gi forskrift om krav til høyere bemanning …» (K normgivning)",
+     "§ 12: «Statsforvalteren er klageinstans for vedtak fattet av kommunen …» (K klage)",
+     "§ 53 første ledd: «Kommunen fører tilsyn med at barnehagene …» (K tilsyn)"
+    ],
+    "sporsmal": "Skal K tillate klasse som fra-node (som P og F, med samme distributive lesning: hver kommune har kompetansen), eller skal kompetansen bindes til en rolle («kommunen som barnehagemyndighet»), eller noe annet? Modellereren foreslår ikke en løsning; dette er et modellvalg for Johann."
+   }
+  },
+  {
+   "id": "p3",
+   "tema": "«departementet» løst via Lovdatas felt, men forslaget får kunnskapsstatus normalisering",
+   "foreslatt": {
+    "observasjon": "31 normgivningsforslag fra mønsterlaget har fra = Kunnskapsdepartementet fordi «departementet» løses med standardregelen ansvarlig_departement (avledet, Lovdatas felt som sekundær kilde; ressortkanten for barnehageloven er ikke vurdert). Mønsterlaget setter kunnskapsstatus normalisering på hele utsagnet. Det samme gjelder 4 F-forslag der fra er klassen kommune eller statsforvalter.",
+    "regel": "docs/33 §4.6 «svakeste premiss»: et utsagn får aldri sterkere kunnskapsstatus enn det svakeste premisset. Rangering: tekstfunn = eksternt_dokumentert > normalisering > avledet > fortolkning > uavklart > omstridt; ikke vurdert regnes ikke sterkere enn uavklart.",
+    "sporsmal": "Hvilken kunnskapsstatus bør disse forslagene ha når aktøren er løst via en regel med et ikke vurdert premiss? (Lasteren håndhever ikke regelen; det er #411.)"
+   }
+  },
+  {
+   "id": "b1_1",
+   "tema": "BU 1.1 (§10)",
+   "rettskilde": "barnehageloven",
+   "hele_leddet": {
+    "§10/ledd-1": "Kommunen er lokal barnehagemyndighet. Kommunen skal gi veiledning om og påse at barnehagene drives i samsvar med bestemmelsene i denne loven med forskrifter, med unntak av bestemmelsene i kapittel V med forskrifter."
+   },
+   "foreslatt": {
+    "bu_sier_kort": "Kommunen skal veilede om og påse at alle barnehager drives etter loven",
+    "modellererens_kontroll": "Ledd 1 har «med unntak av bestemmelsene i kapittel V med forskrifter». BU har ikke unntaket.",
+    "feilklasse_17_4": "mister vilkår, unntak eller negasjon",
+    "alvor": "middels"
+   }
+  },
+  {
+   "id": "b2_1",
+   "tema": "BU 2.1 (§14/§14a)",
+   "rettskilde": "barnehageloven",
+   "hele_leddet": {
+    "§14/ledd-1": "Kommunen kan godkjenne søknader om etablering av private barnehager og søknader om endringer i etableringsgodkjenningen. Kommunen skal legge vekt på behovet for nye barnehageplasser og barnehagestrukturen i kommunen. I tillegg kan kommunen legge vekt på om barnehagen er ordinær, familiebarnehage eller åpen barnehage, om barnehagen har et særskilt pedagogisk tilbud, om barnehagen er ideell, og søkerens seriøsitet og egnethet. Med ideelle barnehager menes barnehager som ikke har erverv til formål, og som reinvesterer overskudd i barnehagedrift.",
+    "§14/ledd-2": "Kommunen kan ved etableringsgodkjenningen stille vilkår som har saklig sammenheng med godkjenningen, og som ikke er uforholdsmessig tyngende for barnehagen.",
+    "§14a/ledd-1": "Kommunen avgjør søknader om godkjenning av barnehagedriften og endringer av driften ved godkjente barnehager etter en vurdering av barnehagens egnethet ut fra formål og innhold, jf. §§ 1, 1 a og 2.",
+    "§14a/ledd-2": "Kommunen kan ved godkjenningen av barnehagedriften sette krav om antall barn, barnas alder og oppholdstid begrunnet i barnehagens egnethet ut fra formål og innhold, jf. §§ 1, 1 a og 2."
+   },
+   "foreslatt": {
+    "bu_sier_kort": "Avgjøre godkjenningssøknader, vilkår om antall barn, alder og oppholdstid (oppgitt som § 14)",
+    "modellererens_kontroll": "§ 14 er etableringsgodkjenning («kan godkjenne», vilkår med saklig sammenheng). Antall barn, alder og oppholdstid står i § 14 a andre ledd (driftsgodkjenning). To kompetanser med ulike vilkår er slått sammen under feil paragraf.",
+    "feilklasse_17_4": "mister vilkår, unntak eller negasjon",
+    "alvor": "middels"
+   }
+  },
+  {
+   "id": "b2_6",
+   "tema": "BU 2.6 (§26)",
+   "rettskilde": "barnehageloven",
+   "hele_leddet": {
+    "§26/ledd-3": "Kommunen kan gi dispensasjon fra kravet til grunnbemanning i andre ledd første punktum for inntil ett år av gangen når særlige hensyn tilsier det. Barnehagen skal legge uttalelse fra barnehagens samarbeidsutvalg ved søknaden."
+   },
+   "foreslatt": {
+    "bu_sier_kort": "Kan gi dispensasjon fra grunnbemanning inntil ett år",
+    "modellererens_kontroll": "Stemmer, men vilkåret «når særlige hensyn tilsier det» og klageinstansen (ledd 4, statsforvalteren) er ikke med.",
+    "feilklasse_17_4": "mister vilkår, unntak eller negasjon",
+    "alvor": "lav"
+   }
+  },
+  {
+   "id": "b2_7",
+   "tema": "BU 2.7 (§19)",
+   "rettskilde": "barnehageloven",
+   "hele_leddet": {
+    "§19/ledd-1": "Private barnehager med etableringsgodkjenning etter § 14 har rett til tilskudd. Kommunen skal gi tilskudd til private barnehager som har rett til tilskudd etter første punktum, og som har driftsgodkjenning etter § 14 a.",
+    "§19/ledd-2": "Kommunen skal gi tilskudd til private barnehager som hadde rett til tilskudd da § 14 om etableringsgodkjenning trådte i kraft. Retten til tilskudd etter første punktum faller bort dersom barnehagedriften ikke er startet opp innen 1. juni 2031 eller barnehagedriften legges ned."
+   },
+   "foreslatt": {
+    "bu_sier_kort": "«Kan» gi tilskudd til private barnehager",
+    "modellererens_kontroll": "Loven: «Kommunen skal gi tilskudd» (ledd 1 og 2), og barnehagen har rett til tilskudd. Plikt er gjort til adgang.",
+    "feilklasse_17_4": "omdanner adgang til plikt",
+    "alvor": "hoy"
+   }
+  },
+  {
+   "id": "b3_1",
+   "tema": "BU 3.1 (§31/§32)",
+   "rettskilde": "barnehageloven",
+   "hele_leddet": {
+    "§31/ledd-4": "Kommunen skal oppfylle retten til spesialpedagogisk hjelp for barn bosatt i kommunen.",
+    "§32/ledd-1": "Før det blir utarbeidet en sakkyndig vurdering og fattet vedtak om spesialpedagogisk hjelp, skal det innhentes samtykke fra barnets foreldre. Foreldrene har rett til å gjøre seg kjent med innholdet i den sakkyndige vurderingen og til å uttale seg før det fattes vedtak.",
+    "§31/ledd-3": "Spesialpedagogisk hjelp kan gis til barnet individuelt eller i gruppe. Hjelpen skal omfatte tilbud om foreldrerådgivning."
+   },
+   "foreslatt": {
+    "bu_sier_kort": "Oppfylle retten til spesialpedagogisk hjelp, innhente samtykke og gi foreldrerådgivning",
+    "modellererens_kontroll": "§ 31 fjerde ledd stemmer. § 32 første ledd er passiv («skal det innhentes samtykke») uten pliktsubjekt; at det er kommunen, er en slutning. Foreldrerådgivningen står i § 31 tredje ledd.",
+    "feilklasse_17_4": "presenterer slutninger som tekstfunn",
+    "alvor": "lav"
+   }
+  },
+  {
+   "id": "b4_1",
+   "tema": "BU 4.1 (§41)",
+   "rettskilde": "barnehageloven",
+   "hele_leddet": {
+    "§41/ledd-1": "Barnehagen skal ikke godta krenkelser som for eksempel utestenging, mobbing, vold, diskriminering og trakassering. Alle som arbeider i barnehagen, skal gripe inn når et barn i barnehagen utsettes for slike krenkelser.",
+    "§41/ledd-2": "Barnehagen skal forebygge tilfeller hvor barn ikke har et trygt og godt barnehagemiljø ved å arbeide kontinuerlig for å fremme helsen, trivselen, leken og læringen til barna.",
+    "§7/ledd-1": "Kommunen har ansvaret for at kommunale barnehager drives i samsvar med loven."
+   },
+   "foreslatt": {
+    "bu_sier_kort": "Barnehagen «og dermed kommunen som eier» skal ha nulltoleranse og arbeide forebyggende",
+    "modellererens_kontroll": "§ 41 har barnehagen som pliktsubjekt. At kommunen er bundet, er en slutning via § 7 første ledd, men BU sier at alt med §-henvisning er verifisert mot lovteksten.",
+    "feilklasse_17_4": "presenterer slutninger som tekstfunn",
+    "alvor": "middels"
+   }
+  },
+  {
+   "id": "b4_2",
+   "tema": "BU 4.2 (§42)",
+   "rettskilde": "barnehageloven",
+   "hele_leddet": {
+    "§42/ledd-3": "Ved mistanke om eller kjennskap til at et barn ikke har et trygt og godt barnehagemiljø, skal barnehagen snarest undersøke saken.",
+    "§42/ledd-4": "Når et barn eller foreldrene sier at barnet ikke har et trygt og godt barnehagemiljø, skal barnehagen undersøke saken og så langt det finnes egnede tiltak, sørge for at barnet får et trygt og godt barnehagemiljø. Det samme gjelder når en undersøkelse som barnehagen selv har satt i gang, viser at et barn ikke har et trygt og godt barnehagemiljø. Tiltakene skal velges på grunnlag av en konkret og faglig vurdering.",
+    "§42/ledd-5": "Barnehagen skal lage en skriftlig plan når det skal gjøres tiltak i en sak. I planen skal det stå"
+   },
+   "foreslatt": {
+    "bu_sier_kort": "Aktivitetsplikt med skriftlig plan",
+    "modellererens_kontroll": "Stemmer for barnehagen; plassert under kommunen (samme slutning som 4.1).",
+    "feilklasse_17_4": "presenterer slutninger som tekstfunn",
+    "alvor": "lav"
+   }
+  },
+  {
+   "id": "b5_1",
+   "tema": "BU 5.1 (§24/§25)",
+   "rettskilde": "barnehageloven",
+   "hele_leddet": {
+    "§24/ledd-1": "Barnehagen skal ha en forsvarlig pedagogisk og administrativ ledelse.",
+    "§24/ledd-2": "Barnehagen skal ha en daglig leder som har utdanning som barnehagelærer eller annen høgskoleutdanning som gir barnefaglig og pedagogisk kompetanse.",
+    "§25/ledd-1": "Pedagogiske ledere må ha utdanning som barnehagelærer. Likeverdig med barnehagelærerutdanning er annen treårig pedagogisk utdanning på høgskolenivå med videreutdanning i barnehagepedagogikk."
+   },
+   "foreslatt": {
+    "bu_sier_kort": "Sikre forsvarlig ledelse og krav til styrer og pedagogiske ledere (kommunen som eier)",
+    "modellererens_kontroll": "Pliktsubjektet i § 24 er barnehagen; § 25 er et kvalifikasjonskrav. Kommunen via § 7 er en slutning.",
+    "feilklasse_17_4": "presenterer slutninger som tekstfunn",
+    "alvor": "lav"
+   }
+  },
+  {
+   "id": "b5_2",
+   "tema": "BU 5.2 (§26)",
+   "rettskilde": "barnehageloven",
+   "hele_leddet": {
+    "§26/ledd-2": "Barnehagen skal minst ha én ansatt per tre barn når barna er under tre år og én ansatt per seks barn når barna er over tre år. Barn skal regnes for å være over tre år fra og med august det året de fyller tre år. Kommunen kan gi forskrift om krav til høyere bemanning enn det som følger av første punktum."
+   },
+   "foreslatt": {
+    "bu_sier_kort": "Oppfylle grunnbemanningsnormen (kommunen som eier)",
+    "modellererens_kontroll": "«Barnehagen skal minst ha …». Kommunen via § 7 er en slutning. Kommunens kompetanse til å gi forskrift om høyere bemanning (ledd 2 tredje punktum) er ikke med.",
+    "feilklasse_17_4": "presenterer slutninger som tekstfunn",
+    "alvor": "lav"
+   }
+  },
+  {
+   "id": "b5_3",
+   "tema": "BU 5.3 (§27/§28)",
+   "rettskilde": "barnehageloven",
+   "hele_leddet": {
+    "§27/ledd-3": "Dersom det er pedagogisk forsvarlig, kan barnehagen ansette personer som ikke oppfyller kravet til norskprøve.",
+    "§28/ledd-2": "Barnehagen kan godta annen dokumentasjon av norskferdigheter."
+   },
+   "foreslatt": {
+    "bu_sier_kort": "Sikre norskkrav for ansatte",
+    "modellererens_kontroll": "Kravet gjelder ansettelse; adgangene ligger hos barnehagen. Kommunen via § 7 er en slutning.",
+    "feilklasse_17_4": "presenterer slutninger som tekstfunn",
+    "alvor": "lav"
+   }
+  },
+  {
+   "id": "b6_1",
+   "tema": "BU 6.1 (§2b)",
+   "rettskilde": "barnehageloven",
+   "hele_leddet": {
+    "§2b/ledd-2": "Kommunen skal samordne tjenestetilbudet etter første ledd. Ved behov skal kommunen bestemme hvilken kommunal tjenesteyter som skal ivareta samordningen. Dersom det er oppnevnt barnekoordinator etter helse- og omsorgstjenesteloven § 7-2 a , skal koordinatoren sørge for samordning av tjenestetilbudet."
+   },
+   "foreslatt": {
+    "bu_sier_kort": "Samordne tjenestetilbudet",
+    "modellererens_kontroll": "Stemmer: «Kommunen skal samordne» (ledd 2). Unntaket når barnekoordinator er oppnevnt (ledd 2 tredje punktum) er ikke med. Påstanden i issuet om feil pliktbærer holder ikke mot dagens tekst.",
+    "feilklasse_17_4": "mister vilkår, unntak eller negasjon",
+    "alvor": "lav"
+   }
+  },
+  {
+   "id": "b6_2",
+   "tema": "BU 6.2 (§45)",
+   "rettskilde": "barnehageloven",
+   "hele_leddet": {
+    "§45/ledd-1": "Barnehagepersonalet skal i sitt arbeid være oppmerksom på forhold som bør føre til tiltak fra sosialtjenesten eller helse- og omsorgstjenesten. Barnehagen skal av eget tiltak gi sosialtjenesten eller helse- og omsorgstjenesten opplysninger om slike forhold så langt opplysningene kan gis uten hinder av taushetsplikt."
+   },
+   "foreslatt": {
+    "bu_sier_kort": "Opplysninger til helse- og sosialtjenesten",
+    "modellererens_kontroll": "Pliktsubjekt er barnehagepersonalet og barnehagen, ikke kommunen.",
+    "feilklasse_17_4": "plasserer plikten på feil aktør",
+    "alvor": "middels"
+   }
+  },
+  {
+   "id": "b6_4",
+   "tema": "BU 6.4 (§47a)",
+   "rettskilde": "barnehageloven",
+   "hele_leddet": {
+    "§47a/ledd-1": "Kommuner, fylkeskommuner og private barnehager kan behandle personopplysninger, herunder personopplysninger som nevnt i personvernforordningen artikkel 9 og 10, når det er nødvendig for å utføre oppgaver etter loven."
+   },
+   "foreslatt": {
+    "bu_sier_kort": "Behandle personopplysninger i tråd med lovens formål (listet som plikt)",
+    "modellererens_kontroll": "Loven: «kan behandle personopplysninger … når det er nødvendig». En adgang er listet som kommunal plikt.",
+    "feilklasse_17_4": "omdanner adgang til plikt",
+    "alvor": "middels"
+   }
+  },
+  {
+   "id": "b6_6",
+   "tema": "BU 6.6 (§49)",
+   "rettskilde": "barnehageloven",
+   "hele_leddet": {
+    "§49/ledd-1": "Barnehagen plikter å gi barnets bostedskommune de opplysningene som er nødvendige for å kunne føre et register som nevnt i § 10 fjerde ledd."
+   },
+   "foreslatt": {
+    "bu_sier_kort": "Motta opplysninger fra barnehageeiere for registeret",
+    "modellererens_kontroll": "Loven: «Barnehagen plikter å gi barnets bostedskommune …». BU sier barnehageeiere.",
+    "feilklasse_17_4": "plasserer plikten på feil aktør",
+    "alvor": "lav"
+   }
+  },
+  {
+   "id": "b7_1",
+   "tema": "BU 7.1 (§53)",
+   "rettskilde": "barnehageloven",
+   "hele_leddet": {
+    "§53/ledd-1": "Kommunen fører tilsyn med at barnehagene drives i samsvar med denne loven med forskrifter og med rammene som er satt for godkjenningene, med unntak av bestemmelsene i kapittel V med forskrifter.",
+    "§53/ledd-2": "Kommunen kan gi pålegg til barnehagen om å rette uforsvarlige eller ulovlige forhold ved godkjente eller godkjenningspliktige virksomheter. Hvis fristen for å etterkomme pålegget ikke overholdes, eller forholdet ikke lar seg rette, kan kommunen fatte vedtak om tidsbegrenset eller varig stenging av virksomheten."
+   },
+   "foreslatt": {
+    "bu_sier_kort": "Føre tilsyn med at barnehagene drives lovlig, pålegg og stenging",
+    "modellererens_kontroll": "Ledd 1 har «med unntak av bestemmelsene i kapittel V med forskrifter». BU har ikke unntaket. Tilskuddsreaksjonen i ledd 3 er heller ikke med.",
+    "feilklasse_17_4": "mister vilkår, unntak eller negasjon",
+    "alvor": "middels"
+   }
+  },
+  {
+   "id": "b8_1",
+   "tema": "BU 8.1 (FOR-2017-04-24-487)",
+   "rettskilde": "FOR-2017-04-24-487",
+   "hele_leddet": {},
+   "foreslatt": {
+    "bu_sier_kort": "Rammeplan: kommunen skal påse etterlevelse",
+    "modellererens_kontroll": "Står ikke i forskriften; følger av loven § 10. En slutning, men BU merker den som en oppsummering.",
+    "feilklasse_17_4": "presenterer slutninger som tekstfunn",
+    "alvor": "lav"
+   }
+  },
+  {
+   "id": "b8_3",
+   "tema": "BU 8.3 (FOR-2005-12-16-1478)",
+   "rettskilde": "FOR-2005-12-16-1478",
+   "hele_leddet": {},
+   "foreslatt": {
+    "bu_sier_kort": "Kommunen skal overholde maksimalgrensen",
+    "modellererens_kontroll": "§ 1 er passiv («skal ikke settes høyere») uten pliktsubjekt. Kommunens uttrykkelige plikter står i §§ 3–3c (reduksjon og fritak), som BU ikke har.",
+    "feilklasse_17_4": "presenterer slutninger som tekstfunn",
+    "alvor": "lav"
+   }
+  },
+  {
+   "id": "b8_7",
+   "tema": "BU 8.7 (FOR-2023-03-28-449)",
+   "rettskilde": "FOR-2023-03-28-449",
+   "hele_leddet": {},
+   "foreslatt": {
+    "bu_sier_kort": "Kommunen er godkjennings- og tilsynsmyndighet for fysisk og psykososialt miljø",
+    "modellererens_kontroll": "Godkjenning (§ 15) og tilsyn (§ 19) stemmer. «Psykososialt» står ikke i forskriften; det psykososiale barnehagemiljøet er barnehageloven kapittel VIII.",
+    "feilklasse_17_4": "presenterer slutninger som tekstfunn",
+    "alvor": "lav"
+   }
+  }
+ ]
+}
