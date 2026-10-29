@@ -227,7 +227,11 @@ public static class Strukturkanter
         [Relasjon] = new("aktør", true, [], "aktør", true, [], false),
         // [ENDRET, issue #341] Til-noden er MOTPARTEN («A har klagekompetanse overfor B»); uten motpart sier objekt/
         // hjemmel/avgrensning hva kompetansen gjelder. Til = fra er lov bare for normgivning (selvregulering).
-        [Kompetanse] = new("aktør eller rolle", true, [Nodetyper.Rolle],
+        // [ENDRET, issue #418, Johanns avgjørelse (a) 2026-10-29] Innehaveren kan også være en KLASSE, lest distributivt som i P og F:
+        // «Kommunen kan gi forskrift …» i en lov som retter seg mot alle kommuner, gir hver kommune kompetansen. Før #418 avviste
+        // skriveveien klasse som fra i K, og piloten på barnehageloven (#375) mistet 103 utsagn om kommunens og statsforvalterens
+        // myndighet. Svaret for ett medlem regnes ut (KompetanseViaKlasseTjeneste), lagres ikke, og er aldri sterkere enn premissene.
+        [Kompetanse] = new("aktør, rolle eller klasse", true, [Nodetyper.Rolle, Nodetyper.Klasse],
             "motpart (aktør, klasse, rolle eller område) — valgfri", true, [Nodetyper.Klasse, Nodetyper.Rolle, Nodetyper.Omrade], true),
         // [Ny, issue #353] Pliktsubjektet kan være en aktør (også en ordning: «Folketrygden skal dekke …»), en rolle
         // («Koordinatoren skal samarbeide med barnekoordinator») eller en KLASSE («Kommunen skal inngå samarbeidsavtale med det
@@ -247,7 +251,10 @@ public static class Strukturkanter
         [Omradesammensetning] = new("område", false, [Nodetyper.Omrade], "område", false, [Nodetyper.Omrade], false),
         [Ansvarsomrade] = new("aktør", true, [], "område", false, [Nodetyper.Omrade], false),
         [Organtilhorighet] = new("organ, enhet eller rolle", true, [Nodetyper.Rolle], "rettssubjekt", true, [], false),
-        [Rolleinnehav] = new("aktør", true, [], "rolle", false, [Nodetyper.Rolle], false),
+        // [ENDRET, issue #418, Johanns avgjørelse (b) 2026-10-29] Innehaveren kan også være en KLASSE, lest distributivt: «Kommunen er
+        // lokal barnehagemyndighet» (barnehageloven § 10 første ledd) gir hver kommune rollen. Uten dette kunne rollen bare knyttes til
+        // én og én kommune, eller til ingen.
+        [Rolleinnehav] = new("aktør eller klasse", true, [Nodetyper.Klasse], "rolle", false, [Nodetyper.Rolle], false),
         [Klasseniva] = new("klasse", false, [Nodetyper.Klasse], "rolle eller klasse (valgfri node)", false,
             [Nodetyper.Rolle, Nodetyper.Klasse], true),
     };
