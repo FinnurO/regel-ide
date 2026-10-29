@@ -1,6 +1,6 @@
 # Pilot: barnehageloven med aktiv bruk (#375)
 
-**Status:** REFERAT fra kjøringen 2026-10-28, før Johanns gjennomgang. Presisjon og gjenfinning mot det godkjente resultatet mangler til gjennomgangen er gjort (se §6). Nummer 07 fordi 05 er satt av til planen for testkorpus.
+**Status:** REFERAT fra kjøringen 2026-10-28, før Johanns gjennomgang. §1–§7 er ikke endret etterpå. §8 er et tillegg fra den nye lastingen 2026-10-29 etter #418. Presisjon og gjenfinning mot det godkjente resultatet mangler til gjennomgangen er gjort (se §6). Nummer 07 fordi 05 er satt av til planen for testkorpus.
 
 Første aktive bruk av Regel-IDE utenfor de fem fasitlovene: konvertering (mønster og KI) → lasting som forslag → juristrunde → gjennomgang i forslagskøen, sammenlignet med en kartlegging BU-prosjektet har gjort av kommunens plikter etter barnehageloven. BU-teksten er ikke i repoet; den omtales med punktnummer («BU 2.7») og korte omskrivninger. Verken BU eller Regel-IDE er fasit.
 
@@ -119,3 +119,50 @@ Påstandene fra førstesammenligningen 2026-10-15, kontrollert mot dagens lovtek
 4. **Tid er en del av utsagnet.** Utløpte delegeringer og overgangsregler må få gyldighet fra teksten. Ellers blir de gjeldende styringslinjer.
 5. **Svakeste premiss må håndheves der utsagnet skrives** (#411). Lasteren ga `normalisering` til 34 utsagn som bygger på en regel med et ikke vurdert premiss.
 6. **Sammenligning med en annen metode er nyttig begge veier.** BU fant 17 lovpunkter Regel-IDE ikke fikk med, og Regel-IDE fant klageinstanser og forskriftskompetanse BU ikke har. Feilene er av ulik art: BU presenterer slutninger som funn, mens Regel-IDE taper presisjon på vei inn i modellen.
+
+## 8. Tillegg 2026-10-29: ny lasting etter #418
+
+Johann avgjorde 2026-10-29 at K kan ha en klasse som innehaver, lest distributivt som P og F (a), og at rollen «lokal barnehagemyndighet» registreres som rolle klassen kommune har (b). Modellen er endret i docs/33 §4.3. Deretter er lasteren kjørt på nytt for de samme 20 kildene, med begge lag og samme bruker som i §3. Aktørsveipet er ikke kjørt på nytt. Kjøringen står i `data/fasit/strukturmodell/pilot-418-kjoring.json`.
+
+**Skrevet før lastingen:** rollen «lokal barnehagemyndighet» (tekstfunn, § 10 første ledd, `maskinelt_foreslatt`, oppdagelseskilde `issue-418`) og rolleinnehavet «kommune innehar lokal barnehagemyndighet» (I fra klassen, normalisering, `manuelt_foreslatt`, fordi skjemaveien ikke tar oppdagelseskilde). § 11 første ledd og § 30 andre ledd står som kontekst i begrunnelsen. Ingen kompetanse er flyttet til rollen: juristrunden fant ingen kort der teksten knytter kompetansen til rollen og ikke til «kommunen».
+
+**Før → etter, mønsterlaget** (deterministisk):
+
+| | 2026-10-28 | 2026-10-29 |
+|---|---:|---:|
+| Utsagn | 118 | 117 |
+| Nye forslag | 38 | 43 (alle K med klasse som fra: 28 kommune, 15 statsforvalter) |
+| Fantes som forslag | 0 | 38 (de 38 fra 2026-10-28) |
+| Dublett i kjøringen | 0 | 4 |
+| Ikke lastet: aktør ikke i katalogen | 33 | 32 |
+| Ikke lastet: klasse som fra i K | 47 | 0 |
+
+Ett utsagn og én tapt aktør færre stemmer med rettingen av `plikt-dekkes-av` i PR #425 (§ 19 a). Av de 47 tapte ble 43 lastet. De 4 andre er **falske dubletter (#420)**: idempotensnøkkelen har ikke objektet, så et nytt utsagn med samme ledd, type og innehaver ble regnet som det første. Disse ble ikke lastet:
+- § 53 andre ledd: kommunens vedtak om stenging (slått sammen med pålegget i samme ledd).
+- § 55 andre ledd: statsforvalterens vedtak om stenging (samme).
+- Finansieringsforskriften § 1 første ledd: et andre utsagn om kommunens forskrift (slått sammen med satsforskriften).
+- Finansieringsforskriften, veiledningen til § 1 andre ledd: vedtaket om pensjonstilskudd per årsverk. Det står i en veiledningsnode (#419).
+
+**Før → etter, KI-laget.** Laget er kjørt på nytt og er ikke deterministisk, så tallene er ikke parvise:
+
+| | 2026-10-28 | 2026-10-29 |
+|---|---:|---:|
+| Utsagn | 354 | 351 |
+| Nye forslag | 33 | 96 (K 76, F 20) |
+| Fantes som forslag | 20 | 42 |
+| Dublett i kjøringen | 4 | 10 (9 falske, #420) |
+| Ikke lastet: aktør ikke i katalogen | 207 | 179 |
+| Ikke lastet: klasse som fra i K | 56 | 0 |
+| Ikke lastet: annet fra skriveveien | 6 | 1 (K fra klassen til seg selv) |
+| Fra ikke i teksten | 17 | 9 |
+| Type uten databasetype | 10 | 11 |
+| KI-medlemskap sendes ikke | 0 | 3 |
+| Generisk omtale uten binding | 1 | 0 |
+
+Av de 96 nye har 63 klasse som fra i K (57 kommune, 6 statsforvalter). De andre 33 er ikke en følge av #418, men av at KI-laget ga andre utsagn denne gangen: 13 K med aktør som fra, og 20 F (19 med klasse som fra). 2 av de 42 «fantes som forslag» har et annet sitat enn kanten de ble regnet som. Det kan også være #420. Tid: mønster 11 s, KI 25 min 12 s (barnehageloven alene 7 min 26 s). KI-tokens: 398 540 inn og 111 135 ut, og 261 rader kastet av KI-konverteringen.
+
+**De 103 tapte utsagnene:** 47 i mønsterlaget, hvorav 43 er lastet og 4 tapt på #420. KI-utsagnene fra 2026-10-28 finnes ikke lenger, så de 56 kan ikke følges ett for ett. I den nye kjøringen er ingen KI-utsagn avvist for klasse som fra, og 63 er lastet.
+
+**Skrevet til den delte basen 2026-10-29:** 140 strukturkanter (43 mønster, 96 KI, 1 rolleinnehav), alle forslag, og 1 rolle. Pilotkildene har nå 211 forslag. Ingen er godkjent eller avvist. Lasteren skrev også navnekandidater og navnetreff som i §3 (ikke talt her).
+
+**Kompetansen for ett medlem** regnes nå ut på aktørsiden (docs/33 §4.3, docs/09 §48). Alta kommune får 97 treff, alle merket «Forslag». 85 er kompetanse kommunen har via klassen: 28 `avledet` (mønsterlaget, normalisering) og 57 `uavklart`, fordi KI-forslagene ikke har vurdert kunnskapsstatus og det svakeste premisset bestemmer. 12 er kompetanse andre har overfor klassen kommune (10 fra klassen statsforvalter, 2 fra Kunnskapsdepartementet), hvorav 6 `avledet` og 6 `uavklart`. Statsforvalterembetene får ingen treff, fordi klassen statsforvalter ikke har registrert medlemskap. Det står som hull.

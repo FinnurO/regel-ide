@@ -64,6 +64,7 @@ builder.Services.AddScoped<RegelIde.Data.Strukturkonvertering.KiStrukturkonverte
 // [Ny, issue #312 «områderegister»] «Gitt kommune X → fylke, tingrett, lagdømme, statsforvalter, RHF» (AC5).
 builder.Services.AddScoped<OmradeOppslagTjeneste>();
 builder.Services.AddScoped<OmradeTilhorighetTjeneste>(); // [Ny, issue #390] «Område og tilhørighet» sett fra aktøren
+builder.Services.AddScoped<KompetanseViaKlasseTjeneste>(); // [Ny, issue #418] kompetanse via klasse og rolle, avledet
 builder.Services.AddScoped<RegisterkantKunnskapsstatusTjeneste>(); // [Ny, issue #390 AK 4] registerkanter → eksternt dokumentert
 builder.Services.AddScoped<KommuneKortformTjeneste>(); // [Ny, issue #390 AK 2] kortform per kommune, som forslag
 builder.Services.AddScoped<VirksomhetWhereUsedTjeneste>();
@@ -3664,7 +3665,13 @@ app.MapPost("/api/gruppebegrep", async (HttpRequest request, GruppebegrepRequest
             {
                 return Results.BadRequest(new { feil = "Nodetype er påkrevd: klasse, rolle eller omrade (issue #310/#311). Ingen gjettet fallback." });
             }
-            var opprettet = await register.OpprettGruppebegrepAsync(body.Nodetype, body.LovkildeId, body.Term, bruker.Navn, ct: ct);
+            // [ENDRET, issue #418] Hjemmelsstedet og utsagnsstatusen kan følge med (rollen «lokal barnehagemyndighet» som forslag).
+            var utsagn = body.Kunnskapsstatus is null && body.Begrunnelse is null && body.Godkjenning is null && body.OppdagelsesKilde is null
+                         && string.IsNullOrWhiteSpace(body.LovreferanseEid)
+                ? null
+                : new VirksomhetsbegrepTjeneste.Begrepsutsagn(body.Kunnskapsstatus, body.Begrunnelse, body.Godkjenning, body.OppdagelsesKilde);
+            var opprettet = await register.OpprettGruppebegrepAsync(body.Nodetype, body.LovkildeId, body.Term, bruker.Navn,
+                string.IsNullOrWhiteSpace(body.LovreferanseEid) ? null : body.LovreferanseEid.Trim(), ct, utsagn);
             return Results.Created($"/api/begreper/{opprettet.Id}", BegrepDto.FraEntitet(opprettet));
         }
         catch (ArgumentException ex)
@@ -4073,6 +4080,20 @@ app.MapGet("/api/virksomheter/{id:guid}/omrade-tilhorighet", async (Guid id, Omr
     .WithSummary("Issue #390 AK 1 — for en aktør med eget territorium (kommunen): fylke, tingrett, rettssted, lagsogn, lagdømme, " +
         "lagmannsrett, statsforvalter, helseregion, RHF, valgkrets og klasser, avledet via territoriekanten. Hvert svar har premissene i " +
         "kjedens rekkefølge og det svakeste premisset; kunnskapsstatusen er aldri sterkere enn det (docs/33 §4.6).");
+
+// [Ny, issue #418, Johanns avgjørelser (a) og (b) 2026-10-29] «Hvilken kompetanse har Alta kommune?» — også den som følger av at kommunen
+// er medlem av klassen «kommune» eller har en rolle (lokal barnehagemyndighet). Avledet, ikke lagret; aldri sterkere enn premissene.
+app.MapGet("/api/virksomheter/{id:guid}/kompetanse-via-klasse", async (Guid id, KompetanseViaKlasseTjeneste tjeneste, CancellationToken ct) =>
+    {
+        var svar = await tjeneste.ForVirksomhetAsync(id, ct);
+        return svar is null
+            ? Results.NotFound(new { feil = $"Ingen virksomhet med id '{id}'." })
+            : Results.Ok(KompetanseViaKlasseDto.Fra(svar));
+    })
+    .WithName("HentKompetanseViaKlasse")
+    .WithSummary("Issue #418 — K-kantene fra (retning har) eller til (retning overfor) klassene aktøren er medlem av (utledet eller registrert, " +
+        "også klasse i klasse) og rollene aktøren eller klassene har (I). Hvert treff har premissene (medlemskap, rolleinnehav, K-kanten) og " +
+        "det svakeste premisset; kunnskapsstatusen er aldri sterkere enn det (docs/33 §4.6). Hull: klasser med K uten avgjort medlemskap.");
 
 // [Ny, issue #355 AC4, Johanns beslutning 4 2026-10-09, docs/32 S6] «Hvem er ankeinstans for X tingrett?» — AVLEDET: K overprøving/anke
 // fra lagmannsretten til tingretten (klassen), avgrenset til eget lagdømme, paret via tingrett → lagsogn → lagdømme (#345). Paret lagres

@@ -215,11 +215,17 @@ public sealed class VirksomhetsbegrepTjeneste(RegelIdeDbContext db)
     /// valgfri (`null`) for manuelt opprettede gruppebegrep via <c>POST /api/gruppebegrep</c>, som
     /// ikke har noen enkelt "opprinnelsesnode".
     /// </param>
+    /// <param name="utsagn">[Ny, issue #418] Valgfri utsagnsstatus for begrepet som modellutsagn (#384/#385): kunnskapsstatus, begrunnelse og
+    /// godkjenning. Godkjenningen kan bare være et forslag (<c>maskinelt_foreslatt</c> | <c>manuelt_foreslatt</c>) — et nytt begrep godkjennes
+    /// ikke i samme kall. Kunnskapsstatus <c>tekstfunn</c>/<c>normalisering</c> krever <paramref name="lovreferanseEid"/> (CHECK
+    /// <c>ck_begreper_kunnskapsstatus</c>), og eId-en må da være en gjeldende node i <paramref name="lovkildeId"/>. Brukt første gang for
+    /// rollen «lokal barnehagemyndighet» (barnehageloven § 10 første ledd).</param>
     public async Task<BegrepEntitet> OpprettGruppebegrepAsync(
         string nodetype, Guid? lovkildeId, string term, string opprettetAv, string? lovreferanseEid = null,
-        CancellationToken ct = default)
+        CancellationToken ct = default, Begrepsutsagn? utsagn = null)
     {
         ValiderNyNodetype(nodetype);
+        if (utsagn is not null) await ValiderBegrepsutsagnAsync(utsagn, lovkildeId, lovreferanseEid, ct);
         if (string.IsNullOrWhiteSpace(term))
         {
             throw new ArgumentException("Term kan ikke være tom. Ingen gjettet fallback.");
@@ -270,11 +276,46 @@ public sealed class VirksomhetsbegrepTjeneste(RegelIdeDbContext db)
             Status = "publisert",
             OpprettetAv = opprettetAv,
             OpprettetTidspunkt = DateTimeOffset.UtcNow,
+            // [Ny, issue #418] Utsagnsstatusen, når kallet har den.
+            Kunnskapsstatus = utsagn?.Kunnskapsstatus,
+            Begrunnelse = string.IsNullOrWhiteSpace(utsagn?.Begrunnelse) ? null : utsagn.Begrunnelse.Trim(),
+            Godkjenning = utsagn?.Godkjenning,
+            OppdagelsesKilde = string.IsNullOrWhiteSpace(utsagn?.OppdagelsesKilde) ? null : utsagn.OppdagelsesKilde.Trim(),
         };
         db.Begreper.Add(begrep);
         db.Proveniens.Add(ProveniensHjelper.NyRad("begrep", begrep.Id, virksomhetId: null, "opprettet", opprettetAv));
         await db.SaveChangesAsync(ct);
         return begrep;
+    }
+
+    /// <summary>[Ny, issue #418] Utsagnsstatusen et nytt begrep med gruppefunksjon kan få i samme kall — se <see cref="OpprettGruppebegrepAsync"/>.</summary>
+    public sealed record Begrepsutsagn(string? Kunnskapsstatus, string? Begrunnelse, string? Godkjenning, string? OppdagelsesKilde);
+
+    private async Task ValiderBegrepsutsagnAsync(Begrepsutsagn u, Guid? lovkildeId, string? lovreferanseEid, CancellationToken ct)
+    {
+        if (u.Godkjenning is not null && u.Godkjenning is not (Strukturkanter.MaskineltForeslatt or Strukturkanter.ManueltForeslatt))
+        {
+            throw new ArgumentException($"Et nytt begrep kan bare opprettes som forslag ({Strukturkanter.MaskineltForeslatt} eller "
+                + $"{Strukturkanter.ManueltForeslatt}), ikke '{u.Godkjenning}'. Godkjenning er et eget steg.");
+        }
+        if (u.Kunnskapsstatus is not null && u.Kunnskapsstatus is not (Strukturkanter.Tekstfunn or Strukturkanter.Normalisering
+                or Strukturkanter.Uavklart or Strukturkanter.Omstridt))
+        {
+            throw new ArgumentException($"Kunnskapsstatus '{u.Kunnskapsstatus}' kan ikke settes her. Gyldige verdier: tekstfunn, normalisering "
+                + "(begge med hjemmel-eId), uavklart, omstridt.");
+        }
+        if (u.Kunnskapsstatus is Strukturkanter.Tekstfunn or Strukturkanter.Normalisering
+            && (lovkildeId is null || string.IsNullOrWhiteSpace(lovreferanseEid)))
+        {
+            throw new ArgumentException($"Kunnskapsstatus {u.Kunnskapsstatus} krever lov og hjemmel-eId (docs/profil/03 §5).");
+        }
+        if (!string.IsNullOrWhiteSpace(lovreferanseEid))
+        {
+            if (!await db.RettskildeNoder.AnyAsync(n => n.RettskildeId == lovkildeId && n.Eid == lovreferanseEid && n.Entitetsstatus == "gjeldende", ct))
+            {
+                throw new ArgumentException($"Fant ingen gjeldende node '{lovreferanseEid}' i rettskilden '{lovkildeId}'. Ingen gjettet fallback.");
+            }
+        }
     }
 
     /// <summary>[Ny, issue #310] Nye begrep får en valgbar nodetype eller <c>'organ'</c> — aldri

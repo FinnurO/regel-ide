@@ -1297,3 +1297,16 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
   er det samme som kompetansefamiliene (§33).
 - **Grupperingen bruker aldri navnet på aktøren.** Den bruker områdetypen (`StrukturnodeDto.omradetype`), kanttypen og oppdagelseskilden
   (`monster:inndeling-*` for tingretten).
+
+## 48. Kompetanse via klasse eller rolle på aktørsiden (issue #418, 2026-10-29)
+
+- **Komponenten:** `virksomhet/KompetanseViaKlasse.tsx`. Den står i seksjonen Kompetanse på VirksomhetDetalj (fanen «Myndighet &
+  relasjoner»), under den direkte kompetansen (§33), med overskrift `Heading level={4} data-size="2xs"` «Via klasse eller rolle (avledet)».
+- **Tabellen** har tre kolonner: «Utsagn» (K-kantens tekst med lenker, `KanttekstMedLenker`), «Via» (klassene og rollene i veien, med pil
+  mellom og nodetypen i parentes som `Metatekst`) og «Status og kjede».
+- **Status og kjede** følger §47: `KunnskapsstatusTag` som aldri er sterkere enn det svakeste premisset, «Forslag» (`info`) når et premiss
+  ikke er godkjent, «Svakeste premiss:» som `Metatekst`, og kjeden i en lukket `Details` med den delte `StrukturkantTabell` (§31).
+- **Motsatt retning** («Andres kompetanse overfor klassen eller rollen») vises bare når det finnes treff, i en egen tabell med samme
+  kolonner.
+- **Hull** (klasser med kompetanse uten avgjort medlemskap) står som `Metatekst` under tabellene, aldri som rader.
+- **Kategoriforklaringen** for K og I i `StrukturkantTabell` sier at en klasse som innehaver leses distributivt.

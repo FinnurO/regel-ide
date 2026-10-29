@@ -1,0 +1,254 @@
+[
+ {
+  "id": "k4",
+  "svar": "delvis",
+  "tekst": "Aksepter rettingen: sakstypen bør stå i objektet eller avgrensningen, så den kan søkes og vises uten å åpne hjemmelen. Avvis at raden sier at statsforvalteren er klageinstans for kommunens vedtak generelt. En K-kant uten objekt er avgrenset av hjemmel-eId-en (docs/33 §4.3: «K uten til-node må si hva kompetansen gjelder: Objekt, paragrafspenn eller hjemmel-eId»), og utsagnet vises som klagekompetanse etter nettopp det leddet. Sakstypen følger da av leddet selv, og fvl. § 28 andre ledd blir ikke fortrengt. Tapet er søkbarhet, ikke rettsinnhold, så alvoret bør være lav, ikke middels.",
+  "kilder": [
+   "docs/33 §4.3 «K uten til-node»",
+   "StrukturkantTjeneste.OpprettAsync (krav om objekt, paragrafspenn eller hjemmel-eId)"
+  ]
+ },
+ {
+  "id": "k7",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Innvendingen gjelder uttrekket (leksikon, klagemønster, KI-klassifisering eller merknadsnoder, #419/#421), ikke modellregelen fra #418. Raden er et forslag; rettingen gjøres av Johann i forslagskøen, og mønsteret meldes i saken det hører til.",
+  "kilder": [
+   "docs/33 §4.3 (#418)",
+   "docs/33 §5.3"
+  ]
+ },
+ {
+  "id": "k9",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Innvendingen gjelder uttrekket (leksikon, klagemønster, KI-klassifisering eller merknadsnoder, #419/#421), ikke modellregelen fra #418. Raden er et forslag; rettingen gjøres av Johann i forslagskøen, og mønsteret meldes i saken det hører til.",
+  "kilder": [
+   "docs/33 §4.3 (#418)",
+   "docs/33 §5.3"
+  ]
+ },
+ {
+  "id": "k15",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Innvendingen gjelder uttrekket (leksikon, klagemønster, KI-klassifisering eller merknadsnoder, #419/#421), ikke modellregelen fra #418. Raden er et forslag; rettingen gjøres av Johann i forslagskøen, og mønsteret meldes i saken det hører til.",
+  "kilder": [
+   "docs/33 §4.3 (#418)",
+   "docs/33 §5.3"
+  ]
+ },
+ {
+  "id": "k16",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Innvendingen gjelder uttrekket (leksikon, klagemønster, KI-klassifisering eller merknadsnoder, #419/#421), ikke modellregelen fra #418. Raden er et forslag; rettingen gjøres av Johann i forslagskøen, og mønsteret meldes i saken det hører til.",
+  "kilder": [
+   "docs/33 §4.3 (#418)",
+   "docs/33 §5.3"
+  ]
+ },
+ {
+  "id": "k17",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Innvendingen gjelder uttrekket (leksikon, klagemønster, KI-klassifisering eller merknadsnoder, #419/#421), ikke modellregelen fra #418. Raden er et forslag; rettingen gjøres av Johann i forslagskøen, og mønsteret meldes i saken det hører til.",
+  "kilder": [
+   "docs/33 §4.3 (#418)",
+   "docs/33 §5.3"
+  ]
+ },
+ {
+  "id": "k25",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Innvendingen gjelder uttrekket (leksikon, klagemønster, KI-klassifisering eller merknadsnoder, #419/#421), ikke modellregelen fra #418. Raden er et forslag; rettingen gjøres av Johann i forslagskøen, og mønsteret meldes i saken det hører til.",
+  "kilder": [
+   "docs/33 §4.3 (#418)",
+   "docs/33 §5.3"
+  ]
+ },
+ {
+  "id": "k27",
+  "svar": "delvis",
+  "tekst": "Aksepter rettingen: sakstypen bør stå i objektet eller avgrensningen, så den kan søkes og vises uten å åpne hjemmelen. Avvis at raden sier at statsforvalteren er klageinstans for kommunens vedtak generelt. En K-kant uten objekt er avgrenset av hjemmel-eId-en (docs/33 §4.3: «K uten til-node må si hva kompetansen gjelder: Objekt, paragrafspenn eller hjemmel-eId»), og utsagnet vises som klagekompetanse etter nettopp det leddet. Sakstypen følger da av leddet selv, og fvl. § 28 andre ledd blir ikke fortrengt. Tapet er søkbarhet, ikke rettsinnhold, så alvoret bør være lav, ikke middels.",
+  "kilder": [
+   "docs/33 §4.3 «K uten til-node»",
+   "StrukturkantTjeneste.OpprettAsync (krav om objekt, paragrafspenn eller hjemmel-eId)"
+  ]
+ },
+ {
+  "id": "k28",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Innvendingen gjelder uttrekket (leksikon, klagemønster, KI-klassifisering eller merknadsnoder, #419/#421), ikke modellregelen fra #418. Raden er et forslag; rettingen gjøres av Johann i forslagskøen, og mønsteret meldes i saken det hører til.",
+  "kilder": [
+   "docs/33 §4.3 (#418)",
+   "docs/33 §5.3"
+  ]
+ },
+ {
+  "id": "k33",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Innvendingen gjelder uttrekket (leksikon, klagemønster, KI-klassifisering eller merknadsnoder, #419/#421), ikke modellregelen fra #418. Raden er et forslag; rettingen gjøres av Johann i forslagskøen, og mønsteret meldes i saken det hører til.",
+  "kilder": [
+   "docs/33 §4.3 (#418)",
+   "docs/33 §5.3"
+  ]
+ },
+ {
+  "id": "k35",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Innvendingen gjelder uttrekket (leksikon, klagemønster, KI-klassifisering eller merknadsnoder, #419/#421), ikke modellregelen fra #418. Raden er et forslag; rettingen gjøres av Johann i forslagskøen, og mønsteret meldes i saken det hører til.",
+  "kilder": [
+   "docs/33 §4.3 (#418)",
+   "docs/33 §5.3"
+  ]
+ },
+ {
+  "id": "k36",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Innvendingen gjelder uttrekket (leksikon, klagemønster, KI-klassifisering eller merknadsnoder, #419/#421), ikke modellregelen fra #418. Raden er et forslag; rettingen gjøres av Johann i forslagskøen, og mønsteret meldes i saken det hører til.",
+  "kilder": [
+   "docs/33 §4.3 (#418)",
+   "docs/33 §5.3"
+  ]
+ },
+ {
+  "id": "k37",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Innvendingen gjelder uttrekket (leksikon, klagemønster, KI-klassifisering eller merknadsnoder, #419/#421), ikke modellregelen fra #418. Raden er et forslag; rettingen gjøres av Johann i forslagskøen, og mønsteret meldes i saken det hører til.",
+  "kilder": [
+   "docs/33 §4.3 (#418)",
+   "docs/33 §5.3"
+  ]
+ },
+ {
+  "id": "k41",
+  "svar": "delvis",
+  "tekst": "Aksepter rettingen: sakstypen bør stå i objektet eller avgrensningen, så den kan søkes og vises uten å åpne hjemmelen. Avvis at raden sier at statsforvalteren er klageinstans for kommunens vedtak generelt. En K-kant uten objekt er avgrenset av hjemmel-eId-en (docs/33 §4.3: «K uten til-node må si hva kompetansen gjelder: Objekt, paragrafspenn eller hjemmel-eId»), og utsagnet vises som klagekompetanse etter nettopp det leddet. Sakstypen følger da av leddet selv, og fvl. § 28 andre ledd blir ikke fortrengt. Tapet er søkbarhet, ikke rettsinnhold, så alvoret bør være lav, ikke middels.",
+  "kilder": [
+   "docs/33 §4.3 «K uten til-node»",
+   "StrukturkantTjeneste.OpprettAsync (krav om objekt, paragrafspenn eller hjemmel-eId)"
+  ]
+ },
+ {
+  "id": "k43",
+  "svar": "delvis",
+  "tekst": "Aksepter rettingen: sakstypen bør stå i objektet eller avgrensningen, så den kan søkes og vises uten å åpne hjemmelen. Avvis at raden sier at statsforvalteren er klageinstans for kommunens vedtak generelt. En K-kant uten objekt er avgrenset av hjemmel-eId-en (docs/33 §4.3: «K uten til-node må si hva kompetansen gjelder: Objekt, paragrafspenn eller hjemmel-eId»), og utsagnet vises som klagekompetanse etter nettopp det leddet. Sakstypen følger da av leddet selv, og fvl. § 28 andre ledd blir ikke fortrengt. Tapet er søkbarhet, ikke rettsinnhold, så alvoret bør være lav, ikke middels.",
+  "kilder": [
+   "docs/33 §4.3 «K uten til-node»",
+   "StrukturkantTjeneste.OpprettAsync (krav om objekt, paragrafspenn eller hjemmel-eId)"
+  ]
+ },
+ {
+  "id": "k47",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Innvendingen gjelder uttrekket (leksikon, klagemønster, KI-klassifisering eller merknadsnoder, #419/#421), ikke modellregelen fra #418. Raden er et forslag; rettingen gjøres av Johann i forslagskøen, og mønsteret meldes i saken det hører til.",
+  "kilder": [
+   "docs/33 §4.3 (#418)",
+   "docs/33 §5.3"
+  ]
+ },
+ {
+  "id": "k56",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Innvendingen gjelder uttrekket (leksikon, klagemønster, KI-klassifisering eller merknadsnoder, #419/#421), ikke modellregelen fra #418. Raden er et forslag; rettingen gjøres av Johann i forslagskøen, og mønsteret meldes i saken det hører til.",
+  "kilder": [
+   "docs/33 §4.3 (#418)",
+   "docs/33 §5.3"
+  ]
+ },
+ {
+  "id": "k65",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Innvendingen gjelder uttrekket (leksikon, klagemønster, KI-klassifisering eller merknadsnoder, #419/#421), ikke modellregelen fra #418. Raden er et forslag; rettingen gjøres av Johann i forslagskøen, og mønsteret meldes i saken det hører til.",
+  "kilder": [
+   "docs/33 §4.3 (#418)",
+   "docs/33 §5.3"
+  ]
+ },
+ {
+  "id": "k66",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Innvendingen gjelder uttrekket (leksikon, klagemønster, KI-klassifisering eller merknadsnoder, #419/#421), ikke modellregelen fra #418. Raden er et forslag; rettingen gjøres av Johann i forslagskøen, og mønsteret meldes i saken det hører til.",
+  "kilder": [
+   "docs/33 §4.3 (#418)",
+   "docs/33 §5.3"
+  ]
+ },
+ {
+  "id": "k82",
+  "svar": "delvis",
+  "tekst": "Aksepter rettingen: sakstypen bør stå i objektet eller avgrensningen, så den kan søkes og vises uten å åpne hjemmelen. Avvis at raden sier at statsforvalteren er klageinstans for kommunens vedtak generelt. En K-kant uten objekt er avgrenset av hjemmel-eId-en (docs/33 §4.3: «K uten til-node må si hva kompetansen gjelder: Objekt, paragrafspenn eller hjemmel-eId»), og utsagnet vises som klagekompetanse etter nettopp det leddet. Sakstypen følger da av leddet selv, og fvl. § 28 andre ledd blir ikke fortrengt. Tapet er søkbarhet, ikke rettsinnhold, så alvoret bør være lav, ikke middels.",
+  "kilder": [
+   "docs/33 §4.3 «K uten til-node»",
+   "StrukturkantTjeneste.OpprettAsync (krav om objekt, paragrafspenn eller hjemmel-eId)"
+  ]
+ },
+ {
+  "id": "k95",
+  "svar": "delvis",
+  "tekst": "Aksepter rettingen: sakstypen bør stå i objektet eller avgrensningen, så den kan søkes og vises uten å åpne hjemmelen. Avvis at raden sier at statsforvalteren er klageinstans for kommunens vedtak generelt. En K-kant uten objekt er avgrenset av hjemmel-eId-en (docs/33 §4.3: «K uten til-node må si hva kompetansen gjelder: Objekt, paragrafspenn eller hjemmel-eId»), og utsagnet vises som klagekompetanse etter nettopp det leddet. Sakstypen følger da av leddet selv, og fvl. § 28 andre ledd blir ikke fortrengt. Tapet er søkbarhet, ikke rettsinnhold, så alvoret bør være lav, ikke middels.",
+  "kilder": [
+   "docs/33 §4.3 «K uten til-node»",
+   "StrukturkantTjeneste.OpprettAsync (krav om objekt, paragrafspenn eller hjemmel-eId)"
+  ]
+ },
+ {
+  "id": "k97",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Innvendingen gjelder uttrekket (leksikon, klagemønster, KI-klassifisering eller merknadsnoder, #419/#421), ikke modellregelen fra #418. Raden er et forslag; rettingen gjøres av Johann i forslagskøen, og mønsteret meldes i saken det hører til.",
+  "kilder": [
+   "docs/33 §4.3 (#418)",
+   "docs/33 §5.3"
+  ]
+ },
+ {
+  "id": "k99",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Innvendingen gjelder uttrekket (leksikon, klagemønster, KI-klassifisering eller merknadsnoder, #419/#421), ikke modellregelen fra #418. Raden er et forslag; rettingen gjøres av Johann i forslagskøen, og mønsteret meldes i saken det hører til.",
+  "kilder": [
+   "docs/33 §4.3 (#418)",
+   "docs/33 §5.3"
+  ]
+ },
+ {
+  "id": "k100",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Innvendingen gjelder uttrekket (leksikon, klagemønster, KI-klassifisering eller merknadsnoder, #419/#421), ikke modellregelen fra #418. Raden er et forslag; rettingen gjøres av Johann i forslagskøen, og mønsteret meldes i saken det hører til.",
+  "kilder": [
+   "docs/33 §4.3 (#418)",
+   "docs/33 §5.3"
+  ]
+ },
+ {
+  "id": "k101",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Innvendingen gjelder uttrekket (leksikon, klagemønster, KI-klassifisering eller merknadsnoder, #419/#421), ikke modellregelen fra #418. Raden er et forslag; rettingen gjøres av Johann i forslagskøen, og mønsteret meldes i saken det hører til.",
+  "kilder": [
+   "docs/33 §4.3 (#418)",
+   "docs/33 §5.3"
+  ]
+ },
+ {
+  "id": "k102",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Innvendingen gjelder uttrekket (leksikon, klagemønster, KI-klassifisering eller merknadsnoder, #419/#421), ikke modellregelen fra #418. Raden er et forslag; rettingen gjøres av Johann i forslagskøen, og mønsteret meldes i saken det hører til.",
+  "kilder": [
+   "docs/33 §4.3 (#418)",
+   "docs/33 §5.3"
+  ]
+ },
+ {
+  "id": "k103",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Innvendingen gjelder uttrekket (leksikon, klagemønster, KI-klassifisering eller merknadsnoder, #419/#421), ikke modellregelen fra #418. Raden er et forslag; rettingen gjøres av Johann i forslagskøen, og mønsteret meldes i saken det hører til.",
+  "kilder": [
+   "docs/33 §4.3 (#418)",
+   "docs/33 §5.3"
+  ]
+ },
+ {
+  "id": "k106",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Innvendingen gjelder uttrekket (leksikon, klagemønster, KI-klassifisering eller merknadsnoder, #419/#421), ikke modellregelen fra #418. Raden er et forslag; rettingen gjøres av Johann i forslagskøen, og mønsteret meldes i saken det hører til.",
+  "kilder": [
+   "docs/33 §4.3 (#418)",
+   "docs/33 §5.3"
+  ]
+ }
+]

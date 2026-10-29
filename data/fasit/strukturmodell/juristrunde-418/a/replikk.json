@@ -1,0 +1,56 @@
+[
+ {
+  "id": "k4",
+  "replikk": "godtar",
+  "tekst": "Godtar at alvoret er lav. Kanten har hjemmel-eId-en til § 7 første ledd, og den vises både i kantvisningen og i oppslaget via klasse (KompetanseViaKlasseTreff bærer hele StrukturkantVisning med HjemmelEid). Sakstypen («vedtak om godkjenning») kan dermed leses av leddet. Jeg sa at raden gjør statsforvalteren til klageinstans for kommunens vedtak generelt. Det var for sterkt: det som går tapt, er søk og filtrering på sakstypen, ikke rettsinnholdet. Presisering: regelen modellereren viser til (docs/33 §4.3, StrukturkantTjeneste linje 230), gjelder bare K uten til-node. Her er til = kommune, så regelen krever ingenting. Det er hjemmel-eId-en som lasteren setter uansett, som bærer avgrensningen. Rettingen (objekt) står.",
+  "kilder": [
+   {"ref": "FOR-2005-12-16-1555 § 7 første ledd", "funksjon": "direkte_hjemmel"},
+   {"ref": "src/RegelIde.Data/KompetanseViaKlasseTjeneste.cs (KompetanseViaKlasseTreff.Kant)", "funksjon": "forutsatt_kilde"},
+   {"ref": "src/RegelIde.Data/StrukturkantTjeneste.cs linje 230–235", "funksjon": "forutsatt_kilde"}
+  ]
+ },
+ {
+  "id": "k27",
+  "replikk": "godtar",
+  "tekst": "Godtar at alvoret er lav. Her er til = null, så kravet i docs/33 §4.3 gjelder, og hjemmel-eId-en til § 5 første ledd oppfyller det. Leddet sier selv «Fastsetting av foreldrebetaling». Det som går tapt, er søk på sakstypen. Rettingen (objekt) står.",
+  "kilder": [
+   {"ref": "FOR-2005-12-16-1478 § 5 første ledd", "funksjon": "direkte_hjemmel"},
+   {"ref": "docs/33 §4.3 «K uten til-node»", "funksjon": "forutsatt_kilde"}
+  ]
+ },
+ {
+  "id": "k41",
+  "replikk": "fastholder",
+  "tekst": "Godtar modellererens argument om objektet: sakstypen i § 5 første ledd kan leses av leddet. Jeg fastholder likevel middels, med et nytt argument. Hjemmel-eId-en peker på § 5 første ledd, og den delen av innvendingen som er tyngst, står ikke der: overgangsvilkåret står i § 1 og § 2. Forskriften gjelder bare tilsyn etter kapittel V som ikke var avsluttet før 1. januar 2022, der varsel om vedtak var sendt før den datoen. Leser man bare § 5 første ledd, ser klageordningen ut som en gjeldende ordning for kommunens vedtak om retting, stenging og økonomiske reaksjoner. Andre punktum («uavhengig av om klagen fremsettes før eller etter 1. januar 2022») forsterker det inntrykket. Det er 17.4 «mister vilkår», og vilkåret kan ikke hentes fra hjemmelen. Avgrensningen i rettingen er derfor ikke en søkbarhetssak, og den bærer alvoret.",
+  "kilder": [
+   {"ref": "FOR-2021-10-06-3079 § 5 første ledd", "funksjon": "direkte_hjemmel"},
+   {"ref": "FOR-2021-10-06-3079 §§ 1–2", "funksjon": "direkte_hjemmel"},
+   {"ref": "docs/profil/00 §17.4 «mister vilkår, unntak eller negasjon»", "funksjon": "forutsatt_kilde"}
+  ],
+  "sluttreplikk": "Kanten sier at statsforvalteren behandler klager over kommunens vedtak etter overgangsforskriften fra 2021. Vi er enige om at hva slags vedtak det gjelder, står i paragrafen kanten peker på, og at det bør skrives inn i kanten. Vi er uenige om hvor alvorlig det er at kanten ikke sier at forskriften bare gjelder gamle tilsynssaker, de som var i gang før 1. januar 2022. Den begrensningen står i en annen paragraf enn den kanten peker på. Uten den ser det ut som kommunen fortsatt treffer slike vedtak om økonomien i private barnehager, med klage til statsforvalteren. I dag er det Utdanningsdirektoratet som har det tilsynet. Mitt syn er at dette er mer enn et søkeproblem (middels). Modellererens syn er at det er et søkeproblem (lav). Rettingen er den samme uansett: legg inn avgrensningen «bare tilsyn etter kapittel V som ikke var avsluttet før 1. januar 2022»."
+ },
+ {
+  "id": "k43",
+  "replikk": "godtar",
+  "tekst": "Godtar at alvoret er lav, av samme grunn som k4. Hjemmel-eId-en til § 5 første ledd viser sakstypen («vedtak etter § 2 og § 3»), og jeg trekker påstanden om at raden gjør statsforvalteren til en generell klageinstans. Rettingen (objekt) står.",
+  "kilder": [
+   {"ref": "FOR-2017-06-22-1049 § 5 første ledd", "funksjon": "direkte_hjemmel"}
+  ]
+ },
+ {
+  "id": "k82",
+  "replikk": "godtar",
+  "tekst": "Godtar at alvoret er lav, av samme grunn som k4. Oppregningen i § 12 står i leddet hjemmel-eId-en peker på, også «der det følger av forskrift». Merknaden om fylkeskommunen (#424) står ved lag, men den er ikke kortets sak. Rettingen (objekt) står.",
+  "kilder": [
+   {"ref": "barnehageloven § 12 første ledd", "funksjon": "direkte_hjemmel"}
+  ]
+ },
+ {
+  "id": "k95",
+  "replikk": "godtar",
+  "tekst": "Godtar at alvoret er lav, av samme grunn som k4. «Kommunens vedtak etter tredje ledd» står i leddet hjemmel-eId-en peker på. Rettingen (objekt) står.",
+  "kilder": [
+   {"ref": "barnehageloven § 26 fjerde ledd", "funksjon": "direkte_hjemmel"}
+  ]
+ }
+]

@@ -30,7 +30,8 @@ export const STRUKTURKANT_KATEGORI_VISNING: Record<Strukturkantkategori, { tekst
   // [ENDRET, #330] «underlagt» var en av de gamle kodene — nå administrativt underordnet.
   // [ENDRET, issue #341] R er struktur UTEN myndighet; myndigheten er K med motpart (Johanns beslutning P1).
   R: { tekst: 'Relasjon', forklaring: 'Aktør → aktør, struktur uten myndighet (eies av, ledes av, sekretariat for, etterfølger, har delegert til …).' },
-  K: { tekst: 'Kompetanse', forklaring: 'Aktør/rolle har kompetanse, eventuelt overfor en motpart (klage, instruksjon, tilsyn, normgivning, vedtak …).' },
+  // [ENDRET, issue #418] Også en klasse, lest distributivt: hvert medlem har kompetansen.
+  K: { tekst: 'Kompetanse', forklaring: 'Aktør, rolle eller klasse har kompetanse, eventuelt overfor en motpart (klage, instruksjon, tilsyn, normgivning, vedtak …). En klasse leses distributivt: hvert medlem har kompetansen.' },
   // [Ny, issue #353] Plikt overfor motpart — modaliteten («skal»/«kan»/«bør») står i utsagnsteksten, ingen egen tag (docs/09 §34).
   P: { tekst: 'Plikt', forklaring: 'Aktør (også en ordning), rolle eller klasse har en plikt, eventuelt overfor en motpart (samarbeid, avtale, betaling, bistand, informasjon, konsultasjon).' },
   // [Ny, issue #368] Oppgave/funksjon — en oppgave gir aldri kompetanse eller plikt overfor noen i seg selv (docs/09 §37).
@@ -39,7 +40,8 @@ export const STRUKTURKANT_KATEGORI_VISNING: Record<Strukturkantkategori, { tekst
   O: { tekst: 'Områdesammensetning', forklaring: 'Område → område (består av).' },
   A: { tekst: 'Ansvarsområde', forklaring: 'Aktør → område (ansvarsområde, jurisdiksjon, sete).' },
   G: { tekst: 'Organtilhørighet', forklaring: 'Organ/enhet/rolle → rettssubjekt (organ for, del av).' },
-  I: { tekst: 'Rolleinnehav', forklaring: 'Aktør → rolle (innehar). Arves ikke.' },
+  // [ENDRET, issue #418] Også en klasse som innehaver (rollen «lokal barnehagemyndighet» som klassen kommune har).
+  I: { tekst: 'Rolleinnehav', forklaring: 'Aktør eller klasse → rolle (innehar). Arves ikke; en klasse som innehaver leses likevel distributivt: hvert medlem har rollen.' },
   T: { tekst: 'Klassenivå', forklaring: 'Klasse → rolle/organtype: hvert medlem av klassen skal ha …' },
 };
 

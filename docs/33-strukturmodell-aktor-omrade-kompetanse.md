@@ -236,13 +236,13 @@ Alle strukturutsagn lagres som én kanttype med kategori + konfigurerbar typekod
 |---|---|---|
 | **R** relasjon | aktør → aktør | [ENDRET, #341] Struktur UTEN myndighet: eies_av, ledes_av, sekretariat_for, rapporterer_til, etterfolger, representerer, har_delegert_til (gjennomført delegering). [ENDRET, #352] Avgjort som R (struktur eller hendelse, ikke myndighet): administrativt_underordnet, radgir, oppretter, avvikler. velger og ankeinstans_for er flyttet til K. [Ny, #353] forvaltes_av (ordning → organet som forvalter den) |
 | **P** plikt overfor motpart ([Ny, #353]) | aktør (også ordning)/rolle/klasse → **motpart** (valgfri) | samarbeid, avtale, betaling, bistand, informasjon, konsultasjon — med `modalitet` (skal/kan/bør). Se §4.5 |
-| **K** kompetanse | aktør/rolle → **motpart** (valgfri) og bestemmelse/sakstype | [ENDRET, #341, #352, #355] beslutning; struktur: oppretting, avvikling, organisasjon; oppnevning: oppnevning (med undertype valg/ansettelse/utpeking/oppnevning/utnevning/konstitusjon), avsetting (med undertype avsetting/oppsigelse/avskjed); styring: instruksjon, samordning, delegering, godkjenning, samtykke, palegg; normgivning (med normform); kontroll: tilsyn, revisjon (~~forelegging~~ [FJERNET, #355]); klage og overprøving: klage, omgjoring, overproving (med undertype anke), stadfesting; vedtak (med undertype tilbakekall); sanksjon |
+| **K** kompetanse | aktør/rolle/klasse ([ENDRET, #418]: klasse lest distributivt) → **motpart** (valgfri) og bestemmelse/sakstype | [ENDRET, #341, #352, #355] beslutning; struktur: oppretting, avvikling, organisasjon; oppnevning: oppnevning (med undertype valg/ansettelse/utpeking/oppnevning/utnevning/konstitusjon), avsetting (med undertype avsetting/oppsigelse/avskjed); styring: instruksjon, samordning, delegering, godkjenning, samtykke, palegg; normgivning (med normform); kontroll: tilsyn, revisjon (~~forelegging~~ [FJERNET, #355]); klage og overprøving: klage, omgjoring, overproving (med undertype anke), stadfesting; vedtak (med undertype tilbakekall); sanksjon |
 | **F** oppgave/funksjon ([Ny, #368]) | aktør/rolle/klasse → område/klasse/rolle/aktør (valgfri), objekt PÅKREVD | forvaltning, samordning, sorge_for, oversikt, bistand, sekretariatsfunksjon, radgivning, veiledning, kontroll — med `modalitet`. Gir aldri K eller P i seg selv. Se §4.7 |
 | **M** medlemskap | aktør/klasse/område → klasse | medlem_av |
 | **O** områdesammensetning | område → område | bestar_av |
 | **A** ansvarsområde | aktør → område | har_ansvarsomrade, har_jurisdiksjon, har_sete_i, valgkrets_for |
 | **G** organtilhørighet | organ/enhet/rolle → rettssubjekt | har_organ, del_av ([#355] også fra en stilling: «Høyesteretts direktør» del_av Høyesterett), har_medlemmer (organets faste medlemmer), [Ny, #352] settes_med (sammensetningen i den enkelte sak — saksavhengig), [Ny, #353] tilhorer (ordning → rettssubjekt, bare når hjemlet) |
-| **I** rolleinnehav | aktør → rolle | innehar (= dagens `Myndighetstildeling` når målet er en rolle) |
+| **I** rolleinnehav | aktør/klasse ([ENDRET, #418]: klasse lest distributivt) → rolle | innehar (= dagens `Myndighetstildeling` når målet er en rolle) |
 | **T** klassenivå | klasse → rolle/organ-type | skal_ha (distributivt: hvert medlem av klassen har …) |
 
 Felles egenskaper på **alle** kanter:
@@ -531,6 +531,36 @@ hjemmel, ikke på en antakelse.
 Avbryter i stedet for å gjette ved R `delegerer_til` (kompetanse eller gjennomført?) og K `iverksetting` (ikke i
 typologien) — 0 lokalt. `grunnlag` og `delegerbar` er ikke satt på noen rad.
 
+**[Bygget, issue #418, Johanns avgjørelser 2026-10-29] Klasse som innehaver av kompetanse (K) og rolle (I).** Piloten på barnehageloven
+(#375) viste at standardregelen fra #394 løser «kommunen» og «statsforvalteren» til klassene kommune og statsforvalter, mens `Noderegler`
+bare tok aktør eller rolle som fra i K. 103 utsagn om kommunens og statsforvalterens myndighet falt derfor bort: godkjenning, dispensasjon,
+lokal forskrift, tilsyn, pålegg, stenging, klage og tilskuddsvedtak.
+
+- **(a) K tar klasse som fra**, lest **distributivt** som P (#353) og F (#368): «Kommunen kan gi lokal forskrift» i en lov som retter seg mot
+  alle kommuner, gir hver kommune kompetansen. Det er ikke en slutning om lovens innhold; organet som utøver kompetansen, følger av
+  kommuneloven. `Strukturkanter.Noderegler[K]`: «aktør, rolle eller klasse». Et område er fortsatt ikke en innehaver.
+- **(b) I tar klasse som fra**, slik at en rolle loven selv navngir, kan registreres på klassen: «Kommunen er lokal barnehagemyndighet»
+  (barnehageloven § 10 første ledd) er I `innehar` fra klassen kommune til rollen. Kompetanser kan stå både på klassen og på rollen; teksten
+  avgjør hvilken. `Noderegler[I]`: «aktør eller klasse». (b) er et tillegg til (a), ikke et alternativ: mange kompetanser står på
+  «kommunen» uten rollebetegnelse.
+- **Svaret for ett medlem regnes ut og lagres ikke** (#345): `KompetanseViaKlasseTjeneste`,
+  `GET /api/virksomheter/{id}/kompetanse-via-klasse`, seksjonen «Via klasse eller rolle (avledet)» under Kompetanse på aktørsiden
+  (docs/09 §48). Veien er medlemskapet (utledet via territoriekanten for klassen kommune, #384, eller registrerte M-kanter, også klasse i
+  klasse og område i klasse), eventuelt rolleinnehavet (I fra aktøren eller fra klassen), og K-kanten. Retning `har` er K fra klassen eller
+  rollen; `overfor` er K med klassen eller rollen som motpart.
+- **Svakeste premiss (§4.6)** håndheves i dette oppslaget: svaret er `avledet` bare når alle premissene er minst så sterke; en K-kant som
+  ikke er vurdert, gir `uavklart`. Når samme kant nås langs flere veier, brukes den med sterkest svakeste premiss, så færrest forslag, så
+  kortest. Kjent avgrensning: premissene er kanter. Klassens egen kunnskapsstatus og standardregelen som løste «kommunen» da K-kanten ble
+  lastet, er ikke premisser, fordi kanten ikke bærer hvordan fra-noden ble løst. Det hører til #411.
+- **Hull:** en klasse med K-kanter men uten registrert eller utledet medlemskap gir ingen treff. Den listes som hull («om aktøren er medlem,
+  avgjøres ikke her»). Lokalt gjelder det klassen statsforvalter (ingen M-kanter, målt 2026-10-29).
+- **Andre oppslag** som leser I-kanter, tar fortsatt bare aktør som fra: myndighetstildelingsfasadene (`/myndighetstildelinger`,
+  `/gruppebegrep/{id}/tildelinger`) og motpartsoppløsningen i pliktoppslaget (en plikt overfor rollen «lokal barnehagemyndighet» løses ikke til
+  kommunene via klassen). Ankeinstansoppslaget håndterte alt K fra et begrep.
+- **Rollen som forslag:** `POST /api/gruppebegrep` tar valgfritt hjemmel-eId (`lovreferanseEid`, kontrollert mot korpus) og utsagnsstatus
+  (kunnskapsstatus, begrunnelse, godkjenning bare som forslag, oppdagelseskilde). Rollen «lokal barnehagemyndighet» er lagt inn slik, se
+  docs/profil/07 §8.
+
 ### 4.4 Bevisst ikke i strukturlaget (forslagets punkt 9)
 
 ~~11 % av fasit-utsagnene hører til et senere lag og lagres ikke som strukturkanter: samarbeid,
@@ -668,7 +698,8 @@ docs/34 §3–5 og metodenotatet (docs/profil/03 §5 og §8). Hvert felt på `st
 
 **Avledede svar** lagres ikke (#345): ankeinstans-oppslaget svarer med `kunnskapsstatus = avledet` og premissenes kant-id-er (anke-kanten,
 områdekjeden, instansens ansvarsområde, medlemskapet); pliktoppslaget for en kommune merker et treff `avledet` når det bygger på mer enn
-den ene lagrede plikten (medlemskap, motpartsoppløsning).
+den ene lagrede plikten (medlemskap, motpartsoppløsning). [Ny, #418] Kompetanse via klasse eller rolle (§4.3) svarer med statusen etter
+svakeste premiss (medlemskap, rolleinnehav, K-kanten), som tilhørigheten i §5.13.
 
 **[Ny, Johanns beslutning 2026-10-27] Svakeste premiss — en generell regel.** Et avledet utsagn (en kant eller et svar som bygger på
 andre utsagn) får **aldri** sterkere kunnskapsstatus enn det svakeste premisset. Regelen gjelder alle avledninger, lagrede og beregnede
@@ -843,6 +874,7 @@ i forslagskøen for strukturkanter, og et menneske godkjenner — samme prinsipp
   avvist, ingen nye rader. Testgodkjenningene og -avvisningene er tilbakestilt; de 42 forslagene og 23 navnekandidatene står igjen lokalt
   som ordinære forslag. KI-laget er ikke kjørt i kaldsjekken.
 - **Pilot, barnehageloven med 19 forskrifter (#375, lokal base 2026-10-28, begge lag):** 472 utsagn, 71 nye forslag (38 mønster, 33 KI). Ikke lastet: 240 aktør ikke i katalogen, 103 avvist fordi K ikke tar klasse som fra (#418), 17 uten fra-aktør, 10 uten databasetype. Detaljer og sammenligning med BU: docs/profil/07.
+- **Ny lasting etter #418 (lokal base 2026-10-29, begge lag):** 468 utsagn, 139 nye forslag (43 mønster, 96 KI), hvorav 106 K med klasse som fra. Ingen avvist for klasse som fra. 13 tapt som falske dubletter fordi idempotensnøkkelen mangler objekt (#420). KI-laget er kjørt på nytt og er ikke deterministisk. Detaljer: docs/profil/07 §8.
 
 ### 5.4 Måling
 

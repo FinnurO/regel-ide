@@ -795,6 +795,22 @@ public sealed record VirksomhetTilhorighetDto(
         t.Premisser.Select(StrukturkantDto.FraVisning).ToList());
 }
 
+/// <summary>[Ny, issue #418] Svaret på GET /api/virksomheter/{id}/kompetanse-via-klasse — se <see cref="KompetanseViaKlasseTjeneste"/>.</summary>
+public sealed record KompetanseViaKlasseDto(
+    StrukturnodeDto Aktor, IReadOnlyList<KompetanseViaKlasseTreffDto> Treff, IReadOnlyList<StrukturkantDto> Premisser, IReadOnlyList<string> Hull)
+{
+    public static KompetanseViaKlasseDto Fra(KompetanseViaKlasse k) => new(StrukturnodeDto.FraVisning(k.Aktor),
+        k.Treff.Select(t => new KompetanseViaKlasseTreffDto(StrukturkantDto.FraVisning(t.Kant), t.Retning,
+            t.Via.Select(StrukturnodeDto.FraVisning).ToList(), t.Kunnskapsstatus, t.Premisser, t.SvakestePremissId, t.SvakestePremissStatus,
+            t.Forslag)).ToList(),
+        k.Premisser.Select(StrukturkantDto.FraVisning).ToList(), k.Hull);
+}
+
+/// <summary>[Ny, issue #418] Ett treff: K-kanten, retningen (har | overfor), klassene/rollene i veien, og statusen etter svakeste premiss.</summary>
+public sealed record KompetanseViaKlasseTreffDto(
+    StrukturkantDto Kant, string Retning, IReadOnlyList<StrukturnodeDto> Via, string Kunnskapsstatus, IReadOnlyList<Guid> Premisser,
+    Guid? SvakestePremissId, string? SvakestePremissStatus, bool Forslag);
+
 /// <summary>[Ny, issue #390 AK 1] Én rubrikk: entydig | ikke_entydig | flere | mangler (med hull).</summary>
 public sealed record TilhorighetSvarDto(string Rubrikk, string Status, IReadOnlyList<TilhorighetKandidatDto> Kandidater, string? Hull);
 
@@ -966,7 +982,10 @@ public sealed record SettNavneformgrunnRequest(string? Navneformgrunn);
 /// </param>
 /// <param name="Nodetype">[Ny, issue #310] klasse|rolle|omrade|organ — påkrevd (validert i endepunktet, så
 /// en manglende verdi gir en lesbar 400 i stedet for en modellbindingsfeil).</param>
-public sealed record GruppebegrepRequest(Guid? LovkildeId, string Term, string? Nodetype = null);
+public sealed record GruppebegrepRequest(Guid? LovkildeId, string Term, string? Nodetype = null,
+    // [Ny, issue #418] Valgfritt: hjemmelsstedet og utsagnsstatusen (kunnskapsstatus, begrunnelse, godkjenning = forslag, oppdagelseskilde).
+    string? LovreferanseEid = null, string? Kunnskapsstatus = null, string? Begrunnelse = null, string? Godkjenning = null,
+    string? OppdagelsesKilde = null);
 
 /// <summary>[Ny, issue #310] <c>PUT /api/gruppebegrep/{id}/nodetype</c>.</summary>
 public sealed record SettNodetypeRequest(string Nodetype);

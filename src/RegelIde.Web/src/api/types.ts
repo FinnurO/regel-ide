@@ -1762,6 +1762,28 @@ export interface VirksomhetTilhorighetDto {
   premisser: StrukturkantDto[];
 }
 
+/** [Ny, issue #418] Ett treff i «Kompetanse via klasse eller rolle»: K-kanten, `retning` (`har` = K fra klassen/rollen, `overfor` = K til
+ * den), klassene og rollene i veien (`via`), og statusen etter svakeste premiss (docs/33 §4.6). `premisser` slås opp i
+ * `KompetanseViaKlasseDto.premisser`. */
+export interface KompetanseViaKlasseTreffDto {
+  kant: StrukturkantDto;
+  retning: 'har' | 'overfor';
+  via: StrukturnodeDto[];
+  kunnskapsstatus: Kunnskapsstatus;
+  premisser: string[];
+  svakestePremissId: string | null;
+  svakestePremissStatus: Kunnskapsstatus | null;
+  forslag: boolean;
+}
+
+/** [Ny, issue #418] GET /api/virksomheter/{id}/kompetanse-via-klasse. */
+export interface KompetanseViaKlasseDto {
+  aktor: StrukturnodeDto;
+  treff: KompetanseViaKlasseTreffDto[];
+  premisser: StrukturkantDto[];
+  hull: string[];
+}
+
 /** [Ny, issue #353] Hvorfor en plikt gjelder (eller kan gjelde) kommunen: fra kommunens egen virksomhet, fra en klasse
  * kommunen er REGISTRERT medlem av, eller fra en klasse uten ett eneste registrert medlem (avgjøres ikke — `grunnlagHull`). */
 /** [Ny, #353-retting] `kommunen_skal` = kommunen er pliktsubjektet; `overfor_kommunen` = andre har plikten overfor kommunen. */

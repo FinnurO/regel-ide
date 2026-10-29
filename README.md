@@ -43,6 +43,8 @@ blir stående som historikk i stedet for å slettes. Før forslagene kjøres et 
 og generiske omtaler («styret», «departementet») er navneformer for hele korpuset der betydningen bindes per rettskilde.
 Uten binding gir en standardregel svaret (#394): «departementet» er lovens ansvarlige departement etter ressortfordelingen (Lovdatas felt
 som sekundær kilde), «statsforvalteren» og «kommunen» er klassene — med kilden og premissene synlige i lovteksten.
+En klasse kan ha kompetanse og roller, lest distributivt (#418): «Kommunen kan gi lokal forskrift» gjelder hver kommune, og aktørsiden
+viser kompetansen kommunen har via klassen og rollen («lokal barnehagemyndighet»), aldri sterkere enn premissene.
 En aktørs identitet (#385) er lovens navn — den gjeldende navneformen — og aktørtypen, begge modellutsagn med grunnlag og godkjenning;
 organisasjonsnummer og registernavn fra Enhetsregisteret er attributter. Navneformer foreslås fra lovteksten, og et navnetreff gir
 navneformen en kilde og en tagg på nøyaktig spenn.
