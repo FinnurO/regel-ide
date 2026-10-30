@@ -67,6 +67,7 @@ builder.Services.AddScoped<OmradeTilhorighetTjeneste>(); // [Ny, issue #390] «O
 builder.Services.AddScoped<KompetanseViaKlasseTjeneste>(); // [Ny, issue #418] kompetanse via klasse og rolle, avledet
 builder.Services.AddScoped<RegisterkantKunnskapsstatusTjeneste>(); // [Ny, issue #390 AK 4] registerkanter → eksternt dokumentert
 builder.Services.AddScoped<KommuneKortformTjeneste>(); // [Ny, issue #390 AK 2] kortform per kommune, som forslag
+builder.Services.AddScoped<MerknadshjemmelAvvisningTjeneste>(); // [Ny, issue #419] forslag med hjemmel i merknad/veiledning avvises maskinelt
 builder.Services.AddScoped<VirksomhetWhereUsedTjeneste>();
 builder.Services.AddScoped<VirksomhetKandidatTjeneste>();
 builder.Services.AddScoped<VirksomhetKandidatSveipTjeneste>();
@@ -4554,6 +4555,21 @@ app.MapPost("/api/strukturkanter/registerkanter/eksternt-dokumentert/angre", asy
     .WithName("RegisterkanterEksterntDokumentertAngre")
     .WithSummary("Issue #390 AK 4 — angrer etterfyllingen: registerkanter der siste kunnskapsstatus-endring var regelen, settes tilbake til " +
         "ikke vurdert, med en ny proveniensrad. ?skriv=true skriver; uten er det en telling.");
+
+// [Ny, issue #419 avgjørelse 2] Forslag med hjemmel i merknader/veiledning i forskriftsteksten avvises maskinelt. ?skriv=true avviser;
+// uten er det en tørrkjøring med de samme tallene. Godkjente og faglig vurderte kanter røres ikke.
+app.MapPost("/api/strukturkanter/merknadshjemmel/avvis", async (bool? skriv, HttpRequest request, RegelIdeDbContext db,
+        MerknadshjemmelAvvisningTjeneste tjeneste, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        return Results.Ok(await tjeneste.KjorAsync(skriv ?? false, ct));
+    })
+    .WithOpenApi()
+    .WithName("AvvisMerknadshjemmel")
+    .WithSummary("Issue #419 — forslag (maskinelt_foreslatt, manuelt_foreslatt) med hjemmel i en merknads- eller veiledningsnode avvises med " +
+        "begrunnelsen «hjemmel er merknad/veiledning (#419)», skrevet som system-merknadsnoder. Godkjente og faglig vurderte kanter røres " +
+        "ikke, men telles (ikkeBerort). ?skriv=true skriver; uten er det en tørrkjøring. Idempotent.");
 
 // [Ny, issue #390 AK 2] Kortformen for hver kommune (kommunenavnet fra Kartverket) som navneform med grunn kortform, som FORSLAG.
 app.MapPost("/api/omrader/kommuner/kortformer", async (bool? skriv, string? kommunenummer, HttpRequest request, RegelIdeDbContext db,

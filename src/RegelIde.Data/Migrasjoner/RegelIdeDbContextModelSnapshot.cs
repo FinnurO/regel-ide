@@ -3186,6 +3186,12 @@ namespace RegelIde.Data.Migrasjoner
                         .HasDefaultValue("gjeldende")
                         .HasColumnName("entitetsstatus");
 
+                    b.Property<bool>("ErMerknad")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("er_merknad");
+
                     b.Property<Guid?>("ErstatterNodeId")
                         .HasColumnType("uuid")
                         .HasColumnName("erstatter_node_id");

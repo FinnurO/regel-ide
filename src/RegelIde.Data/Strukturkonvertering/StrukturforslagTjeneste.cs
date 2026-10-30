@@ -32,6 +32,8 @@ public static class Forslagsarsak
     /// <summary>[Ny, issue #378 B6] Generisk omtale uten godkjent binding for rettskilden — ingen kobling, ingen gjetting.</summary>
     public const string AktorGeneriskUtenBinding = "aktor_generisk_uten_binding";
     public const string AvvistAvValideringen = "avvist_av_valideringen";
+    /// <summary>[Ny, issue #419] Utsagnets eId er en merknads- eller veiledningsnode (<see cref="Merknadsnoder"/>) — aldri hjemmel.</summary>
+    public const string HjemmelErMerknad = "hjemmel_er_merknad";
 
     public static string Tekst(string arsak) => arsak switch
     {
@@ -42,6 +44,7 @@ public static class Forslagsarsak
         AktorFlertydig => "Aktørnavnet treffer flere noder eksakt — ingen valgt",
         AktorGeneriskUtenBinding => "Generisk omtale («styret», «departementet») uten godkjent binding for denne rettskilden — lagt i navnekandidatkøen",
         AvvistAvValideringen => "Den felles skriveveien (StrukturkantTjeneste) avviste raden",
+        HjemmelErMerknad => "Noden er merknad/veiledning i forskriftsteksten, ikke normtekst — aldri hjemmel (#419)",
         _ => arsak,
     };
 }
@@ -123,6 +126,10 @@ public sealed record StrukturforslagRapport(
     public IReadOnlyList<AktorstatusTall> AktorerPerStatus { get; init; } = [];
     /// <summary>[Ny, issue #385 AC3] Hva navnetreffene ga: navneformforslag, kilder, tagger og aktørtypeforslag.</summary>
     public Treffidentitet? Aktoridentitet { get; init; }
+    /// <summary>[Ny, issue #419] Rettskildens gjeldende, ikke opphevede merknads- og veiledningsnoder. Konverteringen leser dem ikke
+    /// (<see cref="StrukturforslagTjeneste.ByggGrunnlagAsync"/>), og et utsagn med slik eId lastes ikke
+    /// (<see cref="Forslagsarsak.HjemmelErMerknad"/>).</summary>
+    public int MerknadsnoderUtelatt { get; init; }
 }
 
 /// <summary>
@@ -188,7 +195,9 @@ public sealed partial class StrukturforslagTjeneste(
 
     /// <summary>Inndataene til konverteringen: rettskildens gjeldende, ikke opphevede noder i dokumentrekkefølge (FORMAT.md «Lesing»).
     /// Bare rettskildens EGNE noder — et utsagn har bare en eId, og eId-en er unik bare innenfor sin rettskilde. En ledsagende forskrift
-    /// lastes som egen rettskilde.</summary>
+    /// lastes som egen rettskilde. [ENDRET, issue #419] Merknads- og veiledningsnoder (<see cref="RettskildeNodeEntitet.ErMerknad"/>) er
+    /// ikke med: verken mønster- eller KI-laget ser dem, så de kan ikke bli hjemmel. Antallet står i
+    /// <see cref="Strukturkonverteringsgrunnlag.MerknadsnoderUtelatt"/>.</summary>
     public async Task<Strukturkonverteringsgrunnlag> ByggGrunnlagAsync(Guid rettskildeId, CancellationToken ct = default)
     {
         var rettskilde = await db.Rettskilder.FirstOrDefaultAsync(r => r.Id == rettskildeId, ct)
@@ -196,11 +205,13 @@ public sealed partial class StrukturforslagTjeneste(
         var tittel = rettskilde.Tittel;
         var eli = rettskilde.Eli ?? "";
         var noder = await db.RettskildeNoder
-            .Where(n => n.RettskildeId == rettskildeId && n.Entitetsstatus == "gjeldende" && !n.Opphevet)
+            .Where(n => n.RettskildeId == rettskildeId && n.Entitetsstatus == "gjeldende" && !n.Opphevet && !n.ErMerknad)
             .OrderBy(n => n.Sorteringsrekkefolge)
             .Select(n => new Strukturnode(tittel, eli, n.Eid, n.NodeType, n.Overskrift, n.Tekst))
             .ToListAsync(ct);
-        return new Strukturkonverteringsgrunnlag(tittel, eli, noder);
+        var merknader = await db.RettskildeNoder
+            .CountAsync(n => n.RettskildeId == rettskildeId && n.Entitetsstatus == "gjeldende" && !n.Opphevet && n.ErMerknad, ct);
+        return new Strukturkonverteringsgrunnlag(tittel, eli, noder) { MerknadsnoderUtelatt = merknader };
     }
 
     private sealed record Oppslag(Kantnode? Node, string? Arsak, IReadOnlyList<string> Treff);
@@ -250,6 +261,12 @@ public sealed partial class StrukturforslagTjeneste(
         var nodetekster = await db.RettskildeNoder
             .Where(n => n.RettskildeId == rettskildeId && n.Entitetsstatus == "gjeldende")
             .Select(n => new { n.Eid, n.Tekst }).ToDictionaryAsync(n => n.Eid, n => n.Tekst, StringComparer.Ordinal, ct);
+        // [Ny, issue #419] Merknads- og veiledningsnodene: et utsagn med slik eId lastes aldri (dokumentet kan komme fra en lagret konvertering
+        // eller en fil laget før merkingen). Antallet gjeldende, ikke opphevede står i rapporten.
+        var merknadsnoder = await db.RettskildeNoder
+            .Where(n => n.RettskildeId == rettskildeId && n.Entitetsstatus == "gjeldende" && n.ErMerknad)
+            .Select(n => new { n.Eid, n.Opphevet }).ToListAsync(ct);
+        var merknader = merknadsnoder.Select(n => n.Eid).ToHashSet(StringComparer.Ordinal);
         int? Setning(string eid, string? sitat) => MonsterStrukturkonverterer.Setningsnummer(nodetekster.GetValueOrDefault(eid), sitat);
 
         // Eksisterende kanter hjemlet i rettskilden, også de avviste — nøkkelen avgjør om et utsagn alt er lastet eller avvist.
@@ -296,6 +313,12 @@ public sealed partial class StrukturforslagTjeneste(
             void Rad(string? kat, string? kode, string utfall, string? arsak, string? detalj, Guid? kantId) =>
                 utfallsrader[i] = new(u.Id, u.Eid, u.Sitat, u.Kategori, u.Type, kat, kode, utfall, arsak, detalj, kantId, kilde);
 
+            if (merknader.Contains(u.Eid))
+            {
+                var kt = KanttypeFor(u.Kategori, u.Type);
+                Rad(kt?.Kategori, kt?.Typekode, Forslagsutfall.IkkeLastet, Forslagsarsak.HjemmelErMerknad, u.Eid, null);
+                continue;
+            }
             if (KanttypeFor(u.Kategori, u.Type) is not { } kanttype)
             {
                 Rad(null, null, Forslagsutfall.IkkeLastet, Forslagsarsak.TypeUtenTypekode, $"{u.Kategori}/{u.Type}", null);
@@ -440,6 +463,7 @@ public sealed partial class StrukturforslagTjeneste(
         {
             AktorerPerStatus = TellPerStatus(sveip),
             Aktoridentitet = aktoridentitet,
+            MerknadsnoderUtelatt = merknadsnoder.Count(n => !n.Opphevet),
         };
     }
 

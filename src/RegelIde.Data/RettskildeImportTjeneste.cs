@@ -250,6 +250,10 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
     private async Task SettInnNoderOgReferanserAsync(Guid rettskildeId, KonverteringResultat resultat, CancellationToken ct)
     {
         var nodeIdVedEid = resultat.Noder.ToDictionary(n => n.Eid, _ => Guid.NewGuid());
+        // [Ny, issue #419] Merknader og veiledning i forskriftsteksten merkes her, i den ene veien alle Lovdata-importer går (første import,
+        // ny versjon ved resynk, «konverter på nytt») — så merkingen overlever en ny import. Regelen og unntakene: Merknadsnoder.
+        var merknader = Merknadsnoder.Merk(resultat.Metadata.Eli,
+            resultat.Noder.Select(n => (n.Eid, n.ParentEid, n.NodeType.TilDbVerdi())).ToList());
         foreach (var n in resultat.Noder)
         {
             // TryGetValue, IKKE GetValueOrDefault: nodeIdVedEid er Dictionary<string, Guid> (Guid er en
@@ -280,6 +284,7 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
                 TekstHash = n.TekstHash,
                 Opphevet = n.Opphevet,
                 OpphevetDato = n.OpphevetDato,
+                ErMerknad = merknader.Contains(n.Eid),
                 Sorteringsrekkefolge = n.SorteringsRekkefolge,
             });
         }
