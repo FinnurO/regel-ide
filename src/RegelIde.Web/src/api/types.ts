@@ -2696,3 +2696,127 @@ export interface VeivisergrunnlagFelt {
   /** [Ny, issue #386] Aktøren ble opprettet med bare et navn i denne veiviserkjøringen: navnet blir gjeldende navneform med samme grunnlag. */
   nyAktorMedBareNavn?: boolean;
 }
+
+// ---------------------------------------------------------------------------------------------------------------------------------
+// [Ny, issue #429 «Funn til vurdering», 2026-10-30] Registeret — se FunnEndepunkter.cs og Funn.cs på serveren.
+export type FunnKategori = 'utgatt_aktor' | 'mulig_motstrid' | 'uklarhet_hull';
+export type FunnStatus = 'oppdaget' | 'juristvurdert' | 'godkjent_for_publisering' | 'forklart_bort';
+export type FunnKoblingsrolle = 'gjelder_bestemmelse' | 'motstridende_bestemmelse' | 'berort_aktor' | 'navneform' | 'etterfolger' | 'kilde';
+export type FunnVurderingspunktType = 'bortforklaring_provd' | 'vurdering' | 'ikke_avgjort';
+
+export interface FunnKoblingDto {
+  id: string;
+  rolle: FunnKoblingsrolle;
+  sortering: number;
+  etikett: string;
+  merknad: string | null;
+  rettskildeEli: string | null;
+  rettskildeId: string | null;
+  eid: string | null;
+  nodeId: string | null;
+  virksomhetId: string | null;
+  begrepId: string | null;
+  strukturkantId: string | null;
+  kildefeilId: string | null;
+  eksternLenke: string | null;
+}
+
+export interface FunnVurderingspunktDto {
+  id: string;
+  type: FunnVurderingspunktType;
+  sortering: number;
+  overskrift: string | null;
+  tekst: string;
+  sikkerhet: string | null;
+}
+
+/** Den offentlige representasjonen — nøyaktig det som eksporteres til nettside/data/funn/register.json. */
+export interface FunnOffentlig {
+  id: string;
+  kategori: FunnKategori;
+  undertype: string | null;
+  tittel: string;
+  beskrivelse: string;
+  vurdering: string | null;
+  bestemmelser: { rolle: string; etikett: string; merknad: string | null; eli: string | null; eid: string | null }[];
+  navneformer: { etikett: string; merknad: string | null }[];
+  aktorer: { etikett: string; merknad: string | null }[];
+  etterfolgere: { etikett: string; merknad: string | null }[];
+  bortforklaringer: { overskrift: string | null; tekst: string }[];
+  vurderingspunkter: { overskrift: string | null; tekst: string; sikkerhet: string | null }[];
+  ikkeAvgjort: { overskrift: string | null; tekst: string }[];
+  kilder: { etikett: string; merknad: string | null; lenke: string | null; eli: string | null; eid: string | null }[];
+  juristvurdertAvKi: boolean;
+  godkjentDato: string;
+}
+
+export interface FunnDto {
+  id: string;
+  eksternNokkel: string | null;
+  kategori: FunnKategori;
+  undertype: string | null;
+  tittel: string;
+  beskrivelse: string;
+  vurdering: string | null;
+  internMerknad: string | null;
+  status: FunnStatus;
+  oppdagelsesKilde: string;
+  funnetI: string | null;
+  opprettetAv: string;
+  opprettetTidspunkt: string;
+  sistEndretAv: string | null;
+  sistEndretTidspunkt: string | null;
+  juristvurdertAv: string | null;
+  juristvurdertTidspunkt: string | null;
+  vurdertAvType: 'menneske' | 'ki_agent' | null;
+  forklartBortBegrunnelse: string | null;
+  forklartBortAv: string | null;
+  forklartBortTidspunkt: string | null;
+  godkjentAv: string | null;
+  godkjentTidspunkt: string | null;
+  kildeEndretTidspunkt: string | null;
+  koblinger: FunnKoblingDto[];
+  vurderingspunkter: FunnVurderingspunktDto[];
+  /** Premissporten (docs/33 §4.6): tom = åpen. */
+  premissmangler: string[];
+  /** Det som blir publisert. null for funn som er forklart bort, og i lista. */
+  forhandsvisning: FunnOffentlig | null;
+}
+
+export interface FunnTilgangDto {
+  kanPublisere: boolean;
+  kanJuristvurdere: boolean;
+  publiseringsansvarligeKonfigurert: boolean;
+}
+
+export interface FunnKoblingInn {
+  rolle: FunnKoblingsrolle;
+  etikett: string;
+  merknad?: string | null;
+  rettskildeEli?: string | null;
+  eid?: string | null;
+  virksomhetId?: string | null;
+  begrepId?: string | null;
+  strukturkantId?: string | null;
+  kildefeilId?: string | null;
+  eksternLenke?: string | null;
+}
+
+export interface FunnVurderingspunktInn {
+  type: FunnVurderingspunktType;
+  tekst: string;
+  overskrift?: string | null;
+  sikkerhet?: string | null;
+}
+
+export interface NyttFunnInn {
+  kategori: FunnKategori;
+  undertype: string | null;
+  tittel: string;
+  beskrivelse: string;
+  oppdagelsesKilde?: string;
+  internMerknad?: string | null;
+  funnetI?: string | null;
+  koblinger: FunnKoblingInn[];
+  vurderingspunkter: FunnVurderingspunktInn[];
+}
