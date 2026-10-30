@@ -583,6 +583,18 @@ sletter ikke lenger (#374).
 *Hvor:* «KI-oppdagelse» (`/ki-oppdagelse`); `POST /api/ki-oppdagelse/kjor` (kjør for valgte
 rettskilder), `GET /api/ki-oppdagelse/ko` (samlet kø).
 
+### Funn til vurdering [NYTT, 2026-10-30, issue #429]
+
+Et register over steder der rettskildene ikke stemmer med seg selv eller med virkeligheten: mulig motstrid, uklarheter og hull, og
+utgåtte aktører. Et funn registreres manuelt eller av en agent (status oppdaget), juristvurderes med prøvde bortforklaringer (av en
+jurist eller ført inn fra juristagenten, med eget merke), og blir enten forklart bort eller godkjent for publisering. Bare de
+publiseringsansvarlige i `RegelIde:Funn:Publiseringsansvarlige` kan godkjenne (lista er tom som standard). Ved godkjenning fryses innholdet;
+eksporten til nettsiden leser bare det. Rettskildesiden viser funnene som peker på den. Maskinregelen for utgåtte aktører kommer i PR 2.
+
+*Hvor:* «Funn til vurdering» (`/funn`, `/funn/ny`, `/funn/:id`); `GET/POST /api/funn`, `PUT /api/funn/{id}`,
+`POST /api/funn/{id}/juristvurdering`, `/forklar-bort`, `/godkjenn-for-publisering`, `/trekk-tilbake`, `GET /api/funn/publiserbare`,
+`GET /api/funn/tilgang`. Detaljer: `docs/33` §5.15, `docs/09` §49.
+
 ---
 
 ## Brukerhåndtering

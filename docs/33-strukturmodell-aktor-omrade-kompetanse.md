@@ -1668,6 +1668,44 @@ hjemmelen.
 **Testene:** `MerknadsnoderTests` (Data, med ekte Lovdata-HTML for foreldrebetalings- og fusjonsforskriften) og
 `StrukturkantEndepunktTests.Merknadshjemmel_…` (API).
 
+### 5.15 Funn til vurdering (#429, PR 1 bygget 2026-10-30)
+
+[Ny, Johanns avgjørelser 2026-10-29 og 2026-10-30 i #429] Når lovteksten gjøres maskinlesbar, kommer det fram steder der rettskildene ikke
+stemmer med seg selv eller med virkeligheten. Registeret samler dem som **funn til vurdering**: observasjoner med kilder, ikke påstander om
+feil i loven. Kildefeil (#249) er noe annet: tekniske feil i Lovdata-kopien.
+
+**Datamodellen** (`Funn.cs`, migrasjonen `FunnTilVurdering`):
+- `funn`: kategori (`utgatt_aktor` | `mulig_motstrid` | `uklarhet_hull`) og undertype (`nedlagt_aktor`, `utgatt_navn`; `hull`,
+  `upresis_henvisning`, `publiseringsfeil_kilde`), tittel, påstand (`beskrivelse`), vurdering, intern merknad (publiseres aldri),
+  oppdagelseskilde, saken funnet kom fram i, og hvem og når for hver overgang. `ekstern_nokkel` er idempotensnøkkelen for seed og agenter.
+- `funn_koblinger`: nøyaktig ett mål per rad — bestemmelse (ELI, eId, og oppslått rettskilde og node; NULL når den ikke er i korpuset,
+  aldri nærmeste treff), aktør, navneform, etterfølgerkant, kildefeil eller ekstern lenke. Rollen bestemmer målet (CHECK).
+- `funn_vurderingspunkter`: prøvd bortforklaring, delvurdering med sikkerhet (`hoy` … `lav`), eller ikke avgjort.
+
+**Statusflyten:** `oppdaget` → `juristvurdert` → `godkjent_for_publisering`, eller `forklart_bort`.
+- Juristvurdert krever vurderingen og minst én prøvd bortforklaring (Johanns terskel: juristen prøver først å forklare funnet bort).
+  `vurdert_av_type` skiller menneske fra juristagenten. KI-vurderingen teller som juristvurdert og vises med eget merke (docs/09 §49).
+- **Godkjent for publisering** kan bare settes av en publiseringsansvarlig: bruker-id-ene i `RegelIde:Funn:Publiseringsansvarlige`, tom
+  som standard, slik at ingen kan publisere før Johann har satt sin egen id. Dette er kodebasens første tilgangssjekk. Testbrukermodus er
+  ikke sikkerhet; den reelle sperren er at nettsiden bare endres når en PR flettes.
+- Ved godkjenning fryses den offentlige representasjonen (`godkjent_innhold_json` med SHA-256). Eksporten leser bare øyeblikksbildet.
+  Endres det offentlige innholdet etterpå, går funnet tilbake til juristvurdert. Funn som er forklart bort, publiseres ikke.
+- **Premissporten** (§4.6, svakeste premiss): et funn om en utgått aktør kan bare godkjennes når navneformen og etterfølgerkanten er faglig
+  vurdert (`faglig_vurdert` eller `godkjent`). En navneform uten godkjenning (NULL, fra før #385) regnes ikke som vurdert. Et funn uten
+  etterfølgerkant stoppes ikke og publiseres med «etterfølger ukjent» — tolkningen er lagt fram for Johann i PR-en.
+- **Kilde endret:** Lovdata-resynken flagger funn som peker på en bestemmelse med ny tekst (`HjemmelEndretFlagg`, samme deltre-regel som
+  strukturkantene). Et flagg, ikke en statusendring; ny juristvurdering nuller det.
+
+**Nettsiden:** `GET /api/funn/publiserbare` → `nettside/tools/eksporter-data.ps1` (steg 7) → `nettside/data/funn/register.json` →
+`nettside/funn/index.html`. `FunnRegisterJsonTests` sjekker at fila bare inneholder godkjente funn, med nøyaktig den godkjente teksten.
+
+**Seed:** de fem funnene som står i #429 (`Seed/funn-429.json`, gated av `RegelIde:Funn:SeedVedOppstart`): funn 1 om klageinstansen for
+barnehage (godkjent for publisering av Johann 2026-10-29), kontrollen for lærere (forklart bort), og tre kandidater som oppdaget
+(overgangsregelen, den upresise henvisningen, Lovdatas «Merknader» i FOR-2008-01-09-50).
+
+**Ikke i PR 1:** maskinregelen for utgåtte aktører (PR 2, etter juristmålingen på om lag 40 par), statsrådsembeter og organiseringsvedtak
+som har uttømt virkningen (#438).
+
 ### 5.6 Konvertering av eksisterende data
 
 | Fra | Til | Automatisk? |
