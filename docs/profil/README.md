@@ -18,7 +18,7 @@ Denne mappen holder **profilen**, altså det teknologinøytrale begrepsapparatet
 | 04 | [Mappingnotat](04-mappingnotat.md): regel-ide mot ELI/AKN, LKIF Core, UFO-L, LegalRuleML (verifisert mot primærkildene 2026-10-09) | Arbeidsutkast | Nei. Informativt (§5.7) |
 | 05 | Plan for testkorpus: låst utvalg, uavhengig menneskelig annotering | Ikke skrevet | – |
 | 06 | Beslutningslogg for typevekst (§18): samlet fra beslutningene i sakene | Ikke skrevet | – |
-| 07 | [Pilot: barnehageloven](07-pilot-barnehageloven.md): konvertering, juristrunde og sammenligning med BU-kartleggingen (#375), med lærdommer for profilen | REFERAT 2026-10-28, før Johanns gjennomgang. §8 tillegg 2026-10-29 (ny lasting etter #418) | Nei. Erfaringsgrunnlag |
+| 07 | [Pilot: barnehageloven](07-pilot-barnehageloven.md): konvertering, juristrunde og sammenligning med BU-kartleggingen (#375), med lærdommer for profilen | REFERAT 2026-10-28, før Johanns gjennomgang. §8 tillegg 2026-10-29 (ny lasting etter #418). §9 tillegg 2026-10-30 (tredje lasting etter #420 og #419) | Nei. Erfaringsgrunnlag |
 
 Implementasjonens svar på profilen: [../34-arkitekturvurdering-norsk-profil.md](../34-arkitekturvurdering-norsk-profil.md).
 

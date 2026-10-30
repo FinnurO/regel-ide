@@ -1,0 +1,293 @@
+[
+ {
+  "id": "m1",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Innvendingen gjelder uttrekket (KI-klassifisering, mønsterleksikon eller manglende avgrensning), ikke modellreglene fra #418, #419 eller #420. Raden er et forslag, og rettingen gjøres i forslagskøen (docs/33 §5.3).",
+  "kilder": [
+   "docs/33 §5.3",
+   "docs/profil/00 §17.4"
+  ]
+ },
+ {
+  "id": "m2",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Innvendingen gjelder uttrekket (KI-klassifisering, mønsterleksikon eller manglende avgrensning), ikke modellreglene fra #418, #419 eller #420. Raden er et forslag, og rettingen gjøres i forslagskøen (docs/33 §5.3).",
+  "kilder": [
+   "docs/33 §5.3",
+   "docs/profil/00 §17.4"
+  ]
+ },
+ {
+  "id": "m3",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Innvendingen gjelder uttrekket (KI-klassifisering, mønsterleksikon eller manglende avgrensning), ikke modellreglene fra #418, #419 eller #420. Raden er et forslag, og rettingen gjøres i forslagskøen (docs/33 §5.3). Ny rad (P informasjon, fjerde punktum) tas med i anbefalingene.",
+  "kilder": [
+   "docs/33 §5.3",
+   "docs/profil/00 §17.4"
+  ]
+ },
+ {
+  "id": "k1",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Valget mellom de to kantene: den eldre kanten har alt en anbefaling fra juristrunde 418 (k2), og den følges. Det nye forslaget avvises som dublett. Da får hvert utsagn én behandlingslinje, og anbefalingene fra forrige runde står ved lag. Etter #420 pares ikke de to, fordi typekoden er ulik og dermed hører til nøkkelen (docs/33 §5.3).",
+  "kilder": [
+   "docs/33 §5.3 (#420, nøkkel og paring)",
+   "data/fasit/strukturmodell/juristrunde-418/anbefalinger.md"
+  ]
+ },
+ {
+  "id": "k2",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Valget mellom de to kantene: den eldre kanten har alt en anbefaling fra juristrunde 418 (k4), og den følges. Det nye forslaget avvises som dublett. Da får hvert utsagn én behandlingslinje, og anbefalingene fra forrige runde står ved lag. Etter #420 pares ikke de to, fordi til er ulik og dermed hører til nøkkelen (docs/33 §5.3).",
+  "kilder": [
+   "docs/33 §5.3 (#420, nøkkel og paring)",
+   "data/fasit/strukturmodell/juristrunde-418/anbefalinger.md"
+  ]
+ },
+ {
+  "id": "k3",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Innvendingen gjelder uttrekket (KI-klassifisering, mønsterleksikon eller manglende avgrensning), ikke modellreglene fra #418, #419 eller #420. Raden er et forslag, og rettingen gjøres i forslagskøen (docs/33 §5.3).",
+  "kilder": [
+   "docs/33 §5.3",
+   "docs/profil/00 §17.4"
+  ]
+ },
+ {
+  "id": "k4",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Innvendingen gjelder uttrekket (KI-klassifisering, mønsterleksikon eller manglende avgrensning), ikke modellreglene fra #418, #419 eller #420. Raden er et forslag, og rettingen gjøres i forslagskøen (docs/33 §5.3). Det eldre forslaget e444de1c følger anbefalingen fra runde 375 (f13).",
+  "kilder": [
+   "docs/33 §5.3",
+   "docs/profil/00 §17.4"
+  ]
+ },
+ {
+  "id": "k5",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Innvendingen gjelder uttrekket (KI-klassifisering, mønsterleksikon eller manglende avgrensning), ikke modellreglene fra #418, #419 eller #420. Raden er et forslag, og rettingen gjøres i forslagskøen (docs/33 §5.3).",
+  "kilder": [
+   "docs/33 §5.3",
+   "docs/profil/00 §17.4"
+  ]
+ },
+ {
+  "id": "k6",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Innvendingen gjelder uttrekket (KI-klassifisering, mønsterleksikon eller manglende avgrensning), ikke modellreglene fra #418, #419 eller #420. Raden er et forslag, og rettingen gjøres i forslagskøen (docs/33 §5.3).",
+  "kilder": [
+   "docs/33 §5.3",
+   "docs/profil/00 §17.4"
+  ]
+ },
+ {
+  "id": "k7",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Valget mellom de to kantene: den eldre kanten har alt en anbefaling fra juristrunde 418 (k35), og den følges. Det nye forslaget avvises som dublett. Da får hvert utsagn én behandlingslinje, og anbefalingene fra forrige runde står ved lag. Etter #420 pares ikke de to, fordi objektet er ulik og dermed hører til nøkkelen (docs/33 §5.3).",
+  "kilder": [
+   "docs/33 §5.3 (#420, nøkkel og paring)",
+   "data/fasit/strukturmodell/juristrunde-418/anbefalinger.md"
+  ]
+ },
+ {
+  "id": "k9",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Innvendingen gjelder uttrekket (KI-klassifisering, mønsterleksikon eller manglende avgrensning), ikke modellreglene fra #418, #419 eller #420. Raden er et forslag, og rettingen gjøres i forslagskøen (docs/33 §5.3).",
+  "kilder": [
+   "docs/33 §5.3",
+   "docs/profil/00 §17.4"
+  ]
+ },
+ {
+  "id": "k10",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Innvendingen gjelder uttrekket (KI-klassifisering, mønsterleksikon eller manglende avgrensning), ikke modellreglene fra #418, #419 eller #420. Raden er et forslag, og rettingen gjøres i forslagskøen (docs/33 §5.3).",
+  "kilder": [
+   "docs/33 §5.3",
+   "docs/profil/00 §17.4"
+  ]
+ },
+ {
+  "id": "k11",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Innvendingen gjelder uttrekket (KI-klassifisering, mønsterleksikon eller manglende avgrensning), ikke modellreglene fra #418, #419 eller #420. Raden er et forslag, og rettingen gjøres i forslagskøen (docs/33 §5.3).",
+  "kilder": [
+   "docs/33 §5.3",
+   "docs/profil/00 §17.4"
+  ]
+ },
+ {
+  "id": "k12",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Innvendingen gjelder uttrekket (KI-klassifisering, mønsterleksikon eller manglende avgrensning), ikke modellreglene fra #418, #419 eller #420. Raden er et forslag, og rettingen gjøres i forslagskøen (docs/33 §5.3).",
+  "kilder": [
+   "docs/33 §5.3",
+   "docs/profil/00 §17.4"
+  ]
+ },
+ {
+  "id": "k13",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Valget mellom de to kantene: den eldre kanten har alt en anbefaling fra juristrunde 418 (k38), og den følges. Det nye forslaget avvises som dublett. Da får hvert utsagn én behandlingslinje, og anbefalingene fra forrige runde står ved lag. Etter #420 pares ikke de to, fordi typekoden er ulik og dermed hører til nøkkelen (docs/33 §5.3).",
+  "kilder": [
+   "docs/33 §5.3 (#420, nøkkel og paring)",
+   "data/fasit/strukturmodell/juristrunde-418/anbefalinger.md"
+  ]
+ },
+ {
+  "id": "k14",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Innvendingen gjelder uttrekket (KI-klassifisering, mønsterleksikon eller manglende avgrensning), ikke modellreglene fra #418, #419 eller #420. Raden er et forslag, og rettingen gjøres i forslagskøen (docs/33 §5.3). Raden oppfyller den nye raden 418 k38 ba om (L13); bare avgrensningen må rettes.",
+  "kilder": [
+   "docs/33 §5.3",
+   "docs/profil/00 §17.4"
+  ]
+ },
+ {
+  "id": "k15",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Valget mellom de to kantene: den eldre kanten har alt en anbefaling fra juristrunde 418 (k39), og den følges. Det nye forslaget avvises som dublett. Da får hvert utsagn én behandlingslinje, og anbefalingene fra forrige runde står ved lag. Etter #420 pares ikke de to, fordi typekoden er ulik og dermed hører til nøkkelen (docs/33 §5.3).",
+  "kilder": [
+   "docs/33 §5.3 (#420, nøkkel og paring)",
+   "data/fasit/strukturmodell/juristrunde-418/anbefalinger.md"
+  ]
+ },
+ {
+  "id": "k16",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Valget mellom de to kantene: den eldre kanten har alt en anbefaling fra juristrunde 418 (k40), og den følges. Det nye forslaget avvises som dublett. Da får hvert utsagn én behandlingslinje, og anbefalingene fra forrige runde står ved lag. Etter #420 pares ikke de to, fordi typekoden er ulik og dermed hører til nøkkelen (docs/33 §5.3).",
+  "kilder": [
+   "docs/33 §5.3 (#420, nøkkel og paring)",
+   "data/fasit/strukturmodell/juristrunde-418/anbefalinger.md"
+  ]
+ },
+ {
+  "id": "k17",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Innvendingen gjelder uttrekket (KI-klassifisering, mønsterleksikon eller manglende avgrensning), ikke modellreglene fra #418, #419 eller #420. Raden er et forslag, og rettingen gjøres i forslagskøen (docs/33 §5.3). Raden oppfyller den nye raden 418 k40 ba om (L13); avgrensningen må rettes.",
+  "kilder": [
+   "docs/33 §5.3",
+   "docs/profil/00 §17.4"
+  ]
+ },
+ {
+  "id": "k18",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Valget mellom de to kantene: den eldre kanten har alt en anbefaling fra juristrunde 418 (k53), og den følges. Det nye forslaget avvises som dublett. Da får hvert utsagn én behandlingslinje, og anbefalingene fra forrige runde står ved lag. Etter #420 pares ikke de to, fordi typekoden er ulik og dermed hører til nøkkelen (docs/33 §5.3).",
+  "kilder": [
+   "docs/33 §5.3 (#420, nøkkel og paring)",
+   "data/fasit/strukturmodell/juristrunde-418/anbefalinger.md"
+  ]
+ },
+ {
+  "id": "k19",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Valget mellom de to kantene: den eldre kanten har alt en anbefaling fra juristrunde 418 (k54), og den følges. Det nye forslaget avvises som dublett. Da får hvert utsagn én behandlingslinje, og anbefalingene fra forrige runde står ved lag. Etter #420 pares ikke de to, fordi typekoden er ulik og dermed hører til nøkkelen (docs/33 §5.3).",
+  "kilder": [
+   "docs/33 §5.3 (#420, nøkkel og paring)",
+   "data/fasit/strukturmodell/juristrunde-418/anbefalinger.md"
+  ]
+ },
+ {
+  "id": "k20",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Valget mellom de to kantene: den eldre kanten har alt en anbefaling fra juristrunde 418 (k55), og den følges. Det nye forslaget avvises som dublett. Da får hvert utsagn én behandlingslinje, og anbefalingene fra forrige runde står ved lag. Etter #420 pares ikke de to, fordi typekoden er ulik og dermed hører til nøkkelen (docs/33 §5.3).",
+  "kilder": [
+   "docs/33 §5.3 (#420, nøkkel og paring)",
+   "data/fasit/strukturmodell/juristrunde-418/anbefalinger.md"
+  ]
+ },
+ {
+  "id": "k21",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Innvendingen gjelder uttrekket (KI-klassifisering, mønsterleksikon eller manglende avgrensning), ikke modellreglene fra #418, #419 eller #420. Raden er et forslag, og rettingen gjøres i forslagskøen (docs/33 §5.3).",
+  "kilder": [
+   "docs/33 §5.3",
+   "docs/profil/00 §17.4"
+  ]
+ },
+ {
+  "id": "k23",
+  "svar": "delvis",
+  "tekst": "Aksepter at raden er en beregningsregel og skal avvises (regellaget, som 375 f10 og 418 k51). Avvis motparten i den nye raden. Forslaget setter til = «private barnehager», men samme betalingsplikt er foreslått som ny rad under f1 i del b med til = null, og de rettede betalingsradene f3, f4, f7, f10 og f25 har også til = null. Presedensen er f9 og f71 i juristrunde 375 og k69, k71 og k77 i juristrunde 418: de private barnehagene er begunstigede, ikke motpart i strukturlaget (FORMAT, private parters rettigheter annoteres ikke). Med til = «private barnehager» kan raden heller ikke lastes, fordi aktøren mangler i katalogen (#424), og det ville gitt en kant som aldri kan skrives. Den nye raden bør derfor ha til = null, som i f1, og bare stå én gang.",
+  "kilder": [
+   "data/fasit/strukturmodell/juristrunde-375/anbefalinger.md (f9, f71)",
+   "data/fasit/strukturmodell/juristrunde-418/anbefalinger.md (k69, k71, k77)",
+   "data/fasit/strukturmodell/FORMAT.md (private parters rettigheter)",
+   "#424",
+   "juristrunde-375b/b/utfordringer.json (f1 ny_rad)"
+  ]
+ },
+ {
+  "id": "k24",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Innvendingen gjelder uttrekket (KI-klassifisering, mønsterleksikon eller manglende avgrensning), ikke modellreglene fra #418, #419 eller #420. Raden er et forslag, og rettingen gjøres i forslagskøen (docs/33 §5.3). Ny rad (§ 19 a andre ledd tredje punktum) tas med i anbefalingene som rad Johann kan legge til for hånd.",
+  "kilder": [
+   "docs/33 §5.3",
+   "docs/profil/00 §17.4"
+  ]
+ },
+ {
+  "id": "k25",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Valget mellom de to kantene: den eldre kanten har alt en anbefaling fra juristrunde 418 (k95), og den følges. Det nye forslaget avvises som dublett. Da får hvert utsagn én behandlingslinje, og anbefalingene fra forrige runde står ved lag. Etter #420 pares ikke de to, fordi objektet er ulik og dermed hører til nøkkelen (docs/33 §5.3).",
+  "kilder": [
+   "docs/33 §5.3 (#420, nøkkel og paring)",
+   "data/fasit/strukturmodell/juristrunde-418/anbefalinger.md"
+  ]
+ },
+ {
+  "id": "k26",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Innvendingen gjelder uttrekket (KI-klassifisering, mønsterleksikon eller manglende avgrensning), ikke modellreglene fra #418, #419 eller #420. Raden er et forslag, og rettingen gjøres i forslagskøen (docs/33 §5.3).",
+  "kilder": [
+   "docs/33 §5.3",
+   "docs/profil/00 §17.4"
+  ]
+ },
+ {
+  "id": "k27",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Innvendingen gjelder uttrekket (KI-klassifisering, mønsterleksikon eller manglende avgrensning), ikke modellreglene fra #418, #419 eller #420. Raden er et forslag, og rettingen gjøres i forslagskøen (docs/33 §5.3).",
+  "kilder": [
+   "docs/33 §5.3",
+   "docs/profil/00 §17.4"
+  ]
+ },
+ {
+  "id": "k29",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Innvendingen gjelder uttrekket (KI-klassifisering, mønsterleksikon eller manglende avgrensning), ikke modellreglene fra #418, #419 eller #420. Raden er et forslag, og rettingen gjøres i forslagskøen (docs/33 §5.3). Typen beslutning tas: FORMAT #356 bruker oppretting om konstituerende relasjoner (organer og enheter), og et register er ingen av delene. 375 f67 drøftet ikke typen.",
+  "kilder": [
+   "docs/33 §5.3",
+   "docs/profil/00 §17.4"
+  ]
+ },
+ {
+  "id": "k30",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Innvendingen gjelder uttrekket (KI-klassifisering, mønsterleksikon eller manglende avgrensning), ikke modellreglene fra #418, #419 eller #420. Raden er et forslag, og rettingen gjøres i forslagskøen (docs/33 §5.3).",
+  "kilder": [
+   "docs/33 §5.3",
+   "docs/profil/00 §17.4"
+  ]
+ },
+ {
+  "id": "k31",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Innvendingen gjelder uttrekket (KI-klassifisering, mønsterleksikon eller manglende avgrensning), ikke modellreglene fra #418, #419 eller #420. Raden er et forslag, og rettingen gjøres i forslagskøen (docs/33 §5.3).",
+  "kilder": [
+   "docs/33 §5.3",
+   "docs/profil/00 §17.4"
+  ]
+ },
+ {
+  "id": "k32",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Valget mellom de to kantene: den eldre kanten har alt en anbefaling fra juristrunde 418 (k106), og den følges. Det nye forslaget avvises som dublett. Da får hvert utsagn én behandlingslinje, og anbefalingene fra forrige runde står ved lag. Etter #420 pares ikke de to, fordi objektet er ulik og dermed hører til nøkkelen (docs/33 §5.3).",
+  "kilder": [
+   "docs/33 §5.3 (#420, nøkkel og paring)",
+   "data/fasit/strukturmodell/juristrunde-418/anbefalinger.md"
+  ]
+ }
+]

@@ -1,6 +1,6 @@
 # Pilot: barnehageloven med aktiv bruk (#375)
 
-**Status:** REFERAT fra kjøringen 2026-10-28, før Johanns gjennomgang. §1–§7 er ikke endret etterpå. §8 er et tillegg fra den nye lastingen 2026-10-29 etter #418. Presisjon og gjenfinning mot det godkjente resultatet mangler til gjennomgangen er gjort (se §6). Nummer 07 fordi 05 er satt av til planen for testkorpus.
+**Status:** REFERAT fra kjøringen 2026-10-28, før Johanns gjennomgang. §1–§7 er ikke endret etterpå. §8 er et tillegg fra den nye lastingen 2026-10-29 etter #418. §9 er et tillegg fra den tredje lastingen 2026-10-30 etter #420 og #419. Presisjon og gjenfinning mot det godkjente resultatet mangler til gjennomgangen er gjort (se §6). Nummer 07 fordi 05 er satt av til planen for testkorpus.
 
 Første aktive bruk av Regel-IDE utenfor de fem fasitlovene: konvertering (mønster og KI) → lasting som forslag → juristrunde → gjennomgang i forslagskøen, sammenlignet med en kartlegging BU-prosjektet har gjort av kommunens plikter etter barnehageloven. BU-teksten er ikke i repoet; den omtales med punktnummer («BU 2.7») og korte omskrivninger. Verken BU eller Regel-IDE er fasit.
 
@@ -166,3 +166,57 @@ Av de 96 nye har 63 klasse som fra i K (57 kommune, 6 statsforvalter). De andre 
 **Skrevet til den delte basen 2026-10-29:** 140 strukturkanter (43 mønster, 96 KI, 1 rolleinnehav), alle forslag, og 1 rolle. Pilotkildene har nå 211 forslag. Ingen er godkjent eller avvist. Lasteren skrev også navnekandidater og navnetreff som i §3 (ikke talt her).
 
 **Kompetansen for ett medlem** regnes nå ut på aktørsiden (docs/33 §4.3, docs/09 §48). Alta kommune får 97 treff, alle merket «Forslag». 85 er kompetanse kommunen har via klassen: 28 `avledet` (mønsterlaget, normalisering) og 57 `uavklart`, fordi KI-forslagene ikke har vurdert kunnskapsstatus og det svakeste premisset bestemmer. 12 er kompetanse andre har overfor klassen kommune (10 fra klassen statsforvalter, 2 fra Kunnskapsdepartementet), hvorav 6 `avledet` og 6 `uavklart`. Statsforvalterembetene får ingen treff, fordi klassen statsforvalter ikke har registrert medlemskap. Det står som hull.
+
+## 9. Tillegg 2026-10-30: tredje lasting etter #420 og #419
+
+Etter #420 (PR #430) har idempotensnøkkelen setningen sitatet starter i, og paringen er en-til-en. Etter #419 (PR #431) merkes merknads- og veiledningsnoder ved import. Konverteringen leser dem ikke, og de kan aldri være hjemmel. Hovedøkten kjørte migrasjonen og avviste de 52 forslagene med slik hjemmel (5 mønster, 47 KI) 2026-10-30 med begrunnelsen «hjemmel er merknad/veiledning (#419)». Deretter er lasteren kjørt for de samme 20 kildene, med begge lag, samme bruker og samme vei som i §8 (eget API på master 271cb56 mot den delte basen). Aktørsveipet er ikke kjørt på nytt. Kjøringen står i `data/fasit/strukturmodell/pilot-375b-kjoring.json`.
+
+**Merknadsnodene.** 249 noder i fire av kildene ble utelatt: tildelingsforskriften 140, finansieringsforskriften 70, forskriften om pedagogisk bemanning 21 og foreldrebetalingsforskriften 18. Ingen av de 60 nye forslagene har hjemmel i en merknadsnode, og ingen utsagn ble avvist med årsaken `hjemmel_er_merknad`, fordi konverteringen ikke ser nodene.
+
+**Før → etter, mønsterlaget** (deterministisk):
+
+| | 2026-10-29 (§8) | 2026-10-30 |
+|---|---:|---:|
+| Utsagn | 117 | 110 |
+| Nye forslag | 43 | 3 (K: 2 vedtak, 1 normgivning) |
+| Fantes som forslag | 38 | 76 |
+| Dublett i kjøringen | 4 | 0 |
+| Ikke lastet: aktør ikke i katalogen | 32 | 31 |
+| Merknadsnoder utelatt | – | 249 |
+
+De 7 utsagnene som ble borte, sto i merknads- eller veiledningsnoder (finansieringsforskriften 5, tildelingsforskriften 2): 5 var lastet i §8 og er nå avvist, 1 var en av de falske dublettene, og 1 var ikke lastet. De 76 «fantes» er de 81 mønsterforslagene fra før minus de 5 avviste.
+
+**De 4 tapte utsagnene fra #420.** Tre kom inn: kommunens vedtak om stenging (§ 53 andre ledd), statsforvalterens vedtak om stenging (§ 55 andre ledd) og kommunens forskrift om satser for ekstra grunntilskudd (finansieringsforskriften § 1 første ledd andre punktum). Det fjerde, vedtaket om pensjonstilskudd per årsverk, står i veiledningen til finansieringsforskriften § 1 andre ledd. Den noden er nå merknadsnode og leses ikke, så utsagnet blir verken lastet eller foreslått. Det er riktig etter #419. Søsterforslaget i første ledd i samme veiledning er blant de 52 avviste, og vedtakskompetansen står med riktig hjemmel i forskriftens § 1 andre ledd (418 k6).
+
+**Før → etter, KI-laget.** Laget er kjørt på nytt og er ikke deterministisk, så tallene er ikke parvise:
+
+| | 2026-10-29 (§8) | 2026-10-30 |
+|---|---:|---:|
+| Utsagn | 351 | 298 |
+| Nye forslag | 96 (K 76, F 20) | 57 (K 32, F 20, P 5) |
+| Fantes som forslag | 42 | 47 |
+| Dublett i kjøringen | 10 (9 falske, #420) | 0 |
+| Ikke lastet: aktør ikke i katalogen | 179 | 177 |
+| Ikke lastet: annet fra skriveveien | 1 | 3 (R uten til-node) |
+| Fra ikke i teksten | 9 | 6 |
+| Type uten databasetype | 11 | 6 |
+| KI-medlemskap sendes ikke | 3 | 0 |
+| Generisk omtale uten binding | 0 | 2 |
+| Hjemmel er merknad | – | 0 |
+| Kastede rader i KI-konverteringen | 261 | 334 |
+
+Av de 47 «fantes» ble 37 paret med mønsterforslag og 10 med KI-forslag. Alle har samme sitat som kanten de ble paret med; i §8 hadde 2 et annet sitat. Av de 57 nye har 53 en klasse som fra (K 29, F 19, P 5; 43 kommune og 10 statsforvalter) og 4 en aktør. Tre forskrifter ga 0 utsagn denne gangen, fordi KI-laget kastet radene: klagenemndforskriften (56 kastet), forskriften om spesialpedagogisk hjelp (18) og økonomiforskriften (9). Økonomiforskriften ga 21 utsagn i §8.
+
+**Tid og tokens.** Mønster 21 s (11 s i §8). KI 20 min 45 s (25 min 12 s), barnehageloven alene 4 min 39 s (7 min 26 s). KI-tokens: 331 594 inn og 109 581 ut (398 540 og 111 135).
+
+**Skrevet til den delte basen 2026-10-30:** 60 strukturkanter (3 mønster, 57 KI), alle `maskinelt_foreslatt`, og 57 navnekandidater, 2 tagger og 1 aktørtypeforslag fra navnetreffene. Ingenting er godkjent eller avvist. Pilotkildene har nå 271 kanter: 219 forslag (218 maskinelt, 1 manuelt: rolleinnehavet fra §8), 52 avviste og 0 godkjente. Rollen «lokal barnehagemyndighet» står fortsatt som forslag.
+
+**Juristrunden** (`data/fasit/strukturmodell/juristrunde-375b/`) gjelder bare de 60 nye forslagene. Runde 1: 4 holder og 56 innvendinger (5 høy, 39 middels, 12 lav). Modellereren aksepterte alle unntatt k23, og i runde 2 presiserte juristen og godtok. **Det er ingen gjenværende uenighet.** Anbefalt behandling: 4 godkjenn, 22 rett og godkjenn, 34 avvis, og 5 rader å legge til for hånd.
+
+**Funn:**
+1. **#420 virker, men gir en ny type dublett.** Ingen falske dubletter i kjøringen. Men 17 av de 60 nye forslagene er dubletter av forslag som alt står i køen. KI-laget foreslår nå typen eller motparten juristrunde 418 ba om (sanksjon i stedet for vedtak, godkjenning, motpart i klage). Rettingene er ikke gjort i basen, og siden typen, motparten eller objektet hører til nøkkelen, pares ikke de to. Anbefalingen følger den gamle kanten og avviser den nye.
+2. **#419 virker.** 249 noder utelatt, og ingen nye forslag har merknadshjemmel.
+3. **KI-laget fører «Kommunen skal …» som oppgave (F forvaltning).** 19 av 20 F-forslag får innvending: betalingsplikter skal være P betaling, beregningsregler hører til regellaget, og henvisninger og saksbehandling er ingen oppgave. Det samme ble funnet i §4 (lærdom 3 i §7).
+4. **Hovedpliktene til å betale tilskudd mangler** (barnehageloven § 19 a og § 19 b, tildelingsforskriften § 3). Uttrekket fanger bare undertilfellene.
+5. **FORMAT.md og praksisen er ulike om tilskuddsmottakere.** Formatet sier at «yter tilskudd til X» gir X som motpart. Piloten setter motparten til null, fordi de private barnehagene er begunstigede. Formatet bør rettes.
+6. **Vilkår og tid mangler fortsatt i avgrensningen**, blant annet i de to stengingsvedtakene (vilkåret om at pålegget ikke er fulgt) og i overgangsforskriften fra 2021.
