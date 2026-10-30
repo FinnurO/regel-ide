@@ -488,6 +488,15 @@ public sealed class RettskildeNodeEntitet
     public bool Opphevet { get; set; }
     public DateOnly? OpphevetDato { get; set; }
 
+    /// <summary>
+    /// [Ny, issue #419, Johanns avgjørelser 2026-10-29/30] Noden er departementets merknader, veiledning eller kommentarer som Lovdata har
+    /// tatt inn i forskriftsteksten — ikke normtekst. Settes ved import av <see cref="Merknadsnoder.Merk"/> (regel 1 + unntakslisten) og
+    /// for eksisterende noder av migrasjonen <c>MerknadsnoderMerkes</c>. En slik node kan aldri være hjemmel for en strukturkant
+    /// (<see cref="StrukturkantTjeneste"/>), konverteringen leser den ikke, og lasteren hopper over den; den kan siteres som
+    /// tolkningsargument i en begrunnelse. Egenskap, ikke nodetype: se <see cref="Merknadsnoder"/> for hvorfor.
+    /// </summary>
+    public bool ErMerknad { get; set; }
+
     public int Sorteringsrekkefolge { get; set; }
 
     /// <summary>

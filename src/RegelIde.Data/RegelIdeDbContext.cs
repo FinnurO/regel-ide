@@ -847,6 +847,8 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.TekstHash).HasColumnName("tekst_hash");
             e.Property(x => x.Opphevet).HasColumnName("opphevet").HasDefaultValue(false);
             e.Property(x => x.OpphevetDato).HasColumnName("opphevet_dato");
+            // [Ny, issue #419] Merknad/veiledning i forskriftsteksten — se Merknadsnoder.
+            e.Property(x => x.ErMerknad).HasColumnName("er_merknad").HasDefaultValue(false);
             e.Property(x => x.Sorteringsrekkefolge).HasColumnName("sorteringsrekkefolge");
             e.Property(x => x.Versjon).HasColumnName("versjon").HasDefaultValue(1);
             e.Property(x => x.Entitetsstatus).HasColumnName("entitetsstatus").HasDefaultValue("gjeldende");

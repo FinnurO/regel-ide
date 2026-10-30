@@ -780,4 +780,73 @@ public class StrukturkantEndepunktTests
         Assert.Equal(("organ", "organ"), (stortinget.Aktortype, kongen.Aktortype));
         Assert.False(await db.Begreper.AnyAsync(b => b.Begrepskategori == "organ"));
     }
+    // ---------------- [Ny, issue #419] Merknader og veiledning er aldri hjemmel ----------------
+
+    private sealed record MerknadshjemmelSvar(bool Skrevet, string Begrunnelse, int Antall, List<MerknadshjemmelForslagSvar> Forslag);
+    private sealed record MerknadshjemmelForslagSvar(Guid KantId, string Status);
+
+    /// <summary>
+    /// [Ny, issue #419 AK2/AK3] Over API-et: avvises en ny kant med hjemmel i en merknadsnode med 400, og avviser
+    /// <c>POST /api/strukturkanter/merknadshjemmel/avvis</c> et eksisterende forslag bare med <c>?skriv=true</c> (uten er det en
+    /// tørrkjøring), med begrunnelsen fra #419? Krever den innlogget bruker?
+    /// </summary>
+    [Fact]
+    public async Task Merknadshjemmel_avvises_ved_opprettelse_og_eksisterende_forslag_avvises_med_toerrkjoering()
+    {
+        var brukerId = await HentJuristIdAsync();
+        var (lovId, _) = await OpprettRettskildeMedParagrafAsync();
+        var (dep, _) = await OpprettVirksomhetAsync("Departementet");
+        var merknadEid = "kap-merknader-til-de-enkelte-bestemmelsene/ledd-1";
+        var kantId = Guid.NewGuid();
+        await using (var db = _fixture.NyDbContext())
+        {
+            var node = new RettskildeNodeEntitet
+            {
+                Id = Guid.NewGuid(), RettskildeId = lovId, Eid = merknadEid, KildeId = "merknad", NodeType = "ledd", Tekst = "Merknad.",
+                ErMerknad = true,
+            };
+            db.RettskildeNoder.Add(node);
+            db.Strukturkanter.Add(new StrukturkantEntitet
+            {
+                Id = kantId, Kategori = "K", Typekode = "vedtak", FraVirksomhetId = dep, Objekt = "sats", HjemmelRettskildeId = lovId,
+                HjemmelEid = merknadEid, HjemmelNodeId = node.Id, Status = Strukturkanter.MaskineltForeslatt, OppdagelsesKilde = "ki:test",
+                OpprettetAv = "test", OpprettetTidspunkt = DateTimeOffset.UtcNow,
+            });
+            await db.SaveChangesAsync();
+        }
+
+        var ny = await PostKantAsync(brukerId, new
+        {
+            Kategori = "K", Typekode = "vedtak", FraVirksomhetId = dep, HjemmelRettskildeId = lovId, HjemmelEid = merknadEid,
+            Objekt = "annen sats", Polaritet = "positiv",
+        });
+        Assert.Equal(HttpStatusCode.BadRequest, ny.StatusCode);
+        Assert.Contains("#419", await ny.Content.ReadAsStringAsync());
+
+        var url = "/api/strukturkanter/merknadshjemmel/avvis";
+        Assert.NotEqual(HttpStatusCode.OK, (await _client.PostAsync(url, null)).StatusCode);
+
+        var torr = (await (await _client.SendAsync(MedBruker(HttpMethod.Post, url, brukerId))).Content
+            .ReadFromJsonAsync<MerknadshjemmelSvar>(JsonInnstillinger))!;
+        Assert.False(torr.Skrevet);
+        Assert.Equal("hjemmel er merknad/veiledning (#419)", torr.Begrunnelse);
+        Assert.Contains(torr.Forslag, f => f.KantId == kantId);
+        await using (var db = _fixture.NyDbContext())
+        {
+            Assert.Equal(Strukturkanter.MaskineltForeslatt, (await db.Strukturkanter.SingleAsync(k => k.Id == kantId)).Status);
+        }
+
+        var skrevet = (await (await _client.SendAsync(MedBruker(HttpMethod.Post, url + "?skriv=true", brukerId))).Content
+            .ReadFromJsonAsync<MerknadshjemmelSvar>(JsonInnstillinger))!;
+        Assert.True(skrevet.Skrevet);
+        await using (var db = _fixture.NyDbContext())
+        {
+            var k = await db.Strukturkanter.IgnoreQueryFilters().SingleAsync(x => x.Id == kantId);
+            Assert.Equal((Strukturkanter.Avvist, "hjemmel er merknad/veiledning (#419)", Merknadsnoder.SystemBruker),
+                (k.Status, k.AvvisningBegrunnelse, k.SistEndretAv));
+        }
+        var igjen = (await (await _client.SendAsync(MedBruker(HttpMethod.Post, url + "?skriv=true", brukerId))).Content
+            .ReadFromJsonAsync<MerknadshjemmelSvar>(JsonInnstillinger))!;
+        Assert.DoesNotContain(igjen.Forslag, f => f.KantId == kantId);
+    }
 }

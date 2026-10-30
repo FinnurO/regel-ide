@@ -144,6 +144,16 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
         db.Strukturkanter.IgnoreQueryFilters().Where(k => k.Entitetsstatus == Strukturkanter.Gjeldende);
 
     /// <summary>
+    /// [Ny, issue #419] Kantene i <paramref name="kilde"/> med hjemmel i en merknadsnode (<see cref="RettskildeNodeEntitet.ErMerknad"/>):
+    /// den versjonerte noden (<c>hjemmel_node_id</c>, #367), eller — for rader uten den — en node med hjemmel-eId-en i hjemmelens rettskilde.
+    /// </summary>
+    public IQueryable<StrukturkantEntitet> MedMerknadshjemmel(IQueryable<StrukturkantEntitet> kilde) =>
+        kilde.Where(k => k.HjemmelRettskildeId != null && k.HjemmelEid != null
+            && (k.HjemmelNodeId != null
+                ? db.RettskildeNoder.Any(n => n.Id == k.HjemmelNodeId && n.ErMerknad)
+                : db.RettskildeNoder.Any(n => n.RettskildeId == k.HjemmelRettskildeId && n.Eid == k.HjemmelEid && n.ErMerknad)));
+
+    /// <summary>
     /// Oppretter en kant — eller returnerer en EKSISTERENDE identisk kant (samme kategori, typekode, fra,
     /// til, objekt, polaritet, hjemmel og avgrensning) uendret. Idempotensen er det
     /// <see cref="SamiskSprakforvaltningSeed"/>, veiviseren og KI-oppdagelsen hviler på for å kunne kjøres
@@ -316,6 +326,13 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
             {
                 throw new ArgumentException(
                     $"Fant ingen node med eId '{ny.HjemmelEid}' i hjemmelen. Ingen gjettet fallback.");
+            }
+            // [Ny, issue #419 avgjørelse 1] Merknader og veiledning i forskriftsteksten er ikke normtekst og kan aldri være hjemmel — heller
+            // ikke for en manuell kant. De kan siteres i begrunnelsen. Gjelder bare NYE rader (og revisjoner); eksisterende rader røres ikke.
+            if (ny.HjemmelEid is not null
+                && await db.RettskildeNoder.AnyAsync(n => n.RettskildeId == hjemmelId && n.Eid == ny.HjemmelEid && n.ErMerknad, ct))
+            {
+                throw new ArgumentException(Merknadsnoder.Hjemmelfeil(ny.HjemmelEid));
             }
         }
         // [Ny, issue #367 AC4] Den versjonerte noden — bare ved nøyaktig én gjeldende node med eId-en (samme regel som migrasjonen).
@@ -607,6 +624,12 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
             throw new ArgumentException(
                 $"Kanten har status '{kant.Status}' — bare forslag ({string.Join(", ", Strukturkanter.Ventende)}) kan godkjennes.");
         }
+        // [Ny, issue #419 avgjørelse 1] Et forslag med hjemmel i en merknadsnode kan ikke godkjennes — det avvises (avvisningsoperasjonen
+        // MerknadshjemmelAvvisningTjeneste gjør det maskinelt for de eksisterende).
+        if (await MedMerknadshjemmel(db.Strukturkanter.Where(k => k.Id == id)).AnyAsync(ct))
+        {
+            throw new ArgumentException(Merknadsnoder.Hjemmelfeil(kant.HjemmelEid ?? ""));
+        }
         kant.Status = Strukturkanter.Godkjent;
         kant.SistEndretAv = godkjentAv;
         kant.SistEndretTidspunkt = DateTimeOffset.UtcNow;
@@ -633,6 +656,10 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
             .Where(k => k.Status == Strukturkanter.MaskineltForeslatt && k.HjemmelRettskildeId == hjemmelRettskildeId
                         && (oppdagelseskildePrefiks == null || k.OppdagelsesKilde.StartsWith(oppdagelseskildePrefiks)))
             .Select(k => k.Id).ToListAsync(ct);
+        // [Ny, issue #419] Forslag med hjemmel i en merknadsnode hoppes over (de kan ikke godkjennes, se GodkjennAsync).
+        var merknadshjemlet = await MedMerknadshjemmel(db.Strukturkanter.Where(k => k.HjemmelRettskildeId == hjemmelRettskildeId))
+            .Select(k => k.Id).ToListAsync(ct);
+        ider = ider.Except(merknadshjemlet).ToList();
         foreach (var id in ider) await GodkjennAsync(id, godkjentAv, ct);
         return ider.Count;
     }

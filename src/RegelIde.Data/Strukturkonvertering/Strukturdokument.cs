@@ -165,4 +165,8 @@ public sealed record Strukturnode(
 public sealed record Strukturkonverteringsgrunnlag(
     string Rettskilde,
     string Eli,
-    IReadOnlyList<Strukturnode> Noder);
+    IReadOnlyList<Strukturnode> Noder)
+{
+    /// <summary>[Ny, issue #419] Merknads- og veiledningsnoder som er holdt utenfor <see cref="Noder"/> (<see cref="Merknadsnoder"/>).</summary>
+    public int MerknadsnoderUtelatt { get; init; }
+}

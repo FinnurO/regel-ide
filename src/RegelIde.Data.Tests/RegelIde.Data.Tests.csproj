@@ -77,6 +77,14 @@
     <None Include="Testdata\KommuneTjenesteHosting\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <!-- [Ny, issue #419] Ekte Lovdata-HTML for merknadsmerkingen (MerknadsnoderTests): foreldrebetalingsforskriften (FOR-2005-12-16-1478,
+         merknadskapittel øverst, 18 noder, 7 forslag i piloten) og fusjonsforskriften (FOR-2008-01-09-50, unntaket: Lovdata har kalt det
+         bindende vedlegget «Merknader»). Bit-identisk med rettskilder.innhold i den delte basen (hentet fra Lovdatas bulk-datasett
+         «gjeldende sentrale forskrifter» 2026-09-03, NLOD 2.0, kilde: Lovdata; sha256 lik innholds_hash, kontrollert 2026-10-30). Ligger
+         her og ikke i data/kilder/raw-lovdata, fordi API-oppstarten importerer hele den mappa og andre tester teller rettskildene. -->
+    <None Include="Testdata\Merknadsnoder\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
