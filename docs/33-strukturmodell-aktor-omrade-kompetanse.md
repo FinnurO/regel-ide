@@ -846,7 +846,8 @@ i forslagskøen for strukturkanter, og et menneske godkjenner — samme prinsipp
 `POST /api/rettskilder/{id}/strukturforslag?lag=monster|ki`:
 
 - **Grunnlag:** rettskildens egne gjeldende, ikke opphevede noder. En ledsagende forskrift lastes som egen rettskilde, fordi et utsagn bare
-  har en eId.
+  har en eId. [ENDRET, #419] Merknader og veiledning i forskriftsteksten er ikke med, og et utsagn med slik eId lastes ikke (årsak
+  `hjemmel_er_merknad`). Rapporten teller dem (`merknadsnoderUtelatt`). Se §5.14.
 - **Skrivevei:** hvert utsagn går gjennom `StrukturkantTjeneste.OpprettAsync` med `status = maskinelt_foreslatt` og
   `oppdagelses_kilde = monster:<id> | ki:<modell>`. Feltene følger med: objekt, polaritet, avgrensning, normform, undertype, modalitet,
   grunnlag, delegeringsadgang/-slutning og kunnskapsstatus (mønsterlaget: `normalisering`, begrunnelse «Regel: monster:<id>»; KI: ingen).
@@ -1598,6 +1599,74 @@ for, Tingretter som sogner hit, Statsforvalter, Lagmannsrett, Regionalt helsefor
   (kommune og fylke 03). 41 kommuner har samiske eller kvenske parallellnavn.
 - Én binding: «Alta» → området Alta i forskrift om inndelingen av rettskretser og lagdømmer (forslag).
 - Juristrunden ligger i `data/fasit/strukturmodell/juristrunde-390-kortform.json` og `juristrunde-390/`.
+
+### 5.14 Merknader og veiledning i forskriftsteksten er aldri hjemmel (#419, bygget 2026-10-30)
+
+Noen forskrifter har departementets merknader, veiledning eller kommentarer som eget kapittel etter selve forskriften. Konverteringen (begge
+lag) og lasteren leste dem som normtekst. I piloten på barnehageloven (#375) ble Finansdepartementets anslag for kommunal deflator til vedtak
+og forskrift, og satser som står i selve forskriften, ble til departementets enkeltvedtak.
+
+**Johanns avgjørelser (#419, 2026-10-29 og 2026-10-30):**
+1. Nodene merkes ved import. De kan aldri være hjemmel for en kant, men kan siteres som tolkningsargument i begrunnelsen.
+2. Eksisterende forslag med slik hjemmel avvises maskinelt med begrunnelsen «hjemmel er merknad/veiledning (#419)». Godkjente kanter berøres
+   ikke.
+3. Regelen måles før bygging. Etter målingen valgte Johann alternativ A: regel 1 pluss en eksplisitt unntaksliste.
+
+**Regelen** (`Merknadsnoder`, [LÅST]): et kapittel øverst i strukturen (ingen foreldernode) med eId som starter med `kap-merknad`,
+`kap-veiledning` eller `kap-kommentar`, og hele undertreet. EId-en bærer tittelen fordi et unummerert kapittel får eId av overskriften.
+Unntakslisten er nøklet på ELI og eId. Den har én rad: FOR-2008-01-09-50 `kap-merknader`. Der har Lovdata kalt det bindende vedlegget med
+standardreglene «Merknader», og § 11 gjør «standardbestemmelsene fastsatt i vedlegget til denne forskrift» gjeldende. Lovdata-feilen er
+kandidat i #429.
+
+**Målt i den delte basen 2026-10-29 (bare SELECT, kommentaren på #419):**
+- Regel 1 treffer 100 forskrifter og instrukser og 6 991 noder i gjeldende versjoner, 6 981 etter unntaket. Tildelings- og
+  finansieringsforskriften har til sammen 210 (juristens telling).
+- Bom: 11 kapitler, om lag 700 noder, behandles fortsatt som normtekst. Det gjelder «Veiledende materiale» i BSL E (én med eId
+  `kap-veieledning-…`), «gule sider» i BSL D 2-4 og nummererte kommentarkapitler i RPR og instrukser. Ingen kanter har hjemmel der.
+- Forkastet: regel 2 (samme prefiks på underinndelinger lenger ned) merker bindende takstvilkår i logopedforskriften. Regel 3
+  (kapitteltittel) merker veiledning av doktorgradskandidater, «Veiledningsplikten etter forvaltningsloven § 11» og bindende «Merknader» i
+  vedlegg til EU-forordninger.
+
+**Egenskap, ikke nodetype.** `rettskilde_noder.er_merknad` (bool). `node_type` er strukturen (kapittel, ledd, punkt …) og styrer treet,
+AKN-en og setningsdelingen. Et merknadskapittel har samme struktur som resten av forskriften. Merkingen følger samme mønster som `opphevet`:
+en bool satt ved import, som konverteringen filtrerer på. Tabellen for håndbokkommentarer ble vurdert og forkastet, fordi den er
+forfatterens arbeidsflyt (status, festenivå).
+
+**Hvor den håndheves:**
+- *Import:* `RettskildeImportTjeneste.SettInnNoderOgReferanserAsync` setter egenskapen. Første import, ny versjon ved resynk og «konverter på
+  nytt» går alle den veien, så merkingen overlever en ny import.
+- *Eksisterende noder:* migrasjonen `MerknadsnoderMerkes` fyller tilbake med samme regel og unntak, frosset i `MerknadsnodeMigrering`. Den er
+  idempotent og gjelder alle versjoner. I den delte basen blir det 9 833 noder, hvorav 6 981 i gjeldende versjoner. Det er simulert med
+  SELECT 2026-10-30.
+- *Konvertering:* `ByggGrunnlagAsync` tar dem ikke med, så verken mønster- eller KI-laget ser dem. Antallet står i `merknadsnoderUtelatt`.
+- *Laster:* et utsagn med eId i en merknadsnode lastes ikke (`hjemmel_er_merknad`). Det gjelder for eksempel en lagret konvertering fra før
+  merkingen. Rapporten teller nodene.
+- *Skrivevei:* `StrukturkantTjeneste.OpprettAsync` avviser hjemmel i en merknadsnode, også for en manuell kant. `GodkjennAsync` nekter å
+  godkjenne et forslag med slik hjemmel, og «godkjenn alle» hopper over dem.
+
+**Avvisning av eksisterende forslag** (`MerknadshjemmelAvvisningTjeneste`, `POST /api/strukturkanter/merknadshjemmel/avvis?skriv=`):
+- Gjelder `maskinelt_foreslatt` og `manuelt_foreslatt` med hjemmel i en merknadsnode. Hjemmelen finnes via `hjemmel_node_id`, eller via
+  rettskilde og eId for eldre rader.
+- Hver kant avvises gjennom `AvvisAsync` med begrunnelsen over og `system-merknadsnoder` som avviser. Raden står igjen som avvist (#374) og
+  foreslås ikke på nytt.
+- Godkjente og faglig vurderte kanter røres ikke, men telles i `ikkeBerort`.
+- Uten `skriv` er det en tørrkjøring. En ny kjøring finner 0.
+- Forventet i den delte basen: 52 forslag, alle `maskinelt_foreslatt`. Det er tildelingsforskriften 34, finansieringsforskriften 11 og
+  foreldrebetalingsforskriften 7. Ingen er godkjent. Tallet er simulert med SELECT 2026-10-30 (tilbakefyllingens utvalg pluss avvisningens).
+- Operasjonen kjøres av hovedøkten etter fletting og migrering, ikke fra grenen.
+
+**Tolkningsargument i begrunnelsen: hvor det hører hjemme (ikke bygget).** Avgjørelse 1 tillater at en merknad siteres som tolkningsargument.
+I dag finnes bare fritekstfeltet `begrunnelse` og kodelista `tolkningsargumenter` (ordlyd, kontekst_system, formal, forarbeider, praksis,
+reelle_hensyn, antitetisk_analogisk, §4.6). Ingen av dem kan peke på en node. Skriveveien hindrer ikke at en merknad siteres i
+`begrunnelse`, men konverteringen ser ikke merknadene, så ingen av lagene siterer dem i dag. Den naturlige plassen er en henvisning fra
+analysen til tolkningskilden: rettskilde, eId og node, ved siden av `tolkningsargumenter`, på samme måte som `hjemmel_node_id` peker på
+hjemmelen.
+- Først må Johann avgjøre hvilket tolkningsargument en departementsmerknad er: `forarbeider` eller `praksis`.
+- KI-laget kan da få merknaden til den aktuelle paragrafen som kontekst, merket som ikke-hjemmel.
+- Dette er ikke bygget.
+
+**Testene:** `MerknadsnoderTests` (Data, med ekte Lovdata-HTML for foreldrebetalings- og fusjonsforskriften) og
+`StrukturkantEndepunktTests.Merknadshjemmel_…` (API).
 
 ### 5.6 Konvertering av eksisterende data
 
