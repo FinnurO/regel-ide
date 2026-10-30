@@ -64,7 +64,7 @@ $BegrepIderForDetalj = @(
 # (som alle er opake databaseGuid-er, kun gyldige mot ÉN bestemt lokal instans) identifiseres
 # rettskilder her ved sin ELI — en stabil, offentlig URI som er DEN SAMME uansett hvilken lokal
 # instans/import som kjørte (samme dokument har samme ELI overalt). Scriptet slår selv opp gjeldende
-# Guid mot den allerede hentede rettskilder-katalogen (steg [1/6] under) — ingen hardkodet Guid å
+# Guid mot den allerede hentede rettskilder-katalogen (steg [1/7] under) — ingen hardkodet Guid å
 # holde i synk, og scriptet kjører uendret mot enhver instans som har dokumentet importert.
 $RettskilderEliForDetalj = @(
     "https://lovdata.no/eli/lov/1989/06/02/27/nor" # alkoholloven — samme rettskilde begrep-detaljfilene over er hentet fra
@@ -97,7 +97,7 @@ Write-Host "Eksporterer fra $BaseUrl ..." -ForegroundColor Cyan
 # ---------------------------------------------------------------------------------------------
 # 1. Katalogfiler — hele resultatet, ingen filtrering
 # ---------------------------------------------------------------------------------------------
-Write-Host "`n[1/6] Rettskilder-katalog" -ForegroundColor Cyan
+Write-Host "`n[1/7] Rettskilder-katalog" -ForegroundColor Cyan
 $rettskilder = Get-Api "/api/rettskilder"
 Write-JsonFile -RelPath "rettskilder/katalog.json" -Data ([ordered]@{
     "_kilde"    = "GET /api/rettskilder (hele resultatet, ingen filtrering) — eksportert $(Nu)"
@@ -106,7 +106,7 @@ Write-JsonFile -RelPath "rettskilder/katalog.json" -Data ([ordered]@{
     "rettskilder" = $rettskilder
 })
 
-Write-Host "`n[2/6] Virksomheter-katalog" -ForegroundColor Cyan
+Write-Host "`n[2/7] Virksomheter-katalog" -ForegroundColor Cyan
 $virksomheter = Get-Api "/api/virksomheter"
 Write-JsonFile -RelPath "virksomheter/katalog.json" -Data ([ordered]@{
     "_kilde"        = "GET /api/virksomheter (hele resultatet, ingen filtrering) — eksportert $(Nu)"
@@ -117,7 +117,7 @@ Write-JsonFile -RelPath "virksomheter/katalog.json" -Data ([ordered]@{
 # ---------------------------------------------------------------------------------------------
 # 2. Virksomhets-detaljfiler
 # ---------------------------------------------------------------------------------------------
-Write-Host "`n[3/6] Virksomhets-detaljfiler ($($VirksomhetIderForDetalj.Count) stk)" -ForegroundColor Cyan
+Write-Host "`n[3/7] Virksomhets-detaljfiler ($($VirksomhetIderForDetalj.Count) stk)" -ForegroundColor Cyan
 foreach ($id in $VirksomhetIderForDetalj) {
     $v = $virksomheter | Where-Object { $_.id -eq $id }
     if (-not $v) {
@@ -143,7 +143,7 @@ foreach ($id in $VirksomhetIderForDetalj) {
 # ---------------------------------------------------------------------------------------------
 # 3. Gruppe-register + detaljfiler
 # ---------------------------------------------------------------------------------------------
-Write-Host "`n[4/6] Gruppebegrep-register + detaljfiler ($($GruppeIderForDetalj.Count) stk)" -ForegroundColor Cyan
+Write-Host "`n[4/7] Gruppebegrep-register + detaljfiler ($($GruppeIderForDetalj.Count) stk)" -ForegroundColor Cyan
 $alleGrupper = Get-Api "/api/gruppebegrep"
 Write-JsonFile -RelPath "grupper/register.json" -Data ([ordered]@{
     "_kilde"        = "GET /api/gruppebegrep (hele resultatet) — eksportert $(Nu)"
@@ -177,7 +177,7 @@ foreach ($id in $GruppeIderForDetalj) {
 # ---------------------------------------------------------------------------------------------
 # 4. Begrep-oversikt + detaljfiler (krever X-Bruker-Id)
 # ---------------------------------------------------------------------------------------------
-Write-Host "`n[5/6] Begreper-oversikt + detaljfiler ($($BegrepIderForDetalj.Count) stk)" -ForegroundColor Cyan
+Write-Host "`n[5/7] Begreper-oversikt + detaljfiler ($($BegrepIderForDetalj.Count) stk)" -ForegroundColor Cyan
 $alleBegreper = Get-Api "/api/begreper" -MedBrukerHeader
 $skosBegreper = $alleBegreper | Where-Object { -not $_.begrepskategori -or $_.begrepskategori -eq "gruppe" }
 Write-JsonFile -RelPath "begreper/oversikt.json" -Data ([ordered]@{
@@ -203,7 +203,7 @@ foreach ($id in $BegrepIderForDetalj) {
 #    har Y begrep, har Z tjenester». Kun DATA-en her, ingen visningsside (dekkes av en egen sak, se
 #    issue #286 sin "Ikke i denne saken"-seksjon).
 # ---------------------------------------------------------------------------------------------
-Write-Host "`n[6/6] Rettskilde-statistikk-detaljfiler ($($RettskilderEliForDetalj.Count) stk)" -ForegroundColor Cyan
+Write-Host "`n[6/7] Rettskilde-statistikk-detaljfiler ($($RettskilderEliForDetalj.Count) stk)" -ForegroundColor Cyan
 foreach ($eli in $RettskilderEliForDetalj) {
     $r = $rettskilder | Where-Object { $_.eli -eq $eli }
     if (-not $r) {
@@ -220,6 +220,28 @@ foreach ($eli in $RettskilderEliForDetalj) {
         "statistikk"       = $statistikk
     })
 }
+
+# ---------------------------------------------------------------------------------------------
+# 6. [Ny, issue #429] Funn til vurdering — BARE funn som er godkjent for publisering, og bare det frosne
+#    øyeblikksbildet (GET /api/funn/publiserbare filtrerer på serveren). Scriptet stopper i stedet for å
+#    skrive en fil hvis serveren holdt noe tilbake (hashen stemte ikke) eller et funn mangler godkjent-dato:
+#    ingenting skal publiseres som ikke er godkjent (#429 AK3). Den siste sperren er PR-en: nettsiden endres
+#    først når en PR med denne fila flettes til master (deploy-nettside.yml).
+# ---------------------------------------------------------------------------------------------
+Write-Host "`n[7/7] Funn til vurdering (bare godkjente)" -ForegroundColor Cyan
+$publiserbare = Get-Api "/api/funn/publiserbare"
+if (@($publiserbare.holdtTilbake).Count -gt 0) {
+    throw "Serveren holdt tilbake funn med feil hash: $(@($publiserbare.holdtTilbake) -join ', '). Ingen fil er skrevet."
+}
+foreach ($f in @($publiserbare.funn)) {
+    if (-not $f.godkjentDato -or -not $f.id) { throw "Et funn i eksporten mangler id eller godkjentDato. Ingen fil er skrevet." }
+}
+Write-JsonFile -RelPath "funn/register.json" -Data ([ordered]@{
+    "_kilde" = "GET /api/funn/publiserbare (bare funn godkjent for publisering, frosset innhold) — eksportert $(Nu)"
+    "_merk"  = "Funn til vurdering (#429). Teksten er den som ble godkjent, uendret. Ingen personnavn."
+    "antall" = @($publiserbare.funn).Count
+    "funn"   = @($publiserbare.funn)
+})
 
 Write-Host "`nFerdig. Alle filer skrevet under $DataRoot" -ForegroundColor Cyan
 Write-Host "Husk: sjekk gjennom nettside/data/README.md sin personvern-seksjon etter en eksport av NYE id-er." -ForegroundColor Yellow
