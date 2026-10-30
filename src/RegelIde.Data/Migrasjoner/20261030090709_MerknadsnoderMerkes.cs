@@ -15,12 +15,10 @@ namespace RegelIde.Data.Migrasjoner
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<bool>(
-                name: "er_merknad",
-                table: "rettskilde_noder",
-                type: "boolean",
-                nullable: false,
-                defaultValue: false);
+            // IF NOT EXISTS i stedet for AddColumn (samme grunn som #395 Organiseringskilder): migrasjonstestene (HistoriskSkjema) importerer
+            // rettskilder med DAGENS modell mot et historisk skjema og legger derfor kolonnen til på forhånd — også de testene som migrerer
+            // videre til siste versjon etterpå. Samme resultat i en vanlig base.
+            migrationBuilder.Sql("ALTER TABLE rettskilde_noder ADD COLUMN IF NOT EXISTS er_merknad boolean NOT NULL DEFAULT false;");
 
             migrationBuilder.Sql(MerknadsnodeMigrering.TilbakefyllSql);
         }

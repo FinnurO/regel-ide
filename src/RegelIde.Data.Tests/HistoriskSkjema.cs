@@ -160,7 +160,9 @@ internal static class HistoriskSkjema
                 + "ALTER TABLE rettskilder ADD COLUMN IF NOT EXISTS rent_endringsvedtak boolean; "
                 + "ALTER TABLE rettskilder ADD COLUMN IF NOT EXISTS rent_endringsvedtak_grunnlag text; "
                 // [Ny, issue #397] BekreftelserOgErstattetAktor.
-                + "ALTER TABLE virksomheter ADD COLUMN IF NOT EXISTS erstattet_av_id uuid;");
+                + "ALTER TABLE virksomheter ADD COLUMN IF NOT EXISTS erstattet_av_id uuid; "
+                // [Ny, issue #419] MerknadsnoderMerkes (samme IF NOT EXISTS-mønster): importen setter er_merknad på hver node.
+                + "ALTER TABLE rettskilde_noder ADD COLUMN IF NOT EXISTS er_merknad boolean NOT NULL DEFAULT false;");
         }
     }
 
