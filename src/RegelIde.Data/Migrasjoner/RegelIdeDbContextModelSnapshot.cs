@@ -1018,6 +1018,298 @@ namespace RegelIde.Data.Migrasjoner
                     b.ToTable("eksterne_tjenestereferanser", (string)null);
                 });
 
+            modelBuilder.Entity("RegelIde.Data.FunnEntitet", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Beskrivelse")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("beskrivelse");
+
+                    b.Property<string>("EksternNokkel")
+                        .HasColumnType("text")
+                        .HasColumnName("ekstern_nokkel");
+
+                    b.Property<string>("ForklartBortAv")
+                        .HasColumnType("text")
+                        .HasColumnName("forklart_bort_av");
+
+                    b.Property<string>("ForklartBortBegrunnelse")
+                        .HasColumnType("text")
+                        .HasColumnName("forklart_bort_begrunnelse");
+
+                    b.Property<DateTimeOffset?>("ForklartBortTidspunkt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("forklart_bort_tidspunkt");
+
+                    b.Property<string>("FunnetI")
+                        .HasColumnType("text")
+                        .HasColumnName("funnet_i");
+
+                    b.Property<string>("GodkjentAv")
+                        .HasColumnType("text")
+                        .HasColumnName("godkjent_av");
+
+                    b.Property<string>("GodkjentInnholdHash")
+                        .HasColumnType("text")
+                        .HasColumnName("godkjent_innhold_hash");
+
+                    b.Property<string>("GodkjentInnholdJson")
+                        .HasColumnType("text")
+                        .HasColumnName("godkjent_innhold_json");
+
+                    b.Property<DateTimeOffset?>("GodkjentTidspunkt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("godkjent_tidspunkt");
+
+                    b.Property<string>("InternMerknad")
+                        .HasColumnType("text")
+                        .HasColumnName("intern_merknad");
+
+                    b.Property<string>("JuristvurdertAv")
+                        .HasColumnType("text")
+                        .HasColumnName("juristvurdert_av");
+
+                    b.Property<DateTimeOffset?>("JuristvurdertTidspunkt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("juristvurdert_tidspunkt");
+
+                    b.Property<string>("Kategori")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("kategori");
+
+                    b.Property<DateTimeOffset?>("KildeEndretTidspunkt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("kilde_endret_tidspunkt");
+
+                    b.Property<string>("OppdagelsesKilde")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("oppdagelses_kilde");
+
+                    b.Property<string>("OpprettetAv")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("opprettet_av");
+
+                    b.Property<DateTimeOffset>("OpprettetTidspunkt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("opprettet_tidspunkt")
+                        .HasDefaultValueSql("now()");
+
+                    b.Property<string>("SistEndretAv")
+                        .HasColumnType("text")
+                        .HasColumnName("sist_endret_av");
+
+                    b.Property<DateTimeOffset?>("SistEndretTidspunkt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("sist_endret_tidspunkt");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasDefaultValue("oppdaget")
+                        .HasColumnName("status");
+
+                    b.Property<string>("Tittel")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("tittel");
+
+                    b.Property<string>("Undertype")
+                        .HasColumnType("text")
+                        .HasColumnName("undertype");
+
+                    b.Property<string>("Vurdering")
+                        .HasColumnType("text")
+                        .HasColumnName("vurdering");
+
+                    b.Property<string>("VurdertAvType")
+                        .HasColumnType("text")
+                        .HasColumnName("vurdert_av_type");
+
+                    b.HasKey("Id")
+                        .HasName("funn_pkey");
+
+                    b.HasIndex("EksternNokkel")
+                        .IsUnique()
+                        .HasDatabaseName("ux_funn_ekstern_nokkel");
+
+                    b.HasIndex("Status")
+                        .HasDatabaseName("ix_funn_status");
+
+                    b.ToTable("funn", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_funn_forklart_bort", "status <> 'forklart_bort' OR (forklart_bort_begrunnelse IS NOT NULL AND forklart_bort_av IS NOT NULL AND forklart_bort_tidspunkt IS NOT NULL)");
+
+                            t.HasCheckConstraint("ck_funn_godkjent", "(status = 'godkjent_for_publisering' AND godkjent_av IS NOT NULL AND godkjent_tidspunkt IS NOT NULL AND godkjent_innhold_json IS NOT NULL AND godkjent_innhold_hash IS NOT NULL) OR (status <> 'godkjent_for_publisering' AND godkjent_innhold_json IS NULL AND godkjent_innhold_hash IS NULL)");
+
+                            t.HasCheckConstraint("ck_funn_juristvurdert_hvem", "status NOT IN ('juristvurdert', 'godkjent_for_publisering') OR (juristvurdert_av IS NOT NULL AND juristvurdert_tidspunkt IS NOT NULL AND vurdert_av_type IS NOT NULL AND vurdering IS NOT NULL)");
+
+                            t.HasCheckConstraint("ck_funn_kategori", "kategori IN ('utgatt_aktor', 'mulig_motstrid', 'uklarhet_hull')");
+
+                            t.HasCheckConstraint("ck_funn_status", "status IN ('oppdaget', 'juristvurdert', 'godkjent_for_publisering', 'forklart_bort')");
+
+                            t.HasCheckConstraint("ck_funn_undertype", "undertype IS NULL OR (kategori = 'utgatt_aktor' AND undertype IN ('nedlagt_aktor', 'utgatt_navn')) OR (kategori = 'uklarhet_hull' AND undertype IN ('hull', 'upresis_henvisning', 'publiseringsfeil_kilde'))");
+
+                            t.HasCheckConstraint("ck_funn_vurdert_av_type", "vurdert_av_type IS NULL OR vurdert_av_type IN ('menneske', 'ki_agent')");
+                        });
+                });
+
+            modelBuilder.Entity("RegelIde.Data.FunnKoblingEntitet", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("BegrepId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("begrep_id");
+
+                    b.Property<string>("Eid")
+                        .HasColumnType("text")
+                        .HasColumnName("eid");
+
+                    b.Property<string>("EksternLenke")
+                        .HasColumnType("text")
+                        .HasColumnName("ekstern_lenke");
+
+                    b.Property<string>("Etikett")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("etikett");
+
+                    b.Property<Guid>("FunnId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("funn_id");
+
+                    b.Property<Guid?>("KildefeilId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("kildefeil_id");
+
+                    b.Property<string>("Merknad")
+                        .HasColumnType("text")
+                        .HasColumnName("merknad");
+
+                    b.Property<Guid?>("NodeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("node_id");
+
+                    b.Property<string>("RettskildeEli")
+                        .HasColumnType("text")
+                        .HasColumnName("rettskilde_eli");
+
+                    b.Property<Guid?>("RettskildeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("rettskilde_id");
+
+                    b.Property<string>("Rolle")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("rolle");
+
+                    b.Property<int>("Sortering")
+                        .HasColumnType("integer")
+                        .HasColumnName("sortering");
+
+                    b.Property<Guid?>("StrukturkantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("strukturkant_id");
+
+                    b.Property<Guid?>("VirksomhetId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("virksomhet_id");
+
+                    b.HasKey("Id")
+                        .HasName("funn_koblinger_pkey");
+
+                    b.HasIndex("BegrepId");
+
+                    b.HasIndex("FunnId")
+                        .HasDatabaseName("ix_funn_koblinger_funn");
+
+                    b.HasIndex("KildefeilId");
+
+                    b.HasIndex("NodeId")
+                        .HasDatabaseName("ix_funn_koblinger_node");
+
+                    b.HasIndex("RettskildeEli")
+                        .HasDatabaseName("ix_funn_koblinger_rettskilde_eli");
+
+                    b.HasIndex("RettskildeId")
+                        .HasDatabaseName("ix_funn_koblinger_rettskilde");
+
+                    b.HasIndex("StrukturkantId");
+
+                    b.HasIndex("VirksomhetId")
+                        .HasDatabaseName("ix_funn_koblinger_virksomhet");
+
+                    b.ToTable("funn_koblinger", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_funn_koblinger_ett_mal", "(CASE WHEN rettskilde_eli IS NOT NULL THEN 1 ELSE 0 END) + (CASE WHEN virksomhet_id IS NOT NULL THEN 1 ELSE 0 END) + (CASE WHEN begrep_id IS NOT NULL THEN 1 ELSE 0 END) + (CASE WHEN strukturkant_id IS NOT NULL THEN 1 ELSE 0 END) + (CASE WHEN kildefeil_id IS NOT NULL THEN 1 ELSE 0 END) + (CASE WHEN ekstern_lenke IS NOT NULL THEN 1 ELSE 0 END) = 1");
+
+                            t.HasCheckConstraint("ck_funn_koblinger_node", "node_id IS NULL OR eid IS NOT NULL");
+
+                            t.HasCheckConstraint("ck_funn_koblinger_rettskilde", "(rettskilde_id IS NULL AND eid IS NULL AND node_id IS NULL) OR rettskilde_eli IS NOT NULL");
+
+                            t.HasCheckConstraint("ck_funn_koblinger_rolle", "rolle IN ('gjelder_bestemmelse', 'motstridende_bestemmelse', 'berort_aktor', 'navneform', 'etterfolger', 'kilde')");
+
+                            t.HasCheckConstraint("ck_funn_koblinger_rolle_mal", "(rolle IN ('gjelder_bestemmelse', 'motstridende_bestemmelse') AND rettskilde_eli IS NOT NULL) OR (rolle = 'berort_aktor' AND virksomhet_id IS NOT NULL) OR (rolle = 'navneform' AND begrep_id IS NOT NULL) OR (rolle = 'etterfolger' AND strukturkant_id IS NOT NULL) OR (rolle = 'kilde' AND (rettskilde_eli IS NOT NULL OR ekstern_lenke IS NOT NULL OR kildefeil_id IS NOT NULL))");
+                        });
+                });
+
+            modelBuilder.Entity("RegelIde.Data.FunnVurderingspunktEntitet", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("FunnId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("funn_id");
+
+                    b.Property<string>("Overskrift")
+                        .HasColumnType("text")
+                        .HasColumnName("overskrift");
+
+                    b.Property<string>("Sikkerhet")
+                        .HasColumnType("text")
+                        .HasColumnName("sikkerhet");
+
+                    b.Property<int>("Sortering")
+                        .HasColumnType("integer")
+                        .HasColumnName("sortering");
+
+                    b.Property<string>("Tekst")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("tekst");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("type");
+
+                    b.HasKey("Id")
+                        .HasName("funn_vurderingspunkter_pkey");
+
+                    b.HasIndex("FunnId")
+                        .HasDatabaseName("ix_funn_vurderingspunkter_funn");
+
+                    b.ToTable("funn_vurderingspunkter", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_funn_vurderingspunkter_sikkerhet", "sikkerhet IS NULL OR (type = 'vurdering' AND sikkerhet IN ('hoy', 'middels_til_hoy', 'middels', 'lav_til_middels', 'lav'))");
+
+                            t.HasCheckConstraint("ck_funn_vurderingspunkter_type", "type IN ('bortforklaring_provd', 'vurdering', 'ikke_avgjort')");
+                        });
+                });
+
             modelBuilder.Entity("RegelIde.Data.HandbokKommentarMetadataEntitet", b =>
                 {
                     b.Property<Guid>("NodeId")
@@ -4914,6 +5206,54 @@ namespace RegelIde.Data.Migrasjoner
                         .HasForeignKey("VirksomhetId");
                 });
 
+            modelBuilder.Entity("RegelIde.Data.FunnKoblingEntitet", b =>
+                {
+                    b.HasOne("RegelIde.Data.BegrepEntitet", null)
+                        .WithMany()
+                        .HasForeignKey("BegrepId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("RegelIde.Data.FunnEntitet", null)
+                        .WithMany("Koblinger")
+                        .HasForeignKey("FunnId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("RegelIde.Data.KildefeilEntitet", null)
+                        .WithMany()
+                        .HasForeignKey("KildefeilId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("RegelIde.Data.RettskildeNodeEntitet", null)
+                        .WithMany()
+                        .HasForeignKey("NodeId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("RegelIde.Data.RettskildeEntitet", null)
+                        .WithMany()
+                        .HasForeignKey("RettskildeId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("RegelIde.Data.StrukturkantEntitet", null)
+                        .WithMany()
+                        .HasForeignKey("StrukturkantId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("RegelIde.Data.Virksomhet", null)
+                        .WithMany()
+                        .HasForeignKey("VirksomhetId")
+                        .OnDelete(DeleteBehavior.SetNull);
+                });
+
+            modelBuilder.Entity("RegelIde.Data.FunnVurderingspunktEntitet", b =>
+                {
+                    b.HasOne("RegelIde.Data.FunnEntitet", null)
+                        .WithMany("Vurderingspunkter")
+                        .HasForeignKey("FunnId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("RegelIde.Data.HandbokKommentarMetadataEntitet", b =>
                 {
                     b.HasOne("RegelIde.Data.RettskildeNodeEntitet", null)
@@ -5550,6 +5890,13 @@ namespace RegelIde.Data.Migrasjoner
                         .HasForeignKey("VirksomhetId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("RegelIde.Data.FunnEntitet", b =>
+                {
+                    b.Navigation("Koblinger");
+
+                    b.Navigation("Vurderingspunkter");
                 });
 
             modelBuilder.Entity("RegelIde.Data.KodelisteEntitet", b =>

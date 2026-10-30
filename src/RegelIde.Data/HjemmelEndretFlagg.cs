@@ -31,6 +31,9 @@ public static class HjemmelEndretFlagg
             .Where(k => k.HjemmelNodeId != null && k.HjemmelEndretTidspunkt == null
                         && db.RettskildeNoder.Any(n => n.Id == k.HjemmelNodeId && n.RettskildeId == gammelRettskildeId))
             .ToListAsync(ct);
+        // [Ny, issue #429] Funn som peker på en bestemmelse i den gamle versjonen, flagges «kilde endret» etter samme deltre-regel.
+        // Tallet regnes ikke med i returverdien, som fortsatt er kanter og bindinger.
+        await FlaggFunnAsync(db, gammelRettskildeId, nyeNoder, endretAv, ct);
         // [Ny, issue #385 AC12] Bindingene til generiske navneformer flagges etter samme regel.
         var bindinger = await FlaggBindingerAsync(db, gammelRettskildeId, nyeNoder, endretAv, ct);
         if (kanter.Count == 0) return bindinger;
@@ -122,6 +125,41 @@ public static class HjemmelEndretFlagg
             {
                 felt = "hjemmel_endret", issue = 385, endretI = hvorfor,
                 merknad = "Teksten i hjemmelen eller paragrafspennet er endret i en ny versjon — vurder bindingen på nytt. Ingenting annet er endret.",
+            });
+            db.Proveniens.Add(prov);
+            antall++;
+        }
+        return antall;
+    }
+
+    /// <summary>
+    /// [Ny, issue #429] «Kilde endret – vurder på nytt» på funn til vurdering: et funn med en kobling til en node i den gamle versjonen
+    /// flagges når nodens deltre er endret eller borte i den nye. Et flagg, ikke en statusendring — et publisert funn står til Johann
+    /// trekker det tilbake; flagget nulles ved neste juristvurdering (<see cref="FunnTjeneste.JuristvurderAsync"/>).
+    /// </summary>
+    private static async Task<int> FlaggFunnAsync(
+        RegelIdeDbContext db, Guid gammelRettskildeId, IReadOnlyList<Nodeavtrykk> nyeNoder, string endretAv, CancellationToken ct)
+    {
+        var treff = await db.FunnKoblinger
+            .Where(k => k.NodeId != null && db.RettskildeNoder.Any(n => n.Id == k.NodeId && n.RettskildeId == gammelRettskildeId)
+                        && db.Funn.Any(f => f.Id == k.FunnId && f.KildeEndretTidspunkt == null))
+            .Select(k => new { k.FunnId, k.Eid }).ToListAsync(ct);
+        if (treff.Count == 0) return 0;
+        var gamleAvtrykk = await db.RettskildeNoder.Where(n => n.RettskildeId == gammelRettskildeId)
+            .Select(n => new Nodeavtrykk(n.Eid, n.Overskrift, n.TekstHash)).ToListAsync(ct);
+        var antall = 0;
+        foreach (var gruppe in treff.GroupBy(t => t.FunnId))
+        {
+            var endret = gruppe.Select(t => t.Eid!).Distinct().OrderBy(e => e, StringComparer.Ordinal)
+                .FirstOrDefault(eid => !Deltre(gamleAvtrykk, eid).SequenceEqual(Deltre(nyeNoder, eid)));
+            if (endret is null) continue;
+            var funn = await db.Funn.FirstAsync(f => f.Id == gruppe.Key, ct);
+            funn.KildeEndretTidspunkt = DateTimeOffset.UtcNow;
+            var prov = ProveniensHjelper.NyRad(Funn.ProveniensType, funn.Id, virksomhetId: null, "kilde_endret", endretAv);
+            prov.KildeReferanserJson = JsonSerializer.Serialize(new
+            {
+                felt = "kilde_endret", issue = 429, endretI = endret,
+                merknad = "En bestemmelse funnet peker på, har ny tekst i en ny versjon — vurder funnet på nytt. Ingenting annet er endret.",
             });
             db.Proveniens.Add(prov);
             antall++;

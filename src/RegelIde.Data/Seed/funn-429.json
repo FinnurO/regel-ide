@@ -1,0 +1,129 @@
+{
+  "_kilde": "Issue #429 (https://github.com/FinnurO/regel-ide/issues/429): kommentarene 2026-10-29 og 2026-10-30. Tekstene er ført inn ordrett fra kommentarene; bare oppdelingen i felter er ny. Funn 1 er godkjent for publisering av Johann 2026-10-29. Seedes én gang per nøkkel (FunnSeed); en rad som finnes, røres ikke.",
+  "funn": [
+    {
+      "nokkel": "429-funn-1",
+      "kategori": "mulig_motstrid",
+      "undertype": null,
+      "tittel": "Klageinstans for utenlandske yrkeskvalifikasjoner som styrer og pedagogisk leder i barnehage",
+      "beskrivelse": "To gjeldende forskrifter gir ulikt svar på hvem som behandler klager over HK-dirs vedtak om godkjenning av utenlandske yrkeskvalifikasjoner som styrer og pedagogisk leder i barnehage:\n- FOR-2008-09-12-1071 § 11 tredje ledd sier Kunnskapsdepartementet.\n- FOR-2025-07-02-1462 § 6 andre ledd sier klagenemnda for godkjenning av utenlandsk utdanning og yrkesgodkjenning. Leddet lyder slik etter endring ved FOR-2026-06-19-1171, med virkning fra 1. august 2026, og har hjemmel i barnehageloven § 24 fjerde ledd og § 25 tredje ledd.",
+      "internMerknad": "Kontrollert mot basen: FOR-2008-09-12-1071 §11/ledd-3 og FOR-2025-07-02-1462 §6/ledd-2. § 6 andre ledd gjelder også lærere etter opplæringsloven § 17-3, og den parallellen sjekkes nå. (Parallellen er siden kontrollert og forklart bort, se 429-kontroll-laerer.) Kilde: https://github.com/FinnurO/regel-ide/issues/429#issuecomment-6494649093",
+      "oppdagelsesKilde": "agent:jurist-utfordrer",
+      "funnetI": "#375",
+      "koblinger": [
+        { "rolle": "motstridende_bestemmelse", "etikett": "FOR-2008-09-12-1071 § 11 tredje ledd", "merknad": "sier Kunnskapsdepartementet", "eli": "https://lovdata.no/eli/forskrift/2008/09/12/1071/nor", "eid": "https://lovdata.no/eli/forskrift/2008/09/12/1071/nor/§11/ledd-3" },
+        { "rolle": "motstridende_bestemmelse", "etikett": "FOR-2025-07-02-1462 § 6 andre ledd", "merknad": "sier klagenemnda for godkjenning av utenlandsk utdanning og yrkesgodkjenning", "eli": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor", "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§6/ledd-2" },
+        { "rolle": "berort_aktor", "etikett": "Kunnskapsdepartementet", "organisasjonsnummer": "872417842" },
+        { "rolle": "berort_aktor", "etikett": "Klagenemnda for godkjenning av utenlandsk utdanning og yrkesgodkjenning", "virksomhetNavn": "Klagenemnda for godkjenning av utenlandsk utdanning og yrkesgodkjenning" },
+        { "rolle": "berort_aktor", "etikett": "Direktoratet for høyere utdanning og kompetanse (HK-dir)", "organisasjonsnummer": "974788985" },
+        { "rolle": "kilde", "etikett": "FOR-2008-09-12-1071", "lenke": "https://lovdata.no/dokument/SF/forskrift/2008-09-12-1071" },
+        { "rolle": "kilde", "etikett": "FOR-2025-07-02-1462", "lenke": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor" },
+        { "rolle": "kilde", "etikett": "FOR-2026-06-19-1171", "lenke": "https://lovdata.no/dokument/LTI/forskrift/2026-06-19-1171" },
+        { "rolle": "kilde", "etikett": "LOV-2026-06-19-59", "lenke": "https://lovdata.no/dokument/LTI/lov/2026-06-19-59" },
+        { "rolle": "kilde", "etikett": "Prop. 79 L (2025–2026)", "lenke": "https://www.regjeringen.no/no/dokumenter/prop.-79-l-20252026/id3154984/" }
+      ],
+      "vurderingspunkter": [
+        { "type": "bortforklaring_provd", "overskrift": "Opphevelse eller endring", "tekst": "ingen av vedtakene opphever eller endrer FOR-2008 § 11, og Lovdata viser bestemmelsen uendret siden 2023." },
+        { "type": "bortforklaring_provd", "overskrift": "Ulike virkeområder", "tekst": "begge bestemmelsene gjelder de samme vedtakene etter barnehageloven §§ 24 og 25." },
+        { "type": "bortforklaring_provd", "overskrift": "Delegeringsvedtak", "tekst": "ikke funnet." },
+        { "type": "bortforklaring_provd", "overskrift": "Utdatert kopi", "tekst": "korpuset stemmer med Lovdata." },
+        { "type": "bortforklaring_provd", "overskrift": "Lex posterior og forarbeidene", "tekst": "Prop. 79 L (2025–2026) punkt 5.6 og 10.4 taler for klagenemnda fra 1. august 2026. 2008-bestemmelsen står likevel uendret." },
+        { "type": "vurdering", "tekst": "for motstriden i teksten", "sikkerhet": "hoy" },
+        { "type": "vurdering", "tekst": "for at klagenemnda er riktig instans", "sikkerhet": "middels_til_hoy" },
+        { "type": "ikke_avgjort", "tekst": "Overgangen for klager som kom inn før 2026-08-01." },
+        { "type": "ikke_avgjort", "tekst": "Om det er varslet en retting av FOR-2008. Et søk fant ingenting, og det betyr «ikke funnet», ikke «finnes ikke»." }
+      ],
+      "juristvurdering": {
+        "vurdering": "Ordlyden er i motstrid. Den sannsynlige løsningen er klagenemnda, men den bygger på tolkning, ikke på en uttrykkelig oppheving. Det er heller ingen overgangsregel for klager som var til behandling 1. august 2026.",
+        "vurdertAvType": "ki_agent",
+        "av": "jurist-utfordrer (KI-agent), juristrunde i #375",
+        "tidspunkt": "2026-10-29T10:49:13Z"
+      },
+      "godkjentForPublisering": {
+        "av": "Johann (avgjort i #429 2026-10-29)",
+        "tidspunkt": "2026-10-29T10:49:13Z"
+      }
+    },
+    {
+      "nokkel": "429-kontroll-laerer",
+      "kategori": "mulig_motstrid",
+      "undertype": null,
+      "tittel": "Klageinstans for utenlandske lærerkvalifikasjoner",
+      "beskrivelse": "Kontrollen er gjort som parallell til funn 1: gir regelverket ulikt svar på hvem som behandler klager over vedtak om godkjenning av utenlandske yrkeskvalifikasjoner som lærer?",
+      "internMerknad": "Kilde: https://github.com/FinnurO/regel-ide/issues/429#issuecomment-6494686906",
+      "oppdagelsesKilde": "agent:jurist-utfordrer",
+      "funnetI": "#429",
+      "koblinger": [
+        { "rolle": "gjelder_bestemmelse", "etikett": "FOR-2025-07-02-1462 § 6 andre ledd", "eli": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor", "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§6/ledd-2" },
+        { "rolle": "gjelder_bestemmelse", "etikett": "Opplæringsforskrifta (FOR-2024-06-03-900) § 12-12", "eli": "https://lovdata.no/eli/forskrift/2024/06/03/900/nor", "eid": "https://lovdata.no/eli/forskrift/2024/06/03/900/nor/§12-12" },
+        { "rolle": "gjelder_bestemmelse", "etikett": "Opplæringslova § 29-1 første ledd", "eli": "https://lovdata.no/eli/lov/2023/06/09/30/nor", "eid": "https://lovdata.no/eli/lov/2023/06/09/30/nor/§29-1/ledd-1" },
+        { "rolle": "gjelder_bestemmelse", "etikett": "Opplæringslova § 29-1 fjerde ledd", "eli": "https://lovdata.no/eli/lov/2023/06/09/30/nor", "eid": "https://lovdata.no/eli/lov/2023/06/09/30/nor/§29-1/ledd-4" },
+        { "rolle": "kilde", "etikett": "LOV-2026-06-19-59", "lenke": "https://lovdata.no/dokument/LTI/lov/2026-06-19-59" },
+        { "rolle": "kilde", "etikett": "Prop. 79 L (2025–2026)", "lenke": "https://www.regjeringen.no/no/dokumenter/prop.-79-l-20252026/id3154984/" }
+      ],
+      "vurderingspunkter": [
+        { "type": "bortforklaring_provd", "overskrift": "Egen klageregel i forskriften", "tekst": "Opplæringsforskrifta (FOR-2024-06-03-900) § 12-12 har ingen egen klageregel." },
+        { "type": "bortforklaring_provd", "overskrift": "Særregel i loven", "tekst": "Hovedregelen om at departementet er klageinstans, i opplæringslova § 29-1 første ledd, viker for § 29-1 fjerde ledd. Fjerde ledd kom inn ved LOV-2026-06-19-59, og FOR-2025-07-02-1462 § 6 andre ledd bygger på det." },
+        { "type": "bortforklaring_provd", "overskrift": "Forarbeidene", "tekst": "Prop. 79 L (2025–2026) punkt 5.6 og merknaden til § 29-1 sier det samme." }
+      ],
+      "juristvurdering": {
+        "vurdering": "Det finnes ingen motstrid. Sikkerheten er høy.",
+        "vurdertAvType": "ki_agent",
+        "av": "jurist-utfordrer (KI-agent), kontroll i #429",
+        "tidspunkt": "2026-10-29T10:51:07Z"
+      },
+      "forklartBort": {
+        "begrunnelse": "Det finnes ingen motstrid. Hovedregelen om at departementet er klageinstans, i opplæringslova § 29-1 første ledd, viker for § 29-1 fjerde ledd, som FOR-2025-07-02-1462 § 6 andre ledd bygger på. Forskjellen fra funn 1 er at det for barnehage står en uttrykkelig særregel (FOR-2008-09-12-1071 § 11 tredje ledd) som ikke er rettet.",
+        "av": "jurist-utfordrer (KI-agent), kontroll i #429",
+        "tidspunkt": "2026-10-29T10:51:07Z"
+      }
+    },
+    {
+      "nokkel": "429-hull-overgangsregel",
+      "kategori": "uklarhet_hull",
+      "undertype": "hull",
+      "tittel": "Ingen overgangsregel for klager som var til behandling hos departementet 1. august 2026",
+      "beskrivelse": "Verken barnehage- eller lærersakene har en overgangsregel for klager som var til behandling hos departementet 1. august 2026.",
+      "internMerknad": "Kandidat fra kontrollen for lærere, ikke vurdert for publisering. Kilde: https://github.com/FinnurO/regel-ide/issues/429#issuecomment-6494686906",
+      "oppdagelsesKilde": "agent:jurist-utfordrer",
+      "funnetI": "#429",
+      "koblinger": [
+        { "rolle": "gjelder_bestemmelse", "etikett": "FOR-2025-07-02-1462 § 6 andre ledd", "eli": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor", "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§6/ledd-2" },
+        { "rolle": "gjelder_bestemmelse", "etikett": "FOR-2008-09-12-1071 § 11 tredje ledd", "eli": "https://lovdata.no/eli/forskrift/2008/09/12/1071/nor", "eid": "https://lovdata.no/eli/forskrift/2008/09/12/1071/nor/§11/ledd-3" },
+        { "rolle": "kilde", "etikett": "LOV-2026-06-19-59", "lenke": "https://lovdata.no/dokument/LTI/lov/2026-06-19-59" },
+        { "rolle": "kilde", "etikett": "FOR-2026-06-19-1171", "lenke": "https://lovdata.no/dokument/LTI/forskrift/2026-06-19-1171" }
+      ],
+      "vurderingspunkter": []
+    },
+    {
+      "nokkel": "429-upresis-henvisning",
+      "kategori": "uklarhet_hull",
+      "undertype": "upresis_henvisning",
+      "tittel": "Henvisning til «opplæringsloven § 17-3» der godkjenningsregelen står i opplæringsforskrifta § 12-12",
+      "beskrivelse": "FOR-2025-07-02-1462 § 6 andre ledd viser til «opplæringsloven § 17-3», mens godkjenningsregelen står i opplæringsforskrifta § 12-12.",
+      "internMerknad": "Kandidat fra kontrollen for lærere, ikke vurdert for publisering. Kilde: https://github.com/FinnurO/regel-ide/issues/429#issuecomment-6494686906",
+      "oppdagelsesKilde": "agent:jurist-utfordrer",
+      "funnetI": "#429",
+      "koblinger": [
+        { "rolle": "gjelder_bestemmelse", "etikett": "FOR-2025-07-02-1462 § 6 andre ledd", "eli": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor", "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§6/ledd-2" },
+        { "rolle": "gjelder_bestemmelse", "etikett": "Opplæringsforskrifta (FOR-2024-06-03-900) § 12-12", "eli": "https://lovdata.no/eli/forskrift/2024/06/03/900/nor", "eid": "https://lovdata.no/eli/forskrift/2024/06/03/900/nor/§12-12" }
+      ],
+      "vurderingspunkter": []
+    },
+    {
+      "nokkel": "429-lovdata-merknader",
+      "kategori": "uklarhet_hull",
+      "undertype": "publiseringsfeil_kilde",
+      "tittel": "Bindende vedlegg med standardregler er kalt «Merknader» hos Lovdata (FOR-2008-01-09-50)",
+      "beskrivelse": "I FOR-2008-01-09-50 (arbeidstakernes rett til representasjon ved fusjon over landegrensene) har Lovdata kalt et bindende vedlegg med standardregler «Merknader». Forskriftens § 11 gjør vedlegget gjeldende.",
+      "internMerknad": "Funnet kom fram i målingen for #419, der det er lagt inn som unntak i regelen. Kilde: https://github.com/FinnurO/regel-ide/issues/429#issuecomment-6518940376",
+      "oppdagelsesKilde": "manuell",
+      "funnetI": "#419",
+      "koblinger": [
+        { "rolle": "gjelder_bestemmelse", "etikett": "FOR-2008-01-09-50 § 11", "eli": "https://lovdata.no/eli/forskrift/2008/01/09/50/nor", "eid": "https://lovdata.no/eli/forskrift/2008/01/09/50/nor/§11" },
+        { "rolle": "kilde", "etikett": "FOR-2008-01-09-50", "lenke": "https://lovdata.no/dokument/SF/forskrift/2008-01-09-50" }
+      ],
+      "vurderingspunkter": []
+    }
+  ]
+}
