@@ -1,0 +1,609 @@
+[
+ {
+  "id": "f1",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "«Kommunen skal beregne grunntilskudd og pensjonstilskudd … på samme måte som for ordinære barnehager» er en beregningsregel (regellaget, L16). Den legger ingen oppgave til kommunen i F-forstand. Det er samme feil som f10, f24 og f71 i juristrunde 375. Raden bør avvises. Det strukturelle innholdet er betalingsplikten for grunntilskudd. Den står i barnehageloven § 19 a første ledd og finnes ikke i basen (ny rad). Pensjonstilskuddet står i § 19 b første ledd (ny rad under f9).",
+  "retting": null,
+  "ny_rad": {
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§19a/ledd-1",
+   "kategori": "P",
+   "type": "betaling",
+   "fra": "kommune",
+   "fra_art": "klasse",
+   "til": null,
+   "modalitet": "skal",
+   "objekt": "grunntilskudd til private barnehager som har rett til tilskudd etter § 19 første eller andre ledd",
+   "polaritet": "positiv",
+   "avgrensning": "beregnes ut fra ordinære driftsutgifter i kommunale barnehager (første ledd andre og tredje punktum); forskrift etter åttende ledd kan gjøre unntak",
+   "sitat": "Kommunen skal gi grunntilskudd til private barnehager som har rett til tilskudd etter § 19 første eller andre ledd."
+  },
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2026-03-23-454 § 17 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "barnehageloven § 19 a første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "f2",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Andre punktum er en henvisning («jf. § 12»), og administrasjonspåslaget er en del av beregningen av grunntilskuddet. § 12 sier at påslaget er 4,7 prosent av det samlede grunntilskuddet, og satsene i tredje til femte ledd er «inklusive administrasjonspåslag». Påslaget er derfor verken en oppgave (F forvaltning) eller en egen betalingsplikt ved siden av grunntilskuddet. En P-rad ville vært en nesten-dublett av betalingsplikten for grunntilskudd (f4 rettet, og ny rad under f1). Raden bør avvises.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2026-03-23-454 § 17 første ledd andre punktum",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FOR-2026-03-23-454 § 12",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "f3",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "«Kommunen skal gi eiendomstilskudd til private familiebarnehager» er en betalingsplikt, ikke en oppgave. Det skal være P betaling fra kommunen med til = null, fordi de private barnehagene er begunstigede. Det følger presedensen fra f9 og f71 i juristrunde 375 og k69, k71 og k77 i juristrunde 418. Eiendomstilskuddet er en egen tilskuddstype i forskriften (jf. § 13 for ordinære barnehager), så raden er ikke en dublett av grunntilskuddet. Modalitet skal: feltet finnes ikke i kortet, men databaseraden har det alt. Merk versjonsavvik: korpuset har «[Satsene fastsettes årlig av KD]» i tabellen, mens Lovdata 2026-10-30 har tallsatser. KI-raden «KD vedtakskompetanse» (ikke lastet) bygger på plassholderen og skal ikke lastes [kontroller korpusversjonen].",
+  "retting": {
+   "kategori": "P",
+   "type": "betaling",
+   "objekt": "eiendomstilskudd til private familiebarnehager per heltidsplass",
+   "avgrensning": "satser per heltidsplass etter barnets alder (§ 17 andre ledd); fra tilskuddsåret 2027 (§ 25)"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": "bygget",
+  "kilder": [
+   {
+    "ref": "FOR-2026-03-23-454 § 17 andre ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FOR-2026-03-23-454 § 13",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "FOR-2026-03-23-454 § 25 (gjelder fra tilskuddsåret 2027)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "f4",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Dette er en betalingsplikt (P betaling, kommune → null, modalitet skal), ikke F forvaltning. Begrunnelsen er den samme som for f3. Vilkåret «Kommuner som ikke har kommunale familiebarnehager» står bare i sitatet, ikke i avgrensningen, så raden ser ut til å gjelde alle kommuner. Fjerde og femte ledd gir bare egne satser for undergrupper av de samme kommunene. Det hører i avgrensningen her, ikke i egne rader (se f5 og f6).",
+  "retting": {
+   "kategori": "P",
+   "type": "betaling",
+   "objekt": "grunntilskudd inklusive administrasjonspåslag til private familiebarnehager",
+   "avgrensning": "kommuner som ikke har kommunale familiebarnehager; satser etter arbeidsgiveravgiftssone, med egne satser for sentralitetssone 5–6 (fjerde ledd) og tiltakssonen i Finnmark og Nord-Troms (femte ledd); fra tilskuddsåret 2027 (§ 25)"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": "bygget",
+  "kilder": [
+   {
+    "ref": "FOR-2026-03-23-454 § 17 tredje til femte ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "barnehageloven § 19 a første ledd",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "FOR-2026-03-23-454 § 25 (gjelder fra tilskuddsåret 2027)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "f5",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Dette er en nesten-dublett av f4 (kant 35ebc906, § 17 tredje ledd) etter rettingen der. Kommuner i sentralitetssone 5 eller 6 uten kommunale familiebarnehager hører alt til klassen i tredje ledd. Fjerde ledd endrer bare satsen, og satsen hører til regellaget. Pliktsubjekt, plikt og begunstiget er de samme. Kategorien er dessuten feil: en betalingsplikt er ikke F forvaltning. Raden bør avvises, og satsgruppen bør stå i avgrensningen på f4. Beholdes raden likevel, må den rettes til P betaling som f4.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2026-03-23-454 § 17 fjerde ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FOR-2026-03-23-454 § 17 tredje ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "f6",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Dette er en nesten-dublett av f4 (kant 35ebc906, § 17 tredje ledd) etter rettingen der. Kommuner i tiltakssonen i Finnmark og Nord-Troms uten kommunale familiebarnehager hører alt til klassen i tredje ledd. Femte ledd endrer bare satsen, og satsen hører til regellaget. Pliktsubjekt, plikt og begunstiget er de samme. Kategorien er dessuten feil: en betalingsplikt er ikke F forvaltning. Raden bør avvises, og satsgruppen bør stå i avgrensningen på f4. Beholdes raden likevel, må den rettes til P betaling som f4.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2026-03-23-454 § 17 femte ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FOR-2026-03-23-454 § 17 tredje ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "f7",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "«Kommunen skal gi grunntilskudd til åpne barnehager per heltidsplass» er en betalingsplikt (P betaling, kommune → null, modalitet skal), ikke F forvaltning. Det følger presedensen fra f71 i juristrunde 375 og k77 i juristrunde 418. Beregningsreglene i andre og tredje punktum og i tredje ledd hører til regellaget. Kommuner uten kommunale åpne barnehager er dekket av fjerde ledd (f10). Grunnlaget for plikten er barnehageloven § 19 a første ledd (ny rad under f1).",
+  "retting": {
+   "kategori": "P",
+   "type": "betaling",
+   "objekt": "grunntilskudd til private åpne barnehager per heltidsplass",
+   "avgrensning": "beregnet ut fra utgiftene i tilsvarende kommunale åpne barnehager (første ledd andre og tredje punktum, tredje ledd); kommuner uten kommunale åpne barnehager: fjerde ledd; fra tilskuddsåret 2027 (§ 25)"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": "bygget",
+  "kilder": [
+   {
+    "ref": "FOR-2026-03-23-454 § 18 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "barnehageloven § 19 a første ledd",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "FOR-2026-03-23-454 § 25 (gjelder fra tilskuddsåret 2027)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "f8",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Som f2: «Kommunen skal gi påslag for administrasjonsutgifter, jf. § 12» er en henvisning. Påslaget er en del av beregningen av grunntilskuddet (§ 12), ikke en oppgave og ikke en egen betalingsplikt. En P-rad ville dublert betalingsplikten for grunntilskudd til åpne barnehager (f7 rettet). Raden bør avvises.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2026-03-23-454 § 18 første ledd fjerde punktum",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FOR-2026-03-23-454 § 12",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "f9",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "«Kommunen skal beregne pensjonstilskudd til åpne barnehager på samme måte som for ordinære barnehager» er en beregningsregel (regellaget), som f1. Raden bør avvises. Betalingsplikten for pensjonstilskudd står i barnehageloven § 19 b første ledd og finnes ikke i basen (ny rad).",
+  "retting": null,
+  "ny_rad": {
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§19b/ledd-1",
+   "kategori": "P",
+   "type": "betaling",
+   "fra": "kommune",
+   "fra_art": "klasse",
+   "til": null,
+   "modalitet": "skal",
+   "objekt": "pensjonstilskudd til private barnehager som har rett til tilskudd etter § 19 første eller andre ledd",
+   "polaritet": "positiv",
+   "avgrensning": "beregnes etter første ledd andre punktum; forskrift etter femte ledd kan gjøre unntak",
+   "sitat": "Kommunen skal gi pensjonstilskudd til private barnehager som har rett til tilskudd etter § 19 første eller andre ledd."
+  },
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2026-03-23-454 § 18 andre ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "barnehageloven § 19 b første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "f10",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Dette er en betalingsplikt (P betaling, kommune → null, modalitet skal), ikke F forvaltning, som f4. Vilkåret «Kommuner som ikke har kommunale åpne barnehager» står bare i sitatet og mangler i avgrensningen. Raden er ikke en dublett av f7: f7 gjelder kommuner som beregner ut fra egne åpne barnehager, og f10 de andre. Lovdata (2026-10-30) har et femte ledd i § 18 som korpuset ikke viser [kontroller korpusversjonen].",
+  "retting": {
+   "kategori": "P",
+   "type": "betaling",
+   "objekt": "grunntilskudd inklusive administrasjonspåslag til private åpne barnehager",
+   "avgrensning": "kommuner som ikke har kommunale åpne barnehager; satser etter arbeidsgiveravgiftssone og ukentlig åpningstid; fra tilskuddsåret 2027 (§ 25)"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": "bygget",
+  "kilder": [
+   {
+    "ref": "FOR-2026-03-23-454 § 18 fjerde ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FOR-2026-03-23-454 § 25 (gjelder fra tilskuddsåret 2027)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "f11",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "hoy",
+  "innvending": "§ 20 er en fradragsregel i beregningen. Overskriften på Lovdata er «Begrensninger i kommunens plikt til å gi tilskudd». Den begrenser hvor mye kommunen skal betale, og er ingen betalingsplikt. P betaling med objekt «fratrekk i tilskuddsberegningen» sier det motsatte: at kommunen skylder en ytelse. I pliktoppslaget vises den som en egen betalingsplikt (motsatt rettslig resultat). KI-laget sier selv at det ikke finnes noen motpart med krav. Raden bør avvises. Fradraget hører til regellaget, eventuelt som avgrensning på betalingspliktene (f4, f7, f10 rettet). Samme mønster står i § 26 andre ledd og i § 23 andre ledd andre punktum.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2026-03-23-454 § 20",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "Lovdata, FOR-2026-03-23-454 § 20 (overskrift), lest 2026-10-30",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "f12",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Indeksregulering av satsgrunnlaget med kommunal deflator er et beregningsskritt (regellaget), ikke F forvaltning. Det er som f27 i juristrunde 375 og § 15 fjerde ledd her. Raden bør avvises. Kompetansen leddet forutsetter, står alt i § 1 første ledd (K normgivning, satsforskrift, k5) og § 3 første ledd (K vedtak, k10).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2026-03-23-454 § 4 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FOR-2026-03-23-454 §§ 1 og 3",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "f13",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Andre punktum er et krav til innholdet i retningslinjene kommunen KAN gi etter første punktum. Det er ingen selvstendig oppgave. Raden er en nesten-dublett av K normgivning dac5ce22 i samme ledd. Juristrunde 418 (k26) plasserte kravet om at retningslinjene skal omfatte både kommunale og private barnehager i avgrensningen på den raden. Som F får raden en adgang («kan gi») til å se ut som en oppgave kommunen har. Kommer modalitet skal på, blir det adgang omdannet til plikt (17.4). Raden bør avvises.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2005-12-16-1478 § 3 f andre ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "juristrunde-418 kort k26",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "f14",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "F forvaltning med til = null holder. «Kommunen skal tilby reduksjoner i foreldrebetalingen etter forskriften her» legger ansvaret for moderasjonsordningene til kommunen. Forskriften kaller det selv forvaltning («hvordan moderasjonen skal forvaltes», § 3 f andre ledd). Foreldrene er private begunstigede (regellaget, begrepsmanualen §F), og rettighetene og vilkårene står i §§ 3 a–3 c. Vedtakskompetansen står i § 3 d og § 3 e. Merknad utenfor raden: § 3 f første ledd («Barnehageeier skal få dekket reduksjonen … av kommunen») er P betaling fra kommunen, og den er verken lastet eller listet.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2005-12-16-1478 § 3 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FOR-2005-12-16-1478 § 3 f",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "f15",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "«søknadsskjema utarbeidet av Direktoratet for høyere utdanning og kompetanse» er en identifiserende beskrivelse i et formkrav til søkeren (saksbehandling). Den tildeler direktoratet ingen oppgave. Det er som SSB-radene f7 og f25 i juristrunde 375. Direktoratets strukturelle rolle er godkjenningskompetansen i § 3 tredje ledd, som alt står som K-rad. Raden bør avvises.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2008-09-12-1071 § 4 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FOR-2008-09-12-1071 § 3 tredje ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "f16",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "«Kommunen skal vurdere å følge opp forholdet ved tilsyn» er et saksbehandlingsskritt i en konkret henvendelse. Det er ikke en stående oppgave (begrepsmanualen §F: et trinn i én sak hører til regellaget). Kompetansen er kommunens tilsyn etter § 19 (k32). Avgjørelsen kan påklages etter § 21 andre ledd, og den klagekanten står alt i basen. Sitatet tar dessuten med hele leddet, også plikten for barn, elever og foreldre, som er private. Raden bør avvises.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2023-03-28-449 § 20 første ledd tredje punktum",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FOR-2023-03-28-449 §§ 19 og 21 andre ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "f17",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Raden er en dublett av bdd661d0 (F kontroll, statsforvalter, «fullføre pågående tilsyn», samme ledd). Juristrunde 375 (f19) sa «rett, så godkjenn» om den, og rettingen er K tilsyn med overgangsavgrensning. Typen er også feil: å fullføre et tilsyn er utøvelse av tilsynskompetanse, ikke forvaltning av et regelverk eller en ordning. Raden bør avvises. Utenfor raden: 1c4bd084 (F forvaltning, kommune, «pågående tilsyn») er på samme måte en dublett av a67f6b72 (juristrunde 375 f18).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2021-10-06-3079 § 2 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FOR-2021-10-06-3079 § 1",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "juristrunde-375 kort f18, f19",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "f18",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "«Henvendelser om innsyn skal behandles av kommunen» plasserer avgjørelsen om partsinnsyn i opptakssaker hos kommunen, også når opptaket gjelder en privat barnehage. Det er kompetanse til å avgjøre noe bindende (gi eller nekte innsyn), ikke en oppgave. Som F forsvinner kompetansen fra kompetanseoppslaget. [slutning] Typen er beslutning, ikke vedtak: en avgjørelse om partsinnsyn kan påklages etter fvl. § 21, men er ikke et enkeltvedtak etter fvl. § 2.",
+  "retting": {
+   "kategori": "K",
+   "type": "beslutning",
+   "objekt": "avgjørelse av henvendelser om partsinnsyn i opptakssaker (forvaltningsloven §§ 18–21, jf. § 5 første ledd)",
+   "avgrensning": "unntatt opplysninger om andres personlige forhold (§ 5 andre ledd)"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": "bygget",
+  "kilder": [
+   {
+    "ref": "FOR-2005-12-16-1477 § 5 tredje ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FOR-2005-12-16-1477 § 5 første og andre ledd",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "forvaltningsloven §§ 2 og 21",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "f19",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "P betaling er riktig form for «Kommunen skal gi …» (kommune → null, modalitet skal). Men påslaget er en del av beregningen av driftstilskuddet og ingen egen betaling. § 3 andre ledd sier «Kommunen skal gi påslag for pensjons- og administrasjonsutgifter, jf. § 4 og § 5», og tabellsatsene i § 3 femte til sjuende ledd er «inklusive administrasjonspåslag». Raden blir dermed eneste betalingsrad i tildelingsforskriften, mens hovedplikten, driftstilskuddet i § 3 første ledd, mangler. Tidsavgrensningen mangler også: forskriften oppheves 31. desember 2026 (finansieringsforskriften § 25). Juristrunde 418 (k67) kalte påslaget både en beregningsregel og en P-plikt. Her er lesningen at det er én betalingsplikt, med påslaget i beregningen. Raden bør avvises og erstattes av ny rad på § 3 første ledd.",
+  "retting": null,
+  "ny_rad": {
+   "eid": "https://lovdata.no/eli/forskrift/2015/10/09/1166/nor/§3/ledd-1",
+   "kategori": "P",
+   "type": "betaling",
+   "fra": "kommune",
+   "fra_art": "klasse",
+   "til": null,
+   "modalitet": "skal",
+   "objekt": "driftstilskudd til private ordinære barnehager per heltidsplass, inklusive påslag for pensjons- og administrasjonsutgifter (§ 3 andre ledd, §§ 4 og 5)",
+   "polaritet": "positiv",
+   "avgrensning": "til og med tilskuddsåret 2026; forskriften oppheves 31.12.2026 (FOR-2026-03-23-454 § 25)",
+   "sitat": "Kommunen skal gi driftstilskudd til private ordinære barnehager per heltidsplass."
+  },
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2015-10-09-1166 § 5 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FOR-2015-10-09-1166 § 3 første, andre og femte til sjuende ledd",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "FOR-2026-03-23-454 § 25",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "f20",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "«Kommunen har plikt til å tilby plass i barnehage til barn … bosatt i kommunen» er ikke en informasjonsplikt. Det er kommunens resultatansvar for barnehagetilbudet til en befolkning: F sorge_for, som begrepsmanualens eksempel helse- og omsorgstjenesteloven u9. Barnets rett til plass (§ 16) er en privat rettighet som hører til regellaget, så raden skal ikke ha noen motpart. Som P ville den gitt barna en strukturell kravsrett (17.4). «har plikt til» gir modalitet skal. Andre punktum (utbyggingsmønster og driftsformer) er et krav til tilbudet og hører til regellaget.",
+  "retting": {
+   "kategori": "F",
+   "type": "sorge_for",
+   "modalitet": "skal",
+   "objekt": "barnehageplass til barn under opplæringspliktig alder som er bosatt i kommunen",
+   "avgrensning": "jf. § 16 (rett til plass etter søknad)"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": "bygget",
+  "kilder": [
+   {
+    "ref": "barnehageloven § 10 andre ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "barnehageloven § 16",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "docs/profil/02-begrepsmanual.md §F (hotl. u9)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "f21",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Raden er en dublett av 1e81663e (F sorge_for, kommune, samme objekt, samme ledd). Den raden har riktig type: «har ansvaret for at» er sorge_for, og attributiv form gir modalitet null. Denne raden har typen forvaltning, som ikke passer, fordi ingen ordning eller regelverk forvaltes. Raden bør avvises. Utenfor raden: andre punktum («I øvrige kommuner skal forholdene legges til rette for …») er passivt og nevner ingen aktør (fra = null). Det er en innsatsformulering (åpent spørsmål 1 i begrepsmanualen §F) og er ikke lastet.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 10 tredje ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "f22",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "hoy",
+  "innvending": "Andre punktum er en organisasjonsplikt med vilkår («når dette er egnet til å ivareta tilliten …»). Den har ingen motpart, og den er ikke samarbeid. KI-laget har brukt samarbeidsplikt «som nærmeste kategori». Det gir en samarbeidsplikt som ikke finnes. Raden er en nesten-dublett av k81 (71cfe754, K organisasjon), som juristrunde 418 anbefalte å avvise: plikten hører til regellaget, og det strukturelle innholdet er rolleskillet. Rolleskillet er rollen lokal barnehagemyndighet (I innehar, 8a02a7d6) atskilt fra eierrollen. Første punktum (likebehandling) er også regellaget. Raden bør avvises.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 11",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "barnehageloven § 10 første ledd",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "juristrunde-418 kort k81",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "f23",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "«Kommunen skal vise hvordan tilskuddene er beregnet» er en begrunnelses- og åpenhetsplikt overfor tilskuddsmottakerne, som er private parter i tilskuddssaken. Det er en saksbehandlingsregel (jf. fvl. §§ 24–25), ikke en informasjonsplikt overfor en aktør i strukturlaget. Det er som f23 i juristrunde 375. Objekt er dessuten null. Raden bør avvises.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 19 a sjette ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "forvaltningsloven §§ 24–25",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "f24",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Klassen og F holder: teksten sier «Kommunen». Typen bør være sorge_for: «har ansvaret for at» er et resultatansvar etter begrepsmanualen §F, ikke forvaltning av en ordning eller et regelverk. Modalitet null er riktig ved attributiv form. Kommunen har her ansvaret som eier av de kommunale barnehagene (§ 7 andre ledd legger samme ansvar på styret i private barnehager). Raden må derfor ikke flyttes til rollen lokal barnehagemyndighet.",
+  "retting": {
+   "type": "sorge_for",
+   "objekt": "at kommunale barnehager drives i samsvar med loven"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": "bygget",
+  "kilder": [
+   {
+    "ref": "barnehageloven § 7 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "barnehageloven § 7 andre ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "f25",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "«Kommunen skal tildele tilskuddet» er en betalingsplikt (P betaling, kommune → null, modalitet skal), ikke F forvaltning. Det er utsagnet juristrunde 375 (f71) savnet: det falt bort da KI-laget satte til = «Private barnehager». Vedtakskompetansen står i første ledd (c3656763). Henvisningen gjelder FOR-2015-10-09-1166, som oppheves 31. desember 2026. Hva henvisningen gjelder etter det, avgjøres ikke her, og det må stå i avgrensningen.",
+  "retting": {
+   "kategori": "P",
+   "type": "betaling",
+   "objekt": "tilskudd til private ordinære barnehager med midlertidig godkjenning etter §§ 1 og 2",
+   "avgrensning": "tildeles i samsvar med FOR-2015-10-09-1166, som oppheves 31.12.2026 (FOR-2026-03-23-454 § 25)"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": "bygget",
+  "kilder": [
+   {
+    "ref": "FOR-2023-06-27-1136 § 3 andre ledd første punktum",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FOR-2023-06-27-1136 § 3 første ledd",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "FOR-2026-03-23-454 § 25",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ }
+]

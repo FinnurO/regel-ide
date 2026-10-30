@@ -1,0 +1,723 @@
+{
+ "issue": "#375 (tredje lasting)",
+ "dato": "2026-10-30",
+ "base": "lokal regelide (delt)",
+ "api": "worktree regel-ide-pilot3 på 5387, master 271cb56 (etter #420/PR #430 og #419/PR #431)",
+ "ki_modell": "ki:deepseek-ai/DeepSeek-V4-Flash",
+ "merknad": "Samme 20 kilder, samme lag, samme bruker og samme vei som #418 (pilot-418-kjoring.json). Bare lasteren er kjørt (ikke aktørsveip). Ny siden #418: setningen i idempotensnøkkelen og en-til-en-paring (#420), og merknads- og veiledningsnoder utelates fra konverteringen (#419). De 52 forslagene med merknadshjemmel ble avvist 2026-10-30 før denne lastingen. KI-laget er kjørt på nytt og er ikke deterministisk.",
+ "steg": {
+  "last_monster": {
+   "veggtid_s": 21,
+   "start": "2026-10-30T09:45:45.274173900Z",
+   "slutt": "2026-10-30T09:46:06.821166100Z"
+  },
+  "last_ki": {
+   "veggtid_s": 1245,
+   "start": "2026-10-30T09:46:25.632260500Z",
+   "slutt": "2026-10-30T10:07:10.680754200Z"
+  }
+ },
+ "kilder": [
+  {
+   "rettskilde_id": "cc249ccf-642c-46e5-b600-ad5e6536d85f",
+   "tittel": "Barnehageloven – bhl",
+   "last_monster": {
+    "utsagn": 67,
+    "utfall": {
+     "fantes_som_forslag": 50,
+     "ikke_lastet": 15,
+     "ny": 2
+    },
+    "ikke_lastet_per_arsak": {
+     "aktor_ikke_i_katalogen": 15
+    },
+    "nye_per_kategori": {
+     "K": 2
+    },
+    "merknadsnoder_utelatt": 0,
+    "ki_tokens_inn": null,
+    "ki_tokens_ut": null,
+    "ki_kastede_rader": null,
+    "sekunder": 3.4
+   },
+   "last_ki": {
+    "utsagn": 102,
+    "utfall": {
+     "fantes_som_forslag": 28,
+     "ikke_lastet": 59,
+     "ny": 15
+    },
+    "ikke_lastet_per_arsak": {
+     "aktor_ikke_i_katalogen": 53,
+     "fra_ikke_i_teksten": 4,
+     "avvist_av_valideringen": 1,
+     "type_uten_typekode": 1
+    },
+    "nye_per_kategori": {
+     "K": 10,
+     "P": 3,
+     "F": 2
+    },
+    "merknadsnoder_utelatt": 0,
+    "ki_tokens_inn": 62941,
+    "ki_tokens_ut": 26186,
+    "ki_kastede_rader": 39,
+    "sekunder": 279.2
+   }
+  },
+  {
+   "rettskilde_id": "7336cbdd-fe95-40cd-99af-5a087cd925ff",
+   "tittel": "Forskrift om saksbehandling ved barnehageopptak",
+   "last_monster": {
+    "utsagn": 1,
+    "utfall": {
+     "ikke_lastet": 1
+    },
+    "ikke_lastet_per_arsak": {
+     "aktor_ikke_i_katalogen": 1
+    },
+    "nye_per_kategori": {},
+    "merknadsnoder_utelatt": 0,
+    "ki_tokens_inn": null,
+    "ki_tokens_ut": null,
+    "ki_kastede_rader": null,
+    "sekunder": 0.3
+   },
+   "last_ki": {
+    "utsagn": 7,
+    "utfall": {
+     "ikke_lastet": 5,
+     "ny": 1,
+     "fantes_som_forslag": 1
+    },
+    "ikke_lastet_per_arsak": {
+     "aktor_ikke_i_katalogen": 5
+    },
+    "nye_per_kategori": {
+     "F": 1
+    },
+    "merknadsnoder_utelatt": 0,
+    "ki_tokens_inn": 12245,
+    "ki_tokens_ut": 1065,
+    "ki_kastede_rader": 0,
+    "sekunder": 11.6
+   }
+  },
+  {
+   "rettskilde_id": "e10f216d-c5e3-4450-8cc6-7deb61089844",
+   "tittel": "Forskrift om foreldrebetaling i barnehager",
+   "last_monster": {
+    "utsagn": 3,
+    "utfall": {
+     "fantes_som_forslag": 3
+    },
+    "ikke_lastet_per_arsak": {},
+    "nye_per_kategori": {},
+    "merknadsnoder_utelatt": 18,
+    "ki_tokens_inn": null,
+    "ki_tokens_ut": null,
+    "ki_kastede_rader": null,
+    "sekunder": 0.4
+   },
+   "last_ki": {
+    "utsagn": 11,
+    "utfall": {
+     "ny": 3,
+     "ikke_lastet": 7,
+     "fantes_som_forslag": 1
+    },
+    "ikke_lastet_per_arsak": {
+     "aktor_ikke_i_katalogen": 5,
+     "type_uten_typekode": 1,
+     "avvist_av_valideringen": 1
+    },
+    "nye_per_kategori": {
+     "K": 1,
+     "F": 2
+    },
+    "merknadsnoder_utelatt": 18,
+    "ki_tokens_inn": 12537,
+    "ki_tokens_ut": 3143,
+    "ki_kastede_rader": 11,
+    "sekunder": 34.1
+   }
+  },
+  {
+   "rettskilde_id": "d6bf421a-30b3-4d1d-9be0-a2fac4a8672d",
+   "tittel": "Forskrift om føring av kontantstøtteregister",
+   "last_monster": {
+    "utsagn": 0,
+    "utfall": {},
+    "ikke_lastet_per_arsak": {},
+    "nye_per_kategori": {},
+    "merknadsnoder_utelatt": 0,
+    "ki_tokens_inn": null,
+    "ki_tokens_ut": null,
+    "ki_kastede_rader": null,
+    "sekunder": 0.3
+   },
+   "last_ki": {
+    "utsagn": 5,
+    "utfall": {
+     "ikke_lastet": 4,
+     "ny": 1
+    },
+    "ikke_lastet_per_arsak": {
+     "type_uten_typekode": 2,
+     "avvist_av_valideringen": 1,
+     "aktor_ikke_i_katalogen": 1
+    },
+    "nye_per_kategori": {
+     "K": 1
+    },
+    "merknadsnoder_utelatt": 0,
+    "ki_tokens_inn": 5613,
+    "ki_tokens_ut": 718,
+    "ki_kastede_rader": 0,
+    "sekunder": 6.8
+   }
+  },
+  {
+   "rettskilde_id": "144457fa-f123-4a1f-a513-8c159f4192ac",
+   "tittel": "Forskrift om familiebarnehager",
+   "last_monster": {
+    "utsagn": 1,
+    "utfall": {
+     "fantes_som_forslag": 1
+    },
+    "ikke_lastet_per_arsak": {},
+    "nye_per_kategori": {},
+    "merknadsnoder_utelatt": 0,
+    "ki_tokens_inn": null,
+    "ki_tokens_ut": null,
+    "ki_kastede_rader": null,
+    "sekunder": 0.3
+   },
+   "last_ki": {
+    "utsagn": 3,
+    "utfall": {
+     "fantes_som_forslag": 1,
+     "ny": 2
+    },
+    "ikke_lastet_per_arsak": {},
+    "nye_per_kategori": {
+     "K": 2
+    },
+    "merknadsnoder_utelatt": 0,
+    "ki_tokens_inn": 6142,
+    "ki_tokens_ut": 1279,
+    "ki_kastede_rader": 6,
+    "sekunder": 12.0
+   }
+  },
+  {
+   "rettskilde_id": "304adc0b-7b9c-44e6-9d2b-14aac1bf04c3",
+   "tittel": "Forskrift om godkjenning av kvalifikasjoner",
+   "last_monster": {
+    "utsagn": 2,
+    "utfall": {
+     "ikke_lastet": 1,
+     "fantes_som_forslag": 1
+    },
+    "ikke_lastet_per_arsak": {
+     "aktor_ikke_i_katalogen": 1
+    },
+    "nye_per_kategori": {},
+    "merknadsnoder_utelatt": 0,
+    "ki_tokens_inn": null,
+    "ki_tokens_ut": null,
+    "ki_kastede_rader": null,
+    "sekunder": 0.3
+   },
+   "last_ki": {
+    "utsagn": 5,
+    "utfall": {
+     "ny": 2,
+     "ikke_lastet": 2,
+     "fantes_som_forslag": 1
+    },
+    "ikke_lastet_per_arsak": {
+     "aktor_ikke_i_katalogen": 2
+    },
+    "nye_per_kategori": {
+     "K": 1,
+     "F": 1
+    },
+    "merknadsnoder_utelatt": 0,
+    "ki_tokens_inn": 6501,
+    "ki_tokens_ut": 1492,
+    "ki_kastede_rader": 3,
+    "sekunder": 16.2
+   }
+  },
+  {
+   "rettskilde_id": "bb421303-527c-4339-8a8b-e005cf5f5252",
+   "tittel": "Forskrift om tildeling av tilskudd til private barnehager",
+   "last_monster": {
+    "utsagn": 3,
+    "utfall": {
+     "fantes_som_forslag": 3
+    },
+    "ikke_lastet_per_arsak": {},
+    "nye_per_kategori": {},
+    "merknadsnoder_utelatt": 140,
+    "ki_tokens_inn": null,
+    "ki_tokens_ut": null,
+    "ki_kastede_rader": null,
+    "sekunder": 0.5
+   },
+   "last_ki": {
+    "utsagn": 23,
+    "utfall": {
+     "ikke_lastet": 16,
+     "ny": 5,
+     "fantes_som_forslag": 2
+    },
+    "ikke_lastet_per_arsak": {
+     "aktor_ikke_i_katalogen": 16
+    },
+    "nye_per_kategori": {
+     "K": 4,
+     "P": 1
+    },
+    "merknadsnoder_utelatt": 140,
+    "ki_tokens_inn": 20507,
+    "ki_tokens_ut": 9490,
+    "ki_kastede_rader": 27,
+    "sekunder": 99.7
+   }
+  },
+  {
+   "rettskilde_id": "4f41fcf5-24a6-4529-9cec-dbc726f72f45",
+   "tittel": "Forskrift om politiattest i barnehager",
+   "last_monster": {
+    "utsagn": 0,
+    "utfall": {},
+    "ikke_lastet_per_arsak": {},
+    "nye_per_kategori": {},
+    "merknadsnoder_utelatt": 0,
+    "ki_tokens_inn": null,
+    "ki_tokens_ut": null,
+    "ki_kastede_rader": null,
+    "sekunder": 0.3
+   },
+   "last_ki": {
+    "utsagn": 1,
+    "utfall": {
+     "ikke_lastet": 1
+    },
+    "ikke_lastet_per_arsak": {
+     "aktor_ikke_i_katalogen": 1
+    },
+    "nye_per_kategori": {},
+    "merknadsnoder_utelatt": 0,
+    "ki_tokens_inn": 6191,
+    "ki_tokens_ut": 1418,
+    "ki_kastede_rader": 10,
+    "sekunder": 14.9
+   }
+  },
+  {
+   "rettskilde_id": "46450957-7a07-4aa6-a992-f1579ce54aa8",
+   "tittel": "Forskrift om rammeplan for barnehagens innhold og oppgaver",
+   "last_monster": {
+    "utsagn": 2,
+    "utfall": {
+     "ikke_lastet": 2
+    },
+    "ikke_lastet_per_arsak": {
+     "aktor_ikke_i_katalogen": 2
+    },
+    "nye_per_kategori": {},
+    "merknadsnoder_utelatt": 0,
+    "ki_tokens_inn": null,
+    "ki_tokens_ut": null,
+    "ki_kastede_rader": null,
+    "sekunder": 0.8
+   },
+   "last_ki": {
+    "utsagn": 45,
+    "utfall": {
+     "fantes_som_forslag": 1,
+     "ikke_lastet": 44
+    },
+    "ikke_lastet_per_arsak": {
+     "aktor_ikke_i_katalogen": 43,
+     "type_uten_typekode": 1
+    },
+    "nye_per_kategori": {},
+    "merknadsnoder_utelatt": 0,
+    "ki_tokens_inn": 69883,
+    "ki_tokens_ut": 20532,
+    "ki_kastede_rader": 102,
+    "sekunder": 205.9
+   }
+  },
+  {
+   "rettskilde_id": "c5c52a2c-923e-451e-b8fc-c06966ce5624",
+   "tittel": "Deleg. av Kongens myndighet etter bhl. § 14 tredje ledd til Kunnskapsdepartementet",
+   "last_monster": {
+    "utsagn": 1,
+    "utfall": {
+     "fantes_som_forslag": 1
+    },
+    "ikke_lastet_per_arsak": {},
+    "nye_per_kategori": {},
+    "merknadsnoder_utelatt": 0,
+    "ki_tokens_inn": null,
+    "ki_tokens_ut": null,
+    "ki_kastede_rader": null,
+    "sekunder": 0.3
+   },
+   "last_ki": {
+    "utsagn": 1,
+    "utfall": {
+     "fantes_som_forslag": 1
+    },
+    "ikke_lastet_per_arsak": {},
+    "nye_per_kategori": {},
+    "merknadsnoder_utelatt": 0,
+    "ki_tokens_inn": 5175,
+    "ki_tokens_ut": 344,
+    "ki_kastede_rader": 1,
+    "sekunder": 3.7
+   }
+  },
+  {
+   "rettskilde_id": "8d8680e2-fbc3-4d3c-9cd4-69ef591e15d9",
+   "tittel": "Forskrift om pedagogisk bemanning og dispensasjon i barnehager",
+   "last_monster": {
+    "utsagn": 1,
+    "utfall": {
+     "fantes_som_forslag": 1
+    },
+    "ikke_lastet_per_arsak": {},
+    "nye_per_kategori": {},
+    "merknadsnoder_utelatt": 21,
+    "ki_tokens_inn": null,
+    "ki_tokens_ut": null,
+    "ki_kastede_rader": null,
+    "sekunder": 0.3
+   },
+   "last_ki": {
+    "utsagn": 4,
+    "utfall": {
+     "ikke_lastet": 3,
+     "fantes_som_forslag": 1
+    },
+    "ikke_lastet_per_arsak": {
+     "aktor_ikke_i_katalogen": 3
+    },
+    "nye_per_kategori": {},
+    "merknadsnoder_utelatt": 21,
+    "ki_tokens_inn": 6037,
+    "ki_tokens_ut": 2043,
+    "ki_kastede_rader": 7,
+    "sekunder": 15.7
+   }
+  },
+  {
+   "rettskilde_id": "4345e0ee-98a4-411e-aa38-7c1201a6a1f3",
+   "tittel": "Forskrift om ansvar for spesialpedagogisk hjelp for barn",
+   "last_monster": {
+    "utsagn": 2,
+    "utfall": {
+     "ikke_lastet": 2
+    },
+    "ikke_lastet_per_arsak": {
+     "aktor_ikke_i_katalogen": 2
+    },
+    "nye_per_kategori": {},
+    "merknadsnoder_utelatt": 0,
+    "ki_tokens_inn": null,
+    "ki_tokens_ut": null,
+    "ki_kastede_rader": null,
+    "sekunder": 0.3
+   },
+   "last_ki": {
+    "utsagn": 0,
+    "utfall": {},
+    "ikke_lastet_per_arsak": {},
+    "nye_per_kategori": {},
+    "merknadsnoder_utelatt": 0,
+    "ki_tokens_inn": 6234,
+    "ki_tokens_ut": 3417,
+    "ki_kastede_rader": 18,
+    "sekunder": 48.7
+   }
+  },
+  {
+   "rettskilde_id": "5f2537a6-cf3b-415e-88a0-ced12d6f561c",
+   "tittel": "Forskrift om behandling av personopplysninger i barnehagesektoren",
+   "last_monster": {
+    "utsagn": 0,
+    "utfall": {},
+    "ikke_lastet_per_arsak": {},
+    "nye_per_kategori": {},
+    "merknadsnoder_utelatt": 0,
+    "ki_tokens_inn": null,
+    "ki_tokens_ut": null,
+    "ki_kastede_rader": null,
+    "sekunder": 0.3
+   },
+   "last_ki": {
+    "utsagn": 7,
+    "utfall": {
+     "ikke_lastet": 7
+    },
+    "ikke_lastet_per_arsak": {
+     "aktor_ikke_i_katalogen": 7
+    },
+    "nye_per_kategori": {},
+    "merknadsnoder_utelatt": 0,
+    "ki_tokens_inn": 5742,
+    "ki_tokens_ut": 1978,
+    "ki_kastede_rader": 3,
+    "sekunder": 22.9
+   }
+  },
+  {
+   "rettskilde_id": "4a7fd337-31e2-4050-b9bd-6a383e199aaa",
+   "tittel": "Forskrift om overgangsregler til barnehageloven – overføring av ansvaret for å føre tilsyn med økonomiske forhold i private barnehager fra kommunen og statsforvalteren til Utdanningsdirektoratet",
+   "last_monster": {
+    "utsagn": 4,
+    "utfall": {
+     "fantes_som_forslag": 3,
+     "ikke_lastet": 1
+    },
+    "ikke_lastet_per_arsak": {
+     "aktor_ikke_i_katalogen": 1
+    },
+    "nye_per_kategori": {},
+    "merknadsnoder_utelatt": 0,
+    "ki_tokens_inn": null,
+    "ki_tokens_ut": null,
+    "ki_kastede_rader": null,
+    "sekunder": 0.4
+   },
+   "last_ki": {
+    "utsagn": 18,
+    "utfall": {
+     "fantes_som_forslag": 5,
+     "ny": 10,
+     "ikke_lastet": 3
+    },
+    "ikke_lastet_per_arsak": {
+     "aktor_ikke_i_katalogen": 3
+    },
+    "nye_per_kategori": {
+     "K": 9,
+     "F": 1
+    },
+    "merknadsnoder_utelatt": 0,
+    "ki_tokens_inn": 17525,
+    "ki_tokens_ut": 5556,
+    "ki_kastede_rader": 0,
+    "sekunder": 63.7
+   }
+  },
+  {
+   "rettskilde_id": "bfb70c59-1250-4372-a5c0-ee2c50b22fc1",
+   "tittel": "Forskrift om barnehagevirksomhet i Longyearbyen",
+   "last_monster": {
+    "utsagn": 1,
+    "utfall": {
+     "fantes_som_forslag": 1
+    },
+    "ikke_lastet_per_arsak": {},
+    "nye_per_kategori": {},
+    "merknadsnoder_utelatt": 0,
+    "ki_tokens_inn": null,
+    "ki_tokens_ut": null,
+    "ki_kastede_rader": null,
+    "sekunder": 0.2
+   },
+   "last_ki": {
+    "utsagn": 5,
+    "utfall": {
+     "ikke_lastet": 4,
+     "fantes_som_forslag": 1
+    },
+    "ikke_lastet_per_arsak": {
+     "aktor_ikke_i_katalogen": 2,
+     "aktor_generisk_uten_binding": 2
+    },
+    "nye_per_kategori": {},
+    "merknadsnoder_utelatt": 0,
+    "ki_tokens_inn": 6342,
+    "ki_tokens_ut": 1980,
+    "ki_kastede_rader": 5,
+    "sekunder": 47.7
+   }
+  },
+  {
+   "rettskilde_id": "6a45f7bd-be95-4b7d-9292-d1c18366e5c3",
+   "tittel": "Økonomiforskrift til barnehageloven",
+   "last_monster": {
+    "utsagn": 0,
+    "utfall": {},
+    "ikke_lastet_per_arsak": {},
+    "nye_per_kategori": {},
+    "merknadsnoder_utelatt": 0,
+    "ki_tokens_inn": null,
+    "ki_tokens_ut": null,
+    "ki_kastede_rader": null,
+    "sekunder": 0.3
+   },
+   "last_ki": {
+    "utsagn": 0,
+    "utfall": {},
+    "ikke_lastet_per_arsak": {},
+    "nye_per_kategori": {},
+    "merknadsnoder_utelatt": 0,
+    "ki_tokens_inn": 12437,
+    "ki_tokens_ut": 1591,
+    "ki_kastede_rader": 9,
+    "sekunder": 36.9
+   }
+  },
+  {
+   "rettskilde_id": "971ae1f2-55c7-48c7-a951-9774a925bcca",
+   "tittel": "Midlertidig forskrift om midlertidig godkjenning av ordinære barnehager og midlertidig tilskudd for enklere bosetting av fordrevne fra Ukraina og flyktninger",
+   "last_monster": {
+    "utsagn": 2,
+    "utfall": {
+     "fantes_som_forslag": 2
+    },
+    "ikke_lastet_per_arsak": {},
+    "nye_per_kategori": {},
+    "merknadsnoder_utelatt": 0,
+    "ki_tokens_inn": null,
+    "ki_tokens_ut": null,
+    "ki_kastede_rader": null,
+    "sekunder": 0.3
+   },
+   "last_ki": {
+    "utsagn": 4,
+    "utfall": {
+     "fantes_som_forslag": 2,
+     "ny": 2
+    },
+    "ikke_lastet_per_arsak": {},
+    "nye_per_kategori": {
+     "K": 1,
+     "F": 1
+    },
+    "merknadsnoder_utelatt": 0,
+    "ki_tokens_inn": 16596,
+    "ki_tokens_ut": 3012,
+    "ki_kastede_rader": 2,
+    "sekunder": 36.2
+   }
+  },
+  {
+   "rettskilde_id": "1edbc1f9-f16f-4be1-ace0-0a185cc7174e",
+   "tittel": "Forskrift om enkelte klagenemnder på Kunnskapsdepartementets område",
+   "last_monster": {
+    "utsagn": 9,
+    "utfall": {
+     "ikke_lastet": 9
+    },
+    "ikke_lastet_per_arsak": {
+     "aktor_ikke_i_katalogen": 9
+    },
+    "nye_per_kategori": {},
+    "merknadsnoder_utelatt": 0,
+    "ki_tokens_inn": null,
+    "ki_tokens_ut": null,
+    "ki_kastede_rader": null,
+    "sekunder": 0.3
+   },
+   "last_ki": {
+    "utsagn": 0,
+    "utfall": {},
+    "ikke_lastet_per_arsak": {},
+    "nye_per_kategori": {},
+    "merknadsnoder_utelatt": 0,
+    "ki_tokens_inn": 12293,
+    "ki_tokens_ut": 8486,
+    "ki_kastede_rader": 56,
+    "sekunder": 86.6
+   }
+  },
+  {
+   "rettskilde_id": "d12aff08-ef02-47b3-af7e-0899db992973",
+   "tittel": "Finansieringsforskriften",
+   "last_monster": {
+    "utsagn": 7,
+    "utfall": {
+     "fantes_som_forslag": 6,
+     "ny": 1
+    },
+    "ikke_lastet_per_arsak": {},
+    "nye_per_kategori": {
+     "K": 1
+    },
+    "merknadsnoder_utelatt": 70,
+    "ki_tokens_inn": null,
+    "ki_tokens_ut": null,
+    "ki_kastede_rader": null,
+    "sekunder": 0.5
+   },
+   "last_ki": {
+    "utsagn": 42,
+    "utfall": {
+     "ikke_lastet": 27,
+     "fantes_som_forslag": 2,
+     "ny": 13
+    },
+    "ikke_lastet_per_arsak": {
+     "aktor_ikke_i_katalogen": 26,
+     "type_uten_typekode": 1
+    },
+    "nye_per_kategori": {
+     "K": 1,
+     "P": 1,
+     "F": 11
+    },
+    "merknadsnoder_utelatt": 70,
+    "ki_tokens_inn": 27332,
+    "ki_tokens_ut": 11803,
+    "ki_kastede_rader": 24,
+    "sekunder": 147.9
+   }
+  },
+  {
+   "rettskilde_id": "3643ad1e-6402-4a53-88e4-32ac26f0f6c5",
+   "tittel": "Forskrift om helse og miljø i barnehager, skoler og skolefritidsordninger",
+   "last_monster": {
+    "utsagn": 4,
+    "utfall": {
+     "fantes_som_forslag": 4
+    },
+    "ikke_lastet_per_arsak": {},
+    "nye_per_kategori": {},
+    "merknadsnoder_utelatt": 0,
+    "ki_tokens_inn": null,
+    "ki_tokens_ut": null,
+    "ki_kastede_rader": null,
+    "sekunder": 0.4
+   },
+   "last_ki": {
+    "utsagn": 15,
+    "utfall": {
+     "ikke_lastet": 12,
+     "ny": 3
+    },
+    "ikke_lastet_per_arsak": {
+     "aktor_ikke_i_katalogen": 10,
+     "fra_ikke_i_teksten": 2
+    },
+    "nye_per_kategori": {
+     "K": 2,
+     "F": 1
+    },
+    "merknadsnoder_utelatt": 0,
+    "ki_tokens_inn": 13321,
+    "ki_tokens_ut": 4048,
+    "ki_kastede_rader": 11,
+    "sekunder": 42.3
+   }
+  }
+ ]
+}

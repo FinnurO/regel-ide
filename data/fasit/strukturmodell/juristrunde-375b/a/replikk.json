@@ -1,0 +1,25 @@
+[
+ {
+  "id": "k23",
+  "replikk": "presiserer",
+  "tekst": "Jeg godtar at den nye P betaling-raden får til = null og bare står én gang, nemlig som ny rad under del b f1. Den har samme eId og sitat og har mottakeren i objekt: «grunntilskudd til private barnehager som har rett til tilskudd etter § 19 første eller andre ledd». Ny_rad under k23 i del a utgår. Grunnene er tre. Pilotpraksisen er entydig (375 f9 og f71; 418 k69, k71 og k77). En rad med til = «private barnehager» kan ikke lastes før #424 er løst. Og de begunstigede skal stå i avgrensning eller objekt etter #353, slik f1 gjør. Presiseringen: FORMAT #353 sier fortsatt at «yter tilskudd til X» angir betalingsmottakeren, altså til = X. Pilotpraksisen avviker fra den regelen for tilskudd til private. Det er ikke et spørsmål for dette kortet, men FORMAT.md og praksisen bør bringes i samsvar, med en presisering om at private tilskuddsmottakere er begunstigede og ikke motpart, så neste KI-kjøring ikke foreslår motparten igjen. Avvisningen av k23-raden selv står som akseptert. Sluttreplikk i klart språk: Vi er enige om at kortet skal avvises, og at kommunens plikt til å betale grunntilskudd skal inn som én ny rad. Det eneste spørsmålet var om de private barnehagene skal stå som «mottaker» i raden. Vi lar feltet stå tomt, slik det er gjort i resten av piloten, og skriver barnehagene i beskrivelsen. Formatbeskrivelsen sier noe annet og bør rettes, så regelen og praksisen blir like.",
+  "kilder": [
+   {
+    "ref": "barnehageloven § 19 a første ledd første punktum",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FORMAT.md, issue #353 (betalingsmottaker: «yter tilskudd til X» sier det; begunstiget = avgrensning, docs/33 §4.5 punkt 3)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "juristrunde-375 f9, f71; juristrunde-418 k69, k71, k77 (til = null for private tilskuddsmottakere)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "juristrunde-375b/b/utfordringer.json f1 (ny_rad P betaling, til = null)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ }
+]

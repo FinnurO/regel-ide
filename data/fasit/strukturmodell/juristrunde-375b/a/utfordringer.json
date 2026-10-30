@@ -1,0 +1,861 @@
+[
+ {
+  "id": "m1",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Eget utsagn, ikke dublett. Andre punktum (ekstra grunntilskudd etter § 9) er en annen forskriftshjemmel enn første punktum (83a37b3a, grunntilskudd etter §§ 6, 17 og 18; juristrunde 418 k5: godkjenn). Type, normform og fra holder. Vilkåret i samme setning mangler: plikten og kompetansen til å gi satsforskrift for ekstra grunntilskudd gjelder bare når kommunen har holdt utgifter utenfor beregningsgrunnlaget etter barnehageloven § 19 a andre ledd (17.4: mister vilkår). «skal» går tapt fordi K ikke har modalitet (formatmangel, jf. f47/f49 i runde 375). Forskriften er i kraft fra 1. august 2026 og gjelder fra tilskuddsåret 2027 (§ 25 første ledd).",
+  "retting": {
+   "avgrensning": "når kommunen har holdt utgifter utenfor beregningen av grunntilskuddet på grunn av særlige driftsforutsetninger eller særlige behov i barnegruppen (barnehageloven § 19 a andre ledd)"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2026-03-23-454 § 1 første ledd andre punktum",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "barnehageloven § 19 a andre ledd",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "FOR-2026-03-23-454 § 25 første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "m2",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Eget utsagn, ikke dublett. Andre punktum (stenging) er en annen disposisjon enn pålegget i første punktum (113b9c35, 418 k100), og er et av utsagnene #420 skulle hente tilbake. Typen vedtak holder. Stenging er en disposisjon over virksomheten, og at den virker som reaksjon, gjør den ikke til sanksjon (FORMAT #355). Sanksjon er for disposisjoner som selv er reaksjoner, som gebyr og tvangsmulkt. Avgrensningen er null, så vilkåret i sitatet er borte: stenging krever at et pålegg ikke er etterkommet innen fristen, eller at forholdet ikke lar seg rette. Uten vilkåret står kommunen med en ubetinget stengingskompetanse (17.4: mister vilkår). Kompetansen hører også til tilsynet etter første ledd, som unntar kapittel V (jf. 418 k99).",
+  "retting": {
+   "avgrensning": "når fristen for å etterkomme pålegg etter første punktum ikke er overholdt, eller forholdet ikke lar seg rette; ved tilsyn etter § 53 første ledd (ikke kapittel V med forskrifter)"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 53 andre ledd andre punktum",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "barnehageloven § 53 første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "m3",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Eget utsagn, ikke dublett av påleggsraden 0e5d14a7 (første punktum, 418 k103). Typen vedtak holder, som i m2. Vilkåret i sitatet mangler. Statsforvalterens kompetanse hører dessuten til tilsynet etter første ledd, som bare gjelder «i særlige tilfeller» og ikke kapittel V. Uten avgrensning står statsforvalteren med samme stengingskompetanse som kommunen, og det er ikke lovens ordning (17.4: mister vilkår). Tredje punktum, der kommunen og foreldrerådet skal få uttale seg, er en høringsrett og står utenfor (FORMAT #353). Fjerde punktum, «Statsforvalterens stengingsvedtak skal sendes kommunen til orientering», er P informasjon og har samme form som f20 i runde 375. Det er ikke blant forslagene, så det står som ny rad. At statsforvalteren er avsender, er sluttet fra genitiven (fortolkning).",
+  "retting": {
+   "avgrensning": "når fristen for å etterkomme pålegg etter første punktum ikke er overholdt, eller forholdet ikke lar seg rette; ved tilsyn etter § 55 første ledd (i særlige tilfeller, ikke kapittel V med forskrifter)"
+  },
+  "ny_rad": {
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§55/ledd-2",
+   "kategori": "P",
+   "type": "informasjon",
+   "fra": "statsforvalter",
+   "fra_art": "klasse",
+   "til": "kommune",
+   "til_art": "klasse",
+   "modalitet": "skal",
+   "objekt": "statsforvalterens stengingsvedtak til orientering",
+   "polaritet": "positiv",
+   "avgrensning": "stengingsvedtak etter andre punktum",
+   "kunnskapsstatus": "fortolkning"
+  },
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 55 andre ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "barnehageloven § 55 første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "k1",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Dublett av 7ecb4119 (K vedtak «godkjenning av familiebarnehagen», samme ledd og setning). 418 k2 anbefalte å rette typen til godkjenning, og da er de to kantene samme utsagn. Denne raden har allerede riktig type (FORMAT #352) og objektet ordrett. Godkjenn bare én av dem. Enten godkjennes denne og 7ecb4119 avvises i stedet for å rettes, eller omvendt. Kontrollen i første del av setningen er vurderingen i godkjenningssaken og ikke tilsyn (418 k1).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2005-12-16-1555 § 2 første ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "k2",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Dublett av ed31a1ae (mønsterlaget, samme ledd og setning; 418 k4: rett objekt). Denne raden har sakstypen i objekt, men mangler motparten. «Kommunens vedtak» navngir den, og K klage skal ha motparten som til (#341; 418 k9, k35, k47). Godkjenn bare én av de to: enten denne med rettingen under og avvis ed31a1ae, eller ed31a1ae med objektet fra 418 k4 og avvis denne.",
+  "retting": {
+   "til": "kommune",
+   "til_art": "klasse",
+   "objekt": "kommunens vedtak om godkjenning av familiebarnehage"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2005-12-16-1555 § 7 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "forvaltningsloven § 28 andre ledd (uten særskilt hjemmel er klageinstansen for kommunale vedtak kommunestyret eller klagenemnda)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "k3",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Eget utsagn. Andre punktum er en annen disposisjon enn beregningsregelen i første punktum (F forvaltning d15bd28c, avvist i runde 375 f10). Typen vedtak holder etter samme vurdering som 418 k55 for tildelingsforskriften § 8 fjerde ledd. Å legge et lavere barnetall til grunn er et skjønnsmessig element i tilskuddsvedtaket, ikke en egen generell beslutning. Avgrensningen sier ikke tre ting: at § 18 gjelder åpne barnehager, at det er grunntilskuddet etter første ledd, og at dette inngår i tilskuddsvedtaket.",
+  "retting": {
+   "avgrensning": "private åpne barnehager, grunntilskudd etter § 18 første ledd; når fremmøtet over tid er vesentlig lavere enn barnetallet barnehagen er godkjent for; del av tilskuddsvedtaket"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2026-03-23-454 § 18 tredje ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FOR-2026-03-23-454 § 18 første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "k4",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Dublett av e444de1c (K beslutning, Stortinget, «maksimalgrensen», samme setning; runde 375 f13: rett, så godkjenn). Typen er dessuten feil. Stortingets budsjettvedtak er et plenarvedtak med grunnlag i bevilgningsmyndigheten (Grunnloven § 75) [slutning], ikke normgivning med normform forskrift. Forvaltningslovens forskriftsbegrep gjelder forvaltningsorganer, og Stortinget er ikke et forvaltningsorgan (fvl. §§ 1 og 2) [slutning]. Forskriften (kgl.res.) hjemler heller ikke Stortingets kompetanse; den forutsetter den (f13). Avvis denne og behold e444de1c med avgrensningen fra f13.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2005-12-16-1478 § 1 andre ledd",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "Grunnloven § 75",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "forvaltningsloven §§ 1 og 2",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "k5",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "«Kommunen fører kontroll med opplysninger fra barnehageeierne» er kontroll med dataene i registeret kommunen selv har plikt til å opprette og føre (§ 1). Forskriften gir kommunen ingen adgang til å følge opp overfor barnehageeierne med korreksjon eller reaksjon. Derfor er det ikke tilsyn, fordi kontroll bare brukes der innehaveren kan undersøke og følge opp. Det er en oppgave: F kontroll (begrepsmanualen §F, kontrolloppgave), med modalitet skal etter normativ presens. Feltet modalitet finnes ikke i forslaget. K tilsyn gir kommunen en myndighet overfor barnehageeierne som teksten ikke gir. Merk også at forskriften (2005, hjemmel barnehageloven § 10 fjerde ledd) fortsatt sier «trygdekontorene», mens loven nå sier Arbeids- og velferdsetaten (Lovdata, kontrollert 2026-10-30).",
+  "retting": {
+   "kategori": "F",
+   "type": "kontroll",
+   "objekt": "kontroll med opplysningene fra barnehageeierne som registeret føres på"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": "bygget",
+  "kilder": [
+   {
+    "ref": "FOR-2005-12-16-1510 § 3 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FOR-2005-12-16-1510 § 1",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "barnehageloven § 10 fjerde ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "k6",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "«Godkjenning … skal gis av» Direktoratet for høyere utdanning og kompetanse er godkjenningskompetanse etter FORMAT #352 («Godkjenning … gis av X»), ikke vedtak. Det er samme valg som for godkjenning av barnehager (418 k2, k85). Fra, objekt og delegeringsadgang holder. Mønsterlaget fant samme utsagn som godkjenningskompetanse, men det ble ikke lastet fordi aktøren ble løst til «Direktoratet».",
+  "retting": {
+   "type": "godkjenning"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": "bygget",
+  "kilder": [
+   {
+    "ref": "FOR-2008-09-12-1071 § 3 tredje ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "k7",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Dublett av 1f06a23a (mønsterlaget, til = null, objekt = null; 418 k35: rett til, objekt og avgrensning). Denne raden er det 418 k35 ba om, bortsett fra avgrensningen. Godkjenn bare én: denne med avgrensningen under og avvis 1f06a23a, eller rett 1f06a23a etter k35 og avvis denne.",
+  "retting": {
+   "avgrensning": "etter folkehelseloven § 19"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2023-03-28-449 § 21 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "folkehelseloven § 19",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "k8",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Eget utsagn (eget ledd, ingen andre forslag). K klage fra statsforvalteren med kommunen som motpart holder. Avgjørelsen etter § 20 første ledd tredje punktum er kommunens vurdering av om en henvendelse skal følges opp med tilsyn. Forskriften gjør den klagbar etter forvaltningsloven kapittel VI, så statsforvalterens avgjørelse er bindende. Elevens og foreldrenes klageadgang er partsadgang og hører til regellaget.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2023-03-28-449 § 21 andre ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FOR-2023-03-28-449 § 20 første ledd tredje punktum",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "forvaltningsloven kapittel VI",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "k9",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Innsyn i dokumenter og adgang til lokaler er ikke enkeltvedtak etter fvl. § 2, og KI-laget skriver selv at teksten ikke sier vedtak. Det er en undersøkelsesbeføyelse i tilsynet som forskriften lar kommunen fullføre (§ 2 første ledd). Tilsynet kan følges opp med pålegg, stenging og økonomiske reaksjoner (§ 4), så typen er tilsyn, som for samme ordlyd i barnehageloven § 10 femte ledd (k22). Avgrensningen viser til § 2 første ledd, men overgangsvilkåret bør stå uttrykkelig (17.4: mister vilkår; jf. f18/f19 i runde 375). L13 holder: kommunen og statsforvalteren har hver sin rad (k9, k10).",
+  "retting": {
+   "type": "tilsyn",
+   "avgrensning": "i den utstrekning det er nødvendig for å fullføre pågående tilsyn etter § 2 første ledd; bare tilsyn med private barnehager etter barnehageloven kap. V som ikke var avsluttet før 1. januar 2022, der varsel om vedtak var sendt før 1. januar 2022 (FOR-2021-10-06-3079 §§ 1–2)"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": "bygget",
+  "kilder": [
+   {
+    "ref": "FOR-2021-10-06-3079 § 3",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FOR-2021-10-06-3079 § 2 første ledd og § 4",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "FOR-2021-10-06-3079 §§ 1–2 (overgangsforskriftens virkeområde)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "forvaltningsloven § 2",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "k10",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Innsyn i dokumenter og adgang til lokaler er ikke enkeltvedtak etter fvl. § 2, og KI-laget skriver selv at teksten ikke sier vedtak. Det er en undersøkelsesbeføyelse i tilsynet som forskriften lar statsforvalteren fullføre (§ 2 første ledd). Tilsynet kan følges opp med pålegg, stenging og økonomiske reaksjoner (§ 4), så typen er tilsyn, som for samme ordlyd i barnehageloven § 10 femte ledd (k22). Avgrensningen viser til § 2 første ledd, men overgangsvilkåret bør stå uttrykkelig (17.4: mister vilkår; jf. f18/f19 i runde 375). L13 holder: kommunen og statsforvalteren har hver sin rad (k9, k10).",
+  "retting": {
+   "type": "tilsyn",
+   "avgrensning": "i den utstrekning det er nødvendig for å fullføre pågående tilsyn etter § 2 første ledd; bare tilsyn med private barnehager etter barnehageloven kap. V som ikke var avsluttet før 1. januar 2022, der varsel om vedtak var sendt før 1. januar 2022 (FOR-2021-10-06-3079 §§ 1–2)"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": "bygget",
+  "kilder": [
+   {
+    "ref": "FOR-2021-10-06-3079 § 3",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FOR-2021-10-06-3079 § 2 første ledd og § 4",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "FOR-2021-10-06-3079 §§ 1–2 (overgangsforskriftens virkeområde)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "forvaltningsloven § 2",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "k11",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Eget utsagn. Andre punktum (stenging) er en annen disposisjon enn pålegget i første punktum (8ba84bf7, 418 k36) og orienteringen i tredje punktum (2cb9795a, 375 f20). Typen vedtak holder (som m2), og vilkåret står i avgrensningen. Det som mangler, er sakstypen og tiden. Kompetansen gjelder bare stenging etter pålegg om brudd på barnehageloven §§ 21–23, og bare i tilsyn som overgangsforskriften gjelder for. Uten det ser kanten ut som en gjeldende stengingskompetanse i saker etter kapittel V, i strid med unntaket i barnehageloven § 53 første ledd (17.4: mister vilkår; samme innvending som 418 k36/k37).",
+  "retting": {
+   "avgrensning": "hvis fristen for å etterkomme pålegg om retting av forhold i strid med barnehageloven §§ 21–23 ikke overholdes, eller forholdet ikke lar seg rette; bare tilsyn med private barnehager etter barnehageloven kap. V som ikke var avsluttet før 1. januar 2022, der varsel om vedtak var sendt før 1. januar 2022 (FOR-2021-10-06-3079 §§ 1–2)"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2021-10-06-3079 § 4 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FOR-2021-10-06-3079 §§ 1–2 (overgangsforskriftens virkeområde)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "barnehageloven § 53 første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "k12",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Eget utsagn. Andre punktum (stenging) er en annen disposisjon enn pålegget i første punktum (83bbaa9c, 418 k37) og orienteringen i tredje punktum (2cb9795a, 375 f20). Typen vedtak holder (som m2), og vilkåret står i avgrensningen. Det som mangler, er sakstypen og tiden. Kompetansen gjelder bare stenging etter pålegg om brudd på barnehageloven §§ 21–23, og bare i tilsyn som overgangsforskriften gjelder for. Uten det ser kanten ut som en gjeldende stengingskompetanse i saker etter kapittel V, i strid med unntaket i barnehageloven § 53 første ledd (17.4: mister vilkår; samme innvending som 418 k36/k37).",
+  "retting": {
+   "avgrensning": "hvis fristen for å etterkomme pålegg om retting av forhold i strid med barnehageloven §§ 21–23 ikke overholdes, eller forholdet ikke lar seg rette; bare tilsyn med private barnehager etter barnehageloven kap. V som ikke var avsluttet før 1. januar 2022, der varsel om vedtak var sendt før 1. januar 2022 (FOR-2021-10-06-3079 §§ 1–2)"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2021-10-06-3079 § 4 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FOR-2021-10-06-3079 §§ 1–2 (overgangsforskriftens virkeområde)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "barnehageloven § 53 første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "k13",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Dublett av d4050bf9 (K vedtak, kommune, samme ledd og setning). 418 k38 anbefalte å rette typen til sanksjon og legge til avgrensning, og da er de to samme utsagn. Denne raden har riktig type, men mangler overgangsvilkåret. Den mangler også at reaksjonen kan brukes i stedet for eller i tillegg til stenging (17.4: mister vilkår). Godkjenn bare én: denne med avgrensningen under og avvis d4050bf9, eller rett d4050bf9 etter 418 k38 og avvis denne.",
+  "retting": {
+   "avgrensning": "dersom krav etter barnehageloven §§ 21–23 eller forskrift etter § 23 ikke er overholdt; i stedet for eller i tillegg til stenging; bare tilsyn med private barnehager etter barnehageloven kap. V som ikke var avsluttet før 1. januar 2022, der varsel om vedtak var sendt før 1. januar 2022 (FOR-2021-10-06-3079 §§ 1–2)"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2021-10-06-3079 § 4 andre ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FOR-2021-10-06-3079 §§ 1–2 (overgangsforskriftens virkeområde)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "k14",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Ikke dublett. Dette er statsforvalterens rad for samme ledd, som 418 k38 ba om som ny rad (L13, én rad per innehaver). Typen sanksjon holder (FORMAT #355; forskriften kaller dem selv økonomiske reaksjoner). Avgrensningen mangler overgangsvilkåret, som 418 k38 tok med i den nye raden (17.4: mister vilkår).",
+  "retting": {
+   "avgrensning": "dersom krav etter barnehageloven §§ 21–23 eller forskrift etter § 23 ikke er overholdt; i stedet for eller i tillegg til stenging; bare tilsyn med private barnehager etter barnehageloven kap. V som ikke var avsluttet før 1. januar 2022, der varsel om vedtak var sendt før 1. januar 2022 (FOR-2021-10-06-3079 §§ 1–2)"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2021-10-06-3079 § 4 andre ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FOR-2021-10-06-3079 §§ 1–2 (overgangsforskriftens virkeområde)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "k15",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Dublett av 4cc76e71 (K vedtak, kommune, samme ledd og setning). 418 k39 anbefalte typen sanksjon og avgrensning, og da er de to samme utsagn. Denne raden har riktig type. Den mangler forholdsmessighetskravet i § 4 femte ledd og overgangsvilkåret (17.4: mister vilkår). Godkjenn bare én: denne med avgrensningen under og avvis 4cc76e71, eller rett 4cc76e71 etter 418 k39 og avvis denne.",
+  "retting": {
+   "avgrensning": "dersom krav etter barnehageloven §§ 21–23 eller forskrift etter § 23 ikke er oppfylt; skal stå i forhold til regelbruddets art og økonomiske betydning (§ 4 femte ledd); bare tilsyn med private barnehager etter barnehageloven kap. V som ikke var avsluttet før 1. januar 2022, der varsel om vedtak var sendt før 1. januar 2022 (FOR-2021-10-06-3079 §§ 1–2)"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2021-10-06-3079 § 4 tredje og femte ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FOR-2021-10-06-3079 §§ 1–2 (overgangsforskriftens virkeområde)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "k16",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Dublett av 96e0a56e (K vedtak, kommune, samme ledd og setning). 418 k40 anbefalte typen sanksjon og avgrensning, og da er de to samme utsagn. Denne raden har riktig type. Den mangler forholdsmessighetskravet i § 4 femte ledd og overgangsvilkåret (17.4: mister vilkår). Godkjenn bare én: denne med avgrensningen under og avvis 96e0a56e, eller rett 96e0a56e etter 418 k40 og avvis denne.",
+  "retting": {
+   "avgrensning": "dersom tilskudd er anvendt i strid med barnehageloven §§ 21–23 eller forskrift etter § 23; skal stå i forhold til regelbruddets art og økonomiske betydning (§ 4 femte ledd); bare tilsyn med private barnehager etter barnehageloven kap. V som ikke var avsluttet før 1. januar 2022, der varsel om vedtak var sendt før 1. januar 2022 (FOR-2021-10-06-3079 §§ 1–2)"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2021-10-06-3079 § 4 fjerde og femte ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FOR-2021-10-06-3079 §§ 1–2 (overgangsforskriftens virkeområde)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "k17",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Ikke dublett. Dette er statsforvalterens rad for samme ledd, som 418 k40 ba om som ny rad (L13). Typen sanksjon holder (418 k40; forskriften kaller tilbakebetaling et økonomisk reaksjonsmiddel, § 5). Avgrensningen mangler forholdsmessighetskravet i § 4 femte ledd, som gjelder all tilbakebetaling etter fjerde ledd, og overgangsvilkåret (17.4: mister vilkår).",
+  "retting": {
+   "avgrensning": "dersom tilskudd er anvendt i strid med barnehageloven §§ 21–23 eller forskrift etter § 23; skal stå i forhold til regelbruddets art og økonomiske betydning (§ 4 femte ledd); bare tilsyn med private barnehager etter barnehageloven kap. V som ikke var avsluttet før 1. januar 2022, der varsel om vedtak var sendt før 1. januar 2022 (FOR-2021-10-06-3079 §§ 1–2)"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2021-10-06-3079 § 4 fjerde og femte ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FOR-2021-10-06-3079 §§ 1–2 (overgangsforskriftens virkeområde)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "FOR-2021-10-06-3079 § 5",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "k18",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Dublett av e14f47bd (K beslutning, samme ledd og setning). 418 k53 anbefalte å rette typen til vedtak og legge til avgrensning, og da er de to samme utsagn. Typen vedtak er riktig, fordi § 9 andre ledd sier at satsvedtaket er et enkeltvedtak. Objektet «satser for driftstilskudd» er for generelt. § 7 gjelder private familiebarnehager, og egne satser fastsettes bare i kommuner som har kommunale familiebarnehager (ellers gjelder tabellene i femte til sjuende ledd). Godkjenn bare én: denne med rettingen under og avvis e14f47bd, eller rett e14f47bd etter 418 k53 og avvis denne. Tildelingsforskriften oppheves 31. desember 2026 (finansieringsforskriften § 25 første ledd). Feltet for gyldighet finnes ikke i forslaget.",
+  "retting": {
+   "objekt": "satser for driftstilskudd til private familiebarnehager, én for barn over og én for barn under tre år",
+   "avgrensning": "kommuner med kommunale familiebarnehager (ellers satsene i § 7 femte–sjuende ledd); vedtak om satser etter § 9 (enkeltvedtak)"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2015-10-09-1166 § 7 fjerde ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FOR-2015-10-09-1166 § 7 femte–sjuende ledd og § 9",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "FOR-2026-03-23-454 § 25 første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "k19",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Dublett av 83e6c277 (K beslutning, samme ledd og setning). 418 k54 anbefalte typen vedtak og avgrensning, og da er de to samme utsagn. Typen vedtak er riktig (§ 9 andre ledd). Avgrensningen mangler: egne satser fastsettes bare i kommuner som har kommunale åpne barnehager (ellers gjelder § 8 femte ledd). Godkjenn bare én: denne med rettingen under og avvis 83e6c277, eller rett 83e6c277 etter 418 k54 og avvis denne. Tildelingsforskriften oppheves 31. desember 2026 (finansieringsforskriften § 25 første ledd). Feltet for gyldighet finnes ikke i forslaget.",
+  "retting": {
+   "objekt": "satser for tilskudd til private åpne barnehager (ukentlig åpningstid 6–15 timer og over 15 timer)",
+   "avgrensning": "kommuner med kommunale åpne barnehager (ellers satsene i § 8 femte ledd); vedtak om satser etter § 9 (enkeltvedtak)"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2015-10-09-1166 § 8 tredje ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FOR-2015-10-09-1166 § 8 femte ledd og § 9",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "FOR-2026-03-23-454 § 25 første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "k20",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Dublett av 3f444ae3 (K beslutning, samme ledd og setning). 418 k55 anbefalte typen vedtak og avgrensning, og da er de to samme utsagn. Typen vedtak er riktig (skjønnsmessig element i tilskuddsvedtaket). Objektet «tilskuddsgrunnlag» sier ikke hva kommunen kan gjøre. Godkjenn bare én: denne med rettingen under og avvis 3f444ae3, eller rett 3f444ae3 etter 418 k55 og avvis denne. Tildelingsforskriften oppheves 31. desember 2026 (finansieringsforskriften § 25 første ledd). Feltet for gyldighet finnes ikke i forslaget.",
+  "retting": {
+   "objekt": "legge et lavere barnetall til grunn ved beregning av tilskudd til åpne barnehager",
+   "avgrensning": "åpne barnehager; når fremmøtet over tid er vesentlig lavere enn barnetallet barnehagen er godkjent for; del av tilskuddsvedtaket etter § 1"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2015-10-09-1166 § 8 fjerde ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FOR-2015-10-09-1166 § 1",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "FOR-2026-03-23-454 § 25 første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "k21",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Dublett av 8dc53f37 (mønsterlaget, § 9 første ledd: «Kommunen skal fatte vedtak om satser …»; 418 k56: rett og godkjenn). Andre ledd gir ingen kompetanse. Det sier bare at vedtaket i første ledd er enkeltvedtak etter fvl. § 2 første ledd bokstav b, og det følger alt av typen vedtak (fvl-kategori enkeltvedtak). «Kommunen» står heller ikke i andre ledd. Fra er hentet fra første ledd uten at det er merket (17.4: slutning presentert som tekstfunn). Avvis.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2015-10-09-1166 § 9 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FOR-2015-10-09-1166 § 9 andre ledd",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "forvaltningsloven § 2 første ledd bokstav b",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "k22",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Eget utsagn (eget ledd). K tilsyn fra klassen kommune holder. Retten til innsyn og adgang binder barnehagene, og det er en undersøkelsesbeføyelse kommunen kan følge opp med pålegg og stenging etter § 53 andre ledd. Teksten sier «Kommunen», så klassen og ikke rollen er innehaver (#418 (b)), selv om formålet er oppgavene «som barnehagemyndighet». Avgrensningen tar med formålet. Den sørger for at kanten ikke rekker lenger enn kommunens oppgaver etter § 10 første ledd, som unntar kapittel V.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 10 femte ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "barnehageloven § 10 første ledd og § 53",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "k23",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "hoy",
+  "innvending": "«Grunnlaget for beregningen er det siste tilgjengelige kommuneregnskapet» er en beregningsregel (regellaget, L16), ikke en kompetanse. Setningen har ingen aktør og gir kommunen ingen myndighet til å bestemme grunnlaget, fordi loven selv bestemmer det. Raden gjør en regel om beregningsgrunnlaget til vedtakskompetanse, som f10 i runde 375 og 418 k51. Avvis. Første punktum («Kommunen skal gi grunntilskudd til private barnehager …») er P betaling, med de private barnehagene som mottaker (FORMAT #353: «yter tilskudd til X»). KI-laget fant den, men den ble ikke lastet fordi «private barnehager» ikke er i katalogen (#424). Den står derfor som ny rad.",
+  "retting": null,
+  "ny_rad": {
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§19a/ledd-1",
+   "kategori": "P",
+   "type": "betaling",
+   "fra": "kommune",
+   "fra_art": "klasse",
+   "til": "private barnehager (ikke i katalogen, #424)",
+   "til_art": "klasse",
+   "modalitet": "skal",
+   "objekt": "grunntilskudd",
+   "polaritet": "positiv",
+   "avgrensning": "private barnehager som har rett til tilskudd etter § 19 første eller andre ledd; beregnet etter andre og tredje punktum"
+  },
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 19 a første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "barnehageloven § 19 første og andre ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "k24",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Femte ledd gir ingen kompetanse. Det begrenser vilkårsadgangen i andre ledd tredje punktum og fjerde ledd, og skal stå som avgrensning på de kantene, slik en negasjon som gjentar en positiv rad gjør (FORMAT #356). Raden gjør grensen til en ny vedtakskompetanse og mister selve grensen: saklig sammenheng og ikke uforholdsmessig tyngende (17.4: mister vilkår). For fjerde ledd finnes fa0898ca, der 418 k90 la grensen inn i avgrensningen. For andre ledd tredje punktum («Kommunen kan stille vilkår for bruken av det ekstra grunntilskuddet») finnes ingen kant i basen (kontrollert 2026-10-30, bare SELECT). Den står derfor som ny rad. Avvis denne.",
+  "retting": null,
+  "ny_rad": {
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§19a/ledd-2",
+   "kategori": "K",
+   "type": "vedtak",
+   "fra": "kommune",
+   "fra_art": "klasse",
+   "til": null,
+   "objekt": "vilkår for bruken av det ekstra grunntilskuddet",
+   "polaritet": "positiv",
+   "avgrensning": "vilkårene må ha saklig sammenheng med tilskuddet og ikke være uforholdsmessig tyngende for den private barnehagen (§ 19 a femte ledd)"
+  },
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 19 a andre ledd tredje punktum og fjerde ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "barnehageloven § 19 a femte ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "k25",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Dublett av 9b950ca1 (mønsterlaget, samme ledd og setning; 418 k95: rett objekt). Denne raden har sakstypen, men mangler motparten. «Kommunens vedtak» navngir den, og K klage skal ha motparten som til (#341). Godkjenn bare én: denne med rettingen under og avvis 9b950ca1, eller rett 9b950ca1 etter 418 k95 og avvis denne.",
+  "retting": {
+   "til": "kommune",
+   "til_art": "klasse",
+   "objekt": "kommunens vedtak om dispensasjon fra grunnbemanningen etter § 26 tredje ledd"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 26 fjerde ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "barnehageloven § 26 tredje ledd",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "forvaltningsloven § 28 andre ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "k26",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "hoy",
+  "innvending": "Dublett av F samordning 5fe9bcda (samme setning; runde 375 f34: godkjenn), med feil kategori. «Kommunen skal samordne tjenestetilbudet» er en oppgave, altså F samordning. Det følger av Johanns beslutning om F (#368) og av leksikonet: «skal samordne» gir samordningsoppgave, og K samordning brukes bare der teksten gir bindende virkning overfor andre. Leddet gir kommunen ingen myndighet til å binde tjenesteyterne. Etter fjerde ledd omfatter de også fylkeskommunale og statlige tjenesteytere og private barnehager og skoler. Raden forveksler oppgave med kompetanse og gir kommunen en myndighet teksten ikke gir. Avvis.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 2 b andre ledd første punktum",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "barnehageloven § 2 b første og fjerde ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "k27",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Eget utsagn (andre punktum), ikke dublett av F samordning i første punktum. K beslutning holder. Å bestemme hvilken kommunal tjenesteyter som skal ivareta samordningen, er en intern beslutning i samme rettssubjekt og har ingen motpart. Interne beslutninger er beslutning etter #356, og runde 375 f34 kalte dette intern organisering. [slutning] Oppnevning (utpeking) er et alternativ, men den brukes om hvem som skal inneha en rolle eller et verv, ikke om fordeling av en oppgave mellom kommunens egne enheter. Vilkåret «ved behov» står i sitatet, men ikke i avgrensningen. Når det er oppnevnt barnekoordinator, skal koordinatoren sørge for samordningen (tredje punktum), og da er det ikke behov for å peke ut en tjenesteyter [slutning]. «skal» går tapt fordi K ikke har modalitet (formatmangel).",
+  "retting": {
+   "avgrensning": "ved behov; er barnekoordinator oppnevnt etter helse- og omsorgstjenesteloven § 7-2 a, sørger koordinatoren for samordningen (tredje punktum)"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 2 b andre ledd andre punktum",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "barnehageloven § 2 b andre ledd tredje punktum",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "helse- og omsorgstjenesteloven § 7-2 a",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "k28",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Eget utsagn. Det er ingen andre forslag i leddet; mønsterlaget fant det samme, men løste aktøren feil («Før kommunen»). Andre punktum sier uttrykkelig at kommunen fatter vedtak om tegnspråkopplæring, og § 38 femte ledd forutsetter det samme. Formen er den samme som i § 37 andre ledd (418 k98: godkjenn). Kravet om sakkyndig vurdering fra PP-tjenesten er saksbehandling (regellaget), og første punktum («skal oppfylle retten») er ikke kompetanse.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 38 andre ledd andre punktum",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "barnehageloven § 38 femte ledd",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "barnehageloven § 37 andre ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "k29",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "To ting. (1) Formålet mangler. Kompetansen gjelder bare et register «for bruk i statistikk og forskning om barnehagesektoren» (samme setning), og andre og tredje ledd snevrer den inn: formål, nødvendighet og forbud mot bruk som grunnlag for enkeltvedtak. For et personregister er formålet selve grensen for hjemmelen (17.4: mister vilkår). (2) Typen. Oppretting hører til familien struktur og brukes om organer og enheter (FORMAT #356). Et register er verken aktør, enhet eller ordning, så beslutning er mer presist [slutning]. Runde 375 f67 kalte dette opprettingskompetanse i en merknad utenfor raden, uten å drøfte det. Holder Johann på oppretting, gjelder (1) uansett.",
+  "retting": {
+   "type": "beslutning",
+   "objekt": "etablere et register med opplysninger om barn i barnehager på individnivå",
+   "avgrensning": "for bruk i statistikk og forskning om barnehagesektoren; formålet og begrensningene i § 48 a andre og tredje ledd"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": "bygget",
+  "kilder": [
+   {
+    "ref": "barnehageloven § 48 a første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "barnehageloven § 48 a andre og tredje ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "k30",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Dublett av 61268658 (K oppretting, samme setning; 418 k104: godkjenn), med feil type. At kommunen «kan bestemme at det skal være» et organ, er opprettingskompetanse (FORMAT #356 R1), ikke vedtak. Å opprette et samarbeidsutvalg er ikke et enkeltvedtak etter fvl. § 2. Avvis.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 5 første ledd første punktum",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "forvaltningsloven § 2",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "k31",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "hoy",
+  "innvending": "Andre punktum er passivt («kan det etableres») og gir ingen kompetanse til kommunen. Ordningen krever at «begge parter» ønsker det, altså eieren av den private barnehagen og skoleeieren, som kan være kommunen eller en privat skole. Det er en adgang som bygger på avtale, ikke en myndighet kommunen kan utøve alene. Raden setter feil subjekt (17.4: antar at grammatisk subjekt er rettssubjekt; fra = null i passive setninger, FORMAT) og gjør en avtaleadgang til vedtakskompetanse. 418 k104 sa det samme. Avvis.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 5 første ledd andre punktum",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "k32",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Dublett av 881ac9e6 (mønsterlaget, samme ledd og setning; 418 k106: rett objekt). Denne raden har sakstypen, men mangler motparten. «Kommunens vedtak» navngir den, og K klage skal ha motparten som til (#341). Avgrensningen «forskriften her» gjentar bare hjemmelen. Godkjenn bare én: denne med rettingen under og avvis 881ac9e6, eller rett 881ac9e6 etter 418 k106 og avvis denne.",
+  "retting": {
+   "til": "kommune",
+   "til_art": "klasse",
+   "objekt": "kommunens vedtak etter forskriften (midlertidig godkjenning og tilskudd, §§ 1–3)",
+   "avgrensning": null
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2023-06-27-1136 § 4 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FOR-2023-06-27-1136 §§ 1–3",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ }
+]
