@@ -241,12 +241,19 @@ public sealed class AktoridentitetTjeneste(RegelIdeDbContext db, TekstTaggTjenes
     }
 
     /// <summary>Avviser en foreslått navneform. Raden slettes ikke: den blir arkivert med hvem og hvorfor (#374-prinsippet), og taggene
-    /// som pekte på den, slettes — en tagg kan ikke stå igjen og påstå en kjede som er avvist. Antallet returneres.</summary>
+    /// som pekte på den, slettes — en tagg kan ikke stå igjen og påstå en kjede som er avvist. Antallet returneres.
+    /// <para>
+    /// [ENDRET, issue #423, Johanns valg B 2026-10-30] Gjelder også navneformer som er registrert før #385 (<c>Godkjenning</c> NULL). De
+    /// er verken forslag eller vurdert av noen, og den eneste andre veien ut var «Fjern» (ekte sletting), som mister raden og begrunnelsen.
+    /// Utløst av «Fylkeskommune» som navneform for Agder fylkeskommune: et klasseord uten grunn og kilde, som navneoppslaget løste til Agder
+    /// i hele korpuset (371 feile virksomhetskandidater og én strukturkant med feil pliktbærer). En GODKJENT navneform avvises fortsatt
+    /// ikke her — den har et menneskes vurdering bak seg og fjernes med «Fjern».
+    /// </para></summary>
     public async Task<(BegrepEntitet Navneform, int TaggerSlettet)?> AvvisNavneformAsync(Guid id, string? begrunnelse, string bruker, CancellationToken ct = default)
     {
         var b = await db.Begreper.FirstOrDefaultAsync(x => x.Id == id && x.Begrepskategori == "virksomhet" && x.Entitetsstatus == "gjeldende", ct);
         if (b is null) return null;
-        if (b.Godkjenning is null || !Strukturkanter.Ventende.Contains(b.Godkjenning))
+        if (b.Godkjenning is not null && !Strukturkanter.Ventende.Contains(b.Godkjenning))
         {
             throw new ArgumentException($"Navneformen «{b.Term}» er ikke et forslag. En godkjent navneform fjernes med «Fjern».");
         }
