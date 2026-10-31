@@ -4663,7 +4663,8 @@ app.MapPost("/api/virksomhetsbegrep/{id:guid}/avvis", async (Guid id, AvvisForsl
     })
     .WithOpenApi()
     .WithName("AvvisNavneform")
-    .WithSummary("Issue #385 — avviser et navneformforslag. Raden arkiveres med hvem og hvorfor (slettes ikke); taggene som pekte på den, slettes.");
+    .WithSummary("Issue #385 — avviser et navneformforslag. Raden arkiveres med hvem og hvorfor (slettes ikke); taggene som pekte på den, slettes. " +
+        "[ENDRET #423] Også en navneform registrert før #385 (godkjenning NULL); en godkjent navneform avvises ikke.");
 
 app.MapGet("/api/virksomheter/{id:guid}/aktortype-utsagn", async (Guid id, bool? visAvviste, AktoridentitetTjeneste identitet, CancellationToken ct) =>
         Results.Ok((await identitet.AktortypeUtsagnForAsync(id, visAvviste ?? false, ct)).Select(AktortypeUtsagnDto.FraEntitet)))

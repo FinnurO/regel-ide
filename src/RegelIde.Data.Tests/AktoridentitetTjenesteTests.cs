@@ -130,6 +130,49 @@ public class AktoridentitetTjenesteTests
         Assert.Null(await tjeneste.GodkjennNavneformAsync(id, "Jurist"));
     }
 
+    /// <summary>
+    /// [Ny, issue #423] Hva betyr ordet etter avvisningen? En navneform registrert før #385 (godkjenning NULL) — her et klasseord som
+    /// «Fylkeskommune» for én fylkeskommune — kan avvises med begrunnelse. Raden arkiveres (slettes ikke), avvisningen har proveniens,
+    /// og navneoppslaget løser ikke lenger ordet til aktøren. En godkjent navneform kan fortsatt ikke avvises.
+    /// </summary>
+    [Fact]
+    public async Task Navneform_registrert_for_385_kan_avvises_med_begrunnelse_men_ikke_en_godkjent()
+    {
+        await using var db = _fixture.NyDbContext();
+        var u = Unik();
+        var aktor = await NyVirksomhetAsync(db, $"TESTDAL{u.ToUpperInvariant()} FYLKESKOMMUNE");
+        var klasseord = new BegrepEntitet
+        {
+            Id = Guid.NewGuid(), Begrepskategori = "virksomhet", VirksomhetReferanseId = aktor.Id, Term = $"Fylkeskommune{u}",
+            Status = "publisert", OpprettetAv = "seed", // Godkjenning og Navneformgrunn NULL: registrert før #385, uten grunn og kilde
+        };
+        var godkjent = new BegrepEntitet
+        {
+            Id = Guid.NewGuid(), Begrepskategori = "virksomhet", VirksomhetReferanseId = aktor.Id, Term = $"Testdal{u} fylkeskommune",
+            Navneformgrunn = "gjeldende", Godkjenning = Strukturkanter.Godkjent, Status = "publisert", OpprettetAv = "seed",
+        };
+        db.Begreper.AddRange(klasseord, godkjent);
+        await db.SaveChangesAsync();
+        var oppslag = new VirksomhetOppslagTjeneste(db);
+        Assert.Equal(aktor.Id, await oppslag.FinnVirksomhetIdForNavnEllerNavneformAsync(klasseord.Term.ToLowerInvariant()));
+        var tjeneste = Tjeneste(db);
+
+        var (navneform, tagger) = (await tjeneste.AvvisNavneformAsync(klasseord.Id, " Klasseord uten grunn og kilde (#423). ", "Jurist"))!.Value;
+
+        Assert.Equal((Strukturkanter.Avvist, "arkivert", "arkivert", "Klasseord uten grunn og kilde (#423).", "Jurist", 0),
+            (navneform.Godkjenning, navneform.Entitetsstatus, navneform.Status, navneform.AvvisningBegrunnelse, navneform.SistEndretAv, tagger));
+        Assert.True(await db.Begreper.AsNoTracking().AnyAsync(b => b.Id == klasseord.Id)); // arkivert, ikke slettet
+        Assert.Equal(1, await db.Proveniens.CountAsync(p => p.EntitetId == klasseord.Id && p.Handling == "avvist" && p.EndretAv == "Jurist"));
+        Assert.Null(await oppslag.FinnVirksomhetIdForNavnEllerNavneformAsync(klasseord.Term.ToLowerInvariant()));
+        Assert.Contains(await tjeneste.AvvisteNavneformerAsync(aktor.Id), b => b.Id == klasseord.Id); // vises under «vis avviste»
+
+        // En godkjent navneform har et menneskes vurdering bak seg: den avvises ikke, den fjernes med «Fjern».
+        var feil = await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.AvvisNavneformAsync(godkjent.Id, "nei", "Jurist"));
+        Assert.Contains("ikke et forslag", feil.Message);
+        var urort = await db.Begreper.AsNoTracking().SingleAsync(b => b.Id == godkjent.Id);
+        Assert.Equal((Strukturkanter.Godkjent, "gjeldende", (string?)null), (urort.Godkjenning, urort.Entitetsstatus, urort.AvvisningBegrunnelse));
+    }
+
     [Fact]
     public async Task Navnetreff_gir_kilde_og_tagg_bare_paa_noyaktig_spenn_og_forslag_via_registernavnet()
     {
