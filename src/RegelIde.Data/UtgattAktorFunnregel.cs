@@ -101,6 +101,7 @@ public sealed record UtgattAktorRad(
 public sealed record UtgattAktorRapport(
     bool Skrevet,
     int NavneformerSokt,
+    int TermerSokt,
     IReadOnlyList<string> TvetydigeNavn,
     int Nodetreff,
     int NodetreffOrganiseringsvedtak,
@@ -161,7 +162,7 @@ public sealed class UtgattAktorFunnregel(RegelIdeDbContext db, FunnTjeneste funn
     public const string GruppeD = "D";
     public static readonly string[] Grupper = [GruppeA, GruppeB, GruppeC, GruppeD];
 
-    private sealed record Nodetreff(Guid RettskildeId, Guid NodeId, string Eid, string Term, Guid BegrepId, Guid VirksomhetId, string Quote,
+    private sealed record Nodetreff(Guid RettskildeId, Guid NodeId, string Eid, string Term, IReadOnlyList<Guid> BegrepIder, Guid VirksomhetId, string Quote,
         IReadOnlyList<string> Regler);
 
     /// <param name="rettskildeIder">Avgrensning til noen rettskilder (tester og feilsøking). Null = hele korpuset.</param>
@@ -194,10 +195,14 @@ public sealed class UtgattAktorFunnregel(RegelIdeDbContext db, FunnTjeneste funn
         if (rettskildeIder is not null) rkQuery = rkQuery.Where(r => rettskildeIder.Contains(r.Id));
 
         // ---- 3. Tekstforekomstene, én spørring per navn (50 i den delte basen 2026-10-31) ----
-        var treff = new List<(Guid Rk, Guid NodeId, string Eid, Guid? Forelder, string Tekst, string Term, Guid BegrepId, Guid Vid, string Quote)>();
-        foreach (var nf in sokes)
+        // Én spørring per TERM, ikke per navneform: samme term kan være navneform flere ganger (for samme aktør, eller for to aktører når
+        // den er tvetydig). Da telles forekomsten én gang, og funnet peker på alle navneformene med den termen.
+        var treff = new List<(Guid Rk, Guid NodeId, string Eid, Guid? Forelder, string Tekst, string Term, IReadOnlyList<Guid> BegrepIder, Guid Vid, string Quote)>();
+        foreach (var nf in sokes.GroupBy(b => b.Term, StringComparer.Ordinal))
         {
-            var term = nf.Term;
+            var term = nf.Key;
+            IReadOnlyList<Guid> begrepIder = nf.Select(b => b.Id).Distinct().ToList();
+            var vid = nf.First().Vid; // entydig når termen ikke er tvetydig; tvetydige termer foreslås ikke
             var noder = await db.RettskildeNoder.AsNoTracking()
                 .Where(n => n.Entitetsstatus == "gjeldende" && !n.Opphevet && !n.ErMerknad && Bladnoder.Contains(n.NodeType)
                             && n.Tekst != null && n.Tekst.Contains(term) && rkQuery.Any(r => r.Id == n.RettskildeId))
@@ -207,7 +212,7 @@ public sealed class UtgattAktorFunnregel(RegelIdeDbContext db, FunnTjeneste funn
             foreach (var n in noder)
             {
                 var m = rx.Match(n.Tekst!);
-                if (m.Success) treff.Add((n.RettskildeId, n.Id, n.Eid, n.ParentNodeId, n.Tekst!, term, nf.Id, nf.Vid, m.Value));
+                if (m.Success) treff.Add((n.RettskildeId, n.Id, n.Eid, n.ParentNodeId, n.Tekst!, term, begrepIder, vid, m.Value));
             }
         }
 
@@ -248,7 +253,7 @@ public sealed class UtgattAktorFunnregel(RegelIdeDbContext db, FunnTjeneste funn
             if (rk.Eli is null) { nUtenEli++; continue; }
             var forelder = x.Forelder is { } fid ? forelderTekst.GetValueOrDefault(fid) : null;
             var regler = UtgattAktorRegler.Treff(x.Term, UtgattAktorRegler.Normaliser(x.Tekst), UtgattAktorRegler.Normaliser(forelder));
-            kandidater.Add(new Nodetreff(x.Rk, x.NodeId, x.Eid, x.Term, x.BegrepId, x.Vid, x.Quote, regler));
+            kandidater.Add(new Nodetreff(x.Rk, x.NodeId, x.Eid, x.Term, x.BegrepIder, x.Vid, x.Quote, regler));
         }
 
         // ---- 5. Etterfølgerne og gruppene ----
@@ -332,7 +337,7 @@ public sealed class UtgattAktorFunnregel(RegelIdeDbContext db, FunnTjeneste funn
         }
 
         return new UtgattAktorRapport(
-            skriv, sokes.Count, tvetydige.Where(t => sokes.Any(s => s.Term == t)).Order(StringComparer.Ordinal).ToList(),
+            skriv, sokes.Count, sokes.Select(b => b.Term).Distinct(StringComparer.Ordinal).Count(), tvetydige.Where(t => sokes.Any(s => s.Term == t)).Order(StringComparer.Ordinal).ToList(),
             treff.Count, nOrg, nRent, nTvetydig, nUtenEli, tvetydigePar.Count,
             kandidater.Select(k => (k.RettskildeId, k.Term)).Distinct().Count(),
             foreslatt + ikkeForeslatt, ikkeForeslatt, ikkeForeslattPerRegel, noderPerRegel, foreslatt, foreslattPerGruppe, ikkeForeslattPerGruppe,
@@ -419,9 +424,10 @@ public sealed class UtgattAktorFunnregel(RegelIdeDbContext db, FunnTjeneste funn
                 RettskildeEli: eli, Eid: k.Key, QuoteExact: forste.Quote));
         }
         koblinger.Add(new NyKobling(Funn.BerortAktor, aktor, VirksomhetId: vid));
-        foreach (var nf in forekomster.GroupBy(k => k.BegrepId).Select(x => x.First()).OrderBy(x => x.Term, StringComparer.Ordinal))
+        foreach (var nf in forekomster.SelectMany(k => k.BegrepIder.Select(b => (Begrep: b, k.Term))).Distinct()
+                     .OrderBy(x => x.Term, StringComparer.Ordinal).ThenBy(x => x.Begrep))
         {
-            koblinger.Add(new NyKobling(Funn.Navneform, nf.Term, BegrepId: nf.BegrepId));
+            koblinger.Add(new NyKobling(Funn.Navneform, nf.Term, BegrepId: nf.Begrep));
         }
         foreach (var e in etterfolgere) koblinger.Add(new NyKobling(Funn.Etterfolger, e.Fra ?? "ukjent aktør", StrukturkantId: e.KantId));
         if (mal is { } mv) koblinger.Add(new NyKobling(Funn.Malvedtak, mv.Tittel, Merknad: "endres av rettskilden", RettskildeEli: mv.Eli));
