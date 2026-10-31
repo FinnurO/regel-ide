@@ -1362,3 +1362,9 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
 - **Én delt kilde for rutenavnene:** `kandidater/aktorkorute.ts` (`AKTORKORUTE_TEKST`, `utenforAktorkoenTekst`, med vitest). Sveipene
   (historikklista, rettskildesiden, aktørsveipet i forslagskøen, KI-oppdagelsen) viser med den hvor mange treff som var kjente ord og ikke
   ble lagt i køen. Aktørsveipet viser «Ikke i køen: ‹rute›» under statusen.
+- **[Ny, Johanns avgjørelse 2026-10-31, valg 2 i PR #444] Unntak i aktørsveipet: generisk ord uten binding.** «kommunen» med status
+  «Generisk uten binding» og ruten «Generisk ord» blir fortsatt navnekandidat, så «Behandle»-lenken til én-skjermen for generisk omtale
+  (§42) står i raden slik den gjorde før #444. Navnekandidaten havner ikke i aktørkøen (køens ruting sender den til «Generisk ord»).
+  Raden får ikke «Ikke i køen», og `Metatekst` ved «Legg N i navnekandidatkøen» sier hvor mange som er generiske ord. Alle andre kjente
+  ord, også bøyningsformer av et generisk ord, holdes utenfor. Regelen er delt: `blirNavnekandidatIAktorsveipet` i
+  `kandidater/aktorkorute.ts` speiler `AktorsveipRad.BlirNavnekandidat` i tjenesten. Gjelder bare aktørsveipet, ikke lasteren.

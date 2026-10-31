@@ -1125,7 +1125,9 @@ Rekkefølgen er eksakt → generisk med binding → flertydig → kandidat → n
 eller flertydige i navnekandidatkøen (oppdagelseskilde `strukturforslag`); uten er sveipet en ren tørrkjøring. Gjennomgangen skjer i den
 eksisterende veiviseren (docs/09 §38). **Steg 2** er lasteren (§5.3), som bruker samme klassifisering; lasterapporten viser aktørene per
 status, så den kan sammenlignes med sveipet før gjennomgangen. Ny årsak: `aktor_generisk_uten_binding`.
-[ENDRET, #440] Bare aktører som aktørkøens ruting ikke kjenner, blir navnekandidater (§5.16); hver rad har `aktorkoRute`.
+[ENDRET, #440] Bare aktører som aktørkøens ruting ikke kjenner, blir navnekandidater (§5.16); hver rad har `aktorkoRute`. [ENDRET, #440,
+Johanns avgjørelse 2026-10-31] Unntak: et generisk ord uten binding (status `generisk`, rute `generisk`) blir fortsatt navnekandidat, så
+«Behandle» åpner én-skjermen for generisk omtale (docs/09 §42, §50). Andre kjente ord holdes utenfor.
 
 **Generisk navneform:** `navneformgrunn = 'generisk'`, kategori `virksomhet`, ingen `virksomhet_referanse_id`
 (CHECK `ck_begreper_generisk_uten_referanse`), termen med små bokstaver, én per term for hele korpuset (`ux_begreper_generisk_term`). En
@@ -1735,7 +1737,9 @@ bøyningsform) i samme setning. Merknader og veiledning (§5.14) er aldri med. T
 Finnes det ingen bestemmelse, vises hullet. **Regelen er et forslag**: juristrunden angriper den før godkjenningen bygges i PR 2.
 
 **Sveipene** (navnekandidatsveipet, aktørsveipet og lasteren/fasitimporten via samme hjelper, KI-oppdagelsen) bruker samme ruting: et
-treff som ikke havner i aktørkøen, blir ikke en ny navnekandidat. Tellingen per rute står i svaret.
+treff som ikke havner i aktørkøen, blir ikke en ny navnekandidat. Tellingen per rute står i svaret. [ENDRET, Johanns avgjørelse 2026-10-31, valg 2 i PR #444]
+Ett unntak, bare i aktørsveipet: et generisk ord uten binding blir fortsatt navnekandidat (`AktorsveipRad.BlirNavnekandidat`), så
+lenken til én-skjermen for generisk omtale står. Kandidaten havner på ruten «generisk ord», ikke i aktørkøen.
 
 **Målt mot den delte basen 2026-10-31** (etter #423): 1 211 ventende. Generisk ord 387, kjent aktør 233, kjent klasse/rolle/område 75,
 bøyningsform 123, aktørkøen 393 forekomster i 80 rettskilder, som blir 192 navn (208 ord; 47 med mer enn én forekomst; 11

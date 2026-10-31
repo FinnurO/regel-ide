@@ -2566,7 +2566,8 @@ export interface AktorsveipRad {
   aktorId: string; tekstform: string; varianter: string[]; status: Aktorstatus; forekomster: number; lastbareForekomster: number;
   eidEksempel: string; treff: string[]; kandidater: string[]; antallKandidater: number; generiskNavneformId: string | null;
   bundneForekomster: number; foreslatteBindinger: number; referent: StrukturnodeDto | null; navnekandidatId: string | null;
-  /** [Ny, issue #440] Aktørkøens rute for tekstformen. Bare 'aktorko' legges i navnekandidatkøen. */
+  /** [Ny, issue #440] Aktørkøens rute for tekstformen. Bare 'aktorko' legges i navnekandidatkøen, [ENDRET, Johanns avgjørelse 2026-10-31]
+   * pluss generisk ord uten binding (`blirNavnekandidatIAktorsveipet` i kandidater/aktorkorute.ts). */
   aktorkoRute: Aktorkorute | null;
 }
 export interface AktorsveipRapport {
