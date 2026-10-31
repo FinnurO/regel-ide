@@ -161,4 +161,57 @@ public class FunnEndepunktTests
         var konflikt = await SendAsync(Med(HttpMethod.Post, $"/api/funn/{id}/godkjenn-for-publisering", ansvarlig), HttpStatusCode.Conflict);
         Assert.Contains("Premissporten", konflikt.GetProperty("feil").GetString());
     }
+
+    [Fact]
+    public async Task Maskinregelen_torrkjorer_som_standard_skriver_med_skriv_true_og_er_idempotent()
+    {
+        // [Ny, #429 PR 2] Endepunktet: tørrkjøring uten ?skriv=true, telling per gruppe og regel, og ingen duplikater ved ny kjøring.
+        var jurist = await BrukerAsync("Jurist");
+        var navn = "Testkyst" + new string(Guid.NewGuid().ToString("N").Select(c => (char)('a' + c % 26)).Take(10).ToArray()) + "departementet";
+        var rid = Guid.NewGuid();
+        await using (var db = _fixture.NyDbContext())
+        {
+            var aktor = new Virksomhet { Id = Guid.NewGuid(), Navn = navn, Livsstatus = "nedlagt", Aktiv = false };
+            db.Virksomheter.Add(aktor);
+            db.Begreper.Add(new BegrepEntitet
+            {
+                Id = Guid.NewGuid(), Begrepskategori = "virksomhet", VirksomhetReferanseId = aktor.Id, Navneformgrunn = "gjeldende",
+                Term = navn, Status = "publisert", OpprettetAv = "test", Godkjenning = Strukturkanter.MaskineltForeslatt,
+            });
+            var eli = $"https://lovdata.no/eli/forskrift/2099/02/02/{Random.Shared.Next(1_000_000, 9_999_999)}/nor";
+            db.Rettskilder.Add(new RettskildeEntitet
+            {
+                Id = rid, Doctype = "act", Kildetype = "Forskrift", Status = "Gjeldende", Importrolle = "primaer", Tittel = $"Testforskrift {rid:N}",
+                Eli = eli, AknXml = "<akomaNtoso/>", OpprettetAv = "test", OpprettetTidspunkt = DateTimeOffset.UtcNow,
+            });
+            db.RettskildeNoder.Add(new RettskildeNodeEntitet
+            {
+                Id = Guid.NewGuid(), RettskildeId = rid, Eid = $"{eli}/§2/ledd-1", KildeId = "§2/ledd-1", NodeType = "ledd",
+                Tekst = $"Klage over vedtak etter § 1 går til {navn}.", TekstHash = "h",
+            });
+            await db.SaveChangesAsync();
+        }
+
+        var url = $"/api/funn/maskinregel/utgatt-aktor?rettskildeId={rid}";
+        var torr = await SendAsync(Med(HttpMethod.Post, url, jurist), HttpStatusCode.OK);
+        Assert.False(torr.GetProperty("skrevet").GetBoolean());
+        Assert.Equal(1, torr.GetProperty("foreslatt").GetInt32());
+        Assert.Equal(1, torr.GetProperty("foreslattPerGruppe").GetProperty("D").GetInt32());
+        Assert.Equal(0, torr.GetProperty("ikkeForeslattPerRegel").GetProperty("R3").GetInt32());
+        Assert.Empty((await SendAsync(Med(HttpMethod.Get, $"/api/funn?rettskildeId={rid}", jurist), HttpStatusCode.OK)).EnumerateArray());
+
+        var skrevet = await SendAsync(Med(HttpMethod.Post, url + "&skriv=true", jurist), HttpStatusCode.OK);
+        Assert.Equal(1, skrevet.GetProperty("nye").GetInt32());
+        var igjen = await SendAsync(Med(HttpMethod.Post, url + "&skriv=true", jurist), HttpStatusCode.OK);
+        Assert.Equal(0, igjen.GetProperty("nye").GetInt32());
+        Assert.Equal(1, igjen.GetProperty("finnes").GetInt32());
+
+        var liste = (await SendAsync(Med(HttpMethod.Get, $"/api/funn?rettskildeId={rid}", jurist), HttpStatusCode.OK)).EnumerateArray().ToList();
+        var funn = Assert.Single(liste);
+        Assert.Equal("oppdaget", funn.GetProperty("status").GetString());
+        Assert.Equal(UtgattAktorFunnregel.OppdagelsesKilde, funn.GetProperty("oppdagelsesKilde").GetString());
+        var bestemmelse = funn.GetProperty("koblinger").EnumerateArray().Single(k => k.GetProperty("rolle").GetString() == "gjelder_bestemmelse");
+        Assert.Equal(navn, bestemmelse.GetProperty("quoteExact").GetString());
+        Assert.Contains(funn.GetProperty("premissmangler").EnumerateArray(), m => m.GetString()!.StartsWith("Etterfølger ikke vurdert"));
+    }
 }

@@ -93,6 +93,7 @@ builder.Services.AddScoped<HjemmelValideringTjeneste>();
 builder.Services.AddScoped<KildefeilTjeneste>();
 // [Ny, issue #429] Funn til vurdering — se FunnTjeneste og FunnEndepunkter.
 builder.Services.AddScoped<FunnTjeneste>();
+builder.Services.AddScoped<UtgattAktorFunnregel>(); // [Ny, #429 PR 2] maskinregelen for utgåtte aktører, tørrkjøring som standard
 // [Ny, issue #440] Aktørkøen (bare lesing i PR 1) — se AktorkoTjeneste og AktorkoEndepunkter.
 builder.Services.AddScoped<AktorkoTjeneste>();
 builder.Services.AddScoped<BegrepsoppdagelseSveipTjeneste>();

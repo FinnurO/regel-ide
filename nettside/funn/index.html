@@ -172,8 +172,14 @@
       '</div>';
     h += '<h2>' + S.esc(f.tittel) + '</h2>';
     h += tekst(f.beskrivelse);
+    // [ENDRET, #429 PR 2] Uten etterfølgerkant står juristens vurderingspunkt «Etterfølger» her (premissporten krever det), og det
+    // vises ikke også under Vurdering. Samme regel som etterfolgerlinje() i src/RegelIde.Web/src/funn/funnTekst.ts.
+    var erEtterfolgerpunkt = function (p) { return (p.overskrift || '').trim().toLowerCase() === 'etterfølger'; };
+    var etterfolgerpunkt = f.kategori === 'utgatt_aktor' && !f.etterfolgere.length ? f.vurderingspunkter.filter(erEtterfolgerpunkt)[0] : null;
+    var vurderingspunkter = etterfolgerpunkt ? f.vurderingspunkter.filter(function (p) { return !erEtterfolgerpunkt(p); }) : f.vurderingspunkter;
     if (f.kategori === 'utgatt_aktor') {
-      h += '<p><strong>Etterfølger:</strong> ' + (f.etterfolgere.length ? f.etterfolgere.map(function (e) { return S.esc(e.etikett); }).join(', ') : 'ukjent') + '</p>';
+      h += '<p><strong>Etterfølger:</strong> ' + (f.etterfolgere.length ? f.etterfolgere.map(function (e) { return S.esc(e.etikett); }).join(', ')
+        : etterfolgerpunkt ? S.esc(etterfolgerpunkt.tekst) : 'ukjent') + '</p>';
     }
     if (f.bestemmelser.length) {
       h += '<h3>Bestemmelser</h3><ul>' + f.bestemmelser.map(function (b) {
@@ -185,11 +191,11 @@
         return '<li>' + (b.overskrift ? '<em>' + S.esc(b.overskrift) + ':</em> ' : '') + S.esc(b.tekst) + '</li>';
       }).join('') + '</ul>';
     }
-    if (f.vurdering || f.vurderingspunkter.length) {
+    if (f.vurdering || vurderingspunkter.length) {
       h += '<h3>Vurdering</h3>';
       if (f.vurdering) h += '<p>' + S.esc(f.vurdering) + '</p>';
-      if (f.vurderingspunkter.length) {
-        h += '<ul>' + f.vurderingspunkter.map(function (p) {
+      if (vurderingspunkter.length) {
+        h += '<ul>' + vurderingspunkter.map(function (p) {
           return '<li>' + (p.sikkerhet ? 'Sikkerhet: ' + S.esc(SIKKERHET[p.sikkerhet] || p.sikkerhet) + ' ' + S.esc(p.tekst) + '.' : S.esc(p.tekst)) + '</li>';
         }).join('') + '</ul>';
       }

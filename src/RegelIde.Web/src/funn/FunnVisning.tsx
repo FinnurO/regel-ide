@@ -1,7 +1,7 @@
 import { Heading, Link, Paragraph, Tag } from '@digdir/designsystemet-react';
 import type { FunnDto, FunnKategori, FunnOffentlig, FunnStatus } from '../api/types';
 import { Metatekst } from '../entitet/Metatekst';
-import { delITekstblokker, lovdataLenke } from './funnTekst';
+import { delITekstblokker, etterfolgerlinje, lovdataLenke, utenEtterfolgerpunkt } from './funnTekst';
 
 export { lovdataLenke };
 
@@ -135,6 +135,8 @@ export function OffentligFunn({ funn, modus, etterfolgerIkkeVurdert = false }: {
   const statuslinje = modus === 'godkjent'
     ? `Godkjent for publisering ${funn.godkjentDato}`
     : modus === 'til-godkjenning' ? `Godkjennes for publisering ${funn.godkjentDato}` : 'Ikke godkjent for publisering';
+  // [ENDRET, #429 PR 2] Juristens punkt «Etterfølger» står i etterfølgerlinjen når funnet ikke peker på noen etterfølgerkant.
+  const vurderingspunkter = funn.kategori === 'utgatt_aktor' ? utenEtterfolgerpunkt(funn.vurderingspunkter, funn.etterfolgere) : funn.vurderingspunkter;
   return (
     <div>
       <Heading level={3} data-size="xs" style={{ marginBottom: '0.4rem' }}>{funn.tittel}</Heading>
@@ -148,9 +150,7 @@ export function OffentligFunn({ funn, modus, etterfolgerIkkeVurdert = false }: {
       {funn.kategori === 'utgatt_aktor' && (
         <Paragraph data-size="sm">
           <strong>Etterfølger:</strong>{' '}
-          {etterfolgerIkkeVurdert
-            ? 'ikke vurdert'
-            : funn.etterfolgere.length > 0 ? funn.etterfolgere.map((e) => e.etikett).join(', ') : 'ukjent'}
+          {etterfolgerlinje(funn.etterfolgere, funn.vurderingspunkter, etterfolgerIkkeVurdert)}
         </Paragraph>
       )}
       {funn.bortforklaringer.length > 0 && (
@@ -164,9 +164,9 @@ export function OffentligFunn({ funn, modus, etterfolgerIkkeVurdert = false }: {
         </>
       )}
       {funn.vurdering && <Paragraph data-size="sm"><strong>Vurdering:</strong> {funn.vurdering}</Paragraph>}
-      {funn.vurderingspunkter.length > 0 && (
+      {vurderingspunkter.length > 0 && (
         <ul style={{ margin: '0 0 0.75rem', paddingLeft: '1.25rem' }}>
-          {funn.vurderingspunkter.map((p, i) => (
+          {vurderingspunkter.map((p, i) => (
             <li key={i}><Paragraph data-size="sm" style={{ margin: 0 }}>
               {p.sikkerhet ? `Sikkerhet: ${SIKKERHET_TEKST[p.sikkerhet] ?? p.sikkerhet} ${p.tekst}.` : p.tekst}
             </Paragraph></li>

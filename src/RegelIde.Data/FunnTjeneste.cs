@@ -5,10 +5,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace RegelIde.Data;
 
-/// <summary>[Ny, issue #429] En kobling slik den sendes inn (fra skjemaet, en agent eller seed-fila). Nøyaktig ett mål.</summary>
+/// <summary>[Ny, issue #429] En kobling slik den sendes inn (fra skjemaet, en agent eller seed-fila). Nøyaktig ett mål.
+/// [ENDRET, #429 PR 2] <see cref="QuoteExact"/>: ordet slik det står i noden, for bestemmelser maskinregelen fant.</summary>
 public sealed record NyKobling(
     string Rolle, string Etikett, string? Merknad = null, string? RettskildeEli = null, string? Eid = null,
-    Guid? VirksomhetId = null, Guid? BegrepId = null, Guid? StrukturkantId = null, Guid? KildefeilId = null, string? EksternLenke = null);
+    Guid? VirksomhetId = null, Guid? BegrepId = null, Guid? StrukturkantId = null, Guid? KildefeilId = null, string? EksternLenke = null,
+    string? QuoteExact = null);
 
 /// <summary>[Ny, issue #429] Ett vurderingspunkt slik det sendes inn.</summary>
 public sealed record NyttVurderingspunkt(string Type, string Tekst, string? Overskrift = null, string? Sikkerhet = null);
@@ -60,7 +62,8 @@ public sealed class FunnTjeneste(RegelIdeDbContext db)
         if (rettskildeId is { } rid)
         {
             var eli = await db.Rettskilder.Where(r => r.Id == rid).Select(r => r.Eli).FirstOrDefaultAsync(ct);
-            q = q.Where(f => f.Koblinger.Any(k => k.RettskildeId == rid || (eli != null && k.RettskildeEli == eli)));
+            // [ENDRET, #429 PR 2] Målvedtaket til et endringsvedtak er ikke «funn i rettskilde X»: funnet står i endringsvedtaket.
+            q = q.Where(f => f.Koblinger.Any(k => k.Rolle != Funn.Malvedtak && (k.RettskildeId == rid || (eli != null && k.RettskildeEli == eli))));
         }
         if (virksomhetId is { } vid) q = q.Where(f => f.Koblinger.Any(k => k.VirksomhetId == vid));
         return await q.OrderByDescending(f => f.OpprettetTidspunkt).ToListAsync(ct);
@@ -284,48 +287,81 @@ public sealed class FunnTjeneste(RegelIdeDbContext db)
     /// <item>Funnet må peke på minst én navneform, og hver navneform må være faglig vurdert. En navneform uten godkjenning (NULL, registrert
     /// før #385) regnes ikke som vurdert — docs/33 §4.6: et premiss som ikke er vurdert, er ikke sterkere enn «uavklart».</item>
     /// <item>Hver etterfølgerkant funnet peker på, må være faglig vurdert. Ellers: «etterfølger ikke vurdert».</item>
-    /// <item>Et funn uten etterfølgerkant stoppes ikke: det publiseres med «etterfølger ukjent», som er et synlig hull og ingen påstand
-    /// (docs/09 §45). <i>Tolkning av Johanns avgjørelse, lagt fram i PR-en.</i></item>
+    /// <item>[ENDRET, #429 PR 2, Johanns avgjørelse 2026-10-31 (3): «premissporten for etterfølger gjelder alle fire gruppene, også
+    /// navneendring»] Et funn UTEN etterfølgerkant slapp før gjennom og ble publisert med «etterfølger ukjent». Juristmålingen viste at det
+    /// er nettopp der hintet kan være galt: i gruppe A (aktøren lever under nytt navn) ser det ut som om oppgaven ligger hos aktøren i dag,
+    /// men den kan være flyttet til et annet departement (ekom: KDD → DFD). Nå må juristen si det uttrykkelig: et vurderingspunkt med
+    /// overskriften <see cref="Funn.EtterfolgerOverskrift"/> som sier hvem som har oppgaven nå, eller at det er ukjent. Ellers stopper
+    /// porten med «Etterfølger ikke vurdert». Punktet vises som etterfølgerlinjen i forhåndsvisningen og på nettsiden.</item>
     /// </list>
     /// Andre kategorier har ingen premissport i denne runden.
     /// </summary>
-    public async Task<List<string>> PremissmanglerAsync(FunnEntitet funn, CancellationToken ct = default)
+    public async Task<List<string>> PremissmanglerAsync(FunnEntitet funn, CancellationToken ct = default) =>
+        (await PremissmanglerForAsync([funn], ct))[funn.Id];
+
+    /// <summary>[Ny, #429 PR 2] Premissmanglene for mange funn med to oppslag i stedet for to per kobling: lista får rundt 700 maskinfunn.
+    /// Samme regel som <see cref="PremissmanglerAsync"/>.</summary>
+    public async Task<Dictionary<Guid, List<string>>> PremissmanglerForAsync(IReadOnlyCollection<FunnEntitet> funn, CancellationToken ct = default)
     {
-        var mangler = new List<string>();
-        if (funn.Kategori != Funn.UtgattAktor) return mangler;
+        var aktuelle = funn.Where(f => f.Kategori == Funn.UtgattAktor).ToList();
+        var begrepIder = aktuelle.SelectMany(f => f.Koblinger).Where(k => k.Rolle == Funn.Navneform && k.BegrepId != null)
+            .Select(k => k.BegrepId!.Value).Distinct().ToList();
+        var kantIder = aktuelle.SelectMany(f => f.Koblinger).Where(k => k.Rolle == Funn.Etterfolger && k.StrukturkantId != null)
+            .Select(k => k.StrukturkantId!.Value).Distinct().ToList();
+        var begreper = begrepIder.Count == 0 ? new Dictionary<Guid, string?>()
+            : await db.Begreper.IgnoreQueryFilters().Where(b => begrepIder.Contains(b.Id))
+                .Select(b => new { b.Id, b.Godkjenning }).ToDictionaryAsync(b => b.Id, b => b.Godkjenning, ct);
+        var kanter = kantIder.Count == 0 ? new Dictionary<Guid, string>()
+            : await db.Strukturkanter.IgnoreQueryFilters().Where(s => kantIder.Contains(s.Id))
+                .Select(s => new { s.Id, s.Status }).ToDictionaryAsync(s => s.Id, s => s.Status, ct);
         var vurdert = new[] { Strukturkanter.FagligVurdert, Strukturkanter.Godkjent };
 
-        var navneformer = funn.Koblinger.Where(k => k.Rolle == Funn.Navneform).OrderBy(k => k.Sortering).ToList();
-        if (navneformer.Count == 0)
+        var ut = new Dictionary<Guid, List<string>>();
+        foreach (var f in funn)
         {
-            mangler.Add("Funnet peker ikke på noen navneform. Et funn om en utgått aktør må vise navnet teksten bruker.");
-        }
-        foreach (var k in navneformer)
-        {
-            var godkjenning = k.BegrepId is { } bid
-                ? await db.Begreper.IgnoreQueryFilters().Where(b => b.Id == bid).Select(b => new { b.Godkjenning }).FirstOrDefaultAsync(ct)
-                : null;
-            if (godkjenning is null)
+            var mangler = new List<string>();
+            ut[f.Id] = mangler;
+            if (f.Kategori != Funn.UtgattAktor) continue;
+
+            var navneformer = f.Koblinger.Where(k => k.Rolle == Funn.Navneform).OrderBy(k => k.Sortering).ToList();
+            if (navneformer.Count == 0)
             {
-                mangler.Add($"Navneformen «{k.Etikett}» finnes ikke lenger.");
+                mangler.Add("Funnet peker ikke på noen navneform. Et funn om en utgått aktør må vise navnet teksten bruker.");
             }
-            else if (godkjenning.Godkjenning is not { } g || !vurdert.Contains(g))
+            foreach (var k in navneformer)
             {
-                mangler.Add($"Navneformen «{k.Etikett}» er ikke faglig vurdert ({GodkjenningTekst(godkjenning.Godkjenning)}).");
+                if (k.BegrepId is not { } bid || !begreper.TryGetValue(bid, out var godkjenning))
+                {
+                    mangler.Add($"Navneformen «{k.Etikett}» finnes ikke lenger.");
+                }
+                else if (godkjenning is not { } g || !vurdert.Contains(g))
+                {
+                    mangler.Add($"Navneformen «{k.Etikett}» er ikke faglig vurdert ({GodkjenningTekst(godkjenning)}).");
+                }
+            }
+            var etterfolgere = f.Koblinger.Where(k => k.Rolle == Funn.Etterfolger).OrderBy(k => k.Sortering).ToList();
+            foreach (var k in etterfolgere)
+            {
+                string? status = k.StrukturkantId is { } kid && kanter.TryGetValue(kid, out var s) ? s : null;
+                if (status is null || !vurdert.Contains(status))
+                {
+                    mangler.Add($"Etterfølger ikke vurdert: «{k.Etikett}» ({(status is null ? "kanten finnes ikke lenger" : GodkjenningTekst(status))}).");
+                }
+            }
+            if (etterfolgere.Count == 0 && EtterfolgerVurdering(f) is null)
+            {
+                mangler.Add("Etterfølger ikke vurdert: funnet peker ikke på noen etterfølgerkant, og vurderingen har ikke noe punkt "
+                    + $"«{Funn.EtterfolgerOverskrift}» som sier hvem som har oppgaven nå, eller at det er ukjent.");
             }
         }
-        foreach (var k in funn.Koblinger.Where(k => k.Rolle == Funn.Etterfolger).OrderBy(k => k.Sortering))
-        {
-            var status = k.StrukturkantId is { } kid
-                ? await db.Strukturkanter.IgnoreQueryFilters().Where(s => s.Id == kid).Select(s => s.Status).FirstOrDefaultAsync(ct)
-                : null;
-            if (status is null || !vurdert.Contains(status))
-            {
-                mangler.Add($"Etterfølger ikke vurdert: «{k.Etikett}» ({(status is null ? "kanten finnes ikke lenger" : GodkjenningTekst(status))}).");
-            }
-        }
-        return mangler;
+        return ut;
     }
+
+    /// <summary>[Ny, #429 PR 2] Juristens vurdering av etterfølgeren når funnet ikke peker på noen etterfølgerkant: vurderingspunktet med
+    /// overskriften <see cref="Funn.EtterfolgerOverskrift"/>. Null når det ikke finnes.</summary>
+    public static FunnVurderingspunktEntitet? EtterfolgerVurdering(FunnEntitet f) => f.Vurderingspunkter
+        .Where(p => p.Type == Funn.Vurdering && string.Equals(p.Overskrift?.Trim(), Funn.EtterfolgerOverskrift, StringComparison.OrdinalIgnoreCase))
+        .OrderBy(p => p.Sortering).FirstOrDefault();
 
     /// <summary>[ENDRET, kaldsjekken 2026-10-30] Godkjenningen i klartekst i premissmanglene, ikke den rå kodeverdien.</summary>
     private static string GodkjenningTekst(string? godkjenning) => godkjenning switch
@@ -487,6 +523,7 @@ public sealed class FunnTjeneste(RegelIdeDbContext db)
                 Funn.Navneform => k.BegrepId is not null,
                 Funn.Etterfolger => k.StrukturkantId is not null,
                 Funn.Kilde => eli is not null || lenke is not null || k.KildefeilId is not null,
+                Funn.Malvedtak => eli is not null,
                 _ => false,
             };
             if (!rolleOk)
@@ -496,6 +533,11 @@ public sealed class FunnTjeneste(RegelIdeDbContext db)
             if (k.Eid is not null && eli is null)
             {
                 throw new ArgumentException($"Koblingen «{k.Etikett}» har eId uten ELI.");
+            }
+            var quote = Tom(k.QuoteExact);
+            if (quote is not null && (Tom(k.Eid) is null || k.Rolle is not (Funn.GjelderBestemmelse or Funn.MotstridendeBestemmelse)))
+            {
+                throw new ArgumentException($"Koblingen «{k.Etikett}» har sitat uten å være en bestemmelse med eId.");
             }
             if (k.VirksomhetId is { } vid && !await db.Virksomheter.AnyAsync(v => v.Id == vid, ct))
                 throw new ArgumentException($"Aktøren {vid} finnes ikke.");
@@ -531,7 +573,7 @@ public sealed class FunnTjeneste(RegelIdeDbContext db)
                 Etikett = Pakrevd(k.Etikett, "Etiketten på en kobling"), Merknad = Tom(k.Merknad),
                 RettskildeEli = eli, RettskildeId = rettskildeId, Eid = eid, NodeId = nodeId,
                 VirksomhetId = k.VirksomhetId, BegrepId = k.BegrepId, StrukturkantId = k.StrukturkantId, KildefeilId = k.KildefeilId,
-                EksternLenke = lenke,
+                EksternLenke = lenke, QuoteExact = quote,
             });
         }
         return ut;
