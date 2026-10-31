@@ -51,6 +51,7 @@
       <a href="../strukturmodell/">Strukturmodellen</a>
       <a href="../funn/" aria-current="page">Funn til vurdering</a>
       <a href="../profil/">Profilforslag</a>
+      <a href="../pilot-barnehageloven/">Pilot</a>
       <a href="../begreper/">Begreper</a>
       <a href="../om/">Om</a>
     </nav>
@@ -67,13 +68,43 @@
   <div class="wrap">
     <div class="purpose-box">
       <span class="purpose-box__label">Slik kommer et funn hit</span>
-      <p>Modellen eller en modellerer registrerer funnet. En jurist prøver først å forklare det bort, for eksempel med at bestemmelsen er opphevet, at den yngre eller mer spesielle regelen går foran, eller at myndigheten er flyttet ved et eget vedtak. Bare funn som ikke lar seg forklare bort, og som er godkjent for publisering, står her. Hvert funn viser hvilke bortforklaringer som er prøvd. Teksten er den som ble godkjent, uendret.</p>
+      <p>Modellen eller en modellerer registrerer funnet. En jurist prøver først å forklare det bort, for eksempel med at bestemmelsen er opphevet, at den yngre eller mer spesielle regelen går foran, eller at myndigheten er flyttet ved et eget vedtak. Bare funn som ikke lar seg forklare bort, og som er godkjent for publisering, står her. Hvert funn viser hvilke bortforklaringer som er prøvd. Teksten er den som ble godkjent, uendret. <a href="#metode">Les hvordan funn vurderes</a>.</p>
     </div>
   </div>
 
-  <section class="section" style="border-bottom:none;">
+  <section class="section">
     <div class="wrap">
       <div id="funn-liste" class="loading-note">Laster funn …</div>
+    </div>
+  </section>
+
+  <!-- [Ny, nettside-pilot-og-modell, 2026-10-31] Metoden. Kilder: docs/33 §5.15 og docs/09 §49 (#429). Ingen personnavn: den som
+       godkjenner, kalles «publiseringsansvarlig». Skriptet nederst og data/funn/register.json er ikke endret. -->
+  <section class="section" id="metode" style="border-bottom:none;">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Metode</span>
+        <h2>Slik vurderes et funn</h2>
+        <p>Et funn er en observasjon fra modellen, ikke en påstand om at loven er feil. Før det publiseres, går det gjennom to kontroller: en jurist prøver å forklare det bort, og en publiseringsansvarlig godkjenner det.</p>
+      </div>
+      <div class="prose">
+        <ol>
+          <li><strong>Funnet registreres.</strong> Modellen eller en modellerer registrerer funnet med bestemmelsene og kildene det bygger på.</li>
+          <li><strong>Juristen prøver først å forklare det bort.</strong> Er bestemmelsen opphevet? Går en yngre eller mer spesiell regel foran? Er myndigheten flyttet ved et eget vedtak? Et funn regnes ikke som juristvurdert før vurderingen er skrevet og minst én bortforklaring er prøvd.</li>
+          <li><strong>Funn som er forklart bort, publiseres ikke.</strong> De står igjen i registeret som en avklaring.</li>
+          <li><strong>Deretter godkjenner den publiseringsansvarlige.</strong> Bare en publiseringsansvarlig kan godkjenne et funn for publisering. Teksten låses ved godkjenningen, og det er den som står her. Endres teksten senere, må funnet godkjennes på nytt. Endres lovteksten funnet peker på, merkes funnet for ny vurdering.</li>
+          <li><strong>Siden endres først når endringen er flettet.</strong> Godkjente funn eksporteres til nettsiden, og siden oppdateres når den endringen er gjennomgått og flettet.</li>
+        </ol>
+        <h3>Det du ser på hvert funn</h3>
+        <ul>
+          <li>Bortforklaringene som er prøvd, og hvorfor de ikke holdt.</li>
+          <li>Vurderingen, hvor sikker hver del av den er, og det som ikke er avgjort.</li>
+          <li>Et eget merke når vurderingen er gjort av juristagenten, som er KI: «Juristvurdert av KI-agent, ikke kontrollert av menneskelig jurist».</li>
+          <li>Bestemmelsene og kildene, med lenke til Lovdata der den finnes.</li>
+        </ul>
+        <h3>Funn om utgåtte aktører</h3>
+        <p>Et funn om en aktør som er lagt ned eller har skiftet navn, kan bare godkjennes når navnet og etterfølgeren er faglig vurdert. Er etterfølgeren ukjent, står det. Maskinen skal også kunne finne slike funn selv. De kommer først etter en presisjonsmåling, der en jurist kontrollerer et utvalg av det maskinen finner. Også maskinfunnene går gjennom vurderingen over før noe publiseres.</p>
+      </div>
     </div>
   </section>
 </main>
@@ -95,6 +126,7 @@
         <li><a href="../strukturmodell/">Strukturmodellen</a></li>
         <li><a href="../funn/">Funn til vurdering</a></li>
         <li><a href="../profil/">Profilforslag</a></li>
+        <li><a href="../pilot-barnehageloven/">Pilot</a></li>
         <li><a href="../begreper/">Begreper</a></li>
         <li><a href="../om/">Om</a></li>
       </ul>
