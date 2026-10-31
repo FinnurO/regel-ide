@@ -62,7 +62,8 @@ virkeligheten — mulig motstrid, uklarheter og hull, og utgåtte aktører. Et f
 å forklare det bort, og hver prøvd bortforklaring står på funnet) til godkjent for publisering eller forklart bort. Bare de
 publiseringsansvarlige (`RegelIde:Funn:Publiseringsansvarlige`, tom som standard) kan godkjenne, og nettsiden
 ([finnuro.github.io/regel-ide/funn/](https://finnuro.github.io/regel-ide/funn/)) viser bare det frosne innholdet som ble godkjent
-(docs/33 §5.15, docs/09 §49).
+(docs/33 §5.15, docs/09 §49). Maskinregelen for utgåtte aktører (`POST /api/funn/maskinregel/utgatt-aktor`, tørrkjøring som standard)
+foreslår ett funn per rettskilde og aktør der en gjeldende kilde fortsatt bruker et navn på en nedlagt aktør eller et utgått navn.
 
 ## Dokumenter
 

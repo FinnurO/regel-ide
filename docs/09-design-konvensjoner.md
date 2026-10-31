@@ -1328,13 +1328,20 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
   forhåndsvalgt) og `/funn/:id` (detaljmalen i §6/§14: brødsmulesti, H1, merkene på linje 2, seksjoner som `Card`). Menypunktet står ved
   Kildefeil under Administrasjon.
 - **Tetthet:** vanlig, ikke `compact` — fem funn i PR 1 (§26). Når maskinregelen for utgåtte aktører (#429 PR 2) gir rundt 770 funn, skal
-  tettheten og grupperingen per aktør i `Details` (som forslagskøen i §36) vurderes på nytt.
+  tettheten og grupperingen per aktør i `Details` (som forslagskøen i §36) vurderes på nytt. [#429 PR 2, 2026-10-31] Ikke endret ennå:
+  tørrkjøringen gir 699 funn, men de lastes først når Johann kjører `?skriv=true`. Lista henter premissmanglene i to oppslag for hele
+  lista, så den tåler mengden; valget av tetthet og gruppering ligger hos Johann.
 - **Godkjenning for publisering og tilbaketrekking** bekreftes i en `Dialog` som viser nøyaktig teksten som publiseres (§14, kritiske
   overganger). Knappen vises bare for publiseringsansvarlige; andre ser `Metatekst` om hvem som kan godkjenne, og om lista er tom.
 - **Forhåndsvisningen** («Slik blir det på nettsiden») bygges av det samme objektet eksporten skriver, aldri av en egen mal.
   `nettside/funn/index.html` følger samme rekkefølge og ord. [ENDRET, kaldsjekken 2026-10-30] Metalinjen sier «Ikke godkjent for
   publisering» før godkjenning og «Godkjennes for publisering <dato>» i dialogen — et funn som ikke er godkjent, skal aldri se godkjent
   ut. Stopper premissporten på etterfølgerkanten, står «Etterfølger: ikke vurdert» i forhåndsvisningen, ikke navnet.
+- [Ny, #429 PR 2] **Maskinfunn på detaljsiden:** bestemmelsene viser det ordrette sitatet (`quoteExact`) som `Metatekst` i anførselstegn,
+  og målvedtaket til et endringsvedtak står i samme tabell med rollen «Målvedtak». Funn om en utgått aktør uten etterfølgerkant får et
+  eget felt i juristvurderingen, «Etterfølger: hvem har oppgaven i bestemmelsen nå, eller er det ukjent?». Det lagres som vurderingspunktet
+  «Etterfølger» og står i etterfølgerlinjen i forhåndsvisningen og på nettsiden (`etterfolgerlinje` i `funn/funnTekst.ts`), ikke også i
+  lista over vurderingspunkter. Uten det stopper premissporten med «Etterfølger ikke vurdert» (`warning`).
 - **Rettskildesiden:** gruppen «Funn til vurdering (N)» i kontekstpanelet. Aktørsiden er ikke endret i PR 1, fordi en annen sak skal
   omarbeide den.
 
