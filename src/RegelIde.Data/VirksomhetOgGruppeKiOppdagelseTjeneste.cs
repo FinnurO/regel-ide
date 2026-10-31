@@ -237,9 +237,11 @@ public sealed class VirksomhetOgGruppeKiOppdagelseTjeneste(
         // Rettskilden er allerede validert til å finnes/være gjeldende av ByggKontekstChunketAsync over
         // (den kaster ArgumentException ellers) — ingen ny sjekk trengs her.
         var utfall = new List<KiOppdagelseKandidatUtfall>();
+        // [Ny, issue #440] Samme ruting som aktørkøen, lest én gang for hele kjøringen.
+        var rutingstabell = await AktorkoTjeneste.LastRutingstabellAsync(db, ct);
         foreach (var k in alleForslag)
         {
-            utfall.Add(await BehandleEttForslagAsync(k, rettskildeId, opprettetAv, ct));
+            utfall.Add(await BehandleEttForslagAsync(k, rettskildeId, opprettetAv, rutingstabell, ct));
         }
         return new KiOppdagelseResultat(utfall, inputTokensSum, outputTokensSum, null);
     }
@@ -276,7 +278,7 @@ public sealed class VirksomhetOgGruppeKiOppdagelseTjeneste(
     }
 
     private async Task<KiOppdagelseKandidatUtfall> BehandleEttForslagAsync(
-        KandidatForslagJson k, Guid rettskildeId, string opprettetAv, CancellationToken ct)
+        KandidatForslagJson k, Guid rettskildeId, string opprettetAv, Rutingstabell rutingstabell, CancellationToken ct)
     {
         if (!Nodetyper.Kandidatkategorier.Contains(k.Type))
         {
@@ -314,16 +316,28 @@ public sealed class VirksomhetOgGruppeKiOppdagelseTjeneste(
 
         Guid? navnekandidatId = null;
         string? navnekandidatFeil = null;
-        try
+        // [Ny, issue #440, Johanns avgjørelse 2026-10-30] Et ord aktørkøens ruting kjenner (generisk ord, kjent aktør, kjent klasse/rolle/
+        // område, bøyningsform av et av dem), blir ikke en ny navnekandidat. Grunnen står i utfallet, så den ikke forsvinner stille. Rolle- og
+        // relasjonsforsøkene under kjøres som før: de slår opp den kjente aktøren selv.
+        var ruting = Aktorkoregler.Ruter(rutingstabell, faktiskTekst, rettskildeId);
+        if (ruting.Rute != Aktorkoruter.Aktorko)
         {
-            var kandidat = await navnekandidatOppdagelse.OpprettEllerFinnAsync(
-                faktiskTekst, k.Type, rettskildeId, ekteNodeEid, idx, idx + faktiskTekst.Length, opprettetAv, ct,
-                oppdagelsesKilde: NavnekandidatOppdagelseTjeneste.KiFriSveipOppdagelsesKilde);
-            navnekandidatId = kandidat.Id;
+            navnekandidatFeil = $"Ikke lagt i navnekandidatkøen: «{faktiskTekst}» er {Aktorkoruter.Tekst(ruting.Rute)} "
+                + $"({AktorkoTjeneste.Treffbeskrivelse(ruting)}{(ruting.Suffiks is { } suf ? $", {suf}" : "")}). Aktørkøen (#440) viser bare ukjente navn.";
         }
-        catch (ArgumentException ex)
+        else
         {
-            navnekandidatFeil = ex.Message;
+            try
+            {
+                var kandidat = await navnekandidatOppdagelse.OpprettEllerFinnAsync(
+                    faktiskTekst, k.Type, rettskildeId, ekteNodeEid, idx, idx + faktiskTekst.Length, opprettetAv, ct,
+                    oppdagelsesKilde: NavnekandidatOppdagelseTjeneste.KiFriSveipOppdagelsesKilde);
+                navnekandidatId = kandidat.Id;
+            }
+            catch (ArgumentException ex)
+            {
+                navnekandidatFeil = ex.Message;
+            }
         }
 
         Guid? rolleKantId = null;

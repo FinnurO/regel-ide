@@ -93,6 +93,8 @@ builder.Services.AddScoped<HjemmelValideringTjeneste>();
 builder.Services.AddScoped<KildefeilTjeneste>();
 // [Ny, issue #429] Funn til vurdering — se FunnTjeneste og FunnEndepunkter.
 builder.Services.AddScoped<FunnTjeneste>();
+// [Ny, issue #440] Aktørkøen (bare lesing i PR 1) — se AktorkoTjeneste og AktorkoEndepunkter.
+builder.Services.AddScoped<AktorkoTjeneste>();
 builder.Services.AddScoped<BegrepsoppdagelseSveipTjeneste>();
 builder.Services.AddScoped<VilkarregisterTjeneste>();
 builder.Services.AddScoped<RegelnoderegisterTjeneste>();
@@ -1742,6 +1744,8 @@ kildefeil.MapGet("/", async (string? status, Guid? rettskildeId, KildefeilTjenes
 
 // [Ny, issue #429] Funn til vurdering — endepunktene står i FunnEndepunkter.cs.
 app.MapFunnEndepunkter();
+// [Ny, issue #440] Aktørkøen — endepunktene står i AktorkoEndepunkter.cs.
+app.MapAktorkoEndepunkter();
 
 var lovdataResynk = app.MapGroup("/api/administrasjon/lovdata-resynk").WithOpenApi();
 
@@ -4979,7 +4983,7 @@ navnekandidater.MapPost("/sveip", async (HttpRequest request, SveipNavnekandidat
         try
         {
             var resultat = await register.SveipAsync(body.RettskildeId, bruker.Navn, ct, inkluderIkrafttredelseOgEndring ?? false);
-            return Results.Ok(new SveipNavnekandidaterResultatDto(resultat.AntallTreffFunnet, resultat.AntallNyeKandidater));
+            return Results.Ok(new SveipNavnekandidaterResultatDto(resultat.AntallTreffFunnet, resultat.AntallNyeKandidater, resultat.UtenforAktorkoen));
         }
         catch (ArgumentException ex)
         {

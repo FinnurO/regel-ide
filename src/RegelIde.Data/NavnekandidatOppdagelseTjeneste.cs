@@ -690,6 +690,19 @@ public sealed class NavnekandidatOppdagelseTjeneste(
         var antallTreff = 0;
         var antallNyeKandidater = 0;
 
+        // [Ny, issue #440, Johanns avgjørelse 2026-10-30] Samme ruting som aktørkøen: et treff som er et generisk ord, en kjent aktør, en
+        // kjent klasse/rolle/område eller en bøyningsform av et av dem, blir ikke en ny navnekandidat. Det har et annet sted å bli behandlet,
+        // og ville bare gjentatt det kjente i køen. Tellingen per rute står i svaret, så ingenting forsvinner stille.
+        var rutingstabell = await AktorkoTjeneste.LastRutingstabellAsync(db, ct);
+        var utenforKoen = new Dictionary<string, int>(StringComparer.Ordinal);
+        bool UtenforAktorkoen(string tekst, Guid rettskildeId)
+        {
+            var rute = Aktorkoregler.Ruter(rutingstabell, tekst, rettskildeId).Rute;
+            if (rute == Aktorkoruter.Aktorko) return false;
+            utenforKoen[rute] = utenforKoen.GetValueOrDefault(rute) + 1;
+            return true;
+        }
+
         // ---------- Fase 1: samle, rent + DB-dedup, ingen nettverkskall ----------
         var trengerKlassifisering = new List<VentendeVirksomhetTreff>();
 
@@ -742,6 +755,7 @@ public sealed class NavnekandidatOppdagelseTjeneste(
                     && gruppeKandidatTermerPerRettskilde.TryGetValue(node.RettskildeId, out var eksisterendeTermer)
                     && eksisterendeTermer.Contains(tekst);
                 if (alleredeDekketAvBegrep || alleredeDekketAvEksisterendeKandidat) continue;
+                if (UtenforAktorkoen(tekst, node.RettskildeId)) continue; // [Ny, issue #440]
 
                 antallTreff++;
                 var forAntall = await db.Navnekandidater.CountAsync(
@@ -801,6 +815,7 @@ public sealed class NavnekandidatOppdagelseTjeneste(
                 }
 
                 if (virksomhetTermer.Contains(raaTekst)) continue; // allerede dekket av eksisterende Begrep.
+                if (UtenforAktorkoen(raaTekst, node.RettskildeId)) continue; // [Ny, issue #440]
 
                 antallTreff++;
                 var forAntall = await db.Navnekandidater.CountAsync(
@@ -836,7 +851,7 @@ public sealed class NavnekandidatOppdagelseTjeneste(
             antallNyeKandidater++; // forAntall==0 ble allerede bekreftet for denne posisjonen i fase 1.
         }
 
-        return new NavnekandidatSveipResultat(antallTreff, antallNyeKandidater);
+        return new NavnekandidatSveipResultat(antallTreff, antallNyeKandidater) { UtenforAktorkoen = utenforKoen };
     }
 
     /// <summary>
@@ -2540,7 +2555,12 @@ public sealed class NavnekandidatOppdagelseTjeneste(
 /// <see cref="AntallNyeKandidater"/> kun de som faktisk ble en NY rad i køen denne kjøringen — uavhengig
 /// av om den nye raden ble opprettet som <c>"Venter"</c> eller <c>"Avvist"</c> (se
 /// <see cref="NavnekandidatOppdagelseTjeneste.KlassifiserAsync"/>).</summary>
-public sealed record NavnekandidatSveipResultat(int AntallTreffFunnet, int AntallNyeKandidater);
+public sealed record NavnekandidatSveipResultat(int AntallTreffFunnet, int AntallNyeKandidater)
+{
+    /// <summary>[Ny, issue #440] Treff som aktørkøens ruting sendte et annet sted (generisk ord, kjent aktør, kjent klasse/rolle/område,
+    /// bøyningsform), per rute. De ble ikke navnekandidater og telles ikke i <see cref="AntallTreffFunnet"/>.</summary>
+    public IReadOnlyDictionary<string, int> UtenforAktorkoen { get; init; } = new Dictionary<string, int>();
+}
 
 /// <summary>
 /// [Ny, navnekandidat-wizard-runden, 2026-09-07] Utfallet av

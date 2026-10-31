@@ -1357,7 +1357,8 @@ public sealed record NavnekandidatFastGruppebegrepResultatDto(
 
 public sealed record SveipNavnekandidaterRequest(Guid? RettskildeId);
 
-public sealed record SveipNavnekandidaterResultatDto(int AntallTreffFunnet, int AntallNyeKandidater);
+/// <param name="UtenforAktorkoen">[Ny, issue #440] Treff aktørkøens ruting sendte et annet sted (per rute); de ble ikke navnekandidater.</param>
+public sealed record SveipNavnekandidaterResultatDto(int AntallTreffFunnet, int AntallNyeKandidater, IReadOnlyDictionary<string, int> UtenforAktorkoen);
 
 // ---------- KI-oppdagelse av virksomheter/grupper/roller/relasjoner (issue #285) ----------
 
