@@ -1,0 +1,89 @@
+[
+ {
+  "id": "h3",
+  "replikk": "godtar",
+  "tekst": "Godtar. Modellereren har rett i at koblingen fra «daglig leder» i bhl. § 24 andre ledd til navnet «styrer» går gjennom paragrafoverskriften og systematikken. Ingen kontrollert normaliseringsregel bærer den. Den er derfor fortolkning (ordlyd og kontekst_system) og hører hjemme hos saksbehandleren, ikke hos regelen. Det følger også av min egen regeltekst på R. Regelen leverer altså forskriften § 4 første ledd (tekstfunn). Én presisering til PR 2: når saksbehandleren legger til lovhjemmelen, bør den vises foran forskriften, fordi forskriften er gitt med hjemmel i loven. Dette er en merknad om visningen, ikke en uenighet.",
+  "kilder": [
+   {
+    "ref": "docs/profil/03 §5 (normalisering krever en regel for normaliseringen)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "barnehageloven § 24 andre ledd (overskrift «Styrer»)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FOR-2017-06-22-1049 § 4 første ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "h15",
+  "replikk": "presiserer",
+  "tekst": "Jeg godtar at regelen ikke skal levere § 55 a første ledd med status fortolkning. Den har ingen tolkningsargumenter å vise, og et maskinelt forslag merket fortolkning ser ut som en tolkning noen har vurdert. Det stemmer også med regelteksten min på R. Presiseringen gjelder hva hullet sier. Med den nye regelen viser Innstillingsrådet «Hjemmel for aktøren mangler». Rådet er likevel opprettet i loven der navnet står (dl. § 55 a gir navn, oppgaver og sammensetning), og den som leser køen, kan ikke se forskjell på det og en aktør uten noe rettsgrunnlag. Metodenotatet sier uttrykkelig at «ikke funnet» ikke betyr «finnes ikke» (docs/profil/03 §5). Modellereren har godtatt et eget hull for «lovbestemt i annen lov, ikke søkt». Samme logikk må gjelde her: hullteksten bør si hva som er undersøkt, for eksempel «regelen fant ikke noe opprettelsesuttrykk». Det er en fast tekst og ikke en påstand om aktøren, så det gjettes ikke. Sluttreplikk i klart språk: Vi er enige om at maskinen ikke skal foreslå hjemmelen for Innstillingsrådet. Det er et skjønn et menneske må ta. Jeg ber bare om at skjermen ikke sier at hjemmelen «mangler» når maskinen bare ikke har funnet den. Rådet er opprettet i domstolloven § 55 a. Teksten bør derfor si «ikke funnet av regelen», så ingen tror at rådet mangler rettsgrunnlag.",
+  "kilder": [
+   {
+    "ref": "domstolloven § 55 a første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "docs/profil/03 §5 («Ikke funnet» betyr ikke «finnes ikke»)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "svar.json R punkt (7) (eget hull for annen lov)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "h16",
+  "replikk": "godtar",
+  "tekst": "Godtar. Med den presiserte regelen er kjernen i frasen «kommuneleger». Det er ikke en bøyningsform av «kommunelegen» etter den lukkede suffikslista. Å utvide bøyningen til felles stamme ville slå sammen homografer («styre» og «styrer»), som jeg selv påpekte. Hullet er da det riktige maskinsvaret. Hol. § 5-5 første ledd registreres av saksbehandleren med status normalisering. Merknaden på h15 om hva hullteksten skal si, gjelder også her.",
+  "kilder": [
+   {
+    "ref": "helse- og omsorgstjenesteloven § 5-5 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "docs/33 §5.16 (lukket suffiksliste)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "h18",
+  "replikk": "godtar",
+  "tekst": "Godtar. Sametinget finnes i katalogen (SAMEDIGGI / SAMETINGET). Riktig behandling er å koble navnet dit og registrere hjemmelen på aktøren (#441), ikke å foreslå hjemmel for en ny aktør. Sameloven er en annen lov enn forekomsten og ligger utenfor regelen etter min egen regeltekst. En opplysning til oppfølgingen: med SELECT 2026-10-31 fant jeg ingen rad i `begreper` med virksomhet_id for SAMEDIGGI / SAMETINGET. Aktørsiden viser derfor også hull i dag. Sameloven § 1-2 første ledd («skal ha et eget landsomfattende sameting») må registreres på aktøren når navnet kobles. Ellers står det hull begge steder.",
+  "kilder": [
+   {
+    "ref": "sameloven § 1-2 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "issue #441 (hjemmel på navneformen)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "R",
+  "replikk": "presiserer",
+  "tekst": "Godtar punkt 1–7 og at gruppering, aktørstatus og homografer føres som egne funn. Godtar også innvendingen mot merknaden «referent ikke kontrollert». Regelen kan ikke vite om et appellativ har flere referenter. En merknad som står på noen forslag og ikke på andre, leses som om de andre er kontrollert. Men svaret «ingenting er forhåndsvalgt» (AK5) løser ikke problemet. Det hindrer automatisk godkjenning, men ikke at et menneske godkjenner et forslag som ser riktig ut. «Høyesterett skal ha en direktør» (h10) ser ut som en fullgod hjemmel for «direktøren» når forekomsten (DA-direktøren i § 33 b) ikke står ved siden av. Nytt forslag: i stedet for en påstand om referent, vis et faktum regelen kan regne ut uten å gjette. Hjemmelforslaget og hver forekomst vises med rettskilde og paragraf side om side. Står hjemmelen i en annen paragraf enn alle forekomstene, vises det rett ut («hjemmelen står i § 9; navnet står i § 33 b»). Målt med SELECT på de 8 forslagene den nye regelen gir: tre får markeringen. Det er direktøren (§ 9 mot § 33 b, feil), Dommere (§ 3 mot § 55, feil) og førstelagmannen (§ 10 mot § 11, riktig). De fem som ikke får den, står i samme paragraf som en forekomst: foreldrerådet, styrer, samarbeidsutvalget (§ 4 og § 5) og forliksrådet. Av dem er fire riktige, og det femte (felles samarbeidsutvalg) stoppes av forleddssperren. Markeringen er altså ikke en kontrollpåstand. Den er en opplysning om hvor teksten står, og den skiller ut begge de feilaktige forslagene i målingen. Den kan derfor ikke leses som at de andre er kontrollert. Sluttreplikk i klart språk: Vi er enige om nesten alt i regelen. Uenigheten gjelder hvordan saksbehandleren skal oppdage at maskinen har tatt feil person eller feil organ, for eksempel Høyesteretts direktør i stedet for direktøren i Domstoladministrasjonen. Modellereren mener det er nok at mennesket alltid godkjenner selv og ser setningen. Jeg mener mennesket også trenger å se, uten å lete, at hjemmelen og navnet står i forskjellige paragrafer. Det er en ren opplysning maskinen kan regne ut sikkert, og i testen fanget den begge de gale forslagene, mens fire av fem uten markering var riktige.",
+  "kilder": [
+   {
+    "ref": "issue #440 AK5 («ingenting er forhåndsvalgt»)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "domstolloven § 9 første ledd og § 33 b første ledd (h10)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "inndata.json forekomster (paragrafer for h2, h3, h5, h10, h11, h13, h14)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ }
+]
