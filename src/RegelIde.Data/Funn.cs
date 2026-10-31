@@ -55,8 +55,18 @@ public static class Funn
     public const string Navneform = "navneform";
     public const string Etterfolger = "etterfolger";
     public const string Kilde = "kilde";
+    /// <summary>[Ny, #429 PR 2, Johanns avgjørelse 2026-10-31 (2)] Vedtaket et endringsvedtak endrer: «funn i endringsvedtak merkes med
+    /// målvedtaket». Settes bare når det kan finnes uten gjetting — rettskilden endrer nøyaktig ETT dokument ifølge Lovdatas «Endrer»-felt
+    /// (<see cref="RettskildeEndringEntitet"/>). Publiseres ikke som egen liste; påstanden sier det i klartekst.</summary>
+    public const string Malvedtak = "malvedtak";
     public static readonly string[] Koblingsroller =
-        [GjelderBestemmelse, MotstridendeBestemmelse, BerortAktor, Navneform, Etterfolger, Kilde];
+        [GjelderBestemmelse, MotstridendeBestemmelse, BerortAktor, Navneform, Etterfolger, Kilde, Malvedtak];
+
+    /// <summary>[Ny, #429 PR 2, Johanns avgjørelse 2026-10-31 (3): premissporten for etterfølger gjelder alle fire gruppene] Overskriften
+    /// på vurderingspunktet (type <see cref="Vurdering"/>) der juristen sier hvem som har oppgaven nå, eller at det er ukjent, når funnet
+    /// ikke peker på noen etterfølgerkant. Uten et slikt punkt stopper premissporten («Etterfølger ikke vurdert»). Se
+    /// <see cref="FunnTjeneste.PremissmanglerAsync"/>.</summary>
+    public const string EtterfolgerOverskrift = "Etterfølger";
 
     // ---- Vurderingspunkter ----
     public const string BortforklaringProvd = "bortforklaring_provd";
@@ -175,6 +185,10 @@ public sealed class FunnKoblingEntitet
     public Guid? StrukturkantId { get; set; }
     public Guid? KildefeilId { get; set; }
     public string? EksternLenke { get; set; }
+
+    /// <summary>[Ny, #429 PR 2] Ordet slik det står i noden (<c>quote_exact</c>, som på taggene), for en bestemmelse funnet av
+    /// maskinregelen. Forekomsten forankres dermed som en tagg: ELI + eId + det ordrette sitatet. Bare på bestemmelser med eId.</summary>
+    public string? QuoteExact { get; set; }
 }
 
 /// <summary>[Ny, issue #429] Ett punkt i vurderingen: en bortforklaring som er prøvd (med resultatet), en delvurdering med
