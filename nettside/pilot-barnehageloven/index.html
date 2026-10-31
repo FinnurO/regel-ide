@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="nb" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pilot: barnehageloven — DigRett showcase</title>
+<meta name="description" content="Første gang DigRett er brukt på en lov utenfor de fem testlovene: barnehageloven og 19 forskrifter, lastet tre ganger. Hva som stoppet utsagnene, hva som er rettet, og hva som gjenstår.">
+<link rel="canonical" href="https://finnuro.github.io/regel-ide/pilot-barnehageloven/">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/css/fonts.css">
+<link rel="stylesheet" href="../assets/css/vendor/designsystemet.css">
+<link rel="stylesheet" href="../assets/css/vendor/designsystemet-theme.css">
+<link rel="stylesheet" href="../assets/css/site.css">
+<meta property="og:title" content="Pilot: barnehageloven — DigRett showcase">
+<meta property="og:description" content="Barnehageloven og 19 forskrifter, lastet tre ganger: hva som stoppet utsagnene, hva som er rettet, og hva som gjenstår.">
+<meta property="og:type" content="website">
+<style>
+  /* [Ny, nettside-pilot-og-modell, 2026-10-31] Bare det denne siden trenger utover site.css: tallkolonner høyrejustert. */
+  .struktur-tabell.pilot-tall { min-width: 0; }
+  .pilot-tall td { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .pilot-tall th[scope="col"]:not(:first-child) { text-align: right; }
+  .pilot-tall th[scope="row"] { white-space: normal; font-weight: 500; }
+</style>
+</head>
+<body>
+
+<a class="ds-link skip-to-content" href="#main">Hopp til innhold</a>
+
+<div class="disclaimer-bar">
+  <div class="wrap">
+    <span>📎 <strong>Midlertidig showcase</strong> — statisk fasade, ikke selve applikasjonen.</span>
+  </div>
+</div>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand plain" href="../">
+      <span class="brand__mark" aria-hidden="true">DR</span>
+      <span class="brand__text">
+        <span class="brand__title">DigRett</span>
+        <span class="brand__subtitle">Digital rettsstat — showcase</span>
+      </span>
+    </a>
+    <nav class="main-nav" aria-label="Hovedmeny">
+      <a href="../">Forside</a>
+      <a href="../rettskilder/">Rettskilder</a>
+      <a href="../virksomheter/">Virksomheter</a>
+      <a href="../grupper/">Grupper</a>
+      <a href="../koblinger/">Koblinger</a>
+      <a href="../kjeden/">Kjeden</a>
+      <a href="../strukturmodell/">Strukturmodellen</a>
+      <a href="../funn/">Funn til vurdering</a>
+      <a href="../profil/">Profilforslag</a>
+      <a href="../pilot-barnehageloven/" aria-current="page">Pilot</a>
+      <a href="../begreper/">Begreper</a>
+      <a href="../om/">Om</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <!-- [Ny, nettside-pilot-og-modell, 2026-10-31] Pilotsiden (#375). Alt innhold er hentet fra docs/profil/07-pilot-barnehageloven.md:
+       innledningen, §1–§3 (første lasting), §8 (ny lasting etter #418) og §9 (tredje lasting etter #420 og #419), og fra docs/33 §4.3,
+       §5.3, §5.14 og §5.16. Sammenligningen med en annen kartlegging (docs/profil/07 §5) er et annet prosjekts materiale og er
+       bevisst ikke med. Ingen personnavn. Tallene er skrevet inn her fra pilotrapporten, ikke lest fra en datafil. -->
+  <div class="wrap page-head">
+    <span class="eyebrow">Pilot · 28.–30. oktober 2026</span>
+    <h1>Pilot: barnehageloven i aktiv bruk</h1>
+    <p class="lead">Første gang DigRett er brukt på en lov utenfor de fem lovene modellen ble testet mot. Maskinen leste barnehageloven og 19 forskrifter, foreslo hvem som har hvilken myndighet og hvilke plikter, og la forslagene i køen der et menneske godkjenner dem. Lastingen ble kjørt tre ganger. Mellom hver gang ble modellen eller lasteren rettet etter det piloten viste.</p>
+  </div>
+
+  <div class="wrap">
+    <div class="purpose-box">
+      <span class="purpose-box__label">Status per 31. oktober 2026</span>
+      <div class="purpose-box__pills">
+        <span class="pill" data-tone="warning">Ingen forslag er godkjent ennå</span><span class="pill" data-tone="warning">Presisjon og gjenfinning er ikke målt</span><span class="pill" data-tone="success">Tre feil er rettet</span>
+      </div>
+      <p>Alt på denne siden er forslag. Maskinen foreslår, en juristagent utfordrer forslagene, og et menneske godkjenner eller avviser dem i forslagskøen. Ingenting er godkjent ennå. Derfor finnes det ikke tall for hvor mange av forslagene som er riktige. De kommer etter gjennomgangen.</p>
+    </div>
+    <ul class="nytt-innhold" aria-label="Innhold på siden">
+      <li><a href="#kjoringen">Kjøringen</a></li>
+      <li><a href="#stoppet">Hva som stoppet utsagnene</a></li>
+      <li><a href="#lastingene">Tre lastinger, med tall</a></li>
+      <li><a href="#juristrundene">Juristrundene</a></li>
+      <li><a href="#gjenstar">Hva som gjenstår</a></li>
+    </ul>
+  </div>
+
+  <section class="section" id="kjoringen">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Kjøringen</span>
+        <h2>Én lov, 19 forskrifter og to lag</h2>
+        <p>Piloten prøver hele veien: konvertering, lasting som forslag, juristrunde og gjennomgang i forslagskøen.</p>
+      </div>
+      <div class="stat-row">
+        <div class="stat-tile"><span class="n">20</span><span class="l">rettskilder: barnehageloven og 19 forskrifter, med 1&nbsp;603 noder</span></div>
+        <div class="stat-tile"><span class="n">3</span><span class="l">lastinger, 28., 29. og 30. oktober 2026</span></div>
+        <div class="stat-tile"><span class="n">219</span><span class="l">forslag fra pilotkildene står i køen etter tredje lasting</span></div>
+        <div class="stat-tile"><span class="n">0</span><span class="l">forslag er godkjent ennå</span></div>
+      </div>
+      <div class="prose">
+        <p>Forskriftene er de gjeldende forskriftene med hjemmel i barnehageloven, uten to rene endringsforskrifter, og med forskriften om helse og miljø i barnehager, skoler og skolefritidsordninger, som har hjemmel i folkehelseloven. Til sammen er det om lag 245&nbsp;000 tegn.</p>
+        <p>Teksten leses i to lag. <strong>Faste mønstre</strong> gir samme svar hver gang. <strong>En språkmodell</strong> finner flere utsagn, men gir ikke de samme svarene fra kjøring til kjøring. Alt fra begge lag legges i køen som maskinelle forslag.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="stoppet">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Hva som stoppet utsagnene</span>
+        <h2>Flaskehalsen er å finne aktøren, ikke å lese teksten</h2>
+        <p>I første lasting fant konverteringen 472 utsagn, men bare 71 ble lagt i køen. Resten ble stoppet på veien. Tre av grunnene er rettet. Den fjerde er den største, og arbeidet med den pågår.</p>
+      </div>
+      <div class="nytt-kort-grid nytt-kort-grid--bred">
+        <div class="nytt-kort">
+          <h3>Aktører som mangler i katalogen</h3>
+          <p>Et utsagn lastes bare når aktøren finnes i katalogen. I første lasting stoppet det 240 utsagn (33 fra mønstrene og 207 fra språkmodellen). I tredje lasting var det fortsatt 208 (31 og 177).</p>
+          <p>De største hullene er Utdanningsdirektoratet, «barnehagen» og «barnehager», private barnehager, barnehageeier, fylkeskommunen, PPT, styrer, pedagogisk leder, foreldrerådet og samarbeidsutvalget.</p>
+          <p class="status">Ikke rettet. Det som mangler, står i <a href="https://github.com/FinnurO/regel-ide/issues/424" target="_blank" rel="noopener">#424</a>. Aktørene skal godkjennes ett sted, i <a href="../strukturmodell/#aktorkoen">aktørkøen</a> (<a href="https://github.com/FinnurO/regel-ide/issues/440" target="_blank" rel="noopener">#440</a>).</p>
+        </div>
+        <div class="nytt-kort">
+          <h3>En klasse som innehaver av kompetanse</h3>
+          <p>Loven sier «kommunen» og «statsforvalteren». Det løses til klassene kommune og statsforvalter. Men lasteren tok bare en enkelt aktør eller en rolle som innehaver av kompetanse. Derfor falt 103 utsagn om kommunens og statsforvalterens myndighet bort, blant dem godkjenning, dispensasjon, lokal forskrift, tilsyn, pålegg, stenging, klage og tilskuddsvedtak.</p>
+          <p class="status">Rettet 29. oktober i <a href="https://github.com/FinnurO/regel-ide/issues/418" target="_blank" rel="noopener">#418</a>: en klasse kan ha kompetanse, og den gjelder hvert medlem. Rollen «lokal barnehagemyndighet» er registrert på klassen kommune. Se <a href="../strukturmodell/#nytt-pilot">strukturmodellen</a>.</p>
+        </div>
+        <div class="nytt-kort">
+          <h3>Falske dubletter</h3>
+          <p>Lasteren kjenner igjen et utsagn den har lastet før, så det ikke legges inn to ganger. Men kjennetegnet sa ikke hva utsagnet gjaldt. To utsagn med samme aktør og type i samme ledd ble derfor regnet som ett. Pålegget og stengingen i barnehageloven § 53 andre ledd ble ett utsagn, og det samme skjedde i § 55 andre ledd. I andre lasting gikk 4 utsagn fra mønstrene og 9 fra språkmodellen tapt slik.</p>
+          <p class="status">Rettet før tredje lasting i <a href="https://github.com/FinnurO/regel-ide/issues/420" target="_blank" rel="noopener">#420</a>: setningen er nå med i kjennetegnet, og hvert utsagn pares med høyst én rad som finnes. 3 av de 4 utsagnene fra mønstrene kom inn. Det fjerde står i en veiledning, og skal ikke inn.</p>
+        </div>
+        <div class="nytt-kort">
+          <h3>Merknader lest som forskrift</h3>
+          <p>Noen forskrifter har departementets merknader eller veiledning som eget kapittel etter selve forskriften. Konverteringen leste dem som forskriftstekst. Et økonomisk anslag i en merknad ble til et vedtak og en forskrift, og satser som står i selve forskriften, ble til departementets enkeltvedtak.</p>
+          <p class="status">Rettet før tredje lasting i <a href="https://github.com/FinnurO/regel-ide/issues/419" target="_blank" rel="noopener">#419</a>: slike kapitler merkes når forskriften importeres, og de kan aldri være hjemmel. 52 forslag med slik hjemmel ble avvist. I tredje lasting ble 249 slike noder i fire forskrifter ikke lest.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="lastingene">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Før og etter</span>
+        <h2>Tre lastinger, med tall</h2>
+        <p>Lastingen ble kjørt for de samme 20 kildene tre dager på rad. Før andre lasting ble #418 rettet, og før tredje #420 og #419. Søket etter aktører ble ikke kjørt på nytt mellom lastingene.</p>
+      </div>
+
+      <div class="prose">
+        <h3>Faste mønstre</h3>
+        <p>Mønstrene gir samme svar hver gang, så tallene kan sammenlignes rad for rad.</p>
+      </div>
+      <div class="table-scroll">
+        <table class="ds-table struktur-tabell pilot-tall">
+          <thead>
+            <tr><th scope="col">Faste mønstre</th><th scope="col">28. okt.</th><th scope="col">29. okt.</th><th scope="col">30. okt.</th></tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">Utsagn funnet</th><td>118</td><td>117</td><td>110</td></tr>
+            <tr><th scope="row">Nye forslag</th><td>38</td><td>43</td><td>3</td></tr>
+            <tr><th scope="row">Fantes som forslag fra før</th><td>0</td><td>38</td><td>76</td></tr>
+            <tr><th scope="row">Tapt som dublett i kjøringen</th><td>0</td><td>4</td><td>0</td></tr>
+            <tr><th scope="row">Ikke lastet: aktøren er ikke i katalogen</th><td>33</td><td>32</td><td>31</td></tr>
+            <tr><th scope="row">Ikke lastet: klasse som innehaver av kompetanse</th><td>47</td><td>0</td><td>0</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="prose struktur-etter-tabell">
+        <p>Av de 47 utsagnene som falt på klassen, ble 43 lastet 29. oktober. Alle de 43 er kompetanse med klassen som innehaver: 28 for kommunen og 15 for statsforvalteren. De 4 andre var falske dubletter. 30. oktober forsvant 7 utsagn fordi de sto i merknader eller veiledning. 5 av dem var lastet og er nå avvist.</p>
+      </div>
+
+      <div class="prose struktur-etter-tabell">
+        <h3>Språkmodellen</h3>
+        <p>Språkmodellen er kjørt på nytt hver gang og gir ikke de samme utsagnene. Tallene viser utviklingen, men kan ikke følges utsagn for utsagn.</p>
+      </div>
+      <div class="table-scroll">
+        <table class="ds-table struktur-tabell pilot-tall">
+          <thead>
+            <tr><th scope="col">Språkmodellen</th><th scope="col">28. okt.</th><th scope="col">29. okt.</th><th scope="col">30. okt.</th></tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">Utsagn funnet</th><td>354</td><td>351</td><td>298</td></tr>
+            <tr><th scope="row">Nye forslag</th><td>33</td><td>96</td><td>57</td></tr>
+            <tr><th scope="row">Fantes som forslag fra før</th><td>20</td><td>42</td><td>47</td></tr>
+            <tr><th scope="row">Tapt som dublett i kjøringen</th><td>4</td><td>10</td><td>0</td></tr>
+            <tr><th scope="row">Ikke lastet: aktøren er ikke i katalogen</th><td>207</td><td>179</td><td>177</td></tr>
+            <tr><th scope="row">Ikke lastet: klasse som innehaver av kompetanse</th><td>56</td><td>0</td><td>0</td></tr>
+            <tr><th scope="row">Ikke lastet: innehaveren står ikke i teksten</th><td>17</td><td>9</td><td>6</td></tr>
+            <tr><th scope="row">Ikke lastet: typen finnes ikke i databasen</th><td>10</td><td>11</td><td>6</td></tr>
+            <tr><th scope="row">Ikke lastet: annet som skriveveien avviste</th><td>6</td><td>1</td><td>3</td></tr>
+            <tr><th scope="row">Ikke lastet: generisk omtale uten binding</th><td>1</td><td>0</td><td>2</td></tr>
+            <tr><th scope="row">Medlemskap fra språkmodellen, som ikke sendes</th><td>0</td><td>3</td><td>0</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="prose struktur-etter-tabell">
+        <p>Av de 10 dublettene 29. oktober var 9 falske. Av de 96 nye forslagene samme dag har 63 en klasse som innehaver av kompetanse. De andre 33 kom fordi språkmodellen ga andre utsagn denne gangen. 30. oktober ga tre forskrifter ingen utsagn fra språkmodellen, fordi radene den ga, ikke kunne brukes.</p>
+        <p>Etter tredje lasting har pilotkildene 271 kanter i køen: 219 forslag, 52 avviste og 0 godkjente.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="juristrundene">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Juristrundene</span>
+        <h2>En juristagent gikk gjennom forslagene først</h2>
+        <p>Før et menneske ser forslagene, går de gjennom en juristagent i to runder, slik det er beskrevet på <a href="../strukturmodell/#nytt-arbeidsmaten">strukturmodellsiden</a>. Juristagenten er KI. Begge rundene endte uten uenighet mellom juristen og modellereren.</p>
+      </div>
+      <div class="table-scroll">
+        <table class="ds-table struktur-tabell pilot-tall">
+          <thead>
+            <tr><th scope="col">Anbefalt behandling</th><th scope="col">Forslag</th><th scope="col">Godkjenn</th><th scope="col">Rett, så godkjenn</th><th scope="col">Avvis</th></tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">Første lasting, 28. oktober</th><td>71</td><td>27</td><td>23</td><td>21</td></tr>
+            <tr><th scope="row">Tredje lasting, bare de nye forslagene</th><td>60</td><td>4</td><td>22</td><td>34</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="prose struktur-etter-tabell">
+        <p>Første runde ga to modellspørsmål: om en klasse kan ha kompetanse, og om rollen «lokal barnehagemyndighet» skal registreres. Begge ble avgjort 29. oktober (#418). Etter tredje lasting anbefaler juristen også at 5 utsagn legges til for hånd.</p>
+        <h3>Hva tredje lasting viste</h3>
+        <ul>
+          <li><strong>Rettingen av dublettene virker, men gir en ny type dublett.</strong> 17 av de 60 nye forslagene sier det samme som et forslag i køen, men med den typen eller motparten juristen tidligere ba om. Rettingen er ikke gjort i køen ennå, så de to pares ikke.</li>
+          <li><strong>Merknadsregelen virker.</strong> Ingen nye forslag har hjemmel i en merknad eller en veiledning.</li>
+          <li><strong>Språkmodellen fører «Kommunen skal …» som oppgave.</strong> 19 av 20 oppgaveforslag fikk innvending. En betalingsplikt er en plikt, og en beregningsregel hører til regellaget.</li>
+          <li><strong>Hovedpliktene til å betale tilskudd mangler</strong> (barnehageloven § 19 a og § 19 b, tildelingsforskriften § 3). Uttrekket fanger bare undertilfellene.</li>
+          <li><strong>Formatet og praksisen er ulike om tilskuddsmottakere.</strong> Piloten fører ikke den som får tilskudd, som motpart. Formatet bør rettes.</li>
+          <li><strong>Vilkår og tid mangler fortsatt i avgrensningen</strong>, blant annet vilkåret for stenging om at pålegget ikke er fulgt.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="gjenstar" style="border-bottom:none;">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Hva som gjenstår</span>
+        <h2>Aktørene først, så gjennomgangen</h2>
+        <p>Den største gjenstående grunnen til at utsagn ikke kommer inn, er aktører som mangler. Deretter skal forslagene gjennomgås og måles.</p>
+      </div>
+      <div class="nytt-kort-grid">
+        <div class="nytt-kort">
+          <h3>Aktørkøen</h3>
+          <p>Ukjente aktører samles og godkjennes ett sted. Første del, som bare leser, er flettet. Samlet godkjenning kommer i neste del.</p>
+          <p class="status"><a href="https://github.com/FinnurO/regel-ide/issues/440" target="_blank" rel="noopener">#440</a> · <a href="../strukturmodell/#aktorkoen">Les om aktørkøen</a></p>
+        </div>
+        <div class="nytt-kort">
+          <h3>Mulige dubletter i køen</h3>
+          <p>Forslag: køen merker et nytt forslag i samme setning som et eksisterende, men med ulik type eller motpart, og viser de to side om side. Ingenting slås sammen automatisk.</p>
+          <p class="status">Foreslått, ikke besluttet bygget. <a href="https://github.com/FinnurO/regel-ide/issues/434" target="_blank" rel="noopener">#434</a></p>
+        </div>
+        <div class="nytt-kort">
+          <h3>Språkmodellen og formatet</h3>
+          <p>«Kommunen skal …» er ikke alltid en oppgave, og den som får tilskudd, er ikke motpart. Forslaget er å rette instruksen til språkmodellen og formatet.</p>
+          <p class="status">Foreslått, ikke besluttet bygget. <a href="https://github.com/FinnurO/regel-ide/issues/435" target="_blank" rel="noopener">#435</a></p>
+        </div>
+        <div class="nytt-kort">
+          <h3>Satsene i finansieringsforskriften</h3>
+          <p>Vår kopi av forskriften viser plassholdere der satsene i §§ 17–18 skal stå. Det skal kontrolleres mot Lovdata om kopien er utdatert, om importen har mistet tekst, eller om plassholderne står hos Lovdata.</p>
+          <p class="status"><a href="https://github.com/FinnurO/regel-ide/issues/436" target="_blank" rel="noopener">#436</a></p>
+        </div>
+        <div class="nytt-kort">
+          <h3>Tid i avgrensningen</h3>
+          <p>Kanter fra kilder som bare gjelder for en tid, får ikke tidsavgrensningen med seg, og vil se gjeldende ut etter at kilden er opphevet.</p>
+          <p class="status">Foreslått, ikke besluttet bygget. <a href="https://github.com/FinnurO/regel-ide/issues/437" target="_blank" rel="noopener">#437</a></p>
+        </div>
+        <div class="nytt-kort">
+          <h3>Gjennomgang og måling</h3>
+          <p>Når forslagene er gjennomgått, måles presisjon og gjenfinning. Gjenfinningen blir bare så god som det som legges til for hånd.</p>
+          <p class="status"><a href="https://github.com/FinnurO/regel-ide/issues/375" target="_blank" rel="noopener">#375</a></p>
+        </div>
+      </div>
+      <p class="struktur-forbehold"><strong>Forbehold.</strong> Tallene er fra den delte utviklingsbasen 28.–30. oktober 2026. De er skrevet inn her fra pilotrapporten, ikke lest fra en datafil.</p>
+      <ul class="source-list struktur-lenker">
+        <li><span class="dot" aria-hidden="true"></span><span><a href="https://github.com/FinnurO/regel-ide/blob/master/docs/profil/07-pilot-barnehageloven.md" target="_blank" rel="noopener">Pilotrapporten (docs/profil/07)</a><span class="desc">Referat fra første lasting, med tillegg for andre og tredje lasting.</span></span></li>
+        <li><span class="dot" aria-hidden="true"></span><span><a href="https://github.com/FinnurO/regel-ide/tree/master/data/fasit/strukturmodell" target="_blank" rel="noopener">Kjøringene og juristrundene</a><span class="desc">Tall per kilde og steg, og juristagentens vurderinger.</span></span></li>
+        <li><span class="dot" aria-hidden="true"></span><span><a href="https://github.com/FinnurO/regel-ide/issues/375" target="_blank" rel="noopener">Pilotsaken (#375)</a><span class="desc">Formål og akseptansekriterier.</span></span></li>
+      </ul>
+      <p class="struktur-kilde">Lovtekst fra Lovdata (NLOD 2.0).</p>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div>
+      <h3>Om nettstedet</h3>
+      <p style="font-size:var(--ds-body-sm-font-size); color:var(--ds-color-text-subtle); max-width:32ch; margin:0;">Midlertidig showcase av <strong>DigRett</strong>, ikke selve produktet. Kildekode: <a href="https://github.com/FinnurO/regel-ide" target="_blank" rel="noopener">regel-ide</a>.</p>
+    </div>
+    <div>
+      <h3>Sider</h3>
+      <ul>
+        <li><a href="../">Forside</a></li>
+        <li><a href="../rettskilder/">Rettskilder</a></li>
+        <li><a href="../virksomheter/">Virksomheter</a></li>
+        <li><a href="../grupper/">Grupper</a></li>
+        <li><a href="../koblinger/">Koblinger</a></li>
+        <li><a href="../kjeden/">Kjeden</a></li>
+        <li><a href="../strukturmodell/">Strukturmodellen</a></li>
+        <li><a href="../funn/">Funn til vurdering</a></li>
+        <li><a href="../profil/">Profilforslag</a></li>
+        <li><a href="../begreper/">Begreper</a></li>
+        <li><a href="../om/">Om</a></li>
+      </ul>
+    </div>
+    <div>
+      <h3>Kildekode</h3>
+      <ul>
+        <li><a href="https://github.com/FinnurO/regel-ide" target="_blank" rel="noopener">FinnurO/regel-ide</a></li>
+        <li><a href="https://github.com/FinnurO/regel-ide/blob/master/docs/profil/07-pilot-barnehageloven.md" target="_blank" rel="noopener">Pilotrapporten (docs/profil/07)</a></li>
+      </ul>
+    </div>
+    <p class="fine">Tallene på denne siden er fra lastingene 28.–30. oktober 2026 i den delte utviklingsbasen. Ingen forslag er godkjent ennå.</p>
+  </div>
+</footer>
+
+<button type="button" class="ds-button feedback-fab" data-color="accent" id="feedback-open-btn" aria-haspopup="dialog">
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+  <span class="btn-label">Gi tilbakemelding</span>
+</button>
+
+<dialog class="feedback-dialog" id="feedback-dialog" aria-labelledby="feedback-dialog-title">
+  <div class="feedback-dialog__body">
+    <h2 id="feedback-dialog-title">Gi tilbakemelding</h2>
+    <p class="lead">Sendes som et innspill på GitHub — du logger inn med (eller oppretter) en gratis GitHub-konto for å fullføre innsendingen der.</p>
+    <p class="feedback-hint">Vi tar automatisk med hvilke seksjoner du har åpnet på siden. Vil du sitere en bestemt setning: lukk dette vinduet, marker teksten på siden, og trykk «Gi tilbakemelding» på nytt.</p>
+    <div class="feedback-context" id="feedback-context"></div>
+    <div class="feedback-field">
+      <label for="feedback-text">Hva vil du si noe om?</label>
+      <textarea id="feedback-text" placeholder="Skriv tilbakemeldingen din her …"></textarea>
+    </div>
+    <div class="feedback-actions">
+      <button type="button" class="ds-button" data-variant="tertiary" data-color="neutral" id="feedback-cancel-btn">Avbryt</button>
+      <button type="button" class="ds-button" data-color="accent" id="feedback-submit-btn">Send inn på GitHub →</button>
+    </div>
+  </div>
+</dialog>
+
+<script src="../assets/js/common.js"></script>
+<script src="../assets/js/feedback.js"></script>
+</body>
+</html>
