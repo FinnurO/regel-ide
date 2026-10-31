@@ -34,6 +34,8 @@ import { forsokFormaterHtml } from '../rettskilde/formaterHtml';
 import { eidVisningstekst, finnRettskildeForEid, rettskildeLenke, rettskildeLenkeForId } from '../api/eidLenker';
 import { paragrafEtikett } from '../rettskilde/paragrafEtikett';
 import { KontekstPanel, type KontekstPanelGruppe } from '../entitet/KontekstPanel';
+// [Ny, issue #429]
+import type { FunnDto } from '../api/types';
 import { PUNKTMERKE_FORKLARING, harTekstEtterListen, underordnetInnhold } from '../rettskilde/punktliste';
 import type { PunktVisning, Underblokk } from '../rettskilde/punktliste';
 import { Metatekst } from '../entitet/Metatekst';
@@ -215,6 +217,8 @@ export default function RettskildeDetalj() {
   // [ENDRET, issue #311] Alle strukturkanter hjemlet her (GET /api/rettskilder/{id}/strukturkanter) — ikke
   // bare relasjoner: tildelinger, medlemskap og kompetanse hjemlet i loven svarer på det samme spørsmålet.
   const [strukturkanter, setStrukturkanter] = useState<StrukturkantDto[]>([]);
+  // [Ny, issue #429] Funn til vurdering som peker på denne rettskilden (også andre versjoner av samme verk, via ELI).
+  const [funn, setFunn] = useState<FunnDto[]>([]);
 
   // «Endrer» (rettskildedetalj-fikser, 2026-09-02, punkt 5) — header-metadatafeltet <dt
   // class="changesToDocuments">Endrer</dt>, hvilke(t) andre dokument(er) DENNE rettskilden endrer.
@@ -421,6 +425,7 @@ export default function RettskildeDetalj() {
     api.hentHjemmel(id).then(setHjemler).catch(() => setHjemler([]));
     api.hentHjemmelFor(id).then(setHjemletFor).catch(() => setHjemletFor([]));
     api.hentStrukturkanterForRettskilde(id).then(setStrukturkanter).catch(() => setStrukturkanter([]));
+    api.hentFunn({ rettskildeId: id }).then(setFunn).catch(() => setFunn([]));
     api.hentRettskildeEndringer(id).then(setEndringer).catch(() => setEndringer([]));
     api.hentRettskildeStier(id).then(setNettsideStier).catch(() => setNettsideStier([]));
     api.hentRettskildeNettsideLenker(id).then(setNettsideLenker).catch(() => setNettsideLenker([]));
@@ -1015,6 +1020,11 @@ export default function RettskildeDetalj() {
         label: `${r.dokumentTittel}${r.fraNodeOverskrift ? ` — ${r.fraNodeOverskrift}` : ''} → ${tilEidVisning(r.tilEid)}`,
         onClick: () => navigate(rettskildeLenkeForId(r.dokumentId, r.fraNodeEid)),
       })),
+    },
+    {
+      // [Ny, issue #429] «Hvilke funn finnes i rettskilde X?» (#429 AK1). Bare en gruppe i kontekstpanelet; detaljene står på funnsiden.
+      heading: `Funn til vurdering (${funn.length})`,
+      items: funn.map((f) => ({ key: f.id, label: f.tittel, onClick: () => navigate(`/funn/${f.id}`) })),
     },
   ];
 

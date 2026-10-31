@@ -83,6 +83,9 @@ const GRUPPER: Gruppe[] = [
       { kind: 'lenke', to: '/brukere', label: 'Brukere' },
       { kind: 'lenke', to: '/administrasjon/lovdata-resynk', label: 'Lovdata full-resynk' },
       { kind: 'lenke', to: '/kildefeil', label: 'Kildefeil' },
+      // [Ny, issue #429] Ved Kildefeil: begge er registre over det kildene sier feil eller uklart, men funn er observasjoner om
+      // innholdet (motstrid, hull, utgåtte aktører), kildefeil er tekniske feil i Lovdata-kopien.
+      { kind: 'lenke', to: '/funn', label: 'Funn til vurdering' },
     ],
   },
 ];

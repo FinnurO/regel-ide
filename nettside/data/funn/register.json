@@ -1,0 +1,62 @@
+{
+  "_kilde": "Første versjon (#429, PR 1, 2026-10-30): skrevet fra det frosne øyeblikksbildet av 429-funn-1 i src/RegelIde.Data/Seed/funn-429.json, ikke eksportert fra en kjørende instans. FunnRegisterJsonTests kontrollerer at fila er nøyaktig det FunnTjeneste.ByggOffentligInnhold gir. Neste kjøring av eksporter-data.ps1 (GET /api/funn/publiserbare) overskriver den.",
+  "_merk": "Funn til vurdering (#429). Teksten er den som ble godkjent, uendret. Ingen personnavn.",
+  "antall": 1,
+  "funn": [
+    {
+      "id": "429-funn-1",
+      "kategori": "mulig_motstrid",
+      "undertype": null,
+      "tittel": "Klageinstans for utenlandske yrkeskvalifikasjoner som styrer og pedagogisk leder i barnehage",
+      "beskrivelse": "To gjeldende forskrifter gir ulikt svar på hvem som behandler klager over HK-dirs vedtak om godkjenning av utenlandske yrkeskvalifikasjoner som styrer og pedagogisk leder i barnehage:\n- FOR-2008-09-12-1071 § 11 tredje ledd sier Kunnskapsdepartementet.\n- FOR-2025-07-02-1462 § 6 andre ledd sier klagenemnda for godkjenning av utenlandsk utdanning og yrkesgodkjenning. Leddet lyder slik etter endring ved FOR-2026-06-19-1171, med virkning fra 1. august 2026, og har hjemmel i barnehageloven § 24 fjerde ledd og § 25 tredje ledd.",
+      "vurdering": "Ordlyden er i motstrid. Den sannsynlige løsningen er klagenemnda, men den bygger på tolkning, ikke på en uttrykkelig oppheving. Det er heller ingen overgangsregel for klager som var til behandling 1. august 2026.",
+      "bestemmelser": [
+        {
+          "rolle": "motstridende_bestemmelse",
+          "etikett": "FOR-2008-09-12-1071 § 11 tredje ledd",
+          "merknad": "sier Kunnskapsdepartementet",
+          "eli": "https://lovdata.no/eli/forskrift/2008/09/12/1071/nor",
+          "eid": "https://lovdata.no/eli/forskrift/2008/09/12/1071/nor/§11/ledd-3"
+        },
+        {
+          "rolle": "motstridende_bestemmelse",
+          "etikett": "FOR-2025-07-02-1462 § 6 andre ledd",
+          "merknad": "sier klagenemnda for godkjenning av utenlandsk utdanning og yrkesgodkjenning",
+          "eli": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor",
+          "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§6/ledd-2"
+        }
+      ],
+      "navneformer": [],
+      "aktorer": [
+        { "etikett": "Kunnskapsdepartementet", "merknad": null },
+        { "etikett": "Klagenemnda for godkjenning av utenlandsk utdanning og yrkesgodkjenning", "merknad": null },
+        { "etikett": "Direktoratet for høyere utdanning og kompetanse (HK-dir)", "merknad": null }
+      ],
+      "etterfolgere": [],
+      "bortforklaringer": [
+        { "overskrift": "Opphevelse eller endring", "tekst": "ingen av vedtakene opphever eller endrer FOR-2008 § 11, og Lovdata viser bestemmelsen uendret siden 2023." },
+        { "overskrift": "Ulike virkeområder", "tekst": "begge bestemmelsene gjelder de samme vedtakene etter barnehageloven §§ 24 og 25." },
+        { "overskrift": "Delegeringsvedtak", "tekst": "ikke funnet." },
+        { "overskrift": "Utdatert kopi", "tekst": "korpuset stemmer med Lovdata." },
+        { "overskrift": "Lex posterior og forarbeidene", "tekst": "Prop. 79 L (2025–2026) punkt 5.6 og 10.4 taler for klagenemnda fra 1. august 2026. 2008-bestemmelsen står likevel uendret." }
+      ],
+      "vurderingspunkter": [
+        { "overskrift": null, "tekst": "for motstriden i teksten", "sikkerhet": "hoy" },
+        { "overskrift": null, "tekst": "for at klagenemnda er riktig instans", "sikkerhet": "middels_til_hoy" }
+      ],
+      "ikkeAvgjort": [
+        { "overskrift": null, "tekst": "Overgangen for klager som kom inn før 2026-08-01." },
+        { "overskrift": null, "tekst": "Om det er varslet en retting av FOR-2008. Et søk fant ingenting, og det betyr «ikke funnet», ikke «finnes ikke»." }
+      ],
+      "kilder": [
+        { "etikett": "FOR-2008-09-12-1071", "merknad": null, "lenke": "https://lovdata.no/dokument/SF/forskrift/2008-09-12-1071", "eli": null, "eid": null },
+        { "etikett": "FOR-2025-07-02-1462", "merknad": null, "lenke": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor", "eli": null, "eid": null },
+        { "etikett": "FOR-2026-06-19-1171", "merknad": null, "lenke": "https://lovdata.no/dokument/LTI/forskrift/2026-06-19-1171", "eli": null, "eid": null },
+        { "etikett": "LOV-2026-06-19-59", "merknad": null, "lenke": "https://lovdata.no/dokument/LTI/lov/2026-06-19-59", "eli": null, "eid": null },
+        { "etikett": "Prop. 79 L (2025–2026)", "merknad": null, "lenke": "https://www.regjeringen.no/no/dokumenter/prop.-79-l-20252026/id3154984/", "eli": null, "eid": null }
+      ],
+      "juristvurdertAvKi": true,
+      "godkjentDato": "2026-10-29"
+    }
+  ]
+}

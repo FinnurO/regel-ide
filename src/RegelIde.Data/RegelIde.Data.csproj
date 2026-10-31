@@ -42,6 +42,8 @@
          OrganisasjonsregisterSeed er reproduserbar uten å lese fra Downloads ved kjøretid. -->
     <!-- [Ny, issue #341] Det deterministiske leksikonet for mønsterlaget — innebygd, så konverteringen virker uten filsti. -->
     <EmbeddedResource Include="Strukturkonvertering\kompetanseleksikon.json" LogicalName="RegelIde.Data.Strukturkonvertering.kompetanseleksikon.json" />
+    <!-- [Ny, issue #429] De fem funnene fra saken — innebygd, så FunnSeed virker uten filsti. -->
+    <EmbeddedResource Include="Seed\funn-429.json" LogicalName="RegelIde.Data.Seed.funn-429.json" />
     <None Include="Seed\organisasjoner-norge.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

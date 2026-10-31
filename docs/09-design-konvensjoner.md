@@ -1310,3 +1310,30 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
   kolonner.
 - **Hull** (klasser med kompetanse uten avgjort medlemskap) står som `Metatekst` under tabellene, aldri som rader.
 - **Kategoriforklaringen** for K og I i `StrukturkantTabell` sier at en klasse som innehaver leses distributivt.
+
+## 49. Funn til vurdering (issue #429, 2026-10-30)
+
+- **Ordbruk (låst, #429 AK5):** «funn til vurdering», aldri «feil» eller «avvik». Et funn er en observasjon fra modellen med kilder.
+- **Én delt kilde** for tekstene og merkene: `funn/FunnVisning.tsx` (`FunnStatusTag`, `FunnKategoriTag`, `KiVurdertTag`, `FunnMerker`,
+  `FunnTekst`, `OffentligFunn`). De rene funksjonene (punktlister i teksten, Lovdata-lenken) står i `funn/funnTekst.ts`, med vitest.
+- **Fargerollene (låst per betydning, §15/§25/§35):**
+  - kategori og undertype er en klassifisering → `neutral`;
+  - oppdaget og juristvurdert er ventende → `info`;
+  - godkjent for publisering → `success`, som «Godkjent» i `KandidatStatusTag`;
+  - forklart bort → `neutral`: det er en avklaring, ikke en feil, og `danger` er forbeholdt avvist;
+  - «Kilde endret – vurder på nytt» og premissporten («Etterfølger ikke vurdert», «Premiss ikke vurdert») → `warning`.
+- **KI-juristvurdering** vises med hele teksten synlig, «Juristvurdert av KI-agent, ikke kontrollert av menneskelig jurist» (`neutral`),
+  som fasitmerket i §46. Det samme står på nettsiden.
+- **Sidene:** `/funn` (listemalen i §28: søk, kategori- og statusfilter, kortet vises alltid), `/funn/ny` (registrering, ingenting
+  forhåndsvalgt) og `/funn/:id` (detaljmalen i §6/§14: brødsmulesti, H1, merkene på linje 2, seksjoner som `Card`). Menypunktet står ved
+  Kildefeil under Administrasjon.
+- **Tetthet:** vanlig, ikke `compact` — fem funn i PR 1 (§26). Når maskinregelen for utgåtte aktører (#429 PR 2) gir rundt 770 funn, skal
+  tettheten og grupperingen per aktør i `Details` (som forslagskøen i §36) vurderes på nytt.
+- **Godkjenning for publisering og tilbaketrekking** bekreftes i en `Dialog` som viser nøyaktig teksten som publiseres (§14, kritiske
+  overganger). Knappen vises bare for publiseringsansvarlige; andre ser `Metatekst` om hvem som kan godkjenne, og om lista er tom.
+- **Forhåndsvisningen** («Slik blir det på nettsiden») bygges av det samme objektet eksporten skriver, aldri av en egen mal.
+  `nettside/funn/index.html` følger samme rekkefølge og ord. [ENDRET, kaldsjekken 2026-10-30] Metalinjen sier «Ikke godkjent for
+  publisering» før godkjenning og «Godkjennes for publisering <dato>» i dialogen — et funn som ikke er godkjent, skal aldri se godkjent
+  ut. Stopper premissporten på etterfølgerkanten, står «Etterfølger: ikke vurdert» i forhåndsvisningen, ikke navnet.
+- **Rettskildesiden:** gruppen «Funn til vurdering (N)» i kontekstpanelet. Aktørsiden er ikke endret i PR 1, fordi en annen sak skal
+  omarbeide den.

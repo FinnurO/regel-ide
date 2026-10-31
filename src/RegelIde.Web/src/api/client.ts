@@ -173,6 +173,11 @@ import type {
   SlettNavnekandidaterResultatDto,
   VisningsinnstillingInput,
   AktorsveipRapport, GeneriskNavneformOversikt, GeneriskTaggOppslag, GeneriskKandidatkontekst, NavneformBindingRequest, UtledetMedlemskapDto,
+  FunnDto,
+  FunnTilgangDto,
+  FunnVurderingspunktInn,
+  FunnKoblingInn,
+  NyttFunnInn,
 } from './types';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5187';
@@ -842,6 +847,27 @@ export const api = {
   // ---------- Kildefeil (issue #249) — varig register over feil funnet i selve kilden ----------
 
   /** Utelatt status = alle statuser (samme "utelatt = ingen filter"-form som hentNavnekandidater). */
+  // [Ny, issue #429] Funn til vurdering.
+  hentFunn: (filter: { kategori?: string; status?: string; rettskildeId?: string; virksomhetId?: string } = {}) => {
+    const parametre = new URLSearchParams();
+    for (const [n, v] of Object.entries(filter)) if (v) parametre.set(n, v);
+    const sok = parametre.toString();
+    return kall<FunnDto[]>(`/api/funn${sok ? `?${sok}` : ''}`);
+  },
+  hentEttFunn: (id: string) => kall<FunnDto>(`/api/funn/${id}`),
+  hentFunnTilgang: () => kall<FunnTilgangDto>('/api/funn/tilgang'),
+  opprettFunn: (body: NyttFunnInn) =>
+    kall<FunnDto>('/api/funn', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }),
+  oppdaterFunn: (id: string, body: { tittel: string; beskrivelse: string; undertype: string | null; vurdering: string | null;
+    internMerknad: string | null; koblinger?: FunnKoblingInn[]; vurderingspunkter?: FunnVurderingspunktInn[] }) =>
+    kall<FunnDto>(`/api/funn/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }),
+  juristvurderFunn: (id: string, body: { vurdering: string; vurdertAvType: 'menneske' | 'ki_agent'; vurderingspunkter?: FunnVurderingspunktInn[] }) =>
+    kall<FunnDto>(`/api/funn/${id}/juristvurdering`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }),
+  forklarBortFunn: (id: string, begrunnelse: string) =>
+    kall<FunnDto>(`/api/funn/${id}/forklar-bort`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ begrunnelse }) }),
+  godkjennFunnForPublisering: (id: string) => kall<FunnDto>(`/api/funn/${id}/godkjenn-for-publisering`, { method: 'POST' }),
+  trekkFunnTilbake: (id: string) => kall<FunnDto>(`/api/funn/${id}/trekk-tilbake`, { method: 'POST' }),
+
   hentKildefeil: (filter: { status?: string; rettskildeId?: string }) => {
     const parametre = new URLSearchParams();
     if (filter.status) parametre.set('status', filter.status);

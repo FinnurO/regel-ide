@@ -31,6 +31,17 @@ formelt påkrevde katalogfilene, men eksportert i sin helhet fordi det er lite.
 kombinerer denne filen med `virksomheter/455d90bf-….json` — ingen nye felter eller filer er lagt
 til for den siden.
 
+### Funn til vurdering — bare det som er godkjent (#429)
+
+| Fil | Kilde | Innhold |
+|---|---|---|
+| `funn/register.json` | `GET /api/funn/publiserbare` (steg 7 i scriptet) | Funn som er **godkjent for publisering**, med det frosne innholdet fra godkjenningen. Ingen andre statuser. |
+
+Serveren filtrerer, og scriptet stopper uten å skrive fila hvis et øyeblikksbilde ikke stemmer med hashen sin. Den siste sperren er
+PR-en: siden endres først når fila flettes til master. `FunnRegisterJsonTests` (RegelIde.Data.Tests) sjekker at fila bare inneholder
+funnene som er godkjent i `src/RegelIde.Data/Seed/funn-429.json`, med nøyaktig den godkjente teksten. Godkjenner Johann et nytt funn i
+appen, må fila eksporteres på nytt og testen utvides i samme PR. Brukes av `funn/index.html`.
+
 ### 2. Detaljfiler — kun et STARTUTVALG
 
 Detaljfiler eksisterer bare for de konkrete eksemplene showcasen bruker. Filnavnet er alltid
@@ -88,6 +99,9 @@ enkeltpersoners kontaktinformasjon. Konkret sjekket før eksport:
 - `begreper/*.json` inneholder term, definisjon og lovreferanse — samme sjekk som over.
 - `rettskilder/katalog.json` inneholder kun metadata (tittel, kildetype, departement, eier) — ingen
   fulltekst og ingen personnavn.
+- `funn/register.json` (issue #429) inneholder tittel, påstand, vurdering, bestemmelser (ELI/eId), aktørnavn slik vurderingen skriver
+  dem, prøvde bortforklaringer, kilder og godkjent-dato. Hvem som juristvurderte og godkjente, er bevisst ikke med; bare et merke om at
+  vurderingen er gjort av KI-agenten.
 - `rettskilder/<id>.json` (issue #286) inneholder KUN tre heltall (antall virksomheter/begrep/
   tjenester) pluss id/tittel/eli — ingen navn, ingen liste over hvilke konkrete virksomheter/
   tjenester det gjelder.

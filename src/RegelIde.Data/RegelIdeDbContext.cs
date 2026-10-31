@@ -99,6 +99,10 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
     public DbSet<EksternKildeEntitet> EksterneKilder => Set<EksternKildeEntitet>();
     // [Ny, issue #249, 2026-09-10] Varig register over feil funnet i selve KILDEN — se KildefeilEntitet.
     public DbSet<KildefeilEntitet> Kildefeil => Set<KildefeilEntitet>();
+    // [Ny, issue #429] Funn til vurdering — se Funn og FunnEntitet.
+    public DbSet<FunnEntitet> Funn => Set<FunnEntitet>();
+    public DbSet<FunnKoblingEntitet> FunnKoblinger => Set<FunnKoblingEntitet>();
+    public DbSet<FunnVurderingspunktEntitet> FunnVurderingspunkter => Set<FunnVurderingspunktEntitet>();
     public DbSet<NettsideStiEntitet> NettsideStier => Set<NettsideStiEntitet>();
     public DbSet<NettsideLenkeEntitet> NettsideLenker => Set<NettsideLenkeEntitet>();
     public DbSet<BegrepEntitet> Begreper => Set<BegrepEntitet>();
@@ -2168,6 +2172,135 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             // "databasen er siste skanse, ikke eneste vakt"-mønster som resten av kø-tabellene).
             e.HasIndex(x => new { x.RettskildeId, x.RettskildeEid, x.Type, x.FunnetAvMekanisme }).IsUnique()
                 .HasDatabaseName("ux_kildefeil_rettskilde_eid_type_mekanisme");
+        });
+
+        // [Ny, issue #429 «Funn til vurdering», Johanns avgjørelser 2026-10-29/30] Se Funn for vokabularene og FunnEntitet for
+        // øyeblikksbildet. CHECK-ene håndhever statusflyten: hvem og når for hver tilstand, og at det publiserte innholdet bare
+        // finnes når funnet er godkjent for publisering.
+        b.Entity<FunnEntitet>(e =>
+        {
+            e.ToTable("funn", t =>
+            {
+                t.HasCheckConstraint("ck_funn_kategori", "kategori IN ('utgatt_aktor', 'mulig_motstrid', 'uklarhet_hull')");
+                t.HasCheckConstraint("ck_funn_undertype",
+                    "undertype IS NULL OR (kategori = 'utgatt_aktor' AND undertype IN ('nedlagt_aktor', 'utgatt_navn')) "
+                    + "OR (kategori = 'uklarhet_hull' AND undertype IN ('hull', 'upresis_henvisning', 'publiseringsfeil_kilde'))");
+                t.HasCheckConstraint("ck_funn_status",
+                    "status IN ('oppdaget', 'juristvurdert', 'godkjent_for_publisering', 'forklart_bort')");
+                t.HasCheckConstraint("ck_funn_vurdert_av_type", "vurdert_av_type IS NULL OR vurdert_av_type IN ('menneske', 'ki_agent')");
+                // Juristvurdert og godkjent krever hvem, når og hva slags vurdering.
+                t.HasCheckConstraint("ck_funn_juristvurdert_hvem",
+                    "status NOT IN ('juristvurdert', 'godkjent_for_publisering') "
+                    + "OR (juristvurdert_av IS NOT NULL AND juristvurdert_tidspunkt IS NOT NULL AND vurdert_av_type IS NOT NULL AND vurdering IS NOT NULL)");
+                t.HasCheckConstraint("ck_funn_forklart_bort",
+                    "status <> 'forklart_bort' "
+                    + "OR (forklart_bort_begrunnelse IS NOT NULL AND forklart_bort_av IS NOT NULL AND forklart_bort_tidspunkt IS NOT NULL)");
+                // [LÅST, #429 AK3] Det publiserte innholdet finnes bare når funnet er godkjent — og da alltid, med hvem og når.
+                t.HasCheckConstraint("ck_funn_godkjent",
+                    "(status = 'godkjent_for_publisering' AND godkjent_av IS NOT NULL AND godkjent_tidspunkt IS NOT NULL "
+                    + "AND godkjent_innhold_json IS NOT NULL AND godkjent_innhold_hash IS NOT NULL) "
+                    + "OR (status <> 'godkjent_for_publisering' AND godkjent_innhold_json IS NULL AND godkjent_innhold_hash IS NULL)");
+            });
+            e.HasKey(x => x.Id).HasName("funn_pkey");
+            e.Property(x => x.EksternNokkel).HasColumnName("ekstern_nokkel");
+            e.Property(x => x.Kategori).HasColumnName("kategori");
+            e.Property(x => x.Undertype).HasColumnName("undertype");
+            e.Property(x => x.Tittel).HasColumnName("tittel");
+            e.Property(x => x.Beskrivelse).HasColumnName("beskrivelse");
+            e.Property(x => x.Vurdering).HasColumnName("vurdering");
+            e.Property(x => x.InternMerknad).HasColumnName("intern_merknad");
+            e.Property(x => x.Status).HasColumnName("status").HasDefaultValue(RegelIde.Data.Funn.Oppdaget);
+            e.Property(x => x.OppdagelsesKilde).HasColumnName("oppdagelses_kilde");
+            e.Property(x => x.FunnetI).HasColumnName("funnet_i");
+            e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
+            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
+            e.Property(x => x.SistEndretAv).HasColumnName("sist_endret_av");
+            e.Property(x => x.SistEndretTidspunkt).HasColumnName("sist_endret_tidspunkt");
+            e.Property(x => x.JuristvurdertAv).HasColumnName("juristvurdert_av");
+            e.Property(x => x.JuristvurdertTidspunkt).HasColumnName("juristvurdert_tidspunkt");
+            e.Property(x => x.VurdertAvType).HasColumnName("vurdert_av_type");
+            e.Property(x => x.ForklartBortBegrunnelse).HasColumnName("forklart_bort_begrunnelse");
+            e.Property(x => x.ForklartBortAv).HasColumnName("forklart_bort_av");
+            e.Property(x => x.ForklartBortTidspunkt).HasColumnName("forklart_bort_tidspunkt");
+            e.Property(x => x.GodkjentAv).HasColumnName("godkjent_av");
+            e.Property(x => x.GodkjentTidspunkt).HasColumnName("godkjent_tidspunkt");
+            e.Property(x => x.GodkjentInnholdJson).HasColumnName("godkjent_innhold_json");
+            e.Property(x => x.GodkjentInnholdHash).HasColumnName("godkjent_innhold_hash");
+            e.Property(x => x.KildeEndretTidspunkt).HasColumnName("kilde_endret_tidspunkt");
+            e.HasIndex(x => x.EksternNokkel).IsUnique().HasDatabaseName("ux_funn_ekstern_nokkel");
+            e.HasIndex(x => x.Status).HasDatabaseName("ix_funn_status");
+            e.HasMany(x => x.Koblinger).WithOne().HasForeignKey(k => k.FunnId).OnDelete(DeleteBehavior.Cascade);
+            e.HasMany(x => x.Vurderingspunkter).WithOne().HasForeignKey(v => v.FunnId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        b.Entity<FunnKoblingEntitet>(e =>
+        {
+            e.ToTable("funn_koblinger", t =>
+            {
+                t.HasCheckConstraint("ck_funn_koblinger_rolle",
+                    "rolle IN ('gjelder_bestemmelse', 'motstridende_bestemmelse', 'berort_aktor', 'navneform', 'etterfolger', 'kilde')");
+                // Nøyaktig ett mål. En bestemmelse har alltid ELI-en; rettskilde_id og node_id er oppslag mot korpuset og kan være NULL.
+                t.HasCheckConstraint("ck_funn_koblinger_ett_mal",
+                    "(CASE WHEN rettskilde_eli IS NOT NULL THEN 1 ELSE 0 END) + (CASE WHEN virksomhet_id IS NOT NULL THEN 1 ELSE 0 END) "
+                    + "+ (CASE WHEN begrep_id IS NOT NULL THEN 1 ELSE 0 END) + (CASE WHEN strukturkant_id IS NOT NULL THEN 1 ELSE 0 END) "
+                    + "+ (CASE WHEN kildefeil_id IS NOT NULL THEN 1 ELSE 0 END) + (CASE WHEN ekstern_lenke IS NOT NULL THEN 1 ELSE 0 END) = 1");
+                t.HasCheckConstraint("ck_funn_koblinger_rettskilde",
+                    "(rettskilde_id IS NULL AND eid IS NULL AND node_id IS NULL) OR rettskilde_eli IS NOT NULL");
+                t.HasCheckConstraint("ck_funn_koblinger_node", "node_id IS NULL OR eid IS NOT NULL");
+                // Rollen bestemmer hva slags mål koblingen kan ha.
+                t.HasCheckConstraint("ck_funn_koblinger_rolle_mal",
+                    "(rolle IN ('gjelder_bestemmelse', 'motstridende_bestemmelse') AND rettskilde_eli IS NOT NULL) "
+                    + "OR (rolle = 'berort_aktor' AND virksomhet_id IS NOT NULL) "
+                    + "OR (rolle = 'navneform' AND begrep_id IS NOT NULL) "
+                    + "OR (rolle = 'etterfolger' AND strukturkant_id IS NOT NULL) "
+                    + "OR (rolle = 'kilde' AND (rettskilde_eli IS NOT NULL OR ekstern_lenke IS NOT NULL OR kildefeil_id IS NOT NULL))");
+            });
+            e.HasKey(x => x.Id).HasName("funn_koblinger_pkey");
+            e.Property(x => x.FunnId).HasColumnName("funn_id");
+            e.Property(x => x.Rolle).HasColumnName("rolle");
+            e.Property(x => x.Sortering).HasColumnName("sortering");
+            e.Property(x => x.Etikett).HasColumnName("etikett");
+            e.Property(x => x.Merknad).HasColumnName("merknad");
+            e.Property(x => x.RettskildeEli).HasColumnName("rettskilde_eli");
+            e.Property(x => x.RettskildeId).HasColumnName("rettskilde_id");
+            e.Property(x => x.Eid).HasColumnName("eid");
+            e.Property(x => x.NodeId).HasColumnName("node_id");
+            e.Property(x => x.VirksomhetId).HasColumnName("virksomhet_id");
+            e.Property(x => x.BegrepId).HasColumnName("begrep_id");
+            e.Property(x => x.StrukturkantId).HasColumnName("strukturkant_id");
+            e.Property(x => x.KildefeilId).HasColumnName("kildefeil_id");
+            e.Property(x => x.EksternLenke).HasColumnName("ekstern_lenke");
+            // SetNull: et funn skal overleve at en rettskildeversjon, en aktør eller en kant forsvinner — koblingen viser da
+            // «ikke i korpuset» via etiketten og ELI-en, i stedet for at funnet forsvinner med den.
+            e.HasOne<RettskildeEntitet>().WithMany().HasForeignKey(x => x.RettskildeId).OnDelete(DeleteBehavior.SetNull);
+            e.HasOne<RettskildeNodeEntitet>().WithMany().HasForeignKey(x => x.NodeId).OnDelete(DeleteBehavior.SetNull);
+            e.HasOne<Virksomhet>().WithMany().HasForeignKey(x => x.VirksomhetId).OnDelete(DeleteBehavior.SetNull);
+            e.HasOne<BegrepEntitet>().WithMany().HasForeignKey(x => x.BegrepId).OnDelete(DeleteBehavior.SetNull);
+            e.HasOne<StrukturkantEntitet>().WithMany().HasForeignKey(x => x.StrukturkantId).OnDelete(DeleteBehavior.SetNull);
+            e.HasOne<KildefeilEntitet>().WithMany().HasForeignKey(x => x.KildefeilId).OnDelete(DeleteBehavior.SetNull);
+            e.HasIndex(x => x.FunnId).HasDatabaseName("ix_funn_koblinger_funn");
+            e.HasIndex(x => x.RettskildeId).HasDatabaseName("ix_funn_koblinger_rettskilde");
+            e.HasIndex(x => x.RettskildeEli).HasDatabaseName("ix_funn_koblinger_rettskilde_eli");
+            e.HasIndex(x => x.VirksomhetId).HasDatabaseName("ix_funn_koblinger_virksomhet");
+            e.HasIndex(x => x.NodeId).HasDatabaseName("ix_funn_koblinger_node");
+        });
+
+        b.Entity<FunnVurderingspunktEntitet>(e =>
+        {
+            e.ToTable("funn_vurderingspunkter", t =>
+            {
+                t.HasCheckConstraint("ck_funn_vurderingspunkter_type", "type IN ('bortforklaring_provd', 'vurdering', 'ikke_avgjort')");
+                t.HasCheckConstraint("ck_funn_vurderingspunkter_sikkerhet",
+                    "sikkerhet IS NULL OR (type = 'vurdering' AND sikkerhet IN ('hoy', 'middels_til_hoy', 'middels', 'lav_til_middels', 'lav'))");
+            });
+            e.HasKey(x => x.Id).HasName("funn_vurderingspunkter_pkey");
+            e.Property(x => x.FunnId).HasColumnName("funn_id");
+            e.Property(x => x.Type).HasColumnName("type");
+            e.Property(x => x.Sortering).HasColumnName("sortering");
+            e.Property(x => x.Overskrift).HasColumnName("overskrift");
+            e.Property(x => x.Tekst).HasColumnName("tekst");
+            e.Property(x => x.Sikkerhet).HasColumnName("sikkerhet");
+            e.HasIndex(x => x.FunnId).HasDatabaseName("ix_funn_vurderingspunkter_funn");
         });
     }
 }

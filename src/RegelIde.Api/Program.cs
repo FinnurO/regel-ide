@@ -91,6 +91,8 @@ builder.Services.AddScoped<FastsattAvEtterfyllingTjeneste>();
 builder.Services.AddScoped<HjemmelValideringTjeneste>();
 // [Ny, issue #249, 2026-09-10] Det varige, generiske kildefeil-registeret — se KildefeilEntitet.
 builder.Services.AddScoped<KildefeilTjeneste>();
+// [Ny, issue #429] Funn til vurdering — se FunnTjeneste og FunnEndepunkter.
+builder.Services.AddScoped<FunnTjeneste>();
 builder.Services.AddScoped<BegrepsoppdagelseSveipTjeneste>();
 builder.Services.AddScoped<VilkarregisterTjeneste>();
 builder.Services.AddScoped<RegelnoderegisterTjeneste>();
@@ -537,6 +539,16 @@ using (var scope = app.Services.CreateScope())
         {
             app.Logger.LogWarning("Områderegister-seed: {Melding}", x);
         }
+    }
+
+    // [Ny, issue #429] De fem funnene fra saken (Seed/funn-429.json): funn 1 godkjent for publisering av Johann 2026-10-29, kontrollen
+    // for lærere forklart bort, tre kandidater oppdaget. Skriver til databasen ⇒ gated (CLAUDE.md §4), false i EmbeddedPostgresApiFixture.
+    // Idempotent på ekstern_nokkel: en rad som finnes, røres ikke.
+    if (app.Configuration.GetValue(Funn.KonfignokkelSeedVedOppstart, true))
+    {
+        var funnSeed = await FunnSeed.SeedAsync(db);
+        app.Logger.LogInformation("Funn-seed (#429): {Nye} nye, {Fantes} fantes fra før.", funnSeed.Nye, funnSeed.Fantes);
+        foreach (var x in funnSeed.HoppetOver) app.Logger.LogWarning("Funn-seed (#429): {Melding}", x);
     }
 }
 
@@ -1727,6 +1739,9 @@ kildefeil.MapGet("/", async (string? status, Guid? rettskildeId, KildefeilTjenes
     .WithName("HentKildefeil")
     .WithSummary("Hele kildefeil-registeret, valgfritt filtrert på status ('Ny'/'Kjent'/'Rettet-hos-oss'/" +
                  "'Venter-på-Lovdata') og/eller rettskilde. Utelatt status = alle statuser. Nyeste funn først.");
+
+// [Ny, issue #429] Funn til vurdering — endepunktene står i FunnEndepunkter.cs.
+app.MapFunnEndepunkter();
 
 var lovdataResynk = app.MapGroup("/api/administrasjon/lovdata-resynk").WithOpenApi();
 

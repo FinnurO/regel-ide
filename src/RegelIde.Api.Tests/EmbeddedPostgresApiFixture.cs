@@ -26,6 +26,9 @@ public sealed class EmbeddedPostgresApiFixture : IAsyncLifetime
     private string _connString = "";
 
     /// <summary>Direkte DB-tilgang for testoppsett (seede data Program.cs' egen seeding ikke dekker, f.eks. Utkast-rader).</summary>
+    /// <summary>[Ny, issue #429] Bruker-id-en fiksturen setter i RegelIde:Funn:Publiseringsansvarlige.</summary>
+    public static readonly Guid PubliseringsansvarligTestId = Guid.Parse("42900000-0000-0000-0000-000000000429");
+
     public RegelIdeDbContext NyDbContext() =>
         new(new DbContextOptionsBuilder<RegelIdeDbContext>().UseNpgsql(_connString).Options);
 
@@ -94,6 +97,12 @@ public sealed class EmbeddedPostgresApiFixture : IAsyncLifetime
         // første gang den kjører (CLAUDE.md §4: skriving ved oppstart skal gates, false her i samme endring). Fixturen
         // reiser verten mange ganger; testene som trenger registeret seeder det selv (OmradeOppslagEndepunktTests).
         Environment.SetEnvironmentVariable("RegelIde__Omraderegister__SeedVedOppstart", "false");
+
+        // [Ny, issue #429] FunnSeed skriver de fem funnene fra #429 ved oppstart (CLAUDE.md §4: false her i samme endring). Og én
+        // publiseringsansvarlig med fast id, slik at tilgangssjekken kan testes; FunnEndepunktTests oppretter brukeren med denne id-en.
+        // I drift er lista tom til Johann setter sin egen bruker-id.
+        Environment.SetEnvironmentVariable("RegelIde__Funn__SeedVedOppstart", "false");
+        Environment.SetEnvironmentVariable("RegelIde__Funn__Publiseringsansvarlige__0", PubliseringsansvarligTestId.ToString());
 
         // [Ny, issue #117; restrukturert 2026-09-03] Standard, DEFAULT-stubbet SNL/SSR-oppslag for HELE
         // denne DELTE fixturen (samme "aldri ekte, utilsiktede nettverkskall i en testkjøring"-hensyn som
