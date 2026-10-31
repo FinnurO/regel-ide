@@ -1337,3 +1337,28 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
   ut. Stopper premissporten på etterfølgerkanten, står «Etterfølger: ikke vurdert» i forhåndsvisningen, ikke navnet.
 - **Rettskildesiden:** gruppen «Funn til vurdering (N)» i kontekstpanelet. Aktørsiden er ikke endret i PR 1, fordi en annen sak skal
   omarbeide den.
+
+## 50. Aktørkøen (issue #440 PR 1, 2026-10-31)
+
+- **Ett godkjenningssted for nye aktører** (Johann 2026-10-30): `pages/AktorKo.tsx` på `/aktorko`. Menyen: gruppen «Virksomhetskatalog»
+  heter «Aktører» (som veiviseren, §40) og har «Aktører» og «Aktørkø». «Navnekandidater» og «Virksomhetskandidater» er tatt ut av
+  «Forslag og kandidater». `/navnekandidater` omdirigeres til køen (`?rettskildeId` følger med; andre filtre går til den flate lista),
+  og den flate lista står som historikk på `/navnekandidater/historikk` med en `info`-`Alert` øverst. `/virksomhet-kandidater` står som
+  rute.
+- **Telleren i menyen** er `Badge` (`variant="tinted"`, `neutral`): første bruk av komponenten (§0). Den viser antall navn i køen og
+  vises ikke mens tallet lastes eller når kallet feiler. En gjettet 0 vises aldri.
+- **Oppsettet** følger skissen (visning c): brødsmulesti, H1, `Metatekst`-ingress, så kortet «N ventende navnekandidater, fordelt» med én
+  kompakt tabell (rute, de hyppigste ordene, forekomster, rettskilder, hvor ruten havner) og en lukket `Details` med de hyppigste ordene.
+  Ingen egne tallruter: tabellen bærer tallene (ingen ad hoc-CSS, §7). Grupperingsregelen står i en lukket `Details`.
+- **Køen** er én lukket `Details` per navn i et `Card` (samme mønster som forslagskøen, §36), paginert (§9). Detaljen hentes først når
+  raden åpnes. Filtrene er `Chip.Radio` (første bruk): Alle / Flere forekomster / Har hjemmelforslag, og `Chip.Removable` for
+  rettskildefilteret. Søket går i navn og varianter.
+- **Fargerollene (låst per betydning, §15/§25/§35):** «Samme ord» og «Bøyning (−et)» er `neutral` (en klassifisering av regelen);
+  «Forslag: genitivforledd» og hjemmelforslaget er `info` (ubekreftet forslag, ingen har vurdert det); «Hjemmel for aktøren mangler» er
+  `warning` (et synlig hull, som på aktørsiden); «Veiledning, kan ikke være hjemmel» er `neutral`. Kunnskapsstatusen på forslaget bruker
+  `KunnskapsstatusTag` (§35).
+- **Ingen knapper som skriver i PR 1.** Godkjenningen (aktør, navneform, hjemmel og tagger i én transaksjon, ingenting forhåndsvalgt)
+  kommer i PR 2. Siden sier det i `Metatekst` under hver detalj.
+- **Én delt kilde for rutenavnene:** `kandidater/aktorkorute.ts` (`AKTORKORUTE_TEKST`, `utenforAktorkoenTekst`, med vitest). Sveipene
+  (historikklista, rettskildesiden, aktørsveipet i forslagskøen, KI-oppdagelsen) viser med den hvor mange treff som var kjente ord og ikke
+  ble lagt i køen. Aktørsveipet viser «Ikke i køen: ‹rute›» under statusen.

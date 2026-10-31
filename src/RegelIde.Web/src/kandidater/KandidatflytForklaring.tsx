@@ -28,7 +28,7 @@ export function KandidatflytForklaring({ aktiv }: { aktiv: 'navn' | 'virksomhet'
         style={{ marginBottom: '0.4rem', fontWeight: aktiv === 'navn' ? 600 : 400 }}
       >
         <Link asChild>
-          <RouterLink to="/navnekandidater">Navnekandidater</RouterLink>
+          <RouterLink to="/navnekandidater/historikk">Navnekandidater</RouterLink>
         </Link>{' '}
         — <strong>fra tekst til nytt navn.</strong> Sveipet leser ÉN rettskilde og foreslår navn vi
         ikke kjenner ennå. Resultatet av å behandle en rad er en virksomhet eller et gruppebegrep,
@@ -52,6 +52,11 @@ export function KandidatflytForklaring({ aktiv }: { aktiv: 'navn' | 'virksomhet'
         Rekkefølgen er derfor: oppdag navnet én gang her, og finn deretter resten av forekomstene med
         et virksomhetssveip. Et navnekandidat-sveip på samme forskrift en gang til gir ingen nye
         rader for et navn som alt er behandlet — det er ikke feil, det er den andre køens jobb.
+      </Paragraph>
+      {/* [Ny, issue #440] Aktørkøen er godkjenningsstedet; de to listene står som historikk og som rute. */}
+      <Paragraph data-size="sm" style={{ marginTop: '0.5rem', marginBottom: 0 }}>
+        <Link asChild><RouterLink to="/aktorko">Aktørkøen</RouterLink></Link> samler nå hvert ukjent navn én gang med alle
+        forekomstene, og er stedet nye aktører skal behandles (#440).
       </Paragraph>
     </Card>
   );

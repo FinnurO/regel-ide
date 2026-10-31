@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from 'react-router';
+import { Navigate, Route, Routes, useSearchParams } from 'react-router';
 import { Sidebar } from './nav/Sidebar';
 import RettskilderListe from './pages/RettskilderListe';
 import RettskildeDetalj from './pages/RettskildeDetalj';
@@ -26,6 +26,8 @@ import VirksomheterListe from './pages/VirksomheterListe';
 import VirksomhetDetalj from './pages/VirksomhetDetalj';
 import VirksomhetKandidaterListe from './pages/VirksomhetKandidaterListe';
 import NavnekandidaterListe from './pages/NavnekandidaterListe';
+// [Ny, issue #440 PR 1] Aktørkøen erstatter /navnekandidater og /virksomhet-kandidater som godkjenningssted.
+import AktorKo from './pages/AktorKo';
 import NavnekandidatVeiviser from './pages/NavnekandidatVeiviser';
 import Begrepskandidater from './pages/Begrepskandidater';
 import BegrepDefinisjonRelasjonKo from './pages/BegrepDefinisjonRelasjonKo';
@@ -38,6 +40,16 @@ import KildefeilListe from './pages/KildefeilListe';
 import FunnListe from './pages/FunnListe';
 import FunnDetalj from './pages/FunnDetalj';
 import FunnNytt from './pages/FunnNytt';
+
+/** [Ny, issue #440] /navnekandidater → /aktorko. ?rettskildeId følger med (køen filtrerer på den); ?oppdagelsesKilde og de andre
+ * filtrene hører til den flate lista, så da går omdirigeringen dit. */
+function TilAktorkoen() {
+  const [parametre] = useSearchParams();
+  const rettskildeId = parametre.get('rettskildeId');
+  const andre = [...parametre.keys()].some((k) => k !== 'rettskildeId');
+  if (andre) return <Navigate to={`/navnekandidater/historikk?${parametre.toString()}`} replace />;
+  return <Navigate to={rettskildeId ? `/aktorko?rettskildeId=${encodeURIComponent(rettskildeId)}` : '/aktorko'} replace />;
+}
 
 function App() {
   return (
@@ -81,7 +93,11 @@ function App() {
           <Route path="/virksomheter" element={<VirksomheterListe />} />
           <Route path="/virksomheter/:id" element={<VirksomhetDetalj />} />
           <Route path="/virksomhet-kandidater" element={<VirksomhetKandidaterListe />} />
-          <Route path="/navnekandidater" element={<NavnekandidaterListe />} />
+          {/* [ENDRET, issue #440] /navnekandidater omdirigeres til aktørkøen (rettskildefilteret følger med). Den flate lista står som
+              historikk. /virksomhet-kandidater er tatt ut av menyen, men ruten står. */}
+          <Route path="/aktorko" element={<AktorKo />} />
+          <Route path="/navnekandidater" element={<TilAktorkoen />} />
+          <Route path="/navnekandidater/historikk" element={<NavnekandidaterListe />} />
           <Route path="/ki-oppdagelse" element={<KiOppdagelseKo />} />
           {/* [Ny, navnekandidat-wizard-runden, 2026-09-07] Behandling av ÉN kandidat, ende til ende. */}
           <Route path="/navnekandidater/:id/behandle" element={<NavnekandidatVeiviser />} />

@@ -1125,6 +1125,7 @@ Rekkefølgen er eksakt → generisk med binding → flertydig → kandidat → n
 eller flertydige i navnekandidatkøen (oppdagelseskilde `strukturforslag`); uten er sveipet en ren tørrkjøring. Gjennomgangen skjer i den
 eksisterende veiviseren (docs/09 §38). **Steg 2** er lasteren (§5.3), som bruker samme klassifisering; lasterapporten viser aktørene per
 status, så den kan sammenlignes med sveipet før gjennomgangen. Ny årsak: `aktor_generisk_uten_binding`.
+[ENDRET, #440] Bare aktører som aktørkøens ruting ikke kjenner, blir navnekandidater (§5.16); hver rad har `aktorkoRute`.
 
 **Generisk navneform:** `navneformgrunn = 'generisk'`, kategori `virksomhet`, ingen `virksomhet_referanse_id`
 (CHECK `ck_begreper_generisk_uten_referanse`), termen med små bokstaver, én per term for hele korpuset (`ux_begreper_generisk_term`). En
@@ -1705,6 +1706,41 @@ barnehage (godkjent for publisering av Johann 2026-10-29), kontrollen for lærer
 
 **Ikke i PR 1:** maskinregelen for utgåtte aktører (PR 2, etter juristmålingen på om lag 40 par), statsrådsembeter og organiseringsvedtak
 som har uttømt virkningen (#438).
+
+### 5.16 Aktørkøen: ruting, gruppering og hjemmelforslag (#440 PR 1, bygget 2026-10-31)
+
+**Hvorfor.** Johann 2026-10-30: «gjentagelsen skjer vel på forslagsidene … altså før aktøren er opprettet». De ventende navnekandidatene var
+én rad per forekomst, og det samme navnet måtte godkjennes på fem steder. Aktørkøen viser hvert ukjent navn én gang. PR 1 er bare lesing.
+
+**Rutingen** (`Aktorkoregler.Ruter`, ren funksjon) gir hver ventende kandidat nøyaktig én rute, prøvd i rekkefølge:
+1. likt ord (trimmet, mellomrom slått sammen, uten forskjell på store og små bokstaver) som en **generisk navneform** (§5.7; standardregelen
+   §5.10 står i svaret);
+2. likt ord som en **aktørs navneform eller registernavn** (ikke avviste navneformer; ikke aktører som er erstattet som duplikat);
+3. likt ord som en **kjent klasse, rolle, område eller gruppe** som gjelder i rettskilden (et lovspesifikt begrep bare i loven og i
+   rettskilder med hjemmel i den, samme regel som aktørsveipet);
+4. en **bøyningsform** av et ord i 1–3, i samme rekkefølge: ett suffiks fra den lukkede lista (-ene, -ane, -ens, -ets, -en, -et, -er, -ar,
+   -ne, -a, -e, -n, -r, -t, -s), og det korteste ordet har minst fire tegn. **En bøyningsform arver aldri regelen eller bindingen** til ordet
+   den ligner («et departement» er ikke «departementet»);
+5. ellers **aktørkøen**.
+
+Treffene regnes ut ved lesing. Ingenting flyttes (Johanns avgjørelse).
+
+**Grupperingen** (`Aktorkoregler.Grupper`): samme ord (regel 1) og bøyning med like forledd (regel 2) slås sammen automatisk, og regelen står
+på varianten. Genitivforledd (regel 3, «barnehagens foreldreråd» mot «foreldrerådet») er bare forslag: «domstolens leder» slås aldri
+sammen med «leder». Resultatet avhenger ikke av rekkefølgen på inndataene.
+
+**Hjemmelforslaget** (`Aktorkoregler.FinnHjemmelforslag`) bygger på opprettelsesuttrykk i rettskildene der navnet står: «skal … ha
+et/en/ei» (høyst seks ord mellom, navnet etter uttrykket), «opprettes», «oppnevner», «etableres», med navnet (samme ord eller en
+bøyningsform) i samme setning. Merknader og veiledning (§5.14) er aldri med. Tekstfunn når navnet står ordrett, ellers normalisering.
+Finnes det ingen bestemmelse, vises hullet. **Regelen er et forslag**: juristrunden angriper den før godkjenningen bygges i PR 2.
+
+**Sveipene** (navnekandidatsveipet, aktørsveipet og lasteren/fasitimporten via samme hjelper, KI-oppdagelsen) bruker samme ruting: et
+treff som ikke havner i aktørkøen, blir ikke en ny navnekandidat. Tellingen per rute står i svaret.
+
+**Målt mot den delte basen 2026-10-31** (etter #423): 1 211 ventende. Generisk ord 387, kjent aktør 233, kjent klasse/rolle/område 75,
+bøyningsform 123, aktørkøen 393 forekomster i 80 rettskilder, som blir 192 navn (208 ord; 47 med mer enn én forekomst; 11
+genitivforslag). 0 havner hos Agder fylkeskommune. Utdanningsdirektoratet står én gang, 9 forekomster i 5 rettskilder, med hullet.
+Foreldrerådet får forslaget barnehageloven § 4 første ledd (normalisering). 18 navn har hjemmelforslag.
 
 ### 5.6 Konvertering av eksisterende data
 

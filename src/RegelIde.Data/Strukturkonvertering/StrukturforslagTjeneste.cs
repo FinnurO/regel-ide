@@ -79,7 +79,12 @@ public static class Aktorstatus
 public sealed record AktorsveipRad(
     string AktorId, string Tekstform, IReadOnlyList<string> Varianter, string Status, int Forekomster, int LastbareForekomster,
     string EidEksempel, IReadOnlyList<string> Treff, IReadOnlyList<string> Kandidater, int AntallKandidater,
-    Guid? GeneriskNavneformId, int BundneForekomster, int ForeslatteBindinger, KantnodeVisning? Referent, Guid? NavnekandidatId);
+    Guid? GeneriskNavneformId, int BundneForekomster, int ForeslatteBindinger, KantnodeVisning? Referent, Guid? NavnekandidatId)
+{
+    /// <summary>[Ny, issue #440] Aktørkøens rute for tekstformen (<see cref="Aktorkoruter"/>). Bare <c>aktorko</c> legges i navnekandidatkøen:
+    /// et generisk ord, en kjent aktør, en kjent klasse/rolle/område eller en bøyningsform av dem har et annet sted å bli behandlet.</summary>
+    public string? AktorkoRute { get; init; }
+}
 
 /// <summary>[Ny, issue #378 A1] Antall aktører per status.</summary>
 public sealed record AktorstatusTall(string Status, int Antall);
@@ -112,6 +117,8 @@ public sealed record UloestAktor(string Tekstform, string Arsak, int AntallUtsag
 {
     /// <summary>[Ny, issue #378 A3] Aktørstatusen (samme klassifisering som aktørsveipet).</summary>
     public string? Status { get; init; }
+    /// <summary>[Ny, issue #440] Aktørkøens rute for tekstformen (<see cref="Aktorkoruter"/>). Bare <c>aktorko</c> gir en navnekandidat.</summary>
+    public string? AktorkoRute { get; init; }
 }
 
 /// <summary>Rapporten fra én lasting av én rettskilde.</summary>
@@ -441,7 +448,10 @@ public sealed partial class StrukturforslagTjeneste(
                 kandidatId = await OpprettNavnekandidatAsync(rettskildeId, eid, aktor.Tekstform, opprettetAv, ct);
             }
             var grunnlag = await klassifiserer.GrunnlagAsync(aktor, ct);
-            uloesteAktorer.Add(new UloestAktor(aktor.Tekstform, arsak, antall, kandidatId, treff) { Status = grunnlag.Status });
+            uloesteAktorer.Add(new UloestAktor(aktor.Tekstform, arsak, antall, kandidatId, treff)
+            {
+                Status = grunnlag.Status, AktorkoRute = (await AktorkoRutingAsync(rettskildeId, aktor.Tekstform, ct)).Rute,
+            });
         }
 
         var perKategori = rader
@@ -456,7 +466,7 @@ public sealed partial class StrukturforslagTjeneste(
             .Select(g => new ForslagArsaktall(g.Key, Forslagsarsak.Tekst(g.Key), g.Count(), g.Take(5).ToList()))
             .OrderByDescending(a => a.Antall).ToList();
 
-        var sveip = await KlassifiserAktorerAsync(dokument, klassifiserer, ct);
+        var sveip = await KlassifiserAktorerAsync(rettskildeId, dokument, klassifiserer, ct);
         return new StrukturforslagRapport(rettskildeId, rettskilde.Kortnavn ?? rettskilde.Tittel, lag, standardOppdagelseskilde,
             dokument.NoderLest, dokument.Utsagn.Count, perKategori, perArsak,
             uloesteAktorer.OrderByDescending(a => a.AntallUtsagn).ThenBy(a => a.Tekstform, StringComparer.Ordinal).ToList(), rader)
@@ -467,9 +477,12 @@ public sealed partial class StrukturforslagTjeneste(
         };
     }
 
-    /// <summary>Oppretter (eller finner) en navnekandidat der tekstformen står i noden. Null når tekstformen ikke står der.</summary>
+    /// <summary>Oppretter (eller finner) en navnekandidat der tekstformen står i noden. Null når tekstformen ikke står der, og [Ny, issue #440]
+    /// når aktørkøens ruting kjenner ordet (generisk ord, kjent aktør, kjent klasse/rolle/område, bøyningsform av dem). Gjelder lasteren,
+    /// aktørsveipet og fasitimporten, som alle går hit.</summary>
     private async Task<Guid?> OpprettNavnekandidatAsync(Guid rettskildeId, string eid, string tekstform, string opprettetAv, CancellationToken ct)
     {
+        if ((await AktorkoRutingAsync(rettskildeId, tekstform, ct)).Rute != Aktorkoruter.Aktorko) return null;
         var tekst = await db.RettskildeNoder.Where(n => n.RettskildeId == rettskildeId && n.Eid == eid && n.Entitetsstatus == "gjeldende")
             .Select(n => n.Tekst).FirstOrDefaultAsync(ct) ?? "";
         var start = tekst.IndexOf(tekstform, StringComparison.Ordinal);
@@ -503,7 +516,7 @@ public sealed partial class StrukturforslagTjeneste(
             ?? throw new ArgumentException($"Fant ingen rettskilde med id '{rettskildeId}'.");
         dokument = dokument with { Utsagn = dokument.Utsagn.Select(Strukturkontrakt.NormaliserOmradesammensetning).ToList() };
         var klassifiserer = await NyKlassifisererAsync(rettskildeId, ct);
-        var rader = await KlassifiserAktorerAsync(dokument, klassifiserer, ct);
+        var rader = await KlassifiserAktorerAsync(rettskildeId, dokument, klassifiserer, ct);
         Treffidentitet? identitet = null;
         if (skrivNavnekandidater)
         {
@@ -513,6 +526,7 @@ public sealed partial class StrukturforslagTjeneste(
             {
                 var r = rader[i];
                 if (r.Status is Aktorstatus.Kjent or Aktorstatus.Flertydig) continue;
+                if (r.AktorkoRute != Aktorkoruter.Aktorko) continue; // [Ny, issue #440] se AktorsveipRad.AktorkoRute
                 rader[i] = r with { NavnekandidatId = await OpprettNavnekandidatAsync(rettskildeId, r.EidEksempel, r.Tekstform, opprettetAv, ct) };
             }
         }
@@ -553,7 +567,17 @@ public sealed partial class StrukturforslagTjeneste(
         return tall;
     }
 
-    private async Task<List<AktorsveipRad>> KlassifiserAktorerAsync(Strukturdokument dokument, Aktorklassifiserer klassifiserer, CancellationToken ct)
+    /// <summary>[Ny, issue #440] Tabellen aktørkøens ruting slår opp i, lest én gang per tjenesteinstans (én forespørsel).</summary>
+    private Rutingstabell? _rutingstabell;
+
+    private async Task<Rutingssvar> AktorkoRutingAsync(Guid rettskildeId, string tekstform, CancellationToken ct)
+    {
+        _rutingstabell ??= await AktorkoTjeneste.LastRutingstabellAsync(db, ct);
+        return Aktorkoregler.Ruter(_rutingstabell, tekstform, rettskildeId);
+    }
+
+    private async Task<List<AktorsveipRad>> KlassifiserAktorerAsync(
+        Guid rettskildeId, Strukturdokument dokument, Aktorklassifiserer klassifiserer, CancellationToken ct)
     {
         var forekomster = new Dictionary<string, List<(string Eid, bool Lastbar)>>(StringComparer.Ordinal);
         foreach (var u in dokument.Utsagn)
@@ -588,7 +612,10 @@ public sealed partial class StrukturforslagTjeneste(
                     : statuser.All(x => x == Aktorstatus.Kjent) ? Aktorstatus.Kjent : Aktorstatus.Generisk;
             }
             rader.Add(new AktorsveipRad(aktor.Id, aktor.Tekstform, aktor.Varianter, status, f.Count, f.Count(x => x.Lastbar), f[0].Eid,
-                g.Treff, g.Kandidater.Take(5).ToList(), g.Kandidater.Count, g.GeneriskNavneformId, bundne, foreslatte, referent, null));
+                g.Treff, g.Kandidater.Take(5).ToList(), g.Kandidater.Count, g.GeneriskNavneformId, bundne, foreslatte, referent, null)
+            {
+                AktorkoRute = (await AktorkoRutingAsync(rettskildeId, aktor.Tekstform, ct)).Rute,
+            });
         }
         return rader;
     }

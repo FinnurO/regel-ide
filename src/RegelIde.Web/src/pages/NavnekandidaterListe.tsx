@@ -19,6 +19,7 @@ import { Massehandlingsrad } from '../kandidater/Massehandlingsrad';
 import { useNodeEtiketter, useRettskildeoppslag } from '../kandidater/useNodeEtiketter';
 import { BehandleGruppeDialog } from '../kandidater/BehandleGruppeDialog';
 import { Metatekst } from '../entitet/Metatekst';
+import { utenforAktorkoenTekst } from '../kandidater/aktorkorute';
 
 type Sorteringskolonne = 'foreslattTekst' | 'kategori' | 'rettskilde' | 'status' | 'opprettet';
 
@@ -188,7 +189,7 @@ export default function NavnekandidaterListe() {
   const [sveipRettskildeId, setSveipRettskildeId] = useState('');
   const [sveiper, setSveiper] = useState(false);
   const [sveipFeil, setSveipFeil] = useState<string | null>(null);
-  const [sveipResultat, setSveipResultat] = useState<{ funnet: number; nye: number } | null>(null);
+  const [sveipResultat, setSveipResultat] = useState<{ funnet: number; nye: number; utenfor: string | null } | null>(null);
 
   // [ENDRET, kandidatside-runden, 2026-09-09, issue #216] Delt hook — de tre kandidatsidene hadde
   // hver sin identiske kopi av sorteringstilstanden og de to hjelpefunksjonene.
@@ -250,7 +251,9 @@ export default function NavnekandidaterListe() {
     setSveipResultat(null);
     try {
       const resultat = await api.sveipNavnekandidater({ rettskildeId: sveipRettskildeId || null });
-      setSveipResultat({ funnet: resultat.antallTreffFunnet, nye: resultat.antallNyeKandidater });
+      setSveipResultat({
+        funnet: resultat.antallTreffFunnet, nye: resultat.antallNyeKandidater, utenfor: utenforAktorkoenTekst(resultat.utenforAktorkoen),
+      });
       lastKandidater();
     } catch (err) {
       setSveipFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved sveip.');
@@ -804,8 +807,14 @@ export default function NavnekandidaterListe() {
   return (
     <>
       <Heading level={1} data-size="lg" style={{ marginBottom: '0.2rem' }}>
-        Navnekandidater
+        Navnekandidater (historikk)
       </Heading>
+      {/* [Ny, issue #440] Lista står som historikk: én rad per forekomst. Aktørkøen samler navnene og er stedet de skal behandles. */}
+      <Alert data-color="info" data-size="sm" style={{ marginBottom: '1rem' }}>
+        Dette er den flate lista, med én rad per forekomst. <Link asChild><RouterLink to="/aktorko">Aktørkøen</RouterLink></Link> samler
+        hvert ukjent navn én gang med alle forekomstene, og viser hvor de kjente ordene havner. Sveipet legger ikke lenger kjente eller
+        generiske ord i køen (#440).
+      </Alert>
       <Paragraph style={{ marginBottom: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
         Egennavn/juridiske aktører oppdaget ved regex-mønstergjenkjenning i allerede importert
         rettskildetekst (docs/13-backlog.md §9) — ren tekstanalyse, ikke KI.
@@ -830,6 +839,7 @@ export default function NavnekandidaterListe() {
         {sveipResultat && (
           <Alert data-color="info" style={{ marginTop: '0.5rem' }}>
             Fant {sveipResultat.funnet} treff totalt, {sveipResultat.nye} nye kandidater lagt i køen.
+            {sveipResultat.utenfor && <> {sveipResultat.utenfor}</>}
           </Alert>
         )}
       </Card>
