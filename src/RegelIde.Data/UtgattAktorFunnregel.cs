@@ -162,7 +162,7 @@ public sealed class UtgattAktorFunnregel(RegelIdeDbContext db, FunnTjeneste funn
     public const string GruppeD = "D";
     public static readonly string[] Grupper = [GruppeA, GruppeB, GruppeC, GruppeD];
 
-    private sealed record Nodetreff(Guid RettskildeId, Guid NodeId, string Eid, string Term, IReadOnlyList<Guid> BegrepIder, Guid VirksomhetId, string Quote,
+    private sealed record Nodetreff(Guid RettskildeId, Guid NodeId, string Eid, int Rekkefolge, string Term, IReadOnlyList<Guid> BegrepIder, Guid VirksomhetId, string Quote,
         IReadOnlyList<string> Regler);
 
     /// <param name="rettskildeIder">Avgrensning til noen rettskilder (tester og feilsøking). Null = hele korpuset.</param>
@@ -197,7 +197,7 @@ public sealed class UtgattAktorFunnregel(RegelIdeDbContext db, FunnTjeneste funn
         // ---- 3. Tekstforekomstene, én spørring per navn (50 i den delte basen 2026-10-31) ----
         // Én spørring per TERM, ikke per navneform: samme term kan være navneform flere ganger (for samme aktør, eller for to aktører når
         // den er tvetydig). Da telles forekomsten én gang, og funnet peker på alle navneformene med den termen.
-        var treff = new List<(Guid Rk, Guid NodeId, string Eid, Guid? Forelder, string Tekst, string Term, IReadOnlyList<Guid> BegrepIder, Guid Vid, string Quote)>();
+        var treff = new List<(Guid Rk, Guid NodeId, string Eid, int Rekkefolge, Guid? Forelder, string Tekst, string Term, IReadOnlyList<Guid> BegrepIder, Guid Vid, string Quote)>();
         foreach (var nf in sokes.GroupBy(b => b.Term, StringComparer.Ordinal))
         {
             var term = nf.Key;
@@ -206,13 +206,13 @@ public sealed class UtgattAktorFunnregel(RegelIdeDbContext db, FunnTjeneste funn
             var noder = await db.RettskildeNoder.AsNoTracking()
                 .Where(n => n.Entitetsstatus == "gjeldende" && !n.Opphevet && !n.ErMerknad && Bladnoder.Contains(n.NodeType)
                             && n.Tekst != null && n.Tekst.Contains(term) && rkQuery.Any(r => r.Id == n.RettskildeId))
-                .Select(n => new { n.Id, n.RettskildeId, n.Eid, n.ParentNodeId, n.Tekst })
+                .Select(n => new { n.Id, n.RettskildeId, n.Eid, n.Sorteringsrekkefolge, n.ParentNodeId, n.Tekst })
                 .ToListAsync(ct);
             var rx = Ordregex(term);
             foreach (var n in noder)
             {
                 var m = rx.Match(n.Tekst!);
-                if (m.Success) treff.Add((n.RettskildeId, n.Id, n.Eid, n.ParentNodeId, n.Tekst!, term, begrepIder, vid, m.Value));
+                if (m.Success) treff.Add((n.RettskildeId, n.Id, n.Eid, n.Sorteringsrekkefolge, n.ParentNodeId, n.Tekst!, term, begrepIder, vid, m.Value));
             }
         }
 
@@ -253,7 +253,7 @@ public sealed class UtgattAktorFunnregel(RegelIdeDbContext db, FunnTjeneste funn
             if (rk.Eli is null) { nUtenEli++; continue; }
             var forelder = x.Forelder is { } fid ? forelderTekst.GetValueOrDefault(fid) : null;
             var regler = UtgattAktorRegler.Treff(x.Term, UtgattAktorRegler.Normaliser(x.Tekst), UtgattAktorRegler.Normaliser(forelder));
-            kandidater.Add(new Nodetreff(x.Rk, x.NodeId, x.Eid, x.Term, x.BegrepIder, x.Vid, x.Quote, regler));
+            kandidater.Add(new Nodetreff(x.Rk, x.NodeId, x.Eid, x.Rekkefolge, x.Term, x.BegrepIder, x.Vid, x.Quote, regler));
         }
 
         // ---- 5. Etterfølgerne og gruppene ----
@@ -291,7 +291,8 @@ public sealed class UtgattAktorFunnregel(RegelIdeDbContext db, FunnTjeneste funn
             var rk = rettskilder[g.Key.RettskildeId];
             var v = virksomheter[g.Key.VirksomhetId];
             var gruppe = Gruppe(g.Key.VirksomhetId);
-            var forekomster = g.OrderBy(k => k.Eid, StringComparer.Ordinal).ThenBy(k => k.Term, StringComparer.Ordinal).ToList();
+            // [ENDRET, kaldsjekken 2026-10-31] Lovens rekkefølge, ikke eId-ens: ordinal sortering ga § 10 før § 4.
+            var forekomster = g.OrderBy(k => k.Rekkefolge).ThenBy(k => k.Eid, StringComparer.Ordinal).ThenBy(k => k.Term, StringComparer.Ordinal).ToList();
             var undertrykt = forekomster.All(k => k.Regler.Count > 0);
             var nokkel = NokkelPrefiks + EliKort(rk.Eli!) + ":" + g.Key.VirksomhetId;
             var finnesStatus = nokler.GetValueOrDefault(nokkel);
@@ -394,19 +395,21 @@ public sealed class UtgattAktorFunnregel(RegelIdeDbContext db, FunnTjeneste funn
             // premissporten krever dem vurdert.
             if (etterfolgere.Count > 0)
             {
-                linjer.Add($"- Etterfølger for en del av oppgavene i modellen: {string.Join(", ", etterfolgere.Select(e => e.Fra ?? "ukjent aktør").Distinct())}.");
+                linjer.Add($"- {string.Join(", ", etterfolgere.Select(e => e.Fra ?? "ukjent aktør").Distinct())} tok over en del av oppgavene ifølge modellen.");
             }
         }
         else
         {
             linjer.Add($"«{tittel}» ({referanse}) er gjeldende og nevner {termTekst} i {antall}. {aktor} er nedlagt"
                 + (gyldigTil is { } d ? $" (siste dag {d:yyyy-MM-dd})." : "."));
+            // [ENDRET, kaldsjekken 2026-10-31] Ingen «Etterfølger:» her: etterfølgerlinjen under påstanden viser kantene eller juristens
+            // punkt «Etterfølger», og to linjer med samme ledetekst kunne si to ulike ting.
             var navn = etterfolgere.Select(e => e.Fra ?? "ukjent aktør").Distinct().ToList();
             linjer.Add(gruppe switch
             {
-                GruppeB => $"- Etterfølger i modellen: {string.Join(", ", navn)}. Ikke vurdert for denne bestemmelsen.",
-                GruppeC => $"- Hovedetterfølger: ukjent. Etterfølger for en del av oppgavene i modellen: {string.Join(", ", navn)}.",
-                _ => "- Etterfølger: ukjent. Modellen har ingen etterfølger for aktøren.",
+                GruppeB => $"- Modellen har {string.Join(", ", navn)} som etterfølger. Det er ikke vurdert om oppgaven i bestemmelsen gikk dit.",
+                GruppeC => $"- Hovedetterfølgeren er ukjent. {string.Join(", ", navn)} tok over en del av oppgavene ifølge modellen.",
+                _ => "- Modellen har ingen etterfølger for aktøren.",
             });
         }
         if (antallEndret > 0)

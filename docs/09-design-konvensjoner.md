@@ -1330,7 +1330,8 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
 - **Tetthet:** vanlig, ikke `compact` — fem funn i PR 1 (§26). Når maskinregelen for utgåtte aktører (#429 PR 2) gir rundt 770 funn, skal
   tettheten og grupperingen per aktør i `Details` (som forslagskøen i §36) vurderes på nytt. [#429 PR 2, 2026-10-31] Ikke endret ennå:
   tørrkjøringen gir 699 funn, men de lastes først når Johann kjører `?skriv=true`. Lista henter premissmanglene i to oppslag for hele
-  lista, så den tåler mengden; valget av tetthet og gruppering ligger hos Johann.
+  lista, så den tåler mengden; valget av tetthet og gruppering ligger hos Johann. Bestemmelseskolonnen viser de tre første og «og N til»
+  (et maskinfunn kan peke på 69 bestemmelser); hele lista står på detaljsiden.
 - **Godkjenning for publisering og tilbaketrekking** bekreftes i en `Dialog` som viser nøyaktig teksten som publiseres (§14, kritiske
   overganger). Knappen vises bare for publiseringsansvarlige; andre ser `Metatekst` om hvem som kan godkjenne, og om lista er tom.
 - **Forhåndsvisningen** («Slik blir det på nettsiden») bygges av det samme objektet eksporten skriver, aldri av en egen mal.

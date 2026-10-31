@@ -148,15 +148,15 @@ public class UtgattAktorFunnregelTests(EmbeddedPostgresFixture fixture)
         Assert.Equal(b.Navn, bestemmelse.QuoteExact);
         Assert.Equal($"FOR-{rk.DokumentId!.Split('/')[^1]} § 1 andre ledd", bestemmelse.Etikett);
         Assert.Contains(fb.Koblinger, k => k.Rolle == Funn.Etterfolger && k.StrukturkantId == kantB.Id);
-        Assert.Contains($"Etterfølger i modellen: {ny.Navn}", fb.Beskrivelse);
+        Assert.Contains($"Modellen har {ny.Navn} som etterfølger", fb.Beskrivelse);
 
         var fc = For(c.Id);
         Assert.Contains(fc.Koblinger, k => k.Rolle == Funn.Etterfolger && k.StrukturkantId == kantC.Id);
-        Assert.Contains("Hovedetterfølger: ukjent", fc.Beskrivelse);
+        Assert.Contains("Hovedetterfølgeren er ukjent", fc.Beskrivelse);
 
         var fd = For(d.Id);
         Assert.DoesNotContain(fd.Koblinger, k => k.Rolle == Funn.Etterfolger);
-        Assert.Contains("Etterfølger: ukjent", fd.Beskrivelse);
+        Assert.Contains("Modellen har ingen etterfølger", fd.Beskrivelse);
 
         // Spørsmålet over registeret: hvilke funn gjelder aktør Y?
         var t = new FunnTjeneste(db);
