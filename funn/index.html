@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="nb" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Funn til vurdering — DigRett showcase</title>
+<meta name="description" content="Steder der rettskildene ikke stemmer med seg selv eller med virkeligheten: observasjoner fra modellen med kilder, juristvurdert og godkjent for publisering.">
+<link rel="canonical" href="https://finnuro.github.io/regel-ide/funn/">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/css/fonts.css">
+<link rel="stylesheet" href="../assets/css/vendor/designsystemet.css">
+<link rel="stylesheet" href="../assets/css/vendor/designsystemet-theme.css">
+<link rel="stylesheet" href="../assets/css/site.css">
+<style>
+  /* [Ny, issue #429] Bare det denne siden trenger utover site.css. */
+  .funn-kort { margin-bottom: var(--ds-size-8); max-width: 52rem; }
+  .funn-kort h2 { font-family: var(--site-font-display); font-size: var(--ds-heading-md-font-size); margin: 0 0 var(--ds-size-3); text-wrap: balance; }
+  .funn-kort h3 { font-size: var(--ds-body-sm-font-size); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--ds-color-text-subtle); margin: var(--ds-size-6) 0 var(--ds-size-2); }
+  .funn-kort p, .funn-kort li { font-size: var(--ds-body-md-font-size); }
+  .funn-kort ul { margin: 0 0 var(--ds-size-4); padding-left: 1.25em; display: flex; flex-direction: column; gap: var(--ds-size-2); }
+  .funn-kort .tag-row { display: flex; flex-wrap: wrap; gap: var(--ds-size-2); margin-bottom: var(--ds-size-4); }
+  .funn-kort .bestemmelse { font-weight: 500; }
+</style>
+</head>
+<body>
+
+<a class="ds-link skip-to-content" href="#main">Hopp til innhold</a>
+
+<div class="disclaimer-bar">
+  <div class="wrap">
+    <span>📎 <strong>Midlertidig showcase</strong> — statisk fasade, ikke selve applikasjonen.</span>
+  </div>
+</div>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand plain" href="../">
+      <span class="brand__mark" aria-hidden="true">DR</span>
+      <span class="brand__text">
+        <span class="brand__title">DigRett</span>
+        <span class="brand__subtitle">Digital rettsstat — showcase</span>
+      </span>
+    </a>
+    <nav class="main-nav" aria-label="Hovedmeny">
+      <a href="../">Forside</a>
+      <a href="../rettskilder/">Rettskilder</a>
+      <a href="../virksomheter/">Virksomheter</a>
+      <a href="../grupper/">Grupper</a>
+      <a href="../koblinger/">Koblinger</a>
+      <a href="../kjeden/">Kjeden</a>
+      <a href="../strukturmodell/">Strukturmodellen</a>
+      <a href="../funn/" aria-current="page">Funn til vurdering</a>
+      <a href="../profil/">Profilforslag</a>
+      <a href="../begreper/">Begreper</a>
+      <a href="../om/">Om</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap page-head">
+    <span class="eyebrow">Funn til vurdering</span>
+    <h1>Der rettskildene ikke stemmer med seg selv</h1>
+    <p class="lead">Når lovteksten gjøres maskinlesbar, kommer det fram steder der to gjeldende bestemmelser gir ulikt svar, der teksten viser til aktører som ikke lenger finnes, eller der noe ikke er regulert. Dette er observasjoner fra modellen med kilder, ikke påstander om feil i loven.</p>
+  </div>
+
+  <div class="wrap">
+    <div class="purpose-box">
+      <span class="purpose-box__label">Slik kommer et funn hit</span>
+      <p>Modellen eller en modellerer registrerer funnet. En jurist prøver først å forklare det bort, for eksempel med at bestemmelsen er opphevet, at den yngre eller mer spesielle regelen går foran, eller at myndigheten er flyttet ved et eget vedtak. Bare funn som ikke lar seg forklare bort, og som er godkjent for publisering, står her. Hvert funn viser hvilke bortforklaringer som er prøvd. Teksten er den som ble godkjent, uendret.</p>
+    </div>
+  </div>
+
+  <section class="section" style="border-bottom:none;">
+    <div class="wrap">
+      <div id="funn-liste" class="loading-note">Laster funn …</div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div>
+      <h3>Om nettstedet</h3>
+      <p style="font-size:var(--ds-body-sm-font-size); color:var(--ds-color-text-subtle); max-width:32ch; margin:0;">Midlertidig showcase av <strong>DigRett</strong>, ikke selve produktet. Kildekode: <a href="https://github.com/FinnurO/regel-ide" target="_blank" rel="noopener">regel-ide</a>.</p>
+    </div>
+    <div>
+      <h3>Sider</h3>
+      <ul>
+        <li><a href="../">Forside</a></li>
+        <li><a href="../rettskilder/">Rettskilder</a></li>
+        <li><a href="../virksomheter/">Virksomheter</a></li>
+        <li><a href="../grupper/">Grupper</a></li>
+        <li><a href="../kjeden/">Kjeden</a></li>
+        <li><a href="../strukturmodell/">Strukturmodellen</a></li>
+        <li><a href="../funn/">Funn til vurdering</a></li>
+        <li><a href="../profil/">Profilforslag</a></li>
+        <li><a href="../begreper/">Begreper</a></li>
+        <li><a href="../om/">Om</a></li>
+      </ul>
+    </div>
+    <div>
+      <h3>Kildekode</h3>
+      <ul>
+        <li><a href="https://github.com/FinnurO/regel-ide" target="_blank" rel="noopener">FinnurO/regel-ide</a></li>
+        <li><a href="https://github.com/FinnurO/regel-ide/blob/HEAD/nettside/data/README.md" target="_blank" rel="noopener">Datakontrakt</a></li>
+      </ul>
+    </div>
+    <p class="fine">Data eksportert fra en kjørende lokal instans på et gitt tidspunkt — ikke sanntid.</p>
+  </div>
+</footer>
+
+<button type="button" class="ds-button feedback-fab" data-color="accent" id="feedback-open-btn" aria-haspopup="dialog">
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+  <span class="btn-label">Gi tilbakemelding</span>
+</button>
+
+<dialog class="feedback-dialog" id="feedback-dialog" aria-labelledby="feedback-dialog-title">
+  <div class="feedback-dialog__body">
+    <h2 id="feedback-dialog-title">Gi tilbakemelding</h2>
+    <p class="lead">Sendes som et innspill på GitHub — du logger inn med (eller oppretter) en gratis GitHub-konto for å fullføre innsendingen der.</p>
+    <p class="feedback-hint">Vi tar automatisk med hvilke seksjoner du har åpnet på siden. Vil du sitere en bestemt setning: lukk dette vinduet, marker teksten på siden, og trykk «Gi tilbakemelding» på nytt.</p>
+    <div class="feedback-context" id="feedback-context"></div>
+    <div class="feedback-field">
+      <label for="feedback-text">Hva vil du si noe om?</label>
+      <textarea id="feedback-text" placeholder="Skriv tilbakemeldingen din her …"></textarea>
+    </div>
+    <div class="feedback-actions">
+      <button type="button" class="ds-button" data-variant="tertiary" data-color="neutral" id="feedback-cancel-btn">Avbryt</button>
+      <button type="button" class="ds-button" data-color="accent" id="feedback-submit-btn">Send inn på GitHub →</button>
+    </div>
+  </div>
+</dialog>
+
+<script src="../assets/js/common.js"></script>
+<script src="../assets/js/feedback.js"></script>
+<script>
+// [Ny, issue #429] Siden leser BARE data/funn/register.json, som eksporten fyller fra GET /api/funn/publiserbare: funn som er godkjent
+// for publisering, med det frosne innholdet. Ingenting her regner ut eller endrer teksten; rekkefølgen og ordene følger
+// forhåndsvisningen i appen (src/RegelIde.Web/src/funn/FunnVisning.tsx, OffentligFunn).
+(function () {
+  var S = DigRettSite;
+  var KATEGORI = { utgatt_aktor: 'Utgått aktør', mulig_motstrid: 'Mulig motstrid', uklarhet_hull: 'Uklarhet eller hull' };
+  var UNDERTYPE = { nedlagt_aktor: 'nedlagt aktør', utgatt_navn: 'utgått navn', hull: 'hull', upresis_henvisning: 'upresis henvisning', publiseringsfeil_kilde: 'publiseringsfeil i kilden' };
+  var SIKKERHET = { hoy: 'høy', middels_til_hoy: 'middels til høy', middels: 'middels', lav_til_middels: 'lav til middels', lav: 'lav' };
+
+  // Linjer som begynner med «- » er punkter (samme regel som funnTekst.ts i appen).
+  function tekst(t) {
+    var html = '', liste = [];
+    function tomListe() { if (liste.length) { html += '<ul>' + liste.map(function (l) { return '<li>' + S.esc(l) + '</li>'; }).join('') + '</ul>'; liste = []; } }
+    String(t || '').split('\n').forEach(function (linje) {
+      if (!linje.trim()) return;
+      if (linje.indexOf('- ') === 0) { liste.push(linje.slice(2)); return; }
+      tomListe();
+      html += '<p>' + S.esc(linje) + '</p>';
+    });
+    tomListe();
+    return html;
+  }
+
+  function lenke(k) {
+    var url = k.lenke || S.lovdataLenke(k.eid || k.eli);
+    return url ? '<a href="' + S.esc(url) + '" target="_blank" rel="noopener">' + S.esc(k.etikett) + '</a>' : S.esc(k.etikett);
+  }
+
+  function kort(f) {
+    var h = '<article class="ds-card funn-kort" id="' + S.esc(f.id) + '">';
+    h += '<div class="tag-row"><span class="pill" data-tone="neutral">' + S.esc(KATEGORI[f.kategori] || f.kategori) +
+      (f.undertype ? ': ' + S.esc(UNDERTYPE[f.undertype] || f.undertype) : '') + '</span>' +
+      '<span class="pill" data-tone="success">Godkjent for publisering ' + S.esc(f.godkjentDato) + '</span>' +
+      (f.juristvurdertAvKi ? '<span class="pill" data-tone="neutral">Juristvurdert av KI-agent, ikke kontrollert av menneskelig jurist</span>' : '') +
+      '</div>';
+    h += '<h2>' + S.esc(f.tittel) + '</h2>';
+    h += tekst(f.beskrivelse);
+    if (f.kategori === 'utgatt_aktor') {
+      h += '<p><strong>Etterfølger:</strong> ' + (f.etterfolgere.length ? f.etterfolgere.map(function (e) { return S.esc(e.etikett); }).join(', ') : 'ukjent') + '</p>';
+    }
+    if (f.bestemmelser.length) {
+      h += '<h3>Bestemmelser</h3><ul>' + f.bestemmelser.map(function (b) {
+        return '<li><span class="bestemmelse">' + lenke({ etikett: b.etikett, eid: b.eid, eli: b.eli }) + '</span>' + (b.merknad ? ' — ' + S.esc(b.merknad) : '') + '</li>';
+      }).join('') + '</ul>';
+    }
+    if (f.bortforklaringer.length) {
+      h += '<h3>Bortforklaringer som er prøvd</h3><ul>' + f.bortforklaringer.map(function (b) {
+        return '<li>' + (b.overskrift ? '<em>' + S.esc(b.overskrift) + ':</em> ' : '') + S.esc(b.tekst) + '</li>';
+      }).join('') + '</ul>';
+    }
+    if (f.vurdering || f.vurderingspunkter.length) {
+      h += '<h3>Vurdering</h3>';
+      if (f.vurdering) h += '<p>' + S.esc(f.vurdering) + '</p>';
+      if (f.vurderingspunkter.length) {
+        h += '<ul>' + f.vurderingspunkter.map(function (p) {
+          return '<li>' + (p.sikkerhet ? 'Sikkerhet: ' + S.esc(SIKKERHET[p.sikkerhet] || p.sikkerhet) + ' ' + S.esc(p.tekst) + '.' : S.esc(p.tekst)) + '</li>';
+        }).join('') + '</ul>';
+      }
+    }
+    if (f.ikkeAvgjort.length) {
+      h += '<h3>Ikke avgjort</h3><ul>' + f.ikkeAvgjort.map(function (p) { return '<li>' + S.esc(p.tekst) + '</li>'; }).join('') + '</ul>';
+    }
+    if (f.kilder.length) {
+      h += '<h3>Kilder</h3><ul>' + f.kilder.map(function (k) { return '<li>' + lenke(k) + '</li>'; }).join('') + '</ul>';
+    }
+    return h + '</article>';
+  }
+
+  var mal = document.getElementById('funn-liste');
+  S.fetchData('funn/register.json').then(function (d) {
+    if (S.isSkeleton(d)) { mal.innerHTML = S.skeletonBanner(d); return; }
+    mal.classList.remove('loading-note');
+    mal.innerHTML = d.funn.length
+      ? d.funn.map(kort).join('')
+      : '<p>Ingen funn er godkjent for publisering ennå.</p>';
+  }).catch(function (err) { S.renderError(mal, err); });
+})();
+</script>
+</body>
+</html>
