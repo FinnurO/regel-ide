@@ -179,6 +179,11 @@ public sealed class UtgattAktorFunnregel(RegelIdeDbContext db, FunnTjeneste funn
         var vidAlle = alleNavneformer.Select(b => b.Vid).Distinct().ToList();
         var virksomheter = await db.Virksomheter.AsNoTracking().Where(v => vidAlle.Contains(v.Id))
             .Select(v => new { v.Id, v.Navn, v.Livsstatus, v.GyldigTil }).ToDictionaryAsync(v => v.Id, ct);
+        // Aktøren omtales med navneformen lovteksten bruker i dag (CLAUDE.md §0: registernavnet er avledet, og kan stå i versaler —
+        // «JUSTIS- OG BEREDSKAPSDEPARTEMENTET»). Bare når det finnes nøyaktig én gjeldende navneform; ellers registernavnet.
+        var visningsnavn = alleNavneformer.Where(b => b.Navneformgrunn == "gjeldende").GroupBy(b => b.Vid)
+            .Where(g => g.Select(b => b.Term).Distinct(StringComparer.Ordinal).Count() == 1).ToDictionary(g => g.Key, g => g.First().Term);
+        string Navn(Guid vid) => visningsnavn.GetValueOrDefault(vid) ?? virksomheter[vid].Navn;
         var sokes = alleNavneformer
             .Where(b => virksomheter.TryGetValue(b.Vid, out var v) && (v.Livsstatus == "nedlagt" || b.Navneformgrunn == "utgatt")
                         && b.Term.Length >= MinsteTermlengde)
@@ -256,6 +261,7 @@ public sealed class UtgattAktorFunnregel(RegelIdeDbContext db, FunnTjeneste funn
             .GroupBy(k => k.Til).ToDictionary(g => g.Key, g => g.ToList());
         var fraIder = kanter.Values.SelectMany(l => l).Where(k => k.FraVirksomhetId != null).Select(k => k.FraVirksomhetId!.Value).Distinct().ToList();
         var fraNavn = await db.Virksomheter.AsNoTracking().Where(v => fraIder.Contains(v.Id)).ToDictionaryAsync(v => v.Id, v => v.Navn, ct);
+        foreach (var id in fraIder.Where(visningsnavn.ContainsKey)) fraNavn[id] = visningsnavn[id];
         var nedlagte = vider.Where(v => virksomheter[v].Livsstatus == "nedlagt").ToList();
         var hull = await EtterfolgerHull.HovedetterfolgerUkjentAsync(db, nedlagte, ct);
         string Gruppe(Guid vid) =>
@@ -274,7 +280,7 @@ public sealed class UtgattAktorFunnregel(RegelIdeDbContext db, FunnTjeneste funn
         var rader = new List<UtgattAktorRad>();
 
         var par = kandidater.GroupBy(k => (k.RettskildeId, k.VirksomhetId))
-            .OrderBy(g => rettskilder[g.Key.RettskildeId].DokumentId, StringComparer.Ordinal).ThenBy(g => virksomheter[g.Key.VirksomhetId].Navn);
+            .OrderBy(g => rettskilder[g.Key.RettskildeId].DokumentId, StringComparer.Ordinal).ThenBy(g => Navn(g.Key.VirksomhetId), StringComparer.Ordinal);
         foreach (var g in par)
         {
             var rk = rettskilder[g.Key.RettskildeId];
@@ -310,7 +316,7 @@ public sealed class UtgattAktorFunnregel(RegelIdeDbContext db, FunnTjeneste funn
                     if (skriv)
                     {
                         var etterfolgere = kanter.GetValueOrDefault(g.Key.VirksomhetId) ?? [];
-                        var nytt = ByggFunn(nokkel, rk.Eli!, rk.DokumentId, rk.Kortnavn ?? rk.Tittel, rk.Tittel, v.Navn, v.GyldigTil, g.Key.VirksomhetId,
+                        var nytt = ByggFunn(nokkel, rk.Eli!, rk.DokumentId, rk.Kortnavn ?? rk.Tittel, rk.Tittel, Navn(g.Key.VirksomhetId), v.GyldigTil, g.Key.VirksomhetId,
                             gruppe, forekomster, etterfolgere.Select(k => (k.Id, k.FraVirksomhetId is { } f ? fraNavn.GetValueOrDefault(f) : null)).ToList(),
                             endringer?.Count ?? 0, mal is null ? null : (mal.EndringEid, mal.Tittel));
                         await funnTjeneste.OpprettAsync(nytt, bruker, ct);
@@ -319,7 +325,7 @@ public sealed class UtgattAktorFunnregel(RegelIdeDbContext db, FunnTjeneste funn
             }
             if (medRader)
             {
-                rader.Add(new UtgattAktorRad(rk.DokumentId, rk.Kortnavn ?? rk.Tittel, g.Key.VirksomhetId, v.Navn, gruppe, !undertrykt, nokkel,
+                rader.Add(new UtgattAktorRad(rk.DokumentId, rk.Kortnavn ?? rk.Tittel, g.Key.VirksomhetId, Navn(g.Key.VirksomhetId), gruppe, !undertrykt, nokkel,
                     finnesStatus, endringer is not null, mal?.EndringEid,
                     forekomster.Select(k => new UtgattAktorForekomst(k.Eid, k.Term, k.Quote, k.Regler)).ToList()));
             }

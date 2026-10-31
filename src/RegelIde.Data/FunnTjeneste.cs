@@ -62,7 +62,8 @@ public sealed class FunnTjeneste(RegelIdeDbContext db)
         if (rettskildeId is { } rid)
         {
             var eli = await db.Rettskilder.Where(r => r.Id == rid).Select(r => r.Eli).FirstOrDefaultAsync(ct);
-            q = q.Where(f => f.Koblinger.Any(k => k.RettskildeId == rid || (eli != null && k.RettskildeEli == eli)));
+            // [ENDRET, #429 PR 2] Målvedtaket til et endringsvedtak er ikke «funn i rettskilde X»: funnet står i endringsvedtaket.
+            q = q.Where(f => f.Koblinger.Any(k => k.Rolle != Funn.Malvedtak && (k.RettskildeId == rid || (eli != null && k.RettskildeEli == eli))));
         }
         if (virksomhetId is { } vid) q = q.Where(f => f.Koblinger.Any(k => k.VirksomhetId == vid));
         return await q.OrderByDescending(f => f.OpprettetTidspunkt).ToListAsync(ct);

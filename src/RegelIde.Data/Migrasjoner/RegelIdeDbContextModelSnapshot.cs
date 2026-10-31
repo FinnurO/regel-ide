@@ -1201,6 +1201,10 @@ namespace RegelIde.Data.Migrasjoner
                         .HasColumnType("uuid")
                         .HasColumnName("node_id");
 
+                    b.Property<string>("QuoteExact")
+                        .HasColumnType("text")
+                        .HasColumnName("quote_exact");
+
                     b.Property<string>("RettskildeEli")
                         .HasColumnType("text")
                         .HasColumnName("rettskilde_eli");
@@ -1256,11 +1260,13 @@ namespace RegelIde.Data.Migrasjoner
 
                             t.HasCheckConstraint("ck_funn_koblinger_node", "node_id IS NULL OR eid IS NOT NULL");
 
+                            t.HasCheckConstraint("ck_funn_koblinger_quote", "quote_exact IS NULL OR eid IS NOT NULL");
+
                             t.HasCheckConstraint("ck_funn_koblinger_rettskilde", "(rettskilde_id IS NULL AND eid IS NULL AND node_id IS NULL) OR rettskilde_eli IS NOT NULL");
 
-                            t.HasCheckConstraint("ck_funn_koblinger_rolle", "rolle IN ('gjelder_bestemmelse', 'motstridende_bestemmelse', 'berort_aktor', 'navneform', 'etterfolger', 'kilde')");
+                            t.HasCheckConstraint("ck_funn_koblinger_rolle", "rolle IN ('gjelder_bestemmelse', 'motstridende_bestemmelse', 'berort_aktor', 'navneform', 'etterfolger', 'kilde', 'malvedtak')");
 
-                            t.HasCheckConstraint("ck_funn_koblinger_rolle_mal", "(rolle IN ('gjelder_bestemmelse', 'motstridende_bestemmelse') AND rettskilde_eli IS NOT NULL) OR (rolle = 'berort_aktor' AND virksomhet_id IS NOT NULL) OR (rolle = 'navneform' AND begrep_id IS NOT NULL) OR (rolle = 'etterfolger' AND strukturkant_id IS NOT NULL) OR (rolle = 'kilde' AND (rettskilde_eli IS NOT NULL OR ekstern_lenke IS NOT NULL OR kildefeil_id IS NOT NULL))");
+                            t.HasCheckConstraint("ck_funn_koblinger_rolle_mal", "(rolle IN ('gjelder_bestemmelse', 'motstridende_bestemmelse') AND rettskilde_eli IS NOT NULL) OR (rolle = 'berort_aktor' AND virksomhet_id IS NOT NULL) OR (rolle = 'navneform' AND begrep_id IS NOT NULL) OR (rolle = 'etterfolger' AND strukturkant_id IS NOT NULL) OR (rolle = 'kilde' AND (rettskilde_eli IS NOT NULL OR ekstern_lenke IS NOT NULL OR kildefeil_id IS NOT NULL)) OR (rolle = 'malvedtak' AND rettskilde_eli IS NOT NULL)");
                         });
                 });
 
