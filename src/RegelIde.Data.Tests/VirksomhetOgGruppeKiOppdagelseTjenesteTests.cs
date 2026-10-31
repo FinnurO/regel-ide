@@ -209,7 +209,11 @@ public class VirksomhetOgGruppeKiOppdagelseTjenesteTests
         var resultat = await tjeneste.KjorOppdagelseAsync(rettskildeId, "system-ki");
 
         var k = Assert.Single(resultat.Kandidater);
-        Assert.NotNull(k.NavnekandidatId);
+        // [ENDRET, issue #440] Navnet er en kjent aktør (navneformen over), så aktørkøens ruting legger det ikke i navnekandidatkøen.
+        // Grunnen står i utfallet. Rolleforsøket kjøres som før.
+        Assert.Null(k.NavnekandidatId);
+        Assert.Equal(Aktorkoruter.KjentAktor, k.AktorkoRute);
+        Assert.StartsWith("Ikke lagt i navnekandidatkøen", k.NavnekandidatFeil);
         Assert.NotNull(k.RolleKantId);
         Assert.Null(k.RolleIkkeOpprettetGrunn);
 
@@ -224,10 +228,8 @@ public class VirksomhetOgGruppeKiOppdagelseTjenesteTests
         Assert.Equal("foreslatt_av_ai", proveniens.Handling);
         Assert.NotNull(proveniens.AiForslagVersjon);
 
-        // Kandidatens EGEN navnekandidat-status er UENDRET "Venter" — rolletildelingen er et separat,
-        // ubekreftet forslag, den lukker IKKE navnekandidat-kjeden slik et menneskes veiviser-valg gjør.
-        var kandidat = await db.Navnekandidater.SingleAsync(n => n.Id == k.NavnekandidatId);
-        Assert.Equal("Venter", kandidat.Status);
+        // [ENDRET, issue #440] Før: kandidatens egen navnekandidat sto som «Venter». Nå finnes ingen: navnet er kjent.
+        Assert.False(await db.Navnekandidater.AnyAsync(n => n.RettskildeId == rettskildeId));
     }
 
     [Fact]
@@ -397,7 +399,8 @@ public class VirksomhetOgGruppeKiOppdagelseTjenesteTests
         await NyTjeneste(db, svar).KjorOppdagelseAsync(rettskildeId, "system-ki");
         await NyTjeneste(db, svar).KjorOppdagelseAsync(rettskildeId, "system-ki");
 
-        Assert.Single(await db.Navnekandidater.Where(n => n.RettskildeId == rettskildeId).ToListAsync());
+        // [ENDRET, issue #440] Navnet er en kjent aktør og blir ingen navnekandidat (aktørkøens ruting); før: én kandidat, idempotent.
+        Assert.Empty(await db.Navnekandidater.Where(n => n.RettskildeId == rettskildeId).ToListAsync());
         Assert.Single(await db.Strukturkanter.Where(r => r.FraVirksomhetId == fra.Id).ToListAsync());
     }
 

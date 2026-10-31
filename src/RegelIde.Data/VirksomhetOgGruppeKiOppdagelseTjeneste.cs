@@ -19,7 +19,12 @@ public sealed record KiOppdagelseKandidatUtfall(
     Guid? NavnekandidatId, string? NavnekandidatFeil,
     Guid? RolleKantId, string? RolleIkkeOpprettetGrunn,
     Guid? RelasjonKantId, string? RelasjonIkkeOpprettetGrunn,
-    Guid? GruppeAvGruppeKantId, string? GruppeAvGruppeIkkeOpprettetGrunn);
+    Guid? GruppeAvGruppeKantId, string? GruppeAvGruppeIkkeOpprettetGrunn)
+{
+    /// <summary>[Ny, issue #440] Aktørkøens rute for navnet. Annet enn <c>aktorko</c> betyr at ordet er kjent og ikke ble en navnekandidat
+    /// (grunnen står i <see cref="NavnekandidatFeil"/>). Null når forslaget ble forkastet før rutingen (ukjent type, node eller tekst).</summary>
+    public string? AktorkoRute { get; init; }
+}
 
 /// <summary>Resultatet av ett <see cref="VirksomhetOgGruppeKiOppdagelseTjeneste.KjorOppdagelseAsync"/>-kall
 /// — samme "svar + token-forbruk + evt. tom-melding"-form som <see cref="KiForslagResultat{T}"/>, men egen
@@ -320,6 +325,7 @@ public sealed class VirksomhetOgGruppeKiOppdagelseTjeneste(
         // område, bøyningsform av et av dem), blir ikke en ny navnekandidat. Grunnen står i utfallet, så den ikke forsvinner stille. Rolle- og
         // relasjonsforsøkene under kjøres som før: de slår opp den kjente aktøren selv.
         var ruting = Aktorkoregler.Ruter(rutingstabell, faktiskTekst, rettskildeId);
+        var aktorkoRute = ruting.Rute;
         if (ruting.Rute != Aktorkoruter.Aktorko)
         {
             navnekandidatFeil = $"Ikke lagt i navnekandidatkøen: «{faktiskTekst}» er {Aktorkoruter.Tekst(ruting.Rute)} "
@@ -364,7 +370,7 @@ public sealed class VirksomhetOgGruppeKiOppdagelseTjeneste(
 
         return new KiOppdagelseKandidatUtfall(
             k.Type, faktiskTekst, ekteNodeEid, navnekandidatId, navnekandidatFeil,
-            rolleKantId, rolleGrunn, relasjonId, relasjonGrunn, gruppeMedlemskapId, gruppeAvGruppeGrunn);
+            rolleKantId, rolleGrunn, relasjonId, relasjonGrunn, gruppeMedlemskapId, gruppeAvGruppeGrunn) { AktorkoRute = aktorkoRute };
     }
 
     /// <summary>

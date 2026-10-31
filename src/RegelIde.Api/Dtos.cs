@@ -1375,12 +1375,12 @@ public sealed record KiOppdagelseKandidatUtfallDto(
     Guid? NavnekandidatId, string? NavnekandidatFeil,
     Guid? RolleKantId, string? RolleIkkeOpprettetGrunn,
     Guid? RelasjonKantId, string? RelasjonIkkeOpprettetGrunn,
-    Guid? GruppeAvGruppeKantId, string? GruppeAvGruppeIkkeOpprettetGrunn)
+    Guid? GruppeAvGruppeKantId, string? GruppeAvGruppeIkkeOpprettetGrunn, string? AktorkoRute)
 {
     public static KiOppdagelseKandidatUtfallDto FraUtfall(KiOppdagelseKandidatUtfall u) => new(
         u.Type, u.Navn, u.NodeEid, u.NavnekandidatId, u.NavnekandidatFeil,
         u.RolleKantId, u.RolleIkkeOpprettetGrunn, u.RelasjonKantId, u.RelasjonIkkeOpprettetGrunn,
-        u.GruppeAvGruppeKantId, u.GruppeAvGruppeIkkeOpprettetGrunn);
+        u.GruppeAvGruppeKantId, u.GruppeAvGruppeIkkeOpprettetGrunn, u.AktorkoRute);
 }
 
 /// <summary>Samlet resultat for ALLE rettskilder oppgitt i én <see cref="KiOppdagelseRequest"/> — én

@@ -807,7 +807,7 @@ public class NavnekandidatOppdagelseTjenesteTests
     public async Task Godkjenning_av_gruppekandidat_oppretter_ekte_gruppebegrep()
     {
         await using var db = _fixture.NyDbContext();
-        var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Kommunen skal føre tilsyn med dette.");
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Fylkeskommunen skal føre tilsyn med dette.");
 
         var tjeneste = NyTjeneste(db);
         await tjeneste.SveipAsync(rettskildeId, "test");
@@ -820,7 +820,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         Assert.Equal("Kari Jurist", godkjent.BehandletAv);
 
         var gruppebegrep = await db.Begreper.SingleAsync(
-            b => b.Begrepskategori == "klasse" && b.LovkildeId == rettskildeId && b.Term == "kommunen");
+            b => b.Begrepskategori == "klasse" && b.LovkildeId == rettskildeId && b.Term == "fylkeskommunen");
         Assert.Equal("publisert", gruppebegrep.Status);
         // [Rettet, 2026-08-30] LovreferanseEid skal settes til NØYAKTIG kandidatens NodeEid ved
         // godkjenning, slik at gruppebegrepet kan spores tilbake til paragrafen det ble funnet i.
@@ -1067,11 +1067,11 @@ public class NavnekandidatOppdagelseTjenesteTests
     public async Task Gruppekandidat_med_ulik_store_smaa_bokstaver_pa_tvers_av_noder_dedupliseres_til_en_rad()
     {
         await using var db = _fixture.NyDbContext();
-        var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Kommunen skal føre tilsyn med dette.");
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Fylkeskommunen skal føre tilsyn med dette.");
         db.RettskildeNoder.Add(new RettskildeNodeEntitet
         {
             Id = Guid.NewGuid(), RettskildeId = rettskildeId, Eid = $"https://test/{Guid.NewGuid():N}/§2/ledd-1",
-            KildeId = "ledd-1", NodeType = "ledd", Tekst = "I andre saker avgjør kommunen selv.",
+            KildeId = "ledd-1", NodeType = "ledd", Tekst = "I andre saker avgjør fylkeskommunen selv.",
         });
         await db.SaveChangesAsync();
 
@@ -1208,7 +1208,7 @@ public class NavnekandidatOppdagelseTjenesteTests
     {
         await using var db = _fixture.NyDbContext();
         var rettskildeId = await OpprettRettskildeMedNodeAsync(
-            db, "Kommunen skal føre tilsyn, og vedtak kan påklages til Oljedirektoratet innen tre uker.");
+            db, "Fylkeskommunen skal føre tilsyn, og vedtak kan påklages til Oljedirektoratet innen tre uker.");
         var tjeneste = NyTjeneste(db);
         await tjeneste.SveipAsync(rettskildeId, "test");
         var kandidater = await db.Navnekandidater.Where(k => k.RettskildeId == rettskildeId).ToListAsync();
@@ -1308,7 +1308,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         await db.SaveChangesAsync();
 
         var rettskildeId = await OpprettRettskildeMedNodeAsync(
-            db, "Kommunen skal føre tilsyn med dette.", ansvarligDepartement: [departementNavn]);
+            db, "Fylkeskommunen skal føre tilsyn med dette.", ansvarligDepartement: [departementNavn]);
 
         var tjeneste = NyTjeneste(db);
         await tjeneste.SveipAsync(rettskildeId, "test");
@@ -1319,7 +1319,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         Assert.Equal("Godkjent", godkjent!.Status);
 
         var gruppebegrep = await db.Begreper.SingleAsync(
-            b => b.Begrepskategori == "klasse" && b.LovkildeId == rettskildeId && b.Term == "kommunen");
+            b => b.Begrepskategori == "klasse" && b.LovkildeId == rettskildeId && b.Term == "fylkeskommunen");
 
         var tagg = await db.TekstTagger.SingleAsync(t => t.RettskildeId == rettskildeId);
         Assert.Equal(departementVirksomhetId, tagg.VirksomhetId);
@@ -1341,7 +1341,7 @@ public class NavnekandidatOppdagelseTjenesteTests
     public async Task Godkjenning_av_gruppekandidat_uten_kjent_departement_oppretter_ingen_tagg()
     {
         await using var db = _fixture.NyDbContext();
-        var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Kommunen skal føre tilsyn i dette tilfellet.");
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Fylkeskommunen skal føre tilsyn i dette tilfellet.");
 
         var tjeneste = NyTjeneste(db);
         await tjeneste.SveipAsync(rettskildeId, "test");
@@ -1367,7 +1367,7 @@ public class NavnekandidatOppdagelseTjenesteTests
     {
         await using var db = _fixture.NyDbContext();
         var rettskildeId = await OpprettRettskildeMedNodeAsync(
-            db, "Kommunen skal føre tilsyn i denne saken.",
+            db, "Fylkeskommunen skal føre tilsyn i denne saken.",
             ansvarligDepartement: ["Et departement som ikke finnes " + Guid.NewGuid()]);
 
         var tjeneste = NyTjeneste(db);
@@ -1686,10 +1686,13 @@ public class NavnekandidatOppdagelseTjenesteTests
             throw new InvalidOperationException($"Uventet URL: {url}");
         });
 
+        // [ENDRET, issue #440] «kommune» alene er klassen kommune (migrasjonen #384), og aktørkøens ruting legger den ikke i køen.
+        Assert.True(await db.Begreper.AnyAsync(b => b.Id == Klasseregler.KommuneKlasseId && b.Entitetsstatus == "gjeldende"));
         var resultat = await tjeneste.SveipAsync(rettskildeId, "test");
 
-        Assert.Equal(2, resultat.AntallTreffFunnet); // "Myrvang kommune" (virksomhet) + "kommune" alene (gruppe).
-        Assert.Equal(2, resultat.AntallNyeKandidater);
+        Assert.Equal(1, resultat.AntallTreffFunnet); // "Myrvang kommune" (virksomhet); før #440 også "kommune" alene (gruppe).
+        Assert.Equal(1, resultat.AntallNyeKandidater);
+        Assert.Equal(1, resultat.UtenforAktorkoen[Aktorkoruter.KjentBegrep]);
 
         var virksomhetKandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId && k.Kategori == "virksomhet");
         Assert.Equal("Myrvang kommune", virksomhetKandidat.ForeslattTekst);
@@ -1698,9 +1701,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         Assert.Equal("lav", virksomhetKandidat.Konfidens);
         Assert.Equal("ssr_uten_institusjonsord", virksomhetKandidat.KonfidensGrunn);
 
-        var gruppeKandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId && k.Kategori == "gruppe");
-        Assert.Equal("kommune", gruppeKandidat.ForeslattTekst);
-        Assert.Equal("Venter", gruppeKandidat.Status);
+        Assert.False(await db.Navnekandidater.AnyAsync(k => k.RettskildeId == rettskildeId && k.Kategori == "gruppe"));
     }
 
     /// <summary>Scoping-beslutningen (se SveipAsync sin metodekommentar) — "gruppe" (her: en
@@ -1711,7 +1712,7 @@ public class NavnekandidatOppdagelseTjenesteTests
     public async Task SveipAsync_gruppekandidat_sendes_aldri_til_snl_ssr()
     {
         await using var db = _fixture.NyDbContext();
-        var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Det er kommunen som har ansvaret her.");
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Det er fylkeskommunen som har ansvaret her.");
 
         var tjeneste = NyTjenesteMedStubbetOppslag(db, req =>
             throw new InvalidOperationException($"Uventet eksternt SNL/SSR-kall for en 'gruppe'-kandidat: {req.RequestUri}"));
@@ -2038,11 +2039,9 @@ public class NavnekandidatOppdagelseTjenesteTests
         });
 
         var resultat = await tjeneste.SveipAsync(rettskildeId, "test");
-        // 2, ikke 1: "kommune" ALENE er OGSÅ i FasteRollesubstantiv og gir en SEPARAT "gruppe"-treff
-        // ved siden av flerords-fangsten — samme "to treff, to mønstre"-mønster som
-        // Sveip_og_godkjenning_ssr_kommune_via_flerordsmonster-testen over. Filtrer derfor eksplisitt
-        // på ForeslattTekst under, av samme grunn som den testen filtrerer på Kategori.
-        Assert.Equal(2, resultat.AntallNyeKandidater);
+        // [ENDRET, issue #440] 1, ikke 2: "kommune" ALENE er i FasteRollesubstantiv, men er klassen kommune (migrasjonen #384), og
+        // aktørkøens ruting legger den ikke i køen. Filtreringen på ForeslattTekst under står fortsatt.
+        Assert.Equal(1, resultat.AntallNyeKandidater);
 
         var kandidat = await db.Navnekandidater.SingleAsync(
             k => k.RettskildeId == rettskildeId && k.ForeslattTekst == "Suldal kommune");
