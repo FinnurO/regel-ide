@@ -13,6 +13,7 @@ import { TreffidentitetTekst } from '../virksomhet/AktoridentitetVerktoy';
 import { Massehandlingsrad } from '../kandidater/Massehandlingsrad';
 import { useKandidatvalg } from '../kandidater/useKandidatvalg';
 import { STRUKTURKANT_KATEGORI_VISNING, StrukturkantTabell } from './StrukturkantTabell';
+import { AKTORKORUTE_TEKST } from '../kandidater/aktorkorute';
 import { AKTORSTATUS_VISNING, avvisningstekst, grupperPerHjemmel, tillitFor, UTFALL_VISNING, type Hjemmelgruppe } from './forslagsko';
 
 /**
@@ -278,7 +279,9 @@ export function Strukturforslagsko() {
 function Aktorsveiprapport({ rapport, kjorer, onSkrivKandidater }: {
   rapport: AktorsveipRapport; kjorer: boolean; onSkrivKandidater: () => void;
 }) {
-  const ukjente = rapport.aktorer.filter((a) => a.status !== 'kjent' && a.status !== 'flertydig');
+  // [ENDRET, issue #440] Bare navn aktørkøens ruting ikke kjenner, blir navnekandidater (samme regel som tjenesten).
+  const ukjente = rapport.aktorer.filter((a) => a.status !== 'kjent' && a.status !== 'flertydig' && (a.aktorkoRute ?? 'aktorko') === 'aktorko');
+  const kjenteOrd = rapport.aktorer.filter((a) => a.status !== 'kjent' && a.status !== 'flertydig' && a.aktorkoRute && a.aktorkoRute !== 'aktorko');
   function detalj(a: AktorsveipRapport['aktorer'][number]): string {
     const deler: string[] = [];
     if (a.referent) deler.push(`Bundet: ${a.referent.navn}`);
@@ -311,7 +314,9 @@ function Aktorsveiprapport({ rapport, kjorer, onSkrivKandidater }: {
             Legg {ukjente.length} i navnekandidatkøen
           </Button>
           <Metatekst as="span" style={{ margin: 0 }}>
-            Ny aktør, ny navneform og generisk uten binding. Flertydige får ingen kandidat. [#385] For de kjente aktørene registreres samtidig
+            Ny aktør, ny navneform og generisk uten binding, når aktørkøens ruting ikke kjenner ordet (#440).
+            {kjenteOrd.length > 0 && ` ${kjenteOrd.length} er kjente ord (generisk ord, kjent aktør, klasse eller bøyningsform) og legges ikke i køen.`}
+            {' '}Flertydige får ingen kandidat. [#385] For de kjente aktørene registreres samtidig
             navneformen (forslag ved treff via registernavnet), kilden der navnet står og taggen på nøyaktig spenn.
           </Metatekst>
         </div>
@@ -336,7 +341,13 @@ function Aktorsveiprapport({ rapport, kjorer, onSkrivKandidater }: {
               {rapport.aktorer.map((a) => (
                 <Table.Row key={a.aktorId}>
                   <Table.Cell>«{a.tekstform}»</Table.Cell>
-                  <Table.Cell><Tag data-size="sm" data-color="neutral">{AKTORSTATUS_VISNING[a.status]}</Tag></Table.Cell>
+                  <Table.Cell>
+                    <Tag data-size="sm" data-color="neutral">{AKTORSTATUS_VISNING[a.status]}</Tag>
+                    {/* [Ny, issue #440] Hvorfor raden ikke blir en navnekandidat: ordet er kjent for aktørkøens ruting. */}
+                    {a.status !== 'kjent' && a.status !== 'flertydig' && a.aktorkoRute && a.aktorkoRute !== 'aktorko' && (
+                      <Metatekst as="span" style={{ display: 'block' }}>Ikke i køen: {AKTORKORUTE_TEKST[a.aktorkoRute].toLowerCase()}</Metatekst>
+                    )}
+                  </Table.Cell>
                   <Table.Cell>
                     {a.forekomster}
                     {a.lastbareForekomster !== a.forekomster && <Metatekst as="span"> ({a.lastbareForekomster} lastbare)</Metatekst>}

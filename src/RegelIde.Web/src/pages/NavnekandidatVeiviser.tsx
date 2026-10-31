@@ -838,7 +838,8 @@ export default function NavnekandidatVeiviser() {
       <Breadcrumbs data-size="sm" style={{ marginBottom: '0.75rem' }}>
         <Breadcrumbs.List>
           <Breadcrumbs.Item>
-            <Breadcrumbs.Link asChild><RouterLink to="/navnekandidater">Navnekandidater</RouterLink></Breadcrumbs.Link>
+            {/* [ENDRET, issue #440] /navnekandidater omdirigeres til aktørkøen; veiviseren hører til den flate lista (historikk). */}
+            <Breadcrumbs.Link asChild><RouterLink to="/navnekandidater/historikk">Navnekandidater (historikk)</RouterLink></Breadcrumbs.Link>
           </Breadcrumbs.Item>
           <Breadcrumbs.Item>
             <Breadcrumbs.Link aria-current="page">Behandle «{kandidat.foreslattTekst}»</Breadcrumbs.Link>
@@ -899,7 +900,7 @@ export default function NavnekandidatVeiviser() {
                 <RouterLink to={ferdig.gruppeLenke}>Se gruppen og medlemmene ↗</RouterLink>
               </Button>
             )}
-            <Button data-size="sm" variant="tertiary" onClick={() => navigate('/navnekandidater')}>
+            <Button data-size="sm" variant="tertiary" onClick={() => navigate('/navnekandidater/historikk')}>
               Tilbake til navnekandidater
             </Button>
           </div>
@@ -1074,7 +1075,7 @@ export default function NavnekandidatVeiviser() {
                   <Button data-size="sm" onClick={lagreTekst} disabled={lagrerTekst || !tekst.trim()}>
                     {lagrerTekst ? 'Lagrer …' : tekst.trim() === kandidat.foreslattTekst ? 'Teksten er riktig — neste' : 'Lagre rettet tekst'}
                   </Button>
-                  <Button data-size="sm" variant="tertiary" onClick={() => navigate('/navnekandidater')}>Avbryt</Button>
+                  <Button data-size="sm" variant="tertiary" onClick={() => navigate('/navnekandidater/historikk')}>Avbryt</Button>
                 </div>
               )}
             </Card>

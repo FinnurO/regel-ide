@@ -153,6 +153,9 @@ import type {
   VirksomhetWhereUsedDto,
   KiOppdagelseRequest,
   KiOppdagelseSamletResultatDto,
+  AktorkoListe,
+  AktorkoFordeling,
+  AktorkoDetalj,
   KiForslagKoRadDto,
   KoblNavnekandidatTilGruppemedlemskapRequest,
   NavnekandidatGruppemedlemskapResultatDto,
@@ -848,6 +851,11 @@ export const api = {
 
   /** Utelatt status = alle statuser (samme "utelatt = ingen filter"-form som hentNavnekandidater). */
   // [Ny, issue #429] Funn til vurdering.
+  // [Ny, issue #440 PR 1] Aktørkøen — bare lesing.
+  hentAktorko: () => kall<AktorkoListe>('/api/aktorko'),
+  hentAktorkoFordeling: () => kall<AktorkoFordeling>('/api/aktorko/fordeling'),
+  hentAktorkoNavn: (nokkel: string) => kall<AktorkoDetalj>(`/api/aktorko/${encodeURIComponent(nokkel)}`),
+
   hentFunn: (filter: { kategori?: string; status?: string; rettskildeId?: string; virksomhetId?: string } = {}) => {
     const parametre = new URLSearchParams();
     for (const [n, v] of Object.entries(filter)) if (v) parametre.set(n, v);

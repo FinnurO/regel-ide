@@ -7,7 +7,7 @@
 > relasjoner — alle strukturutsagn (relasjoner, medlemskap, rolleinnehav, kompetanse, områder,
 > organtilhørighet, klassenivå) i én typestyrt kanttabell med hjemmel eller kilde utenfor korpus,
 > avgrensning og polaritet (issue #311); begrepene med gruppefunksjon er typet som klasse/rolle/område,
-> virksomheter har en aktørtype, og organer som Stortinget og Kongen i statsråd er virksomheter (#310/#311), en navnekandidat-veiviser som fanger opp alle disse ved sveip AV manuell
+> virksomheter har en aktørtype, og organer som Stortinget og Kongen i statsråd er virksomheter (#310/#311), en aktørkø (`/aktorko`, #440) som viser hvert ukjent navn i lovteksten én gang, med forekomstene per rettskilde og et hjemmelforslag, en navnekandidat-veiviser som fanger opp alle disse ved sveip AV manuell
 > tagging, og en familie KI-forslagstjenester (begrep/tjeneste/handling, alltid med et menneske i
 > godkjenn/avvis-loopen — se `docs/14-byggesteg5-teknisk-design.md`). Se
 > [`docs/00-endringslogg-v0.1.md`](docs/00-endringslogg-v0.1.md),

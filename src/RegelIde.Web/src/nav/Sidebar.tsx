@@ -1,5 +1,7 @@
+import { useEffect, useState } from 'react';
 import { NavLink } from 'react-router';
-import { Dropdown, Label } from '@digdir/designsystemet-react';
+import { Badge, Dropdown, Label } from '@digdir/designsystemet-react';
+import { api } from '../api/client';
 import { useBruker } from '../bruker/BrukerContext';
 import { GlobaltSok } from '../sok/GlobaltSok';
 
@@ -19,6 +21,8 @@ interface NavRad {
   kind: 'lenke';
   to: string;
   label: string;
+  /** [Ny, issue #440] Et tall ved lenken: antall navn i aktørkøen. */
+  teller?: 'aktorko';
 }
 interface KommendeRad {
   kind: 'kommende';
@@ -66,16 +70,20 @@ const GRUPPER: Gruppe[] = [
       { kind: 'lenke', to: '/tjenester/regelverksreferanse-forslag', label: 'Regelverksreferanseforslag' },
       { kind: 'lenke', to: '/tjenester/handlinger/regelverksreferanse-forslag', label: 'Handling-regelverksreferanseforslag' },
       { kind: 'lenke', to: '/begreper/forslag', label: 'KI-forslag begrep' },
-      { kind: 'lenke', to: '/virksomhet-kandidater', label: 'Virksomhetskandidater' },
-      { kind: 'lenke', to: '/navnekandidater', label: 'Navnekandidater' },
+      // [FJERNET, issue #440] «Virksomhetskandidater» og «Navnekandidater»: aktørkøen under «Aktører» er godkjenningsstedet.
+      // /virksomhet-kandidater står som rute; /navnekandidater omdirigeres til køen, og den flate lista står som historikk.
       { kind: 'lenke', to: '/ki-oppdagelse', label: 'Forslagskø: struktur og KI-oppdagelse' },
       { kind: 'lenke', to: '/begrepskandidater', label: 'Begrepskandidater' },
       { kind: 'lenke', to: '/begrep-definisjon-relasjoner', label: 'Relaterte definisjoner' },
     ],
   },
   {
-    heading: 'Virksomhetskatalog',
-    rader: [{ kind: 'lenke', to: '/virksomheter', label: 'Virksomheter' }],
+    // [ENDRET, issue #440] «Virksomhetskatalog» heter «Aktører», slik veiviseren alt sier (docs/09 §40). Aktørkøen har telleren.
+    heading: 'Aktører',
+    rader: [
+      { kind: 'lenke', to: '/virksomheter', label: 'Aktører' },
+      { kind: 'lenke', to: '/aktorko', label: 'Aktørkø', teller: 'aktorko' },
+    ],
   },
   {
     heading: 'Administrasjon',
@@ -113,8 +121,19 @@ function BrukerChip({ navn, meta }: { navn: string; meta: string }) {
   );
 }
 
+/** [Ny, issue #440] Antall navn i aktørkøen, hentet én gang når menyen lastes. Null mens det lastes eller når kallet feiler: da vises
+ * ingen teller (ikke en gjettet 0). */
+function useAktorkoTeller(): number | null {
+  const [antall, setAntall] = useState<number | null>(null);
+  useEffect(() => {
+    api.hentAktorkoFordeling().then((f) => setAntall(f.antallNavn)).catch(() => setAntall(null));
+  }, []);
+  return antall;
+}
+
 export function Sidebar() {
   const { brukere, gjeldendeBruker, velgBruker, laster, ekteInnlogging, innloggingsfeil } = useBruker();
+  const aktorkoTeller = useAktorkoTeller();
 
   return (
     <aside className="sidebar">
@@ -143,6 +162,10 @@ export function Sidebar() {
               ) : (
                 <NavLink key={rad.to} to={rad.to} className={({ isActive }) => `sidebar__item${isActive ? ' aktiv' : ''}`}>
                   {rad.label}
+                  {rad.teller === 'aktorko' && aktorkoTeller !== null && (
+                    <Badge count={aktorkoTeller} maxCount={999} variant="tinted" data-color="neutral" data-size="sm"
+                      aria-label={`${aktorkoTeller} navn i aktørkøen`} style={{ marginLeft: 'auto' }} />
+                  )}
                 </NavLink>
               ),
             )}

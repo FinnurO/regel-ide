@@ -606,7 +606,11 @@ export interface StrukturforslagRapport {
   rettskildeId: string; rettskildeTittel: string; lag: 'monster' | 'ki'; oppdagelseskilde: string; noderLest: number; utsagnTotalt: number;
   perKategori: ForslagKategoritall[];
   ikkeLastetPerArsak: { arsak: string; tekst: string; antall: number; eksempler: ForslagsutfallRad[] }[];
-  uloesteAktorer: { tekstform: string; arsak: string; antallUtsagn: number; navnekandidatId: string | null; treff: string[]; status: Aktorstatus | null }[];
+  uloesteAktorer: {
+    tekstform: string; arsak: string; antallUtsagn: number; navnekandidatId: string | null; treff: string[]; status: Aktorstatus | null;
+    /** [Ny, issue #440] Aktørkøens rute; bare 'aktorko' gir en navnekandidat. */
+    aktorkoRute: Aktorkorute | null;
+  }[];
   rader: ForslagsutfallRad[];
   kiInputTokens: number | null; kiOutputTokens: number | null; kiKastedeRader: number | null;
   /** [Ny, issue #378 A3] Aktørene per status — samme klassifisering som aktørsveipet. */
@@ -743,6 +747,8 @@ export interface KiOppdagelseKandidatUtfallDto {
   relasjonIkkeOpprettetGrunn: string | null;
   gruppeAvGruppeKantId: string | null;
   gruppeAvGruppeIkkeOpprettetGrunn: string | null;
+  /** [Ny, issue #440] Aktørkøens rute for navnet; annet enn 'aktorko' = kjent ord, ingen navnekandidat (grunnen i navnekandidatFeil). */
+  aktorkoRute: Aktorkorute | null;
 }
 
 export interface KiOppdagelseSamletResultatDto {
@@ -1040,6 +1046,8 @@ export interface SveipNavnekandidaterRequest {
 export interface SveipNavnekandidaterResultatDto {
   antallTreffFunnet: number;
   antallNyeKandidater: number;
+  /** [Ny, issue #440] Treff aktørkøens ruting sendte et annet sted, per rute. De ble ikke navnekandidater. */
+  utenforAktorkoen: Partial<Record<Aktorkorute, number>>;
 }
 
 /** Massegodkjenning/-avvisning — egen, ikke delt DTO-familie (se backend-kommentaren på
@@ -2558,6 +2566,8 @@ export interface AktorsveipRad {
   aktorId: string; tekstform: string; varianter: string[]; status: Aktorstatus; forekomster: number; lastbareForekomster: number;
   eidEksempel: string; treff: string[]; kandidater: string[]; antallKandidater: number; generiskNavneformId: string | null;
   bundneForekomster: number; foreslatteBindinger: number; referent: StrukturnodeDto | null; navnekandidatId: string | null;
+  /** [Ny, issue #440] Aktørkøens rute for tekstformen. Bare 'aktorko' legges i navnekandidatkøen. */
+  aktorkoRute: Aktorkorute | null;
 }
 export interface AktorsveipRapport {
   rettskildeId: string; rettskildeTittel: string; lag: 'monster' | 'ki'; noderLest: number; utsagnTotalt: number; aktorerTotalt: number;
@@ -2819,4 +2829,52 @@ export interface NyttFunnInn {
   funnetI?: string | null;
   koblinger: FunnKoblingInn[];
   vurderingspunkter: FunnVurderingspunktInn[];
+}
+
+// ---------- [Ny, issue #440 PR 1] Aktørkøen (bare lesing) — speilet av AktorkoTjeneste i RegelIde.Data ----------
+
+/** Rutene en ventende navnekandidat kan havne i, i den rekkefølgen reglene prøves. Bare 'aktorko' står i køen. */
+export type Aktorkorute = 'generisk' | 'kjent_aktor' | 'kjent_begrep' | 'boyningsform' | 'aktorko';
+
+export interface AktorkoOrdtreff {
+  ord: string; rute: Aktorkorute; forekomster: number;
+  /** Det kjente ordet som traff, i klart språk. Null i aktørkøen. */
+  treff: string | null;
+  /** For en bøyningsform: ordet den ligner, ruten til det ordet og suffikset («+r», «−et»). */
+  ligner: string | null; boyningAvRute: Aktorkorute | null; suffiks: string | null;
+  /** Bare for et eksakt generisk ord. En bøyningsform arver den aldri. */
+  standardregel: string | null;
+}
+export interface AktorkoRutetall {
+  rute: Aktorkorute; tekst: string; forekomster: number; rettskilder: number; ulikeOrd: number; topp: AktorkoOrdtreff[];
+}
+export interface AktorkoFordeling {
+  ventende: number; ruter: AktorkoRutetall[]; antallNavn: number; medFlereForekomster: number; ordIKoen: number; genitivforslag: number;
+  hyppigste: AktorkoOrdtreff[];
+}
+export interface AktorkoSkrivemate { tekst: string; forekomster: number }
+export interface AktorkoVariant {
+  normalisert: string; regel: 'samme_ord' | 'boyning'; boyningAv: string | null; suffiks: string | null; forekomster: number;
+  skrivemater: AktorkoSkrivemate[];
+}
+export interface AktorkoHjemmelforslag {
+  rettskildeId: string; rettskilde: string; kortnavn: string | null; eid: string; bestemmelse: string | null; uttrykk: string;
+  setning: string; treff: string; treffStart: number; kunnskapsstatus: string;
+}
+export interface AktorkoRad {
+  nokkel: string; navn: string; forekomster: number; rettskilder: number; varianter: AktorkoVariant[]; rettskildeIder: string[];
+  hjemmelforslag: number; forsteHjemmelforslag: AktorkoHjemmelforslag | null; genitivforslagInn: number; bareMerknader: boolean;
+}
+export interface AktorkoListe { ventende: number; antallNavn: number; medFlereForekomster: number; navn: AktorkoRad[] }
+export interface AktorkoGenitivforslag { fraNokkel: string; fraVariant: string; tilNokkel: string; etterledd: string; forekomster: number }
+export interface AktorkoForekomst {
+  navnekandidatId: string; tekst: string; eid: string; bestemmelse: string | null;
+  /** Setningen; null når nodeteksten er endret siden sveipet (da vises ikke et gjettet utdrag). */
+  utdrag: string | null; utdragStart: number; erMerknad: boolean; kategori: string; oppdagelseskilde: string | null; konfidens: string | null;
+}
+export interface AktorkoRettskildeForekomster { rettskildeId: string; tittel: string; kortnavn: string | null; forekomster: AktorkoForekomst[] }
+export interface AktorkoDetalj {
+  nokkel: string; navn: string; forekomster: number; varianter: AktorkoVariant[]; genitivforslagInn: AktorkoGenitivforslag[];
+  genitivforslagUt: AktorkoGenitivforslag[]; perRettskilde: AktorkoRettskildeForekomster[]; hjemmelforslag: AktorkoHjemmelforslag[];
+  hjemmelregel: string;
 }

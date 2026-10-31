@@ -40,3 +40,10 @@ case-insensitivt; organer ligger som Virksomhet (Stortinget fra Brreg 971524960,
 dokumentasjon (primaer|sekundaer), begge påkrevd uten hjemmel og NULL med.
 
 **Rekkefølge for migrasjoner (ikke stable, §15):** #310 → #311 → #330 → #312 → #316 (Johann 2026-10-08: #330 før #312).
+
+## Aktørkøen #440 (startet 2026-10-31)
+
+| PR | Gren | Status | Verifisert hvordan |
+|---|---|---|---|
+| PR 1, bare lesing (ruting, gruppering, hjemmelforslag, `GET /api/aktorko*`, siden, menyen, samme ruting i sveipene) | `aktorko-lesing` | **PR åpen, venter på Johann (§19). Ikke merget.** Ingen migrasjon, ingenting skrevet til delt `regelide` (pg_stat før/etter API-oppstart og målinger: uendret) | Data-filtrert 175 (inkl. AK1–AK4), tsc -b --force, vitest, kald API-sjekk og nettleser på 5387/5373 |
+| PR 2, skriving (godkjenning i én transaksjon) | — | Venter på juristrunden på hjemmelregelen | — |

@@ -56,7 +56,7 @@ export default function KiOppdagelseKo() {
         Velg én eller flere rettskilder — agenten leser den faktiske, allerede importerte lovteksten
         FRITT (ikke bare kjente regex-mønstre) og foreslår virksomheter og klasser, roller og områder (er typen usikker, velger du den), pluss rolle/
         relasjon/gruppe-av-gruppe der teksten eksplisitt sier det. Dette er et TILLEGG til det
-        deterministiske <Link asChild><RouterLink to="/navnekandidater">navnekandidat-sveipet</RouterLink></Link>,
+        deterministiske <Link asChild><RouterLink to="/navnekandidater/historikk">navnekandidat-sveipet</RouterLink></Link>,
         ikke en erstatning. Ingenting publiseres uten at et menneske godkjenner det eksplisitt.
       </Paragraph>
 
@@ -82,6 +82,11 @@ export default function KiOppdagelseKo() {
             {sisteKjoring.kandidater.filter((k) => k.rolleKantId).length} rolle(r)/tilhørighet(er),{' '}
             {sisteKjoring.kandidater.filter((k) => k.relasjonKantId).length} relasjon(er),{' '}
             {sisteKjoring.kandidater.filter((k) => k.gruppeAvGruppeKantId).length} gruppe-av-gruppe.
+            {/* [Ny, issue #440] Kjente ord blir ikke navnekandidater (aktørkøens ruting); grunnen står per forslag i navnekandidatFeil. */}
+            {(() => {
+              const kjente = sisteKjoring.kandidater.filter((k) => k.aktorkoRute && k.aktorkoRute !== 'aktorko').length;
+              return kjente > 0 ? ` ${kjente} var kjente ord og ble ikke lagt i køen.` : '';
+            })()}
           </Paragraph>
           {(sisteKjoring.inputTokens !== null || sisteKjoring.outputTokens !== null) && (
             <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>
@@ -90,7 +95,8 @@ export default function KiOppdagelseKo() {
           )}
           <Paragraph style={{ marginTop: '0.5rem' }}>
             Selve navneform-forslagene ligger nå i{' '}
-            <Link asChild><RouterLink to="/navnekandidater?oppdagelsesKilde=ki-fri-sveip">navnekandidat-køen (filtrert på «ki-fri-sveip»)</RouterLink></Link>.
+            <Link asChild><RouterLink to="/aktorko">aktørkøen</RouterLink></Link>, og i den flate{' '}
+            <Link asChild><RouterLink to="/navnekandidater/historikk?oppdagelsesKilde=ki-fri-sveip">navnekandidat-lista (filtrert på «ki-fri-sveip»)</RouterLink></Link>.
           </Paragraph>
         </div>
       )}

@@ -26,6 +26,7 @@ import { RettskildeVelger } from '../rettskilde/RettskildeVelger';
 import { useKonfigurasjon } from '../konfigurasjon/KonfigurasjonContext';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 import { GeneriskKildeTagger, generiskKildeTekst } from '../kandidater/GeneriskKilde';
+import { utenforAktorkoenTekst } from '../kandidater/aktorkorute';
 import { NavneformgrunnTag } from '../virksomhet/Navneformgrunn';
 import { finnHovedledd } from '../virksomhet/navneformKjede';
 import { RaaTekstMedLenker } from '../rettskilde/RaaTekstMedLenker';
@@ -336,7 +337,7 @@ export default function RettskildeDetalj() {
   // trigge det på uten å bytte side og lete opp riktig rettskilde i en nedtrekksliste der.
   const [sveiper, setSveiper] = useState(false);
   const [sveipFeil, setSveipFeil] = useState<string | null>(null);
-  const [sveipResultat, setSveipResultat] = useState<{ funnet: number; nye: number } | null>(null);
+  const [sveipResultat, setSveipResultat] = useState<{ funnet: number; nye: number; utenfor: string | null } | null>(null);
 
   async function kjorSveip() {
     if (!id) return;
@@ -345,7 +346,9 @@ export default function RettskildeDetalj() {
     setSveipResultat(null);
     try {
       const resultat = await api.sveipNavnekandidater({ rettskildeId: id });
-      setSveipResultat({ funnet: resultat.antallTreffFunnet, nye: resultat.antallNyeKandidater });
+      setSveipResultat({
+        funnet: resultat.antallTreffFunnet, nye: resultat.antallNyeKandidater, utenfor: utenforAktorkoenTekst(resultat.utenforAktorkoen),
+      });
     } catch (err) {
       setSveipFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved sveip.');
     } finally {
@@ -1089,7 +1092,9 @@ export default function RettskildeDetalj() {
       {sveipResultat && (
         <Alert data-color="info" style={{ marginBottom: '1rem' }}>
           Fant {sveipResultat.funnet} treff, {sveipResultat.nye} nye kandidater lagt i køen.{' '}
-          <Link asChild><RouterLink to={`/navnekandidater?rettskildeId=${id}`}>Se navnekandidater ↗</RouterLink></Link>
+          {sveipResultat.utenfor && <>{sveipResultat.utenfor}{' '}</>}
+          {/* [ENDRET, issue #440] Aktørkøen, filtrert på rettskilden (før: den flate navnekandidatlista). */}
+          <Link asChild><RouterLink to={`/aktorko?rettskildeId=${id}`}>Se aktørkøen for rettskilden ↗</RouterLink></Link>
         </Alert>
       )}
       {visAknXml && (
