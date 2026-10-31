@@ -222,6 +222,65 @@ public class GeneriskNavneformTjenesteTests
         Assert.Equal(2, rapport.AktorerPerStatus.Single(p => p.Status == Aktorstatus.Kjent).Antall);
     }
 
+    /// <summary>
+    /// [Ny, issue #440, Johanns avgjørelse 2026-10-31] «Kan et generisk ord uten binding fortsatt behandles fra aktørsveipet, mens andre
+    /// kjente ord holdes utenfor?» PR #444 sluttet å legge generiske ord i navnekandidatkøen, og «Behandle»-lenken til én-skjermen (docs/09
+    /// §42) forsvant. Nå: generisk ord uten binding → navnekandidat (lenken står); ukjent navn → navnekandidat; bøyningsform av det generiske
+    /// ordet og av en kjent klasse → ingen. Lasteren er uendret: der gir det generiske ordet fortsatt ingen navnekandidat.
+    /// Egen rettskilde med egne ord (bare bokstaver), fordi testsamlingen deler database og rutingen deler ord i bokstaver.
+    /// </summary>
+    [Fact]
+    public async Task Aktorsveip_legger_generisk_ord_uten_binding_i_navnekandidatkoen_men_ikke_andre_kjente_ord()
+    {
+        await using var db = _fixture.NyDbContext();
+        await Strukturkanter.SeedStartsettAsync(db);
+        static string Unik(string s) => s + new string(Guid.NewGuid().ToString("N")[..10].Select(c => (char)('a' + Convert.ToInt32(c.ToString(), 16))).ToArray());
+        var generiskOrd = Unik("styret");
+        var ukjent = Unik("Sveipnemnda");
+        var klasse = Unik("tilsynsorgan");
+        var tekst = $"Etter loven gir {generiskOrd} råd. {ukjent} avgjør saken. Alle {generiskOrd}ene møtes. {klasse}ene fører tilsyn.";
+        var rettskildeId = Guid.NewGuid();
+        db.Rettskilder.Add(new RettskildeEntitet
+        {
+            Id = rettskildeId, Doctype = "doc", Kildetype = "Lov", Status = "Gjeldende", Importrolle = "referanse", Tittel = "Sveiplov " + rettskildeId,
+            OpprettetAv = "Test", OpprettetTidspunkt = DateTimeOffset.UtcNow,
+        });
+        db.RettskildeNoder.Add(new RettskildeNodeEntitet
+        {
+            Id = Guid.NewGuid(), RettskildeId = rettskildeId, Eid = "kapittel-1/paragraf-1/ledd-1", KildeId = "kapittel-1/paragraf-1/ledd-1",
+            NodeType = "ledd", Tekst = tekst, Sorteringsrekkefolge = 0,
+        });
+        db.Begreper.Add(new BegrepEntitet { Id = Guid.NewGuid(), Begrepskategori = "klasse", Term = klasse, Status = "publisert", OpprettetAv = "Test" });
+        await db.SaveChangesAsync();
+        await new GeneriskNavneformTjeneste(db).OpprettEllerFinnAsync(generiskOrd, "Test");   // generisk, uten binding
+
+        StrukturAktor A(string id, string t) => new(id, t, [], [], 1, null, null, null, null, null, null);
+        StrukturUtsagn U(string id, string fra) => new(id, "kapittel-1/paragraf-1/ledd-1", "sitat " + id, "kompetanse", "vedtakskompetanse", fra,
+            null, "saken", "positiv", null, null, null, null, null) { Oppdagelseskilde = "monster:test" };
+        var dok = new Strukturdokument("Sveiplov", "eli", [], "test", 1,
+            [A("a1", generiskOrd), A("a2", ukjent), A("a3", generiskOrd + "ene"), A("a4", klasse + "ene")],
+            [U("u1", "a1"), U("u2", "a2"), U("u3", "a3"), U("u4", "a4")]);
+
+        var sveip = await NyLaster(db).AktorsveipAsync(rettskildeId, dok, "monster", skrivNavnekandidater: true, "Test");
+        AktorsveipRad Rad(string id) => sveip.Aktorer.Single(r => r.AktorId == id);
+
+        Assert.Equal((Aktorstatus.Generisk, Aktorkoruter.Generisk), (Rad("a1").Status, Rad("a1").AktorkoRute));
+        var generiskKandidat = Assert.NotNull(Rad("a1").NavnekandidatId);                    // unntaket: «Behandle» står
+        Assert.Equal(generiskOrd, (await db.Navnekandidater.SingleAsync(k => k.Id == generiskKandidat)).ForeslattTekst);
+        Assert.Equal(Aktorkoruter.Aktorko, Rad("a2").AktorkoRute);
+        Assert.NotNull(Rad("a2").NavnekandidatId);                                             // ukjent navn, som før
+        Assert.Equal(Aktorkoruter.Boyningsform, Rad("a3").AktorkoRute);
+        Assert.Null(Rad("a3").NavnekandidatId);                                                // bøyningsform arver aldri unntaket
+        Assert.Equal(Aktorkoruter.Boyningsform, Rad("a4").AktorkoRute);
+        Assert.Null(Rad("a4").NavnekandidatId);                                                // kjent klasse holdes utenfor
+        Assert.Equal(2, await db.Navnekandidater.CountAsync(k => k.RettskildeId == rettskildeId));
+
+        // Unntaket gjelder bare aktørsveipet: lasteren gir det generiske ordet ingen navnekandidat (rutingen fra #440 står).
+        var rapport = await NyLaster(db).LastAsync(rettskildeId, dok, "monster", "monster:ukjent", "Test");
+        var uloestGenerisk = rapport.UloesteAktorer.Single(a => a.Tekstform == generiskOrd);
+        Assert.Equal((Forslagsarsak.AktorGeneriskUtenBinding, (Guid?)null), (uloestGenerisk.Arsak, uloestGenerisk.NavnekandidatId));
+    }
+
     [Fact]
     public async Task Marker_som_generisk_med_binding_godkjenner_kandidaten()
     {

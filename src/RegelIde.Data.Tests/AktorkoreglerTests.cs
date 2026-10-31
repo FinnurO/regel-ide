@@ -1,3 +1,5 @@
+using RegelIde.Data.Strukturkonvertering;
+
 namespace RegelIde.Data.Tests;
 
 /// <summary>
@@ -246,5 +248,31 @@ public class AktorkoreglerTests
     {
         var noder = new[] { new HjemmelNode(Barnehageloven, "https://test/§1/ledd-1", "Det opprettes et register. Forliksrådet fører det.", false, 1) };
         Assert.Empty(Aktorkoregler.FinnHjemmelforslag(["forliksrådet"], noder));
+    }
+
+    /// <summary>
+    /// [Ny, issue #440, Johanns avgjørelse 2026-10-31] Aktørsveipet: bare navn aktørkøen ikke kjenner blir navnekandidater, med ÉTT unntak —
+    /// et generisk ord uten binding («kommunen»), så «Behandle»-lenken til én-skjermen for generisk omtale (docs/09 §42) står igjen.
+    /// Spørsmålet: «Kan et generisk ord uten binding fortsatt behandles fra aktørsveipet, uten at andre kjente ord slipper inn?»
+    /// </summary>
+    [Theory]
+    [InlineData(Aktorstatus.Generisk, Aktorkoruter.Generisk, true)]                     // unntaket: «kommunen» uten binding
+    [InlineData(Aktorstatus.NyAktor, Aktorkoruter.Aktorko, true)]
+    [InlineData(Aktorstatus.NyNavneformForKjentAktor, Aktorkoruter.Aktorko, true)]
+    [InlineData(Aktorstatus.Generisk, Aktorkoruter.Aktorko, true)]
+    [InlineData(Aktorstatus.Generisk, null, false)]                                     // ingen rute, ingen gjetting
+    [InlineData(Aktorstatus.NyAktor, Aktorkoruter.Generisk, false)]                    // bare status OG rute sammen gir unntaket
+    [InlineData(Aktorstatus.Generisk, Aktorkoruter.Boyningsform, false)]              // bøyningsform arver aldri regelen
+    [InlineData(Aktorstatus.NyAktor, Aktorkoruter.Boyningsform, false)]               // «kommunene» utenfor
+    [InlineData(Aktorstatus.NyNavneformForKjentAktor, Aktorkoruter.KjentAktor, false)]
+    [InlineData(Aktorstatus.NyAktor, Aktorkoruter.KjentBegrep, false)]
+    [InlineData(Aktorstatus.Kjent, Aktorkoruter.Aktorko, false)]
+    [InlineData(Aktorstatus.Kjent, Aktorkoruter.Generisk, false)]                      // bundet: kjent, ingen kandidat
+    [InlineData(Aktorstatus.Flertydig, Aktorkoruter.Generisk, false)]
+    [InlineData(Aktorstatus.Flertydig, Aktorkoruter.Aktorko, false)]
+    public void Aktorsveipet_legger_bare_ukjente_navn_og_generiske_ord_uten_binding_i_navnekandidatkoen(string status, string? rute, bool forventet)
+    {
+        Assert.Equal(forventet, AktorsveipRad.BlirNavnekandidat(status, rute));
+        Assert.Equal(status == Aktorstatus.Generisk && rute == Aktorkoruter.Generisk, AktorsveipRad.ErGeneriskOrdUtenBinding(status, rute));
     }
 }
