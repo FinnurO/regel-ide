@@ -122,21 +122,35 @@ export function FunnTekst({ tekst }: { tekst: string }) {
  * øyeblikksbildet når funnet er godkjent). Rekkefølgen og ordene følger nettsiden (nettside/funn/index.html), så det Johann godkjenner
  * her, er det leseren ser der.
  */
-export function OffentligFunn({ funn }: { funn: FunnOffentlig }) {
+/**
+ * `modus` styrer bare metalinjen: et funn som ikke er godkjent, skal aldri se godkjent ut i forhåndsvisningen (rettet i kaldsjekken
+ * 2026-10-30 — `godkjentDato` i forhåndsvisningen er dagens dato, ikke en godkjenning). `etterfolgerIkkeVurdert` gir «Etterfølger ikke
+ * vurdert» i stedet for navnet når premissporten stopper funnet på etterfølgerkanten (Johanns avgjørelse 2026-10-30).
+ */
+export function OffentligFunn({ funn, modus, etterfolgerIkkeVurdert = false }: {
+  funn: FunnOffentlig;
+  modus: 'godkjent' | 'forhandsvisning' | 'til-godkjenning';
+  etterfolgerIkkeVurdert?: boolean;
+}) {
+  const statuslinje = modus === 'godkjent'
+    ? `Godkjent for publisering ${funn.godkjentDato}`
+    : modus === 'til-godkjenning' ? `Godkjennes for publisering ${funn.godkjentDato}` : 'Ikke godkjent for publisering';
   return (
     <div>
       <Heading level={3} data-size="xs" style={{ marginBottom: '0.4rem' }}>{funn.tittel}</Heading>
       <Metatekst style={{ margin: '0 0 0.6rem' }}>
         {KATEGORI_TEKST[funn.kategori]}
         {funn.undertype ? ` (${(UNDERTYPE_TEKST[funn.undertype] ?? funn.undertype).toLowerCase()})` : ''}
-        {' · '}Godkjent for publisering {funn.godkjentDato}
+        {' · '}{statuslinje}
         {funn.juristvurdertAvKi ? ' · Juristvurdert av KI-agent, ikke kontrollert av menneskelig jurist' : ''}
       </Metatekst>
       <FunnTekst tekst={funn.beskrivelse} />
       {funn.kategori === 'utgatt_aktor' && (
         <Paragraph data-size="sm">
           <strong>Etterfølger:</strong>{' '}
-          {funn.etterfolgere.length > 0 ? funn.etterfolgere.map((e) => e.etikett).join(', ') : 'ukjent'}
+          {etterfolgerIkkeVurdert
+            ? 'ikke vurdert'
+            : funn.etterfolgere.length > 0 ? funn.etterfolgere.map((e) => e.etikett).join(', ') : 'ukjent'}
         </Paragraph>
       )}
       {funn.bortforklaringer.length > 0 && (

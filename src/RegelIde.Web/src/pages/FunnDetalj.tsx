@@ -80,6 +80,7 @@ export default function FunnDetalj() {
   const kilder = funn.koblinger.filter((k) => k.rolle === 'kilde');
   const punkter = (type: string) => funn.vurderingspunkter.filter((p) => p.type === type);
   const kanBehandles = funn.status === 'oppdaget' || funn.status === 'juristvurdert';
+  const etterfolgerIkkeVurdert = funn.premissmangler.some((m) => m.startsWith('Etterfølger ikke vurdert'));
 
   function juristvurder() {
     const eksisterende: FunnVurderingspunktInn[] = funn!.vurderingspunkter.map((p) => ({
@@ -221,10 +222,11 @@ export default function FunnDetalj() {
           {kanBehandles && (
             <div style={{ display: 'grid', gap: '0.75rem', maxWidth: '44rem', marginTop: '0.5rem' }}>
               <Heading level={3} data-size="xs">Juristvurdering</Heading>
+              {/* [ENDRET, kaldsjekken 2026-10-30] To felt, ikke ett Field med to input: Designsystemet advarte i konsollen. */}
+              <Textfield data-size="sm" label="Ny prøvd bortforklaring: overskrift (valgfri, for eksempel «Lex posterior»)"
+                value={nyBortforklaringOverskrift} onChange={(e) => setNyBortforklaringOverskrift(e.target.value)} />
               <Field>
-                <Label>Prøvd bortforklaring (valgfri, legges til de over)</Label>
-                <Textfield data-size="sm" aria-label="Overskrift" placeholder="Overskrift, for eksempel «Lex posterior»" value={nyBortforklaringOverskrift}
-                  onChange={(e) => setNyBortforklaringOverskrift(e.target.value)} />
+                <Label>Ny prøvd bortforklaring: hva som ble prøvd, og resultatet (valgfri, legges til de over)</Label>
                 <Textarea data-size="sm" rows={2} value={nyBortforklaring} onChange={(e) => setNyBortforklaring(e.target.value)} />
               </Field>
               <Field>
@@ -291,7 +293,8 @@ export default function FunnDetalj() {
                 ? 'Det frosne innholdet som ble godkjent. Endres det offentlige innholdet, går funnet tilbake til juristvurdert.'
                 : 'Forhåndsvisning. Ingenting publiseres før funnet er godkjent for publisering.'}
             </Metatekst>
-            <OffentligFunn funn={funn.forhandsvisning} />
+            <OffentligFunn funn={funn.forhandsvisning} modus={funn.status === 'godkjent_for_publisering' ? 'godkjent' : 'forhandsvisning'}
+              etterfolgerIkkeVurdert={etterfolgerIkkeVurdert} />
           </Card>
         )}
       </div>
@@ -308,7 +311,7 @@ export default function FunnDetalj() {
           </Paragraph>
           {bekreft === 'godkjenn' && funn.forhandsvisning && (
             <div style={{ border: '1px solid var(--ds-color-neutral-border-subtle)', borderRadius: 'var(--ds-border-radius-md)', padding: '0.75rem' }}>
-              <OffentligFunn funn={funn.forhandsvisning} />
+              <OffentligFunn funn={funn.forhandsvisning} modus="til-godkjenning" />
             </div>
           )}
         </Dialog.Block>

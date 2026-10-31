@@ -1332,6 +1332,8 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
 - **Godkjenning for publisering og tilbaketrekking** bekreftes i en `Dialog` som viser nøyaktig teksten som publiseres (§14, kritiske
   overganger). Knappen vises bare for publiseringsansvarlige; andre ser `Metatekst` om hvem som kan godkjenne, og om lista er tom.
 - **Forhåndsvisningen** («Slik blir det på nettsiden») bygges av det samme objektet eksporten skriver, aldri av en egen mal.
-  `nettside/funn/index.html` følger samme rekkefølge og ord.
+  `nettside/funn/index.html` følger samme rekkefølge og ord. [ENDRET, kaldsjekken 2026-10-30] Metalinjen sier «Ikke godkjent for
+  publisering» før godkjenning og «Godkjennes for publisering <dato>» i dialogen — et funn som ikke er godkjent, skal aldri se godkjent
+  ut. Stopper premissporten på etterfølgerkanten, står «Etterfølger: ikke vurdert» i forhåndsvisningen, ikke navnet.
 - **Rettskildesiden:** gruppen «Funn til vurdering (N)» i kontekstpanelet. Aktørsiden er ikke endret i PR 1, fordi en annen sak skal
   omarbeide den.

@@ -311,7 +311,7 @@ public sealed class FunnTjeneste(RegelIdeDbContext db)
             }
             else if (godkjenning.Godkjenning is not { } g || !vurdert.Contains(g))
             {
-                mangler.Add($"Navneformen «{k.Etikett}» er ikke faglig vurdert ({godkjenning.Godkjenning ?? "ikke vurdert"}).");
+                mangler.Add($"Navneformen «{k.Etikett}» er ikke faglig vurdert ({GodkjenningTekst(godkjenning.Godkjenning)}).");
             }
         }
         foreach (var k in funn.Koblinger.Where(k => k.Rolle == Funn.Etterfolger).OrderBy(k => k.Sortering))
@@ -321,11 +321,22 @@ public sealed class FunnTjeneste(RegelIdeDbContext db)
                 : null;
             if (status is null || !vurdert.Contains(status))
             {
-                mangler.Add($"Etterfølger ikke vurdert: «{k.Etikett}» ({status ?? "kanten finnes ikke lenger"}).");
+                mangler.Add($"Etterfølger ikke vurdert: «{k.Etikett}» ({(status is null ? "kanten finnes ikke lenger" : GodkjenningTekst(status))}).");
             }
         }
         return mangler;
     }
+
+    /// <summary>[ENDRET, kaldsjekken 2026-10-30] Godkjenningen i klartekst i premissmanglene, ikke den rå kodeverdien.</summary>
+    private static string GodkjenningTekst(string? godkjenning) => godkjenning switch
+    {
+        null => "ikke vurdert",
+        "maskinelt_foreslatt" => "maskinelt foreslått",
+        "manuelt_foreslatt" => "manuelt foreslått",
+        "faglig_vurdert" => "faglig vurdert",
+        "avvist" => "avvist",
+        _ => godkjenning,
+    };
 
     /// <summary>
     /// Eksporten til nettsiden: bare funn med status <c>godkjent_for_publisering</c>, og bare det frosne øyeblikksbildet. Hashen
