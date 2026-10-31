@@ -2711,7 +2711,9 @@ export interface VeivisergrunnlagFelt {
 // [Ny, issue #429 «Funn til vurdering», 2026-10-30] Registeret — se FunnEndepunkter.cs og Funn.cs på serveren.
 export type FunnKategori = 'utgatt_aktor' | 'mulig_motstrid' | 'uklarhet_hull';
 export type FunnStatus = 'oppdaget' | 'juristvurdert' | 'godkjent_for_publisering' | 'forklart_bort';
-export type FunnKoblingsrolle = 'gjelder_bestemmelse' | 'motstridende_bestemmelse' | 'berort_aktor' | 'navneform' | 'etterfolger' | 'kilde';
+// [ENDRET, #429 PR 2] 'malvedtak': vedtaket et endringsvedtak endrer, når det er entydig.
+export type FunnKoblingsrolle = 'gjelder_bestemmelse' | 'motstridende_bestemmelse' | 'berort_aktor' | 'navneform' | 'etterfolger' | 'kilde'
+  | 'malvedtak';
 export type FunnVurderingspunktType = 'bortforklaring_provd' | 'vurdering' | 'ikke_avgjort';
 
 export interface FunnKoblingDto {
@@ -2729,6 +2731,8 @@ export interface FunnKoblingDto {
   strukturkantId: string | null;
   kildefeilId: string | null;
   eksternLenke: string | null;
+  /** [Ny, #429 PR 2] Ordet slik det står i noden, for bestemmelser maskinregelen fant (som `quoteExact` på en tagg). */
+  quoteExact: string | null;
 }
 
 export interface FunnVurderingspunktDto {
