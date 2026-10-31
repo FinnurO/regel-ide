@@ -294,7 +294,7 @@ public class AdministrasjonLovdataResynkEndepunktTests
     // MOTSATT av issuets egen "fullautomatisk"-anbefaling — se Program.cs-endepunktets kommentar.
 
     /// <summary>Seeder én delt/nasjonal, gjeldende rettskilde med tekst som treffer det FASTE
-    /// gruppe-mønsteret ("Stortinget", se NavnekandidatOppdagelseTjeneste.FasteRollesubstantiv) —
+    /// gruppe-mønsteret ("fylkeskommunen" [ENDRET, #440: før «Stortinget», nå en kjent aktør], se NavnekandidatOppdagelseTjeneste.FasteRollesubstantiv) —
     /// "gruppe"-treff klassifiseres ALDRI mot SNL/SSR (se den klassens kommentar), så sveipet gir et
     /// deterministisk, nettverksfritt resultat i testen.</summary>
     private static async Task<Guid> NyGjeldendeRettskildeMedGruppetreffAsync(RegelIdeDbContext db)
@@ -308,7 +308,7 @@ public class AdministrasjonLovdataResynkEndepunktTests
         db.RettskildeNoder.Add(new RettskildeNodeEntitet
         {
             Id = Guid.NewGuid(), RettskildeId = rettskildeId, Eid = $"https://test/{rettskildeId:N}/§1/ledd-1",
-            KildeId = "ledd-1", NodeType = "ledd", Tekst = "Loven forvaltes av Stortinget.",
+            KildeId = "ledd-1", NodeType = "ledd", Tekst = "Loven forvaltes av fylkeskommunen.",
         });
         await db.SaveChangesAsync();
         return rettskildeId;
@@ -388,7 +388,8 @@ public class AdministrasjonLovdataResynkEndepunktTests
         var resultat = await svar.Content.ReadFromJsonAsync<KjorNyeKilderSveipResultatDto>(JsonInnstillinger);
         Assert.Equal(1, resultat!.AntallRettskilderForsokt);
         Assert.Equal(0, resultat.AntallRettskilderHoppetOver);
-        Assert.True(resultat.AntallTreffFunnet > 0, "'Stortinget' skulle vært funnet av det faste gruppe-mønsteret.");
+        // [ENDRET, issue #440] «Stortinget» er en kjent aktør (seeden) og blir ikke lenger en navnekandidat; «fylkeskommunen» er ukjent.
+        Assert.True(resultat.AntallTreffFunnet > 0, "'fylkeskommunen' skulle vært funnet av det faste gruppe-mønsteret.");
         Assert.True(resultat.AntallNyeKandidater > 0);
 
         // GET / (historikklisten) skal nå vise varslingsraden som BEHANDLET -- se AdministrasjonLovdataResynk.tsx.

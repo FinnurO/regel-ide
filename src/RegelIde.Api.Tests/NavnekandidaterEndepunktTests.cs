@@ -68,6 +68,11 @@ public class NavnekandidaterEndepunktTests
     /// wizard-testene og setter inn kandidatraden DIREKTE — uten å gå gjennom sveipet.
     ///
     /// <para>
+    /// [ENDRET, issue #440] Sveipene bruker aktørkøens ruting: et registernavn («FISKERIDIREKTORATET» fra organisasjonsseeden) og klassen
+    /// «kommune» (bøyningen «kommunen») er kjente ord og blir ikke navnekandidater. Sveiptestene bruker derfor «Kystklagedirektoratet» og
+    /// «Fylkeskommunen», som ingen seed kjenner.
+    /// </para>
+    /// <para>
     /// Dette er ikke en snarvei, det er nødvendig isolasjon. <see cref="EmbeddedPostgresApiFixture"/>
     /// deles av HELE testkollektivet, og <c>SveipAsync</c> filtrerer bort treff som allerede er
     /// «dekket» av et eksisterende <see cref="BegrepEntitet"/>. Wizard-testene her OPPRETTER nettopp
@@ -167,7 +172,7 @@ public class NavnekandidaterEndepunktTests
     public async Task Sveip_godkjenning_og_avvisning_ende_til_ende_for_gruppekandidat()
     {
         var brukerId = await HentJuristIdAsync();
-        var rettskildeId = await OpprettRettskildeMedNodeAsync("Kommunen skal føre tilsyn med dette.");
+        var rettskildeId = await OpprettRettskildeMedNodeAsync("Fylkeskommunen skal føre tilsyn med dette.");
 
         var sveipSvar = await _client.SendAsync(
             MedBruker(HttpMethod.Post, "/api/navnekandidater/sveip", brukerId, new { RettskildeId = rettskildeId }));
@@ -179,7 +184,7 @@ public class NavnekandidaterEndepunktTests
             $"/api/navnekandidater?rettskildeId={rettskildeId}", JsonInnstillinger);
         var kandidat = Assert.Single(listeSvar!);
         Assert.Equal("gruppe", kandidat.Kategori);
-        Assert.Equal("kommunen", kandidat.ForeslattTekst);
+        Assert.Equal("fylkeskommunen", kandidat.ForeslattTekst);
         Assert.Equal("Venter", kandidat.Status);
 
         // [ENDRET, issue #310] En 'gruppe'-kandidat har uavklart nodetype — uten ?nodetype= avvises
@@ -196,7 +201,7 @@ public class NavnekandidaterEndepunktTests
         // Gruppebegrepet skal nå faktisk finnes i databasen (docs/20 §2.4-identitet: Term+LovkildeId).
         await using var db = _fixture.NyDbContext();
         var gruppebegrep = await db.Begreper.SingleOrDefaultAsync(
-            b => b.Begrepskategori == "klasse" && b.LovkildeId == rettskildeId && b.Term == "kommunen");
+            b => b.Begrepskategori == "klasse" && b.LovkildeId == rettskildeId && b.Term == "fylkeskommunen");
         Assert.NotNull(gruppebegrep);
 
         // Kandidaten er allerede Godkjent — et nytt godkjenn-forsøk skal feile (kun 'Venter' kan behandles).
@@ -209,7 +214,7 @@ public class NavnekandidaterEndepunktTests
     public async Task Sveip_og_avvisning_av_virksomhetskandidat_oppretter_intet_begrep()
     {
         var brukerId = await HentJuristIdAsync();
-        var rettskildeId = await OpprettRettskildeMedNodeAsync("Vedtak kan påklages til Fiskeridirektoratet innen tre uker.");
+        var rettskildeId = await OpprettRettskildeMedNodeAsync("Vedtak kan påklages til Kystklagedirektoratet innen tre uker.");
 
         await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/navnekandidater/sveip", brukerId, new { RettskildeId = rettskildeId }));
         var listeSvar = await _client.GetFromJsonAsync<List<NavnekandidatDto>>(
@@ -242,7 +247,7 @@ public class NavnekandidaterEndepunktTests
         // [Restrukturert, 2026-09-03] "Kommunen" i stedet for det gamle suffiksmønsterets "havnetilsynet"
         // — se Sveip_godkjenning_og_avvisning_ende_til_ende_for_gruppekandidat sin kommentar.
         var rettskildeId = await OpprettRettskildeMedNodeAsync(
-            "Kommunen skal føre tilsyn, og vedtak kan påklages til Fiskeridirektoratet innen tre uker.");
+            "Fylkeskommunen skal føre tilsyn, og vedtak kan påklages til Kystklagedirektoratet innen tre uker.");
         await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/navnekandidater/sveip", brukerId, new { RettskildeId = rettskildeId }));
 
         var listeSvar = await _client.GetFromJsonAsync<List<NavnekandidatDto>>(
@@ -270,7 +275,7 @@ public class NavnekandidaterEndepunktTests
         // batchen ruller IKKE bare status, den kaller den faktiske GodkjennAsync-forgreiningen per rad.
         await using var db = _fixture.NyDbContext();
         var gruppebegrep = await db.Begreper.SingleOrDefaultAsync(
-            b => b.Begrepskategori == "klasse" && b.LovkildeId == rettskildeId && b.Term == "kommunen");
+            b => b.Begrepskategori == "klasse" && b.LovkildeId == rettskildeId && b.Term == "fylkeskommunen");
         Assert.NotNull(gruppebegrep);
     }
 
@@ -278,7 +283,7 @@ public class NavnekandidaterEndepunktTests
     public async Task Avvis_batch_rapporterer_ukjent_id_som_feilet_rad_uten_a_rulle_tilbake_den_gyldige()
     {
         var brukerId = await HentJuristIdAsync();
-        var rettskildeId = await OpprettRettskildeMedNodeAsync("Vedtak kan påklages til Fiskeridirektoratet innen tre uker.");
+        var rettskildeId = await OpprettRettskildeMedNodeAsync("Vedtak kan påklages til Kystklagedirektoratet innen tre uker.");
         await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/navnekandidater/sveip", brukerId, new { RettskildeId = rettskildeId }));
 
         var listeSvar = await _client.GetFromJsonAsync<List<NavnekandidatDto>>(
@@ -479,7 +484,7 @@ public class NavnekandidaterEndepunktTests
     public async Task Slett_enkeltrad_fjerner_kandidaten_faktisk()
     {
         var brukerId = await HentJuristIdAsync();
-        var rettskildeId = await OpprettRettskildeMedNodeAsync("Vedtak kan påklages til Fiskeridirektoratet innen tre uker.");
+        var rettskildeId = await OpprettRettskildeMedNodeAsync("Vedtak kan påklages til Kystklagedirektoratet innen tre uker.");
         await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/navnekandidater/sveip", brukerId, new { RettskildeId = rettskildeId }));
         var listeSvar = await _client.GetFromJsonAsync<List<NavnekandidatDto>>(
             $"/api/navnekandidater?rettskildeId={rettskildeId}", JsonInnstillinger);
