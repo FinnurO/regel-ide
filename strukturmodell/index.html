@@ -44,6 +44,7 @@
       <a href="../strukturmodell/" aria-current="page">Strukturmodellen</a>
       <a href="../funn/">Funn til vurdering</a>
       <a href="../profil/">Profilforslag</a>
+      <a href="../pilot-barnehageloven/">Pilot</a>
       <a href="../begreper/">Begreper</a>
       <a href="../om/">Om</a>
     </nav>
@@ -88,6 +89,8 @@
         <li><a href="#nytt-ikke-gjett">«Ikke gjett» i praksis</a></li>
         <li><a href="#nytt-tall">Tallene så langt</a></li>
         <li><a href="#departementet">Hvem er «departementet»?</a></li>
+        <li><a href="#nytt-pilot">Etter piloten på barnehageloven</a></li>
+        <li><a href="#aktorkoen">Aktørkøen</a></li>
       </ul>
     </div>
   </section>
@@ -482,7 +485,7 @@
       <div class="prose struktur-etter-tabell">
         <h3>Det hver kobling alltid har med seg</h3>
         <ul>
-          <li><strong>Hjemmel:</strong> paragrafen og leddet koblingen kommer fra. Når opplysningen er bestemt utenfor lovtekstene, for eksempel i en kongelig resolusjon eller i vedtekter, står kilden i stedet.</li>
+          <li><strong>Hjemmel:</strong> paragrafen og leddet koblingen kommer fra. Når opplysningen er bestemt utenfor lovtekstene, for eksempel i en kongelig resolusjon eller i vedtekter, står kilden i stedet. Merknader og veiledning i en forskrift er aldri hjemmel (<a href="#nytt-pilot">se under</a>).</li>
           <li><strong>Avgrensning:</strong> hvilke saker eller paragrafer koblingen gjelder. Nesten alle koblinger i lovverket er avgrenset, for eksempel «bare enkeltvedtak».</li>
           <li><strong>Fortegn:</strong> «kan ikke instrueres» er like viktig som «kan instruere», fordi det er slik uavhengighet uttrykkes.</li>
           <li><strong>Modalitet</strong> (for plikter): «skal», «kan» eller «bør», slik teksten sier det. Står det ikke, står feltet tomt.</li>
@@ -758,6 +761,78 @@
     </div>
   </section>
 
+  <!-- [Ny, nettside-pilot-og-modell, 2026-10-31] Tre presiseringer fra piloten (#375) og aktørkøen (#440 PR 1).
+       Kilder: docs/33 §4.3 (#418), §5.3 Idempotens (#420), §5.14 (#419) og §5.16 (#440), og docs/profil/07 §8–§9.
+       Tabellen over koblingene sa alt at en klasse kan ha kompetanse og rolle (#418, PR #426). Det som er nytt her, er hvorfor,
+       hvordan svaret for ett medlem regnes ut, og de to andre presiseringene. -->
+  <section class="section" id="nytt-pilot">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Nytt 31. oktober 2026 · Etter piloten</span>
+        <h2>Tre presiseringer fra piloten på barnehageloven</h2>
+        <p>Piloten på barnehageloven var første gang modellen ble brukt på en ny lov. Den viste tre steder der modellen eller lasteren måtte bli mer presis. Alle tre er avgjort og bygget. Tallene står på <a href="../pilot-barnehageloven/">pilotsiden</a>.</p>
+      </div>
+      <div class="nytt-kort-grid nytt-kort-grid--bred">
+        <div class="nytt-kort">
+          <h3>En klasse kan ha kompetanse og en rolle</h3>
+          <p>Loven sier oftest «kommunen kan …», ikke navnet på én kommune. Nå kan klassen kommune stå som innehaver av kompetansen. Klassen leses distributivt: det som står om klassen, gjelder hvert medlem for seg, slik det alt gjaldt for plikter og oppgaver. Det er ikke en slutning om lovens innhold. Hvilket organ i kommunen som utøver kompetansen, følger av kommuneloven. Et område kan fortsatt ikke være innehaver.</p>
+          <p>En klasse kan også ha en rolle som loven selv navngir. Barnehageloven § 10 første ledd gjør kommunen til lokal barnehagemyndighet, og rollen er registrert på klassen kommune. Kompetanse kan stå på klassen eller på rollen. Teksten avgjør hvilken.</p>
+          <p>For én kommune regnes svaret ut når noen spør, og det lagres ikke. Veien går gjennom medlemskapet, eventuelt rollen, og kompetansen. Svaret er aldri sikrere enn det svakeste leddet. Alta kommune fikk 97 treff fra pilotkildene 29. oktober, alle merket som forslag. Statsforvalterne får ingen, fordi ingen statsforvalter er registrert som medlem av klassen. Det vises som et hull.</p>
+          <p class="status">Avgjort 29. oktober 2026 i <a href="https://github.com/FinnurO/regel-ide/issues/418" target="_blank" rel="noopener">#418</a>. Før dette falt 103 utsagn om kommunens og statsforvalterens myndighet bort i piloten.</p>
+        </div>
+        <div class="nytt-kort">
+          <h3>Merknader og veiledning er aldri hjemmel</h3>
+          <p>Noen forskrifter har departementets merknader, veiledning eller kommentarer som eget kapittel etter selve forskriften. Det er ikke forskriftstekst. Slike kapitler merkes når forskriften importeres. De kan aldri være hjemmel for en kobling, og konverteringen leser dem ikke.</p>
+          <p>De kan likevel være en tolkningskilde. En merknad kan siteres i begrunnelsen for hvordan en bestemmelse er forstått.</p>
+          <p>Regelen kjenner igjen kapitler øverst i forskriften som heter merknader, veiledning eller kommentarer, med alt under. Den treffer om lag 7&nbsp;000 noder i 100 forskrifter og instrukser. Ett kapittel er unntatt, fordi det er et bindende vedlegg som bare heter «Merknader».</p>
+          <p class="status">Avgjort 29. og 30. oktober 2026 i <a href="https://github.com/FinnurO/regel-ide/issues/419" target="_blank" rel="noopener">#419</a>. Hvordan en merknad skal pekes på som tolkningskilde, er ikke bygget.</p>
+        </div>
+        <div class="nytt-kort">
+          <h3>To utsagn i samme ledd holdes fra hverandre</h3>
+          <p>Et ledd kan si to ting om samme aktør. Barnehageloven § 53 andre ledd gir kommunen både et pålegg og et vedtak om stenging. Når loven lastes på nytt, må maskinen kjenne igjen det den har sett før, uten å slå sammen to forskjellige utsagn. Før var ledd, type og aktør nok til at to utsagn ble regnet som ett.</p>
+          <p>Nå skilles de på setningen sitatet starter i, og paringen er en-til-en. Hvert utsagn kan bare kjennes igjen som én rad som finnes, og hver rad brukes bare én gang i en kjøring. Først pares utsagn med nøyaktig samme sitat, deretter utsagn i samme setning. Står to utsagn i samme setning og det bare finnes én rad, blir det andre et nytt forslag.</p>
+          <p>Kjent restrisiko: siterer språkmodellen en annen setning for det samme utsagnet, blir det et nytt forslag. Det gir en synlig dublett i køen, ikke et stille tap.</p>
+          <p class="status">Avgjort 29. oktober 2026 i <a href="https://github.com/FinnurO/regel-ide/issues/420" target="_blank" rel="noopener">#420</a>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="aktorkoen">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Nytt 31. oktober 2026 · Aktørkøen <span class="pill" data-tone="warning">Første del: bare lesing</span></span>
+        <h2>Ukjente aktører godkjennes ett sted</h2>
+        <p>Når maskinen finner et navn den ikke kjenner, blir det en navnekandidat. Før var det én kandidat per forekomst, og det samme navnet kunne måtte godkjennes på fem forskjellige steder. Nå skal aktører godkjennes ett sted: i aktørkøen, der hvert ukjent navn står én gang med alle forekomstene.</p>
+      </div>
+      <div class="prose">
+        <h3>Fra 1&nbsp;211 kandidater til 192 navn</h3>
+        <p>Målt i den delte utviklingsbasen 31. oktober 2026 ventet 1&nbsp;211 navnekandidater. De fleste var ikke ukjente aktører. Hver kandidat får nøyaktig én rute, prøvd i denne rekkefølgen:</p>
+      </div>
+      <div class="table-scroll">
+        <table class="ds-table struktur-tabell">
+          <thead>
+            <tr><th scope="col">Rute</th><th scope="col">Hva det betyr</th><th scope="col">Kandidater</th></tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">1. Generisk ord</th><td>Samme ord som en generisk omtale, som «departementet». Standardregelen står i svaret</td><td>387</td></tr>
+            <tr><th scope="row">2. Kjent aktør</th><td>Samme ord som et navn en aktør alt har</td><td>233</td></tr>
+            <tr><th scope="row">3. Kjent begrep</th><td>Samme ord som en klasse, en rolle, et område eller en gruppe som gjelder i rettskilden</td><td>75</td></tr>
+            <tr><th scope="row">4. Bøyningsform</th><td>En bøyd form av et ord i 1–3. Den arver aldri regelen til ordet den ligner: «et departement» er ikke «departementet»</td><td>123</td></tr>
+            <tr><th scope="row">5. Aktørkøen</th><td>Alt annet</td><td>393</td></tr>
+            <tr><th scope="row">Til sammen</th><td></td><td>1&nbsp;211</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="prose struktur-etter-tabell">
+        <p>De 393 forekomstene i aktørkøen står i 80 rettskilder. Samme ord og bøyninger med likt forledd slås sammen automatisk, og da blir det 192 navn. Et genitivforledd, som «barnehagens foreldreråd» mot «foreldrerådet», blir bare et forslag. «domstolens leder» slås aldri sammen med «leder».</p>
+        <p>For hvert navn foreslås en hjemmel der en rettskilde oppretter aktøren, for eksempel med «skal ha et» eller «opprettes». 18 navn har et slikt forslag. Foreldrerådet får barnehageloven § 4 første ledd. Utdanningsdirektoratet står én gang, med 9 forekomster i 5 rettskilder, og uten hjemmel, fordi vedtaket som oppretter direktoratet, ikke er i korpuset. Hullet vises. Merknader og veiledning foreslås aldri som hjemmel.</p>
+        <p>Rutene regnes ut når køen leses, og ingenting flyttes. Sveipene som leter etter nye navn, bruker samme ruting, så et kjent ord blir ikke en ny kandidat.</p>
+      </div>
+      <p class="struktur-forbehold"><strong>Første del er bare lesing.</strong> Køen viser navnene, men kan ikke godkjenne ennå. Samlet godkjenning kommer i neste del: én godkjenning skal opprette aktøren, navnet, hjemmelen eller «hjemmel mangler», og koblingene for alle forekomstene på én gang, uten at noe er forhåndsvalgt. Hjemmelregelen er et forslag, og juristagenten skal prøve den før godkjenningen bygges. Første del er bygget i <a href="https://github.com/FinnurO/regel-ide/issues/440" target="_blank" rel="noopener">#440</a> (<a href="https://github.com/FinnurO/regel-ide/pull/444" target="_blank" rel="noopener">PR #444</a>).</p>
+    </div>
+  </section>
+
   <section class="section">
     <div class="wrap">
       <div class="section-head">
@@ -856,6 +931,7 @@
         <li><a href="../koblinger/">Koblinger</a></li>
         <li><a href="../kjeden/">Kjeden</a></li>
         <li><a href="../profil/">Profilforslag</a></li>
+        <li><a href="../pilot-barnehageloven/">Pilot</a></li>
         <li><a href="../begreper/">Begreper</a></li>
         <li><a href="../om/">Om</a></li>
       </ul>
