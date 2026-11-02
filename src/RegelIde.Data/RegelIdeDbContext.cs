@@ -2238,7 +2238,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.ToTable("funn_koblinger", t =>
             {
                 t.HasCheckConstraint("ck_funn_koblinger_rolle",
-                    "rolle IN ('gjelder_bestemmelse', 'motstridende_bestemmelse', 'berort_aktor', 'navneform', 'etterfolger', 'kilde')");
+                    "rolle IN ('gjelder_bestemmelse', 'motstridende_bestemmelse', 'berort_aktor', 'navneform', 'etterfolger', 'kilde', 'malvedtak')");
                 // Nøyaktig ett mål. En bestemmelse har alltid ELI-en; rettskilde_id og node_id er oppslag mot korpuset og kan være NULL.
                 t.HasCheckConstraint("ck_funn_koblinger_ett_mal",
                     "(CASE WHEN rettskilde_eli IS NOT NULL THEN 1 ELSE 0 END) + (CASE WHEN virksomhet_id IS NOT NULL THEN 1 ELSE 0 END) "
@@ -2253,7 +2253,10 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
                     + "OR (rolle = 'berort_aktor' AND virksomhet_id IS NOT NULL) "
                     + "OR (rolle = 'navneform' AND begrep_id IS NOT NULL) "
                     + "OR (rolle = 'etterfolger' AND strukturkant_id IS NOT NULL) "
-                    + "OR (rolle = 'kilde' AND (rettskilde_eli IS NOT NULL OR ekstern_lenke IS NOT NULL OR kildefeil_id IS NOT NULL))");
+                    + "OR (rolle = 'kilde' AND (rettskilde_eli IS NOT NULL OR ekstern_lenke IS NOT NULL OR kildefeil_id IS NOT NULL)) "
+                    + "OR (rolle = 'malvedtak' AND rettskilde_eli IS NOT NULL)");
+                // [Ny, #429 PR 2] Sitatet hører til en bestemmelse med eId, som en tagg.
+                t.HasCheckConstraint("ck_funn_koblinger_quote", "quote_exact IS NULL OR eid IS NOT NULL");
             });
             e.HasKey(x => x.Id).HasName("funn_koblinger_pkey");
             e.Property(x => x.FunnId).HasColumnName("funn_id");
@@ -2270,6 +2273,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.StrukturkantId).HasColumnName("strukturkant_id");
             e.Property(x => x.KildefeilId).HasColumnName("kildefeil_id");
             e.Property(x => x.EksternLenke).HasColumnName("ekstern_lenke");
+            e.Property(x => x.QuoteExact).HasColumnName("quote_exact"); // [Ny, #429 PR 2]
             // SetNull: et funn skal overleve at en rettskildeversjon, en aktør eller en kant forsvinner — koblingen viser da
             // «ikke i korpuset» via etiketten og ELI-en, i stedet for at funnet forsvinner med den.
             e.HasOne<RettskildeEntitet>().WithMany().HasForeignKey(x => x.RettskildeId).OnDelete(DeleteBehavior.SetNull);

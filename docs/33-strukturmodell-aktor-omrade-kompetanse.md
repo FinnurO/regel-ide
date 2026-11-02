@@ -1669,7 +1669,7 @@ hjemmelen.
 **Testene:** `MerknadsnoderTests` (Data, med ekte Lovdata-HTML for foreldrebetalings- og fusjonsforskriften) og
 `StrukturkantEndepunktTests.Merknadshjemmel_…` (API).
 
-### 5.15 Funn til vurdering (#429, PR 1 bygget 2026-10-30)
+### 5.15 Funn til vurdering (#429, PR 1 bygget 2026-10-30, PR 2 maskinregelen 2026-10-31)
 
 [Ny, Johanns avgjørelser 2026-10-29 og 2026-10-30 i #429] Når lovteksten gjøres maskinlesbar, kommer det fram steder der rettskildene ikke
 stemmer med seg selv eller med virkeligheten. Registeret samler dem som **funn til vurdering**: observasjoner med kilder, ikke påstander om
@@ -1692,8 +1692,12 @@ feil i loven. Kildefeil (#249) er noe annet: tekniske feil i Lovdata-kopien.
 - Ved godkjenning fryses den offentlige representasjonen (`godkjent_innhold_json` med SHA-256). Eksporten leser bare øyeblikksbildet.
   Endres det offentlige innholdet etterpå, går funnet tilbake til juristvurdert. Funn som er forklart bort, publiseres ikke.
 - **Premissporten** (§4.6, svakeste premiss): et funn om en utgått aktør kan bare godkjennes når navneformen og etterfølgerkanten er faglig
-  vurdert (`faglig_vurdert` eller `godkjent`). En navneform uten godkjenning (NULL, fra før #385) regnes ikke som vurdert. Et funn uten
-  etterfølgerkant stoppes ikke og publiseres med «etterfølger ukjent» — tolkningen er lagt fram for Johann i PR-en.
+  vurdert (`faglig_vurdert` eller `godkjent`). En navneform uten godkjenning (NULL, fra før #385) regnes ikke som vurdert.
+  [ENDRET, PR 2, Johanns avgjørelse 2026-10-31 (3): porten for etterfølger gjelder alle fire gruppene, også navneendring] Et funn uten
+  etterfølgerkant slapp før gjennom med «etterfølger ukjent». Nå krever porten et vurderingspunkt (type `vurdering`) med overskriften
+  «Etterfølger» som sier hvem som har oppgaven nå, eller at det er ukjent. Punktet står i etterfølgerlinjen i forhåndsvisningen og på
+  nettsiden. Grunnen er juristmålingen: i gruppe A ser det ut som om oppgaven ligger hos aktøren under nytt navn, men den kan være flyttet
+  (ekom: KDD → DFD).
 - **Kilde endret:** Lovdata-resynken flagger funn som peker på en bestemmelse med ny tekst (`HjemmelEndretFlagg`, samme deltre-regel som
   strukturkantene). Et flagg, ikke en statusendring; ny juristvurdering nuller det.
 
@@ -1704,8 +1708,31 @@ feil i loven. Kildefeil (#249) er noe annet: tekniske feil i Lovdata-kopien.
 barnehage (godkjent for publisering av Johann 2026-10-29), kontrollen for lærere (forklart bort), og tre kandidater som oppdaget
 (overgangsregelen, den upresise henvisningen, Lovdatas «Merknader» i FOR-2008-01-09-50).
 
-**Ikke i PR 1:** maskinregelen for utgåtte aktører (PR 2, etter juristmålingen på om lag 40 par), statsrådsembeter og organiseringsvedtak
-som har uttømt virkningen (#438).
+**Maskinregelen for utgåtte aktører** (PR 2, `UtgattAktorFunnregel`, `monster:utgatt-aktor`; Johanns avgjørelser 2026-10-30 og
+2026-10-31):
+- **Navnene:** navneformer (virksomhet, gjeldende, ikke avvist) som hører til en aktør med `livsstatus = 'nedlagt'` eller har grunnen
+  `utgatt`, minst åtte tegn. Søket er per term: hele ordet med valgfri genitiv-s, store og små bokstaver skilles.
+- **Hvor:** gjeldende primære rettskilder, i noder (ledd, punkt, avslutning) som ikke er opphevet og ikke er merknad (`er_merknad`, #419).
+- **Utelatt, men telt:** organiseringsvedtak (disposisjonstypene i `Disposisjonstyper.Livslopstyper`; delegering og instruks er med, fordi
+  det er der funnene står), rene endringsvedtak (`rent_endringsvedtak = true`) og tvetydige navn (en term som er navneform for mer enn én
+  aktøridentitet, for eksempel «Kulturdepartementet»).
+- **R1–R4** (`UtgattAktorRegler`, portert ordrett fra juristmålingens `regler.py`): endringsinstruks, identifikasjon av et datert dokument,
+  opphevingsformel og «(tidligere) X». Et par foreslås ikke når alle forekomstene treffes av en regel. Avgrensningene er låst: R3 slår ikke
+  til når termen er den som opphever («oppheves av X»), og R4 krever «tidligere» rett foran termen.
+- **`rent_endringsvedtak` NULL er ukjent**, ikke «ikke rent». Funn i en kilde som endrer andre vedtak, foreslås, men påstanden sier det, og
+  målvedtaket kobles på (rollen `malvedtak`) når kilden endrer nøyaktig ett dokument. Ellers står det at målvedtaket ikke er entydig.
+- **Ett funn per (rettskilde, aktør):** én `gjelder_bestemmelse` per node, forankret som en tagg med ELI, eId og `quote_exact` (ny kolonne
+  på `funn_koblinger`), pluss berørt aktør, navneformene og etterfølgerkantene. Undertype `utgatt_navn` (gruppe A, aktøren lever) eller
+  `nedlagt_aktor` (B dekket hovedetterfølger, C hovedetterfølger ukjent, D ingen etterfølger; `EtterfolgerHull`).
+- **Lagring og idempotens:** status `oppdaget`, nøkkel `utgatt-aktor:<ELI>:<aktør-id>`. En ny kjøring gir 0 nye og gjenåpner ikke funn som
+  er forklart bort. `POST /api/funn/maskinregel/utgatt-aktor` tørrkjører uten `?skriv=true`, med telling per gruppe og per regel.
+- **Målt mot den delte basen 2026-10-31 (tørrkjøring, bare lesing):** 43 termer, 2 107 nodetreff, 773 (rettskilde, term) som i fase 1,
+  767 (rettskilde, aktør). R1–R4 tar bort 68 par (69 på (rettskilde, term), samme 69 som juristens simulering). **699 foreslås:** A 390,
+  B 160, C 90, D 59. 165 står i endringsvedtak, 111 med entydig målvedtak.
+- **Ikke gjort:** presisjonen skal måles på nytt (om lag 20 par, også aktører som ikke er departementer) før maskinfunn går videre fra
+  «oppdaget». Statsrådsembeter og organiseringsvedtak som har uttømt virkningen er #438.
+
+**Ikke i PR 1:** statsrådsembeter og organiseringsvedtak som har uttømt virkningen (#438).
 
 ### 5.16 Aktørkøen: ruting, gruppering og hjemmelforslag (#440 PR 1, bygget 2026-10-31)
 

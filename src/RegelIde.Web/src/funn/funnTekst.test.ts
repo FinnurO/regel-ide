@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { delITekstblokker, lovdataLenke } from './funnTekst';
+import { delITekstblokker, etterfolgerlinje, lovdataLenke, utenEtterfolgerpunkt } from './funnTekst';
 
 describe('delITekstblokker (#429)', () => {
   it('gjør «- »-linjer til én liste etter innledningen', () => {
@@ -20,5 +20,21 @@ describe('lovdataLenke (#429)', () => {
   it('lar et ukjent format stå uendret og gir null for null', () => {
     expect(lovdataLenke('https://www.regjeringen.no/x')).toBe('https://www.regjeringen.no/x');
     expect(lovdataLenke(null)).toBeNull();
+  });
+});
+
+describe('etterfolgerlinje (#429 PR 2)', () => {
+  const punkt = { overskrift: 'Etterfølger', tekst: 'Digitaliserings- og forvaltningsdepartementet (ekom).' };
+  it('viser kantene når funnet peker på noen', () => {
+    expect(etterfolgerlinje([{ etikett: 'NFD' }], [punkt])).toBe('NFD');
+  });
+  it('viser juristens punkt «Etterfølger» når det ikke finnes noen kant, og tar det ut av lista', () => {
+    expect(etterfolgerlinje([], [punkt])).toBe(punkt.tekst);
+    expect(utenEtterfolgerpunkt([punkt, { overskrift: null, tekst: 'x' }], [])).toEqual([{ overskrift: null, tekst: 'x' }]);
+    expect(utenEtterfolgerpunkt([punkt], [{ etikett: 'NFD' }])).toEqual([punkt]);
+  });
+  it('sier «ukjent» uten kant og punkt, og «ikke vurdert» når premissporten stopper', () => {
+    expect(etterfolgerlinje([], [])).toBe('ukjent');
+    expect(etterfolgerlinje([], [punkt], true)).toBe('ikke vurdert');
   });
 });

@@ -12,6 +12,14 @@ import { ALLE_KATEGORIER, ALLE_STATUSER, FunnMerker, KATEGORI_TEKST, STATUS_VISN
  * Tettheten er vanlig (ikke `compact`): i PR 1 er det fem funn (docs/09 §26). Maskinregelen for utgåtte aktører (PR 2) gir rundt
  * 770, og da skal tettheten og grupperingen per aktør vurderes på nytt.
  */
+/** [Ny, #429 PR 2, kaldsjekken 2026-10-31] Et maskinfunn kan peke på 69 bestemmelser (advokatloven og Advokattilsynet i testbasen).
+ * Lista viser de tre første og antallet resten; hele lista står på detaljsiden. */
+function bestemmelseskort(f: FunnDto): string {
+  const alle = f.koblinger.filter((k) => k.rolle === 'gjelder_bestemmelse' || k.rolle === 'motstridende_bestemmelse').map((k) => k.etikett);
+  if (alle.length === 0) return '—';
+  return alle.length <= 3 ? alle.join('; ') : `${alle.slice(0, 3).join('; ')} og ${alle.length - 3} til`;
+}
+
 export default function FunnListe() {
   const [funn, setFunn] = useState<FunnDto[] | null>(null);
   const [feil, setFeil] = useState<string | null>(null);
@@ -95,9 +103,7 @@ export default function FunnListe() {
                     <span style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap' }}><FunnMerker funn={f} /></span>
                   </Table.Cell>
                   <Table.Cell>
-                    <Metatekst as="span">
-                      {f.koblinger.filter((k) => k.rolle === 'gjelder_bestemmelse' || k.rolle === 'motstridende_bestemmelse').map((k) => k.etikett).join('; ') || '—'}
-                    </Metatekst>
+                    <Metatekst as="span">{bestemmelseskort(f)}</Metatekst>
                   </Table.Cell>
                   <Table.Cell><Metatekst as="span">{f.funnetI ?? '—'}</Metatekst></Table.Cell>
                 </Table.Row>

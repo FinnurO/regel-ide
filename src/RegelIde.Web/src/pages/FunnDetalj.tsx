@@ -8,6 +8,7 @@ import { rettskildeLenkeForId } from '../api/eidLenker';
 import type { FunnDto, FunnKoblingDto, FunnTilgangDto, FunnVurderingspunktInn } from '../api/types';
 import { Metatekst } from '../entitet/Metatekst';
 import { FunnMerker, FunnTekst, OffentligFunn, SIKKERHET_TEKST, lovdataLenke } from '../funn/FunnVisning';
+import { ETTERFOLGER_OVERSKRIFT } from '../funn/funnTekst';
 
 const ROLLE_TEKST: Record<string, string> = {
   motstridende_bestemmelse: 'Mulig motstrid',
@@ -16,6 +17,7 @@ const ROLLE_TEKST: Record<string, string> = {
   navneform: 'Navneform',
   etterfolger: 'Etterfølger',
   kilde: 'Kilde',
+  malvedtak: 'Målvedtak',
 };
 
 function tid(iso: string | null): string {
@@ -45,11 +47,13 @@ export default function FunnDetalj() {
   const [vurdertAvType, setVurdertAvType] = useState<'' | 'menneske' | 'ki_agent'>('');
   const [nyBortforklaringOverskrift, setNyBortforklaringOverskrift] = useState('');
   const [nyBortforklaring, setNyBortforklaring] = useState('');
+  // [Ny, #429 PR 2] Juristens vurdering av etterfølgeren når funnet ikke peker på noen etterfølgerkant (premissporten, alle grupper).
+  const [etterfolger, setEtterfolger] = useState('');
   const [begrunnelse, setBegrunnelse] = useState('');
 
   const last = useCallback(() => {
     if (!id) return;
-    api.hentEttFunn(id).then((f) => { setFunn(f); setVurdering(f.vurdering ?? ''); setFeil(null); })
+    api.hentEttFunn(id).then((f) => { setFunn(f); setVurdering(f.vurdering ?? ''); setEtterfolger(etterfolgerpunkt(f)?.tekst ?? ''); setFeil(null); })
       .catch((e) => setFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved henting av funnet.'));
     api.hentFunnTilgang().then(setTilgang).catch(() => setTilgang(null));
   }, [id]);
@@ -63,6 +67,7 @@ export default function FunnDetalj() {
       const f = await handling();
       setFunn(f);
       setVurdering(f.vurdering ?? '');
+      setEtterfolger(etterfolgerpunkt(f)?.tekst ?? '');
       setBekreft(null);
     } catch (e) {
       setHandlingFeil(e instanceof ApiError ? e.message : 'Ukjent feil.');
@@ -75,20 +80,26 @@ export default function FunnDetalj() {
   if (feil) return <Alert data-color="danger" data-size="sm">{feil}</Alert>;
   if (!funn) return <Spinner aria-label="Laster funnet …" data-size="sm" />;
 
-  const bestemmelser = funn.koblinger.filter((k) => k.rolle === 'motstridende_bestemmelse' || k.rolle === 'gjelder_bestemmelse');
+  const bestemmelser = funn.koblinger.filter((k) => k.rolle === 'motstridende_bestemmelse' || k.rolle === 'gjelder_bestemmelse'
+    || k.rolle === 'malvedtak');
   const aktorer = funn.koblinger.filter((k) => k.rolle === 'berort_aktor' || k.rolle === 'navneform' || k.rolle === 'etterfolger');
   const kilder = funn.koblinger.filter((k) => k.rolle === 'kilde');
   const punkter = (type: string) => funn.vurderingspunkter.filter((p) => p.type === type);
   const kanBehandles = funn.status === 'oppdaget' || funn.status === 'juristvurdert';
   const etterfolgerIkkeVurdert = funn.premissmangler.some((m) => m.startsWith('Etterfølger ikke vurdert'));
+  const sporOmEtterfolger = funn.kategori === 'utgatt_aktor' && !funn.koblinger.some((k) => k.rolle === 'etterfolger');
 
   function juristvurder() {
-    const eksisterende: FunnVurderingspunktInn[] = funn!.vurderingspunkter.map((p) => ({
-      type: p.type, tekst: p.tekst, overskrift: p.overskrift, sikkerhet: p.sikkerhet,
-    }));
+    const gammeltEtterfolgerpunkt = etterfolgerpunkt(funn!);
+    const eksisterende: FunnVurderingspunktInn[] = funn!.vurderingspunkter
+      .filter((p) => !(sporOmEtterfolger && etterfolger.trim() && p === gammeltEtterfolgerpunkt))
+      .map((p) => ({ type: p.type, tekst: p.tekst, overskrift: p.overskrift, sikkerhet: p.sikkerhet }));
     const nye: FunnVurderingspunktInn[] = nyBortforklaring.trim()
       ? [{ type: 'bortforklaring_provd', tekst: nyBortforklaring.trim(), overskrift: nyBortforklaringOverskrift.trim() || null }]
       : [];
+    if (sporOmEtterfolger && etterfolger.trim()) {
+      nye.push({ type: 'vurdering', tekst: etterfolger.trim(), overskrift: ETTERFOLGER_OVERSKRIFT });
+    }
     return utfor(async () => {
       const f = await api.juristvurderFunn(funn!.id, {
         vurdering, vurdertAvType: vurdertAvType as 'menneske' | 'ki_agent', vurderingspunkter: [...eksisterende, ...nye],
@@ -168,6 +179,7 @@ export default function FunnDetalj() {
             <ul style={{ margin: '0 0 0.75rem', paddingLeft: '1.25rem' }}>
               {punkter('vurdering').map((p) => (
                 <li key={p.id}><Paragraph data-size="sm" style={{ margin: 0 }}>
+                  {p.overskrift && !p.sikkerhet && <em>{p.overskrift}: </em>}
                   {p.sikkerhet ? `Sikkerhet: ${SIKKERHET_TEKST[p.sikkerhet] ?? p.sikkerhet} ${p.tekst}.` : p.tekst}
                 </Paragraph></li>
               ))}
@@ -229,6 +241,16 @@ export default function FunnDetalj() {
                 <Label>Ny prøvd bortforklaring: hva som ble prøvd, og resultatet (valgfri, legges til de over)</Label>
                 <Textarea data-size="sm" rows={2} value={nyBortforklaring} onChange={(e) => setNyBortforklaring(e.target.value)} />
               </Field>
+              {sporOmEtterfolger && (
+                <Field>
+                  <Label>Etterfølger: hvem har oppgaven i bestemmelsen nå, eller er det ukjent?</Label>
+                  <Metatekst>
+                    Funnet peker ikke på noen etterfølgerkant. Premissporten krever at dette er vurdert, også når aktøren lever under nytt
+                    navn: oppgaven kan være flyttet til en annen aktør (#429).
+                  </Metatekst>
+                  <Textarea data-size="sm" rows={2} value={etterfolger} onChange={(e) => setEtterfolger(e.target.value)} />
+                </Field>
+              )}
               <Field>
                 <Label>Vurdering</Label>
                 <Textarea data-size="sm" rows={3} value={vurdering} onChange={(e) => setVurdering(e.target.value)} />
@@ -334,6 +356,7 @@ function BestemmelseRad({ k }: { k: FunnKoblingDto }) {
       <Table.Cell><Metatekst as="span">{ROLLE_TEKST[k.rolle]}</Metatekst></Table.Cell>
       <Table.Cell>
         {k.etikett}{k.merknad ? ` — ${k.merknad}` : ''}
+        {k.quoteExact && <Metatekst as="span"> «{k.quoteExact}»</Metatekst>}
         {lovdata && <> <Link href={lovdata} target="_blank" rel="noopener noreferrer" data-size="sm">(Lovdata)</Link></>}
       </Table.Cell>
       <Table.Cell>
@@ -347,4 +370,9 @@ function BestemmelseRad({ k }: { k: FunnKoblingDto }) {
       </Table.Cell>
     </Table.Row>
   );
+}
+
+/** [Ny, #429 PR 2] Juristens vurderingspunkt «Etterfølger» (type vurdering), om det finnes. */
+function etterfolgerpunkt(f: FunnDto) {
+  return f.vurderingspunkter.find((p) => p.type === 'vurdering' && p.overskrift?.trim().toLowerCase() === ETTERFOLGER_OVERSKRIFT.toLowerCase());
 }

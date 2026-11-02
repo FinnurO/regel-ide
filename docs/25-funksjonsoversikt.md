@@ -589,11 +589,13 @@ Et register over steder der rettskildene ikke stemmer med seg selv eller med vir
 utgåtte aktører. Et funn registreres manuelt eller av en agent (status oppdaget), juristvurderes med prøvde bortforklaringer (av en
 jurist eller ført inn fra juristagenten, med eget merke), og blir enten forklart bort eller godkjent for publisering. Bare de
 publiseringsansvarlige i `RegelIde:Funn:Publiseringsansvarlige` kan godkjenne (lista er tom som standard). Ved godkjenning fryses innholdet;
-eksporten til nettsiden leser bare det. Rettskildesiden viser funnene som peker på den. Maskinregelen for utgåtte aktører kommer i PR 2.
+eksporten til nettsiden leser bare det. Rettskildesiden viser funnene som peker på den. [Ny, #429 PR 2] Maskinregelen for utgåtte aktører
+(`monster:utgatt-aktor`) foreslår ett funn per (rettskilde, aktør) der en gjeldende kilde fortsatt bruker et navn på en nedlagt aktør eller
+et utgått navn, forankret som tagger (eId og sitat). Den tørrkjører som standard og er idempotent.
 
 *Hvor:* «Funn til vurdering» (`/funn`, `/funn/ny`, `/funn/:id`); `GET/POST /api/funn`, `PUT /api/funn/{id}`,
 `POST /api/funn/{id}/juristvurdering`, `/forklar-bort`, `/godkjenn-for-publisering`, `/trekk-tilbake`, `GET /api/funn/publiserbare`,
-`GET /api/funn/tilgang`. Detaljer: `docs/33` §5.15, `docs/09` §49.
+`GET /api/funn/tilgang`, `POST /api/funn/maskinregel/utgatt-aktor?skriv=true`. Detaljer: `docs/33` §5.15, `docs/09` §49.
 
 ---
 

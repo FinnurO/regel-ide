@@ -31,9 +31,9 @@ public static class FunnEndepunkter
                 CancellationToken ct) =>
             {
                 var rader = await tjeneste.ListeAsync(kategori, status, rettskildeId, virksomhetId, ct);
-                var ut = new List<FunnDto>();
-                foreach (var f in rader) ut.Add(FunnDto.Fra(f, await tjeneste.PremissmanglerAsync(f, ct), forhandsvisning: null));
-                return Results.Ok(ut);
+                // [ENDRET, #429 PR 2] Premissmanglene for hele lista i to oppslag: maskinregelen gir rundt 700 funn.
+                var mangler = await tjeneste.PremissmanglerForAsync(rader, ct);
+                return Results.Ok(rader.Select(f => FunnDto.Fra(f, mangler[f.Id], forhandsvisning: null)).ToList());
             })
             .WithName("HentFunn")
             .WithSummary("Issue #429 — registeret over funn til vurdering, nyeste først. Filtre: kategori, status, rettskildeId (også andre "
@@ -48,6 +48,23 @@ public static class FunnEndepunkter
             .WithName("HentPubliserbareFunn")
             .WithSummary("Issue #429 AK3 — eksporten til nettsiden: BARE funn som er godkjent for publisering, og bare det frosne "
                          + "øyeblikksbildet (hash kontrollert). Ingen personnavn. holdtTilbake lister nøkler der hashen ikke stemte.");
+
+        // [Ny, #429 PR 2, Johanns avgjørelser 2026-10-30/31] Maskinregelen for utgåtte aktører. Tørrkjøring er standard: uten ?skriv=true
+        // skrives ingenting, og rapporten viser hva som ville blitt foreslått, med telling per gruppe (A–D) og per regel (R1–R4).
+        funn.MapPost("/maskinregel/utgatt-aktor", async (bool? skriv, bool? medRader, Guid? rettskildeId, HttpRequest request,
+                RegelIdeDbContext db, UtgattAktorFunnregel regel, CancellationToken ct) =>
+            {
+                var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+                if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+                var rapport = await regel.KjorAsync(skriv ?? false, bruker.Navn, rettskildeId is { } rid ? [rid] : null, medRader ?? false, ct);
+                return Results.Ok(rapport);
+            })
+            .WithName("KjorMaskinregelUtgattAktor")
+            .WithSummary("Issue #429 PR 2 — foreslår ett funn per (rettskilde, aktør) der en gjeldende primær rettskilde bruker et navn på en "
+                         + "nedlagt aktør eller et utgått navn. Organiseringsvedtak, rene endringsvedtak og tvetydige navn telles, men foreslås "
+                         + "ikke; det samme gjelder par der alle forekomstene treffes av R1–R4. ?skriv=true lagrer som «oppdaget» "
+                         + "(monster:utgatt-aktor); uten er det en tørrkjøring. Idempotent: en ny kjøring gir 0 nye og gjenåpner ikke funn som "
+                         + "er forklart bort. ?medRader=true tar med parene; ?rettskildeId= avgrenser.");
 
         funn.MapGet("/tilgang", async (HttpRequest request, RegelIdeDbContext db, IConfiguration konfig, CancellationToken ct) =>
             {
@@ -223,9 +240,10 @@ public static class FunnEndepunkter
 
 public sealed record FunnKoblingRequest(
     string Rolle, string Etikett, string? Merknad, string? RettskildeEli, string? Eid, Guid? VirksomhetId, Guid? BegrepId,
-    Guid? StrukturkantId, Guid? KildefeilId, string? EksternLenke)
+    Guid? StrukturkantId, Guid? KildefeilId, string? EksternLenke, string? QuoteExact = null)
 {
-    public NyKobling TilNy() => new(Rolle, Etikett, Merknad, RettskildeEli, Eid, VirksomhetId, BegrepId, StrukturkantId, KildefeilId, EksternLenke);
+    public NyKobling TilNy() => new(Rolle, Etikett, Merknad, RettskildeEli, Eid, VirksomhetId, BegrepId, StrukturkantId, KildefeilId, EksternLenke,
+        QuoteExact);
 }
 
 public sealed record FunnVurderingspunktRequest(string Type, string Tekst, string? Overskrift, string? Sikkerhet)
@@ -247,7 +265,7 @@ public sealed record ForklarBortRequest(string Begrunnelse);
 
 public sealed record FunnKoblingDto(
     Guid Id, string Rolle, int Sortering, string Etikett, string? Merknad, string? RettskildeEli, Guid? RettskildeId, string? Eid,
-    Guid? NodeId, Guid? VirksomhetId, Guid? BegrepId, Guid? StrukturkantId, Guid? KildefeilId, string? EksternLenke);
+    Guid? NodeId, Guid? VirksomhetId, Guid? BegrepId, Guid? StrukturkantId, Guid? KildefeilId, string? EksternLenke, string? QuoteExact);
 
 public sealed record FunnVurderingspunktDto(Guid Id, string Type, int Sortering, string? Overskrift, string Tekst, string? Sikkerhet);
 
@@ -266,7 +284,8 @@ public sealed record FunnDto(
         f.VurdertAvType, f.ForklartBortBegrunnelse, f.ForklartBortAv, f.ForklartBortTidspunkt, f.GodkjentAv, f.GodkjentTidspunkt,
         f.KildeEndretTidspunkt,
         f.Koblinger.OrderBy(k => k.Sortering).Select(k => new FunnKoblingDto(k.Id, k.Rolle, k.Sortering, k.Etikett, k.Merknad,
-            k.RettskildeEli, k.RettskildeId, k.Eid, k.NodeId, k.VirksomhetId, k.BegrepId, k.StrukturkantId, k.KildefeilId, k.EksternLenke)).ToList(),
+            k.RettskildeEli, k.RettskildeId, k.Eid, k.NodeId, k.VirksomhetId, k.BegrepId, k.StrukturkantId, k.KildefeilId, k.EksternLenke,
+            k.QuoteExact)).ToList(),
         f.Vurderingspunkter.OrderBy(p => p.Sortering).Select(p => new FunnVurderingspunktDto(p.Id, p.Type, p.Sortering, p.Overskrift, p.Tekst,
             p.Sikkerhet)).ToList(),
         premissmangler, forhandsvisning);

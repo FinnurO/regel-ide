@@ -207,7 +207,15 @@ public class FunnTjenesteTests(EmbeddedPostgresFixture fixture)
 
         navneform.Godkjenning = Strukturkanter.FagligVurdert;
         await db.SaveChangesAsync();
-        // Uten etterfølgerkant: åpen, og publiseres med tom etterfølgerliste («etterfølger ukjent»).
+        // [ENDRET, #429 PR 2, Johanns avgjørelse 2026-10-31 (3)] Uten etterfølgerkant slapp funnet før gjennom med «etterfølger ukjent».
+        // Nå må juristen si det uttrykkelig, i et vurderingspunkt «Etterfølger».
+        var feilUten = await Assert.ThrowsAsync<InvalidOperationException>(() => t.GodkjennForPubliseringAsync(uten.Id, "X"));
+        Assert.Contains("Etterfølger ikke vurdert", feilUten.Message);
+        await t.JuristvurderAsync(uten.Id, "Vurdert.", Funn.KiAgent, "agent",
+        [
+            new NyttVurderingspunkt(Funn.BortforklaringProvd, "ingen ressortoverføring som retter teksten."),
+            new NyttVurderingspunkt(Funn.Vurdering, "ukjent. Ingen kgl.res. om overføring er funnet.", Funn.EtterfolgerOverskrift),
+        ]);
         var godkjent = await t.GodkjennForPubliseringAsync(uten.Id, "X");
         using (var dok = JsonDocument.Parse(godkjent!.GodkjentInnholdJson!))
         {
