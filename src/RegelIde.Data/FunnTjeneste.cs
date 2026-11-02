@@ -225,6 +225,35 @@ public sealed class FunnTjeneste(RegelIdeDbContext db)
     }
 
     /// <summary>
+    /// [Ny, #429 PR 3, Johanns avgjørelse 2026-11-02 (2)] Oppdaget → forklart bort, satt av en MASKINREGEL: et lastet maskinfunn som en ny
+    /// regel holder tilbake. <see cref="FunnEntitet.VurdertAvType"/> blir <see cref="Funn.Maskinregel"/> og
+    /// <see cref="FunnEntitet.ForklartBortAv"/> regelens kilde («monster:utgatt-aktor»), så det aldri ser ut som et menneske har gjort det
+    /// (CLAUDE.md §9). Begrunnelsen har regelen og beviset (eId, kilde-ID). Hvem som kjørte regelen, står i proveniensen.
+    /// <para>
+    /// [LÅST, Johann 2026-11-02] Funnet slettes aldri, og det gjenåpnes ikke av en ny kjøring (nøkkelen finnes). Bare <c>oppdaget</c>: et funn
+    /// en jurist eller juristagenten har vurdert, overstyres ikke av en maskinregel. Det gir <c>false</c>.
+    /// </para>
+    /// </summary>
+    public async Task<bool> ForklarBortMaskineltAsync(
+        Guid id, string begrunnelse, string regelkilde, string kjortAv, CancellationToken ct = default)
+    {
+        var funn = await db.Funn.FirstOrDefaultAsync(f => f.Id == id, ct);
+        if (funn is null || funn.Status != Funn.Oppdaget) return false;
+        var naa = DateTimeOffset.UtcNow;
+        funn.ForklartBortBegrunnelse = Pakrevd(begrunnelse, "Begrunnelse");
+        funn.ForklartBortAv = Pakrevd(regelkilde, "Regelkilde");
+        funn.ForklartBortTidspunkt = naa;
+        funn.VurdertAvType = Funn.Maskinregel;
+        funn.Status = Funn.ForklartBort;
+        funn.SistEndretAv = regelkilde;
+        funn.SistEndretTidspunkt = naa;
+        db.Proveniens.Add(Proveniens(funn.Id, "forklart_bort", kjortAv,
+            $"Forklart bort maskinelt av {regelkilde}, kjørt av {kjortAv}. {begrunnelse}"));
+        await db.SaveChangesAsync(ct);
+        return true;
+    }
+
+    /// <summary>
     /// Juristvurdert → godkjent for publisering, og øyeblikksbildet fryses. Premissporten (<see cref="PremissmanglerAsync"/>) må være
     /// tom. Tilgangen sjekkes av kalleren (API-et).
     /// </summary>
@@ -294,6 +323,11 @@ public sealed class FunnTjeneste(RegelIdeDbContext db)
     /// overskriften <see cref="Funn.EtterfolgerOverskrift"/> som sier hvem som har oppgaven nå, eller at det er ukjent. Ellers stopper
     /// porten med «Etterfølger ikke vurdert». Punktet vises som etterfølgerlinjen i forhåndsvisningen og på nettsiden.</item>
     /// </list>
+    /// <item>[Ny, #429 PR 3, R9, Johanns avgjørelse 2026-11-02 (3)] Hjemmelsloven er opphevet av en gjeldende lov i korpus
+    /// (<see cref="Opphevingskontroll.HjemmelOpphevetAsync"/>). Funnet undertrykkes ikke og går ikke til kildefeilkøen: om vedtaket fortsatt
+    /// har virkning, er et rettslig spørsmål (overgangsregler som havne- og farvannsloven § 53 første ledd), ikke en feil i Lovdata-kopien.
+    /// Mangelen står også på et funn som bare er oppdaget, og forsvinner når juristen har et vurderingspunkt
+    /// «<see cref="Funn.HjemmelOverskrift"/>».</item>
     /// Andre kategorier har ingen premissport i denne runden.
     /// </summary>
     public async Task<List<string>> PremissmanglerAsync(FunnEntitet funn, CancellationToken ct = default) =>
@@ -315,6 +349,7 @@ public sealed class FunnTjeneste(RegelIdeDbContext db)
             : await db.Strukturkanter.IgnoreQueryFilters().Where(s => kantIder.Contains(s.Id))
                 .Select(s => new { s.Id, s.Status }).ToDictionaryAsync(s => s.Id, s => s.Status, ct);
         var vurdert = new[] { Strukturkanter.FagligVurdert, Strukturkanter.Godkjent };
+        var hjemmelOpphevet = await HjemmelOpphevetForAsync(aktuelle.Where(f => f.Status != Funn.ForklartBort && HjemmelVurdering(f) is null).ToList(), ct);
 
         var ut = new Dictionary<Guid, List<string>>();
         foreach (var f in funn)
@@ -353,9 +388,47 @@ public sealed class FunnTjeneste(RegelIdeDbContext db)
                 mangler.Add("Etterfølger ikke vurdert: funnet peker ikke på noen etterfølgerkant, og vurderingen har ikke noe punkt "
                     + $"«{Funn.EtterfolgerOverskrift}» som sier hvem som har oppgaven nå, eller at det er ukjent.");
             }
+            foreach (var h in hjemmelOpphevet.GetValueOrDefault(f.Id) ?? []) mangler.Add(Opphevingskontroll.Premissmangeltekst(h));
         }
         return ut;
     }
+
+    /// <summary>[Ny, #429 PR 3, R9] Hjemmelslovene som er opphevet, per funn, lest av rettskilden funnet står i og funnets egne noder. Tre
+    /// til fem oppslag for hele lista.</summary>
+    private async Task<Dictionary<Guid, List<HjemmelOpphevet>>> HjemmelOpphevetForAsync(IReadOnlyList<FunnEntitet> funn, CancellationToken ct)
+    {
+        var ut = new Dictionary<Guid, List<HjemmelOpphevet>>();
+        var bestemmelser = funn.SelectMany(f => f.Koblinger.Where(k => k.Rolle == Funn.GjelderBestemmelse && k.RettskildeId != null)
+            .Select(k => (Funn: f.Id, Rk: k.RettskildeId!.Value, k.Eid, k.NodeId))).ToList();
+        if (bestemmelser.Count == 0) return ut;
+        var nodeIder = bestemmelser.Where(b => b.NodeId != null).Select(b => b.NodeId!.Value).Distinct().ToList();
+        var tekster = new Dictionary<Guid, string?>();
+        foreach (var bit in nodeIder.Chunk(2000))
+        {
+            foreach (var n in await db.RettskildeNoder.AsNoTracking().Where(n => bit.Contains(n.Id)).Select(n => new { n.Id, n.Tekst }).ToListAsync(ct))
+            {
+                tekster[n.Id] = n.Tekst;
+            }
+        }
+        var nodetekster = bestemmelser.Where(b => b.Eid != null && b.NodeId != null).GroupBy(b => b.Rk)
+            .ToDictionary(g => g.Key, g => (IReadOnlyList<(string Eid, string? Tekst)>)g.Select(b => (b.Eid!, tekster.GetValueOrDefault(b.NodeId!.Value)))
+                .DistinctBy(x => x.Item1).ToList());
+        var perRk = await Opphevingskontroll.HjemmelOpphevetAsync(db, bestemmelser.Select(b => b.Rk).Distinct().ToList(), nodetekster, ct);
+        foreach (var g in bestemmelser.GroupBy(b => b.Funn))
+        {
+            var eider = g.Where(b => b.Eid != null).Select(b => b.Eid!).ToList();
+            var liste = g.Select(b => b.Rk).Distinct().SelectMany(rk => perRk.GetValueOrDefault(rk) ?? []).Where(h => h.GjelderNoder(eider))
+                .DistinctBy(h => h.HjemmelEli).ToList();
+            if (liste.Count > 0) ut[g.Key] = liste;
+        }
+        return ut;
+    }
+
+    /// <summary>[Ny, #429 PR 3, R9] Juristens vurdering av om vedtaket fortsatt har virkning når hjemmelsloven er opphevet: vurderingspunktet
+    /// med overskriften <see cref="Funn.HjemmelOverskrift"/>. Null når det ikke finnes.</summary>
+    public static FunnVurderingspunktEntitet? HjemmelVurdering(FunnEntitet f) => f.Vurderingspunkter
+        .Where(p => p.Type == Funn.Vurdering && string.Equals(p.Overskrift?.Trim(), Funn.HjemmelOverskrift, StringComparison.OrdinalIgnoreCase))
+        .OrderBy(p => p.Sortering).FirstOrDefault();
 
     /// <summary>[Ny, #429 PR 2] Juristens vurdering av etterfølgeren når funnet ikke peker på noen etterfølgerkant: vurderingspunktet med
     /// overskriften <see cref="Funn.EtterfolgerOverskrift"/>. Null når det ikke finnes.</summary>

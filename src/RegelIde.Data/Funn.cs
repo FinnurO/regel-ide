@@ -46,7 +46,15 @@ public static class Funn
     /// KI-vurderingen teller som juristvurdert, men vises med eget merke (Johann 2026-10-30, anbefaling 7; docs/09 §46).</summary>
     public const string Menneske = "menneske";
     public const string KiAgent = "ki_agent";
+    /// <summary>Typene en JURISTVURDERING kan ha (<see cref="FunnTjeneste.JuristvurderAsync"/>). <see cref="Maskinregel"/> er ikke med: en
+    /// maskinregel juristvurderer ikke, den forklarer bare bort.</summary>
     public static readonly string[] VurdertAvTyper = [Menneske, KiAgent];
+    /// <summary>[Ny, #429 PR 3, Johanns avgjørelse 2026-11-02 (2)] Funnet er forklart bort av en maskinregel, ikke av en jurist: lastede
+    /// maskinfunn som de nye reglene (R2b, R3-rettingene, R5–R8) holder tilbake. Settes bare av
+    /// <see cref="FunnTjeneste.ForklarBortMaskineltAsync"/>, og vises med eget merke (docs/09 §49) så ingen leser det som en juristvurdering
+    /// av et menneske (CLAUDE.md §9: maskin eller menneske skal synes). CHECK <c>ck_funn_vurdert_av_type</c>.</summary>
+    public const string Maskinregel = "maskinregel";
+    public static readonly string[] AlleVurdertAvTyper = [Menneske, KiAgent, Maskinregel];
 
     // ---- Koblingsroller ----
     public const string GjelderBestemmelse = "gjelder_bestemmelse";
@@ -67,6 +75,11 @@ public static class Funn
     /// ikke peker på noen etterfølgerkant. Uten et slikt punkt stopper premissporten («Etterfølger ikke vurdert»). Se
     /// <see cref="FunnTjeneste.PremissmanglerAsync"/>.</summary>
     public const string EtterfolgerOverskrift = "Etterfølger";
+
+    /// <summary>[Ny, #429 PR 3, R9] Overskriften på vurderingspunktet (type <see cref="Vurdering"/>) der juristen sier om vedtaket fortsatt
+    /// har virkning når hjemmelsloven er opphevet (videreført etter en overgangsregel, erstattet, eller uten virkning). Uten et slikt punkt
+    /// stopper premissporten med «Hjemmelsloven kan være opphevet» (<see cref="Opphevingskontroll.Premissmangeltekst"/>).</summary>
+    public const string HjemmelOverskrift = "Hjemmel";
 
     // ---- Vurderingspunkter ----
     public const string BortforklaringProvd = "bortforklaring_provd";
