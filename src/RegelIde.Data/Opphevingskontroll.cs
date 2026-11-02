@@ -80,7 +80,7 @@ public static class Opphevingskontroll
         foreach (var s in Setninger(UtgattAktorRegler.Normaliser(tekst)))
         {
             if (Regex.IsMatch(s, "(oppheves|avløser|erstatter|[Oo]ppheving av)") && Regex.IsMatch(s, datoRx + @".{0,15}?nr\.?\s*" + nr + @"\b")
-                && !Delvis(s, datoRx))
+                && !Delvis(s, datoRx, nr))
             {
                 return s.Trim();
             }
@@ -88,10 +88,14 @@ public static class Opphevingskontroll
         return null;
     }
 
-    /// <summary>[LÅST, Johann 2026-11-02] Delvis oppheving: en del står foran målet, eller rett etter «oppheves».</summary>
-    public static bool Delvis(string setning, string datoRegex) =>
-        Regex.IsMatch(setning, @"\b(kapit+el|§+|del|punkt|ledd|vedlegg|[IVX]+)\s*[\w.-]*\s+(i|av)\s+(\S+\s+){0,3}?" + datoRegex)
-        || Regex.IsMatch(setning, @"\boppheves\s+(kapit+el|§|punkt|del|ledd|nr\.|vedlegg|[IVX]+\b)");
+    /// <summary>[LÅST, Johann 2026-11-02] Delvis oppheving: en del står foran målet («kapitel VII i forskrift …», «I av kgl.res. …»), rett
+    /// etter «oppheves» («oppheves kapittel 6») eller rett etter målets nummer («… nr. 77 kapittel I til VII-a»). Delordene må stå som egne
+    /// ord: [ENDRET, tørrkjøringen 2026-11-02] uten ordgrensen ble «del» lest inn i «delegering» og «delegeringsvedtak», og to hele
+    /// opphevinger ble regnet som delvise (FOR-2013-02-25-231 og FOR-2014-08-15-1083).</summary>
+    public static bool Delvis(string setning, string datoRegex, string nr) =>
+        Regex.IsMatch(setning, @"(?<!\w)(kapit+el|§+|del|punkt|ledd|vedlegg|[IVX]+)(?!\w)\s*[\w.-]*\s+(i|av)\s+(\S+\s+){0,3}?" + datoRegex)
+        || Regex.IsMatch(setning, @"\boppheves\s+(kapit+el|§|punkt|del|ledd|nr\.|vedlegg|[IVX]+)(?!\w)")
+        || Regex.IsMatch(setning, datoRegex + @".{0,15}?nr\.?\s*" + nr + @"\s+(kapit+el|§|del|punkt|vedlegg)(?!\w)");
 
     /// <summary>En setning som kan videreføre vedtak og forskrifter gitt i medhold av loven med datoen og nummeret (havne- og
     /// farvannsloven § 53 første ledd, yrkestransportlova § 42, arbeidsmiljøloven § 20-2 første ledd i måling 2). Bare et hint til juristen.</summary>
@@ -150,6 +154,15 @@ public static class Opphevingskontroll
     {
         var ut = new Dictionary<Guid, Oppheving>();
         var medDato = kilder.Where(k => DatoOgNummer(k.Eli) is not null).ToList();
+        // [Ny, tørrkjøringen 2026-11-02] Sentrale forskrifter (SF) og lover (NL) holdes utenfor: Lovdata vedlikeholder statusen for dem, så
+        // står de som gjeldende, er en «oppheving» i en annen kilde delvis. Alle tre SF-treffene i den delte basen var delvise:
+        // FOR-1985-06-28-1679 (kapittel 6), FOR-1954-07-08-3 (kapitel VII) og FOR-1992-12-04-915 («… om sosiale tjenester mv. kapittel 5»,
+        // som ingen tekstform fanger). Juristens premiss for R8 er at LTI-statusen ikke vedlikeholdes.
+        var ider = medDato.Select(k => k.Id).ToList();
+        var dokumentIder = await db.Rettskilder.AsNoTracking().Where(r => ider.Contains(r.Id))
+            .Select(r => new { r.Id, r.DokumentId }).ToDictionaryAsync(r => r.Id, r => r.DokumentId, ct);
+        medDato = medDato.Where(k => dokumentIder.GetValueOrDefault(k.Id) is not { } d
+            || !(d.StartsWith("SF/", StringComparison.Ordinal) || d.StartsWith("NL/", StringComparison.Ordinal))).ToList();
         var noder = await NoderSomEndrerAsync(db, medDato.Select(k => k.Eli).Distinct(StringComparer.Ordinal).ToList(), bareLover: false, ct);
         var perMal = noder.GroupBy(x => x.MalEli, StringComparer.Ordinal).ToDictionary(g => g.Key, g => g.Select(x => x.Node).ToList(), StringComparer.Ordinal);
         foreach (var (id, eli) in medDato)

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { delITekstblokker, etterfolgerlinje, lovdataLenke, utenEtterfolgerpunkt } from './funnTekst';
+import { delITekstblokker, delPremissmangler, etterfolgerlinje, lovdataLenke, utenEtterfolgerpunkt } from './funnTekst';
 
 describe('delITekstblokker (#429)', () => {
   it('gjør «- »-linjer til én liste etter innledningen', () => {
@@ -20,6 +20,15 @@ describe('lovdataLenke (#429)', () => {
   it('lar et ukjent format stå uendret og gir null for null', () => {
     expect(lovdataLenke('https://www.regjeringen.no/x')).toBe('https://www.regjeringen.no/x');
     expect(lovdataLenke(null)).toBeNull();
+  });
+});
+
+describe('delPremissmangler (#429 PR 3)', () => {
+  it('skiller R9 (hjemmelsloven) fra navneform og etterfølger', () => {
+    const r9 = 'Hjemmelsloven kan være opphevet: rettskilden bygger på lov 24. juni 1988 nr. 64 (Lovdatas hjemmelsfelt), og …';
+    const etterfolger = 'Etterfølger ikke vurdert: «X» (maskinelt foreslått).';
+    expect(delPremissmangler([etterfolger, r9])).toEqual({ hjemmel: [r9], andre: [etterfolger] });
+    expect(delPremissmangler([])).toEqual({ hjemmel: [], andre: [] });
   });
 });
 

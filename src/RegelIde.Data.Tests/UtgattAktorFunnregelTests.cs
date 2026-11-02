@@ -19,10 +19,10 @@ namespace RegelIde.Data.Tests;
 public class UtgattAktorFunnregelTests(EmbeddedPostgresFixture fixture)
 {
     /// <summary>Et unikt ord som slutter på «departementet» (bare bokstaver, så ordgrensene er som for ekte navn).</summary>
-    private static string Departement(string forstavelse) =>
+    internal static string Departement(string forstavelse) =>
         forstavelse + new string(Guid.NewGuid().ToString("N").Select(c => (char)('a' + c % 26)).Take(10).ToArray()) + "departementet";
 
-    private sealed class Oppsett(RegelIdeDbContext db)
+    internal sealed class Oppsett(RegelIdeDbContext db)
     {
         public async Task<(Virksomhet V, BegrepEntitet Navneform)> AktorAsync(string term, bool nedlagt, string grunn = "gjeldende",
             string? godkjenning = Strukturkanter.MaskineltForeslatt)
@@ -273,7 +273,9 @@ public class UtgattAktorFunnregelTests(EmbeddedPostgresFixture fixture)
         var fEn = funn.Single(f => f.Koblinger.Any(k => k.RettskildeId == en.Id));
         var malKobling = Assert.Single(fEn.Koblinger, k => k.Rolle == Funn.Malvedtak);
         Assert.Equal(mal.Eli, malKobling.RettskildeEli);
-        Assert.Contains("endrer «Forskrift om fiske»", fEn.Beskrivelse);
+        // [ENDRET, #429 PR 3] Lovdatas «Endrer»-felt tar med opphevinger; teksten sier ikke at målvedtaket oppheves, så begge står.
+        Assert.Contains("endrer eller opphever «Forskrift om fiske» ifølge Lovdatas «Endrer»-felt", fEn.Beskrivelse);
+        Assert.Equal("står i rettskildens «Endrer»-felt (endring eller oppheving)", malKobling.Merknad);
         var fTo = funn.Single(f => f.Koblinger.Any(k => k.RettskildeId == to.Id));
         Assert.DoesNotContain(fTo.Koblinger, k => k.Rolle == Funn.Malvedtak);
         Assert.Contains("målvedtaket er ikke entydig", fTo.Beskrivelse);

@@ -8,7 +8,7 @@ import { rettskildeLenkeForId } from '../api/eidLenker';
 import type { FunnDto, FunnKoblingDto, FunnTilgangDto, FunnVurderingspunktInn } from '../api/types';
 import { Metatekst } from '../entitet/Metatekst';
 import { FunnMerker, FunnTekst, OffentligFunn, SIKKERHET_TEKST, lovdataLenke } from '../funn/FunnVisning';
-import { ETTERFOLGER_OVERSKRIFT } from '../funn/funnTekst';
+import { ETTERFOLGER_OVERSKRIFT, HJEMMEL_OVERSKRIFT, delPremissmangler } from '../funn/funnTekst';
 
 const ROLLE_TEKST: Record<string, string> = {
   motstridende_bestemmelse: 'Mulig motstrid',
@@ -49,11 +49,16 @@ export default function FunnDetalj() {
   const [nyBortforklaring, setNyBortforklaring] = useState('');
   // [Ny, #429 PR 2] Juristens vurdering av etterfølgeren når funnet ikke peker på noen etterfølgerkant (premissporten, alle grupper).
   const [etterfolger, setEtterfolger] = useState('');
+  // [Ny, #429 PR 3, R9] Juristens vurdering av om vedtaket fortsatt har virkning når hjemmelsloven er opphevet.
+  const [hjemmel, setHjemmel] = useState('');
   const [begrunnelse, setBegrunnelse] = useState('');
 
   const last = useCallback(() => {
     if (!id) return;
-    api.hentEttFunn(id).then((f) => { setFunn(f); setVurdering(f.vurdering ?? ''); setEtterfolger(etterfolgerpunkt(f)?.tekst ?? ''); setFeil(null); })
+    api.hentEttFunn(id).then((f) => {
+      setFunn(f); setVurdering(f.vurdering ?? ''); setEtterfolger(etterfolgerpunkt(f)?.tekst ?? ''); setHjemmel(hjemmelpunkt(f)?.tekst ?? '');
+      setFeil(null);
+    })
       .catch((e) => setFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved henting av funnet.'));
     api.hentFunnTilgang().then(setTilgang).catch(() => setTilgang(null));
   }, [id]);
@@ -68,6 +73,7 @@ export default function FunnDetalj() {
       setFunn(f);
       setVurdering(f.vurdering ?? '');
       setEtterfolger(etterfolgerpunkt(f)?.tekst ?? '');
+      setHjemmel(hjemmelpunkt(f)?.tekst ?? '');
       setBekreft(null);
     } catch (e) {
       setHandlingFeil(e instanceof ApiError ? e.message : 'Ukjent feil.');
@@ -88,17 +94,24 @@ export default function FunnDetalj() {
   const kanBehandles = funn.status === 'oppdaget' || funn.status === 'juristvurdert';
   const etterfolgerIkkeVurdert = funn.premissmangler.some((m) => m.startsWith('Etterfølger ikke vurdert'));
   const sporOmEtterfolger = funn.kategori === 'utgatt_aktor' && !funn.koblinger.some((k) => k.rolle === 'etterfolger');
+  // [Ny, #429 PR 3, R9] Feltet vises når premissporten melder at hjemmelsloven kan være opphevet, eller når juristen alt har svart.
+  const sporOmHjemmel = delPremissmangler(funn.premissmangler).hjemmel.length > 0 || hjemmelpunkt(funn) !== undefined;
 
   function juristvurder() {
     const gammeltEtterfolgerpunkt = etterfolgerpunkt(funn!);
+    const gammeltHjemmelpunkt = hjemmelpunkt(funn!);
     const eksisterende: FunnVurderingspunktInn[] = funn!.vurderingspunkter
       .filter((p) => !(sporOmEtterfolger && etterfolger.trim() && p === gammeltEtterfolgerpunkt))
+      .filter((p) => !(sporOmHjemmel && hjemmel.trim() && p === gammeltHjemmelpunkt))
       .map((p) => ({ type: p.type, tekst: p.tekst, overskrift: p.overskrift, sikkerhet: p.sikkerhet }));
     const nye: FunnVurderingspunktInn[] = nyBortforklaring.trim()
       ? [{ type: 'bortforklaring_provd', tekst: nyBortforklaring.trim(), overskrift: nyBortforklaringOverskrift.trim() || null }]
       : [];
     if (sporOmEtterfolger && etterfolger.trim()) {
       nye.push({ type: 'vurdering', tekst: etterfolger.trim(), overskrift: ETTERFOLGER_OVERSKRIFT });
+    }
+    if (sporOmHjemmel && hjemmel.trim()) {
+      nye.push({ type: 'vurdering', tekst: hjemmel.trim(), overskrift: HJEMMEL_OVERSKRIFT });
     }
     return utfor(async () => {
       const f = await api.juristvurderFunn(funn!.id, {
@@ -251,6 +264,16 @@ export default function FunnDetalj() {
                   <Textarea data-size="sm" rows={2} value={etterfolger} onChange={(e) => setEtterfolger(e.target.value)} />
                 </Field>
               )}
+              {sporOmHjemmel && (
+                <Field>
+                  <Label>Hjemmel: har vedtaket fortsatt virkning når hjemmelsloven er opphevet?</Label>
+                  <Metatekst>
+                    Regelen fant at loven rettskilden bygger på, er opphevet av en gjeldende lov (se premissporten over). Si om vedtaket er
+                    videreført etter en overgangsregel, erstattet av en ny ordning, eller uten virkning (#429, R9).
+                  </Metatekst>
+                  <Textarea data-size="sm" rows={2} value={hjemmel} onChange={(e) => setHjemmel(e.target.value)} />
+                </Field>
+              )}
               <Field>
                 <Label>Vurdering</Label>
                 <Textarea data-size="sm" rows={3} value={vurdering} onChange={(e) => setVurdering(e.target.value)} />
@@ -370,6 +393,11 @@ function BestemmelseRad({ k }: { k: FunnKoblingDto }) {
       </Table.Cell>
     </Table.Row>
   );
+}
+
+/** [Ny, #429 PR 3, R9] Juristens vurderingspunkt «Hjemmel» (type vurdering), om det finnes. */
+function hjemmelpunkt(f: FunnDto) {
+  return f.vurderingspunkter.find((p) => p.type === 'vurdering' && p.overskrift?.trim().toLowerCase() === HJEMMEL_OVERSKRIFT.toLowerCase());
 }
 
 /** [Ny, #429 PR 2] Juristens vurderingspunkt «Etterfølger» (type vurdering), om det finnes. */
