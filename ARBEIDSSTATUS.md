@@ -45,5 +45,6 @@ dokumentasjon (primaer|sekundaer), begge påkrevd uten hjemmel og NULL med.
 
 | PR | Gren | Status | Verifisert hvordan |
 |---|---|---|---|
-| PR 1, bare lesing (ruting, gruppering, hjemmelforslag, `GET /api/aktorko*`, siden, menyen, samme ruting i sveipene) | `aktorko-lesing` | **PR åpen, venter på Johann (§19). Ikke merget.** Ingen migrasjon, ingenting skrevet til delt `regelide` (pg_stat før/etter API-oppstart og målinger: uendret) | Data-filtrert 175 (inkl. AK1–AK4), tsc -b --force, vitest, kald API-sjekk og nettleser på 5387/5373 |
-| PR 2, skriving (godkjenning i én transaksjon) | — | Venter på juristrunden på hjemmelregelen | — |
+| PR 1, bare lesing (ruting, gruppering, hjemmelforslag, `GET /api/aktorko*`, siden, menyen, samme ruting i sveipene) | — | **Landet** (#444). Ingen migrasjon, ingenting skrevet til delt `regelide` (pg_stat før/etter API-oppstart og målinger: uendret) | Data-filtrert 175 (inkl. AK1–AK4), tsc -b --force, vitest, kald API-sjekk og nettleser på 5387/5373 |
+| Unntak i aktørsveipet for generisk ord uten binding (Johann 2026-10-31, valg 2) + juristrunden på hjemmelregelen (`data/fasit/strukturmodell/juristrunde-440/`) | `aktorsveip-generisk-lenke` | **PR åpen, venter på Johann (§19). Ikke merget.** Ingen migrasjon, ingenting skrevet til delt `regelide` (juristrunden: bare GET og SELECT) | Data-filtrert (AktorkoreglerTests, GeneriskNavneformTjenesteTests, StrukturforslagTjenesteTests, FasitimportTests), tsc -b --force, vitest |
+| PR 2, skriving (godkjenning i én transaksjon) | — | Juristrunden ligger i PR-en over; regelen presiseres etter Johanns svar på uenigheten | — |

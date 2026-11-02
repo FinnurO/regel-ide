@@ -1,0 +1,136 @@
+[
+ {
+  "id": "h1",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Ingen av de tre setningene oppretter en barnehage: «barnehagen» står i preposisjonsfrase eller relativsetning. Hullet er riktig svar etter regelen (CLAUDE.md §8, docs/33 §5.16). At navnet er en klasse, avgjøres ved godkjenningen i PR 2 (aktør eller klasse, issue #440).",
+  "kilder": [
+   "docs/33 §5.16",
+   "CLAUDE.md §8",
+   "issue #440 (PR 2: aktør eller klasse)"
+  ]
+ },
+ {
+  "id": "h3",
+  "svar": "delvis",
+  "tekst": "Delvis. Enig i at bhl. § 24 andre ledd er lovgrunnlaget og bør stå foran forskriften, og at regelen ikke kan finne den (navnet står bare i paragrafoverskriften, og overskrifter leses ikke). Uenig i statusen og i at regelen skal levere forslaget. Koblingen «daglig leder» → «styrer» går gjennom overskriften, ikke gjennom en bøyning eller en kontrollert begrepsregel. Normalisering krever en dokumentert regel for normaliseringen (docs/profil/03 §5); «overskriften navngir leddets subjekt» er ingen slik regel i modellen i dag, og det er en tolkning av systematikken (ordlyd + overskrift som tolkningsargument). Status blir da fortolkning, og fortolkning hører til et menneske ved godkjenningen, ikke til regelen (juristens egen regeltekst på kort R). Regelen leverer derfor forskriften § 4 første ledd (tekstfunn), og loven § 24 andre ledd registreres av saksbehandleren i PR 2 med status fortolkning.",
+  "kilder": [
+   "docs/profil/03 §5 (normalisering krever en regel for normaliseringen)",
+   "kort R, juristens regeltekst («fortolkning … hører til et menneske»)",
+   "bhl. § 24 (overskrift «Styrer», andre ledd), kontrollert med SELECT 2026-10-31"
+  ]
+ },
+ {
+  "id": "h4",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. «medlemmer» er medlemskap i ulike organer, ikke en aktør, og setningen er oppnevningskompetanse. Merkes som ikke-aktør i PR 2.",
+  "kilder": [
+   "docs/33 §5.16",
+   "issue #440 (PR 2: ikke-aktør)"
+  ]
+ },
+ {
+  "id": "h6",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Det som etableres i bhl. § 5, er felles samarbeidsutvalg; skolen er part. Hullet står, og navnet godkjennes som klasse eller generisk i PR 2. At skolen er lovbestemt i en annen lov, vises som eget hull (se svaret på R).",
+  "kilder": [
+   "docs/33 §5.16"
+  ]
+ },
+ {
+  "id": "h7",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Ingen av setningene oppretter et rettssubjekt. At grupperingen slår sammen to referenter (FOR-2023-03-28-449 og hol. § 12-3a), er et funn i grupperingen, ikke i hjemmelregelen; det føres som eget funn.",
+  "kilder": [
+   "docs/33 §5.16 (gruppering)"
+  ]
+ },
+ {
+  "id": "h8",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Private rettssubjekter er ikke struktur (FORMAT.md «Ikke annoter»), og begge treffene er falske.",
+  "kilder": [
+   "FORMAT.md «Ikke annoter»"
+  ]
+ },
+ {
+  "id": "h9",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Oppnevning forutsetter at styret finnes, og grupperingen slår sammen to organer. Hjemmelen for DA-styret (dl. § 33 første ledd, «ledes av et styre») hører til navnet «Styret for domstoladministrasjonen» og er et KONTROLLER-mønster i dag.",
+  "kilder": [
+   "docs/33 §5.16"
+  ]
+ },
+ {
+  "id": "h10",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Feil referent: § 9 gjelder Høyesteretts direktør. Domstolloven oppretter ikke DA-direktøren uttrykkelig; hullet står.",
+  "kilder": [
+   "data/fasit/strukturmodell/domstolloven.json (da_dir, hr_dir)"
+  ]
+ },
+ {
+  "id": "h11",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Ingen av de tre er oppretting; «dommere» er en rolle definert i § 52. Hullet står for ordformen.",
+  "kilder": [
+   "dl. § 52"
+  ]
+ },
+ {
+  "id": "h12",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Falskt treff (objektet er «sammensetning»). At «domstollederen» i § 6 er høyesterettsjustitiarius, er en kobling i PR 2, ikke en hjemmel for ordformen.",
+  "kilder": [
+   "data/fasit/strukturmodell/domstolloven.json (hr_just)"
+  ]
+ },
+ {
+  "id": "h13",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. «Felles forliksråd» er et annet organ. dl. § 27 første ledd («I hver kommune skal det være et forliksråd», kontrollert med SELECT) er hjemmelen, og den kommer med når «det skal være et» og forleddssperren tas inn (svaret på R). Status normalisering.",
+  "kilder": [
+   "dl. § 27 første ledd",
+   "data/fasit/strukturmodell/domstolloven.json u63"
+  ]
+ },
+ {
+  "id": "h15",
+  "svar": "delvis",
+  "tekst": "Delvis. Enig i at «Kongen oppnevner medlemmene» ikke er hjemmel for at rådet finnes, at tekstfunn var feil, og at § 55 a første ledd er der rådet er lovbestemt. Uenig i at regelen skal levere forslaget med status fortolkning: regelen har ingen tolkningsargumenter å vise (formatmangelen juristen selv påpeker), og et maskinelt forslag merket fortolkning vil se ut som en vurdert tolkning. Regelen gir derfor hullet for Innstillingsrådet, og § 55 a første ledd med status fortolkning (ordlyd, kontekst_system) registreres av saksbehandleren i PR 2. Det er i samsvar med juristens regeltekst på R: det som bare forutsetter at aktøren finnes, «hører til et menneske, ikke regelen».",
+  "kilder": [
+   "kort R, juristens regeltekst",
+   "docs/profil/03 §5 (fortolkning krever tolkningsargumenter)",
+   "CLAUDE.md §8"
+  ]
+ },
+ {
+  "id": "h16",
+  "svar": "delvis",
+  "tekst": "Delvis. Enig i at hol. § 5-5 første ledd er riktig bestemmelse, og at treffet på «kommunelegen» i relativsetningen er tilfeldig, så tekstfunn bygger på feil ord. Uenig i rettingen: med den presiserte regelen (navnet som kjerne i frasen etter «skal … ha en») gir setningen ikke forslag til «kommunelegen», fordi kjernen er «kommuneleger», og de to formene er ikke bøyningsformer av hverandre etter den lukkede suffikslista (docs/33 §5.16). Å utvide bøyningen til «felles stamme med to ulike suffiks» ville også slå sammen homografer som «styre»/«styrer» (juristens eget funn på R, punkt c). Regelen gir derfor hullet her, og § 5-5 første ledd (normalisering, kommuneleger → kommunelegen) registreres av saksbehandleren i PR 2.",
+  "kilder": [
+   "docs/33 §5.16 (lukket suffiksliste)",
+   "kort R, punkt (c) om homografer"
+  ]
+ },
+ {
+  "id": "h18",
+  "svar": "delvis",
+  "tekst": "Delvis. Enig i at reindriftsloven § 71 er feil subjekt (det er reindriftsstyret som opprettes), og at sameloven § 1-2 første ledd er hjemmelen (kontrollert med SELECT). Uenig i at den skal stå som hjemmelforslag på navnet i køen: Sametinget finnes alt i katalogen som «SAMEDIGGI / SAMETINGET» (kontrollert med SELECT), så riktig behandling er å koble navnet til den aktøren i PR 2, og hjemmelen registreres på aktøren (#441), ikke foreslås for en ny. Sameloven er dessuten en annen lov enn forekomsten, som juristens egen regeltekst holder utenfor regelen. At rutingen ikke kjenner registernavnet med skråstrek, er et rutingsfunn og føres som eget funn.",
+  "kilder": [
+   "issue #441 (hjemmel på navneformen)",
+   "kort R, juristens regeltekst (annen lov utenfor regelen)",
+   "virksomheter: SAMEDIGGI / SAMETINGET (SELECT 2026-10-31)"
+  ]
+ },
+ {
+  "id": "R",
+  "svar": "delvis",
+  "tekst": "Delvis. Aksepteres: (1) navnet må være kjernen i nominalfrasen uttrykket styrer; (2) «oppnevner», «opprettes» og «etableres» med navnet hvor som helst tas ut; (3) «det skal være et X» og forleddssperren («felles») tas inn; (4) oppnevning, valg, utnevnelse og tilsetting gir aldri forslag; (5) tekstfunn bare når opprettelsen står i teksten, og et forslag som bare forutsetter aktøren gir ingen status fra regelen; (6) KONTROLLER-mønstrene (det opprettes, skal/kan opprette, ledes av) tas ikke med før de er målt; (7) lovbestemt i annen lov og vedtekter vises som eget hull («ikke søkt i andre lover»), ikke som gjetning. Gruppering av ulike referenter, aktørstatus og homografer i bøyningen er funn i grupperingen og PR 2, ikke i hjemmelregelen, og føres som egne funn. Uenig i ett punkt: merknaden «referent ikke kontrollert» når «det finnes flere referenter i samme rettskilde». Regelen kan ikke avgjøre maskinelt at et appellativ har flere referenter uten å gjette (h10 viste at både Høyesteretts direktør og DA-direktøren er «direktøren»), og en merknad som bare står på noen forslag, leses som at de andre er kontrollert. Svaret er heller at INGEN forslag fra regelen påstår referent: setningen vises alltid, ingenting forhåndsvelges i PR 2 (issue #440 AK5), og godkjenningen er menneskets kontroll av referenten.",
+  "kilder": [
+   "docs/33 §5.16",
+   "issue #440 AK5 («ingenting er forhåndsvalgt»)",
+   "CLAUDE.md §8",
+   "docs/profil/03 §5"
+  ]
+ }
+]

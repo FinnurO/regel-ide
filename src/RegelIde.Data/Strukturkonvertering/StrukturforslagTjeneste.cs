@@ -82,8 +82,27 @@ public sealed record AktorsveipRad(
     Guid? GeneriskNavneformId, int BundneForekomster, int ForeslatteBindinger, KantnodeVisning? Referent, Guid? NavnekandidatId)
 {
     /// <summary>[Ny, issue #440] Aktørkøens rute for tekstformen (<see cref="Aktorkoruter"/>). Bare <c>aktorko</c> legges i navnekandidatkøen:
-    /// et generisk ord, en kjent aktør, en kjent klasse/rolle/område eller en bøyningsform av dem har et annet sted å bli behandlet.</summary>
+    /// et generisk ord, en kjent aktør, en kjent klasse/rolle/område eller en bøyningsform av dem har et annet sted å bli behandlet.
+    /// [ENDRET, issue #440, Johanns avgjørelse 2026-10-31] Unntak i aktørsveipet: se <see cref="BlirNavnekandidat"/>.</summary>
     public string? AktorkoRute { get; init; }
+
+    /// <summary>
+    /// [Ny, issue #440, Johanns avgjørelse 2026-10-31 på valg 2 i PR #444] Om aktørsveipet legger raden i navnekandidatkøen. Ikke kjente og
+    /// ikke flertydige, og bare når aktørkøens ruting ikke kjenner ordet — med ÉTT unntak: et generisk ord uten binding (status
+    /// <see cref="Aktorstatus.Generisk"/> og rute <see cref="Aktorkoruter.Generisk"/>) blir fortsatt navnekandidat, slik at «Behandle»-lenken
+    /// til én-skjermen for generisk omtale (docs/09 §42) står i aktørsveipet slik den gjorde før #444. Kandidaten havner ikke i aktørkøen:
+    /// køens ruting sender den til ruten «generisk ord». Alle andre kjente ord (kjent aktør, kjent klasse/rolle/område, bøyningsform — også
+    /// bøyningsform av et generisk ord, som aldri arver regelen) holdes fortsatt utenfor. Gjelder bare aktørsveipet, ikke lasteren eller
+    /// fasitimporten. Frontenden speiler regelen i <c>kandidater/aktorkorute.ts</c> (<c>blirNavnekandidatIAktorsveipet</c>).
+    /// </summary>
+    public static bool BlirNavnekandidat(string status, string? aktorkoRute) =>
+        status is not (Aktorstatus.Kjent or Aktorstatus.Flertydig)
+        && (aktorkoRute == Aktorkoruter.Aktorko || ErGeneriskOrdUtenBinding(status, aktorkoRute));
+
+    /// <summary>[Ny, issue #440, Johanns avgjørelse 2026-10-31] Unntaket i <see cref="BlirNavnekandidat"/>: likt ord som en generisk navneform,
+    /// og minst én forekomst er ikke dekket av en binding.</summary>
+    public static bool ErGeneriskOrdUtenBinding(string status, string? aktorkoRute) =>
+        status == Aktorstatus.Generisk && aktorkoRute == Aktorkoruter.Generisk;
 }
 
 /// <summary>[Ny, issue #378 A1] Antall aktører per status.</summary>
@@ -479,10 +498,13 @@ public sealed partial class StrukturforslagTjeneste(
 
     /// <summary>Oppretter (eller finner) en navnekandidat der tekstformen står i noden. Null når tekstformen ikke står der, og [Ny, issue #440]
     /// når aktørkøens ruting kjenner ordet (generisk ord, kjent aktør, kjent klasse/rolle/område, bøyningsform av dem). Gjelder lasteren,
-    /// aktørsveipet og fasitimporten, som alle går hit.</summary>
-    private async Task<Guid?> OpprettNavnekandidatAsync(Guid rettskildeId, string eid, string tekstform, string opprettetAv, CancellationToken ct)
+    /// aktørsveipet og fasitimporten, som alle går hit. [ENDRET, issue #440, Johanns avgjørelse 2026-10-31] <paramref name="generiskOrdTillatt"/>
+    /// slipper også ruten «generisk ord» gjennom; bare aktørsveipet setter det (<see cref="AktorsveipRad.BlirNavnekandidat"/>).</summary>
+    private async Task<Guid?> OpprettNavnekandidatAsync(
+        Guid rettskildeId, string eid, string tekstform, string opprettetAv, CancellationToken ct, bool generiskOrdTillatt = false)
     {
-        if ((await AktorkoRutingAsync(rettskildeId, tekstform, ct)).Rute != Aktorkoruter.Aktorko) return null;
+        var rute = (await AktorkoRutingAsync(rettskildeId, tekstform, ct)).Rute;
+        if (rute != Aktorkoruter.Aktorko && !(generiskOrdTillatt && rute == Aktorkoruter.Generisk)) return null;
         var tekst = await db.RettskildeNoder.Where(n => n.RettskildeId == rettskildeId && n.Eid == eid && n.Entitetsstatus == "gjeldende")
             .Select(n => n.Tekst).FirstOrDefaultAsync(ct) ?? "";
         var start = tekst.IndexOf(tekstform, StringComparison.Ordinal);
@@ -525,9 +547,14 @@ public sealed partial class StrukturforslagTjeneste(
             for (var i = 0; i < rader.Count; i++)
             {
                 var r = rader[i];
-                if (r.Status is Aktorstatus.Kjent or Aktorstatus.Flertydig) continue;
-                if (r.AktorkoRute != Aktorkoruter.Aktorko) continue; // [Ny, issue #440] se AktorsveipRad.AktorkoRute
-                rader[i] = r with { NavnekandidatId = await OpprettNavnekandidatAsync(rettskildeId, r.EidEksempel, r.Tekstform, opprettetAv, ct) };
+                // [ENDRET, issue #440, Johanns avgjørelse 2026-10-31] Generisk ord uten binding er unntatt fra rutingen her (se
+                // AktorsveipRad.BlirNavnekandidat). Før: bare ruten «aktorko» ga en navnekandidat, og «Behandle»-lenken forsvant for «kommunen».
+                if (!AktorsveipRad.BlirNavnekandidat(r.Status, r.AktorkoRute)) continue;
+                rader[i] = r with
+                {
+                    NavnekandidatId = await OpprettNavnekandidatAsync(rettskildeId, r.EidEksempel, r.Tekstform, opprettetAv, ct,
+                        generiskOrdTillatt: AktorsveipRad.ErGeneriskOrdUtenBinding(r.Status, r.AktorkoRute)),
+                };
             }
         }
         return new AktorsveipRapport(rettskildeId, rettskilde.Kortnavn ?? rettskilde.Tittel, lag, dokument.NoderLest, dokument.Utsagn.Count,

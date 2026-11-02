@@ -1,0 +1,583 @@
+[
+ {
+  "id": "h1",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "hoy",
+  "innvending": "Ingen av de tre forslagene er hjemmel for at noen barnehage finnes. (1) Rammeplanen kap. 3: «Leken skal ha en sentral plass i barnehagen». Det som «skal ha», er leken, og objektet er «plass». «barnehagen» står bare som stedsangivelse. Rammeplanen er dessuten en forskrift om innhold, ikke om organisering. (2) bhl. § 5 første ledd andre punktum: det som «etableres», er en «tilsvarende ordning», altså felles samarbeidsutvalg. «barnehage» står i en preposisjonsfrase. (3) bhl. § 14 b første ledd er en forskriftshjemmel om midlertidig godkjenning. «opprettes» viser til barnehageplasser og barnehager i en relativsetning. Bestemmelsen gir ikke hjemmel for at aktøren finnes, og den oppheves 1. juli 2028 (Lovdata, lov 12. juni 2026 nr. 22). Navnet betegner dessuten en klasse og ikke én aktør. De 21 forekomstene i 8 rettskilder viser til hver enkelt barnehage. I PR 2 bør navnet godkjennes som klasse eller merkes som generisk. En enkelt barnehage finnes i kraft av godkjenning eller vedtekter, og det er ikke et navnevedtak i korpuset. Hullet er riktig svar.",
+  "retting": {
+   "hjemmelforslag": []
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Forskrift om rammeplan for barnehagens innhold og oppgaver kap. 3 (lek), første ledd",
+    "funksjon": "ikke_funnet"
+   },
+   {
+    "ref": "barnehageloven § 5 første ledd andre punktum",
+    "funksjon": "ikke_funnet"
+   },
+   {
+    "ref": "barnehageloven § 14 b første ledd",
+    "funksjon": "ikke_funnet"
+   }
+  ]
+ },
+ {
+  "id": "h2",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. «skal hver barnehage ha et foreldreråd» er en lovbestemt plikt til å ha organet, altså oppretting ved lov (jf. fasitens konstituerende/skal_finnes, f.eks. dl. § 27 første ledd u63 og hol. § 5-5 u47). Normalisering er riktig, siden «foreldreråd» er en bøyningsform av «foreldrerådet». Merk at det finnes ett foreldreråd per barnehage. Navnet bør derfor godkjennes som klasse (organ i hver barnehage) og ikke som én aktør. Genitivforslaget «barnehagens foreldreråd» bør slås sammen med det. Sammensetningen står i § 4 andre ledd og er en egen G-relasjon, ikke hjemmel.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 4 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "barnehageloven § 4 andre ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "h3",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Forslaget holder. «Hver barnehage skal ha en styrer» (FOR-2017-06-22-1049 § 4 første ledd) er tekstfunn. Men lovhjemmelen står i samme rettskilde som forekomsten i bhl. § 42 andre ledd, og regelen fant den ikke. Det er bhl. § 24 andre ledd («Barnehagen skal ha en daglig leder …»), med paragrafoverskriften «Styrer» (kontrollert på Lovdata 2026-10-31). Loven bruker «daglig leder», og overskriften knytter den til «styrer». Derfor er status normalisering. Begge bør stå, med loven først. Forskriften er gitt med hjemmel i loven. Regelen fant ikke § 24 fordi navnet bare står i overskriften (overskrifter leses ikke) og leddet sier «daglig leder». Styrer er en rolle (stilling), én per barnehage, og bør godkjennes som rolle. Genitivforslaget «barnehagens styrer» hører til samme rolle.",
+  "retting": {
+   "hjemmelforslag": [
+    {
+     "rettskilde": "Lov om barnehager (barnehageloven)",
+     "kortnavn": "Barnehageloven – bhl",
+     "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§24/ledd-2",
+     "bestemmelse": "§ 24 andre ledd",
+     "uttrykk": "skal … ha et",
+     "setning": "Barnehagen skal ha en daglig leder som har utdanning som barnehagelærer eller annen høgskoleutdanning som gir barnefaglig og pedagogisk kompetanse.",
+     "treff": "daglig leder",
+     "kunnskapsstatus": "normalisering",
+     "hele_leddet": "Barnehagen skal ha en daglig leder som har utdanning som barnehagelærer eller annen høgskoleutdanning som gir barnefaglig og pedagogisk kompetanse."
+    },
+    {
+     "rettskilde": "Forskrift om pedagogisk bemanning og dispensasjon i barnehager",
+     "kortnavn": "Forskrift om pedagogisk bemanning og dispensasjon i barnehager",
+     "eid": "https://lovdata.no/eli/forskrift/2017/06/22/1049/nor/§4/ledd-1",
+     "bestemmelse": "§ 4 første ledd",
+     "uttrykk": "skal … ha et",
+     "setning": "Hver barnehage skal ha en styrer.",
+     "treff": "styrer",
+     "kunnskapsstatus": "tekstfunn",
+     "hele_leddet": "Hver barnehage skal ha en styrer. Styrer skal ha daglig kontakt med og oppfølging av hver barnehage."
+    }
+   ]
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 24 andre ledd (overskrift «Styrer»)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FOR-2017-06-22-1049 § 4 første ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "h4",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "hoy",
+  "innvending": "«medlemmer» er ikke en aktør. Ordet viser til medlemskapet i et organ (G har_medlemmer), og referenten skifter: klagenemndene etter FOR-2025-07-02-1462 § 3 og forliksrådet etter dl. § 27 andre ledd. Forslaget dl. § 33a første ledd («Kongen oppnevner … og Stortinget velger to medlemmer») gjelder medlemmene i et tredje organ (styret for Domstoladministrasjonen). Dessuten er det oppnevningskompetanse (K oppnevning) og ikke oppretting. Navnet bør merkes som ikke-aktør i PR 2. Medlemskapet modelleres som sammensetning på hvert organ.",
+  "retting": {
+   "hjemmelforslag": []
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "domstolloven § 33a første ledd",
+    "funksjon": "ikke_funnet"
+   },
+   {
+    "ref": "domstolloven § 27 andre ledd",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "FOR-2025-07-02-1462 § 3 andre ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "h5",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder, av samme grunn som h2: bhl. § 4 første ledd er oppretting ved lov, ett samarbeidsutvalg per barnehage. Status normalisering er riktig. Navnet er en klasse. «Samarbeidsutvalget skal være et rådgivende … organ» (§ 4 tredje ledd) karakteriserer organet og forutsetter at det finnes. Det er ikke hjemmel for at det finnes. Merk: forekomsten i § 5 første ledd («felles samarbeidsutvalg for kommunal barnehage og grunnskole») gjelder et annet organ. Det opprettes ved kommunens beslutning og har en egen kompetansehjemmel, ikke § 4. Det organet bør skilles ut i PR 2 og ikke få § 4 første ledd som hjemmel.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 4 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "barnehageloven § 5 første ledd første punktum",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "h6",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "hoy",
+  "innvending": "bhl. § 5 første ledd andre punktum («kan det etableres tilsvarende ordning for privat barnehage og kommunal eller privat skole») gjelder felles samarbeidsutvalg. Skolen er bare part i ordningen. «skolen» er en klasse (skoler etter opplæringslova og privatskolelova, se henvisningen i bhl. § 2 a), ikke én aktør. Skolene finnes etter andre lover, som begge er i korpuset (kontrollert med SELECT). Regelen leser bare rettskilder der navnet står og kan derfor ikke finne dem. Jeg foreslår ikke en bestemmelse: hvilken paragraf i opplæringslova eller privatskolelova som er hjemmel for en skole, er ikke kontrollert. Hullet er riktig nå. I PR 2 bør navnet godkjennes som klasse eller merkes som generisk.",
+  "retting": {
+   "hjemmelforslag": []
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 5 første ledd andre punktum",
+    "funksjon": "ikke_funnet"
+   },
+   {
+    "ref": "barnehageloven § 2 a første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "h7",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "hoy",
+  "innvending": "Begge forslagene er feil. Navnet er heller ikke en aktør, men en generisk omtale med ulike referenter i to rettskilder. I FOR-2023-03-28-449 betyr det barnehagen, skolen eller SFO-en forskriften gjelder. I hol. § 12-3a betyr det virksomheten som yter helse- og omsorgstjenester. At gruppen slår sammen to ulike referenter, er en feil i seg selv. (1) § 15 andre ledd («hvordan virksomheten skal etableres, bygges og drives») beskriver innholdet i en godkjenningssøknad, altså den fysiske etableringen. Det er ikke en hjemmel for at et rettssubjekt finnes. Godkjenningen i første ledd er et vilkår for drift og ikke en oppretting. (2) § 16 første ledd: «skal ha en … vedlikeholdsplan». Det er planen som skal finnes, mens «virksomhetens» står i en relativsetning. Navnet bør merkes som generisk eller ikke-aktør.",
+  "retting": {
+   "hjemmelforslag": []
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2023-03-28-449 § 15 andre ledd",
+    "funksjon": "ikke_funnet"
+   },
+   {
+    "ref": "FOR-2023-03-28-449 § 16 første ledd",
+    "funksjon": "ikke_funnet"
+   },
+   {
+    "ref": "helse- og omsorgstjenesteloven § 12-3a andre ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "h8",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "hoy",
+  "innvending": "«barna» er private rettssubjekter, ikke en forvaltningsaktør, og skal ikke annoteres som struktur (FORMAT.md «Ikke annoter»). Navnet bør merkes som ikke-aktør. Begge forslagene er falske treff for «skal … ha et»: objektet er «en helhetlig tilnærming» og «et bevisst forhold», og «barnas» og «barn» står etter «til».",
+  "retting": {
+   "hjemmelforslag": []
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Forskrift om rammeplan for barnehagens innhold og oppgaver kap. 1 første ledd",
+    "funksjon": "ikke_funnet"
+   },
+   {
+    "ref": "Forskrift om rammeplan for barnehagens innhold og oppgaver kap. 1 (livsmestring og helse) fjerde ledd",
+    "funksjon": "ikke_funnet"
+   }
+  ]
+ },
+ {
+  "id": "h9",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "hoy",
+  "innvending": "To feil. (1) Gruppen slår sammen to ulike organer. I bhl. § 7 andre ledd er det styret i rettssubjektet som driver en privat barnehage, et selskapsorgan etter organisasjonsformens lov og vedtekter. I dl. § 33a er det styret for Domstoladministrasjonen. Ett hjemmelforslag kan ikke gjelde begge. (2) Setningen som er foreslått, er Kongens og Stortingets oppnevning av medlemmer (K oppnevning, fasit u86 og u87), og den forutsetter at styret finnes. Hjemmelen for at DA-styret finnes, er dl. § 33 første ledd («Domstoladministrasjonen ledes av et styre», kontrollert på Lovdata). Sammensetningen står i § 33a første ledd første punktum. Det hører til navnet «Styret for domstoladministrasjonen», som står i hullisten. «styret» i dl. § 33a bør kobles dit (genitiv eller skill ut). Forekomsten i bhl. § 7 bør merkes som generisk. Det tomme forslaget gjelder dette navnet slik det er gruppert nå.",
+  "retting": {
+   "hjemmelforslag": []
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "domstolloven § 33a første ledd andre punktum",
+    "funksjon": "ikke_funnet"
+   },
+   {
+    "ref": "domstolloven § 33 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "barnehageloven § 7 andre ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "h10",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "hoy",
+  "innvending": "Feil subjekt. Forekomsten (dl. § 33b første ledd, «direktørens vedtak») gjelder direktøren for Domstoladministrasjonen. Forslaget dl. § 9 første ledd gjelder Høyesteretts direktør, som leder domstolens kontor. Fasiten skiller de to (da_dir og hr_dir, u22). Mønsteret er riktig bygd, men treffer feil aktør fordi regelen leser hele rettskilden og ikke kan skille mellom to referenter av samme appellativ. Domstolloven har ingen bestemmelse som oppretter direktørstillingen i DA. § 33b andre ledd («stillingen som domstoladministrasjonens direktør») forutsetter den bare, og det ville være fortolkning. Hullet er riktig svar her. Hvis navnet blir koblet til en aktør som har en registrert DA-direktør, er det en kobling og ikke en hjemmel.",
+  "retting": {
+   "hjemmelforslag": []
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "domstolloven § 9 første ledd",
+    "funksjon": "ikke_funnet"
+   },
+   {
+    "ref": "domstolloven § 33b andre ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "h11",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "hoy",
+  "innvending": "Ingen av forslagene er hjemmel for at «dommere» finnes. «Dommere» er en rolle eller klasse som § 52 definerer vidt (også forliksrådsmedlemmer, fasit «dommer»). Forekomsten i § 55 handler om utnevnelse som embetsmenn (Grl. § 21). (1) § 3 første ledd andre punktum («Retten skal ha en justitiarius og nitten andre dommere») er Høyesteretts sammensetning (G har_medlemmer, fasit u11) og ikke hjemmel for rollen generelt. (2) § 6 første ledd er et falskt treff: objektet er «en annen sammensetning», og «dommer» står i en underordnet setning. (3) § 33a første ledd er Kongens oppnevning av dommere til DA-styret. Navnet bør godkjennes som rolle eller klasse med definisjonen i § 52. Det er en begrepsdefinisjon og ikke oppretting eller navnevedtak. Hjemmelen for aktøren står derfor som hull.",
+  "retting": {
+   "hjemmelforslag": []
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "domstolloven § 3 første ledd",
+    "funksjon": "ikke_funnet"
+   },
+   {
+    "ref": "domstolloven § 6 første ledd",
+    "funksjon": "ikke_funnet"
+   },
+   {
+    "ref": "domstolloven § 33a første ledd",
+    "funksjon": "ikke_funnet"
+   },
+   {
+    "ref": "domstolloven § 52",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "h12",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "hoy",
+  "innvending": "Falskt treff. «Høyesterett skal ha en annen sammensetning …» har «sammensetning» som objekt. «domstollederen» står i en underordnet setning som den som treffer avgjørelsen (beslutningskompetanse). I § 6 er domstollederen høyesterettsjustitiarius: § 6 første ledd bruker begge betegnelsene, og fasiten (hr_just) sier det samme. Navnet bør derfor kobles til den rollen og ikke opprettes som ny aktør. Om justitiarius allerede finnes i katalogen, er ikke kontrollert. Hjemmelen for rollen er § 3 første ledd andre punktum («Retten skal ha en justitiarius»), men den hører til rollen og ikke til ordformen «domstollederen».",
+  "retting": {
+   "hjemmelforslag": []
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "domstolloven § 6 andre ledd",
+    "funksjon": "ikke_funnet"
+   },
+   {
+    "ref": "domstolloven § 6 første ledd",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "domstolloven § 3 første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "h13",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "hoy",
+  "innvending": "Feil rettsgrunnlag. § 27 sjuende ledd andre punktum gjelder et annet organ, nemlig felles forliksråd for flere kommuner (fasit felles_fr, u73). Det sier bare når det kan opprettes. Hjemmelen for at forliksrådet finnes, er § 27 første ledd: «I hver kommune skal det være et forliksråd.» Fasiten fører den som konstituerende/skal_finnes (u63), og ordlyden er kontrollert på Lovdata. Regelen bommer fordi «det skal være et …» ikke står på lista, mens «opprettes» treffer forleddet «Felles». Status blir normalisering (forliksråd → Forliksrådet). Navnet er en klasse med ett forliksråd per kommune.",
+  "retting": {
+   "hjemmelforslag": [
+    {
+     "rettskilde": "Lov om domstolene (domstolloven)",
+     "kortnavn": "Domstolloven – dl",
+     "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§27/ledd-1",
+     "bestemmelse": "§ 27 første ledd",
+     "uttrykk": "det skal være et",
+     "setning": "I hver kommune skal det være et forliksråd.",
+     "treff": "forliksråd",
+     "kunnskapsstatus": "normalisering",
+     "hele_leddet": "I hver kommune skal det være et forliksråd."
+    }
+   ]
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "domstolloven § 27 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "domstolloven § 27 sjuende ledd",
+    "funksjon": "ikke_funnet"
+   }
+  ]
+ },
+ {
+  "id": "h14",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. «Lagmannsrettene skal ha en førstelagmann som leder» oppretter rollen ved lov. Fasiten fører det som ledes_av (u24). Status er normalisering. Det finnes én førstelagmann per lagmannsrett, så navnet er en rolle.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "domstolloven § 10 første ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "h15",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Riktig paragraf, men feil setning og feil kunnskapsstatus. «Kongen oppnevner medlemmene av Innstillingsrådet» er oppnevningskompetanse (fasit u126) og forutsetter at rådet finnes. Teksten sier ikke at rådet opprettes. Når det likevel merkes som tekstfunn, vises en slutning som tekstfunn (docs/profil/03 §5). Innstillingsrådet er et lovbestemt organ: § 55 a første ledd gir det navn («Innstillingsrådet for dommere»), oppgaver og sammensetning («skal bestå av»). At rådet finnes i kraft av § 55 a, er en fortolkning (ordlyd og system), ikke et tekstfunn. Retteforslaget peker derfor på første punktum med status fortolkning. Formatet har ikke felt for tolkningsargumenter på hjemmelforslaget. Argumentene er ordlyd og kontekst_system (#367), og det er en mangel i formatet.",
+  "retting": {
+   "hjemmelforslag": [
+    {
+     "rettskilde": "Lov om domstolene (domstolloven)",
+     "kortnavn": "Domstolloven – dl",
+     "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§55a/ledd-1",
+     "bestemmelse": "§ 55a første ledd",
+     "uttrykk": "lovbestemt organ (navn, oppgaver og sammensetning i loven)",
+     "setning": "Innstillingsrådet for dommere skal avgi innstilling i forbindelse med dommerutnevnelse og foreta enkelte konstitusjoner etter nærmere bestemmelser i §§ 55 e og 55 f.",
+     "treff": "Innstillingsrådet for dommere",
+     "kunnskapsstatus": "fortolkning",
+     "hele_leddet": "Innstillingsrådet for dommere skal avgi innstilling i forbindelse med dommerutnevnelse og foreta enkelte konstitusjoner etter nærmere bestemmelser i §§ 55 e og 55 f. Innstillingsrådet skal bestå av tre dommere fra Høyesterett, lagmannsrettene eller tingrettene, en advokat, en jurist ansatt i det offentlige og to medlemmer som ikke er jurister. Når Innstillingsrådet behandler saker som gjelder utnevnelse eller konstitusjon av jordskiftelagdommere og jordskiftedommere, deltar en jordskiftelagdommer eller en jordskiftedommer og en jordskiftekandidat i stedet for henholdsvis en dommer og juristen ansatt i det offentlige. Kongen oppnevner medlemmene av Innstillingsrådet med personlige varamedlemmer, og fastsetter hvilket medlem som skal være leder for Innstillingsrådet."
+    }
+   ]
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "domstolloven § 55 a første ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "h16",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Bestemmelsen er riktig: hol. § 5-5 første ledd, «Kommunen skal ha en eller flere kommuneleger» (fasit u47, konstituerende/skal_finnes). Men regelen traff «kommunelegen» i relativsetningen («de oppgaver kommunelegen er tillagt») og ikke objektet «kommuneleger». Status tekstfunn bygger derfor på et tilfeldig ord. Hadde relativsetningen manglet, ville det ikke blitt noe forslag, fordi «kommuneleger» og «kommunelegen» ikke er bøyningsformer av hverandre etter suffikslista. Treffet bør være «kommuneleger» med status normalisering. Navnet er en rolle (én eller flere per kommune).",
+  "retting": {
+   "hjemmelforslag": [
+    {
+     "rettskilde": "Lov om kommunale helse- og omsorgstjenester m.m. (helse- og omsorgstjenesteloven)",
+     "kortnavn": "Helse- og omsorgstjenesteloven – hol",
+     "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§5-5/ledd-1",
+     "bestemmelse": "§ 5-5 første ledd",
+     "uttrykk": "skal … ha et",
+     "setning": "Kommunen skal ha en eller flere kommuneleger som skal utføre de oppgaver kommunelegen er tillagt i lov eller instruks.",
+     "treff": "kommuneleger",
+     "kunnskapsstatus": "normalisering",
+     "hele_leddet": "Kommunen skal ha en eller flere kommuneleger som skal utføre de oppgaver kommunelegen er tillagt i lov eller instruks. Kommunen kan samarbeide med andre kommuner om ansettelse av kommunelege. Kommunelegen plikter på anmodning fra departementet å delta i lokal redningssentral."
+    }
+   ]
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "helse- og omsorgstjenesteloven § 5-5 første ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "h17",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder: § 10 første ledd («så mange lagmenn … som til enhver tid er bestemt») er lovgrunnlaget for lagmannsstillingene. Merk to ting. (1) Treffet er tilfeldig: «en» hører til «førstelagmann», og «lagmenn» står etter «som leder og så mange». Med den strammere regelen jeg foreslår under R, får navnet hull. (2) § 11 fjerde ledd andre punktum («kan det utnevnes en lagmann som leder for hver avdeling», fasit u29) gjelder lagmann som avdelingsleder. Den kan være den mer presise hjemmelen for forekomsten i § 11 tredje ledd. Hvilken av de to lagmannsbetydningene § 11 tredje ledd viser til, er ikke kontrollert.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "domstolloven § 10 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "domstolloven § 11 fjerde ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "h18",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "hoy",
+  "innvending": "Feil subjekt. I reindriftsloven § 71 første ledd er det reindriftsstyret som «opprettes». Sametinget står bare som det organet som oppnevner tre medlemmer. Hjemmelen for at Sametinget finnes, er sameloven § 1-2 første ledd: «Den samiske folkegruppe skal ha et eget landsomfattende sameting …» Den er kontrollert på Lovdata og i basen, og sameloven er lastet. Det er en lovbestemt opprettelse i en annen lov enn forekomsten, så den ligger utenfor regelens omfang. Status blir normalisering (sameting → Sametinget). Aktøren finnes allerede i katalogen som «SAMEDIGGI / SAMETINGET» (registernavn, virksomheter). Rutingen kjenner ikke igjen registernavnet med skråstrek. I PR 2 bør navnet kobles til den eksisterende aktøren og ikke opprettes på nytt.",
+  "retting": {
+   "hjemmelforslag": [
+    {
+     "rettskilde": "Lov om Sametinget og andre samiske rettsforhold (sameloven)",
+     "kortnavn": "Sameloven – samel",
+     "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§1-2/ledd-1",
+     "bestemmelse": "§ 1-2 første ledd",
+     "uttrykk": "skal … ha et",
+     "setning": "Den samiske folkegruppe skal ha et eget landsomfattende sameting valgt av og blant samene.",
+     "treff": "sameting",
+     "kunnskapsstatus": "normalisering",
+     "hele_leddet": "Den samiske folkegruppe skal ha et eget landsomfattende sameting valgt av og blant samene."
+    }
+   ]
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "sameloven § 1-2 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "reindriftsloven § 71 første ledd",
+    "funksjon": "ikke_funnet"
+   }
+  ]
+ },
+ {
+  "id": "R",
+  "dom": "prinsipiell",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Regelen er feil formulert på tre punkter. Den gir flere falske forslag enn riktige, og det strider mot «heller hullet enn et feil forslag». Av 24 forslag til 18 navn holder 6 (h2, h3, h5, h14, h16, h17), og to av dem bare tilfeldig (h16, h17). h15 har riktig paragraf, men feil grunnlag. 17 er feil. Per uttrykk: «skal … ha et» 6 av 14, «opprettes» 0 av 3, «oppnevner» 0 av 4 og «etableres» 0 av 3. (1) «Navnet hvor som helst i setningen» eller «hvor som helst etter» er ikke det samme som at navnet er det som skal finnes. Regelen må kreve at navnet er kjernen i nominalfrasen uttrykket styrer. (2) «oppnevner» betyr kompetanse til å oppnevne medlemmer (K oppnevning) og forutsetter at organet finnes. Uttrykket hører ikke hjemme på en liste over opprettelsesuttrykk. (3) Kunnskapsstatus settes etter om ordet står ordrett et sted i setningen, ikke etter om opprettelsen står der. Dermed blir slutninger vist som tekstfunn (h15, h18, h16). Det som mangler, er kontrollert mot dataene. «det skal være et X» mangler: dl. § 27 første ledd for forliksrådet (h13). Forleddsperren mangler («felles forliksråd» og «felles samarbeidsutvalg» er andre organer). Leddhodet («daglig leder» under overskriften «Styrer», h3) mangler også. Lovbestemte organer i en annen lov enn forekomsten (Sametinget i sameloven § 1-2, nasjonal klagenemnd i fagskoleloven § 7 a, skoler i opplæringslova) faller utenfor omfanget. Det er riktig at regelen ikke gjetter dem. I stedet bør de vises som et eget hull («lovbestemt i annen lov, ikke søkt»), slik at hullet ikke leses som «finnes ikke» (docs/profil/03 §5). Vedtekter (bhl. § 8, «Kommunale og private barnehager skal ha vedtekter») er en kilde utenfor korpus. De kan aldri gi tekstfunn eller normalisering, bare eksternt_dokumentert. «det skal velges» og «oppnevnes» gjelder personer og ikke organer som finnes. Det er ikke mønstre for oppretting. Tre tverrgående feil ligger utenfor mønsteret, men gjør forslaget feil. (a) Grupperingen slår sammen ulike referenter av samme appellativ: «styret» (bhl. § 7 og dl. § 33a), «virksomheten» (to forskrifter), «direktøren» (DA mot Høyesterett), «Klagenemnda» (tre nemnder). (b) Mange navn i køen er klasser eller roller (barnehagen, skolen, foreldrerådet, forliksrådet) eller ikke-aktører (barna, medlemmer). Spørsmålet om aktørstatus må avgjøres før hjemmelen. (c) Bøyningsregelen kobler ikke «kommuneleger» med «kommunelegen», men den kobler homografer («styre», som er organet, mot «styrer», som er personen). Kjent feil: setningsdeling ved «1. januar». Retteforslaget: ny regeltekst, «oppnevner», «opprettes» og «etableres» med navnet hvor som helst tatt ut, «skal … ha et» strammet inn og «det skal være» lagt til. Begge er kontrollert mot dataene. To mønstre er merket KONTROLLER: «det opprettes et X» og «skal/kan opprette et X». Med de to kontrollerte uttrykkene gir regelen 8 forslag. 5 er riktige (foreldrerådet, styrer, samarbeidsutvalget, førstelagmannen, forliksrådet), og 3 avvises av forleddsperren eller er feil grupperte navn. Før var det 6 riktige av 24.",
+  "retting": {
+   "regel": "Et navn i aktørkøen får hjemmelforslag bare når en setning i en gjeldende normtekst (ikke merknad eller veiledning, ikke opphevet) har et opprettelsesuttrykk fra den lukkede lista, og navnet (samme ord eller en bøyningsform) er KJERNEN i nominalfrasen uttrykket styrer. Nominalfrasen er ordene rett etter uttrykket fram til første preposisjon, «som», «at», «enn» eller komma. Den har høyst tre ord per ledd og kan ha sideordning med «og» eller «eller» og ny artikkel («et foreldreråd og et samarbeidsutvalg»). Navnet må være siste ord i et ledd. Står det et særskilt forledd foran kjernen («felles forliksråd», «felles samarbeidsutvalg»), er det et annet organ, og det gir ikke forslag til navnet uten forleddet. Oppnevning, valg, utnevnelse og tilsetting av medlemmer eller personer er kompetanse (K oppnevning) og forutsetter at organet finnes. De gir aldri hjemmelforslag. Kunnskapsstatus: tekstfunn når navnet står ordrett som kjernen, normalisering ved bøyning. Et forslag som bare forutsetter at aktøren finnes (oppgaver, sammensetning, oppnevning), skal aldri merkes tekstfunn. Det er fortolkning og hører til et menneske, ikke regelen. Er navnet et appellativ i bestemt form (direktøren, styret, virksomheten, klagenemnda), og finnes flere referenter i samme rettskilde, vises forslaget med merknaden «referent ikke kontrollert». Lovbestemte organer i en annen lov enn forekomsten (sameloven § 1-2 for Sametinget, fagskoleloven § 7 a for nasjonal klagenemnd) og vedtekter (utenfor korpus, eksternt dokumentert) ligger utenfor regelen. De vises som hull, ikke som gjetning. Finnes ingen slik setning, vises hullet («Hjemmel for aktøren mangler»).",
+   "uttrykk": [
+    {
+     "kode": "skal_ha",
+     "regex": "\\bskal\\b(?:\\s+\\S+){0,6}?\\s+ha\\s+(?:et|en|ei|ett)\\s+(?:eller\\s+flere\\s+)?",
+     "navn": "navnet er kjernen (siste ord) i et ledd av nominalfrasen etter uttrykket; stopp ved preposisjon/«som»/«at»/«enn»/komma; ≤3 ord per ledd; sideordning med og/eller + artikkel; særskilt forledd («felles») sperrer",
+     "kontroll": "Kontrollert mot dataene (simulert på alle 192 navn og 26 042 gjeldende noder i de 332 rettskildene med ventende navnekandidater, SELECT 2026-10-31). Gir 6 forslag: foreldrerådet, styrer, samarbeidsutvalget og førstelagmannen er riktige. Direktøren (feil referent i samme lov, se h10) og Dommere § 3 (sammensetning, ikke-aktør, se h11) er feil, men feilen er gruppering eller aktørstatus og ikke mønsteret. Kommunelegen og lagmennene faller bort, fordi de bare traff tilfeldig i dag (h16, h17)."
+    },
+    {
+     "kode": "det_skal_vaere",
+     "regex": "\\b(?:det\\s+skal\\s+være|skal\\s+det(?:\\s+\\S+){0,4}?\\s+være)\\s+",
+     "navn": "navnet er kjernen (siste ord) i et ledd av nominalfrasen etter uttrykket; stopp ved preposisjon/«som»/«at»/«enn»/komma; ≤3 ord per ledd; sideordning med og/eller + artikkel; særskilt forledd («felles») sperrer",
+     "kontroll": "Kontrollert mot dataene. Gir dl. § 27 første ledd for forliksrådet (riktig, fasit u63). Gir også bhl. § 5 første ledd for samarbeidsutvalget («felles samarbeidsutvalg»), som forleddsperren må stoppe. I resten av korpuset er kjernene ellers organer (menighetsråd, fjellstyre, distriktsstyre, ungdomsråd) eller ikke-aktører som ikke står i køen (kirke, distriktskasse). «X skal være et Y» uten «det» er en karakteristikk og ikke oppretting, og er ikke med."
+    },
+    {
+     "kode": "det_opprettes",
+     "regex": "\\bdet\\s+(?:opprettes|etableres|nedsettes)\\s+",
+     "navn": "navnet er kjernen (siste ord) i et ledd av nominalfrasen etter uttrykket; stopp ved preposisjon/«som»/«at»/«enn»/komma; ≤3 ord per ledd; sideordning med og/eller + artikkel; særskilt forledd («felles») sperrer",
+     "kontroll": "KONTROLLER. Ingen treff blant de 192 navnene, så presisjonen er ikke målt. Kjente riktige treff utenfor køen er reindriftsloven § 71 (reindriftsstyre) og kirkeordningen § 41 (partssammensatt utvalg). «det oppnevnes» er holdt utenfor fordi kjernen ofte er personer (verge, medveileder, varamedlemmer)."
+    },
+    {
+     "kode": "skal_kan_opprette",
+     "regex": "\\b(?:skal|kan)\\b(?:\\s+\\S+){0,4}?\\s+(?:opprette|etablere|nedsette)\\s+(?:et|en|ei|ett)?\\s*",
+     "navn": "navnet er kjernen (siste ord) i et ledd av nominalfrasen etter uttrykket; stopp ved preposisjon/«som»/«at»/«enn»/komma; ≤3 ord per ledd; sideordning med og/eller + artikkel; særskilt forledd («felles») sperrer",
+     "kontroll": "KONTROLLER. Ingen treff blant de 192 navnene i omfanget i dag. Kjent riktig treff utenfor omfanget er fagskoleloven § 7 a, «Departementet kan opprette en nasjonal klagenemnd». Dette er kompetanse til å opprette (K oppretting), og aktøren finnes først ved vedtaket. Hjemmel_art må da peke på vedtaket, eller vises som «hjemmel for oppretting», ikke som aktørens hjemmel."
+    }
+   ],
+   "utelatte_monstre": [
+    {
+     "monster": "oppnevner (navnet hvor som helst i setningen)",
+     "grunn": "Oppnevningskompetanse og ikke oppretting. Gir 4 forslag i dataene (h4, h9, h11, h15) og ingen holder: tre er ikke-aktør eller feil organ, og ett er riktig paragraf, men feil setning og status."
+    },
+    {
+     "monster": "opprettes (navnet hvor som helst i setningen)",
+     "grunn": "Gir 3 forslag (h1 § 14 b, h13 § 27 sjuende ledd, h18 reindriftsloven § 71), og ingen holder. Det som opprettes, er et annet substantiv i setningen."
+    },
+    {
+     "monster": "etableres (navnet hvor som helst i setningen)",
+     "grunn": "Gir 3 forslag (h1 og h6 bhl. § 5, h7 § 15 andre ledd), og ingen holder."
+    },
+    {
+     "monster": "skal … ha et/en/ei med navnet hvor som helst ETTER uttrykket",
+     "grunn": "Gir 8 av 14 forslag feil (h1, h7, h8 ×2, h11 § 6, h12, og h10 og h11 § 3 på grunn av referent eller aktørstatus). Navnet står i preposisjonsfrase, relativsetning eller underordnet setning, og det er ikke objektet."
+    },
+    {
+     "monster": "X opprettes / X etableres (navnet som subjekt foran verbet)",
+     "grunn": "Testet: begge treffene i dataene er feil, «hvordan virksomheten skal etableres» (h7) og «Felles forliksråd kan opprettes» (annet organ)."
+    },
+    {
+     "monster": "X oppnevnes (navnet som subjekt)",
+     "grunn": "Testet: «Rettsvitner oppnevnes av retten» gjelder personer, ikke en aktør som finnes. «Klagenemnda oppnevnes av departementet» (3 kapitler med tre ulike nemnder) gjelder hvem som oppnevner. Om dette oppretter nemnda, er fortolkning (fagskoleloven § 7 a), så det er ikke tekstfunn."
+    },
+    {
+     "monster": "skal ha uten artikkel («skal ha seks medlemmer»)",
+     "grunn": "Testet: gir 4 nye forslag til «medlemmer» (klagenemndforskriften § 3, 7 og 11, dl. § 27 andre ledd), og alle er sammensetning og ikke-aktør."
+    },
+    {
+     "monster": "X skal være et … organ / X er et organ for",
+     "grunn": "Testet: eneste treff er «Samarbeidsutvalget skal være et rådgivende … organ» (bhl. § 4 tredje ledd). Det karakteriserer organet og forutsetter at det finnes. Kan være støtte i fortolkning, men er ikke hjemmel."
+    },
+    {
+     "monster": "ledes av et X",
+     "grunn": "KONTROLLER, ikke ta med ennå. Ett riktig treff (dl. § 33 første ledd for DA-styret) og ett falskt (dl. § 20 for «Dommere»)."
+    }
+   ]
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "src/RegelIde.Data/AktorkoTjeneste.cs Aktorkoregler.FinnHjemmelforslag / Opprettelsesuttrykk",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "docs/33 §5.16 og §4.6; docs/profil/03 §5",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "data/fasit/strukturmodell/domstolloven.json u24, u63, u86, u126 (konstituerende/skal_finnes mot oppnevning)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "domstolloven § 27 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "sameloven § 1-2 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "fagskoleloven § 7 a første ledd",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "barnehageloven § 8 første ledd (vedtekter)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ }
+]
