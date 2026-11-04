@@ -23,6 +23,10 @@ public static class FunnEndepunkter
         (konfig.GetSection(Funn.KonfignokkelPubliseringsansvarlige).Get<string[]>() ?? [])
             .Select(s => Guid.TryParse(s, out var g) ? g : Guid.Empty).Where(g => g != Guid.Empty).ToHashSet();
 
+    /// <summary>[Ny, #429 PR 4] Tilgangen til å forklare bort, gjenåpne og avvise en kildefeil: rollen Jurist eller publiseringstilgang.</summary>
+    public static bool KanVurdere(Bruker bruker, IConfiguration konfig) =>
+        bruker.Rolle == JuristRolle || Publiseringsansvarlige(konfig).Contains(bruker.Id);
+
     public static void MapFunnEndepunkter(this WebApplication app)
     {
         var funn = app.MapGroup("/api/funn").WithOpenApi();
@@ -168,7 +172,7 @@ public static class FunnEndepunkter
             {
                 var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
                 if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
-                if (bruker.Rolle != JuristRolle && !Publiseringsansvarlige(konfig).Contains(bruker.Id))
+                if (!KanVurdere(bruker, konfig))
                 {
                     return Forbudt("Å forklare bort et funn krever rollen Jurist eller publiseringstilgang.");
                 }
@@ -176,6 +180,22 @@ public static class FunnEndepunkter
             })
             .WithName("ForklarBortFunn")
             .WithSummary("Issue #429 — oppdaget/juristvurdert → forklart bort, med begrunnelse. Publiseres ikke.");
+
+        // [Ny, #429 PR 4, Johanns avgjørelse 2026-11-04 (4)] Gjenåpning: forklart bort → oppdaget. Samme tilgang som å forklare bort.
+        funn.MapPost("/{id:guid}/gjenapne", async (Guid id, GjenapneRequest body, HttpRequest request, FunnTjeneste tjeneste,
+                RegelIdeDbContext db, IConfiguration konfig, CancellationToken ct) =>
+            {
+                var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+                if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+                if (!KanVurdere(bruker, konfig))
+                {
+                    return Forbudt("Å gjenåpne et funn krever rollen Jurist eller publiseringstilgang.");
+                }
+                return await Overgang(id, tjeneste, ct, () => tjeneste.GjenapneAsync(id, body.Begrunnelse, bruker.Navn, ct: ct));
+            })
+            .WithName("GjenapneFunn")
+            .WithSummary("Issue #429 PR 4 — forklart bort → oppdaget, med begrunnelse (409 fra andre statuser). Bare rollen Jurist eller "
+                         + "publiseringsansvarlige. Et gjenåpnet funn regnes som menneskelig vurdert: maskinregelen forklarer det ikke bort igjen.");
 
         funn.MapPost("/{id:guid}/godkjenn-for-publisering", async (Guid id, HttpRequest request, FunnTjeneste tjeneste,
                 RegelIdeDbContext db, IConfiguration konfig, CancellationToken ct) =>
@@ -269,6 +289,10 @@ public sealed record JuristvurderingRequest(string Vurdering, string VurdertAvTy
 
 public sealed record ForklarBortRequest(string Begrunnelse);
 
+public sealed record GjenapneRequest(string Begrunnelse);
+
+public sealed record AvvisKildefeilRequest(string Begrunnelse);
+
 public sealed record FunnKoblingDto(
     Guid Id, string Rolle, int Sortering, string Etikett, string? Merknad, string? RettskildeEli, Guid? RettskildeId, string? Eid,
     Guid? NodeId, Guid? VirksomhetId, Guid? BegrepId, Guid? StrukturkantId, Guid? KildefeilId, string? EksternLenke, string? QuoteExact);
@@ -282,7 +306,8 @@ public sealed record FunnDto(
     string? SistEndretAv, DateTimeOffset? SistEndretTidspunkt, string? JuristvurdertAv, DateTimeOffset? JuristvurdertTidspunkt,
     string? VurdertAvType, string? ForklartBortBegrunnelse, string? ForklartBortAv, DateTimeOffset? ForklartBortTidspunkt,
     string? GodkjentAv, DateTimeOffset? GodkjentTidspunkt, DateTimeOffset? KildeEndretTidspunkt,
-    List<FunnKoblingDto> Koblinger, List<FunnVurderingspunktDto> Vurderingspunkter, List<string> Premissmangler, JsonElement? Forhandsvisning)
+    List<FunnKoblingDto> Koblinger, List<FunnVurderingspunktDto> Vurderingspunkter, List<string> Premissmangler, JsonElement? Forhandsvisning,
+    string? GjenapnetAv = null, DateTimeOffset? GjenapnetTidspunkt = null, string? GjenapnetBegrunnelse = null)
 {
     public static FunnDto Fra(FunnEntitet f, List<string> premissmangler, JsonElement? forhandsvisning) => new(
         f.Id, f.EksternNokkel, f.Kategori, f.Undertype, f.Tittel, f.Beskrivelse, f.Vurdering, f.InternMerknad, f.Status, f.OppdagelsesKilde,
@@ -294,5 +319,5 @@ public sealed record FunnDto(
             k.QuoteExact)).ToList(),
         f.Vurderingspunkter.OrderBy(p => p.Sortering).Select(p => new FunnVurderingspunktDto(p.Id, p.Type, p.Sortering, p.Overskrift, p.Tekst,
             p.Sikkerhet)).ToList(),
-        premissmangler, forhandsvisning);
+        premissmangler, forhandsvisning, f.GjenapnetAv, f.GjenapnetTidspunkt, f.GjenapnetBegrunnelse);
 }

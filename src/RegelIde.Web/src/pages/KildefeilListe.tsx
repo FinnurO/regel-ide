@@ -9,14 +9,16 @@ import { Pagineringskontroll } from '../tabell/Pagineringskontroll';
 import { usePaginering } from '../tabell/usePaginering';
 import { Metatekst } from '../entitet/Metatekst';
 
-const STATUS_FARGE: Record<KildefeilStatus, 'neutral' | 'warning' | 'success' | 'info'> = {
+// [ENDRET, #429 PR 4] «Avvist» (et menneske har funnet at raden ikke er en kildefeil) er `danger`, som avvist ellers i appen (docs/09 §49).
+const STATUS_FARGE: Record<KildefeilStatus, 'neutral' | 'warning' | 'success' | 'info' | 'danger'> = {
   Ny: 'warning',
   Kjent: 'neutral',
   'Rettet-hos-oss': 'success',
   'Venter-på-Lovdata': 'info',
+  Avvist: 'danger',
 };
 
-const ALLE_STATUSER: KildefeilStatus[] = ['Ny', 'Kjent', 'Rettet-hos-oss', 'Venter-på-Lovdata'];
+const ALLE_STATUSER: KildefeilStatus[] = ['Ny', 'Kjent', 'Rettet-hos-oss', 'Venter-på-Lovdata', 'Avvist'];
 
 function formaterTidspunkt(iso: string): string {
   return new Date(iso).toLocaleString('nb-NO', { dateStyle: 'short', timeStyle: 'short' });
@@ -176,6 +178,14 @@ export default function KildefeilListe() {
                       <Tag data-color={STATUS_FARGE[k.status]} data-size="sm">
                         {k.status}
                       </Tag>
+                      {/* [Ny, #429 PR 4] Hvem som avviste og hvorfor: maskin eller menneske skal synes (CLAUDE.md §9). */}
+                      {k.statusEndretAv && (
+                        <Metatekst style={{ margin: '0.25rem 0 0', maxWidth: '16rem', whiteSpace: 'normal' }}>
+                          {k.status} av {k.statusEndretAv}
+                          {k.statusEndretTidspunkt ? ` ${formaterTidspunkt(k.statusEndretTidspunkt)}` : ''}
+                          {k.statusbegrunnelse ? `: ${k.statusbegrunnelse}` : ''}
+                        </Metatekst>
+                      )}
                     </Table.Cell>
                     <Table.Cell style={{ maxWidth: '18rem' }}>
                       <Link asChild>

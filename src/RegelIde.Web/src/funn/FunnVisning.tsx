@@ -27,6 +27,9 @@ export const KATEGORI_TEKST: Record<FunnKategori, string> = {
 export const UNDERTYPE_TEKST: Record<string, string> = {
   nedlagt_aktor: 'Nedlagt aktør',
   utgatt_navn: 'Utgått navn',
+  // [Ny, #429 PR 4, Johanns avgjørelse 2026-11-04 (2)] Navnet står bare i avgiverformelen. Sorteres sist i lista (API-et). Ikke i UNDERTYPER:
+  // det er maskinregelens klassifisering, ikke noe som velges ved registrering.
+  avgiverformel: 'Bare i avgiverformelen',
   hull: 'Hull',
   upresis_henvisning: 'Upresis henvisning',
   publiseringsfeil_kilde: 'Publiseringsfeil i kilden',

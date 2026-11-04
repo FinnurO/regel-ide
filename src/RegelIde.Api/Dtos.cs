@@ -1787,13 +1787,15 @@ public sealed record EksternKildeDto(Guid Id, string Kildetype, string EksternId
 public sealed record EksternKildeListeDto(int Totalt, IReadOnlyList<EksternKildeDto> Kilder);
 
 /// <summary>Én rad i det varige kildefeil-registeret (issue #249) — se <see cref="KildefeilEntitet"/>.</summary>
+/// <remarks>[ENDRET, #429 PR 4] Hvem som endret statusen, når og hvorfor (status «Avvist»).</remarks>
 public sealed record KildefeilDto(
     Guid Id, Guid RettskildeId, string? RettskildeEid, string Type, string Beskrivelse,
-    string FunnetAvMekanisme, string Status, string OpprettetAv, DateTimeOffset OpprettetTidspunkt)
+    string FunnetAvMekanisme, string Status, string OpprettetAv, DateTimeOffset OpprettetTidspunkt,
+    string? StatusEndretAv = null, DateTimeOffset? StatusEndretTidspunkt = null, string? Statusbegrunnelse = null)
 {
     public static KildefeilDto FraEntitet(KildefeilEntitet k) => new(
         k.Id, k.RettskildeId, k.RettskildeEid, k.Type, k.Beskrivelse, k.FunnetAvMekanisme, k.Status,
-        k.OpprettetAv, k.OpprettetTidspunkt);
+        k.OpprettetAv, k.OpprettetTidspunkt, k.StatusEndretAv, k.StatusEndretTidspunkt, k.Statusbegrunnelse);
 }
 
 /// <summary>Svaret fra POST /api/administrasjon/hjemmel-validering/registrer-kildefeil — se

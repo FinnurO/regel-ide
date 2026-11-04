@@ -107,7 +107,7 @@ public static class Opphevingskontroll
         if (Regex.IsMatch(setning, @"(?<!\w)(kapit+el|§+|del|punkt|ledd|vedlegg|[IVX]+)(?!\w)\s*[\w.-]*\s+(i|av)\s+(\S+\s+){0,3}?" + datoRegex)
             || Regex.IsMatch(setning, @"\boppheves\s+(kapit+el|§|punkt|pkt\.?|del|ledd|nr\.|vedlegg|[IVX]+)(?!\w)")
             || Regex.IsMatch(setning, datoRegex + @".{0,15}?nr\.?\s*" + nr + @"\s+(kapit+el|§|del|punkt|pkt\.?|vedlegg)(?!\w)")
-            || Regex.IsMatch(setning, @"\bfor\s+så\s+vidt\b"))
+            || Regex.IsMatch(setning, @"\bfor\s+så\s+vidt\b", RegexOptions.IgnoreCase))
         {
             return true;
         }

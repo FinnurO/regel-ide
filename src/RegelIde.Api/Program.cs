@@ -1740,8 +1740,31 @@ kildefeil.MapGet("/", async (string? status, Guid? rettskildeId, KildefeilTjenes
         return Results.Ok(rader.Select(KildefeilDto.FraEntitet));
     })
     .WithName("HentKildefeil")
-    .WithSummary("Hele kildefeil-registeret, valgfritt filtrert på status ('Ny'/'Kjent'/'Rettet-hos-oss'/" +
+    .WithSummary("Hele kildefeil-registeret, valgfritt filtrert på status ('Ny'/'Kjent'/'Rettet-hos-oss'/'Avvist'/" +
                  "'Venter-på-Lovdata') og/eller rettskilde. Utelatt status = alle statuser. Nyeste funn først.");
+
+// [Ny, #429 PR 4, Johanns avgjørelse 2026-11-04 (4)] Første skrivevei for status på en kildefeil: et menneske avviser raden («ikke en
+// kildefeil»). Samme tilgang som å forklare bort et funn: rollen Jurist eller publiseringstilgang. Se KildefeilTjeneste.AvvisAsync.
+kildefeil.MapPost("/{id:guid}/avvis", async (Guid id, AvvisKildefeilRequest body, HttpRequest request, KildefeilTjeneste tjeneste,
+        RegelIdeDbContext db, IConfiguration konfig, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        if (!FunnEndepunkter.KanVurdere(bruker, konfig))
+        {
+            return Results.Json(new { feil = "Å avvise en kildefeil krever rollen Jurist eller publiseringstilgang." }, statusCode: StatusCodes.Status403Forbidden);
+        }
+        try
+        {
+            var rad = await tjeneste.AvvisAsync(id, body.Begrunnelse, bruker.Navn, ct);
+            return rad is null ? Results.NotFound(new { feil = $"Ingen kildefeil med id '{id}'." }) : Results.Ok(KildefeilDto.FraEntitet(rad));
+        }
+        catch (ArgumentException ex) { return Results.BadRequest(new { feil = ex.Message }); }
+        catch (InvalidOperationException ex) { return Results.Conflict(new { feil = ex.Message }); }
+    })
+    .WithName("AvvisKildefeil")
+    .WithSummary("Issue #429 PR 4 — et menneske avviser en kildefeil (status «Avvist»: den er ikke en kildefeil), med begrunnelse. Bare rollen "
+                 + "Jurist eller publiseringsansvarlige (403 ellers). Raden slettes ikke, og mekanismen som fant den, oppretter den ikke på nytt.");
 
 // [Ny, issue #429] Funn til vurdering — endepunktene står i FunnEndepunkter.cs.
 app.MapFunnEndepunkter();

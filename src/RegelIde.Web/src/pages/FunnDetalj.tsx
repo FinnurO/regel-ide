@@ -209,10 +209,15 @@ export default function FunnDetalj() {
           {funn.status === 'forklart_bort' && (
             <Paragraph data-size="sm" style={{ marginTop: '0.75rem' }}><strong>Forklart bort:</strong> {funn.forklartBortBegrunnelse}</Paragraph>
           )}
+          {/* [Ny, #429 PR 4] Et menneske har gjenåpnet funnet. Begrunnelsen for at det var forklart bort, står i proveniensen. */}
+          {funn.gjenapnetTidspunkt && (
+            <Paragraph data-size="sm" style={{ marginTop: '0.75rem' }}><strong>Gjenåpnet:</strong> {funn.gjenapnetBegrunnelse}</Paragraph>
+          )}
           <Metatekst style={{ marginTop: '0.75rem' }}>
             Registrert av {funn.opprettetAv} {tid(funn.opprettetTidspunkt)} ({funn.oppdagelsesKilde}{funn.funnetI ? `, funnet i ${funn.funnetI}` : ''}).
             {funn.juristvurdertAv && ` Juristvurdert av ${funn.juristvurdertAv} ${tid(funn.juristvurdertTidspunkt)}.`}
             {funn.forklartBortAv && ` Forklart bort av ${funn.forklartBortAv} ${tid(funn.forklartBortTidspunkt)}.`}
+            {funn.gjenapnetAv && ` Gjenåpnet av ${funn.gjenapnetAv} ${tid(funn.gjenapnetTidspunkt ?? null)}; maskinregelen forklarer det ikke bort igjen.`}
             {funn.godkjentAv && ` Godkjent for publisering av ${funn.godkjentAv} ${tid(funn.godkjentTidspunkt)}.`}
           </Metatekst>
         </Card>
