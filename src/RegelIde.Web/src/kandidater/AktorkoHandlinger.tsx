@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link as RouterLink } from 'react-router';
-import { Alert, Button, Card, Details, Field, Heading, Label, Radio, Select, Textarea } from '@digdir/designsystemet-react';
+import { Alert, Button, Card, Details, Field, Fieldset, Heading, Label, Radio, Select, Textarea } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { AktorkoDetalj, AktorkoKvittering, Aktorkotype, GeneriskOmtaleRapport, VirksomhetDto } from '../api/types';
 import { Metatekst } from '../entitet/Metatekst';
@@ -17,6 +17,9 @@ import { AKTORKORUTE_TEKST } from './aktorkorute';
  * [Ny, issue #440 PR 2, Johanns avgjørelser 2026-10-30 og 2026-11-01] Skrivingen i aktørkøen (docs/09 §50): godkjenningen som ett skjema,
  * og de andre handlingene i en lukket `Details`. Hver handling er én transaksjon i API-et; kvitteringen er veiviserens «Dette skjedde»
  * (docs/09 §15).
+ *
+ * <p>Radioknappene står i `Fieldset` med `Fieldset.Legend`, ikke i `Field`: i en `Field` peker alle etikettene på den første knappen
+ * (målt i kaldsjekken 2026-11-05: et klikk på «Klasse» valgte «Aktør»). Samme mønster som `GeneriskEnSkjerm` (docs/09 §50).</p>
  *
  * <p><b>Ingenting er forhåndsvalgt</b> (#440 AK5): typen, skrivemåten, hjemmelen og hvor sikkert det er, velges aktivt. Knappen er av med
  * `Metatekst` som sier hva som mangler. Reglene står i `aktorkoGodkjenning.ts` (med vitest).</p>
@@ -89,23 +92,23 @@ export function Godkjenningsskjema({ detalj, onFerdig }: { detalj: AktorkoDetalj
         «hjemmel mangler», og tagger for alle {detalj.forekomster} forekomstene, i én transaksjon. Ingenting er forhåndsvalgt.
       </Metatekst>
 
-      <Field data-size="sm" style={{ marginBottom: '0.6rem' }}>
-        <Label>Hva er «{detalj.navn}»?</Label>
+      <Fieldset data-size="sm" style={{ marginBottom: '0.6rem' }}>
+        <Fieldset.Legend>Hva er «{detalj.navn}»?</Fieldset.Legend>
         {(Object.keys(AKTORKOTYPE_TEKST) as Aktorkotype[]).map((t) => (
           <Radio key={t} name={`aktorko-type-${n}`} value={t} label={AKTORKOTYPE_TEKST[t].tekst} description={AKTORKOTYPE_TEKST[t].beskrivelse}
             checked={u.type === t} onChange={() => sett({ type: t, gjelder: null })} />
         ))}
-      </Field>
+      </Fieldset>
 
-      <Field data-size="sm" style={{ marginBottom: '0.6rem' }}>
-        <Label>Navnet, slik det står i teksten</Label>
+      <Fieldset data-size="sm" style={{ marginBottom: '0.6rem' }}>
+        <Fieldset.Legend>Navnet, slik det står i teksten</Fieldset.Legend>
         {skrivemater(detalj).map((s) => (
           <Radio key={s} name={`aktorko-navn-${n}`} value={s} label={`«${s}»`} checked={u.navn === s} onChange={() => sett({ navn: s })} />
         ))}
-      </Field>
+      </Fieldset>
 
-      <Field data-size="sm" style={{ marginBottom: '0.6rem' }}>
-        <Label>Hjemmel for at {u.type ? AKTORKOTYPE_TEKST[u.type].bestemt.toLowerCase() : 'den'} finnes</Label>
+      <Fieldset data-size="sm" style={{ marginBottom: '0.6rem' }}>
+        <Fieldset.Legend>Hjemmel for at {u.type ? AKTORKOTYPE_TEKST[u.type].bestemt.toLowerCase() : 'den'} finnes</Fieldset.Legend>
         {detalj.hjemmelforslag.map((f) => (
           <Radio key={forslagNokkel(f)} name={`aktorko-hjemmel-${n}`} value={forslagNokkel(f)}
             label={`${f.kortnavn ?? f.rettskilde} ${f.bestemmelse ?? f.eid}`}
@@ -116,18 +119,18 @@ export function Godkjenningsskjema({ detalj, onFerdig }: { detalj: AktorkoDetalj
         <Radio name={`aktorko-hjemmel-${n}`} value="mangler" label="Hjemmel mangler"
           description="Lagres som uavklart, med «ikke funnet av regelen; andre lover og vedtekter er ikke søkt». En annen hjemmel registreres på aktørsiden."
           checked={u.hjemmel === 'mangler'} onChange={() => sett({ hjemmel: 'mangler' })} />
-      </Field>
+      </Fieldset>
 
       {u.type && u.type !== 'aktor' && u.hjemmel === 'mangler' && (
-        <Field data-size="sm" style={{ marginBottom: '0.6rem' }}>
-          <Label>Hvor gjelder {AKTORKOTYPE_TEKST[u.type].bestemt.toLowerCase()}?</Label>
+        <Fieldset data-size="sm" style={{ marginBottom: '0.6rem' }}>
+          <Fieldset.Legend>Hvor gjelder {AKTORKOTYPE_TEKST[u.type].bestemt.toLowerCase()}?</Fieldset.Legend>
           {detalj.perRettskilde.map((r) => (
             <Radio key={r.rettskildeId} name={`aktorko-gjelder-${n}`} value={r.rettskildeId} label={r.kortnavn ?? r.tittel}
               checked={u.gjelder === r.rettskildeId} onChange={() => sett({ gjelder: r.rettskildeId })} />
           ))}
           <Radio name={`aktorko-gjelder-${n}`} value="fast" label="Hele korpuset (fast begrep)"
             checked={u.gjelder === 'fast'} onChange={() => sett({ gjelder: 'fast' })} />
-        </Field>
+        </Fieldset>
       )}
       {u.type && u.type !== 'aktor' && valgtForslag && (
         <Metatekst style={{ marginBottom: '0.6rem' }}>
@@ -135,14 +138,14 @@ export function Godkjenningsskjema({ detalj, onFerdig }: { detalj: AktorkoDetalj
         </Metatekst>
       )}
 
-      <Field data-size="sm" style={{ marginBottom: '0.6rem' }}>
-        <Label>Hvor sikkert er det?</Label>
+      <Fieldset data-size="sm" style={{ marginBottom: '0.6rem' }}>
+        <Fieldset.Legend>Hvor sikkert er det?</Fieldset.Legend>
         <Radio name={`aktorko-godkjenning-${n}`} value="faglig_vurdert" label="Faglig vurdert"
           description="Vurdert av deg, men ikke godkjent. Står som forslag til noen godkjenner det."
           checked={u.godkjenning === 'faglig_vurdert'} onChange={() => sett({ godkjenning: 'faglig_vurdert' })} />
         <Radio name={`aktorko-godkjenning-${n}`} value="godkjent" label="Godkjent" description="Gjelder fra nå."
           checked={u.godkjenning === 'godkjent'} onChange={() => sett({ godkjenning: 'godkjent' })} />
-      </Field>
+      </Fieldset>
       <Textarea data-size="sm" aria-label="Begrunnelse (valgfri)" placeholder="Begrunnelse (valgfri)" rows={2} value={u.begrunnelse}
         onChange={(e) => sett({ begrunnelse: e.target.value })} style={{ maxWidth: '36rem', marginBottom: '0.5rem' }} />
 
@@ -211,12 +214,12 @@ export function AndreHandlinger({ detalj, onFerdig }: { detalj: AktorkoDetalj; o
           <VirksomhetVelger virksomheter={virksomheter} value={aktorId} onChange={setAktorId} label="Aktør" tomValgTekst="Velg aktør …"
             style={{ maxWidth: '28rem', marginBottom: '0.5rem' }} />
         )}
-        <Field data-size="sm" style={{ marginBottom: '0.5rem' }}>
-          <Label>Navnet, slik det står i teksten</Label>
+        <Fieldset data-size="sm" style={{ marginBottom: '0.5rem' }}>
+          <Fieldset.Legend>Navnet, slik det står i teksten</Fieldset.Legend>
           {skrivemater(detalj).map((s) => (
             <Radio key={s} name={`aktorko-koble-navn-${n}`} value={s} label={`«${s}»`} checked={navn === s} onChange={() => setNavn(s)} />
           ))}
-        </Field>
+        </Fieldset>
         <Field data-size="sm" style={{ maxWidth: '22rem', marginBottom: '0.5rem' }}>
           <Label>Grunn til at navneformen peker dit</Label>
           <Select data-size="sm" value={grunn} onChange={(e) => setGrunn(e.target.value)}>

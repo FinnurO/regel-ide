@@ -800,8 +800,9 @@ public sealed class AktorkoTjeneste(RegelIdeDbContext db)
     {
         var rader = await db.RettskildeNoder
             .Where(n => rettskildeIder.Contains(n.RettskildeId) && n.Entitetsstatus == "gjeldende" && !n.Opphevet && !n.ErMerknad && n.Tekst != null
-                        // [ENDRET, #440 PR 2] Forfilteret følger de to uttrykkene som står igjen etter juristrunden.
-                        && n.Tekst.ToLower().Contains("skal") && (n.Tekst.ToLower().Contains("ha e") || n.Tekst.ToLower().Contains("være e")))
+                        // [ENDRET, #440 PR 2] Forfilteret følger de to uttrykkene som står igjen etter juristrunden. «være» uten artikkel er med:
+                        // «det skal være felles samarbeidsutvalg» er et treff forleddssperren stopper, og det skal vises (målt i kaldsjekken).
+                        && n.Tekst.ToLower().Contains("skal") && (n.Tekst.ToLower().Contains("ha e") || n.Tekst.ToLower().Contains("være")))
             .Select(n => new { n.RettskildeId, n.Eid, n.Tekst, n.ErMerknad, n.Sorteringsrekkefolge })
             .ToListAsync(ct);
         return rader.Select(n => new HjemmelNode(n.RettskildeId, n.Eid, n.Tekst!, n.ErMerknad, n.Sorteringsrekkefolge)).ToList();
