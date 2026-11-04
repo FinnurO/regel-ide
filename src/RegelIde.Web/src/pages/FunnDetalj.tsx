@@ -235,7 +235,8 @@ export default function FunnDetalj() {
 
         <Card style={{ padding: '1rem' }} data-size="sm">
           <Heading level={2} data-size="sm" style={{ marginBottom: '0.25rem' }}>Behandling</Heading>
-          {funn.premissmangler.length > 0 && (
+          {/* [ENDRET, kaldsjekken 2026-11-04] Ikke på et funn som er forklart bort: det skal ikke publiseres, så porten er uten betydning. */}
+          {funn.premissmangler.length > 0 && funn.status !== 'forklart_bort' && (
             <Alert data-color="warning" data-size="sm" style={{ margin: '0.5rem 0' }}>
               <Paragraph data-size="sm" style={{ margin: 0 }}>Premissporten stopper publisering (docs/33 §4.6):</Paragraph>
               <ul style={{ margin: 0, paddingLeft: '1.25rem' }}>

@@ -1671,7 +1671,7 @@ hjemmelen.
 **Testene:** `MerknadsnoderTests` (Data, med ekte Lovdata-HTML for foreldrebetalings- og fusjonsforskriften) og
 `StrukturkantEndepunktTests.Merknadshjemmel_…` (API).
 
-### 5.15 Funn til vurdering (#429, PR 1 bygget 2026-10-30, PR 2 maskinregelen 2026-10-31)
+### 5.15 Funn til vurdering (#429, PR 1 bygget 2026-10-30, PR 2 maskinregelen 2026-10-31, PR 3 justeringen 2026-11-04)
 
 [Ny, Johanns avgjørelser 2026-10-29 og 2026-10-30 i #429] Når lovteksten gjøres maskinlesbar, kommer det fram steder der rettskildene ikke
 stemmer med seg selv eller med virkeligheten. Registeret samler dem som **funn til vurdering**: observasjoner med kilder, ikke påstander om
@@ -1733,6 +1733,58 @@ barnehage (godkjent for publisering av Johann 2026-10-29), kontrollen for lærer
   B 160, C 90, D 59. 165 står i endringsvedtak, 111 med entydig målvedtak.
 - **Ikke gjort:** presisjonen skal måles på nytt (om lag 20 par, også aktører som ikke er departementer) før maskinfunn går videre fra
   «oppdaget». Statsrådsembeter og organiseringsvedtak som har uttømt virkningen er #438.
+  [Merknad, PR 3] Målt 2026-11-02 (måling 2): 0,25 (0,11–0,47) på 20 lastede funn. Det ga PR 3 under.
+
+**Justeringen av maskinregelen** (PR 3, Johanns avgjørelser 2026-11-02 etter måling 2; `UtgattAktorRegler`, `Opphevingskontroll`):
+- **Nye tekstregler, teller men foreslår ikke** (portert ordrett fra juristens `regler_b.py`):
+  - R2b: «X har ‹dato› bestemt/vedtatt/fastsatt/besluttet», bare når termen står én gang i noden (N19, Johann ga juristen rett).
+  - R5: endringsingress, «I vedtak … gjøres følgende endring(er):» med termen i det som siteres.
+  - R6: overgangsregel, med termen, en etterfølger fra modellen (i gruppe A aktøren selv) og et overføringsverb i samme setning.
+  - R7: duplikat. Noden står ordrett i målvedtaket, målvedtakets `sist_endret_ved` peker på rettskilden, og målvedtaket har eget funn for
+    samme aktør. Uten kravet om `sist_endret_ved` ville det levende vedtaket FOR-2019-11-08-1491 blitt holdt tilbake.
+  - Rettinger i R3: «av Xs» er genitiv, ikke agent. Setningen deles ikke ved «2. august» (stor bokstav kreves etter skilletegnet). R1 er
+    ikke endret.
+- **R8, kilden er opphevet av en annen gjeldende primærkilde:** kilden står i den opphevendes «Endrer»-felt, og en setning der sier
+  «oppheves/avløser/erstatter/Oppheving av» med kildens dato og nummer (juristens `r8_verifiser.py`). Kilden går til kildefeilkøen (type
+  `opphevet_av_annen_kilde`, mekanisme `monster:utgatt-aktor`, én rad per kilde) og gir ingen funn.
+  - [LÅST] Delvise opphevinger holdes utenfor: en del foran målet («kapitel VII i forskrift …», «I av kgl.res. …»), rett etter «oppheves»
+    eller rett etter nummeret.
+  - Sentrale forskrifter (SF) og lover (NL) holdes også utenfor. Lovdata vedlikeholder statusen deres, og alle tre SF-treffene var delvise.
+- **R9, hjemmelsloven er opphevet av en gjeldende lov i korpus:** hjemmelen leses fra Lovdatas hjemmelsfelt og fra «lov ‹dato› nr. N» i
+  funnets egne noder. Funnet **foreslås med en synlig premissmangel**, «Hjemmelsloven kan være opphevet …», også mens det er oppdaget. Det går
+  ikke til kildefeilkøen.
+  - Valgt etter juristens begrunnelse (N10, N12, N16, N18): om vedtaket overlever, avgjøres av overgangsregler i den nye loven (for
+    eksempel havne- og farvannsloven § 53 første ledd). Det er et rettslig spørsmål, ikke en feil i Lovdata-kopien.
+  - Mangelen nevner en mulig videreføringsregel når den finnes. Juristen lukker den med vurderingspunktet «Hjemmel».
+- **Målvedtaket:** `rettskilde_endringer` har ingen kolonne som skiller endring fra oppheving. Når rettskildens egen tekst opphever hele
+  målvedtaket, står «oppheves av rettskilden». Ellers står «endring eller oppheving», aldri bare «endres».
+- **Etterfølgerkjeden:** hintet følger kantene til levende aktører. Det sier fra når en etterfølger selv er nedlagt («… fører videre til
+  …»), og når kjeden ender i en nedlagt aktør uten etterfølger.
+  - En aktør med livsstatus NULL og en avvikler-kant regnes ikke som levende.
+  - Alle kantene i kjeden kobles på funnet, så premissporten krever hver av dem vurdert (svakeste premiss). Forslag leses som før.
+  - Lovdatas `ansvarlig_departement` står ved siden av hintet som sekundær kilde, med utgåtte navn merket.
+- **Lastede funn som holdes tilbake** (R1–R8, status `oppdaget`) settes til `forklart_bort` av `FunnTjeneste.ForklarBortMaskineltAsync`:
+  - `vurdert_av_type = 'maskinregel'` (ny verdi i CHECK-en, migrasjonen `FunnVurdertAvMaskinregel`);
+  - `forklart_bort_av = 'monster:utgatt-aktor'`, og den som kjørte regelen, står i proveniensen;
+  - begrunnelsen har regelen og beviset (eId, opphevende kilde, kildefeil-id).
+
+  Et juristvurdert funn røres ikke, men telles. Ingenting slettes, og en ny kjøring gjenåpner ingenting.
+- **Endepunktet** tørrkjører som før. `perGruppe` og `perRegel` skiller gjenværende, holdt tilbake, kildefeil, premissmangel og forklart
+  bort. `?oppfrisk=true` (med `skriv`) skriver påstanden på nytt for lastede funn som er oppdaget og ikke rørt av et menneske. Uten den
+  beholder de 625 lastede funnene hintet fra PR 2.
+- **Tørrkjørt mot den delte basen 2026-11-04 (bare lesing):**
+  - Grunnlaget: 767 par. 48 etterfølgerkanter, de 8 manuelt foreslåtte fra #397 medregnet.
+  - Holdt tilbake: 142, før 68.
+  - Til kildefeilkøen: 47 kilder (48 par).
+  - Forklares bort: 74 lastede funn.
+  - **Gjenværende: 625** (A 355, B 140, C 107, D 23). 97 av dem har premissmangel R9.
+  - Alle 20 parene i måling 2 får utfallet juristen forventet, og alle fem ekte funn foreslås fortsatt.
+- **Kaldsjekk mot en kopi av den delte basen** (`regelide_funn429c`, slettet etterpå), 2026-11-04:
+  - Tørrkjøringen ga de samme tallene.
+  - `?skriv=true` ga 47 kildefeil og 74 funn forklart bort av maskinregelen, og ingen nye funn.
+  - En ny kjøring ga 0 nye, 0 kildefeil og 0 forklart bort, og ingenting ble gjenåpnet.
+  - `?oppfrisk=true` skrev 625 påstander på nytt.
+  - I lista sto 97 merker «Hjemmelsloven kan være opphevet» og 74 merker «Forklart bort av maskinregel».
 
 **Ikke i PR 1:** statsrådsembeter og organiseringsvedtak som har uttømt virkningen (#438).
 

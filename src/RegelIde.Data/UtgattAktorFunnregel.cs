@@ -338,7 +338,10 @@ public sealed class UtgattAktorFunnregel(RegelIdeDbContext db, FunnTjeneste funn
         var sokes = alleNavneformer
             .Where(b => virksomheter.ContainsKey(b.Vid) && (!Levende(b.Vid) || b.Navneformgrunn == "utgatt") && b.Term.Length >= MinsteTermlengde)
             .ToList();
-        var utgatteTermer = sokes.Select(b => b.Term).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        // [ENDRET, kaldsjekken 2026-11-04] Et tvetydig navn («Arbeids- og inkluderingsdepartementet», to identiteter) er ikke «utgått»:
+        // det er også navnet på en levende aktør. Det merkes som tvetydig i stedet.
+        var utgatteTermer = sokes.Select(b => b.Term).Where(t => !tvetydige.Contains(t)).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var tvetydigeTermer = tvetydige.ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         // ---- 2. Rettskildene ----
         var rkQuery = db.Rettskilder.AsNoTracking().Where(r => r.Entitetsstatus == "gjeldende" && r.Importrolle == "primaer");
@@ -546,7 +549,7 @@ public sealed class UtgattAktorFunnregel(RegelIdeDbContext db, FunnTjeneste funn
                 NyttFunn Bygg() => ByggFunn(nokkel, rk.Eli!, rk.DokumentId, rk.Kortnavn ?? rk.Tittel, rk.Tittel, Navn(key.VirksomhetId), v.GyldigTil,
                     key.VirksomhetId, gruppe, LivsstatusMangler(key.VirksomhetId), forekomster, Kjedelinjer(kjede, KantNavn, Navn, id => virksomheter.GetValueOrDefault(id)?.GyldigTil),
                     kjede.Kanter.Select(e => (e.Kant.Id, e.Direkte ? KantNavn(e.Kant) : $"{KantNavn(e.Kant)} (etter {Navn(e.Kant.Til)})", e.Direkte)).ToList(),
-                    Ansvarlige(rk.AnsvarligDepartement, utgatteTermer), endringer?.Count ?? 0, mal);
+                    Ansvarlige(rk.AnsvarligDepartement, utgatteTermer, tvetydigeTermer), endringer?.Count ?? 0, mal);
                 if (finnesFunn is null)
                 {
                     if (skriv) await funnTjeneste.OpprettAsync(Bygg(), bruker, ct);
@@ -696,10 +699,11 @@ public sealed class UtgattAktorFunnregel(RegelIdeDbContext db, FunnTjeneste funn
 
     /// <summary>[Ny, #429 PR 3] Lovdatas ansvarlige departement for rettskilden, med de navnene som selv er utgått i modellen (feltet er
     /// upålitelig for eldre LTI: «Sosialdepartementet», «Fiskeridepartementet» i måling 2).</summary>
-    private static (IReadOnlyList<string> Navn, IReadOnlyList<string> Utgatte) Ansvarlige(List<string>? ansvarlig, IReadOnlySet<string> utgatteTermer)
+    private static (IReadOnlyList<string> Navn, IReadOnlyList<string> Utgatte, IReadOnlyList<string> Tvetydige) Ansvarlige(
+        List<string>? ansvarlig, IReadOnlySet<string> utgatteTermer, IReadOnlySet<string> tvetydigeTermer)
     {
         var navn = (ansvarlig ?? []).Where(a => !string.IsNullOrWhiteSpace(a)).Select(a => a.Trim()).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
-        return (navn, navn.Where(utgatteTermer.Contains).ToList());
+        return (navn, navn.Where(utgatteTermer.Contains).ToList(), navn.Where(tvetydigeTermer.Contains).ToList());
     }
 
     private static string Liste(IReadOnlyList<string> navn) =>
@@ -708,7 +712,7 @@ public sealed class UtgattAktorFunnregel(RegelIdeDbContext db, FunnTjeneste funn
     private static NyttFunn ByggFunn(
         string nokkel, string eli, string? dokumentId, string kortnavn, string tittel, string aktor, DateOnly? gyldigTil, Guid vid, string gruppe,
         bool livsstatusMangler, IReadOnlyList<Nodetreff> forekomster, string kjedelinjer, IReadOnlyList<(Guid KantId, string Etikett, bool Direkte)> etterfolgere,
-        (IReadOnlyList<string> Navn, IReadOnlyList<string> Utgatte) ansvarlige, int antallEndret, Malvedtak? mal)
+        (IReadOnlyList<string> Navn, IReadOnlyList<string> Utgatte, IReadOnlyList<string> Tvetydige) ansvarlige, int antallEndret, Malvedtak? mal)
     {
         var referanse = Dokumentreferanse(dokumentId) ?? EliKort(eli);
         var termer = forekomster.Select(k => k.Term).Distinct(StringComparer.Ordinal).ToList();
@@ -751,7 +755,8 @@ public sealed class UtgattAktorFunnregel(RegelIdeDbContext db, FunnTjeneste funn
         if (ansvarlige.Navn.Count > 0)
         {
             linjer.Add($"- Lovdata oppgir {Liste(ansvarlige.Navn)} som ansvarlig departement for rettskilden (metadata, sekundær kilde)."
-                + (ansvarlige.Utgatte.Count > 0 ? $" {Liste(ansvarlige.Utgatte)} er selv et utgått navn i modellen." : ""));
+                + (ansvarlige.Utgatte.Count > 0 ? $" {Liste(ansvarlige.Utgatte)} er selv et utgått navn i modellen." : "")
+                + (ansvarlige.Tvetydige.Count > 0 ? $" {Liste(ansvarlige.Tvetydige)} er navn på mer enn én aktør i modellen." : ""));
         }
         if (antallEndret > 0)
         {
