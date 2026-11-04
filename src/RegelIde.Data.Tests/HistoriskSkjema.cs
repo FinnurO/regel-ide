@@ -101,7 +101,12 @@ internal static class HistoriskSkjema
             + "; ALTER TABLE IF EXISTS navneform_bindinger ADD COLUMN IF NOT EXISTS kilde_utenfor_korpus_lenker text[]"
             + "; ALTER TABLE IF EXISTS navneform_bindinger ADD COLUMN IF NOT EXISTS hjemmel_endret_tidspunkt timestamptz"
             + "; ALTER TABLE navnekandidater ADD COLUMN IF NOT EXISTS avvisning_begrunnelse text;");
+        // [Ny, issue #440 PR 2] begreper.hjemmel_art og navnekandidater.aktorko_gruppe (AktorkoSkriving).
+        await db.Database.ExecuteSqlRawAsync(Kolonner440Legg);
     }
+
+    private const string Kolonner440Legg = "ALTER TABLE begreper ADD COLUMN IF NOT EXISTS hjemmel_art text; ALTER TABLE navnekandidater ADD COLUMN IF NOT EXISTS aktorko_gruppe text";
+    private const string Kolonner440Fjern = "ALTER TABLE begreper DROP COLUMN IF EXISTS hjemmel_art; ALTER TABLE navnekandidater DROP COLUMN IF EXISTS aktorko_gruppe";
 
     private const string Begrepskolonner385Legg = "ALTER TABLE begreper ADD COLUMN IF NOT EXISTS godkjenning text; ALTER TABLE begreper ADD COLUMN IF NOT EXISTS kilde_utenfor_korpus_tekst text; ALTER TABLE begreper ADD COLUMN IF NOT EXISTS kilde_utenfor_korpus_type text; ALTER TABLE begreper ADD COLUMN IF NOT EXISTS kilde_utenfor_korpus_dokumentasjon text; ALTER TABLE begreper ADD COLUMN IF NOT EXISTS kilde_utenfor_korpus_lenker text[]; ALTER TABLE begreper ADD COLUMN IF NOT EXISTS begrunnelse text; ALTER TABLE begreper ADD COLUMN IF NOT EXISTS tolkningsargumenter text[]; ALTER TABLE begreper ADD COLUMN IF NOT EXISTS oppdagelses_kilde text; ALTER TABLE begreper ADD COLUMN IF NOT EXISTS avvisning_begrunnelse text";
     private const string Begrepskolonner385Fjern = "ALTER TABLE begreper DROP COLUMN IF EXISTS godkjenning; ALTER TABLE begreper DROP COLUMN IF EXISTS kilde_utenfor_korpus_tekst; ALTER TABLE begreper DROP COLUMN IF EXISTS kilde_utenfor_korpus_type; ALTER TABLE begreper DROP COLUMN IF EXISTS kilde_utenfor_korpus_dokumentasjon; ALTER TABLE begreper DROP COLUMN IF EXISTS kilde_utenfor_korpus_lenker; ALTER TABLE begreper DROP COLUMN IF EXISTS begrunnelse; ALTER TABLE begreper DROP COLUMN IF EXISTS tolkningsargumenter; ALTER TABLE begreper DROP COLUMN IF EXISTS oppdagelses_kilde; ALTER TABLE begreper DROP COLUMN IF EXISTS avvisning_begrunnelse";
@@ -117,9 +122,9 @@ internal static class HistoriskSkjema
         // [ENDRET, issue #385] + kolonnene fra Aktoridentitet.
         await db.Database.ExecuteSqlRawAsync(leggTil
             ? "ALTER TABLE begreper ADD COLUMN IF NOT EXISTS medlemskapsregel text; ALTER TABLE begreper ADD COLUMN IF NOT EXISTS kunnskapsstatus text; "
-              + Begrepskolonner385Legg
+              + Begrepskolonner385Legg + "; " + Kolonner440Legg
             : "ALTER TABLE begreper DROP COLUMN IF EXISTS medlemskapsregel; ALTER TABLE begreper DROP COLUMN IF EXISTS kunnskapsstatus; "
-              + Begrepskolonner385Fjern);
+              + Begrepskolonner385Fjern + "; " + Kolonner440Fjern);
     }
 
     /// <summary>
