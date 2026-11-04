@@ -1642,14 +1642,16 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// opprettes taggen med <c>RefId=null</c>, samme "ubundet inntil videre"-tilstand som
     /// <see cref="TekstTaggTjeneste.OpprettAsync"/> selv dokumenterer.
     /// </summary>
-    private async Task OpprettDepartementTaggHvisMuligAsync(
+    /// <remarks>[ENDRET, #440 PR 2] <c>internal</c> og returnerer taggen (eller null), så aktørkøens godkjenning kan bruke samme vei og
+    /// telle i kvitteringen.</remarks>
+    internal async Task<TekstTaggEntitet?> OpprettDepartementTaggHvisMuligAsync(
         NavnekandidatEntitet kandidat, Guid? refId, string behandletAv, CancellationToken ct)
     {
         var ansvarligDepartementer = await db.Rettskilder
             .Where(r => r.Id == kandidat.RettskildeId)
             .Select(r => r.AnsvarligDepartement)
             .FirstOrDefaultAsync(ct);
-        if (ansvarligDepartementer is null) return; // ukjent departement — ingen gjettet fallback.
+        if (ansvarligDepartementer is null) return null; // ukjent departement — ingen gjettet fallback.
 
         // [ENDRET, fler-verdi-departement, 2026-09-04] En rettskilde kan ha FLERE ansvarlige
         // departementer (delt ansvar) — taggen kan bare eies av ÉN virksomhet (TekstTaggEntitet.VirksomhetId
@@ -1664,7 +1666,7 @@ public sealed class NavnekandidatOppdagelseTjeneste(
             departementVirksomhetId = await virksomhetOppslag.FinnVirksomhetIdForNavnAsync(departement);
             if (departementVirksomhetId is not null) break;
         }
-        if (departementVirksomhetId is null) return; // uoppløsbart departement (ingen av dem) — ingen gjettet fallback.
+        if (departementVirksomhetId is null) return null; // uoppløsbart departement (ingen av dem) — ingen gjettet fallback.
 
         var node = await db.RettskildeNoder.FirstOrDefaultAsync(
             n => n.RettskildeId == kandidat.RettskildeId && n.Eid == kandidat.NodeEid, ct);
@@ -1675,7 +1677,7 @@ public sealed class NavnekandidatOppdagelseTjeneste(
             // Noden finnes ikke lenger, eller intervallet er ikke lenger gyldig (rettskilden er
             // reimportert/endret siden sveipet) — degraderer til "ingen tagg" i stedet for å kaste, se
             // GodkjennAsync sin metodekommentar for hvorfor dette IKKE skal hindre selve godkjenningen.
-            return;
+            return null;
         }
 
         // Samme 30-tegns kontekstvindu som VirksomhetKandidatTjeneste.GodkjennAsync og klienten
@@ -1688,12 +1690,13 @@ public sealed class NavnekandidatOppdagelseTjeneste(
         var tagg = await tekstTaggTjeneste.OpprettAsync(
             kandidat.RettskildeId, departementVirksomhetId.Value, behandletAv, kandidat.NodeEid,
             kandidat.StartOffset, kandidat.EndOffset, quotePrefix, quoteExact, quoteSuffix, "begrep", ct);
-        if (tagg is null) return; // racy sletting av node mellom sjekkene over — samme "degrader" som over.
+        if (tagg is null) return null; // racy sletting av node mellom sjekkene over — samme "degrader" som over.
 
         if (refId is not null)
         {
             await tekstTaggTjeneste.KobleTilEntitetAsync(tagg.Id, refId.Value, behandletAv, ct);
         }
+        return tagg;
     }
 
     /// <summary>
@@ -2396,7 +2399,8 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// (<see cref="BegrepEntitet"/>, kategori <c>'virksomhet'</c>) — det taggens
     /// <see cref="TekstTaggEntitet.RefId"/> skal peke på. Se det feltets kommentar.
     /// </param>
-    private async Task<TekstTaggEntitet?> OpprettEllerKobleVirksomhetTaggAsync(
+    /// <remarks>[ENDRET, #440 PR 2] <c>internal</c>: aktørkøens godkjenning og kobling bruker samme vei.</remarks>
+    internal async Task<TekstTaggEntitet?> OpprettEllerKobleVirksomhetTaggAsync(
         NavnekandidatEntitet kandidat, Guid navneformId, string behandletAv, CancellationToken ct)
     {
         // Steg 1: se på ALLE gjeldende tagger som alt står på nøyaktig denne posisjonen.

@@ -855,6 +855,33 @@ public sealed class AktorkoTjeneste(RegelIdeDbContext db)
             .Select(n => (n.RettskildeId, n.Eid)).ToHashSet();
     }
 
+    /// <summary>[Ny, #440 PR 2] Gruppen for et navn, slått opp på hvilken som helst variant. Null når ordet ikke står i aktørkøen.</summary>
+    public async Task<Kogruppe?> FinnGruppeAsync(string nokkel, CancellationToken ct = default)
+    {
+        var (forekomster, svar) = await RutAlleAsync(ct);
+        var n = Aktorkoregler.Normaliser(nokkel);
+        return KoGrupper(forekomster, svar).FirstOrDefault(x => x.Varianter.Any(v => v.Normalisert == n));
+    }
+
+    /// <summary>[Ny, #440 PR 2] Hjemmelforslagene for en gruppe, regnet ut på nytt (samme regel som visningen).</summary>
+    public async Task<IReadOnlyList<Hjemmelforslag>> HjemmelforslagAsync(Kogruppe g, CancellationToken ct = default)
+    {
+        var ider = g.Forekomster.Select(f => f.RettskildeId).Distinct().ToList();
+        return ForslagFor(g, (await HjemmelnoderAsync(ider, ct)).ToLookup(n => n.RettskildeId));
+    }
+
+    /// <summary>[Ny, #440 PR 2] Ventende forekomster av nøyaktig ordet (normalisert), delt på dem som har en av <paramref name="ruter"/> og
+    /// resten (med ruten). Brukes av «Tagg alle som generisk omtale».</summary>
+    public async Task<(List<KoForekomst> Med, List<(KoForekomst Forekomst, string Rute)> Utenfor)> ForekomsterAvOrdAsync(
+        string ord, IReadOnlyCollection<string> ruter, CancellationToken ct = default)
+    {
+        var (forekomster, svar) = await RutAlleAsync(ct);
+        var n = Aktorkoregler.Normaliser(ord);
+        var par = forekomster.Zip(svar).Where(p => p.First.Normalisert == n).ToList();
+        return (par.Where(p => ruter.Contains(p.Second.Rute)).Select(p => p.First).ToList(),
+            par.Where(p => !ruter.Contains(p.Second.Rute)).Select(p => (p.First, p.Second.Rute)).ToList());
+    }
+
     /// <summary>Ett navn, slått opp på hvilken som helst av variantene (normalisert). Null når ordet ikke står i aktørkøen.</summary>
     public async Task<AktorkoDetalj?> DetaljAsync(string nokkel, CancellationToken ct = default)
     {
