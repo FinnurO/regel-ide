@@ -1671,7 +1671,7 @@ hjemmelen.
 **Testene:** `MerknadsnoderTests` (Data, med ekte Lovdata-HTML for foreldrebetalings- og fusjonsforskriften) og
 `StrukturkantEndepunktTests.Merknadshjemmel_…` (API).
 
-### 5.15 Funn til vurdering (#429, PR 1 bygget 2026-10-30, PR 2 maskinregelen 2026-10-31, PR 3 justeringen 2026-11-04)
+### 5.15 Funn til vurdering (#429, PR 1 bygget 2026-10-30, PR 2 maskinregelen 2026-10-31, PR 3 justeringen 2026-11-04, PR 4 rettingene 2026-11-04)
 
 [Ny, Johanns avgjørelser 2026-10-29 og 2026-10-30 i #429] Når lovteksten gjøres maskinlesbar, kommer det fram steder der rettskildene ikke
 stemmer med seg selv eller med virkeligheten. Registeret samler dem som **funn til vurdering**: observasjoner med kilder, ikke påstander om
@@ -1762,6 +1762,7 @@ barnehage (godkjent for publisering av Johann 2026-10-29), kontrollen for lærer
   …»), og når kjeden ender i en nedlagt aktør uten etterfølger.
   - En aktør med livsstatus NULL og en avvikler-kant regnes ikke som levende.
   - Alle kantene i kjeden kobles på funnet, så premissporten krever hver av dem vurdert (svakeste premiss). Forslag leses som før.
+    [ENDRET, PR 4, Johanns avgjørelse 2026-11-04 (3)] Gjelder nå bare kantene på den direkte veien. Se PR 4 under.
   - Lovdatas `ansvarlig_departement` står ved siden av hintet som sekundær kilde, med utgåtte navn merket.
 - **Lastede funn som holdes tilbake** (R1–R8, status `oppdaget`) settes til `forklart_bort` av `FunnTjeneste.ForklarBortMaskineltAsync`:
   - `vurdert_av_type = 'maskinregel'` (ny verdi i CHECK-en, migrasjonen `FunnVurdertAvMaskinregel`);
@@ -1785,6 +1786,61 @@ barnehage (godkjent for publisering av Johann 2026-10-29), kontrollen for lærer
   - En ny kjøring ga 0 nye, 0 kildefeil og 0 forklart bort, og ingenting ble gjenåpnet.
   - `?oppfrisk=true` skrev 625 påstander på nytt.
   - I lista sto 97 merker «Hjemmelsloven kan være opphevet» og 74 merker «Forklart bort av maskinregel».
+
+**Små rettinger og to modellvalg** (PR 4, Johanns avgjørelser 2026-11-04 etter måling 3; ingen ny bred regelrunde):
+- **(1a) Delvise opphevinger er en hviteliste** (`Opphevingskontroll.Delvis`). Svartelisten slapp gjennom «… nr. 33, oppheves for så
+  vidt gjelder vedtaket del I …» (FOR-2022-10-21-1777) og «… 21. desember 1990 nr. 1017 pkt. II» (FOR-2005-04-29-378). Nå er en oppheving
+  hel bare når det som står rett etter målets nummer, og rett etter verbet når verbet står etter målet, er på en liste over former som ikke
+  avgrenser: slutten på setningen, en liste («og», «samt», komma og et nytt dokument), tittelen («om», «for», «hvor», tankestrek), og når
+  opphevingen virker («med virkning fra», «fra», «ved ikraftsetting»). Alt annet er delvis. «for så vidt» er alltid delvis, og «pkt.» står i
+  de gamle formene. Tittelen på målet leses ikke, fordi den har paragrafer og ledd i nesten alle hele opphevinger.
+- **(1b) Videreføringen** (R9-hintet) godtar også «med hjemmel i» og «(skal) fortsatt gjelde» (ekomloven 2024 § 18-2 første ledd, M05).
+- **(1c) Opphevingsformelen i noden over** (`UtgattAktorRegler.Opphevingsformel`: «oppheves:», «oppheves følgende delegeringer:», «Fra
+  samme tid oppheves følgende lover:») leses av R3 (forelderen til noden med termen, M20) og av R9 (barnet leses med forelderens tekst
+  foran, M16). R8 bruker den ikke: avgjørelsen gjaldt R3 og R9.
+- **(2) Avgiverformel som undertype** (`avgiverformel`, ny verdi i `ck_funn_undertype`): navnet står bare i avgiverformelen — «Xs
+  myndighet … delegeres», «X delegerer/gir med dette/herved», «X har (med dette) delegert», «X fatter … følgende vedtak», med termen én
+  gang i noden. Alle forekomstene som ikke treffes av en annen regel, må være avgiverformel. Funnet holdes ikke tilbake (juristens presedens
+  A09: ekte, lav prioritet), påstanden sier det, og `GET /api/funn` sorterer det sist. Kravet om at termen er lik Lovdatas «fastsatt av» er
+  ikke med, fordi feltet er avkortet for M10 («Barne-»).
+- **(3) Kjedeviften begrenses.** [Fraviker PR 3 over: «alle kantene i kjeden kobles på»] Kjeden følges bare gjennom de direkte kantene og
+  videre der en nedlagt etterfølger har nøyaktig én etterfølgerkant. Ved en forgrening stopper den: grenen nevnes («Etter X forgrener
+  kjeden seg til A og B …»), men følges ikke, og kantene i den kobles ikke på. Gir hele kjeden mer enn tre levende aktører, står bare
+  antallet («forgrener seg til N levende aktører»). **Begrunnelse:** i måling 3 (M17) viftet Sosial- og helsedepartementet ut til 8
+  departementer over 19 kanter. Hintet ledet ingen steder, og premissporten krevde 19 kantvurderinger for ett funn, mens en jurist bare kan
+  ta stilling til den direkte veien. Svakeste premiss (§4.6) gjelder fortsatt for kantene som kobles på: premissporten krever dem vurdert,
+  men ikke mer enn kantene på den direkte veien. En forgrenet kjede sier ikke hvem som har oppgaven, så juristen må uansett vurdere det.
+- **(4) Skriveveier for menneskelig overstyring:**
+  - `POST /api/funn/{id}/gjenapne` (begrunnelse): forklart bort → oppdaget, bare for rollen Jurist eller publiseringsansvarlige. Nye
+    kolonner `gjenapnet_av`, `gjenapnet_tidspunkt`, `gjenapnet_begrunnelse` (CHECK `ck_funn_gjenapnet`, migrasjonen
+    `FunnGjenapningOgKildefeilAvvist`). Begrunnelsen for at funnet var forklart bort, flyttes til proveniensen. Et gjenåpnet funn regnes som
+    menneskelig vurdert: maskinregelen forklarer det ikke bort igjen, og det telles i `holdtTilbakeMenGjenapnet`.
+  - `POST /api/kildefeil/{id}/avvis` (begrunnelse): ny status `Avvist` med `status_endret_av`, `status_endret_tidspunkt` og
+    `statusbegrunnelse` (CHECK `ck_kildefeil_avvist`), samme tilgang. Raden slettes ikke og opprettes ikke på nytt. Maskinregelen behandler
+    kilden som ikke opphevet (R8 overstyres, matchet på ELI) og teller det i `r8OverstyrtAvAvvistKildefeil`.
+- **Tørrkjørt 2026-11-04 (bare lesing).** Den delte basen mangler migrasjonen, så den nye koden er tørrkjørt mot en kopi av den
+  (`regelide_funn429d`, samme tall for funn, kildefeil og kanter). Den gamle koden er tørrkjørt mot den delte basen.
+  - Gjenværende: 625 → **623**. Holdt tilbake: 142 → 144. R3: 27 → 31 par (formelen i forelderen; 3 lastede funn forklares bort: M20
+    med to par og FOR-1999-07-01-791 § 8).
+  - Kildefeil (R8): 47 → **46** kilder. 1990-12-21-1017 er ikke lenger R8.
+  - **2020-01-10-33 forblir R8, med et nytt bevis:** SF/forskrift/2024-02-02-171 kap. II opphever hele vedtaket («Fra samme dato oppheves
+    kongelig resolusjon 10. januar 2020 nr. 33 om delegering av myndighet etter postloven.»). Juristen i måling 3 så bare den delvise
+    opphevingen i FOR-2022-10-21-1777. Funnet F06 og kildefeilen 77f58173 er derfor riktige i resultat, men har galt bevis.
+  - R9: 97 → **104** funn med premissmangel (formelen i forelderen, for eksempel LOV-2016-08-12-77 § 87 og LOV-2022-03-18-12 § 38).
+    M16 er fortsatt ikke med: Lovdatas «Endrer»-felt for deltakerloven 1999 viser bare loven fra 1917, ikke loven fra 1972.
+  - Avgiverformel: **23** gjenværende funn har undertypen (30 har minst én slik forekomst).
+  - Kjedeviften: 122 funn har en kjede som forgrener seg. Etterfølgerkanter koblet på de gjenværende funnene: 1 986 → **648**, flest per
+    funn 24 → 4.
+  - 144 lastede funn får ny påstand eller undertype ved `?oppfrisk=true`.
+- **Kaldsjekk mot kopien** (`regelide_funn429d`, API på 5387, slettet etterpå), 2026-11-04:
+  - Tørrkjøringen ga de samme tallene som over.
+  - Saksbehandler fikk 403 på gjenåpning og avvisning. Juristen gjenåpnet F06 i kopien. Neste tørrkjøring holdt paret tilbake (R8), men
+    forklarte det ikke bort (`holdtTilbakeMenGjenapnet` 1).
+  - Etter at juristen avviste 77f58173 og 43d70df4, ble R8 overstyrt for 2020-01-10-33. Kildefeilkøen gikk til 45 kilder, gjenværende til
+    624, og ingen kildefeil ble opprettet på nytt.
+  - `?skriv=true&oppfrisk=true` forklarte bort 3 funn og frisket opp 144. En ny kjøring ga 0 nye, 0 forklart bort og 0 kildefeil.
+  - I lista (`/funn`) sto de 23 funnene med «Utgått aktør: bare i avgiverformelen» sist. Detaljsiden for F06 viste «Gjenåpnet» uten
+    maskinregelmerket, og kildefeillista viste «Avvist av Kari Jurist …».
 
 **Ikke i PR 1:** statsrådsembeter og organiseringsvedtak som har uttømt virkningen (#438).
 
