@@ -2783,7 +2783,8 @@ export interface FunnDto {
   sistEndretTidspunkt: string | null;
   juristvurdertAv: string | null;
   juristvurdertTidspunkt: string | null;
-  vurdertAvType: 'menneske' | 'ki_agent' | null;
+  /** [ENDRET, #429 PR 3] 'maskinregel': forklart bort av en maskinregel, ikke av en jurist. */
+  vurdertAvType: 'menneske' | 'ki_agent' | 'maskinregel' | null;
   forklartBortBegrunnelse: string | null;
   forklartBortAv: string | null;
   forklartBortTidspunkt: string | null;

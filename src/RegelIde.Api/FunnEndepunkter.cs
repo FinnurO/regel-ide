@@ -50,21 +50,27 @@ public static class FunnEndepunkter
                          + "øyeblikksbildet (hash kontrollert). Ingen personnavn. holdtTilbake lister nøkler der hashen ikke stemte.");
 
         // [Ny, #429 PR 2, Johanns avgjørelser 2026-10-30/31] Maskinregelen for utgåtte aktører. Tørrkjøring er standard: uten ?skriv=true
-        // skrives ingenting, og rapporten viser hva som ville blitt foreslått, med telling per gruppe (A–D) og per regel (R1–R4).
-        funn.MapPost("/maskinregel/utgatt-aktor", async (bool? skriv, bool? medRader, Guid? rettskildeId, HttpRequest request,
+        // skrives ingenting, og rapporten viser hva som ville blitt foreslått, med telling per gruppe (A–D) og per regel.
+        // [ENDRET, #429 PR 3, Johanns avgjørelser 2026-11-02] Rapporten skiller det som forklares bort, går til kildefeilkøen (R8) og får
+        // premissmangel (R9), per gruppe og per regel. ?oppfrisk=true skriver påstanden på nytt for lastede funn ingen har rørt.
+        funn.MapPost("/maskinregel/utgatt-aktor", async (bool? skriv, bool? medRader, bool? oppfrisk, Guid? rettskildeId, HttpRequest request,
                 RegelIdeDbContext db, UtgattAktorFunnregel regel, CancellationToken ct) =>
             {
                 var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
                 if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
-                var rapport = await regel.KjorAsync(skriv ?? false, bruker.Navn, rettskildeId is { } rid ? [rid] : null, medRader ?? false, ct);
+                var rapport = await regel.KjorAsync(skriv ?? false, bruker.Navn, rettskildeId is { } rid ? [rid] : null, medRader ?? false, ct,
+                    oppfrisk ?? false);
                 return Results.Ok(rapport);
             })
             .WithName("KjorMaskinregelUtgattAktor")
-            .WithSummary("Issue #429 PR 2 — foreslår ett funn per (rettskilde, aktør) der en gjeldende primær rettskilde bruker et navn på en "
+            .WithSummary("Issue #429 PR 2/3 — foreslår ett funn per (rettskilde, aktør) der en gjeldende primær rettskilde bruker et navn på en "
                          + "nedlagt aktør eller et utgått navn. Organiseringsvedtak, rene endringsvedtak og tvetydige navn telles, men foreslås "
-                         + "ikke; det samme gjelder par der alle forekomstene treffes av R1–R4. ?skriv=true lagrer som «oppdaget» "
-                         + "(monster:utgatt-aktor); uten er det en tørrkjøring. Idempotent: en ny kjøring gir 0 nye og gjenåpner ikke funn som "
-                         + "er forklart bort. ?medRader=true tar med parene; ?rettskildeId= avgrenser.");
+                         + "ikke; det samme gjelder par der alle forekomstene treffes av R1–R7. En kilde som er opphevet av en annen gjeldende "
+                         + "kilde (R8), går til kildefeilkøen. Er hjemmelsloven opphevet (R9), får funnet en premissmangel. Lastede funn som "
+                         + "holdes tilbake, settes til «forklart bort» av maskinregelen. ?skriv=true skriver; uten er det en tørrkjøring. "
+                         + "Idempotent: en ny kjøring gir 0 nye og gjenåpner ikke funn som er forklart bort. ?oppfrisk=true (med skriv) skriver "
+                         + "påstanden på nytt for lastede funn som er oppdaget og ikke rørt av et menneske. ?medRader=true tar med parene; "
+                         + "?rettskildeId= avgrenser.");
 
         funn.MapGet("/tilgang", async (HttpRequest request, RegelIdeDbContext db, IConfiguration konfig, CancellationToken ct) =>
             {

@@ -2187,7 +2187,8 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
                     + "OR (kategori = 'uklarhet_hull' AND undertype IN ('hull', 'upresis_henvisning', 'publiseringsfeil_kilde'))");
                 t.HasCheckConstraint("ck_funn_status",
                     "status IN ('oppdaget', 'juristvurdert', 'godkjent_for_publisering', 'forklart_bort')");
-                t.HasCheckConstraint("ck_funn_vurdert_av_type", "vurdert_av_type IS NULL OR vurdert_av_type IN ('menneske', 'ki_agent')");
+                // [ENDRET, #429 PR 3] 'maskinregel': funn som en maskinregel har forklart bort (Funn.Maskinregel).
+                t.HasCheckConstraint("ck_funn_vurdert_av_type", "vurdert_av_type IS NULL OR vurdert_av_type IN ('menneske', 'ki_agent', 'maskinregel')");
                 // Juristvurdert og godkjent krever hvem, når og hva slags vurdering.
                 t.HasCheckConstraint("ck_funn_juristvurdert_hvem",
                     "status NOT IN ('juristvurdert', 'godkjent_for_publisering') "

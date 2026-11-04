@@ -1,7 +1,7 @@
 import { Heading, Link, Paragraph, Tag } from '@digdir/designsystemet-react';
 import type { FunnDto, FunnKategori, FunnOffentlig, FunnStatus } from '../api/types';
 import { Metatekst } from '../entitet/Metatekst';
-import { delITekstblokker, etterfolgerlinje, lovdataLenke, utenEtterfolgerpunkt } from './funnTekst';
+import { delITekstblokker, delPremissmangler, etterfolgerlinje, lovdataLenke, utenEtterfolgerpunkt } from './funnTekst';
 
 export { lovdataLenke };
 
@@ -14,7 +14,8 @@ export { lovdataLenke };
  * - oppdaget og juristvurdert er ventende → `info` (som forslag);
  * - godkjent for publisering → `success` (som «Godkjent» i KandidatStatusTag);
  * - forklart bort → `neutral`: det er en avklaring, ikke en feil, og `danger` er forbeholdt avvist;
- * - «Kilde endret» og premissporten → `warning`.
+ * - «Kilde endret» og premissporten → `warning`;
+ * - [Ny, #429 PR 3] forklart bort av en maskinregel → eget merke i `neutral`, med hele teksten synlig (som KI-merket).
  */
 
 export const KATEGORI_TEKST: Record<FunnKategori, string> = {
@@ -44,7 +45,8 @@ export const STATUS_VISNING: Record<FunnStatus, { tekst: string; farge: 'info' |
     tekst: 'Godkjent for publisering', farge: 'success',
     forklaring: 'Godkjent av en publiseringsansvarlig. Det frosne innholdet kommer med i neste eksport til nettsiden.',
   },
-  forklart_bort: { tekst: 'Forklart bort', farge: 'neutral', forklaring: 'Juristen har forklart funnet bort. Publiseres ikke.' },
+  // [ENDRET, #429 PR 3] Ikke «Juristen har …»: en maskinregel kan også forklare bort, og det vises med eget merke (MaskinregelTag).
+  forklart_bort: { tekst: 'Forklart bort', farge: 'neutral', forklaring: 'Forklart bort med begrunnelse. Publiseres ikke.' },
 };
 
 export const SIKKERHET_TEKST: Record<string, string> = {
@@ -78,22 +80,40 @@ export function KiVurdertTag() {
   );
 }
 
-/** De merkene som hører til et funn, i fast rekkefølge: status, kategori, KI-vurdering, kilde endret, premissport. */
+/**
+ * [Ny, #429 PR 3, Johanns avgjørelse 2026-11-02 (5)] Funnet er forklart bort av en maskinregel, ikke av en jurist. Hele teksten står synlig,
+ * som KI-merket: maskin eller menneske skal synes (CLAUDE.md §9). Begrunnelsen med regelen og beviset står på detaljsiden.
+ */
+export function MaskinregelTag() {
+  return (
+    <Tag data-size="sm" data-color="neutral" title="En maskinregel holdt funnet tilbake etter at det var lastet. Begrunnelsen viser regelen og beviset.">
+      Forklart bort av maskinregel, ikke av jurist
+    </Tag>
+  );
+}
+
+/** De merkene som hører til et funn, i fast rekkefølge: status, kategori, KI-vurdering eller maskinregel, kilde endret, premissport. */
 export function FunnMerker({ funn }: { funn: FunnDto }) {
+  const { hjemmel, andre } = delPremissmangler(funn.premissmangler);
   return (
     <>
       <FunnStatusTag status={funn.status} />
       <FunnKategoriTag kategori={funn.kategori} undertype={funn.undertype} />
       {funn.vurdertAvType === 'ki_agent' && funn.status !== 'oppdaget' && <KiVurdertTag />}
+      {funn.vurdertAvType === 'maskinregel' && <MaskinregelTag />}
       {funn.kildeEndretTidspunkt && (
         <Tag data-size="sm" data-color="warning" title="En bestemmelse funnet peker på, har fått ny tekst i en ny versjon fra Lovdata.">
           Kilde endret – vurder på nytt
         </Tag>
       )}
-      {funn.premissmangler.length > 0 && funn.status === 'juristvurdert' && (
-        <Tag data-size="sm" data-color="warning" title={funn.premissmangler.join(' ')}>
-          {funn.premissmangler.some((m) => m.startsWith('Etterfølger ikke vurdert')) ? 'Etterfølger ikke vurdert' : 'Premiss ikke vurdert'}
+      {andre.length > 0 && funn.status === 'juristvurdert' && (
+        <Tag data-size="sm" data-color="warning" title={andre.join(' ')}>
+          {andre.some((m) => m.startsWith('Etterfølger ikke vurdert')) ? 'Etterfølger ikke vurdert' : 'Premiss ikke vurdert'}
         </Tag>
+      )}
+      {/* [Ny, #429 PR 3, R9] Også på et funn som bare er oppdaget: mangelen skal synes før juristen tar det (Johann 2026-11-02 (5)). */}
+      {hjemmel.length > 0 && (funn.status === 'oppdaget' || funn.status === 'juristvurdert') && (
+        <Tag data-size="sm" data-color="warning" title={hjemmel.join(' ')}>Hjemmelsloven kan være opphevet</Tag>
       )}
     </>
   );

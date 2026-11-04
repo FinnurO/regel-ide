@@ -198,6 +198,13 @@ public class FunnEndepunktTests
         Assert.Equal(1, torr.GetProperty("foreslatt").GetInt32());
         Assert.Equal(1, torr.GetProperty("foreslattPerGruppe").GetProperty("D").GetInt32());
         Assert.Equal(0, torr.GetProperty("ikkeForeslattPerRegel").GetProperty("R3").GetInt32());
+        // [Ny, #429 PR 3] Tellingen per gruppe skiller gjenværende, holdt tilbake, kildefeil, premissmangel og forklart bort.
+        var d = torr.GetProperty("perGruppe").GetProperty("D");
+        Assert.Equal(1, d.GetProperty("gjenvaerende").GetInt32());
+        Assert.Equal(0, d.GetProperty("tilKildefeil").GetInt32());
+        Assert.Equal(0, d.GetProperty("forklaresBort").GetInt32());
+        Assert.Equal(0, torr.GetProperty("perRegel").GetProperty("R8").GetProperty("par").GetInt32());
+        Assert.Equal(0, torr.GetProperty("kildefeilRettskilder").GetInt32());
         Assert.Empty((await SendAsync(Med(HttpMethod.Get, $"/api/funn?rettskildeId={rid}", jurist), HttpStatusCode.OK)).EnumerateArray());
 
         var skrevet = await SendAsync(Med(HttpMethod.Post, url + "&skriv=true", jurist), HttpStatusCode.OK);

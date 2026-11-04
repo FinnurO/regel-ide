@@ -33,6 +33,21 @@ export function lovdataLenke(eidEllerEli: string | null): string | null {
 /** [Ny, #429 PR 2] Overskriften på vurderingspunktet der juristen sier hvem som har oppgaven nå (Funn.EtterfolgerOverskrift i API-et). */
 export const ETTERFOLGER_OVERSKRIFT = 'Etterfølger';
 
+/** [Ny, #429 PR 3, R9] Overskriften på vurderingspunktet der juristen sier om vedtaket fortsatt har virkning når hjemmelsloven er opphevet
+ * (Funn.HjemmelOverskrift i API-et). */
+export const HJEMMEL_OVERSKRIFT = 'Hjemmel';
+
+/** [Ny, #429 PR 3, R9] Premissmanglene fra R9 begynner alltid slik (Opphevingskontroll.Premissmangeltekst i API-et). */
+export const HJEMMEL_MANGEL_START = 'Hjemmelsloven kan være opphevet';
+
+/** [Ny, #429 PR 3] Deler premissmanglene i R9 (hjemmelsloven) og resten (navneform og etterfølger), så merkene kan vises hver for seg. */
+export function delPremissmangler(mangler: string[]): { hjemmel: string[]; andre: string[] } {
+  return {
+    hjemmel: mangler.filter((m) => m.startsWith(HJEMMEL_MANGEL_START)),
+    andre: mangler.filter((m) => !m.startsWith(HJEMMEL_MANGEL_START)),
+  };
+}
+
 /**
  * [Ny, #429 PR 2, Johanns avgjørelse 2026-10-31 (3)] Etterfølgerlinjen for et funn om en utgått aktør, speilet i nettside/funn/index.html.
  * Etterfølgerkantene når funnet peker på noen; ellers juristens vurderingspunkt «Etterfølger»; ellers «ukjent». `ikkeVurdert` (premissporten

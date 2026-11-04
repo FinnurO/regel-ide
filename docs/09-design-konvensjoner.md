@@ -1343,6 +1343,14 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
   eget felt i juristvurderingen, «Etterfølger: hvem har oppgaven i bestemmelsen nå, eller er det ukjent?». Det lagres som vurderingspunktet
   «Etterfølger» og står i etterfølgerlinjen i forhåndsvisningen og på nettsiden (`etterfolgerlinje` i `funn/funnTekst.ts`), ikke også i
   lista over vurderingspunkter. Uten det stopper premissporten med «Etterfølger ikke vurdert» (`warning`).
+- [Ny, #429 PR 3, 2026-11-02] **Maskinregel og hjemmel:**
+  - Et funn som en maskinregel har forklart bort (`vurdertAvType = 'maskinregel'`), får merket «Forklart bort av maskinregel, ikke av
+    jurist» (`neutral`). Hele teksten står synlig, som KI-merket, så det ikke leses som en juristvurdering (CLAUDE.md §9).
+  - Statusforklaringen for «Forklart bort» sier ikke lenger «Juristen har …». Premissporten vises ikke på et funn som er forklart bort,
+    fordi det ikke skal publiseres (kaldsjekken 2026-11-04).
+  - Premissmangelen R9 får merket «Hjemmelsloven kan være opphevet» (`warning`, premissporten), også på funn som bare er oppdaget.
+  - Juristvurderingen får feltet «Hjemmel: har vedtaket fortsatt virkning når hjemmelsloven er opphevet?». Det lagres som
+    vurderingspunktet «Hjemmel» (`HJEMMEL_OVERSKRIFT`, `delPremissmangler` i `funn/funnTekst.ts`).
 - **Rettskildesiden:** gruppen «Funn til vurdering (N)» i kontekstpanelet. Aktørsiden er ikke endret i PR 1, fordi en annen sak skal
   omarbeide den.
 
