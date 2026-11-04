@@ -221,4 +221,65 @@ public class FunnEndepunktTests
         Assert.Equal(navn, bestemmelse.GetProperty("quoteExact").GetString());
         Assert.Contains(funn.GetProperty("premissmangler").EnumerateArray(), m => m.GetString()!.StartsWith("Etterfølger ikke vurdert"));
     }
+
+    /// <summary>[Ny, #429 PR 4, Johanns avgjørelse 2026-11-04 (4)] Kan et menneske gjenåpne et funn som er forklart bort — og bare et menneske
+    /// med rollen Jurist eller publiseringstilgang, og bare fra «forklart bort»?</summary>
+    [Fact]
+    public async Task Gjenapning_krever_jurist_eller_publiseringstilgang_og_gaar_bare_fra_forklart_bort()
+    {
+        var jurist = await BrukerAsync("Jurist");
+        var saksbehandler = await BrukerAsync("Saksbehandler");
+        var ansvarlig = await PubliseringsansvarligAsync();
+        var opprettet = await SendAsync(Med(HttpMethod.Post, "/api/funn", jurist, new
+        {
+            kategori = "uklarhet_hull", undertype = "hull", tittel = $"Gjenåpning {Guid.NewGuid():N}", beskrivelse = "Ingen overgangsregel.",
+        }), HttpStatusCode.Created);
+        var id = opprettet.GetProperty("id").GetGuid();
+        var url = $"/api/funn/{id}/gjenapne";
+
+        await SendAsync(Med(HttpMethod.Post, url, jurist, new { begrunnelse = "x" }), HttpStatusCode.Conflict); // oppdaget
+        await SendAsync(Med(HttpMethod.Post, $"/api/funn/{id}/forklar-bort", jurist, new { begrunnelse = "Overgangsregel funnet." }), HttpStatusCode.OK);
+        await SendAsync(Med(HttpMethod.Post, url, saksbehandler, new { begrunnelse = "x" }), HttpStatusCode.Forbidden);
+        await SendAsync(Med(HttpMethod.Post, url, jurist, new { begrunnelse = " " }), HttpStatusCode.BadRequest);
+        var svar = await SendAsync(Med(HttpMethod.Post, url, ansvarlig, new { begrunnelse = "Overgangsregelen gjelder ikke her." }), HttpStatusCode.OK);
+        Assert.Equal("oppdaget", svar.GetProperty("status").GetString());
+        Assert.Equal("Publiseringsansvarlig Test", svar.GetProperty("gjenapnetAv").GetString());
+        Assert.Equal("Overgangsregelen gjelder ikke her.", svar.GetProperty("gjenapnetBegrunnelse").GetString());
+        Assert.Equal(JsonValueKind.Null, svar.GetProperty("forklartBortBegrunnelse").ValueKind);
+        await SendAsync(Med(HttpMethod.Post, $"/api/funn/{Guid.NewGuid()}/gjenapne", jurist, new { begrunnelse = "x" }), HttpStatusCode.NotFound);
+    }
+
+    /// <summary>[Ny, #429 PR 4, Johanns avgjørelse 2026-11-04 (4)] Kan et menneske avvise en kildefeil, med begrunnelse og synlig hvem?</summary>
+    [Fact]
+    public async Task Kildefeil_kan_avvises_av_jurist_eller_publiseringsansvarlig_med_begrunnelse()
+    {
+        var jurist = await BrukerAsync("Jurist");
+        var saksbehandler = await BrukerAsync("Saksbehandler");
+        Guid kfId;
+        await using (var db = _fixture.NyDbContext())
+        {
+            var rk = new RettskildeEntitet
+            {
+                Id = Guid.NewGuid(), Doctype = "act", Kildetype = "Forskrift", Status = "Gjeldende", Importrolle = "primaer",
+                Tittel = "Testforskrift for avvisning", AknXml = "<akomaNtoso/>", Eli = $"https://lovdata.no/eli/forskrift/2099/02/02/{Random.Shared.Next(1, 999_999)}/nor",
+                OpprettetAv = "test", OpprettetTidspunkt = DateTimeOffset.UtcNow,
+            };
+            db.Rettskilder.Add(rk);
+            await db.SaveChangesAsync();
+            kfId = (await new KildefeilTjeneste(db).OpprettEllerFinnAsync(rk.Id, null, UtgattAktorFunnregel.KildefeiltypeOpphevetAvAnnenKilde,
+                "Står som gjeldende, men opphevet.", UtgattAktorFunnregel.OppdagelsesKilde, "test")).Id;
+        }
+        var url = $"/api/kildefeil/{kfId}/avvis";
+
+        await SendAsync(Med(HttpMethod.Post, url, saksbehandler, new { begrunnelse = "x" }), HttpStatusCode.Forbidden);
+        await SendAsync(Med(HttpMethod.Post, url, jurist, new { begrunnelse = "" }), HttpStatusCode.BadRequest);
+        var svar = await SendAsync(Med(HttpMethod.Post, url, jurist, new { begrunnelse = "Delvis oppheving." }), HttpStatusCode.OK);
+        Assert.Equal("Avvist", svar.GetProperty("status").GetString());
+        Assert.False(string.IsNullOrEmpty(svar.GetProperty("statusEndretAv").GetString()));
+        Assert.Equal("Delvis oppheving.", svar.GetProperty("statusbegrunnelse").GetString());
+        await SendAsync(Med(HttpMethod.Post, url, jurist, new { begrunnelse = "igjen" }), HttpStatusCode.Conflict);
+        await SendAsync(Med(HttpMethod.Post, $"/api/kildefeil/{Guid.NewGuid()}/avvis", jurist, new { begrunnelse = "x" }), HttpStatusCode.NotFound);
+        var avviste = await _client.GetFromJsonAsync<JsonElement>("/api/kildefeil?status=Avvist", Json);
+        Assert.Contains(avviste.EnumerateArray(), k => k.GetProperty("id").GetGuid() == kfId);
+    }
 }
