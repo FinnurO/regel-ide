@@ -1866,10 +1866,69 @@ Treffene regnes ut ved lesing. Ingenting flyttes (Johanns avgjørelse).
 på varianten. Genitivforledd (regel 3, «barnehagens foreldreråd» mot «foreldrerådet») er bare forslag: «domstolens leder» slås aldri
 sammen med «leder». Resultatet avhenger ikke av rekkefølgen på inndataene.
 
-**Hjemmelforslaget** (`Aktorkoregler.FinnHjemmelforslag`) bygger på opprettelsesuttrykk i rettskildene der navnet står: «skal … ha
-et/en/ei» (høyst seks ord mellom, navnet etter uttrykket), «opprettes», «oppnevner», «etableres», med navnet (samme ord eller en
-bøyningsform) i samme setning. Merknader og veiledning (§5.14) er aldri med. Tekstfunn når navnet står ordrett, ellers normalisering.
-Finnes det ingen bestemmelse, vises hullet. **Regelen er et forslag**: juristrunden angriper den før godkjenningen bygges i PR 2.
+**Hjemmelforslaget** (`Aktorkoregler.FinnHjemmelforslag`) bygger på opprettelsesuttrykk i rettskildene der navnet står. Merknader og
+veiledning (§5.14) er aldri med. Finnes det ingen bestemmelse, vises hullet. [ERSTATTET i PR 2, se under] I PR 1 var uttrykkene «skal … ha
+et/en/ei» (navnet hvor som helst etter), «opprettes», «oppnevner» og «etableres» (navnet hvor som helst i setningen). Juristrunde-440 fant at
+6 av 24 forslag holdt, og to av dem traff tilfeldig.
+
+#### 5.16.1 Skrivingen (#440 PR 2, bygget 2026-11-05)
+
+**Den presiserte hjemmelregelen** (juristrunde-440, `data/fasit/strukturmodell/juristrunde-440/sammendrag.md`, juristen og modellereren
+enige etter runde 2), `Aktorkoregler.FinnHjemmeltreff`:
+1. Uttrykkene er **«skal … ha et/en/ei/ett (eller flere)»** (høyst seks ord mellom «skal» og «ha») og **«det skal være (et) …» / «skal det …
+   være (et) …»**. Artikkelen er valgfri bare ved «være»: «skal ha» uten artikkel ga fire falske forslag for «medlemmer».
+2. Navnet (samme ord eller en bøyningsform) må være **kjernen i nominalfrasen** uttrykket styrer. Frasen går fram til første preposisjon
+   (lukket liste), «som», «at», «enn», «å» eller et skilletegn. Den deles i ledd ved «og»/«eller» med valgfri ny artikkel, og et ledd har
+   høyst tre ord. Kjernen er de siste ordene i leddet.
+3. **Forleddssperren:** ord foran kjernen må være tall- eller mengdeord (`TillatteForledd`, lukket liste: «nitten andre dommere»). Alt annet
+   sperrer: «felles forliksråd» og «felles samarbeidsutvalg» er andre organer. Et sperret treff er ikke forslag, men vises som metatekst.
+4. **Oppnevning, valg, utnevnelse og tilsetting gir aldri forslag**, og «oppnevner», «opprettes» og «etableres» med navnet hvor som helst er
+   tatt ut. KONTROLLER-mønstrene («det opprettes/etableres/nedsettes et X», «skal/kan opprette et X», «ledes av et X») er ikke med før de er
+   målt.
+5. **Kunnskapsstatus:** tekstfunn når kjernen står ordrett som en variant, ellers normalisering. Opprettelsen står i teksten i begge tilfeller.
+   Lovbestemt i en annen lov og vedtekter søkes ikke.
+
+**Målt** på de 24 forslagene fra juristrunden (`AktorkoHjemmelregelJuristrundeTests`) og i en kopi av den delte basen 2026-11-05: **8 treff**.
+Forleddssperren stopper ett (bhl. § 5, «det skal være felles samarbeidsutvalg»), så **7 blir forslag, og 5 er riktige** (foreldrerådet bhl.
+§ 4, styrer i forskrift om pedagogisk bemanning § 4, samarbeidsutvalget bhl. § 4, førstelagmannen dl. § 10, forliksrådet dl. § 27 første
+ledd). De 2 gale skyldes grupperingen og aktørstatus (direktøren dl. § 9, Dommere dl. § 3). Juristens «8 forslag» teller med treffet sperren
+stopper. Over hele køen gir regelen de samme 7 og ingen andre.
+
+**Johanns avgjørelser 2026-11-01 om skjermen:** «Hjemmel for aktøren mangler» beholdes (låst tekst, #441), med metateksten «ikke funnet av
+regelen; andre lover og vedtekter er ikke søkt» under (`AktorkoTjeneste.Hullmerknad`). Står hjemmelen i en annen paragraf enn ALLE
+forekomstene, vises «hjemmelen står i § X; forekomstene i § Y» som nøytral metatekst, ikke som varsel (`AktorkoTjeneste.AnnenParagraf`).
+Målt: tre av de 7 får den (direktøren, Dommere, førstelagmannen), som i juristens måling.
+
+**Godkjenningen** (`POST /api/aktorko/{nøkkel}/godkjenn`, `AktorkoSkrivTjeneste`) er ÉN transaksjon. Den oppretter aktøren (uten orgnr; ikke
+SNL-oppslag) eller klassen, rollen eller området, navnet og hjemmelen, tagger alle forekomstene, og setter kandidatene til Godkjent. Feiler et
+steg, rulles alt tilbake, og navnet står i køen som før. Ingenting er forhåndsvalgt: typen, skrivemåten (en av dem i teksten, aldri omskrevet),
+hjemmelen (et av forslagene eller «hjemmel mangler») og godkjenningen (faglig vurdert eller godkjent) må sendes. `forventetForekomster`
+avviser med 409 når navnet er endret siden det ble lest.
+- **Aktør:** navnet blir gjeldende navneform via `AktoridentitetTjeneste.RegistrerNavnetSomGjeldendeAsync`. Hjemmelens bøyningsform godtas
+  («foreldreråd» for «foreldrerådet», normalisering). «Hjemmel mangler» lagres som uavklart med hullmerknaden i begrunnelsen. Taggene peker på
+  navneformen (§5.8), også for bøyningsformene i navnet.
+- **Klasse, rolle eller område:** begrepet er lovspesifikt i rettskilden hjemmelen står i. Uten hjemmel velges det eksplisitt: en rettskilde
+  der navnet står, eller hele korpuset (fast begrep). Taggene peker på begrepet.
+- **`begreper.hjemmel_art`** (#441): `oppretting` / `navnevedtak` / NULL, med CHECK (`ck_begreper_hjemmel_art`, krever hjemmel). Godkjenningen
+  setter `oppretting` når et forslag velges, fordi begge uttrykkene er oppretting. Migrasjonen `AktorkoSkriving` fyller inn `navnevedtak` på
+  navneformene livsløpet skrev med hjemmel i navnevedtaket (`monster:livslop-navnevedtak`, ikke avviste): **13 rader** i kopien av den delte
+  basen, ikke 14 som #441 sa. Andre rader gjettes ikke.
+
+**De andre handlingene** (samme transaksjonsregel):
+- **Ikke en aktør** (`/ikke-aktor`): alle forekomstene avvises med begrunnelse (påkrevd). Radene slettes ikke.
+- **Koble til en aktør som finnes** (`/koble`): navnet blir ny navneform med grunn (påkrevd), og forekomstene tagges mot den. Kvitteringen
+  varsler ved utgått navn, kortform og nedlagt aktør.
+- **Skill ut / ta med / tilbakestill** (`/skill-ut`, `/ta-med`, `/tilbakestill-gruppering`): `navnekandidater.aktorko_gruppe` (text, NULL =
+  beregnet) overstyrer grupperingen per forekomst. En ventende forekomst uten verdi med samme ord havner i samme navn. Et ord som er tatt med
+  uten å være en bøyning, får regelen `manuell` («Tatt med (menneske)»).
+- **Tagg alle som generisk omtale** (`POST /api/aktorko/generisk-omtale`, Johanns avgjørelse 2026-10-30): per ord, bare nøyaktig ordet (ikke
+  bøyningsformer), på rutene generisk ord og aktørkøen. Den generiske navneformen opprettes eller gjenbrukes, og kandidatene godkjennes uten
+  binding. Tørrkjøringen er standard og gjør det samme i en transaksjon som rulles tilbake, så tallene er de skrivingen gir. Et ord som alt er
+  navneform for en aktør, sperres.
+
+**AK6, målt i kopien `regelide_aktorko2` 2026-11-05 (mønsterlaget, de 20 pilotkildene, ikke KI-laget):** før manglet 31 av 110 utsagn
+aktør (19 ulike navn). De 19 navnene ble opprettet via godkjenningen i køen (alle som aktør med «hjemmel mangler»: målingen spør om navnet
+finnes, ikke hva det er). Etter: 0 av 110.
 
 **Sveipene** (navnekandidatsveipet, aktørsveipet og lasteren/fasitimporten via samme hjelper, KI-oppdagelsen) bruker samme ruting: et
 treff som ikke havner i aktørkøen, blir ikke en ny navnekandidat. Tellingen per rute står i svaret. [ENDRET, Johanns avgjørelse 2026-10-31, valg 2 i PR #444]

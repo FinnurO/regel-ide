@@ -320,7 +320,7 @@ function Navnedetalj({ nokkel, kvittering, onBehandlet, onGrupperingEndret }: {
         )}
         {(detalj.sperredeTreff ?? []).map((h) => (
           <Metatekst key={`sperret-${h.eid}`} style={{ marginBottom: '0.3rem' }}>
-            Ikke forslag ({h.kortnavn ?? h.rettskilde} {h.bestemmelse ?? h.eid}): «{h.treff}» er et annet navn enn «{detalj.navn}» (forleddssperren).
+            Ikke forslag ({h.kortnavn ?? h.rettskilde} {h.bestemmelse ?? h.eid}): {h.sperret ?? 'forleddssperre'}.
           </Metatekst>
         ))}
         <Metatekst>Regelen: {detalj.hjemmelregel}</Metatekst>
