@@ -91,9 +91,11 @@ public sealed record Rutingssvar(
 }
 
 /// <summary>Én forekomst i køen: én ventende navnekandidat.</summary>
+/// <param name="Gruppe">[Ny, #440 PR 2] <see cref="NavnekandidatEntitet.AktorkoGruppe"/>: navnet et menneske har lagt forekomsten under («skill
+/// ut» / «ta med»). Null = beregnet av regelen.</param>
 public sealed record KoForekomst(
     Guid NavnekandidatId, string Tekst, Guid RettskildeId, string NodeEid, int Start, int Slutt, string Kategori, string? Oppdagelseskilde,
-    string? Konfidens)
+    string? Konfidens, string? Gruppe = null)
 {
     public string Normalisert { get; } = Aktorkoregler.Normaliser(Tekst);
 }
@@ -102,7 +104,8 @@ public sealed record KoForekomst(
 public sealed record Skrivemate(string Tekst, int Forekomster);
 
 /// <summary>Én variant (ett normalisert ord) i et navn.</summary>
-/// <param name="Regel"><c>samme_ord</c> for navnets eget ord, <c>boyning</c> for en bøyningsform slått sammen etter regel 2.</param>
+/// <param name="Regel"><c>samme_ord</c> for navnets eget ord, <c>boyning</c> for en bøyningsform slått sammen etter regel 2, <c>manuell</c> for
+/// et ord et menneske har tatt med i navnet («ta med», #440 PR 2) uten at bøyningsregelen binder det til navnets ord.</param>
 /// <param name="BoyningAv">For en bøyningsform: varianten den er slått sammen med (kan være en annen bøyningsform enn navnets eget ord).</param>
 /// <param name="Suffiks">For en bøyningsform: forskjellen mot <see cref="BoyningAv"/>, med fortegn («+r», «−et»).</param>
 public sealed record Kovariant(string Normalisert, string Regel, string? BoyningAv, string? Suffiks, int Forekomster, IReadOnlyList<Skrivemate> Skrivemater);
@@ -111,7 +114,9 @@ public sealed record Kovariant(string Normalisert, string Regel, string? Boyning
 /// <param name="Nokkel">Det normaliserte ordet med flest forekomster (likhet: det første i ordinal rekkefølge). Stabil så lenge tallene er det;
 /// <see cref="AktorkoTjeneste.DetaljAsync"/> slår opp på hvilken som helst variant.</param>
 /// <param name="Navn">Den vanligste skrivemåten av nøkkelen (likhet: liten forbokstav først, så ordinal rekkefølge).</param>
-public sealed record Kogruppe(string Nokkel, string Navn, IReadOnlyList<Kovariant> Varianter, IReadOnlyList<KoForekomst> Forekomster)
+/// <param name="Manuell">[Ny, #440 PR 2] Gruppen er satt av et menneske (minst én forekomst har <see cref="KoForekomst.Gruppe"/>), ikke bare
+/// beregnet. Vises, og kan tilbakestilles.</param>
+public sealed record Kogruppe(string Nokkel, string Navn, IReadOnlyList<Kovariant> Varianter, IReadOnlyList<KoForekomst> Forekomster, bool Manuell = false)
 {
     public int Rettskilder => Forekomster.Select(f => f.RettskildeId).Distinct().Count();
 }
@@ -135,6 +140,9 @@ public sealed record HjemmelNode(Guid RettskildeId, string Eid, string Tekst, bo
 /// bøyningsform (typisk ubestemt form: «skal … ha et foreldreråd»).</param>
 public sealed record Hjemmelforslag(
     Guid RettskildeId, string Eid, string Uttrykk, string Setning, string Treff, int TreffStart, string Kunnskapsstatus);
+
+/// <summary>[Ny, #440 PR 2] Et treff etter hjemmelregelen: forslaget, eller grunnen til at forleddssperren stoppet det.</summary>
+public sealed record Hjemmeltreff(Hjemmelforslag Forslag, string? Sperret);
 
 /// <summary>
 /// [Ny, issue #440 PR 1, Johanns avgjørelser 2026-10-30] De rene reglene bak aktørkøen: ruting, gruppering og hjemmelforslag. Ingen
@@ -252,56 +260,86 @@ public static partial class Aktorkoregler
     /// </summary>
     public static IReadOnlyList<Kogruppe> Grupper(IEnumerable<KoForekomst> forekomster)
     {
-        var perOrd = forekomster.GroupBy(f => f.Normalisert, StringComparer.Ordinal)
+        // [Ny, #440 PR 2] Menneskets valg først: en forekomst med Gruppe står i det navnet, og en forekomst uten med et ord som alt står i et
+        // slikt navn, følger med (ny forekomst av samme ord etter et nytt sveip). Resten grupperes av regelen som før. Ved et ord i flere
+        // manuelle navn velges det første i ordinal rekkefølge, så svaret er det samme hver gang.
+        var alle = forekomster.ToList();
+        var manuelle = alle.Where(f => f.Gruppe is not null)
+            .GroupBy(f => Normaliser(f.Gruppe!), StringComparer.Ordinal)
+            .OrderBy(g => g.Key, StringComparer.Ordinal)
+            .ToDictionary(g => g.Key, g => g.ToList(), StringComparer.Ordinal);
+        var ordTilManuell = new Dictionary<string, string>(StringComparer.Ordinal);
+        // Navnets eget ord først: «ta med» kan legge «styrets leder» under «styret» før noen forekomst av «styret» selv er festet.
+        foreach (var navn in manuelle.Keys) ordTilManuell.TryAdd(navn, navn);
+        foreach (var (navn, medlemmer) in manuelle)
+        {
+            foreach (var f in medlemmer) ordTilManuell.TryAdd(f.Normalisert, navn);
+        }
+        foreach (var f in alle.Where(f => f.Gruppe is null && ordTilManuell.ContainsKey(f.Normalisert)))
+        {
+            manuelle[ordTilManuell[f.Normalisert]].Add(f);
+        }
+
+        var grupper = new List<Kogruppe>();
+        var beregnet = alle.Where(f => f.Gruppe is null && !ordTilManuell.ContainsKey(f.Normalisert)).ToList();
+        var perOrd = beregnet.GroupBy(f => f.Normalisert, StringComparer.Ordinal)
             .ToDictionary(g => g.Key, g => g.ToList(), StringComparer.Ordinal);
         var ord = perOrd.Keys.OrderBy(o => o, StringComparer.Ordinal).ToList();
 
         var forelder = ord.ToDictionary(o => o, o => o, StringComparer.Ordinal);
         string Rot(string o) { while (forelder[o] != o) o = forelder[o]; return o; }
-        var naboer = ord.ToDictionary(o => o, _ => new List<(string Ord, string Suffiks)>(), StringComparer.Ordinal);
         for (var i = 0; i < ord.Count; i++)
         {
             for (var j = i + 1; j < ord.Count; j++)
             {
-                if (FlerordsBoyning(ord[i], ord[j]) is not { } s) continue;
-                naboer[ord[i]].Add((ord[j], s));
-                naboer[ord[j]].Add((ord[i], FlerordsBoyning(ord[j], ord[i])!));
+                if (FlerordsBoyning(ord[i], ord[j]) is null) continue;
                 var (ri, rj) = (Rot(ord[i]), Rot(ord[j]));
                 if (ri != rj) forelder[string.CompareOrdinal(ri, rj) < 0 ? rj : ri] = string.CompareOrdinal(ri, rj) < 0 ? ri : rj;
             }
         }
-
-        var grupper = new List<Kogruppe>();
         foreach (var komponent in ord.GroupBy(Rot, StringComparer.Ordinal))
         {
-            var medlemmer = komponent.ToList();
-            var nokkel = medlemmer.OrderByDescending(o => perOrd[o].Count).ThenBy(o => o, StringComparer.Ordinal).First();
-
-            // Bredde først fra nøkkelen: hver variant får regelen (suffikset) mot varianten den ble nådd fra.
-            var regel = new Dictionary<string, (string Av, string Suffiks)>(StringComparer.Ordinal);
-            var ko = new Queue<string>([nokkel]);
-            var sett = new HashSet<string>(StringComparer.Ordinal) { nokkel };
-            while (ko.Count > 0)
-            {
-                var o = ko.Dequeue();
-                foreach (var (n, _) in naboer[o].OrderBy(x => x.Ord, StringComparer.Ordinal))
-                {
-                    if (!sett.Add(n)) continue;
-                    regel[n] = (o, FlerordsBoyning(o, n)!);
-                    ko.Enqueue(n);
-                }
-            }
-
-            var varianter = medlemmer
-                .OrderBy(o => o == nokkel ? 0 : 1).ThenByDescending(o => perOrd[o].Count).ThenBy(o => o, StringComparer.Ordinal)
-                .Select(o => new Kovariant(o, o == nokkel ? "samme_ord" : "boyning",
-                    o == nokkel ? null : regel[o].Av, o == nokkel ? null : regel[o].Suffiks, perOrd[o].Count, Skrivemater(perOrd[o])))
-                .ToList();
-            var alle = medlemmer.SelectMany(o => perOrd[o])
-                .OrderBy(f => f.RettskildeId).ThenBy(f => f.NodeEid, StringComparer.Ordinal).ThenBy(f => f.Start).ToList();
-            grupper.Add(new Kogruppe(nokkel, varianter[0].Skrivemater[0].Tekst, varianter, alle));
+            grupper.Add(LagGruppe(komponent.SelectMany(o => perOrd[o]).ToList(), null, false));
         }
+        foreach (var (navn, medlemmer) in manuelle) grupper.Add(LagGruppe(medlemmer, navn, true));
         return grupper.OrderByDescending(g => g.Forekomster.Count).ThenBy(g => g.Nokkel, StringComparer.Ordinal).ToList();
+    }
+
+    /// <summary>Ett navn av forekomstene: nøkkelen (det ønskede ordet når det står blant ordene, ellers ordet med flest forekomster), og
+    /// regelen per variant (bredde først fra nøkkelen langs bøyningene). Et ord som ikke nås langs en bøyning, er tatt med av et menneske.</summary>
+    private static Kogruppe LagGruppe(List<KoForekomst> forekomster, string? onsketNokkel, bool manuell)
+    {
+        var perOrd = forekomster.GroupBy(f => f.Normalisert, StringComparer.Ordinal).ToDictionary(g => g.Key, g => g.ToList(), StringComparer.Ordinal);
+        var medlemmer = perOrd.Keys.OrderBy(o => o, StringComparer.Ordinal).ToList();
+        var nokkel = onsketNokkel is not null && perOrd.ContainsKey(onsketNokkel)
+            ? onsketNokkel
+            : medlemmer.OrderByDescending(o => perOrd[o].Count).ThenBy(o => o, StringComparer.Ordinal).First();
+
+        var regel = new Dictionary<string, (string Av, string Suffiks)>(StringComparer.Ordinal);
+        var ko = new Queue<string>([nokkel]);
+        var sett = new HashSet<string>(StringComparer.Ordinal) { nokkel };
+        while (ko.Count > 0)
+        {
+            var o = ko.Dequeue();
+            foreach (var n in medlemmer)
+            {
+                if (sett.Contains(n) || FlerordsBoyning(o, n) is not { } suffiks) continue;
+                sett.Add(n);
+                regel[n] = (o, suffiks);
+                ko.Enqueue(n);
+            }
+        }
+
+        var varianter = medlemmer
+            .OrderBy(o => o == nokkel ? 0 : 1).ThenByDescending(o => perOrd[o].Count).ThenBy(o => o, StringComparer.Ordinal)
+            .Select(o => o == nokkel
+                ? new Kovariant(o, "samme_ord", null, null, perOrd[o].Count, Skrivemater(perOrd[o]))
+                : regel.TryGetValue(o, out var r)
+                    ? new Kovariant(o, "boyning", r.Av, r.Suffiks, perOrd[o].Count, Skrivemater(perOrd[o]))
+                    : new Kovariant(o, "manuell", null, null, perOrd[o].Count, Skrivemater(perOrd[o])))
+            .ToList();
+        var alle = forekomster.OrderBy(f => f.RettskildeId).ThenBy(f => f.NodeEid, StringComparer.Ordinal).ThenBy(f => f.Start).ToList();
+        return new Kogruppe(nokkel, varianter[0].Skrivemater[0].Tekst, varianter, alle, manuell);
     }
 
     /// <summary>Skrivemåtene, vanligste først. Likhet: liten forbokstav først (en stor forbokstav er ofte bare setningsstart), så ordinal.</summary>
@@ -338,26 +376,57 @@ public static partial class Aktorkoregler
     }
 
     /// <summary>
-    /// [LÅST, #440, Johanns avgjørelse 2026-10-30] Den lukkede lista over opprettelsesuttrykk hjemmelforslaget bygger på. Juristrunden angriper
-    /// regelen før PR 2; i PR 1 vises forslaget bare som forslag.
+    /// [ENDRET, #440 PR 2, presisert etter juristrunde-440 (data/fasit/strukturmodell/juristrunde-440/sammendrag.md), der juristen og
+    /// modellereren ble enige] Den lukkede lista over opprettelsesuttrykk. Begge styrer en nominalfrase, og navnet må være KJERNEN i den
+    /// (<see cref="FinnHjemmeltreff"/>):
     /// <list type="bullet">
-    /// <item><c>skal_ha</c>: «skal … ha et/en/ei» med høyst seks ord mellom, og navnet ETTER uttrykket («skal hver barnehage ha et
-    /// foreldreråd»). Navnet er da det som skal finnes, ikke den som har det.</item>
-    /// <item><c>opprettes</c>, <c>oppnevner</c>, <c>etableres</c>: verbet og navnet i samme setning, i hvilken som helst rekkefølge.</item>
+    /// <item><c>skal_ha</c>: «skal … ha et/en/ei/ett (eller flere)», høyst seks ord mellom «skal» og «ha» («skal hver barnehage ha et
+    /// foreldreråd»).</item>
+    /// <item><c>skal_vaere</c> (nytt): «det skal være et …» og «skal det … være et …» («I hver kommune skal det være et forliksråd»).
+    /// Artikkelen er valgfri her, så «det skal være felles samarbeidsutvalg» blir et treff som forleddssperren stopper.</item>
     /// </list>
+    /// [FJERNET, juristrunden] «opprettes», «oppnevner» og «etableres» med navnet hvor som helst i setningen: 0 av 10 forslag holdt.
+    /// Oppnevning, valg, utnevnelse og tilsetting gir aldri forslag; de er kompetanse og forutsetter at organet finnes.
+    /// [Ikke med før de er målt (KONTROLLER)]: «det opprettes/etableres/nedsettes et X», «skal/kan opprette et X», «ledes av et X».
     /// </summary>
-    public static readonly IReadOnlyList<(string Kode, Regex Monster, bool NavnEtter)> Opprettelsesuttrykk =
+    public static readonly IReadOnlyList<(string Kode, Regex Monster)> Opprettelsesuttrykk =
     [
-        ("skal_ha", SkalHa(), true),
-        ("opprettes", Opprettes(), false),
-        ("oppnevner", Oppnevner(), false),
-        ("etableres", Etableres(), false),
+        ("skal_ha", SkalHa()),
+        ("skal_vaere", SkalVaere()),
     ];
 
     public static string UttrykkTekst(string kode) => kode switch
     {
         "skal_ha" => "skal … ha et",
+        "skal_vaere" => "det skal være et",
         _ => kode,
+    };
+
+    /// <summary>[LÅST, juristrunde-440 punkt 1] Ordene som avslutter nominalfrasen: preposisjoner (lukket liste), «som», «at» og «enn», og
+    /// noen få ord som innleder en leddsetning. Komma og andre skilletegn avslutter den også.</summary>
+    public static readonly IReadOnlySet<string> Frasestopp = new HashSet<string>(StringComparer.Ordinal)
+    {
+        "som", "at", "enn", "å",
+        "i", "på", "for", "til", "av", "med", "fra", "om", "under", "over", "ved", "etter", "mot", "hos", "uten", "mellom", "innen", "blant",
+        "gjennom", "overfor", "per", "pr", "hvor", "der", "når", "slik",
+    };
+
+    /// <summary>Sideordning i frasen: «og»/«eller», med valgfri ny artikkel.</summary>
+    private static readonly IReadOnlySet<string> Sideordning = new HashSet<string>(StringComparer.Ordinal) { "og", "eller" };
+    private static readonly IReadOnlySet<string> Artikler = new HashSet<string>(StringComparer.Ordinal) { "et", "en", "ei", "ett", "ein" };
+
+    /// <summary>[LÅST, juristrunde-440 punkt 1] Høyst så mange ord per ledd i frasen.</summary>
+    public const int MaksOrdPerLedd = 3;
+
+    /// <summary>
+    /// [LÅST, juristrunde-440 punkt 3, forleddssperren] Ordene som kan stå foran navnet i leddet uten at det blir et annet organ: tallord og
+    /// mengdeord («nitten andre dommere»). Alt annet foran navnet sperrer: «felles forliksråd» og «felles samarbeidsutvalg» er andre organer
+    /// enn «forliksrådet» og «samarbeidsutvalget». Lista er lukket, så et ord som ikke står her, sperrer heller enn å gjette.
+    /// </summary>
+    public static readonly IReadOnlySet<string> TillatteForledd = new HashSet<string>(StringComparer.Ordinal)
+    {
+        "to", "tre", "fire", "fem", "seks", "sju", "syv", "åtte", "ni", "ti", "elleve", "tolv", "tretten", "fjorten", "femten", "seksten",
+        "sytten", "atten", "nitten", "tjue", "andre", "annen", "annet", "flere", "mange", "så", "egen", "eget", "egne",
     };
 
     /// <summary>Setningene i en tekst: delt etter punktum, utropstegn, spørsmålstegn eller semikolon fulgt av mellomrom.</summary>
@@ -373,55 +442,110 @@ public static partial class Aktorkoregler
     }
 
     /// <summary>
-    /// [LÅST, #440] Hjemmelforslaget for et navn: setninger i <paramref name="noder"/> (rettskildene der navnet står) som har et
-    /// <see cref="Opprettelsesuttrykk"/> og en av <paramref name="varianter"/>, som samme ord eller en bøyningsform
-    /// (<see cref="FlerordsBoyning"/>: «foreldreråd» for «foreldrerådet»).
+    /// [LÅST, #440 PR 2] Hjemmelforslaget for et navn: setninger i <paramref name="noder"/> (rettskildene der navnet står) der et
+    /// <see cref="Opprettelsesuttrykk"/> styrer en nominalfrase med navnet som kjerne (<see cref="FinnHjemmeltreff"/>). Treff som stoppes av
+    /// forleddssperren, er ikke forslag.
     /// <para>
     /// <b>Merknader og veiledning er aldri med</b> (<see cref="RettskildeNodeEntitet.ErMerknad"/>, #419): de kan aldri være hjemmel. Finnes det
     /// ingen bestemmelse, er svaret tomt, og hullet vises. Ingenting gjettes inn i stedet (CLAUDE.md §8).
     /// </para>
     /// </summary>
-    public static IReadOnlyList<Hjemmelforslag> FinnHjemmelforslag(IEnumerable<string> varianter, IEnumerable<HjemmelNode> noder)
+    public static IReadOnlyList<Hjemmelforslag> FinnHjemmelforslag(IEnumerable<string> varianter, IEnumerable<HjemmelNode> noder) =>
+        FinnHjemmeltreff(varianter, noder).Where(t => t.Sperret is null).Select(t => t.Forslag).ToList();
+
+    /// <summary>
+    /// Alle treffene regelen gir, også de forleddssperren stopper (<see cref="Hjemmeltreff.Sperret"/>), så sperren kan vises og måles.
+    /// Fremgangsmåten per setning og uttrykk:
+    /// <list type="number">
+    /// <item>Frasen begynner rett etter artikkelen og går fram til første ord i <see cref="Frasestopp"/>, et skilletegn eller setningsslutt.</item>
+    /// <item>Frasen deles i ledd ved «og»/«eller» (med valgfri ny artikkel). Et ledd med mer enn <see cref="MaksOrdPerLedd"/> ord avslutter
+    /// frasen: da er det ikke en enkel nominalfrase.</item>
+    /// <item>Kjernen er de siste ordene i leddet: navnet (samme ord eller en bøyningsform, flerordsnavn med like forledd). Ord foran kjernen
+    /// må stå i <see cref="TillatteForledd"/>; ellers er treffet sperret.</item>
+    /// </list>
+    /// Ett treff per setning. Kunnskapsstatusen er <c>tekstfunn</c> når kjernen står ordrett som en av variantene, ellers <c>normalisering</c>.
+    /// Opprettelsen står i teksten i begge tilfeller, fordi uttrykket er selve opprettelsen (juristrunde-440 punkt 5).
+    /// </summary>
+    public static IReadOnlyList<Hjemmeltreff> FinnHjemmeltreff(IEnumerable<string> varianter, IEnumerable<HjemmelNode> noder)
     {
         var former = varianter.Distinct(StringComparer.Ordinal).Select(v => v.Split(' ')).ToList();
-        var ut = new List<Hjemmelforslag>();
+        var ut = new List<Hjemmeltreff>();
         foreach (var node in noder.Where(n => !n.ErMerknad).OrderBy(n => n.RettskildeId).ThenBy(n => n.Rekkefolge).ThenBy(n => n.Eid, StringComparer.Ordinal))
         {
             foreach (var (_, setning) in Setninger(node.Tekst))
             {
-                foreach (var (kode, monster, navnEtter) in Opprettelsesuttrykk)
+                Hjemmeltreff? funnet = null;
+                foreach (var (kode, monster) in Opprettelsesuttrykk)
                 {
-                    var m = monster.Match(setning);
-                    if (!m.Success) continue;
-                    var treff = FinnNavn(setning, former, navnEtter ? m.Index + m.Length : 0);
-                    if (treff is null) continue;
-                    var (pos, tekst, ordrett) = treff.Value;
-                    ut.Add(new Hjemmelforslag(node.RettskildeId, node.Eid, kode, setning, tekst, pos,
-                        ordrett ? Strukturkanter.Tekstfunn : Strukturkanter.Normalisering));
-                    break; // ett forslag per setning
+                    foreach (Match m in monster.Matches(setning))
+                    {
+                        if (FinnKjerne(setning, m.Index + m.Length, former) is not { } k) continue;
+                        funnet = new Hjemmeltreff(
+                            new Hjemmelforslag(node.RettskildeId, node.Eid, kode, setning, k.Tekst, k.Pos,
+                                k.Ordrett ? Strukturkanter.Tekstfunn : Strukturkanter.Normalisering),
+                            k.Sperret);
+                        if (k.Sperret is null) break;
+                    }
+                    if (funnet is { Sperret: null }) break;
                 }
+                if (funnet is not null) ut.Add(funnet);
             }
         }
         return ut;
     }
 
-    private static (int Pos, string Tekst, bool Ordrett)? FinnNavn(string setning, List<string[]> former, int fra)
+    private static (int Pos, string Tekst, bool Ordrett, string? Sperret)? FinnKjerne(string setning, int fra, List<string[]> former)
     {
-        var ord = Ord().Matches(setning).Where(m => m.Index >= fra).ToList();
-        foreach (var form in former)
+        // Tokens etter uttrykket: ord, eller ett tegn som ikke er en bokstav eller mellomrom (skilletegn og tall avslutter frasen).
+        var tokens = new List<Match>();
+        for (var m = Frasetokens().Match(setning, fra); m.Success; m = m.NextMatch()) tokens.Add(m);
+        var ledd = new List<Match>();
+        (int, string, bool, string?)? sperret = null;
+        var i = 0;
+        while (true)
         {
-            for (var i = 0; i + form.Length <= ord.Count; i++)
+            var ord = i < tokens.Count ? tokens[i].Value.ToLowerInvariant() : null;
+            var slutt = ord is null || !char.IsLetter(ord[0]) || Frasestopp.Contains(ord);
+            var deler = !slutt && Sideordning.Contains(ord!);
+            if (slutt || deler)
             {
-                var vindu = ord.Skip(i).Take(form.Length).Select(m => m.Value.ToLowerInvariant()).ToArray();
-                var forledd = true;
-                for (var j = 0; j < form.Length - 1; j++) if (vindu[j] != form[j]) { forledd = false; break; }
-                if (!forledd) continue;
-                var likt = vindu[^1] == form[^1];
-                if (!likt && BoyningSuffiks(form[^1], vindu[^1]) is null) continue;
-                var start = ord[i].Index;
-                var slutt = ord[i + form.Length - 1].Index + ord[i + form.Length - 1].Length;
-                return (start, setning[start..slutt], likt);
+                if (ledd.Count == 0 || ledd.Count > MaksOrdPerLedd) return sperret;
+                if (Kjerne(setning, ledd, former) is { } k)
+                {
+                    if (k.Sperret is null) return k;
+                    sperret ??= k;
+                }
+                if (slutt) return sperret;
+                ledd.Clear();
+                i++;
+                if (i < tokens.Count && Artikler.Contains(tokens[i].Value.ToLowerInvariant())) i++;
+                continue;
             }
+            ledd.Add(tokens[i]);
+            i++;
+        }
+    }
+
+    private static (int Pos, string Tekst, bool Ordrett, string? Sperret)? Kjerne(string setning, List<Match> ledd, List<string[]> former)
+    {
+        var ord = ledd.Select(m => m.Value.ToLowerInvariant()).ToArray();
+        // Ordrett først: står kjernen ordrett som en variant, er det tekstfunn selv om en annen variant også er en bøyning av den.
+        foreach (var (form, bareOrdrett) in new[] { true, false }.SelectMany(b =>
+                     former.OrderByDescending(f => f.Length).ThenBy(f => string.Join(' ', f), StringComparer.Ordinal).Select(f => (f, b))))
+        {
+            if (form.Length > ord.Length || (bareOrdrett && ord[^1] != form[^1])) continue;
+            var hale = ord[^form.Length..];
+            var forledd = true;
+            for (var j = 0; j < form.Length - 1; j++) if (hale[j] != form[j]) { forledd = false; break; }
+            if (!forledd) continue;
+            var likt = hale[^1] == form[^1];
+            if (!likt && BoyningSuffiks(form[^1], hale[^1]) is null) continue;
+            var forran = ord[..^form.Length];
+            var sperre = forran.Any(o => !TillatteForledd.Contains(o));
+            var forste = ledd[ord.Length - form.Length];
+            var siste = ledd[^1];
+            return (forste.Index, setning[forste.Index..(siste.Index + siste.Length)], likt,
+                sperre ? $"forleddssperre: «{string.Join(' ', ord)}» er et annet navn enn «{string.Join(' ', form)}»" : null);
         }
         return null;
     }
@@ -435,17 +559,16 @@ public static partial class Aktorkoregler
     [GeneratedRegex(@"[\p{L}]+(?:-[\p{L}]+)*")]
     private static partial Regex Ord();
 
-    [GeneratedRegex(@"\bskal\b(?:\s+\S+){0,6}?\s+ha\s+(?:et|en|ei)\b", RegexOptions.IgnoreCase)]
+    [GeneratedRegex(@"\bskal\b(?:\s+\S+){0,6}?\s+ha\s+(?:et|en|ei|ett)(?:\s+eller\s+flere)?\b", RegexOptions.IgnoreCase)]
     private static partial Regex SkalHa();
 
-    [GeneratedRegex(@"\bopprettes\b", RegexOptions.IgnoreCase)]
-    private static partial Regex Opprettes();
+    // Artikkelen er valgfri her (ikke ved «skal ha»): juristrunden målte «det skal være felles samarbeidsutvalg» (bhl. § 5) som et treff
+    // forleddssperren stopper. «skal ha» uten artikkel ga fire falske forslag for «medlemmer» og er ikke med.
+    [GeneratedRegex(@"(?:\bdet\s+skal|\bskal\s+det\b(?:\s+\S+){0,6}?)\s+være(?:\s+(?:et|en|ei|ett)(?:\s+eller\s+flere)?)?\b", RegexOptions.IgnoreCase)]
+    private static partial Regex SkalVaere();
 
-    [GeneratedRegex(@"\boppnevner\b", RegexOptions.IgnoreCase)]
-    private static partial Regex Oppnevner();
-
-    [GeneratedRegex(@"\betableres\b", RegexOptions.IgnoreCase)]
-    private static partial Regex Etableres();
+    [GeneratedRegex(@"[\p{L}]+(?:-[\p{L}]+)*|[^\s\p{L}]")]
+    private static partial Regex Frasetokens();
 }
 
 // ------------------------------------------------------------------------------------------------ Svarformene
@@ -472,9 +595,13 @@ public sealed record AktorkoFordeling(
     IReadOnlyList<Ordtreff> Hyppigste);
 
 /// <summary>Et hjemmelforslag slik API-et viser det: med rettskilden og bestemmelsen.</summary>
+/// <param name="AnnenParagraf">[Ny, Johanns avgjørelse 2026-11-01 etter juristrunde-440] Når hjemmelen står i en annen paragraf enn ALLE
+/// forekomstene: «hjemmelen står i § 9; forekomstene i § 33b». Null når en forekomst står i samme paragraf. En opplysning regnet ut av
+/// eId-ene, ikke en påstand om at forslaget er feil; vises som nøytral metatekst, ikke som varsel.</param>
+/// <param name="Sperret">[Ny, #440 PR 2] Satt når forleddssperren stoppet treffet: da er det ikke et forslag, og det kan ikke godkjennes.</param>
 public sealed record Hjemmelforslagvisning(
     Guid RettskildeId, string Rettskilde, string? Kortnavn, string Eid, string? Bestemmelse, string Uttrykk, string Setning, string Treff,
-    int TreffStart, string Kunnskapsstatus);
+    int TreffStart, string Kunnskapsstatus, string? AnnenParagraf = null, string? Sperret = null);
 
 /// <summary>Én rad i aktørkøen (<c>GET /api/aktorko</c>).</summary>
 /// <param name="Hjemmelforslag">Antall forslag etter regelen. 0 = hullet (ingen bestemmelse i rettskildene der navnet står).</param>
@@ -483,7 +610,7 @@ public sealed record Hjemmelforslagvisning(
 /// <param name="BareMerknader">Alle forekomstene står i merknader eller veiledning (#419).</param>
 public sealed record AktorkoRad(
     string Nokkel, string Navn, int Forekomster, int Rettskilder, IReadOnlyList<Kovariant> Varianter, IReadOnlyList<Guid> RettskildeIder,
-    int Hjemmelforslag, Hjemmelforslagvisning? ForsteHjemmelforslag, int GenitivforslagInn, bool BareMerknader);
+    int Hjemmelforslag, Hjemmelforslagvisning? ForsteHjemmelforslag, int GenitivforslagInn, bool BareMerknader, bool Manuell = false);
 
 public sealed record AktorkoListe(int Ventende, int AntallNavn, int MedFlereForekomster, IReadOnlyList<AktorkoRad> Navn);
 
@@ -503,10 +630,14 @@ public sealed record RettskildeForekomster(Guid RettskildeId, string Tittel, str
 /// <param name="GenitivforslagUt">Når dette navnet selv har genitivforledd: navnene etterleddet ligner. Bare forslag.</param>
 /// <param name="Hjemmelforslag">Forslagene etter regelen. Tom = hullet. Vises bare som forslag i PR 1.</param>
 /// <param name="Hjemmelregel">Regelen i klart språk, slik den vises.</param>
+/// <param name="SperredeTreff">[Ny, #440 PR 2] Treff forleddssperren stoppet («felles samarbeidsutvalg»). Vises, men er ikke forslag.</param>
+/// <param name="Manuell">[Ny, #440 PR 2] Navnet er satt sammen av et menneske («skill ut» / «ta med»), ikke bare av regelen.</param>
+/// <param name="Hullmerknad">[Ny, Johanns avgjørelse 2026-11-01] Metateksten under «Hjemmel for aktøren mangler»: hva som er undersøkt.</param>
 public sealed record AktorkoDetalj(
     string Nokkel, string Navn, int Forekomster, IReadOnlyList<Kovariant> Varianter, IReadOnlyList<Genitivforslag> GenitivforslagInn,
     IReadOnlyList<Genitivforslag> GenitivforslagUt, IReadOnlyList<RettskildeForekomster> PerRettskilde,
-    IReadOnlyList<Hjemmelforslagvisning> Hjemmelforslag, string Hjemmelregel);
+    IReadOnlyList<Hjemmelforslagvisning> Hjemmelforslag, string Hjemmelregel, IReadOnlyList<Hjemmelforslagvisning>? SperredeTreff = null,
+    bool Manuell = false, string? Hullmerknad = null);
 
 // ------------------------------------------------------------------------------------------------ Tjenesten
 
@@ -516,11 +647,18 @@ public sealed record AktorkoDetalj(
 /// </summary>
 public sealed class AktorkoTjeneste(RegelIdeDbContext db)
 {
+    /// <summary>[ENDRET, #440 PR 2] Regelen i klart språk, presisert etter juristrunde-440.</summary>
     public const string Hjemmelregel =
-        "En bestemmelse i en rettskilde der navnet står, med et opprettelsesuttrykk fra en lukket liste («skal … ha et», «opprettes», " +
-        "«oppnevner», «etableres») og navnet i samme setning, som samme ord eller en bøyningsform. Ved «skal … ha et» står navnet etter " +
-        "uttrykket. Merknader og veiledning er aldri med. Kunnskapsstatusen er tekstfunn når navnet står ordrett, ellers normalisering. " +
-        "Regelen er et forslag: juristrunden angriper den før godkjenningen bygges (#440).";
+        "En bestemmelse i en rettskilde der navnet står, der «skal … ha et/en/ei (eller flere)» eller «det skal være et …» styrer en " +
+        "nominalfrase med navnet som kjerne (samme ord eller en bøyningsform). Frasen går fram til første preposisjon, «som», «at», «enn» " +
+        "eller komma, og kan ha «og»/«eller» med ny artikkel. Står et annet ord enn tall- og mengdeord foran navnet («felles forliksråd»), er " +
+        "det et annet organ, og det blir ikke forslag (forleddssperren). Oppnevning, valg, utnevnelse og tilsetting gir aldri forslag. " +
+        "Merknader og veiledning er aldri med. Kunnskapsstatusen er tekstfunn når navnet står ordrett, ellers normalisering. " +
+        "Regelen er et forslag: et menneske godkjenner hjemmelen (juristrunde-440).";
+
+    /// <summary>[Ny, Johanns avgjørelse 2026-11-01] Metateksten under «Hjemmel for aktøren mangler». «Ikke funnet» er ikke «finnes ikke»
+    /// (docs/profil/03 §5); teksten sier hva som er undersøkt, og hovedteksten er den samme som på aktørsiden (#441).</summary>
+    public const string Hullmerknad = "ikke funnet av regelen; andre lover og vedtekter er ikke søkt";
 
     /// <summary>
     /// Leser tabellen rutingen slår opp i. Statisk, så sveipene kan bruke den uten en ny avhengighet.
@@ -593,10 +731,10 @@ public sealed class AktorkoTjeneste(RegelIdeDbContext db)
     {
         var tabell = await LastRutingstabellAsync(db, ct);
         var forekomster = (await db.Navnekandidater.Where(k => k.Status == "Venter")
-                .Select(k => new { k.Id, k.ForeslattTekst, k.RettskildeId, k.NodeEid, k.StartOffset, k.EndOffset, k.Kategori, k.OppdagelsesKilde, k.Konfidens })
+                .Select(k => new { k.Id, k.ForeslattTekst, k.RettskildeId, k.NodeEid, k.StartOffset, k.EndOffset, k.Kategori, k.OppdagelsesKilde, k.Konfidens, k.AktorkoGruppe })
                 .ToListAsync(ct))
             .Select(k => new KoForekomst(k.Id, k.ForeslattTekst, k.RettskildeId, k.NodeEid, k.StartOffset, k.EndOffset, k.Kategori,
-                k.OppdagelsesKilde, k.Konfidens))
+                k.OppdagelsesKilde, k.Konfidens, k.AktorkoGruppe))
             .OrderBy(f => f.NavnekandidatId).ToList();
         return (forekomster, forekomster.Select(f => Aktorkoregler.Ruter(tabell, f.Tekst, f.RettskildeId)).ToList());
     }
@@ -662,8 +800,8 @@ public sealed class AktorkoTjeneste(RegelIdeDbContext db)
     {
         var rader = await db.RettskildeNoder
             .Where(n => rettskildeIder.Contains(n.RettskildeId) && n.Entitetsstatus == "gjeldende" && !n.Opphevet && !n.ErMerknad && n.Tekst != null
-                        && (n.Tekst.ToLower().Contains("opprettes") || n.Tekst.ToLower().Contains("oppnevner") || n.Tekst.ToLower().Contains("etableres")
-                            || (n.Tekst.ToLower().Contains("skal") && n.Tekst.ToLower().Contains("ha e"))))
+                        // [ENDRET, #440 PR 2] Forfilteret følger de to uttrykkene som står igjen etter juristrunden.
+                        && n.Tekst.ToLower().Contains("skal") && (n.Tekst.ToLower().Contains("ha e") || n.Tekst.ToLower().Contains("være e")))
             .Select(n => new { n.RettskildeId, n.Eid, n.Tekst, n.ErMerknad, n.Sorteringsrekkefolge })
             .ToListAsync(ct);
         return rader.Select(n => new HjemmelNode(n.RettskildeId, n.Eid, n.Tekst!, n.ErMerknad, n.Sorteringsrekkefolge)).ToList();
@@ -702,7 +840,7 @@ public sealed class AktorkoTjeneste(RegelIdeDbContext db)
             return new AktorkoRad(g.Nokkel, g.Navn, g.Forekomster.Count, g.Rettskilder, g.Varianter,
                 g.Forekomster.Select(f => f.RettskildeId).Distinct().ToList(), forslag.Count,
                 forslag.Count > 0 ? Vis(forslag[0], titler) : null, genitiv.Count(x => x.TilNokkel == g.Nokkel),
-                g.Forekomster.All(f => merknadsnoder.Contains((f.RettskildeId, f.NodeEid))));
+                g.Forekomster.All(f => merknadsnoder.Contains((f.RettskildeId, f.NodeEid))), g.Manuell);
         }).ToList();
         return new AktorkoListe(forekomster.Count, grupper.Count, grupper.Count(g => g.Forekomster.Count > 1), rader);
     }
@@ -770,7 +908,39 @@ public sealed class AktorkoTjeneste(RegelIdeDbContext db)
         var genitiv = Aktorkoregler.FinnGenitivforslag(grupper);
         return new AktorkoDetalj(g.Nokkel, g.Navn, g.Forekomster.Count, g.Varianter,
             genitiv.Where(x => x.TilNokkel == g.Nokkel).ToList(), genitiv.Where(x => x.FraNokkel == g.Nokkel).ToList(), perRettskilde,
-            ForslagFor(g, hjemmelnoder).Select(h => Vis(h, titler)).ToList(), Hjemmelregel);
+            ForslagFor(g, hjemmelnoder).Select(h => Vis(h, titler) with { AnnenParagraf = AnnenParagraf(h, g.Forekomster, titler) }).ToList(),
+            Hjemmelregel,
+            Aktorkoregler.FinnHjemmeltreff(g.Varianter.Select(v => v.Normalisert), ider.SelectMany(id => hjemmelnoder[id]))
+                .Where(t => t.Sperret is not null).Select(t => Vis(t.Forslag, titler) with { Sperret = t.Sperret }).ToList(),
+            g.Manuell, Hullmerknad);
+    }
+
+    /// <summary>Paragrafen i en eId («§ 33b»), uten ledd og punkt. Null uten paragraf.</summary>
+    public static string? Paragraf(string eid)
+    {
+        var m = Regex.Match(eid, @"/(§[^/]+)(?:/ledd-\d+)?(?:/punkt-\d+)?$");
+        return m.Success ? "§ " + m.Groups[1].Value[1..] : null;
+    }
+
+    /// <summary>
+    /// [Ny, Johanns avgjørelse 2026-11-01 etter juristrunde-440, punkt R] «hjemmelen står i § X; forekomstene i § Y» når hjemmelen står i en
+    /// annen paragraf enn ALLE forekomstene (samme rettskilde og samme paragraf teller som samme). Forekomster i andre rettskilder vises med
+    /// kortnavnet foran. Null når en forekomst står i samme paragraf, eller når hjemmelen ikke har paragraf.
+    /// </summary>
+    public static string? AnnenParagraf(Hjemmelforslag h, IEnumerable<KoForekomst> forekomster, IReadOnlyDictionary<Guid, (string Tittel, string? Kortnavn)> titler)
+    {
+        var hjemmel = Paragraf(h.Eid);
+        if (hjemmel is null) return null;
+        var liste = forekomster.Select(f => (f.RettskildeId, Paragraf: Paragraf(f.NodeEid))).Distinct().ToList();
+        if (liste.Any(f => f.RettskildeId == h.RettskildeId && f.Paragraf == hjemmel)) return null;
+        string Navn(Guid id) => titler.TryGetValue(id, out var t) ? t.Kortnavn ?? t.Tittel : id.ToString();
+        var tekster = liste
+            .OrderBy(f => f.RettskildeId == h.RettskildeId ? 0 : 1).ThenBy(f => Navn(f.RettskildeId), StringComparer.Ordinal)
+            .ThenBy(f => f.Paragraf, StringComparer.Ordinal)
+            .Select(f => (f.RettskildeId == h.RettskildeId ? "" : Navn(f.RettskildeId) + " ") + (f.Paragraf ?? "en bestemmelse uten paragraf"))
+            .Distinct().ToList();
+        var vist = tekster.Count > 4 ? string.Join(", ", tekster.Take(4)) + $" og {tekster.Count - 4} til" : string.Join(", ", tekster);
+        return $"hjemmelen står i {hjemmel}; forekomstene i {vist}";
     }
 
     private static readonly string[] Ordenstall = ["", "første", "andre", "tredje", "fjerde", "femte", "sjette", "sjuende", "åttende", "niende", "tiende"];
