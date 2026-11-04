@@ -3238,6 +3238,10 @@ public sealed class EksternKildeEntitet
 /// <item><c>Venter-på-Lovdata</c> — meldt til Lovdata (utenfor denne appen — se #249 "Ikke i denne
 /// saken": selve rapporteringsveien er IKKE bygget her), venter på at KILDEN rettes.</item>
 /// </list>
+/// [ENDRET, #429 PR 4, Johanns avgjørelse 2026-11-04 (4)] En femte tilstand, <c>Avvist</c>: et menneske har vurdert raden og funnet at den
+/// IKKE er en kildefeil (maskinregelen for utgåtte aktører leste to delvise opphevinger som hele, 77f58173 og 43d70df4). Til forskjell fra de
+/// fire over sier den at påstanden var feil, ikke hvordan feilen følges opp. Mekanismen som fant den, oppretter den ikke på nytt, og
+/// maskinregelen for utgåtte aktører behandler kilden som ikke opphevet. Settes med <c>POST /api/kildefeil/{id}/avvis</c>.
 /// Ingen egen endepunkt for å ENDRE status er bygget i denne runden (issue #249s akseptansekriterier
 /// krever kun at feltet finnes og at lista kan FILTRERES på det) — feltet er likevel med fra start,
 /// ikke lagt til som en senere migrasjon, nettopp fordi hele poenget med tabellen (i motsetning til
@@ -3277,9 +3281,17 @@ public sealed class KildefeilEntitet
     /// er et lukket sett.</summary>
     public required string FunnetAvMekanisme { get; set; }
 
-    public string Status { get; set; } = "Ny"; // 'Ny' | 'Kjent' | 'Rettet-hos-oss' | 'Venter-på-Lovdata'
+    public string Status { get; set; } = "Ny"; // 'Ny' | 'Kjent' | 'Rettet-hos-oss' | 'Venter-på-Lovdata' | 'Avvist'
     public required string OpprettetAv { get; set; }
     public DateTimeOffset OpprettetTidspunkt { get; set; }
+
+    /// <summary>[Ny, #429 PR 4, Johanns avgjørelse 2026-11-04 (4)] Hvem som satte statusen sist, når og hvorfor. Settes av
+    /// <see cref="KildefeilTjeneste.AvvisAsync"/> (status <c>Avvist</c>: «dette er ikke en kildefeil»). NULL = ingen har endret statusen siden
+    /// raden ble opprettet av mekanismen (CLAUDE.md §9: maskin eller menneske skal synes). CHECK <c>ck_kildefeil_avvist</c> krever alle tre
+    /// når status er <c>Avvist</c>.</summary>
+    public string? StatusEndretAv { get; set; }
+    public DateTimeOffset? StatusEndretTidspunkt { get; set; }
+    public string? Statusbegrunnelse { get; set; }
 }
 
 /// <summary>

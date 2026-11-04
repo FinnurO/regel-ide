@@ -1351,6 +1351,15 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
   - Premissmangelen R9 får merket «Hjemmelsloven kan være opphevet» (`warning`, premissporten), også på funn som bare er oppdaget.
   - Juristvurderingen får feltet «Hjemmel: har vedtaket fortsatt virkning når hjemmelsloven er opphevet?». Det lagres som
     vurderingspunktet «Hjemmel» (`HJEMMEL_OVERSKRIFT`, `delPremissmangler` i `funn/funnTekst.ts`).
+- [Ny, #429 PR 4, Johanns avgjørelser 2026-11-04] **Avgiverformel, gjenåpning og avvist kildefeil:**
+  - Undertypen `avgiverformel` vises i kategorimerket som «Utgått aktør: bare i avgiverformelen» (`neutral`, en klassifisering, som de
+    andre undertypene). Funnene står sist i lista; rekkefølgen kommer fra API-et, ikke fra en sortering i klienten. Undertypen kan ikke
+    velges ved registrering (`UNDERTYPER`), fordi den er maskinregelens klassifisering.
+  - Et gjenåpnet funn viser «Gjenåpnet: ‹begrunnelse›» i vurderingskortet og «Gjenåpnet av X ‹tid›; maskinregelen forklarer det ikke bort
+    igjen» i `Metatekst`. Merket «Forklart bort av maskinregel» forsvinner, fordi `vurdertAvType` nulles. Det er ingen knapp for å gjenåpne;
+    kallet gjøres i API-et (`POST /api/funn/{id}/gjenapne`).
+  - Kildefeillista har statusen «Avvist» (`danger`, som avvist ellers i appen). Under merket står `Metatekst` med hvem som avviste, når og
+    begrunnelsen (CLAUDE.md §9: maskin eller menneske). Det er ingen knapp; kallet er `POST /api/kildefeil/{id}/avvis`.
 - **Rettskildesiden:** gruppen «Funn til vurdering (N)» i kontekstpanelet. Aktørsiden er ikke endret i PR 1, fordi en annen sak skal
   omarbeide den.
 

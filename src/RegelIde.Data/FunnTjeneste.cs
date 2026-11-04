@@ -66,7 +66,9 @@ public sealed class FunnTjeneste(RegelIdeDbContext db)
             q = q.Where(f => f.Koblinger.Any(k => k.Rolle != Funn.Malvedtak && (k.RettskildeId == rid || (eli != null && k.RettskildeEli == eli))));
         }
         if (virksomhetId is { } vid) q = q.Where(f => f.Koblinger.Any(k => k.VirksomhetId == vid));
-        return await q.OrderByDescending(f => f.OpprettetTidspunkt).ToListAsync(ct);
+        // [ENDRET, #429 PR 4, Johanns avgjørelse 2026-11-04 (2)] Funn der navnet bare står i avgiverformelen, sorteres sist. De holdes ikke tilbake.
+        return await q.OrderBy(f => f.Undertype == UtgattAktorFunnregel.UndertypeAvgiverformel ? 1 : 0)
+            .ThenByDescending(f => f.OpprettetTidspunkt).ToListAsync(ct);
     }
 
     /// <summary>Oppretter et funn med status <c>oppdaget</c>. Idempotent på <see cref="NyttFunn.EksternNokkel"/>: finnes nøkkelen, returneres
@@ -238,7 +240,8 @@ public sealed class FunnTjeneste(RegelIdeDbContext db)
         Guid id, string begrunnelse, string regelkilde, string kjortAv, CancellationToken ct = default)
     {
         var funn = await db.Funn.FirstOrDefaultAsync(f => f.Id == id, ct);
-        if (funn is null || funn.Status != Funn.Oppdaget) return false;
+        // [ENDRET, #429 PR 4] Et funn som et menneske har gjenåpnet, regnes som menneskelig vurdert og forklares ikke bort av en maskinregel.
+        if (funn is null || funn.Status != Funn.Oppdaget || funn.GjenapnetTidspunkt is not null) return false;
         var naa = DateTimeOffset.UtcNow;
         funn.ForklartBortBegrunnelse = Pakrevd(begrunnelse, "Begrunnelse");
         funn.ForklartBortAv = Pakrevd(regelkilde, "Regelkilde");
@@ -251,6 +254,47 @@ public sealed class FunnTjeneste(RegelIdeDbContext db)
             $"Forklart bort maskinelt av {regelkilde}, kjørt av {kjortAv}. {begrunnelse}"));
         await db.SaveChangesAsync(ct);
         return true;
+    }
+
+    /// <summary>
+    /// [Ny, #429 PR 4, Johanns avgjørelse 2026-11-04 (4)] <b>Gjenåpning:</b> forklart bort → oppdaget, med begrunnelse. Bare fra
+    /// <c>forklart_bort</c>, og bare til <c>oppdaget</c>. Tilgangen (jurist eller publiseringsansvarlig) sjekkes av kalleren (API-et).
+    /// <para>
+    /// Utløst av måling 3: funnet F06 (FOR-2020-01-10-33, KMD) ble forklart bort av maskinregelen fordi opphevingen i FOR-2022-10-21-1777 ble
+    /// lest som hel («oppheves for så vidt gjelder …»). Begrunnelsen og hvem som forklarte bort, nulles på funnet, men står ordrett i proveniensen
+    /// sammen med gjenåpningen. Er funnet forklart bort av en maskinregel, nulles også <see cref="FunnEntitet.VurdertAvType"/>
+    /// (<see cref="Funn.Maskinregel"/>), så merket «Forklart bort av maskinregel» forsvinner. En tidligere juristvurdering blir stående.
+    /// </para>
+    /// <para>
+    /// [LÅST, Johann 2026-11-04] Et gjenåpnet funn regnes som menneskelig vurdert: <see cref="FunnEntitet.GjenapnetTidspunkt"/> står, og
+    /// maskinregelen forklarer det ikke bort igjen.
+    /// </para>
+    /// </summary>
+    public async Task<FunnEntitet?> GjenapneAsync(Guid id, string begrunnelse, string av, DateTimeOffset? tidspunkt = null, CancellationToken ct = default)
+    {
+        var funn = await HentAsync(id, ct);
+        if (funn is null) return null;
+        if (funn.Status != Funn.ForklartBort)
+        {
+            throw new InvalidOperationException("Bare et funn som er forklart bort, kan gjenåpnes.");
+        }
+        var tekst = Pakrevd(begrunnelse, "Begrunnelse");
+        var naa = tidspunkt ?? DateTimeOffset.UtcNow;
+        var tidligere = $"Forklart bort av {funn.ForklartBortAv} {funn.ForklartBortTidspunkt:yyyy-MM-dd}"
+            + (funn.VurdertAvType == Funn.Maskinregel ? " (maskinregel)" : "") + $": {funn.ForklartBortBegrunnelse}";
+        if (funn.VurdertAvType == Funn.Maskinregel) funn.VurdertAvType = null;
+        funn.ForklartBortBegrunnelse = null;
+        funn.ForklartBortAv = null;
+        funn.ForklartBortTidspunkt = null;
+        funn.GjenapnetAv = av;
+        funn.GjenapnetTidspunkt = naa;
+        funn.GjenapnetBegrunnelse = tekst;
+        funn.Status = Funn.Oppdaget;
+        funn.SistEndretAv = av;
+        funn.SistEndretTidspunkt = naa;
+        db.Proveniens.Add(Proveniens(funn.Id, "gjenapnet", av, $"Gjenåpnet: {tekst} Tidligere: {tidligere}"));
+        await db.SaveChangesAsync(ct);
+        return funn;
     }
 
     /// <summary>

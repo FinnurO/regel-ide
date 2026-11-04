@@ -96,7 +96,9 @@ public static class UtgattAktorRegler
         // Pythons tekst.split(term)[0]: teksten foran første forekomst (hele teksten når termen ikke står der).
         var i = tekst.IndexOf(term, StringComparison.Ordinal);
         var foran = i < 0 ? tekst : tekst[..i];
-        if (Regex.IsMatch((forelder ?? "").Trim(), @"oppheves\s*:\s*$") || Regex.IsMatch(foran, @"oppheves\s*:"))
+        // [ENDRET, #429 PR 4, Johanns avgjørelse 2026-11-04 (1c)] Forelderen kan også si «oppheves følgende delegeringer:» (M20 i måling 3,
+        // FOR-2003-12-19-1790 kap. VI), ikke bare «oppheves:». Samme formel som R9 leser (Opphevingsformel).
+        if (Opphevingsformel(forelder) || Regex.IsMatch(foran, @"oppheves\s*:"))
         {
             h.Add(R3);
         }
@@ -140,6 +142,36 @@ public static class UtgattAktorRegler
         return h;
     }
 
+    /// <summary>[Ny, #429 PR 4, Johanns avgjørelse 2026-11-04 (1c)] Opphevingsformelen en node kan slutte med, slik at det som oppheves, står
+    /// i nodene under: «oppheves:», «Følgende delegeringsbeslutninger oppheves:», «Fra 1. januar 2004 oppheves følgende delegeringer:» (M20),
+    /// «Fra samme tid oppheves følgende lover:» (M16). Brukt av R3 (forelderen til noden med termen) og R9
+    /// (<see cref="Opphevingskontroll.HjemmelOpphevetAsync"/>). Formelen må stå til slutt i noden; «oppheves følgende» uten kolon midt i en
+    /// setning er ikke en liste.</summary>
+    public static bool Opphevingsformel(string? tekst) =>
+        Regex.IsMatch((tekst ?? "").Trim(), @"\boppheves(\s+(følgende|disse)\b[^.:;]{0,80})?\s*:\s*$");
+
+    /// <summary>
+    /// [Ny, #429 PR 4, Johanns avgjørelse 2026-11-04 (2)] <b>Avgiverformelen:</b> termen er den som delegerer eller treffer vedtaket, ikke den
+    /// som har oppgaven i dag — «Xs myndighet … delegeres», «X delegerer/gir med dette/herved», «X har (med dette) delegert», «X fatter …
+    /// følgende vedtak». Termen må stå én gang i noden (som R2b). Formene er modellererens fra måling 3 (<c>tell429c.py</c>), pluss «X har
+    /// delegert» fra Johanns avgjørelse; kravet om at termen er lik Lovdatas «fastsatt av» er IKKE med, fordi feltet er avkortet for M10
+    /// («Barne-»), ett av de to eksemplene.
+    /// <para>
+    /// Holder IKKE tilbake. Juristen godtok funnene som ekte med lav prioritet (presedens A09 i måling 1: avgiveren avgrenser hvilken
+    /// kompetanse som er delegert, og hvem som fortsatt er overordnet). Et par der navnet bare står i avgiverformelen, får undertypen
+    /// <see cref="UtgattAktorFunnregel.UndertypeAvgiverformel"/> og sorteres sist i lista.
+    /// </para>
+    /// </summary>
+    public static bool Avgiverformel(string term, string tekst)
+    {
+        var t = Regex.Escape(term);
+        return Regex.Matches(tekst, t).Count == 1
+               && (Regex.IsMatch(tekst, t + @"s\s+myndighet\b.{0,400}\bdelegeres\b")
+                   || Regex.IsMatch(tekst, t + @"\s+(delegerer|gir)\s+(med\s+dette|herved)\b")
+                   || Regex.IsMatch(tekst, t + @"\s+har\s+((med\s+dette|herved)\s+)?delegert\b")
+                   || Regex.IsMatch(tekst, t + @"\s+fatter\b.{0,300}\bfølgende\s+vedtak"));
+    }
+
     /// <summary>[Ny, #429 PR 3, R7] Tekst normalisert som i regler_b.py før sammenligningen med målvedtaket: alt mellomrom blir ett.</summary>
     public static string NormaliserMellomrom(string? tekst) => Regex.Replace(tekst ?? "", @"\s+", " ").Trim();
 }
@@ -170,6 +202,12 @@ public sealed record UtgattAktorRegeltelling(int Noder, int Par, int ForklaresBo
 /// B nedlagt med hovedetterfølger dekket, C nedlagt med etterfølger men hovedetterfølger ukjent, D nedlagt uten etterfølger.
 /// <para>[ENDRET, #429 PR 3] <c>PerGruppe</c> og <c>PerRegel</c> skiller det som blir forklart bort, det som går til kildefeilkøen og det som
 /// får premissmangel (Johann 2026-11-02 (6)). De gamle feltene står for sammenligning med PR 2.</para>
+/// <para>[ENDRET, #429 PR 4] <c>Avgiverformel</c>: gjenværende par der navnet bare står i avgiverformelen (undertypen);
+/// <c>AvgiverformelMinstEnForekomst</c>: gjenværende par med minst én slik forekomst uten annen regel. <c>HoldtTilbakeMenGjenapnet</c>: par
+/// som holdes tilbake, men der et menneske har gjenåpnet funnet (de forklares ikke bort igjen, og telles også i
+/// <c>HoldtTilbakeMenAlleredeVurdert</c>). <c>R8OverstyrtAvAvvistKildefeil</c>: kilder der R8 slår til, men et menneske har avvist
+/// kildefeilen. <c>KjedeForgrenet</c>: gjenværende par der etterfølgerkjeden forgrener seg og ikke er fulgt videre.
+/// <c>EtterfolgerkanterKoblet</c>: summen av etterfølgerkanter de gjenværende funnene peker på (det premissporten krever vurdert).</para>
 /// </summary>
 public sealed record UtgattAktorRapport(
     bool Skrevet,
@@ -206,7 +244,13 @@ public sealed record UtgattAktorRapport(
     int Premissmangel,
     int ForeslattMalvedtakOpphevet,
     int Oppfriskes,
-    int Oppfrisket);
+    int Oppfrisket,
+    int Avgiverformel = 0,
+    int AvgiverformelMinstEnForekomst = 0,
+    int HoldtTilbakeMenGjenapnet = 0,
+    int R8OverstyrtAvAvvistKildefeil = 0,
+    int KjedeForgrenet = 0,
+    int EtterfolgerkanterKoblet = 0);
 
 /// <summary>
 /// [Ny, #429 PR 2, Johanns avgjørelser 2026-10-30 og 2026-10-31] <b>Maskinregelen for funn om utgåtte aktører</b>
@@ -263,6 +307,15 @@ public sealed class UtgattAktorFunnregel(RegelIdeDbContext db, FunnTjeneste funn
     public const string UtfallHoldtTilbake = "holdt_tilbake";
     public const string UtfallKildefeil = "kildefeil";
 
+    /// <summary>[Ny, #429 PR 4, Johanns avgjørelse 2026-11-04 (2)] Undertypen for et funn der navnet bare står i avgiverformelen
+    /// (<see cref="UtgattAktorRegler.Avgiverformel"/>). Erstatter <c>nedlagt_aktor</c>/<c>utgatt_navn</c> for funnet; gruppen står fortsatt i
+    /// tittelen og den interne merknaden. Sorteres sist i <see cref="FunnTjeneste.ListeAsync"/>.</summary>
+    public const string UndertypeAvgiverformel = "avgiverformel";
+
+    /// <summary>[Ny, #429 PR 4, Johanns avgjørelse 2026-11-04 (3)] Gir etterfølgerkjeden flere levende aktører enn dette, står bare antallet
+    /// («forgrener seg til N»), ikke navnene.</summary>
+    public const int MaksLevendeINavn = 3;
+
     public const string GruppeA = "A";
     public const string GruppeB = "B";
     public const string GruppeC = "C";
@@ -270,8 +323,10 @@ public sealed class UtgattAktorFunnregel(RegelIdeDbContext db, FunnTjeneste funn
     public static readonly string[] Grupper = [GruppeA, GruppeB, GruppeC, GruppeD];
 
     private sealed class Nodetreff(Guid rettskildeId, Guid nodeId, string eid, int rekkefolge, string term, IReadOnlyList<Guid> begrepIder,
-        Guid virksomhetId, string quote, string tekst, List<string> regler)
+        Guid virksomhetId, string quote, string tekst, List<string> regler, bool avgiver = false)
     {
+        /// <summary>[Ny, #429 PR 4] Termen står i avgiverformelen. Holder ikke tilbake.</summary>
+        public bool Avgiver { get; } = avgiver;
         public Guid RettskildeId { get; } = rettskildeId;
         public Guid NodeId { get; } = nodeId;
         public string Eid { get; } = eid;
@@ -287,10 +342,12 @@ public sealed class UtgattAktorFunnregel(RegelIdeDbContext db, FunnTjeneste funn
     /// <summary>En etterfølgerkant: <c>Fra</c> er etterfølgeren, <c>Til</c> aktøren den etterfølger.</summary>
     private sealed record Kant(Guid Id, Guid Til, Guid? Fra);
 
-    /// <summary>[Ny, #429 PR 3] Etterfølgerkjeden fra en aktør: alle kantene (direkte først), de levende aktørene kjeden når fram til, de
-    /// nedlagte etterfølgerne den går gjennom, og de nedlagte som ikke har noen etterfølger (blindveier).</summary>
+    /// <summary>[Ny, #429 PR 3] Etterfølgerkjeden fra en aktør: kantene som kobles på (direkte først), de levende aktørene kjeden når fram til, de
+    /// nedlagte etterfølgerne den går gjennom, og de nedlagte som ikke har noen etterfølger (blindveier).
+    /// [ENDRET, #429 PR 4] <c>Forgreninger</c>: nedlagte etterfølgere med mer enn én etterfølgerkant, som kjeden ikke følges videre fra, med de
+    /// levende aktørene hele grenen når fram til. <c>AlleLevende</c>: de levende aktørene i hele kjeden, også gjennom forgreningene.</summary>
     private sealed record Kjede(IReadOnlyList<(Kant Kant, bool Direkte)> Kanter, IReadOnlyList<Guid> Levende, IReadOnlyList<Guid> Nedlagte,
-        IReadOnlyList<Guid> Blindveier);
+        IReadOnlyList<Guid> Blindveier, IReadOnlyList<(Guid Node, IReadOnlyList<Guid> Levende)> Forgreninger, IReadOnlyList<Guid> AlleLevende);
 
     private sealed record Malvedtak(string Eli, string Tittel, Oppheving? OpphevesAv);
 
@@ -394,12 +451,33 @@ public sealed class UtgattAktorFunnregel(RegelIdeDbContext db, FunnTjeneste funn
         }
 
         // ---- 4. Etterfølgerne og gruppene ----
+        // [ENDRET, #429 PR 4, Johanns avgjørelse 2026-11-04 (3), fraviker PR 3 i docs/33 §5.15] Kjeden følges bare gjennom de direkte
+        // kantene og videre der en nedlagt etterfølger har nøyaktig ÉN etterfølgerkant (ingen forgrening). Måling 3 (M17): Sosial- og
+        // helsedepartementet viftet ut til 8 levende departementer over 19 kanter, alle koblet på premissporten. Hintet var ubrukelig, og
+        // porten krevde 19 vurderinger for ett funn. Ved en forgrening stopper kjeden; hele grenen telles bare (LevendeIGren), og kantene i
+        // den kobles ikke på.
+        List<Guid> LevendeIGren(Guid start, HashSet<Guid> sett)
+        {
+            var ut = new List<Guid>();
+            var sett2 = new HashSet<Guid>(sett);
+            var ko = new Queue<Guid>([start]);
+            while (ko.Count > 0)
+            {
+                foreach (var k in kanter.GetValueOrDefault(ko.Dequeue()) ?? [])
+                {
+                    if (k.Fra is not { } f || !sett2.Add(f)) continue;
+                    if (Levende(f)) ut.Add(f); else ko.Enqueue(f);
+                }
+            }
+            return ut;
+        }
         Kjede KjedeFor(Guid vid)
         {
             var brukt = new List<(Kant, bool)>();
             var levende = new List<Guid>();
             var nedlagte = new List<Guid>();
             var blindveier = new List<Guid>();
+            var forgreninger = new List<(Guid, IReadOnlyList<Guid>)>();
             var sett = new HashSet<Guid> { vid };
             var ko = new Queue<(Kant Kant, bool Direkte)>((kanter.GetValueOrDefault(vid) ?? []).Select(k => (k, true)));
             while (ko.Count > 0)
@@ -411,9 +489,11 @@ public sealed class UtgattAktorFunnregel(RegelIdeDbContext db, FunnTjeneste funn
                 nedlagte.Add(f);
                 var videre = kanter.GetValueOrDefault(f) ?? [];
                 if (videre.Count == 0) blindveier.Add(f);
-                foreach (var n in videre) ko.Enqueue((n, false));
+                else if (videre.Count == 1) ko.Enqueue((videre[0], false));
+                else forgreninger.Add((f, LevendeIGren(f, sett)));
             }
-            return new Kjede(brukt, levende, nedlagte, blindveier);
+            var alle = levende.Concat(forgreninger.SelectMany(g => g.Item2)).Distinct().ToList();
+            return new Kjede(brukt, levende, nedlagte, blindveier, forgreninger, alle);
         }
         var vider = treff.Select(x => x.Vid).Distinct().ToList();
         var kjeder = vider.ToDictionary(v => v, KjedeFor);
@@ -438,13 +518,29 @@ public sealed class UtgattAktorFunnregel(RegelIdeDbContext db, FunnTjeneste funn
             if (tvetydige.Contains(x.Term)) { nTvetydig++; tvetydigePar.Add((x.Rk, x.Term)); continue; }
             if (rk.Eli is null) { nUtenEli++; continue; }
             var forelder = x.Forelder is { } fid ? forelderTekst.GetValueOrDefault(fid) : null;
-            var regler = UtgattAktorRegler.Treff(x.Term, UtgattAktorRegler.Normaliser(x.Tekst), UtgattAktorRegler.Normaliser(forelder), R6Navn(x.Vid));
-            kandidater.Add(new Nodetreff(x.Rk, x.NodeId, x.Eid, x.Rekkefolge, x.Term, x.BegrepIder, x.Vid, x.Quote, x.Tekst, regler.ToList()));
+            var normalisert = UtgattAktorRegler.Normaliser(x.Tekst);
+            var regler = UtgattAktorRegler.Treff(x.Term, normalisert, UtgattAktorRegler.Normaliser(forelder), R6Navn(x.Vid));
+            kandidater.Add(new Nodetreff(x.Rk, x.NodeId, x.Eid, x.Rekkefolge, x.Term, x.BegrepIder, x.Vid, x.Quote, x.Tekst, regler.ToList(),
+                UtgattAktorRegler.Avgiverformel(x.Term, normalisert)));
         }
         var kandidatRk = kandidater.Select(k => k.RettskildeId).Distinct().ToList();
 
         // ---- 6. R8: kilder som er opphevet av en annen gjeldende primærkilde ----
         var opphevetAvAnnen = await Opphevingskontroll.OpphevetAvAnnenKildeAsync(db, kandidatRk.Select(id => (id, rettskilder[id].Eli!)).ToList(), ct);
+        // [Ny, #429 PR 4, Johanns avgjørelse 2026-11-04 (4)] En kildefeil fra denne regelen som et menneske har avvist, overstyrer R8: mennesket
+        // har sagt at kilden IKKE er opphevet i sin helhet (77f58173 og 43d70df4 var delvise opphevinger). Kilden behandles da som andre kilder,
+        // og kildefeilen opprettes ikke på nytt. Matchet på ELI, så avvisningen også gjelder en ny versjon fra Lovdata-resynken.
+        var avvistEli = (await db.Kildefeil.AsNoTracking()
+                .Where(k => k.Type == KildefeiltypeOpphevetAvAnnenKilde && k.FunnetAvMekanisme == OppdagelsesKilde && k.Status == KildefeilTjeneste.Avvist)
+                .Join(db.Rettskilder.IgnoreQueryFilters(), k => k.RettskildeId, r => r.Id, (k, r) => r.Eli)
+                .ToListAsync(ct))
+            .Where(e => e != null).Select(e => e!).ToHashSet(StringComparer.Ordinal);
+        var r8Overstyrt = 0;
+        foreach (var id in opphevetAvAnnen.Keys.Where(id => avvistEli.Contains(rettskilder[id].Eli!)).ToList())
+        {
+            opphevetAvAnnen.Remove(id);
+            r8Overstyrt++;
+        }
 
         // ---- 7. Målvedtakene: entydige, og om rettskilden opphever dem (teksten) eller bare har dem i «Endrer» ----
         var entydigMal = kandidatRk.Where(id => endrer.GetValueOrDefault(id) is { Count: 1 }).ToDictionary(id => id, id => endrer[id][0]);
@@ -469,7 +565,7 @@ public sealed class UtgattAktorFunnregel(RegelIdeDbContext db, FunnTjeneste funn
 
         // ---- 8. Parene, i to omganger: R7 krever at målvedtaket har eget funn for samme aktør ----
         var nokler = await db.Funn.AsNoTracking().Where(f => f.EksternNokkel != null && f.EksternNokkel.StartsWith(NokkelPrefiks))
-            .Select(f => new { f.Id, f.EksternNokkel, f.Status, f.SistEndretAv, f.Tittel, f.Beskrivelse })
+            .Select(f => new { f.Id, f.EksternNokkel, f.Status, f.SistEndretAv, f.Tittel, f.Beskrivelse, f.Undertype, f.GjenapnetTidspunkt })
             .ToDictionaryAsync(f => f.EksternNokkel!, ct);
         var par = kandidater.GroupBy(k => (k.RettskildeId, k.VirksomhetId))
             .OrderBy(g => rettskilder[g.Key.RettskildeId].DokumentId, StringComparer.Ordinal).ThenBy(g => Navn(g.Key.VirksomhetId), StringComparer.Ordinal)
@@ -505,6 +601,7 @@ public sealed class UtgattAktorFunnregel(RegelIdeDbContext db, FunnTjeneste funn
         var gPremiss = Grupper.ToDictionary(g => g, _ => 0);
         int foreslatt = 0, ikkeForeslatt = 0, iEndring = 0, medMal = 0, malOpphevet = 0, nye = 0, finnes = 0, finnesForklartBort = 0;
         int forklaresBort = 0, forklartBortSatt = 0, vurdertIkkeRort = 0, premissmangel = 0, oppfriskes = 0, oppfrisket = 0, kildefeilNye = 0;
+        int avgiverformel = 0, avgiverMinstEn = 0, gjenapnetHoldtTilbake = 0, kjedeForgrenet = 0, kanterKoblet = 0;
         var kildefeilIder = new Dictionary<Guid, Guid>();
         var rader = new List<UtgattAktorRad>();
 
@@ -546,10 +643,19 @@ public sealed class UtgattAktorFunnregel(RegelIdeDbContext db, FunnTjeneste funn
                 }
 
                 var kjede = kjeder[key.VirksomhetId];
+                // [Ny, #429 PR 4] Avgiverformelen: minst én forekomst står bare i den, og alle andre forekomster er truffet av en regel som
+                // teller. Da er det bare avgiveren som bærer funnet.
+                var avgiverForekomster = forekomster.Where(k => k.Avgiver && k.Regler.Count == 0).ToList();
+                var avgiver = avgiverForekomster.Count > 0 && forekomster.All(k => k.Regler.Count > 0 || k.Avgiver);
+                if (avgiverForekomster.Count > 0) avgiverMinstEn++;
+                if (avgiver) avgiverformel++;
+                if (kjede.Forgreninger.Count > 0) kjedeForgrenet++;
+                kanterKoblet += kjede.Kanter.Select(e => e.Kant.Id).Distinct().Count();
                 NyttFunn Bygg() => ByggFunn(nokkel, rk.Eli!, rk.DokumentId, rk.Kortnavn ?? rk.Tittel, rk.Tittel, Navn(key.VirksomhetId), v.GyldigTil,
                     key.VirksomhetId, gruppe, LivsstatusMangler(key.VirksomhetId), forekomster, Kjedelinjer(kjede, KantNavn, Navn, id => virksomheter.GetValueOrDefault(id)?.GyldigTil),
                     kjede.Kanter.Select(e => (e.Kant.Id, e.Direkte ? KantNavn(e.Kant) : $"{KantNavn(e.Kant)} (etter {Navn(e.Kant.Til)})", e.Direkte)).ToList(),
-                    Ansvarlige(rk.AnsvarligDepartement, utgatteTermer, tvetydigeTermer), endringer?.Count ?? 0, mal);
+                    Ansvarlige(rk.AnsvarligDepartement, utgatteTermer, tvetydigeTermer), endringer?.Count ?? 0, mal,
+                    avgiver ? avgiverForekomster : null);
                 if (finnesFunn is null)
                 {
                     if (skriv) await funnTjeneste.OpprettAsync(Bygg(), bruker, ct);
@@ -557,7 +663,8 @@ public sealed class UtgattAktorFunnregel(RegelIdeDbContext db, FunnTjeneste funn
                 else if (finnesFunn.Status == Funn.Oppdaget && (finnesFunn.SistEndretAv is null || finnesFunn.SistEndretAv == OppdagelsesKilde))
                 {
                     var nytt = Bygg();
-                    if (nytt.Beskrivelse != finnesFunn.Beskrivelse || nytt.Tittel != finnesFunn.Tittel)
+                    // [ENDRET, #429 PR 4] Også når undertypen endres (avgiverformelen), ellers får de lastede funnene den aldri.
+                    if (nytt.Beskrivelse != finnesFunn.Beskrivelse || nytt.Tittel != finnesFunn.Tittel || nytt.Undertype != finnesFunn.Undertype)
                     {
                         oppfriskes++;
                         if (skriv && oppfrisk)
@@ -585,7 +692,14 @@ public sealed class UtgattAktorFunnregel(RegelIdeDbContext db, FunnTjeneste funn
                               : ""))) + ".";
                 if (finnesFunn is not null)
                 {
-                    if (finnesFunn.Status == Funn.Oppdaget)
+                    // [Ny, #429 PR 4, Johanns avgjørelse 2026-11-04 (4)] Et funn som et menneske har gjenåpnet, regnes som menneskelig vurdert:
+                    // maskinregelen forklarer det ikke bort igjen, selv om det står som oppdaget.
+                    if (finnesFunn.Status == Funn.Oppdaget && finnesFunn.GjenapnetTidspunkt is not null)
+                    {
+                        vurdertIkkeRort++;
+                        gjenapnetHoldtTilbake++;
+                    }
+                    else if (finnesFunn.Status == Funn.Oppdaget)
                     {
                         forklares = true;
                         forklaresBort++;
@@ -637,7 +751,7 @@ public sealed class UtgattAktorFunnregel(RegelIdeDbContext db, FunnTjeneste funn
             foreslatt + ikkeForeslatt, ikkeForeslatt, ikkeForeslattPerRegel, noderPerRegel, foreslatt, foreslattPerGruppe, ikkeForeslattPerGruppe,
             iEndring, medMal, nye, finnes, finnesForklartBort, medRader ? rader : null,
             perGruppe, perRegel, opphevetAvAnnen.Count, kildefeilNye, forklaresBort, forklartBortSatt, vurdertIkkeRort, premissmangel, malOpphevet,
-            oppfriskes, oppfrisket);
+            oppfriskes, oppfrisket, avgiverformel, avgiverMinstEn, gjenapnetHoldtTilbake, r8Overstyrt, kjedeForgrenet, kanterKoblet);
     }
 
     /// <summary>«LTI/forskrift/2002-03-13-266» → «forskrift/2002-03-13-266», formen Lovdata bruker i <c>sist_endret_ved</c>.</summary>
@@ -689,7 +803,25 @@ public sealed class UtgattAktorFunnregel(RegelIdeDbContext db, FunnTjeneste funn
         }
         var direkteLevende = kjede.Kanter.Where(k => k.Direkte && k.Kant.Fra is { } f && kjede.Levende.Contains(f)).Select(k => k.Kant.Fra!.Value).ToHashSet();
         var videre = kjede.Levende.Where(l => !direkteLevende.Contains(l)).Select(navn).Distinct(StringComparer.Ordinal).ToList();
-        if (videre.Count > 0) deler.Add($"Kjeden av etterfølgere i modellen fører videre til {string.Join(", ", videre)}.");
+        // [ENDRET, #429 PR 4, Johanns avgjørelse 2026-11-04 (3)] Gir kjeden mer enn tre levende aktører (også gjennom forgreningene), står bare
+        // antallet. Navnene ville vært en vifte uten retning (M17: 8 departementer).
+        if (kjede.AlleLevende.Count > MaksLevendeINavn)
+        {
+            deler.Add($"Kjeden av etterfølgere i modellen forgrener seg til {kjede.AlleLevende.Count} levende aktører. "
+                + (kjede.Forgreninger.Count > 0
+                    ? $"Den er ikke fulgt videre fra {Liste(kjede.Forgreninger.Select(g => navn(g.Node)).Distinct(StringComparer.Ordinal).ToList())}, og bare kantene på den direkte veien er koblet på."
+                    : "Bare kantene på den direkte veien er koblet på."));
+        }
+        else
+        {
+            if (videre.Count > 0) deler.Add($"Kjeden av etterfølgere i modellen fører videre til {string.Join(", ", videre)}.");
+            foreach (var (node, levende) in kjede.Forgreninger)
+            {
+                deler.Add($"Etter {navn(node)} forgrener kjeden seg"
+                    + (levende.Count == 0 ? " uten å nå en levende aktør." : $" til {Liste(levende.Select(navn).Distinct(StringComparer.Ordinal).ToList())}.")
+                    + " Den grenen er ikke fulgt, og kantene i den er ikke koblet på.");
+            }
+        }
         if (kjede.Blindveier.Count > 0)
         {
             deler.Add($"Kjeden ender i nedlagt aktør uten etterfølger: {string.Join(", ", kjede.Blindveier.Select(navn).Distinct(StringComparer.Ordinal))}.");
@@ -712,7 +844,8 @@ public sealed class UtgattAktorFunnregel(RegelIdeDbContext db, FunnTjeneste funn
     private static NyttFunn ByggFunn(
         string nokkel, string eli, string? dokumentId, string kortnavn, string tittel, string aktor, DateOnly? gyldigTil, Guid vid, string gruppe,
         bool livsstatusMangler, IReadOnlyList<Nodetreff> forekomster, string kjedelinjer, IReadOnlyList<(Guid KantId, string Etikett, bool Direkte)> etterfolgere,
-        (IReadOnlyList<string> Navn, IReadOnlyList<string> Utgatte, IReadOnlyList<string> Tvetydige) ansvarlige, int antallEndret, Malvedtak? mal)
+        (IReadOnlyList<string> Navn, IReadOnlyList<string> Utgatte, IReadOnlyList<string> Tvetydige) ansvarlige, int antallEndret, Malvedtak? mal,
+        IReadOnlyList<Nodetreff>? avgiverformel = null)
     {
         var referanse = Dokumentreferanse(dokumentId) ?? EliKort(eli);
         var termer = forekomster.Select(k => k.Term).Distinct(StringComparer.Ordinal).ToList();
@@ -758,6 +891,12 @@ public sealed class UtgattAktorFunnregel(RegelIdeDbContext db, FunnTjeneste funn
                 + (ansvarlige.Utgatte.Count > 0 ? $" {Liste(ansvarlige.Utgatte)} er selv et utgått navn i modellen." : "")
                 + (ansvarlige.Tvetydige.Count > 0 ? $" {Liste(ansvarlige.Tvetydige)} er navn på mer enn én aktør i modellen." : ""));
         }
+        if (avgiverformel is { Count: > 0 })
+        {
+            // [Ny, #429 PR 4, Johanns avgjørelse 2026-11-04 (2)] Sagt i påstanden, så juristen ser hvorfor funnet står sist.
+            linjer.Add($"- Navnet står bare i avgiverformelen ({string.Join("; ", avgiverformel.Select(k => Bestemmelsesetikett(k.Eid)).Distinct(StringComparer.Ordinal))}): "
+                + $"{termer[0]} er den som delegerer eller treffer vedtaket, ikke den som har oppgaven etter det. Lav prioritet.");
+        }
         if (antallEndret > 0)
         {
             // [ENDRET, #429 PR 3] Lovdatas «Endrer»-felt tar med opphevinger. Teksten avgjør om det er en oppheving; ellers står begge.
@@ -797,7 +936,7 @@ public sealed class UtgattAktorFunnregel(RegelIdeDbContext db, FunnTjeneste funn
             + "etterfølgerkjeden kom i PR 3. Ny måling før maskinfunn går videre fra «oppdaget».";
 
         return new NyttFunn(
-            Funn.UtgattAktor, gruppe == GruppeA ? "utgatt_navn" : "nedlagt_aktor",
+            Funn.UtgattAktor, avgiverformel is { Count: > 0 } ? UndertypeAvgiverformel : gruppe == GruppeA ? "utgatt_navn" : "nedlagt_aktor",
             gruppe == GruppeA ? $"Utgått navn i {kortnavn}: {termer[0]}" : $"Nedlagt aktør i {kortnavn}: {aktor}",
             string.Join("\n", linjer), OppdagelsesKilde, InternMerknad: intern, FunnetI: "#429", EksternNokkel: nokkel, Koblinger: koblinger);
     }

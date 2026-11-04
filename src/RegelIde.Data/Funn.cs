@@ -30,7 +30,8 @@ public static class Funn
     /// <summary>Undertypene per kategori. <c>mulig_motstrid</c> har ingen. NULL er alltid lov (ikke angitt).</summary>
     public static readonly IReadOnlyDictionary<string, string[]> Undertyper = new Dictionary<string, string[]>
     {
-        [UtgattAktor] = ["nedlagt_aktor", "utgatt_navn"],
+        // [ENDRET, #429 PR 4, Johanns avgjørelse 2026-11-04 (2)] «avgiverformel»: navnet står bare i avgiverformelen (UtgattAktorRegler.Avgiverformel).
+        [UtgattAktor] = ["nedlagt_aktor", "utgatt_navn", UtgattAktorFunnregel.UndertypeAvgiverformel],
         [MuligMotstrid] = [],
         [UklarhetHull] = ["hull", "upresis_henvisning", "publiseringsfeil_kilde"],
     };
@@ -151,6 +152,14 @@ public sealed class FunnEntitet
     public string? VurdertAvType { get; set; }
 
     public string? ForklartBortBegrunnelse { get; set; }
+    // [Ny, #429 PR 4] Settes av FunnTjeneste.GjenapneAsync; nulles ikke. Se GjenapnetTidspunkt.
+    public string? GjenapnetAv { get; set; }
+    /// <summary>[Ny, #429 PR 4, Johanns avgjørelse 2026-11-04 (4)] Et menneske har gjenåpnet funnet fra <c>forklart_bort</c> til
+    /// <c>oppdaget</c> (<see cref="FunnTjeneste.GjenapneAsync"/>). Funnet regnes da som menneskelig vurdert: en maskinregel forklarer det
+    /// ikke bort igjen (<see cref="FunnTjeneste.ForklarBortMaskineltAsync"/>, <see cref="UtgattAktorFunnregel"/>). Står for alltid; en ny
+    /// forklaring bort av et menneske fjerner det ikke.</summary>
+    public DateTimeOffset? GjenapnetTidspunkt { get; set; }
+    public string? GjenapnetBegrunnelse { get; set; }
     public string? ForklartBortAv { get; set; }
     public DateTimeOffset? ForklartBortTidspunkt { get; set; }
 

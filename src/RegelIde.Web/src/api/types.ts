@@ -2403,7 +2403,7 @@ export interface OppdaterLovdataResynkInnstillingRequest {
 /** DENNE sakens fire tilstander (issue #249) — IKKE navnekandidat-/virksomhetkandidat-mønsterets
  * Venter/Godkjent/Avvist. En kildefeil forblir en feil om den godkjennes eller ei; statusen her
  * beskriver OPPFØLGING, ikke godkjenning. Se KildefeilEntitet.Status på serveren. */
-export type KildefeilStatus = 'Ny' | 'Kjent' | 'Rettet-hos-oss' | 'Venter-på-Lovdata';
+export type KildefeilStatus = 'Ny' | 'Kjent' | 'Rettet-hos-oss' | 'Venter-på-Lovdata' | 'Avvist';
 
 /** Én rad i det varige kildefeil-registeret — se KildefeilEntitet på serveren. `type`/
  * `funnetAvMekanisme` er fri tekst (ikke et lukket sett i klienten heller), nettopp fordi et
@@ -2418,6 +2418,10 @@ export interface KildefeilDto {
   status: KildefeilStatus;
   opprettetAv: string;
   opprettetTidspunkt: string;
+  /** [Ny, #429 PR 4] Hvem som endret statusen, når og hvorfor (status «Avvist»). null = ingen har endret den. */
+  statusEndretAv?: string | null;
+  statusEndretTidspunkt?: string | null;
+  statusbegrunnelse?: string | null;
 }
 
 /** Svaret fra POST /api/administrasjon/hjemmel-validering/registrer-kildefeil. */
@@ -2797,6 +2801,10 @@ export interface FunnDto {
   premissmangler: string[];
   /** Det som blir publisert. null for funn som er forklart bort, og i lista. */
   forhandsvisning: FunnOffentlig | null;
+  /** [Ny, #429 PR 4] Et menneske har gjenåpnet funnet fra «forklart bort». Står for alltid; maskinregelen forklarer det ikke bort igjen. */
+  gjenapnetAv?: string | null;
+  gjenapnetTidspunkt?: string | null;
+  gjenapnetBegrunnelse?: string | null;
 }
 
 export interface FunnTilgangDto {
