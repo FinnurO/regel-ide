@@ -19,6 +19,10 @@ namespace RegelIde.Data;
 /// </summary>
 public sealed class KildefeilTjeneste(RegelIdeDbContext db)
 {
+    /// <summary>[Ny, #429 PR 4] Statusen for en rad et menneske har avvist: den er ikke en kildefeil. Se <see cref="KildefeilEntitet"/>.</summary>
+    public const string Avvist = "Avvist";
+    public const string ProveniensType = "kildefeil";
+
     /// <summary>
     /// Idempotent — samme (<paramref name="rettskildeId"/>, <paramref name="rettskildeEid"/>,
     /// <paramref name="type"/>, <paramref name="funnetAvMekanisme"/>) gir samme rad tilbake i stedet
@@ -55,6 +59,31 @@ public sealed class KildefeilTjeneste(RegelIdeDbContext db)
             OpprettetTidspunkt = DateTimeOffset.UtcNow,
         };
         db.Kildefeil.Add(rad);
+        await db.SaveChangesAsync(ct);
+        return rad;
+    }
+
+    /// <summary>
+    /// [Ny, #429 PR 4, Johanns avgjørelse 2026-11-04 (4)] Et menneske avviser raden: den er ikke en kildefeil. Begrunnelse påkrevd; hvem og
+    /// når lagres på raden og i proveniensen. Tilgangen (jurist eller publiseringsansvarlig) sjekkes av kalleren (API-et). Raden slettes ikke,
+    /// og fordi <see cref="OpprettEllerFinnAsync"/> finner den på nøkkelen, opprettes den ikke på nytt av samme mekanisme.
+    /// Ulovlig overgang (alt avvist) kaster <see cref="InvalidOperationException"/>; tom begrunnelse <see cref="ArgumentException"/>.
+    /// </summary>
+    public async Task<KildefeilEntitet?> AvvisAsync(Guid id, string begrunnelse, string av, CancellationToken ct = default)
+    {
+        var rad = await db.Kildefeil.FirstOrDefaultAsync(k => k.Id == id, ct);
+        if (rad is null) return null;
+        if (rad.Status == Avvist) throw new InvalidOperationException("Kildefeilen er alt avvist.");
+        if (string.IsNullOrWhiteSpace(begrunnelse)) throw new ArgumentException("Begrunnelse er påkrevd.");
+        var forrige = rad.Status;
+        rad.Status = Avvist;
+        rad.StatusEndretAv = av;
+        rad.StatusEndretTidspunkt = DateTimeOffset.UtcNow;
+        rad.Statusbegrunnelse = begrunnelse.Trim();
+        var p = ProveniensHjelper.NyRad(ProveniensType, rad.Id, virksomhetId: null, "avvist", av);
+        p.KildeReferanserJson = System.Text.Json.JsonSerializer.Serialize(
+            new { issue = 429, merknad = $"Status {forrige} → {Avvist}: {rad.Statusbegrunnelse}" }, JsonSerialiseringHjelper.Innstillinger);
+        db.Proveniens.Add(p);
         await db.SaveChangesAsync(ct);
         return rad;
     }

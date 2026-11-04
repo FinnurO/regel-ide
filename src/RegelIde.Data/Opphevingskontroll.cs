@@ -91,20 +91,62 @@ public static class Opphevingskontroll
     /// <summary>[LÅST, Johann 2026-11-02] Delvis oppheving: en del står foran målet («kapitel VII i forskrift …», «I av kgl.res. …»), rett
     /// etter «oppheves» («oppheves kapittel 6») eller rett etter målets nummer («… nr. 77 kapittel I til VII-a»). Delordene må stå som egne
     /// ord: [ENDRET, tørrkjøringen 2026-11-02] uten ordgrensen ble «del» lest inn i «delegering» og «delegeringsvedtak», og to hele
-    /// opphevinger ble regnet som delvise (FOR-2013-02-25-231 og FOR-2014-08-15-1083).</summary>
-    public static bool Delvis(string setning, string datoRegex, string nr) =>
-        Regex.IsMatch(setning, @"(?<!\w)(kapit+el|§+|del|punkt|ledd|vedlegg|[IVX]+)(?!\w)\s*[\w.-]*\s+(i|av)\s+(\S+\s+){0,3}?" + datoRegex)
-        || Regex.IsMatch(setning, @"\boppheves\s+(kapit+el|§|punkt|del|ledd|nr\.|vedlegg|[IVX]+)(?!\w)")
-        || Regex.IsMatch(setning, datoRegex + @".{0,15}?nr\.?\s*" + nr + @"\s+(kapit+el|§|del|punkt|vedlegg)(?!\w)");
+    /// opphevinger ble regnet som delvise (FOR-2013-02-25-231 og FOR-2014-08-15-1083).
+    /// <para>
+    /// [ENDRET, #429 PR 4, Johanns avgjørelse 2026-11-04 (1a) etter måling 3] <b>Hviteliste, ikke svarteliste.</b> Svartelisten over slapp
+    /// gjennom to delvise opphevinger som ble lest som hele: «… 10. januar 2020 nr. 33, oppheves for så vidt gjelder vedtaket del I …»
+    /// (FOR-2022-10-21-1777 punkt 2, funnet F06 ble feilaktig forklart bort) og «… 21. desember 1990 nr. 1017 pkt. II» (FOR-2005-04-29-378).
+    /// En oppheving er nå hel bare når det som står RETT ETTER målets nummer, og rett etter verbet når verbet står etter målet, er på en liste
+    /// over former som ikke avgrenser (<see cref="EtterMalet"/>, <see cref="EtterVerbet"/>). Alt annet teller som delvis (CLAUDE.md §8).
+    /// Dagens tre svartelisteformer står i tillegg, og «for så vidt» hvor som helst i setningen er alltid delvis. Tittelen på målet («om
+    /// delegering av myndighet etter lov … § 2 tredje ledd») leses ikke: den inneholder paragrafer og ledd i nesten alle de 44 hele
+    /// opphevingene juristen kontrollerte, og kan ikke skilles fra en avgrensning uten å gjette.
+    /// </para></summary>
+    public static bool Delvis(string setning, string datoRegex, string nr)
+    {
+        if (Regex.IsMatch(setning, @"(?<!\w)(kapit+el|§+|del|punkt|ledd|vedlegg|[IVX]+)(?!\w)\s*[\w.-]*\s+(i|av)\s+(\S+\s+){0,3}?" + datoRegex)
+            || Regex.IsMatch(setning, @"\boppheves\s+(kapit+el|§|punkt|pkt\.?|del|ledd|nr\.|vedlegg|[IVX]+)(?!\w)")
+            || Regex.IsMatch(setning, datoRegex + @".{0,15}?nr\.?\s*" + nr + @"\s+(kapit+el|§|del|punkt|pkt\.?|vedlegg)(?!\w)")
+            || Regex.IsMatch(setning, @"\bfor\s+så\s+vidt\b"))
+        {
+            return true;
+        }
+        var mal = Regex.Match(setning, datoRegex + @".{0,15}?nr\.?\s*" + nr + @"\b");
+        if (!mal.Success) return true; // ikke målet: ingen hel oppheving av det
+        var etter = setning[(mal.Index + mal.Length)..];
+        if (!EtterMalet.IsMatch(etter)) return true;
+        var verb = Regex.Match(etter, @"\b(oppheves|avløses|erstattes)\b");
+        return verb.Success && !EtterVerbet.IsMatch(etter[(verb.Index + verb.Length)..]);
+    }
+
+    /// <summary>[Ny, #429 PR 4] Hvitelisten for det som står rett etter målets nummer: slutten på setningen, en liste («og», «samt», komma
+    /// og et nytt dokument eller verbet), tittelen («om», «for», «angående», «vedrørende», «hvor», tankestrek, parentes), eller verbet. Formene
+    /// er hentet fra de 44 hele opphevingene juristen kontrollerte i måling 3 (<c>jurist429c/kildefeil_opphevende.tsv</c>). «for så vidt» er
+    /// tatt ut før denne testen.</summary>
+    internal static readonly Regex EtterMalet = new(
+        @"^\s*([.;:]|$|(og|samt|eller)\b|[–(]|-\s|(om|for|angående|vedrørende|hvor)\b|(oppheves|avløses|erstattes|er\s+opphevet)\b|med\s+virkning\b"
+        + @"|,\s*((oppheves|avløses|erstattes|er\s+opphevet|og|samt)\b|(kgl|kongelig|kronprins|forskrift|vedtak|delegering|instruks|resolusjon|lov|rundskriv)\w*))",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>[Ny, #429 PR 4] Hvitelisten for det som står rett etter verbet når verbet står etter målet: slutten på setningen, eller når
+    /// opphevingen virker («med virkning fra», «fra», «ved ikraftsetting», «når», «samtidig», «straks», «i sin helhet»). «oppheves for så vidt
+    /// gjelder …», «oppheves kapittel 6» og alt annet er delvis.</summary>
+    internal static readonly Regex EtterVerbet = new(
+        @"^\s*,?\s*([.;]|$|med\s+virkning\b|fra\b|ved\s+ikraft|når\b|samtidig\b|straks\b|i\s+sin\s+helhet\b)",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>En setning som kan videreføre vedtak og forskrifter gitt i medhold av loven med datoen og nummeret (havne- og
-    /// farvannsloven § 53 første ledd, yrkestransportlova § 42, arbeidsmiljøloven § 20-2 første ledd i måling 2). Bare et hint til juristen.</summary>
+    /// farvannsloven § 53 første ledd, yrkestransportlova § 42, arbeidsmiljøloven § 20-2 første ledd i måling 2). Bare et hint til juristen.
+    /// [ENDRET, #429 PR 4, Johanns avgjørelse 2026-11-04 (1b)] Godtar også «med hjemmel i» og «(skal) fortsatt gjelde»: ekomloven 2024
+    /// § 18-2 første ledd, «Enkeltvedtak og forskrift med hjemmel i lov 4. juli 2003 nr. 83 … skal fortsatt gjelde» (M05 i måling 3), ble
+    /// ikke vist.</summary>
     public static string? Videreforingssetning(string? tekst, DateOnly dato, string nr)
     {
         var datoRx = DatoRegex(dato);
         foreach (var s in Setninger(UtgattAktorRegler.Normaliser(tekst)))
         {
-            if (Regex.IsMatch(s, @"\bi\s+medh[oa]ld\s+av\b") && Regex.IsMatch(s, @"\b(gjelder|gjeld|skal\s+gjelde)\b")
+            if (Regex.IsMatch(s, @"\b(i\s+medh[oa]ld\s+av|med\s+hjemmel\s+i)\b")
+                && Regex.IsMatch(s, @"\b(gjelder|gjeld|skal\s+gjelde|(skal\s+)?fortsatt\s+gjelde)\b")
                 && Regex.IsMatch(s, datoRx + @".{0,15}?nr\.?\s*" + nr + @"\b"))
             {
                 return s.Trim();
@@ -116,9 +158,16 @@ public static class Opphevingskontroll
     private sealed record Kandidatnode(Guid RettskildeId, string? DokumentId, string Eli, string Tittel, string Eid, string? Tekst, int Rekkefolge);
 
     /// <summary>Nodene i de gjeldende primærkildene som har et av <paramref name="mal"/> i «Endrer»-feltet, med tekst som kan inneholde en
-    /// oppheving eller en videreføring. Kildene som er selve målet, er utelatt.</summary>
+    /// oppheving eller en videreføring. Kildene som er selve målet, er utelatt.
+    /// <para>
+    /// [Ny, #429 PR 4, Johanns avgjørelse 2026-11-04 (1c), bare for R9 (<paramref name="medForelderformel"/>)] <b>Opphevingsformelen i noden
+    /// over.</b> Deltakerloven 1999 § 32 nr. 2 har formelen i forelderen («Fra samme tid oppheves følgende lover:») og loven som oppheves, i
+    /// punktet under («Lov av 16. juni 1972 nr. 57 om regulering av deltagelsen i fisket.», M16 i måling 3). Barnet leses da med forelderens
+    /// tekst foran, og opphevingen forankres i barnets eId. Bare når forelderen slutter med formelen (<see cref="UtgattAktorRegler.Opphevingsformel"/>).
+    /// R8 bruker ikke dette: avgjørelsen gjaldt R3 og R9, og R8 ville gitt nye kildefeil.
+    /// </para></summary>
     private static async Task<List<(string MalEli, Kandidatnode Node)>> NoderSomEndrerAsync(
-        RegelIdeDbContext db, IReadOnlyCollection<string> mal, bool bareLover, CancellationToken ct)
+        RegelIdeDbContext db, IReadOnlyCollection<string> mal, bool bareLover, CancellationToken ct, bool medForelderformel = false)
     {
         if (mal.Count == 0) return [];
         var par = new List<(string MalEli, Guid Kilde)>();
@@ -135,11 +184,28 @@ public static class Opphevingskontroll
         if (kilder.Count == 0) return [];
         var noder = await db.RettskildeNoder.AsNoTracking()
             .Where(n => kilder.Contains(n.RettskildeId) && n.Entitetsstatus == "gjeldende" && !n.Opphevet && !n.ErMerknad && n.Tekst != null
-                        && (n.Tekst.Contains("pphev") || n.Tekst.Contains("avløser") || n.Tekst.Contains("erstatter") || n.Tekst.Contains("medh")))
+                        && (n.Tekst.Contains("pphev") || n.Tekst.Contains("avløser") || n.Tekst.Contains("erstatter") || n.Tekst.Contains("medh")
+                            || n.Tekst.Contains("med hjemmel")))
             .Join(db.Rettskilder, n => n.RettskildeId, r => r.Id,
-                (n, r) => new Kandidatnode(r.Id, r.DokumentId, r.Eli!, r.Kortnavn ?? r.Tittel, n.Eid, n.Tekst, n.Sorteringsrekkefolge))
+                (n, r) => new { n.Id, Node = new Kandidatnode(r.Id, r.DokumentId, r.Eli!, r.Kortnavn ?? r.Tittel, n.Eid, n.Tekst, n.Sorteringsrekkefolge) })
             .ToListAsync(ct);
-        var perKilde = noder.GroupBy(n => n.RettskildeId).ToDictionary(g => g.Key, g => g.OrderBy(n => n.Rekkefolge).ThenBy(n => n.Eid, StringComparer.Ordinal).ToList());
+        var formler = medForelderformel
+            ? noder.Where(n => UtgattAktorRegler.Opphevingsformel(UtgattAktorRegler.Normaliser(n.Node.Tekst))).ToDictionary(n => n.Id, n => n.Node.Tekst!)
+            : [];
+        var barn = new List<Kandidatnode>();
+        if (formler.Count > 0)
+        {
+            var formelIder = formler.Keys.ToList();
+            barn = (await db.RettskildeNoder.AsNoTracking()
+                    .Where(n => n.ParentNodeId != null && formelIder.Contains(n.ParentNodeId.Value) && n.Entitetsstatus == "gjeldende" && !n.Opphevet
+                                && !n.ErMerknad && n.Tekst != null)
+                    .Join(db.Rettskilder, n => n.RettskildeId, r => r.Id,
+                        (n, r) => new { Forelder = n.ParentNodeId!.Value, Node = new Kandidatnode(r.Id, r.DokumentId, r.Eli!, r.Kortnavn ?? r.Tittel, n.Eid, n.Tekst, n.Sorteringsrekkefolge) })
+                    .ToListAsync(ct))
+                .Select(x => x.Node with { Tekst = formler[x.Forelder].TrimEnd() + " " + x.Node.Tekst }).ToList();
+        }
+        var alle = noder.Select(n => n.Node).Concat(barn).ToList();
+        var perKilde = alle.GroupBy(n => n.RettskildeId).ToDictionary(g => g.Key, g => g.OrderBy(n => n.Rekkefolge).ThenBy(n => n.Eid, StringComparer.Ordinal).ToList());
         // Én rad per (mål, node): samme kilde kan stå med «Endrer» for flere mål.
         return par.Distinct().SelectMany(p => (perKilde.GetValueOrDefault(p.Kilde) ?? []).Select(n => (p.MalEli, n))).ToList();
     }
@@ -263,7 +329,7 @@ public static class Opphevingskontroll
                 .Where(r => r.Eli != null && eliSett.Contains(r.Eli) && r.Entitetsstatus == "gjeldende" && r.Importrolle == "primaer")
                 .Select(r => r.Eli!).ToListAsync(ct)).ToHashSet(StringComparer.Ordinal);
         var kandidater = eliSett.Where(e => !iKraft.Contains(e)).ToList();
-        var noderSomEndrer = await NoderSomEndrerAsync(db, kandidater, bareLover: true, ct);
+        var noderSomEndrer = await NoderSomEndrerAsync(db, kandidater, bareLover: true, ct, medForelderformel: true);
         var perMal = noderSomEndrer.GroupBy(x => x.MalEli, StringComparer.Ordinal)
             .ToDictionary(g => g.Key, g => g.Select(x => x.Node).OrderBy(n => n.DokumentId, StringComparer.Ordinal).ThenBy(n => n.Rekkefolge).ToList(), StringComparer.Ordinal);
 

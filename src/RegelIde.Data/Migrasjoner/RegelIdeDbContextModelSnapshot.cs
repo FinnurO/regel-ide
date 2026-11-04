@@ -1049,6 +1049,18 @@ namespace RegelIde.Data.Migrasjoner
                         .HasColumnType("text")
                         .HasColumnName("funnet_i");
 
+                    b.Property<string>("GjenapnetAv")
+                        .HasColumnType("text")
+                        .HasColumnName("gjenapnet_av");
+
+                    b.Property<string>("GjenapnetBegrunnelse")
+                        .HasColumnType("text")
+                        .HasColumnName("gjenapnet_begrunnelse");
+
+                    b.Property<DateTimeOffset?>("GjenapnetTidspunkt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("gjenapnet_tidspunkt");
+
                     b.Property<string>("GodkjentAv")
                         .HasColumnType("text")
                         .HasColumnName("godkjent_av");
@@ -1148,6 +1160,8 @@ namespace RegelIde.Data.Migrasjoner
                         {
                             t.HasCheckConstraint("ck_funn_forklart_bort", "status <> 'forklart_bort' OR (forklart_bort_begrunnelse IS NOT NULL AND forklart_bort_av IS NOT NULL AND forklart_bort_tidspunkt IS NOT NULL)");
 
+                            t.HasCheckConstraint("ck_funn_gjenapnet", "(gjenapnet_tidspunkt IS NULL AND gjenapnet_av IS NULL AND gjenapnet_begrunnelse IS NULL) OR (gjenapnet_tidspunkt IS NOT NULL AND gjenapnet_av IS NOT NULL AND gjenapnet_begrunnelse IS NOT NULL)");
+
                             t.HasCheckConstraint("ck_funn_godkjent", "(status = 'godkjent_for_publisering' AND godkjent_av IS NOT NULL AND godkjent_tidspunkt IS NOT NULL AND godkjent_innhold_json IS NOT NULL AND godkjent_innhold_hash IS NOT NULL) OR (status <> 'godkjent_for_publisering' AND godkjent_innhold_json IS NULL AND godkjent_innhold_hash IS NULL)");
 
                             t.HasCheckConstraint("ck_funn_juristvurdert_hvem", "status NOT IN ('juristvurdert', 'godkjent_for_publisering') OR (juristvurdert_av IS NOT NULL AND juristvurdert_tidspunkt IS NOT NULL AND vurdert_av_type IS NOT NULL AND vurdering IS NOT NULL)");
@@ -1156,7 +1170,7 @@ namespace RegelIde.Data.Migrasjoner
 
                             t.HasCheckConstraint("ck_funn_status", "status IN ('oppdaget', 'juristvurdert', 'godkjent_for_publisering', 'forklart_bort')");
 
-                            t.HasCheckConstraint("ck_funn_undertype", "undertype IS NULL OR (kategori = 'utgatt_aktor' AND undertype IN ('nedlagt_aktor', 'utgatt_navn')) OR (kategori = 'uklarhet_hull' AND undertype IN ('hull', 'upresis_henvisning', 'publiseringsfeil_kilde'))");
+                            t.HasCheckConstraint("ck_funn_undertype", "undertype IS NULL OR (kategori = 'utgatt_aktor' AND undertype IN ('nedlagt_aktor', 'utgatt_navn', 'avgiverformel')) OR (kategori = 'uklarhet_hull' AND undertype IN ('hull', 'upresis_henvisning', 'publiseringsfeil_kilde'))");
 
                             t.HasCheckConstraint("ck_funn_vurdert_av_type", "vurdert_av_type IS NULL OR vurdert_av_type IN ('menneske', 'ki_agent', 'maskinregel')");
                         });
@@ -1799,6 +1813,18 @@ namespace RegelIde.Data.Migrasjoner
                         .HasDefaultValue("Ny")
                         .HasColumnName("status");
 
+                    b.Property<string>("StatusEndretAv")
+                        .HasColumnType("text")
+                        .HasColumnName("status_endret_av");
+
+                    b.Property<DateTimeOffset?>("StatusEndretTidspunkt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("status_endret_tidspunkt");
+
+                    b.Property<string>("Statusbegrunnelse")
+                        .HasColumnType("text")
+                        .HasColumnName("statusbegrunnelse");
+
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasColumnType("text")
@@ -1819,7 +1845,9 @@ namespace RegelIde.Data.Migrasjoner
 
                     b.ToTable("kildefeil", null, t =>
                         {
-                            t.HasCheckConstraint("ck_kildefeil_status", "status IN ('Ny', 'Kjent', 'Rettet-hos-oss', 'Venter-på-Lovdata')");
+                            t.HasCheckConstraint("ck_kildefeil_avvist", "status <> 'Avvist' OR (status_endret_av IS NOT NULL AND status_endret_tidspunkt IS NOT NULL AND statusbegrunnelse IS NOT NULL)");
+
+                            t.HasCheckConstraint("ck_kildefeil_status", "status IN ('Ny', 'Kjent', 'Rettet-hos-oss', 'Venter-på-Lovdata', 'Avvist')");
                         });
                 });
 

@@ -2147,8 +2147,13 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
         // KildefeilEntitet for hele resonnementet (Alternativ B, besluttet med Johann 2026-09-10).
         b.Entity<KildefeilEntitet>(e =>
         {
-            e.ToTable("kildefeil", t => t.HasCheckConstraint(
-                "ck_kildefeil_status", "status IN ('Ny', 'Kjent', 'Rettet-hos-oss', 'Venter-på-Lovdata')"));
+            // [ENDRET, #429 PR 4] 'Avvist': et menneske har funnet at raden ikke er en kildefeil, og hvem, når og hvorfor er påkrevd.
+            e.ToTable("kildefeil", t =>
+            {
+                t.HasCheckConstraint("ck_kildefeil_status", "status IN ('Ny', 'Kjent', 'Rettet-hos-oss', 'Venter-på-Lovdata', 'Avvist')");
+                t.HasCheckConstraint("ck_kildefeil_avvist",
+                    "status <> 'Avvist' OR (status_endret_av IS NOT NULL AND status_endret_tidspunkt IS NOT NULL AND statusbegrunnelse IS NOT NULL)");
+            });
             e.HasKey(x => x.Id).HasName("kildefeil_pkey");
             e.Property(x => x.RettskildeId).HasColumnName("rettskilde_id");
             e.Property(x => x.RettskildeEid).HasColumnName("rettskilde_eid");
@@ -2158,6 +2163,9 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.Status).HasColumnName("status").HasDefaultValue("Ny");
             e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
             e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
+            e.Property(x => x.StatusEndretAv).HasColumnName("status_endret_av");
+            e.Property(x => x.StatusEndretTidspunkt).HasColumnName("status_endret_tidspunkt");
+            e.Property(x => x.Statusbegrunnelse).HasColumnName("statusbegrunnelse");
 
             e.HasOne<RettskildeEntitet>().WithMany().HasForeignKey(x => x.RettskildeId).OnDelete(DeleteBehavior.Cascade);
             e.HasIndex(x => x.RettskildeId).HasDatabaseName("ix_kildefeil_rettskilde");
@@ -2182,8 +2190,9 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.ToTable("funn", t =>
             {
                 t.HasCheckConstraint("ck_funn_kategori", "kategori IN ('utgatt_aktor', 'mulig_motstrid', 'uklarhet_hull')");
+                // [ENDRET, #429 PR 4] 'avgiverformel' (UtgattAktorFunnregel.UndertypeAvgiverformel).
                 t.HasCheckConstraint("ck_funn_undertype",
-                    "undertype IS NULL OR (kategori = 'utgatt_aktor' AND undertype IN ('nedlagt_aktor', 'utgatt_navn')) "
+                    "undertype IS NULL OR (kategori = 'utgatt_aktor' AND undertype IN ('nedlagt_aktor', 'utgatt_navn', 'avgiverformel')) "
                     + "OR (kategori = 'uklarhet_hull' AND undertype IN ('hull', 'upresis_henvisning', 'publiseringsfeil_kilde'))");
                 t.HasCheckConstraint("ck_funn_status",
                     "status IN ('oppdaget', 'juristvurdert', 'godkjent_for_publisering', 'forklart_bort')");
@@ -2196,6 +2205,10 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
                 t.HasCheckConstraint("ck_funn_forklart_bort",
                     "status <> 'forklart_bort' "
                     + "OR (forklart_bort_begrunnelse IS NOT NULL AND forklart_bort_av IS NOT NULL AND forklart_bort_tidspunkt IS NOT NULL)");
+                // [Ny, #429 PR 4] En gjenåpning har alltid hvem, når og hvorfor.
+                t.HasCheckConstraint("ck_funn_gjenapnet",
+                    "(gjenapnet_tidspunkt IS NULL AND gjenapnet_av IS NULL AND gjenapnet_begrunnelse IS NULL) "
+                    + "OR (gjenapnet_tidspunkt IS NOT NULL AND gjenapnet_av IS NOT NULL AND gjenapnet_begrunnelse IS NOT NULL)");
                 // [LÅST, #429 AK3] Det publiserte innholdet finnes bare når funnet er godkjent — og da alltid, med hvem og når.
                 t.HasCheckConstraint("ck_funn_godkjent",
                     "(status = 'godkjent_for_publisering' AND godkjent_av IS NOT NULL AND godkjent_tidspunkt IS NOT NULL "
@@ -2223,6 +2236,9 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.ForklartBortBegrunnelse).HasColumnName("forklart_bort_begrunnelse");
             e.Property(x => x.ForklartBortAv).HasColumnName("forklart_bort_av");
             e.Property(x => x.ForklartBortTidspunkt).HasColumnName("forklart_bort_tidspunkt");
+            e.Property(x => x.GjenapnetAv).HasColumnName("gjenapnet_av");
+            e.Property(x => x.GjenapnetTidspunkt).HasColumnName("gjenapnet_tidspunkt");
+            e.Property(x => x.GjenapnetBegrunnelse).HasColumnName("gjenapnet_begrunnelse");
             e.Property(x => x.GodkjentAv).HasColumnName("godkjent_av");
             e.Property(x => x.GodkjentTidspunkt).HasColumnName("godkjent_tidspunkt");
             e.Property(x => x.GodkjentInnholdJson).HasColumnName("godkjent_innhold_json");
