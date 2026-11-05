@@ -110,6 +110,34 @@ public sealed record UtledetMedlemskap(
     public Klasseregler.Regelbeskrivelse? Beskrivelse { get; init; }
 }
 
+/// <summary>[Ny, issue #442] En bestemmelse i korpus som klassens hjemmel eller medlemsregel bygger på, med rettskilden når den er funnet.</summary>
+public sealed record KlassegrunnlagKilde(string Eid, Guid? RettskildeId, string? Tittel);
+
+/// <summary>
+/// [Ny, issue #442, Johanns avgjørelse 2026-11-05: «Klasser må ha minst hjemmel eller medlemsregel, og kan ha begge.»] Grunnlaget for en klasse,
+/// slik klassevisningen og aktørsidens hjemmelkort viser det. <see cref="Status"/>: <c>begge</c> | <c>hjemmel</c> | <c>medlemsregel</c> | <c>mangler</c>.
+/// Hullet vises bare ved <c>mangler</c> (<see cref="Vurder"/>). Hjemmel er en bestemmelse i korpus (<c>lovreferanse_eid</c>) eller en kilde utenfor
+/// korpus på begrepet.
+/// </summary>
+public sealed record Klassegrunnlag(
+    Guid KlasseId, string Term, string Status, KlassegrunnlagKilde? Hjemmel, string? KildeUtenforKorpus, string? Kunnskapsstatus, string? Godkjenning,
+    string? Begrunnelse, Klasseregler.Regelbeskrivelse? Medlemsregel, IReadOnlyList<KlassegrunnlagKilde> RegelKilder)
+{
+    public const string Begge = "begge";
+    public const string BareHjemmel = "hjemmel";
+    public const string BareMedlemsregel = "medlemsregel";
+    public const string Mangler = "mangler";
+
+    /// <summary>Regelen: minst én av dem, og begge er lov. Ren funksjon, så den kan testes uten database.</summary>
+    public static string Vurder(bool harHjemmel, bool harMedlemsregel) => (harHjemmel, harMedlemsregel) switch
+    {
+        (true, true) => Begge,
+        (true, false) => BareHjemmel,
+        (false, true) => BareMedlemsregel,
+        _ => Mangler,
+    };
+}
+
 /// <summary>
 /// [Ny, issue #384, Johanns beslutning 2026-10-16, docs/33 §4.2] Medlemskap som UTLEDES, ikke registreres: «kommune» har 357 medlemmer, og
 /// de står alt i områderegisteret (#312). Å legge inn 357 M-kanter i tillegg ville lagret det samme to ganger, og de ville blitt gale ved
@@ -127,6 +155,30 @@ public sealed class KlassemedlemskapTjeneste(RegelIdeDbContext db, StrukturkantT
     /// <summary>Den gjeldende klassen med regelen, eller null (migrasjonen kan ha latt være å opprette den, se den).</summary>
     public Task<BegrepEntitet?> KlasseForRegelAsync(string regel, CancellationToken ct = default) =>
         db.Begreper.FirstOrDefaultAsync(b => b.Medlemskapsregel == regel && b.Entitetsstatus == "gjeldende", ct);
+
+    /// <summary>[Ny, issue #442] Grunnlaget for klassen (<see cref="Klassegrunnlag"/>), eller null når id-en ikke er en gjeldende klasse.</summary>
+    public async Task<Klassegrunnlag?> GrunnlagAsync(Guid klasseId, CancellationToken ct = default)
+    {
+        var b = await db.Begreper.FirstOrDefaultAsync(x => x.Id == klasseId && x.Entitetsstatus == "gjeldende" && x.Begrepskategori == Nodetyper.Klasse, ct);
+        if (b is null) return null;
+        var regel = Klasseregler.Beskriv(b.Medlemskapsregel);
+        var hjemmel = b.LovreferanseEid is { } eid ? await KildeAsync(eid, b.LovkildeId, ct) : null;
+        var regelKilder = new List<KlassegrunnlagKilde>();
+        foreach (var e in regel?.KildeEider ?? []) regelKilder.Add(await KildeAsync(e, null, ct));
+        var status = Klassegrunnlag.Vurder(hjemmel is not null || b.KildeUtenforKorpusTekst is not null, regel is not null);
+        return new Klassegrunnlag(b.Id, b.Term, status, hjemmel, b.KildeUtenforKorpusTekst, b.Kunnskapsstatus, b.Godkjenning, b.Begrunnelse, regel, regelKilder);
+    }
+
+    /// <summary>Et fast begrep (LovkildeId NULL, #298) har bestemmelsen bare som eId: rettskilden er den gjeldende versjonen som har noden.</summary>
+    private async Task<KlassegrunnlagKilde> KildeAsync(string eid, Guid? lovkildeId, CancellationToken ct)
+    {
+        var kilde = lovkildeId is { } l
+            ? await db.Rettskilder.Where(r => r.Id == l).Select(r => new { r.Id, Tittel = r.Kortnavn ?? r.Tittel }).FirstOrDefaultAsync(ct)
+            : await db.RettskildeNoder.Where(n => n.Eid == eid && n.Entitetsstatus == "gjeldende")
+                .Join(db.Rettskilder.Where(r => r.Entitetsstatus == "gjeldende"), n => n.RettskildeId, r => r.Id, (n, r) => new { r.Id, Tittel = r.Kortnavn ?? r.Tittel })
+                .FirstOrDefaultAsync(ct);
+        return new KlassegrunnlagKilde(eid, kilde?.Id, kilde?.Tittel);
+    }
 
     /// <summary>Klassene med utledet medlemskap, med regelen.</summary>
     public async Task<Dictionary<Guid, string>> KlasserMedRegelAsync(CancellationToken ct = default) =>

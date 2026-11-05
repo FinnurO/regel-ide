@@ -33,7 +33,15 @@ public sealed record MestOmtalt(
 /// (registerdata og kanter med kilde utenfor korpus av typen register). Ingen av dem er hjemmel for at aktøren finnes.</summary>
 public sealed record DetSomFinnes(
     string Art, string Tekst, Guid? NodeId, Guid? HjemmelRettskildeId, string? HjemmelTittel, string? HjemmelEid,
-    string? KlassensKunnskapsstatus, string? Kunnskapsstatus, bool Forslag);
+    string? KlassensKunnskapsstatus, string? Kunnskapsstatus, bool Forslag)
+{
+    /// <summary>[Ny, issue #442] For en klasse: <see cref="Klassegrunnlag.Status"/> (begge | hjemmel | medlemsregel | mangler). Hullet vises bare ved
+    /// <c>mangler</c>; en klasse uten hjemmel, men med medlemsregel (departement), er ikke et hull.</summary>
+    public string? Grunnlag { get; init; }
+    /// <summary>[Ny, issue #442] Medlemsregelen i klartekst og kilden, når klassen har en.</summary>
+    public string? Medlemsregel { get; init; }
+    public string? MedlemsregelKilde { get; init; }
+}
 
 /// <summary>
 /// [Ny, issue #441] Svaret på <c>GET /api/virksomheter/{id}/hjemmel</c>. <see cref="Status"/> = <c>hjemlet</c> | <c>mangler</c>.
@@ -297,7 +305,9 @@ public sealed class AktorsideTjeneste(RegelIdeDbContext db, StrukturkantTjeneste
             var utledet = await klassemedlemskap.UtledAsync(klasseId, v.Id, ct);
             var m = utledet?.Medlemmer.FirstOrDefault();
             if (utledet is null || m is null) continue;
-            var klasse = await db.Begreper.Where(b => b.Id == klasseId).Select(b => new { b.LovkildeId, b.LovreferanseEid }).FirstAsync(ct);
+            var klasse = await db.Begreper.Where(b => b.Id == klasseId)
+                .Select(b => new { b.LovkildeId, b.LovreferanseEid, b.KildeUtenforKorpusTekst, b.Medlemskapsregel }).FirstAsync(ct);
+            var regel = Klasseregler.Beskriv(klasse.Medlemskapsregel); // [Ny, issue #442]
             // Et fast begrep (LovkildeId NULL, #298) har hjemmelen bare som eId: rettskilden er den gjeldende versjonen som har noden.
             var kildeId = klasse.LovkildeId ?? (klasse.LovreferanseEid is { } keid
                 ? await db.RettskildeNoder.Where(n => n.Eid == keid && n.Entitetsstatus == "gjeldende")
@@ -305,8 +315,14 @@ public sealed class AktorsideTjeneste(RegelIdeDbContext db, StrukturkantTjeneste
                     .FirstOrDefaultAsync(ct)
                 : null);
             var tittel = kildeId is { } l ? (await RettskildetitlerAsync([l], ct)).GetValueOrDefault(l) : null;
+            // [ENDRET, issue #442] Medlemskapets status er medlemmets eget svar etter svakeste premiss, og grunnlaget for klassen er med.
             svar.Add(new DetSomFinnes("klasse", $"Medlem av klassen «{utledet.Term}»", klasseId, kildeId, tittel, klasse.LovreferanseEid,
-                utledet.KlassensKunnskapsstatus, utledet.Kunnskapsstatus, !m.Validert));
+                utledet.KlassensKunnskapsstatus, m.Kunnskapsstatus, !m.Validert)
+            {
+                Grunnlag = Klassegrunnlag.Vurder(klasse.LovreferanseEid is not null || klasse.KildeUtenforKorpusTekst is not null, regel is not null),
+                Medlemsregel = regel?.Tekst,
+                MedlemsregelKilde = regel?.Kilde,
+            });
         }
         var registerkanter = await db.Strukturkanter
             .Where(k => k.FraVirksomhetId == v.Id && k.HjemmelRettskildeId == null && k.KildeUtenforKorpusType == Strukturkanter.Register)
