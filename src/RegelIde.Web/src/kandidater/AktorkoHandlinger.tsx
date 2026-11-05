@@ -126,7 +126,10 @@ export function Godkjenningsskjema({ detalj, onFerdig, forslag }: {
         «hjemmel mangler», og tagger for alle {detalj.forekomster} forekomstene, i én transaksjon. Ingenting er forhåndsvalgt
         {detalj.forhandsklassifisering && detalj.forhandsklassifisering.handling === 'godkjenn' ? '; «Godta forslaget» over fyller ut skjemaet' : ''}.
       </Metatekst>
-      {forslag && <FyltUt merknader={forslag.merknader} hva="typen, navnet, hjemmelen, hvor den gjelder, «faglig vurdert» og begrunnelsen" />}
+      {forslag && (
+        <FyltUt merknader={forslag.merknader}
+          hva={`typen, navnet, hjemmelen${forslag.utkast.type && forslag.utkast.type !== 'aktor' ? ', hvor den gjelder' : ''}, «faglig vurdert» og begrunnelsen`} />
+      )}
 
       <Fieldset data-size="sm" style={{ marginBottom: '0.6rem' }}>
         <Fieldset.Legend>Hva er «{detalj.navn}»?</Fieldset.Legend>
@@ -211,7 +214,9 @@ export function AndreHandlinger({ detalj, onFerdig, forslag }: {
   const [apnet, setApnet] = useState(false);
   // [ENDRET, #440] Styrt åpen/lukket, så «Godta forslaget» kan åpne den.
   const [apen, setApen] = useState(false);
-  const boks = useRef<HTMLDivElement>(null);
+  // Avsnittet forslaget gjelder. Merknaden «Fylt ut» står der, og siden rulles dit (kaldsjekken 2026-11-05: øverst i boksen sto den langt
+  // fra knappen).
+  const avsnitt = useRef<HTMLDivElement>(null);
 
   // [Ny, #440] «Godta forslaget»: fyller ut handlingen forslaget gjelder, åpner boksen og ruller dit. Ingenting sendes.
   useEffect(() => {
@@ -225,7 +230,7 @@ export function AndreHandlinger({ detalj, onFerdig, forslag }: {
     } else if (forslag.handling === 'ikke_aktor') {
       setBegrunnelse(forslag.begrunnelse ?? '');
     }
-    boks.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    window.setTimeout(() => avsnitt.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
   }, [forslag?.nr]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
@@ -248,19 +253,15 @@ export function AndreHandlinger({ detalj, onFerdig, forslag }: {
   const varsel = navn && aktor ? grunnvarsel(grunn || null, navn, aktor.navn) : null;
 
   return (
-    <div ref={boks}>
     <Details style={{ marginTop: '0.75rem' }} open={apen}
       onToggle={(e) => { const o = (e.target as HTMLDetailsElement).open; setApen(o); if (o) setApnet(true); }}>
       <Details.Summary>Andre handlinger: ikke en aktør, koble til en aktør som finnes, generisk omtale</Details.Summary>
       <Details.Content>
         {feil && <Alert data-color="danger" data-size="sm" style={{ marginBottom: '0.5rem' }}>{feil}</Alert>}
-        {forslag && (
-          <FyltUt merknader={forslag.merknader}
-            hva={forslag.handling === 'koble' ? '«Koble til en aktør som finnes»' : forslag.handling === 'ikke_aktor' ? '«Ikke en aktør» med begrunnelsen'
-              : `tørrkjøringen av «Tagg alle som generisk omtale» for «${forslag.ord}»`} />
-        )}
-
-        <Heading level={5} data-size="2xs" style={{ marginBottom: '0.3rem' }}>Ikke en aktør</Heading>
+        <div ref={forslag?.handling === 'ikke_aktor' ? avsnitt : undefined}>
+          {forslag?.handling === 'ikke_aktor' && <FyltUt merknader={forslag.merknader} hva="«Ikke en aktør» med begrunnelsen" />}
+          <Heading level={5} data-size="2xs" style={{ marginBottom: '0.3rem' }}>Ikke en aktør</Heading>
+        </div>
         <Metatekst style={{ marginBottom: '0.3rem' }}>Alle {detalj.forekomster} forekomstene avvises med begrunnelsen. Radene slettes ikke.</Metatekst>
         <Textarea data-size="sm" aria-label="Hvorfor er dette ikke en aktør?" placeholder="Hvorfor er dette ikke en aktør? (påkrevd)" rows={2}
           value={begrunnelse} onChange={(e) => setBegrunnelse(e.target.value)} style={{ maxWidth: '36rem', marginBottom: '0.4rem' }} />
@@ -269,7 +270,10 @@ export function AndreHandlinger({ detalj, onFerdig, forslag }: {
           Avvis som «ikke en aktør»
         </Button>
 
-        <Heading level={5} data-size="2xs" style={{ margin: '1rem 0 0.3rem' }}>Koble til en aktør som finnes</Heading>
+        <div ref={forslag?.handling === 'koble' ? avsnitt : undefined} style={{ marginTop: '1rem' }}>
+          {forslag?.handling === 'koble' && <FyltUt merknader={forslag.merknader} hva="«Koble til en aktør som finnes»" />}
+          <Heading level={5} data-size="2xs" style={{ marginBottom: '0.3rem' }}>Koble til en aktør som finnes</Heading>
+        </div>
         <Metatekst style={{ marginBottom: '0.3rem' }}>Navnet blir ny navneform på aktøren, og alle forekomstene tagges mot den.</Metatekst>
         {virksomheter === null ? (
           <Metatekst>Laster aktørene …</Metatekst>
@@ -302,7 +306,12 @@ export function AndreHandlinger({ detalj, onFerdig, forslag }: {
           Koble {navn ? `«${navn}»` : 'navnet'} til {aktor?.navn ?? 'aktøren'}
         </Button>
 
-        <Heading level={5} data-size="2xs" style={{ margin: '1rem 0 0.3rem' }}>Tagg alle som generisk omtale</Heading>
+        <div ref={forslag?.handling === 'generisk_omtale' ? avsnitt : undefined} style={{ marginTop: '1rem' }}>
+          {forslag?.handling === 'generisk_omtale' && (
+            <FyltUt merknader={forslag.merknader} hva={`tørrkjøringen av «Tagg alle som generisk omtale» for «${forslag.ord}»`} />
+          )}
+          <Heading level={5} data-size="2xs" style={{ marginBottom: '0.3rem' }}>Tagg alle som generisk omtale</Heading>
+        </div>
         <Metatekst style={{ marginBottom: '0.3rem' }}>
           Per ord, og bare nøyaktig ordet (ikke bøyningsformer). Tørrkjøringen viser hva som ville skjedd; «Lagre» er et eget klikk.
         </Metatekst>
@@ -312,7 +321,6 @@ export function AndreHandlinger({ detalj, onFerdig, forslag }: {
         ))}
       </Details.Content>
     </Details>
-    </div>
   );
 }
 
