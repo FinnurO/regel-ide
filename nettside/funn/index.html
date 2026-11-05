@@ -104,6 +104,22 @@
         </ul>
         <h3>Funn om utgåtte aktører</h3>
         <p>Et funn om en aktør som er lagt ned eller har skiftet navn, kan bare godkjennes når navnet og etterfølgeren er faglig vurdert. Er etterfølgeren ukjent, står det. Maskinen skal også kunne finne slike funn selv. De kommer først etter en presisjonsmåling, der en jurist kontrollerer et utvalg av det maskinen finner. Også maskinfunnene går gjennom vurderingen over før noe publiseres.</p>
+        <!-- [Ny, nettside-aktorko-og-maling, 2026-11-05] De tre presisjonsmålingene og rettingene fra #429 (kommentarene 2026-10-31, 11-02, 11-04;
+             PR #449, #451, #452). data/funn/register.json er ikke endret. -->
+        <h3>Maskinregelen er målt i tre runder</h3>
+        <p>Maskinen leter etter tekst som fortsatt bruker navnet på en aktør som er lagt ned eller har skiftet navn. Juristagenten har kontrollert et tilfeldig utvalg av treffene i tre runder. Presisjonen er andelen treff som holdt:</p>
+        <ul>
+          <li><strong>0,70</strong> (31. oktober, 40 treff, bare departementer). Etter neste runde viste det seg at den var for høy.</li>
+          <li><strong>0,25</strong> (2. november, 20 funn, også aktører som ikke er departementer).</li>
+          <li><strong>0,38</strong> (4. november, 21 nye funn).</li>
+        </ul>
+        <p>Det som er gjort mellom rundene:</p>
+        <ul>
+          <li><strong>Regler for falske treff (R1–R9).</strong> Treff i endringsinstrukser, opphevingsformler, sitater av eldre vedtak, overgangsregler og titler sitert i en endring holdes tilbake. Er loven som gir hjemmel for kilden, opphevet, får funnet en merknad om det.</li>
+          <li><strong>Etterfølgerkjeden.</strong> Hintet om hvem som overtok, følger kjeden fram til en aktør som finnes i dag, og Lovdatas ansvarlige departement står ved siden av. Hintet ledet feil i 11 av 18 funn i andre runde og i 4 av 21 i tredje.</li>
+          <li><strong>Kildefeilkøen.</strong> En kilde som står som gjeldende, men som er opphevet av en annen kilde, blir ikke et funn. Den går til en egen kø for feil i kildedataene. I tredje runde var 44 av de 47 kildefeilene riktige.</li>
+        </ul>
+        <p>Funnene vurderes nå ett for ett, uten massegodkjenning. Ingen maskinfunn er publisert.</p>
       </div>
     </div>
   </section>

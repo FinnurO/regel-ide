@@ -798,10 +798,13 @@
     </div>
   </section>
 
+  <!-- [ENDRET, nettside-aktorko-og-maling, 2026-11-05] Godkjenningen er bygget (#440 PR 2, PR #453), hjemmelregelen er presisert etter
+       juristrunde-440, og AK6 er målt i en testkopi. Kilder: docs/33 §5.16 og §5.16.1, og kommentaren på #440 2026-11-05. Forleddssperren i
+       grupperingen (PR #454) er ikke med: den er ikke flettet. -->
   <section class="section" id="aktorkoen">
     <div class="wrap">
       <div class="section-head">
-        <span class="kicker">Nytt 31. oktober 2026 · Aktørkøen <span class="pill" data-tone="warning">Første del: bare lesing</span></span>
+        <span class="kicker">Nytt 31. oktober 2026, oppdatert 5. november · Aktørkøen <span class="pill" data-tone="success">Godkjenningen er bygget</span></span>
         <h2>Ukjente aktører godkjennes ett sted</h2>
         <p>Når maskinen finner et navn den ikke kjenner, blir det en navnekandidat. Før var det én kandidat per forekomst, og det samme navnet kunne måtte godkjennes på fem forskjellige steder. Nå skal aktører godkjennes ett sted: i aktørkøen, der hvert ukjent navn står én gang med alle forekomstene.</p>
       </div>
@@ -826,10 +829,23 @@
       </div>
       <div class="prose struktur-etter-tabell">
         <p>De 393 forekomstene i aktørkøen står i 80 rettskilder. Samme ord og bøyninger med likt forledd slås sammen automatisk, og da blir det 192 navn. Et genitivforledd, som «barnehagens foreldreråd» mot «foreldrerådet», blir bare et forslag. «domstolens leder» slås aldri sammen med «leder».</p>
-        <p>For hvert navn foreslås en hjemmel der en rettskilde oppretter aktøren, for eksempel med «skal ha et» eller «opprettes». 18 navn har et slikt forslag. Foreldrerådet får barnehageloven § 4 første ledd. Utdanningsdirektoratet står én gang, med 9 forekomster i 5 rettskilder, og uten hjemmel, fordi vedtaket som oppretter direktoratet, ikke er i korpuset. Hullet vises. Merknader og veiledning foreslås aldri som hjemmel.</p>
+        <p>For hvert navn foreslås en hjemmel der en rettskilde oppretter aktøren. Foreldrerådet får barnehageloven § 4 første ledd. Utdanningsdirektoratet står én gang, med 9 forekomster i 5 rettskilder, og uten hjemmel, fordi vedtaket som oppretter direktoratet, ikke er i korpuset. Hullet vises. Merknader og veiledning foreslås aldri som hjemmel.</p>
         <p>Rutene regnes ut når køen leses, og ingenting flyttes. Sveipene som leter etter nye navn, bruker samme ruting, så et kjent ord blir ikke en ny kandidat.</p>
+        <h3>Hjemmelregelen er presisert etter juristrunden</h3>
+        <p>Før godkjenningen ble bygget, prøvde juristagenten hjemmelregelen på 24 forslag. Bare 6 holdt. Regelen er derfor strammet inn:</p>
+        <ul>
+          <li><strong>To uttrykk:</strong> «skal … ha et» og «det skal være et». «opprettes», «oppnevner» og «etableres» med navnet et sted i setningen er tatt ut. Ingen av de 10 forslagene de ga, holdt.</li>
+          <li><strong>Navnet må være kjernen</strong> i frasen uttrykket styrer. I «skal ha en førstelagmann som leder» er det førstelagmannen som skal finnes, ikke lederen.</li>
+          <li><strong>Forleddssperren:</strong> står det et annet ord enn et tall- eller mengdeord foran navnet, er det et annet organ. «felles samarbeidsutvalg» i barnehageloven § 5 er ikke samarbeidsutvalget i § 4.</li>
+          <li><strong>Oppnevning, valg, utnevnelse og tilsetting</strong> gir aldri forslag. De forutsetter at organet alt finnes.</li>
+        </ul>
+        <p>På de samme 24 forslagene gir den presiserte regelen 7 forslag, og 5 av dem er riktige. De 2 gale skyldes ikke hjemmelregelen. «direktøren» samler to ulike direktører under ett navn, og «Dommere» er ikke én aktør. Står hjemmelen i en annen paragraf enn alle forekomstene, står det under forslaget, så det er lett å se.</p>
+        <h3>Én godkjenning, ingenting forhåndsvalgt</h3>
+        <p>Godkjenningen er bygget. Én godkjenning oppretter aktøren (eller klassen, rollen eller området), navnet med hjemmelen eller «hjemmel mangler», og koblingene for alle forekomstene. Alt skjer i én transaksjon: feiler ett steg, lagres ingenting, og navnet står i køen som før. Ingenting er forhåndsvalgt. Hva navnet er, hvilken skrivemåte fra teksten det skal ha, hvilken hjemmel det har, og hvor sikkert det er, må velges.</p>
+        <h3>Målt på piloten</h3>
+        <p>Spørsmålet er om pilotens utsagn nå har en aktør å høre til. Av 110 utsagn som de faste mønstrene fant i de 20 pilotkildene, manglet 31 en aktør. De 31 gjaldt 19 ulike navn. I en testkopi av databasen ble de 19 navnene opprettet gjennom godkjenningen i køen. Etterpå manglet <strong>0 av 110</strong> en aktør.</p>
       </div>
-      <p class="struktur-forbehold"><strong>Første del er bare lesing.</strong> Køen viser navnene, men kan ikke godkjenne ennå. Samlet godkjenning kommer i neste del: én godkjenning skal opprette aktøren, navnet, hjemmelen eller «hjemmel mangler», og koblingene for alle forekomstene på én gang, uten at noe er forhåndsvalgt. Hjemmelregelen er et forslag, og juristagenten skal prøve den før godkjenningen bygges. Første del er bygget i <a href="https://github.com/FinnurO/regel-ide/issues/440" target="_blank" rel="noopener">#440</a> (<a href="https://github.com/FinnurO/regel-ide/pull/444" target="_blank" rel="noopener">PR #444</a>).</p>
+      <p class="struktur-forbehold"><strong>Forbehold:</strong> målingen er gjort i en testkopi. I den delte databasen er navnene ikke opprettet ennå. Det skal et menneske gjøre i køen. I testkopien ble alle 19 opprettet som aktører med «hjemmel mangler», fordi målingen spør om navnet finnes, ikke hva det er. Utsagnene fra språkmodellen er ikke målt. Bygget i <a href="https://github.com/FinnurO/regel-ide/issues/440" target="_blank" rel="noopener">#440</a> (<a href="https://github.com/FinnurO/regel-ide/pull/444" target="_blank" rel="noopener">PR #444</a> og <a href="https://github.com/FinnurO/regel-ide/pull/453" target="_blank" rel="noopener">PR #453</a>).</p>
     </div>
   </section>
 
