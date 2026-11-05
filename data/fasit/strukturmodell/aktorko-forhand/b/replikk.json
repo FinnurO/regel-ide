@@ -1,0 +1,40 @@
+[
+ {
+  "id": "n136",
+  "replikk": "godtar",
+  "tekst": "Godtar. Mitt kort var kontroller, ikke innvending, og modellererens argument avgjør spørsmålet. docs/33 §7 punkt 4 sier at intensjonale klasser lagres som kriterium, og at medlemskapet avgjøres i regellaget. Medlemskapet her følger en statistisk indeks utenfor korpus, så medlemmene kan skifte uten at noen rettskilde endres. Navnet velger bare satstabell, og ingen ny kompetanse eller plikt knyttes til det. Det skiller saken fra tiltakssonen, der kommunene er listet ved navn (n129, n188). Én ting må tas vare på i regellaget: definisjonen i § 3 sjette ledd siste punktum («Med sentralitetssone 5 og sentralitetssone 6 menes …») skal være kilden til vilkåret. SSB-indeksen skal registreres som kilde utenfor korpus med versjon. Ordlyden «den siste versjonen … (oppdatert juni 2023)» kan leses både dynamisk og statisk, og det avgjøres ikke her.",
+  "kilder": [
+   {
+    "ref": "docs/33 §7 punkt 4",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "FOR-2015-10-09-1166 § 3 sjette ledd siste punktum",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "SSBs sentralitetsindeks",
+    "funksjon": "ikke_funnet"
+   }
+  ]
+ },
+ {
+  "id": "n137",
+  "replikk": "godtar",
+  "tekst": "Godtar, av samme grunn som for n136. Det er vilkår på klassen kommune i regellaget, med § 3 sjette ledd siste punktum som kilde for vilkåret og SSB-indeksen som kilde utenfor korpus.",
+  "kilder": [
+   {
+    "ref": "docs/33 §7 punkt 4",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "FOR-2015-10-09-1166 § 3 sjette ledd siste punktum",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "SSBs sentralitetsindeks",
+    "funksjon": "ikke_funnet"
+   }
+  ]
+ }
+]

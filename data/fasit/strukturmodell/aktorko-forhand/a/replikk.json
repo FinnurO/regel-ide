@@ -1,0 +1,14 @@
+[
+ {
+  "id": "n40",
+  "replikk": "godtar",
+  "tekst": "Godtar «venter». Det var dette kontroller-dommen pekte mot: om regjeringen er statsrådet som eget organ (Grl. § 12 første ledd) eller en navneform for «Kongen i statsråd» (som «Kongen» i #335), er samme modellvalg som staten og departementene i beslutningsnotatet. Relasjonen «kontroller_forhold_til» opprettes ikke. For notatet bør begge lesningene og kildene stå: Grl. § 82 og § 76 (ordet brukt om organet), mediestøtteloven § 3 (forslag til Stortinget, som Kongen i statsråd fremmer) og lov om informasjonsplikt § 2 («medlemmer av regjeringen», kollegiet). Ingen uenighet står igjen. I klart språk: vi oppretter ikke «regjeringen» nå. Om regjeringen skal være en egen aktør eller et annet navn på Kongen i statsråd, avgjøres i notatet om staten og forvaltningsnivåene.",
+  "kilder": [
+   {"ref": "Grunnloven § 12 første ledd", "funksjon": "forutsatt_kilde"},
+   {"ref": "Grunnloven §§ 76 og 82", "funksjon": "forutsatt_kilde"},
+   {"ref": "mediestøtteloven § 3 første ledd", "funksjon": "forutsatt_kilde"},
+   {"ref": "lov om informasjonsplikt, karantene og saksforbud § 2 første ledd", "funksjon": "forutsatt_kilde"},
+   {"ref": "Johanns avgjørelse 2026-11-05 (Norge og forvaltningsnivåene, #440)", "funksjon": "forutsatt_kilde"}
+  ]
+ }
+]
