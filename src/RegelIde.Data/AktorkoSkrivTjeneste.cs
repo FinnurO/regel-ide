@@ -231,7 +231,10 @@ public sealed class AktorkoSkrivTjeneste(
                 // Formene som kan vise navnet i hjemmelen: regelens treff, eller (forhåndsklassifiseringen) skrivemåtene i teksten.
                 IReadOnlyCollection<string>? former = forslag is not null ? [forslag.Treff]
                     : hjemmelEid is not null ? g.Varianter.SelectMany(x => x.Skrivemater).Select(x => x.Tekst).ToList() : null;
-                var resultat = await identitet.RegistrerNavnetSomGjeldendeAsync(v.Id, grunnlag, bruker, ct, former);
+                // Forhåndsklassifiseringens hjemmel med normalisering eller fortolkning viser ikke navnet ordrett; den beholdes (Johann 2026-11-05).
+                var ordrettKreves = !(valg.Hjemmel == Aktorkohjemmel.Forhandsklassifisering
+                                      && grunnlag.Kunnskapsstatus is Strukturkanter.Normalisering or Strukturkanter.Fortolkning);
+                var resultat = await identitet.RegistrerNavnetSomGjeldendeAsync(v.Id, grunnlag, bruker, ct, former, ordrettKreves);
                 var navneform = resultat.Navneform ?? throw new InvalidOperationException(resultat.Merknad ?? "Navneformen ble ikke registrert.");
                 if (forslag is not null && resultat.Merknad is null)
                 {

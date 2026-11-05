@@ -132,6 +132,22 @@ public class AktorkoForhandGodkjenningTests
     }
 
     [Fact]
+    public async Task En_aktor_beholder_hjemmelen_med_normalisering_selv_om_bestemmelsen_ikke_viser_navnet_ordrett()
+    {
+        await using var db = _fixture.NyDbContext();
+        var p = Post("sysselmesteren på svalbard");
+        await OppsettAsync(db, "sysselmesteren på svalbard", "På Svalbard skal det være en sysselmester som oppnevnes av Kongen.",
+            "Saken avgjøres av Sysselmesteren på Svalbard.", "Sysselmesteren på Svalbard");
+
+        var k = await Tjeneste(db).GodkjennAsync("sysselmesteren på svalbard", new AktorkoGodkjenning(
+            Aktorkotyper.Aktor, "Sysselmesteren på Svalbard", Aktorkohjemmel.Forhandsklassifisering, null, p.Hjemmel!.Eid, Strukturkanter.Godkjent), "test");
+
+        var navneform = await db.Begreper.SingleAsync(b => b.Id == k!.NavneformId);
+        Assert.Equal((p.Hjemmel.Eid, Strukturkanter.Normalisering, Strukturkanter.Godkjent), (navneform.LovreferanseEid, navneform.Kunnskapsstatus, navneform.Godkjenning));
+        Assert.Empty(k!.Varsler);
+    }
+
+    [Fact]
     public async Task Et_navn_som_ikke_star_i_fila_kan_ikke_bruke_filas_hjemmel()
     {
         await using var db = _fixture.NyDbContext();

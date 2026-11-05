@@ -324,8 +324,12 @@ public sealed class AktoridentitetTjeneste(RegelIdeDbContext db, TekstTaggTjenes
     /// </summary>
     /// <param name="formerIHjemmelen">[Ny, #440 PR 2] Andre skrivemåter av navnet som godtas i hjemmelen: bøyningsformen hjemmelregelen i
     /// aktørkøen fant («foreldreråd» for «foreldrerådet», kunnskapsstatus normalisering). Null = bare navnet selv, som før.</param>
+    /// <param name="kreverNavnetIHjemmelen">[Ny, #440, Johanns avgjørelse 2026-11-05] False bare for forhåndsklassifiseringens hjemmel med
+    /// kunnskapsstatus normalisering eller fortolkning: kunnskapsstatusen sier selv at bestemmelsen ikke viser navnet ordrett («På Svalbard
+    /// skal det være en sysselmester»), og vurderingen er gjort i juristrunden. Da beholdes hjemmelen i stedet for «hjemmel mangler». Standard
+    /// true, som før.</param>
     public async Task<NavnetSomGjeldende> RegistrerNavnetSomGjeldendeAsync(Guid virksomhetId, Utsagnsgrunnlag g, string bruker, CancellationToken ct,
-        IReadOnlyCollection<string>? formerIHjemmelen = null)
+        IReadOnlyCollection<string>? formerIHjemmelen = null, bool kreverNavnetIHjemmelen = true)
     {
         var v = await db.Virksomheter.FirstOrDefaultAsync(x => x.Id == virksomhetId, ct)
             ?? throw new ArgumentException($"Fant ingen aktør med id '{virksomhetId}'. Ingen gjettet fallback.");
@@ -347,7 +351,7 @@ public sealed class AktoridentitetTjeneste(RegelIdeDbContext db, TekstTaggTjenes
 
         await ValiderAsync(g, ct);
         string? merknad = null;
-        if (g.Grunnlag == Utsagnsgrunnlag.Hjemmel)
+        if (g.Grunnlag == Utsagnsgrunnlag.Hjemmel && kreverNavnetIHjemmelen)
         {
             var tekst = await db.RettskildeNoder.Where(n => n.RettskildeId == g.HjemmelRettskildeId && n.Eid == g.HjemmelEid!.Trim()
                     && n.Entitetsstatus == "gjeldende").Select(n => n.Tekst).FirstOrDefaultAsync(ct);
