@@ -1,26 +1,29 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link as RouterLink, useSearchParams } from 'react-router';
 import {
-  Alert, Breadcrumbs, Card, Chip, Details, Field, Heading, Label, Link, Paragraph, Search, Spinner, Table, Tag,
+  Alert, Breadcrumbs, Button, Card, Chip, Details, Field, Heading, Label, Link, Paragraph, Search, Spinner, Table, Tag,
 } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type {
-  AktorkoDetalj, AktorkoFordeling, AktorkoHjemmelforslag, AktorkoListe, AktorkoOrdtreff, AktorkoRad, AktorkoVariant, Aktorkorute,
-  Kunnskapsstatus,
+  AktorkoDetalj, AktorkoFordeling, AktorkoHjemmelforslag, AktorkoKvittering, AktorkoListe, AktorkoOrdtreff, AktorkoRad, AktorkoVariant,
+  Aktorkorute, Kunnskapsstatus,
 } from '../api/types';
 import { Metatekst } from '../entitet/Metatekst';
 import { KunnskapsstatusTag } from '../strukturkant/Utsagnsstatus';
 import { usePaginering } from '../tabell/usePaginering';
 import { Pagineringskontroll } from '../tabell/Pagineringskontroll';
 import { AKTORKORUTE_TEKST } from '../kandidater/aktorkorute';
+import { AndreHandlinger, GeneriskOmtale, Godkjenningsskjema, Kvittering } from '../kandidater/AktorkoHandlinger';
 
 /**
  * [Ny, issue #440 PR 1, Johanns avgjørelser 2026-10-30] Aktørkøen: ett sted for ukjente aktører, gruppert per navn med alle forekomster.
  * Erstatter /navnekandidater og /virksomhet-kandidater som godkjenningssted (docs/09 §50). Johann 2026-10-30: «gjentagelsen skjer vel på
  * forslagsidene … altså før aktøren er opprettet» — det samme navnet sto én gang per forekomst, på fem ulike steder.
  *
- * <p><b>Bare lesing i PR 1.</b> Ingen knapper som skriver: godkjenningen (aktør, navneform, hjemmel og tagger i én transaksjon) kommer i
- * PR 2, etter juristrunden på hjemmelregelen. Hjemmelforslaget vises derfor bare som forslag (`info`), og ingenting er forhåndsvalgt.</p>
+ * <p>[ENDRET, #440 PR 2] PR 1 var bare lesing. Nå har hvert navn godkjenningen (aktør eller klasse/rolle/område, navneform med hjemmel
+ * eller «hjemmel mangler», og tagger for alle forekomstene, i én transaksjon) og de andre handlingene: ikke en aktør, koble til en aktør
+ * som finnes, skill ut / ta med, og «Tagg alle som generisk omtale» per ord. Skjemaene står i `kandidater/AktorkoHandlinger.tsx`.
+ * Ingenting er forhåndsvalgt. Hjemmelforslaget er fortsatt et forslag (`info`) til noen har valgt det.</p>
  *
  * <p>Oppsettet følger skissen Johann så 2026-10-30, visning (c): fordelingen øverst (hver kandidat havner på nøyaktig ett sted), regelen
  * for grupperingen, og køen som én lukket `Details` per navn (samme mønster som forslagskøen, docs/09 §36). Detaljen hentes først når
@@ -62,7 +65,7 @@ function Ordtreffbeskrivelse({ t }: { t: AktorkoOrdtreff }) {
   return <>{t.treff ?? 'ingen regel traff'}</>;
 }
 
-function Fordeling({ fordeling }: { fordeling: AktorkoFordeling }) {
+function Fordeling({ fordeling, onEndret }: { fordeling: AktorkoFordeling; onEndret: () => void }) {
   return (
     <Card style={{ padding: '1rem', marginBottom: '1rem' }}>
       <Heading level={2} data-size="sm" style={{ marginBottom: '0.25rem' }}>
@@ -114,6 +117,7 @@ function Fordeling({ fordeling }: { fordeling: AktorkoFordeling }) {
                 <Table.HeaderCell style={{ textAlign: 'right' }}>Forekomster</Table.HeaderCell>
                 <Table.HeaderCell>Treffer</Table.HeaderCell>
                 <Table.HeaderCell>Rute</Table.HeaderCell>
+                <Table.HeaderCell>Tagg alle som generisk omtale</Table.HeaderCell>
               </Table.Row>
             </Table.Head>
             <Table.Body>
@@ -123,6 +127,12 @@ function Fordeling({ fordeling }: { fordeling: AktorkoFordeling }) {
                   <Table.Cell style={{ textAlign: 'right' }}>{tall(t.forekomster)}</Table.Cell>
                   <Table.Cell><Metatekst as="span"><Ordtreffbeskrivelse t={t} /></Metatekst></Table.Cell>
                   <Table.Cell>{RUTE_KORT[t.rute]}</Table.Cell>
+                  <Table.Cell>
+                    {/* [Ny, #440 PR 2] Bare generiske ord og ord i køen; en bøyningsform eller et kjent navn blir aldri generisk her. */}
+                    {t.rute === 'generisk' || t.rute === 'aktorko'
+                      ? <GeneriskOmtale ord={t.ord} onLagret={onEndret} />
+                      : <Metatekst as="span">Ikke aktuelt</Metatekst>}
+                  </Table.Cell>
                 </Table.Row>
               ))}
             </Table.Body>
@@ -160,18 +170,21 @@ function Grupperingsregel({ fordeling }: { fordeling: AktorkoFordeling | null })
   );
 }
 
-function Variantlinje({ v, navnetsOrd }: { v: AktorkoVariant; navnetsOrd: string }) {
+function Variantlinje({ v, navnetsOrd, onSkillUt }: { v: AktorkoVariant; navnetsOrd: string; onSkillUt?: () => void }) {
   return (
     <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', flexWrap: 'wrap', marginBottom: '0.25rem' }}>
       <span>{v.skrivemater.map((s) => `«${s.tekst}» ${s.forekomster}`).join(', ')}</span>
       {v.regel === 'samme_ord' ? (
         <Tag data-size="sm" data-color="neutral" title="Regel 1: samme ord uten forskjell på store og små bokstaver.">Samme ord</Tag>
+      ) : v.regel === 'manuell' ? (
+        <Tag data-size="sm" data-color="neutral" title="Tatt med i navnet av et menneske («ta med»), ikke av bøyningsregelen.">Tatt med (menneske)</Tag>
       ) : (
         <Tag data-size="sm" data-color="neutral"
-          title={`Regel 2: bøyningsform av «${v.boyningAv}». Slått sammen automatisk; kan skilles ut i neste runde.`}>
+          title={`Regel 2: bøyningsform av «${v.boyningAv}». Slått sammen automatisk; kan skilles ut.`}>
           Bøyning ({v.suffiks}){v.boyningAv !== navnetsOrd ? ` av «${v.boyningAv}»` : ''}
         </Tag>
       )}
+      {onSkillUt && <Button data-size="sm" variant="tertiary" onClick={onSkillUt}>Skill ut</Button>}
     </div>
   );
 }
@@ -190,35 +203,68 @@ function Hjemmelforslagvisning({ h }: { h: AktorkoHjemmelforslag }) {
       <Metatekst as="div" style={{ borderLeft: '3px solid var(--ds-color-accent-border-subtle)', paddingLeft: '0.6rem' }}>
         «<Markert tekst={h.setning} start={h.treffStart} lengde={h.treff.length} />»
       </Metatekst>
+      {/* [Ny, Johanns avgjørelse 2026-11-01] Nøytral metatekst, ikke varsel: en opplysning om hvor teksten står. */}
+      {h.annenParagraf && <Metatekst style={{ marginTop: '0.2rem' }}>{h.annenParagraf.charAt(0).toUpperCase() + h.annenParagraf.slice(1)}.</Metatekst>}
     </div>
   );
 }
 
 /** Detaljen for ett navn. Hentes først når raden åpnes. */
-function Navnedetalj({ nokkel }: { nokkel: string }) {
+function Navnedetalj({ nokkel, kvittering, onBehandlet, onGrupperingEndret }: {
+  nokkel: string; kvittering: AktorkoKvittering | undefined; onBehandlet: (k: AktorkoKvittering) => void;
+  onGrupperingEndret: () => void;
+}) {
   const [detalj, setDetalj] = useState<AktorkoDetalj | null>(null);
   const [feil, setFeil] = useState<string | null>(null);
 
   useEffect(() => {
+    if (kvittering) return;
     api.hentAktorkoNavn(nokkel)
       .then(setDetalj)
       .catch((e) => setFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved henting av navnet.'));
-  }, [nokkel]);
+  }, [nokkel, kvittering]);
 
-  if (feil) return <Alert data-color="danger" data-size="sm">{feil}</Alert>;
+  /** [Ny, #440 PR 2] Skill ut / ta med / tilbakestill: grupperingen endres, og køen leses på nytt. */
+  async function gruppering(handling: () => Promise<AktorkoKvittering>) {
+    setFeil(null);
+    try {
+      await handling();
+      onGrupperingEndret();
+    } catch (e) {
+      setFeil(e instanceof ApiError ? e.message : 'Endringen av grupperingen feilet.');
+    }
+  }
+
+  if (kvittering) return <Kvittering k={kvittering} />;
+  if (feil && !detalj) return <Alert data-color="danger" data-size="sm">{feil}</Alert>;
   if (!detalj) return <Spinner aria-label="Laster navnet …" data-size="sm" />;
 
   const merknader = detalj.perRettskilde.flatMap((r) => r.forekomster).filter((f) => f.erMerknad).length;
   return (
     <div>
+      {feil && <Alert data-color="danger" data-size="sm" style={{ marginBottom: '0.5rem' }}>{feil}</Alert>}
       <Heading level={4} data-size="2xs" style={{ marginBottom: '0.3rem' }}>Varianter</Heading>
-      {detalj.varianter.map((v) => <Variantlinje key={v.normalisert} v={v} navnetsOrd={detalj.nokkel} />)}
+      {detalj.varianter.map((v) => (
+        <Variantlinje key={v.normalisert} v={v} navnetsOrd={detalj.nokkel}
+          onSkillUt={detalj.varianter.length > 1 ? () => gruppering(() => api.aktorkoSkillUt(detalj.nokkel, v.normalisert)) : undefined} />
+      ))}
+      {detalj.manuell && (
+        <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', flexWrap: 'wrap', marginBottom: '0.25rem' }}>
+          <Metatekst as="span">Grupperingen av dette navnet er endret av et menneske.</Metatekst>
+          <Button data-size="sm" variant="tertiary" onClick={() => gruppering(() => api.aktorkoTilbakestillGruppering(detalj.nokkel))}>
+            Tilbakestill grupperingen
+          </Button>
+        </div>
+      )}
       {detalj.genitivforslagInn.map((g) => (
         <div key={g.fraNokkel} style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', flexWrap: 'wrap', marginBottom: '0.25rem' }}>
           <span>«{g.fraVariant}» {g.forekomster}</span>
           <Tag data-size="sm" data-color="info" title="Regel 3: genitivforledd. Bare et forslag; slås ikke sammen. Står som eget navn i køen.">
             Forslag: genitivforledd
           </Tag>
+          <Button data-size="sm" variant="tertiary" onClick={() => gruppering(() => api.aktorkoTaMed(detalj.nokkel, g.fraVariant))}>
+            Ta med
+          </Button>
         </div>
       ))}
       {detalj.genitivforslagUt.length > 0 && (
@@ -262,22 +308,32 @@ function Navnedetalj({ nokkel }: { nokkel: string }) {
         {detalj.hjemmelforslag.length > 0 ? (
           detalj.hjemmelforslag.map((h, i) => <Hjemmelforslagvisning key={`${h.eid}-${i}`} h={h} />)
         ) : (
-          <Alert data-color="warning" data-size="sm" style={{ marginBottom: '0.4rem' }}>
-            <strong>Hjemmel for aktøren mangler</strong> i rettskildene der navnet står. Ingen av de {tall(detalj.forekomster)} forekomstene står
-            i en bestemmelse med et opprettelsesuttrykk og navnet{merknader > 0 ? `, og ${merknader} står i veiledning, som aldri er hjemmel` : ''}.
-            Ingenting er gjettet inn i stedet.
-          </Alert>
+          <>
+            <Alert data-color="warning" data-size="sm" style={{ marginBottom: '0.2rem' }}>
+              <strong>Hjemmel for aktøren mangler</strong> i rettskildene der navnet står. Ingen av de {tall(detalj.forekomster)} forekomstene står
+              i en bestemmelse der et opprettelsesuttrykk har navnet som kjerne{merknader > 0 ? `, og ${merknader} står i veiledning, som aldri er hjemmel` : ''}.
+              Ingenting er gjettet inn i stedet.
+            </Alert>
+            {/* [Ny, Johanns avgjørelse 2026-11-01] Hovedteksten er låst (#441); metateksten sier hva som er undersøkt. */}
+            <Metatekst style={{ marginBottom: '0.4rem' }}>{detalj.hullmerknad ?? 'ikke funnet av regelen; andre lover og vedtekter er ikke søkt'}</Metatekst>
+          </>
         )}
+        {(detalj.sperredeTreff ?? []).map((h) => (
+          <Metatekst key={`sperret-${h.eid}`} style={{ marginBottom: '0.3rem' }}>
+            Ikke forslag ({h.kortnavn ?? h.rettskilde} {h.bestemmelse ?? h.eid}): {h.sperret ?? 'forleddssperre'}.
+          </Metatekst>
+        ))}
         <Metatekst>Regelen: {detalj.hjemmelregel}</Metatekst>
       </Card>
-      <Metatekst style={{ marginTop: '0.5rem' }}>
-        Godkjenning (aktør, navneform, hjemmel eller «hjemmel mangler», og tagger for alle forekomstene) kommer i neste runde (#440 PR 2).
-      </Metatekst>
+      <Godkjenningsskjema detalj={detalj} onFerdig={onBehandlet} />
+      <AndreHandlinger detalj={detalj} onFerdig={onBehandlet} />
     </div>
   );
 }
 
-function Navnerad({ rad }: { rad: AktorkoRad }) {
+function Navnerad({ rad, kvittering, onBehandlet, onGrupperingEndret }: {
+  rad: AktorkoRad; kvittering: AktorkoKvittering | undefined; onBehandlet: (k: AktorkoKvittering) => void; onGrupperingEndret: () => void;
+}) {
   const [apnet, setApnet] = useState(false);
   const varianter = rad.varianter.length;
   return (
@@ -302,9 +358,17 @@ function Navnerad({ rad }: { rad: AktorkoRad }) {
             </Tag>
           )}
           {rad.bareMerknader && <Tag data-size="sm" data-color="neutral">Bare i veiledning</Tag>}
+          {rad.manuell && <Tag data-size="sm" data-color="neutral" title="Grupperingen er endret av et menneske.">Gruppert av menneske</Tag>}
+          {kvittering && (
+            <Tag data-size="sm" data-color="success">
+              {kvittering.handling === 'ikke_aktor' ? 'Behandlet: ikke en aktør' : kvittering.handling === 'koblet' ? 'Behandlet: koblet' : 'Behandlet: godkjent'}
+            </Tag>
+          )}
         </span>
       </Details.Summary>
-      <Details.Content>{apnet && <Navnedetalj nokkel={rad.nokkel} />}</Details.Content>
+      <Details.Content>
+        {apnet && <Navnedetalj nokkel={rad.nokkel} kvittering={kvittering} onBehandlet={onBehandlet} onGrupperingEndret={onGrupperingEndret} />}
+      </Details.Content>
     </Details>
   );
 }
@@ -317,12 +381,21 @@ export default function AktorKo() {
   const [feil, setFeil] = useState<string | null>(null);
   const [sok, setSok] = useState('');
   const [filter, setFilter] = useState<Filter>('alle');
+  // [Ny, #440 PR 2] Kvitteringene per navn. Et behandlet navn blir stående i lista med kvitteringen til køen leses på nytt.
+  const [kvitteringer, setKvitteringer] = useState<Record<string, AktorkoKvittering>>({});
+  const [lesning, setLesning] = useState(0);
 
   useEffect(() => {
     const feilmelding = (e: unknown) => setFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved henting av aktørkøen.');
     api.hentAktorkoFordeling().then(setFordeling).catch(feilmelding);
+    // Lista leses på nytt når grupperingen er endret (skill ut, ta med, generisk omtale). Da forsvinner behandlede navn fra lista.
     api.hentAktorko().then(setListe).catch(feilmelding);
-  }, []);
+  }, [lesning]);
+  const behandlet = (nokkel: string) => (k: AktorkoKvittering) => {
+    setKvitteringer((x) => ({ ...x, [nokkel]: k }));
+    api.hentAktorkoFordeling().then(setFordeling).catch(() => undefined);
+  };
+  const lesPaNytt = () => setLesning((x) => x + 1);
 
   const iRettskilden = useMemo(
     () => (liste?.navn ?? []).filter((r) => !rettskildeFilter || r.rettskildeIder.includes(rettskildeFilter)),
@@ -357,14 +430,15 @@ export default function AktorKo() {
       <Heading level={1} data-size="lg" style={{ marginBottom: '0.2rem' }}>Aktørkø</Heading>
       <Metatekst style={{ marginBottom: '1rem', maxWidth: '52rem' }}>
         Hvert navn i lovteksten som ikke kan kobles til en aktør, en klasse eller et generisk ord, står her én gang. Variantene og
-        forekomstene står samlet under navnet. Hjemmelforslaget er bare et forslag: regelen vurderes av juristen før godkjenningen bygges.
+        forekomstene står samlet under navnet. Hjemmelforslaget er bare et forslag til du velger det. Én godkjenning oppretter aktøren
+        (eller klassen, rollen eller området), navnet med hjemmel eller «hjemmel mangler», og tagger for alle forekomstene.
         Den flate lista over navnekandidater står som{' '}
         <Link asChild><RouterLink to="/navnekandidater/historikk">historikk</RouterLink></Link>.
       </Metatekst>
 
       {feil && <Alert data-color="danger" data-size="sm" style={{ marginBottom: '0.75rem' }}>{feil}</Alert>}
 
-      {fordeling ? <Fordeling fordeling={fordeling} /> : !feil && <Spinner aria-label="Laster fordelingen …" data-size="sm" />}
+      {fordeling ? <Fordeling fordeling={fordeling} onEndret={lesPaNytt} /> : !feil && <Spinner aria-label="Laster fordelingen …" data-size="sm" />}
       <Grupperingsregel fordeling={fordeling} />
 
       <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-end', marginBottom: '0.5rem', flexWrap: 'wrap' }}>
@@ -405,7 +479,9 @@ export default function AktorKo() {
             {liste && liste.navn.length > 0 ? 'Ingen navn passer søket eller filteret.' : 'Ingen ukjente navn venter.'}
           </Paragraph>
         ) : (
-          paginering.visteRader.map((r) => <Navnerad key={r.nokkel} rad={r} />)
+          paginering.visteRader.map((r) => (
+            <Navnerad key={r.nokkel} rad={r} kvittering={kvitteringer[r.nokkel]} onBehandlet={behandlet(r.nokkel)} onGrupperingEndret={lesPaNytt} />
+          ))
         )}
       </Card>
       <Pagineringskontroll {...paginering} />

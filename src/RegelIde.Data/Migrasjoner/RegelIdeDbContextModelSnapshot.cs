@@ -308,6 +308,10 @@ namespace RegelIde.Data.Migrasjoner
                         .HasColumnType("date")
                         .HasColumnName("gyldig_til");
 
+                    b.Property<string>("HjemmelArt")
+                        .HasColumnType("text")
+                        .HasColumnName("hjemmel_art");
+
                     b.Property<string>("KildeUtenforKorpusDokumentasjon")
                         .HasColumnType("text")
                         .HasColumnName("kilde_utenfor_korpus_dokumentasjon");
@@ -461,6 +465,8 @@ namespace RegelIde.Data.Migrasjoner
                             t.HasCheckConstraint("ck_begreper_generisk_uten_referanse", "navneformgrunn IS DISTINCT FROM 'generisk' OR (begrepskategori = 'virksomhet' AND virksomhet_referanse_id IS NULL)");
 
                             t.HasCheckConstraint("ck_begreper_godkjenning", "godkjenning IS NULL OR godkjenning IN ('maskinelt_foreslatt', 'manuelt_foreslatt', 'faglig_vurdert', 'godkjent', 'avvist')");
+
+                            t.HasCheckConstraint("ck_begreper_hjemmel_art", "hjemmel_art IS NULL OR (hjemmel_art IN ('oppretting', 'navnevedtak') AND lovreferanse_eid IS NOT NULL)");
 
                             t.HasCheckConstraint("ck_begreper_kilde", "kilde_utenfor_korpus_type IS NULL OR (lovreferanse_eid IS NULL AND kilde_utenfor_korpus_tekst IS NOT NULL AND kilde_utenfor_korpus_dokumentasjon IN ('primaer', 'sekundaer') AND kilde_utenfor_korpus_type IN ('kgl_res', 'instruks', 'tildelingsbrev', 'vedtekter', 'styrevedtak', 'forarbeider', 'nettside_annet', 'register'))");
 
@@ -2518,6 +2524,10 @@ namespace RegelIde.Data.Migrasjoner
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("AktorkoGruppe")
+                        .HasColumnType("text")
+                        .HasColumnName("aktorko_gruppe");
 
                     b.Property<string>("AvvisningBegrunnelse")
                         .HasColumnType("text")

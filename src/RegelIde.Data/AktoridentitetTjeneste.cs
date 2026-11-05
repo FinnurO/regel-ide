@@ -322,7 +322,10 @@ public sealed class AktoridentitetTjeneste(RegelIdeDbContext db, TekstTaggTjenes
     /// (<c>uavklart</c>) og en begrunnelse som sier det. Det gjettes ikke en annen bestemmelse (CLAUDE.md §8).</item>
     /// </list>
     /// </summary>
-    public async Task<NavnetSomGjeldende> RegistrerNavnetSomGjeldendeAsync(Guid virksomhetId, Utsagnsgrunnlag g, string bruker, CancellationToken ct)
+    /// <param name="formerIHjemmelen">[Ny, #440 PR 2] Andre skrivemåter av navnet som godtas i hjemmelen: bøyningsformen hjemmelregelen i
+    /// aktørkøen fant («foreldreråd» for «foreldrerådet», kunnskapsstatus normalisering). Null = bare navnet selv, som før.</param>
+    public async Task<NavnetSomGjeldende> RegistrerNavnetSomGjeldendeAsync(Guid virksomhetId, Utsagnsgrunnlag g, string bruker, CancellationToken ct,
+        IReadOnlyCollection<string>? formerIHjemmelen = null)
     {
         var v = await db.Virksomheter.FirstOrDefaultAsync(x => x.Id == virksomhetId, ct)
             ?? throw new ArgumentException($"Fant ingen aktør med id '{virksomhetId}'. Ingen gjettet fallback.");
@@ -348,7 +351,7 @@ public sealed class AktoridentitetTjeneste(RegelIdeDbContext db, TekstTaggTjenes
         {
             var tekst = await db.RettskildeNoder.Where(n => n.RettskildeId == g.HjemmelRettskildeId && n.Eid == g.HjemmelEid!.Trim()
                     && n.Entitetsstatus == "gjeldende").Select(n => n.Tekst).FirstOrDefaultAsync(ct);
-            if (tekst is null || !HeleOrd(navn).IsMatch(tekst))
+            if (tekst is null || (!HeleOrd(navn).IsMatch(tekst) && !(formerIHjemmelen ?? []).Any(f => HeleOrd(f.Trim()).IsMatch(tekst))))
             {
                 merknad = $"Navnet «{navn}» står ikke i bestemmelsen som ble valgt ({g.HjemmelEid}). Hjemmelen for navnet mangler og velges på "
                     + "aktørsiden: bestemmelsen som oppretter eller navngir aktøren (#395).";

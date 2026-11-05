@@ -2868,16 +2868,24 @@ export interface AktorkoFordeling {
 }
 export interface AktorkoSkrivemate { tekst: string; forekomster: number }
 export interface AktorkoVariant {
-  normalisert: string; regel: 'samme_ord' | 'boyning'; boyningAv: string | null; suffiks: string | null; forekomster: number;
+  /** [ENDRET, #440 PR 2] + `manuell`: tatt med av et menneske («ta med»), ikke bundet av bøyningsregelen. */
+  normalisert: string; regel: 'samme_ord' | 'boyning' | 'manuell'; boyningAv: string | null; suffiks: string | null; forekomster: number;
   skrivemater: AktorkoSkrivemate[];
 }
 export interface AktorkoHjemmelforslag {
   rettskildeId: string; rettskilde: string; kortnavn: string | null; eid: string; bestemmelse: string | null; uttrykk: string;
   setning: string; treff: string; treffStart: number; kunnskapsstatus: string;
+  /** [Ny, Johanns avgjørelse 2026-11-01] «hjemmelen står i § X; forekomstene i § Y», når hjemmelen står i en annen paragraf enn alle
+   * forekomstene. Nøytral metatekst, ikke varsel. */
+  annenParagraf?: string | null;
+  /** [Ny, #440 PR 2] Satt når forleddssperren stoppet treffet: ikke et forslag. */
+  sperret?: string | null;
 }
 export interface AktorkoRad {
   nokkel: string; navn: string; forekomster: number; rettskilder: number; varianter: AktorkoVariant[]; rettskildeIder: string[];
   hjemmelforslag: number; forsteHjemmelforslag: AktorkoHjemmelforslag | null; genitivforslagInn: number; bareMerknader: boolean;
+  /** [Ny, #440 PR 2] Grupperingen er satt av et menneske («skill ut» / «ta med»). */
+  manuell?: boolean;
 }
 export interface AktorkoListe { ventende: number; antallNavn: number; medFlereForekomster: number; navn: AktorkoRad[] }
 export interface AktorkoGenitivforslag { fraNokkel: string; fraVariant: string; tilNokkel: string; etterledd: string; forekomster: number }
@@ -2891,4 +2899,31 @@ export interface AktorkoDetalj {
   nokkel: string; navn: string; forekomster: number; varianter: AktorkoVariant[]; genitivforslagInn: AktorkoGenitivforslag[];
   genitivforslagUt: AktorkoGenitivforslag[]; perRettskilde: AktorkoRettskildeForekomster[]; hjemmelforslag: AktorkoHjemmelforslag[];
   hjemmelregel: string;
+  /** [Ny, #440 PR 2] Treff forleddssperren stoppet. */
+  sperredeTreff?: AktorkoHjemmelforslag[] | null;
+  manuell?: boolean;
+  /** [Ny, Johanns avgjørelse 2026-11-01] Metateksten under «Hjemmel for aktøren mangler». */
+  hullmerknad?: string | null;
+}
+
+/** [Ny, issue #440 PR 2] Hva navnet blir ved godkjenning. Ingenting er forhåndsvalgt. */
+export type Aktorkotype = 'aktor' | 'klasse' | 'rolle' | 'omrade';
+export interface AktorkoGodkjenningRequest {
+  type: Aktorkotype; navn: string; hjemmel: 'forslag' | 'mangler'; hjemmelRettskildeId: string | null; hjemmelEid: string | null;
+  godkjenning: 'faglig_vurdert' | 'godkjent'; begrunnelse: string | null; gjelderILovkildeId: string | null; gjelderFast: boolean | null;
+  forventetForekomster: number;
+}
+export interface AktorkoKoblingRequest {
+  virksomhetId: string; navn: string; navneformgrunn: string; forventetForekomster: number;
+}
+/** [Ny, #440 PR 2] Kvitteringen etter en skrivende handling i aktørkøen. */
+export interface AktorkoKvittering {
+  handling: 'godkjent' | 'ikke_aktor' | 'koblet' | 'skilt_ut' | 'tatt_med' | 'tilbakestilt'; nokkel: string; forekomster: number;
+  tagget: number; ikkeTagget: number; linjer: string[]; varsler: string[]; virksomhetId: string | null; virksomhetNavn: string | null;
+  begrepId: string | null; navneformId: string | null; hjemmelArt: string | null;
+}
+/** [Ny, #440 PR 2] «Tagg alle som generisk omtale» for ett ord. */
+export interface GeneriskOmtaleRapport {
+  skrevet: boolean; ord: string; forekomster: number; rettskilder: number; utenfor: number; utenforPerRute: Record<string, number>;
+  navneformFinnes: boolean; tagget: number; ikkeTagget: number; sperre: string | null;
 }

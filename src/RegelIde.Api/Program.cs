@@ -96,6 +96,7 @@ builder.Services.AddScoped<FunnTjeneste>();
 builder.Services.AddScoped<UtgattAktorFunnregel>(); // [Ny, #429 PR 2] maskinregelen for utgåtte aktører, tørrkjøring som standard
 // [Ny, issue #440] Aktørkøen (bare lesing i PR 1) — se AktorkoTjeneste og AktorkoEndepunkter.
 builder.Services.AddScoped<AktorkoTjeneste>();
+builder.Services.AddScoped<AktorkoSkrivTjeneste>(); // [Ny, issue #440 PR 2] skrivingen i aktørkøen, én transaksjon per handling
 builder.Services.AddScoped<BegrepsoppdagelseSveipTjeneste>();
 builder.Services.AddScoped<VilkarregisterTjeneste>();
 builder.Services.AddScoped<RegelnoderegisterTjeneste>();

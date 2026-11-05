@@ -1549,6 +1549,15 @@ public sealed class BegrepEntitet
     /// <summary>[Ny, issue #385] Valgfri begrunnelse ved avvisning (bare når <see cref="Godkjenning"/> er <c>avvist</c>).</summary>
     public string? AvvisningBegrunnelse { get; set; }
 
+    /// <summary>
+    /// [Ny, issue #441 (Johanns avgjørelse 2026-10-30), bygget i #440 PR 2] Hva slags hjemmel navneformen har for at AKTØREN finnes:
+    /// <c>oppretting</c> (bestemmelsen oppretter aktøren: «skal … ha et foreldreråd», «det skal være et forliksråd») eller <c>navnevedtak</c>
+    /// (vedtaket gir aktøren navnet: departementenes navnevedtak fra livsløpet, docs/33 §5.9/§5.10). NULL = ikke vurdert eller ikke en slik
+    /// hjemmel; en hjemmel der navnet bare står, er ikke en av dem. CHECK <c>ck_begreper_hjemmel_art</c> (og krever en hjemmel).
+    /// Settes ved godkjenning i aktørkøen; de radene livsløpet skrev med hjemmel i navnevedtaket, er fylt inn i migrasjonen.
+    /// </summary>
+    public string? HjemmelArt { get; set; }
+
     public required string Term { get; set; } // skos:prefLabel
     public string? Definisjon { get; set; } // skos:definition — påkrevd for Begrepskategori=NULL, se klassekommentaren
     public string? LovreferanseEid { get; set; } // dct:source — validert mot RettskildeNoder ved lagring
@@ -2268,6 +2277,12 @@ public sealed class NavnekandidatEntitet
     public string Status { get; set; } = "Venter"; // 'Venter' | 'Godkjent' | 'Avvist'
     /// <summary>[Ny, issue #385 AC7] Hvorfor raden ble avvist («ikke en aktør»). Raden slettes ikke.</summary>
     public string? AvvisningBegrunnelse { get; set; }
+    /// <summary>
+    /// [Ny, issue #440 PR 2] Navnet i aktørkøen et menneske har lagt forekomsten under («skill ut» / «ta med»): det normaliserte ordet til
+    /// navnet (<see cref="Aktorkoregler.Normaliser"/>). NULL = beregnet av grupperingsregelen (<see cref="Aktorkoregler.Grupper"/>). En verdi
+    /// overstyrer regelen for denne forekomsten, og en ventende forekomst uten verdi med samme ord havner i samme navn.
+    /// </summary>
+    public string? AktorkoGruppe { get; set; }
     public required string OpprettetAv { get; set; }
     public DateTimeOffset OpprettetTidspunkt { get; set; }
     public string? BehandletAv { get; set; }

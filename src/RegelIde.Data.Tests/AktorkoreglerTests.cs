@@ -199,8 +199,9 @@ public class AktorkoreglerTests
         new(Barnehageloven, "https://lovdata.no/eli/lov/2005/06/17/64/nor/§56/ledd-1",
             "Utdanningsdirektoratet fører tilsyn med at de private barnehagene drives i samsvar med bestemmelsene.", false, 30),
         // Veiledning (#419): selv med opprettelsesuttrykk og navnet blir den aldri hjemmel.
+        // [ENDRET, #440 PR 2] «Det opprettes» er ikke lenger et uttrykk; «det skal være et» er det.
         new(Barnehageloven, "kap-veiledning-til-de-enkelte-bestemmelsene/rom-til-5/ledd-2",
-            "Det opprettes et eget Utdanningsdirektoratet for rapporteringen.", true, 40),
+            "For rapporteringen skal det være et Utdanningsdirektoratet med eget kontor.", true, 40),
     ];
 
     [Fact]
@@ -233,21 +234,126 @@ public class AktorkoreglerTests
         Assert.Equal("styrer", Assert.Single(Aktorkoregler.FinnHjemmelforslag(["styrer"], noder)).Treff);
     }
 
+    /// <summary>[ENDRET, #440 PR 2, juristrunde-440 punkt 2 og 4] «oppnevner», «opprettes» og «etableres» med navnet hvor som helst er tatt ut
+    /// (0 av 10 holdt), og oppnevning, valg, utnevnelse og tilsetting gir aldri forslag. Før ga disse tre setningene forslag.</summary>
     [Theory]
-    [InlineData("Det opprettes et forliksråd i hver kommune.", "forliksrådet", "opprettes")]
-    [InlineData("Departementet oppnevner innstillingsrådet.", "innstillingsrådet", "oppnevner")]
-    [InlineData("Sametinget etableres som et eget organ.", "sametinget", "etableres")]
-    public void De_tre_verbene_gir_forslag_i_samme_setning(string tekst, string navn, string uttrykk)
+    [InlineData("Det opprettes et forliksråd i hver kommune.", "forliksrådet")]
+    [InlineData("Departementet oppnevner innstillingsrådet.", "innstillingsrådet")]
+    [InlineData("Sametinget etableres som et eget organ.", "sametinget")]
+    [InlineData("Kongen oppnevner medlemmene av Innstillingsrådet.", "innstillingsrådet")]
+    [InlineData("Stortinget velger to medlemmer til styret.", "styret")]
+    [InlineData("Kongen utnevner en direktør.", "direktøren")]
+    [InlineData("Kommunen tilsetter en kommunelege.", "kommunelegen")]
+    public void Oppnevning_og_de_tre_verbene_gir_aldri_forslag(string tekst, string navn)
     {
         var noder = new[] { new HjemmelNode(Barnehageloven, "https://test/§1/ledd-1", tekst, false, 1) };
-        Assert.Equal(uttrykk, Assert.Single(Aktorkoregler.FinnHjemmelforslag([navn], noder)).Uttrykk);
+        Assert.Empty(Aktorkoregler.FinnHjemmeltreff([navn], noder));
     }
 
     [Fact]
     public void Uttrykk_og_navn_i_hver_sin_setning_gir_ikke_forslag()
     {
-        var noder = new[] { new HjemmelNode(Barnehageloven, "https://test/§1/ledd-1", "Det opprettes et register. Forliksrådet fører det.", false, 1) };
+        var noder = new[] { new HjemmelNode(Barnehageloven, "https://test/§1/ledd-1", "Det skal være et register. Forliksrådet fører det.", false, 1) };
         Assert.Empty(Aktorkoregler.FinnHjemmelforslag(["forliksrådet"], noder));
+    }
+
+    /// <summary>[Ny, #440 PR 2, juristrunde-440 punkt 1] Navnet må være kjernen i nominalfrasen uttrykket styrer: frasen stopper ved
+    /// preposisjon, «som», «at», «enn» og komma, har høyst tre ord per ledd, og kan ha «og/eller» med ny artikkel.</summary>
+    [Theory]
+    [InlineData("Lagmannsrettene skal ha en førstelagmann som leder og så mange lagmenn som bestemt.", "lagmennene", false)]
+    [InlineData("Lagmannsrettene skal ha en førstelagmann som leder og så mange lagmenn som bestemt.", "førstelagmannen", true)]
+    [InlineData("Leken skal ha en sentral plass i barnehagen.", "barnehagen", false)]
+    [InlineData("Kommunen skal ha en eller flere kommuneleger som skal utføre de oppgaver kommunelegen er tillagt.", "kommunelegen", false)]
+    [InlineData("Kommunen skal ha en eller flere kommuneleger som skal utføre de oppgaver kommunelegen er tillagt.", "kommunelegene", false)]
+    [InlineData("Kommunen skal ha en eller flere kommuneleger som skal utføre oppgaver.", "kommuneleger", true)]
+    [InlineData("Høyesterett skal ha en annen sammensetning enn den som følger av § 5, treffes av domstollederen.", "domstollederen", false)]
+    [InlineData("Retten skal ha en justitiarius og nitten andre dommere.", "dommere", true)]
+    [InlineData("For å sikre samarbeidet skal hver barnehage ha et foreldreråd og et samarbeidsutvalg.", "samarbeidsutvalget", true)]
+    [InlineData("Virksomheten skal ha en oppdatert og langsiktig vedlikeholdsplan som sikrer at virksomhetens lokaler vedlikeholdes.", "virksomheten", false)]
+    [InlineData("I hver kommune skal det være et forliksråd.", "forliksrådet", true)]
+    [InlineData("I hver kommune skal det i tillegg være et forliksråd.", "forliksrådet", true)]
+    [InlineData("Det skal være et forliksråd for hver kommune.", "forliksrådet", true)]
+    [InlineData("Det skal være mulig å klage til forliksrådet.", "forliksrådet", false)]
+    [InlineData("Barnehagen skal ha medlemmer fra foreldrerådet.", "medlemmer", false)] // «skal ha» uten artikkel er ikke med
+    public void Navnet_ma_vaere_kjernen_i_nominalfrasen(string tekst, string navn, bool forslag)
+    {
+        var noder = new[] { new HjemmelNode(Barnehageloven, "https://test/§1/ledd-1", tekst, false, 1) };
+        Assert.Equal(forslag, Aktorkoregler.FinnHjemmelforslag([navn], noder).Count == 1);
+    }
+
+    /// <summary>[Ny, #440 PR 2, juristrunde-440 punkt 3] Forleddssperren: «felles forliksråd» er et annet organ. Treffet står, men er ikke
+    /// forslag, og grunnen sier hvorfor.</summary>
+    [Theory]
+    [InlineData("For to kommuner skal det være et felles forliksråd.", "forliksrådet")]
+    [InlineData("Kommunen kan bestemme at det skal være felles samarbeidsutvalg for kommunal barnehage og grunnskole.", "samarbeidsutvalget")]
+    [InlineData("Departementet skal ha et regionalt kontor.", "kontoret")]
+    public void Forleddssperren_stopper_et_annet_organ(string tekst, string navn)
+    {
+        var noder = new[] { new HjemmelNode(Barnehageloven, "https://test/§1/ledd-1", tekst, false, 1) };
+        var treff = Assert.Single(Aktorkoregler.FinnHjemmeltreff([navn], noder));
+        Assert.StartsWith("forleddssperre", treff.Sperret);
+        Assert.Empty(Aktorkoregler.FinnHjemmelforslag([navn], noder));
+    }
+
+    [Fact]
+    public void Ordrett_variant_gir_tekstfunn_selv_om_en_annen_variant_er_en_boyning()
+    {
+        var noder = new[] { new HjemmelNode(Barnehageloven, "https://test/§1/ledd-1", "Hver barnehage skal ha en styrer.", false, 1) };
+        Assert.Equal(Strukturkanter.Tekstfunn, Assert.Single(Aktorkoregler.FinnHjemmelforslag(["styreren", "styrer"], noder)).Kunnskapsstatus);
+        Assert.Equal(Strukturkanter.Normalisering, Assert.Single(Aktorkoregler.FinnHjemmelforslag(["styreren"], noder)).Kunnskapsstatus);
+    }
+
+    // ------------------------------------------------------------------ Annen paragraf (Johanns avgjørelse 2026-11-01)
+
+    [Fact]
+    public void Annen_paragraf_vises_bare_naar_hjemmelen_star_i_en_annen_paragraf_enn_alle_forekomstene()
+    {
+        var titler = new Dictionary<Guid, (string Tittel, string? Kortnavn)> { [Barnehageloven] = ("Lov om domstolene", "dl") };
+        var h = new Hjemmelforslag(Barnehageloven, "https://lovdata.no/eli/lov/1915/08/13/5/nor/§9/ledd-1", "skal_ha", "s", "direktør", 0,
+            Strukturkanter.Normalisering);
+        var annen = new[] { F("direktøren", Barnehageloven, "https://lovdata.no/eli/lov/1915/08/13/5/nor/§33b/ledd-2") };
+        Assert.Equal("hjemmelen står i § 9; forekomstene i § 33b", AktorkoTjeneste.AnnenParagraf(h, annen, titler));
+
+        var samme = annen.Append(F("direktøren", Barnehageloven, "https://lovdata.no/eli/lov/1915/08/13/5/nor/§9/ledd-3"));
+        Assert.Null(AktorkoTjeneste.AnnenParagraf(h, samme, titler));
+    }
+
+    // ------------------------------------------------------------------ Skill ut og ta med (#440 PR 2)
+
+    private static KoForekomst G(string tekst, string? gruppe) => F(tekst) with { Gruppe = gruppe };
+
+    [Fact]
+    public void Skill_ut_gir_varianten_eget_navn_og_nye_forekomster_av_samme_ord_folger_med()
+    {
+        var beregnet = Aktorkoregler.Grupper([F("styret"), F("styret"), F("styre")]);
+        Assert.Single(beregnet);
+
+        // «styre» skilt ut (aktorko_gruppe = «styre» på forekomsten), og en ny, ventende forekomst av «styre» uten verdi.
+        var grupper = Aktorkoregler.Grupper([F("styret"), F("styret"), G("styre", "styre"), F("Styre")]);
+        Assert.Equal(2, grupper.Count);
+        var utskilt = grupper.Single(g => g.Nokkel == "styre");
+        Assert.True(utskilt.Manuell);
+        Assert.Equal(2, utskilt.Forekomster.Count);
+        Assert.False(grupper.Single(g => g.Nokkel == "styret").Manuell);
+    }
+
+    [Fact]
+    public void Ta_med_legger_et_ord_uten_boyning_under_navnet_og_merker_det_manuelt()
+    {
+        var grupper = Aktorkoregler.Grupper([G("foreldrerådet", "foreldrerådet"), G("barnehagens foreldreråd", "foreldrerådet"), F("domstolens leder")]);
+        var navn = grupper.Single(g => g.Nokkel == "foreldrerådet");
+        Assert.True(navn.Manuell);
+        Assert.Equal(["samme_ord", "manuell"], navn.Varianter.Select(v => v.Regel));
+        Assert.Contains(grupper, g => g.Nokkel == "domstolens leder" && !g.Manuell);
+    }
+
+    [Fact]
+    public void Manuell_gruppering_er_uavhengig_av_rekkefolgen()
+    {
+        var inn = new[] { F("styret"), G("styre", "styre"), F("styre"), G("styrets leder", "styret"), F("Styret") };
+        string Nokler(IEnumerable<KoForekomst> f) =>
+            string.Join("|", Aktorkoregler.Grupper(f).Select(g => g.Nokkel + ":" + g.Forekomster.Count + ":" + string.Join(",", g.Varianter.Select(v => v.Regel))));
+        Assert.Equal(Nokler(inn), Nokler(inn.Reverse()));
     }
 
     /// <summary>

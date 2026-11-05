@@ -156,6 +156,10 @@ import type {
   AktorkoListe,
   AktorkoFordeling,
   AktorkoDetalj,
+  AktorkoGodkjenningRequest,
+  AktorkoKoblingRequest,
+  AktorkoKvittering,
+  GeneriskOmtaleRapport,
   KiForslagKoRadDto,
   KoblNavnekandidatTilGruppemedlemskapRequest,
   NavnekandidatGruppemedlemskapResultatDto,
@@ -213,6 +217,11 @@ export function hentValgtBrukerId(): string | null {
 export function settValgtBrukerId(brukerId: string | null) {
   if (brukerId) localStorage.setItem(BRUKER_ID_LAGRINGSNOKKEL, brukerId);
   else localStorage.removeItem(BRUKER_ID_LAGRINGSNOKKEL);
+}
+
+/** [Ny, #440 PR 2] POST med JSON-kropp. */
+function jsonPost(body: unknown): RequestInit {
+  return { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) };
 }
 
 async function kall<T>(path: string, init?: RequestInit): Promise<T> {
@@ -855,6 +864,21 @@ export const api = {
   hentAktorko: () => kall<AktorkoListe>('/api/aktorko'),
   hentAktorkoFordeling: () => kall<AktorkoFordeling>('/api/aktorko/fordeling'),
   hentAktorkoNavn: (nokkel: string) => kall<AktorkoDetalj>(`/api/aktorko/${encodeURIComponent(nokkel)}`),
+  /** [Ny, issue #440 PR 2] Skrivingen i aktørkøen. Hver handling er én transaksjon; svaret er kvitteringen. */
+  godkjennAktorkoNavn: (nokkel: string, body: AktorkoGodkjenningRequest) =>
+    kall<AktorkoKvittering>(`/api/aktorko/${encodeURIComponent(nokkel)}/godkjenn`, jsonPost(body)),
+  aktorkoIkkeAktor: (nokkel: string, begrunnelse: string, forventetForekomster: number) =>
+    kall<AktorkoKvittering>(`/api/aktorko/${encodeURIComponent(nokkel)}/ikke-aktor`, jsonPost({ begrunnelse, forventetForekomster })),
+  aktorkoKoble: (nokkel: string, body: AktorkoKoblingRequest) =>
+    kall<AktorkoKvittering>(`/api/aktorko/${encodeURIComponent(nokkel)}/koble`, jsonPost(body)),
+  aktorkoSkillUt: (nokkel: string, variant: string) =>
+    kall<AktorkoKvittering>(`/api/aktorko/${encodeURIComponent(nokkel)}/skill-ut`, jsonPost({ variant })),
+  aktorkoTaMed: (nokkel: string, variant: string) =>
+    kall<AktorkoKvittering>(`/api/aktorko/${encodeURIComponent(nokkel)}/ta-med`, jsonPost({ variant })),
+  aktorkoTilbakestillGruppering: (nokkel: string) =>
+    kall<AktorkoKvittering>(`/api/aktorko/${encodeURIComponent(nokkel)}/tilbakestill-gruppering`, { method: 'POST' }),
+  aktorkoGeneriskOmtale: (ord: string, skriv: boolean) =>
+    kall<GeneriskOmtaleRapport>('/api/aktorko/generisk-omtale', jsonPost({ ord, skriv })),
 
   hentFunn: (filter: { kategori?: string; status?: string; rettskildeId?: string; virksomhetId?: string } = {}) => {
     const parametre = new URLSearchParams();

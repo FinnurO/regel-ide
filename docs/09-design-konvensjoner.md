@@ -1382,8 +1382,29 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
   «Forslag: genitivforledd» og hjemmelforslaget er `info` (ubekreftet forslag, ingen har vurdert det); «Hjemmel for aktøren mangler» er
   `warning` (et synlig hull, som på aktørsiden); «Veiledning, kan ikke være hjemmel» er `neutral`. Kunnskapsstatusen på forslaget bruker
   `KunnskapsstatusTag` (§35).
-- **Ingen knapper som skriver i PR 1.** Godkjenningen (aktør, navneform, hjemmel og tagger i én transaksjon, ingenting forhåndsvalgt)
-  kommer i PR 2. Siden sier det i `Metatekst` under hver detalj.
+- [ERSTATTET i PR 2, se under] **Ingen knapper som skriver i PR 1.** Godkjenningen (aktør, navneform, hjemmel og tagger i én transaksjon,
+  ingenting forhåndsvalgt) kom i PR 2.
+- **[Ny, #440 PR 2, 2026-11-05] Godkjenningen** står under hjemmelkortet i hver detalj (`kandidater/AktorkoHandlinger.tsx`, regler i
+  `kandidater/aktorkoGodkjenning.ts` med vitest). Fire radiogrupper uten forhåndsvalg: «Hva er ‹navn›?» (Aktør / Klasse / Rolle / Område, med
+  en beskrivelse hver), «Navnet, slik det står i teksten» (skrivemåtene), «Hjemmel for at ‹den› finnes» (forslagene og «Hjemmel mangler»), og
+  «Hvor sikkert er det?» (Faglig vurdert / Godkjent). For klasse, rolle eller område uten hjemmel kommer «Hvor gjelder ‹den›?» (rettskildene
+  der navnet står, eller hele korpuset). Knappen «Godkjenn «‹navn›»» er av med `Metatekst` som sier hva som mangler.
+- **Radioknapper i `Fieldset`, aldri i `Field`.** I en `Field` peker alle etikettene på den første knappen: i kaldsjekken 2026-11-05 valgte et
+  klikk på «Klasse» «Aktør». `Fieldset` + `Fieldset.Legend`, som `GeneriskEnSkjerm`. (Veiviserens `SikkerhetSteg` og stegene i
+  `NavnekandidatVeiviser.tsx` bruker `Field` rundt `Radio`; ikke kontrollert her.)
+- **Kvitteringen** er veiviserens «Dette skjedde» (§15): `success`-`Alert`, varslene som `warning`-`Alert`, linjene som `Metatekst`, og «Se
+  aktøren ↗» / «Se begrepet ↗». Raden blir stående med `Tag` `success` «Behandlet: godkjent» (eller «ikke en aktør», «koblet») til køen leses
+  på nytt; en godkjenning flytter ikke lista under brukeren.
+- **Andre handlinger** i en lukket `Details` under skjemaet: «Ikke en aktør» (begrunnelse påkrevd), «Koble til en aktør som finnes»
+  (`VirksomhetVelger`, skrivemåte, navneformgrunn uten forhåndsvalg; `warning`-`Alert` ved utgått navn, kortform og nedlagt aktør), og «Tagg
+  alle som generisk omtale» per ord (Tørrkjør → tallene som `Metatekst` → «Lagre: tagg N som generisk omtale» som eget klikk). Samme
+  tørrkjøring står i fordelingens tabell over de hyppigste ordene, for ord på rutene generisk ord og aktørkøen.
+- **Skill ut / Ta med** er `tertiary`-knapper ved varianten og ved genitivforslaget. En variant tatt med av et menneske har `neutral`
+  «Tatt med (menneske)», og et navn med manuell gruppering har `neutral` «Gruppert av menneske» i raden og «Tilbakestill grupperingen».
+- **Hjemmelkortet (Johanns avgjørelser 2026-11-01):** under `warning`-`Alert` «Hjemmel for aktøren mangler» står `Metatekst` «ikke funnet av
+  regelen; andre lover og vedtekter er ikke søkt». Under et forslag står «Hjemmelen står i § X; forekomstene i § Y.» som `Metatekst` (nøytral
+  opplysning, ikke varsel). Et treff forleddssperren stoppet, står som `Metatekst` «Ikke forslag (bhl § 5 første ledd): forleddssperre:
+  «felles samarbeidsutvalg» er et annet navn enn «samarbeidsutvalg»».
 - **Én delt kilde for rutenavnene:** `kandidater/aktorkorute.ts` (`AKTORKORUTE_TEKST`, `utenforAktorkoenTekst`, med vitest). Sveipene
   (historikklista, rettskildesiden, aktørsveipet i forslagskøen, KI-oppdagelsen) viser med den hvor mange treff som var kjente ord og ikke
   ble lagt i køen. Aktørsveipet viser «Ikke i køen: ‹rute›» under statusen.

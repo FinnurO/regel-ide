@@ -646,6 +646,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.Konfidens).HasColumnName("konfidens");
             e.Property(x => x.KonfidensGrunn).HasColumnName("konfidens_grunn");
             e.Property(x => x.AvvisningBegrunnelse).HasColumnName("avvisning_begrunnelse"); // [Ny, #385 AC7]
+            e.Property(x => x.AktorkoGruppe).HasColumnName("aktorko_gruppe"); // [Ny, #440 PR 2] NULL = beregnet
             e.HasOne<RettskildeEntitet>().WithMany().HasForeignKey(x => x.RettskildeId).OnDelete(DeleteBehavior.Cascade);
             e.HasIndex(x => x.RettskildeId).HasDatabaseName("ix_navnekandidater_rettskilde");
             // Samme idempotens-nøkkel-resonnement som ux_virksomhet_kandidater_virksomhet_node_start
@@ -1487,8 +1488,12 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
                     "kilde_utenfor_korpus_type IS NULL OR (lovreferanse_eid IS NULL AND kilde_utenfor_korpus_tekst IS NOT NULL "
                     + "AND kilde_utenfor_korpus_dokumentasjon IN ('primaer', 'sekundaer') AND kilde_utenfor_korpus_type IN "
                     + "('kgl_res', 'instruks', 'tildelingsbrev', 'vedtekter', 'styrevedtak', 'forarbeider', 'nettside_annet', 'register'))");
+                // [Ny, issue #441, bygget i #440 PR 2] Hjemmelens art (BegrepEntitet.HjemmelArt): lukket liste, og bare med en hjemmel.
+                t.HasCheckConstraint("ck_begreper_hjemmel_art",
+                    "hjemmel_art IS NULL OR (hjemmel_art IN ('oppretting', 'navnevedtak') AND lovreferanse_eid IS NOT NULL)");
             });
             e.HasKey(x => x.Id).HasName("begreper_pkey");
+            e.Property(x => x.HjemmelArt).HasColumnName("hjemmel_art"); // [Ny, #441/#440 PR 2]
             e.Property(x => x.Medlemskapsregel).HasColumnName("medlemskapsregel");
             e.Property(x => x.Kunnskapsstatus).HasColumnName("kunnskapsstatus");
             e.Property(x => x.VirksomhetId).HasColumnName("virksomhet_id");
