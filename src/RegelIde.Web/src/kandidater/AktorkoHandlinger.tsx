@@ -1,15 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link as RouterLink } from 'react-router';
-import { Alert, Button, Card, Details, Field, Fieldset, Heading, Label, Radio, Select, Textarea } from '@digdir/designsystemet-react';
+import { Alert, Button, Card, Checkbox, Details, Field, Fieldset, Heading, Label, Radio, Select, Textarea } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { AktorkoDetalj, AktorkoKvittering, Aktorkotype, GeneriskOmtaleRapport, VirksomhetDto } from '../api/types';
 import { Metatekst } from '../entitet/Metatekst';
 import { VirksomhetVelger } from '../virksomhet/VirksomhetVelger';
 import { NAVNEFORMGRUNN_VALG } from '../virksomhet/Navneformgrunn';
 import { KUNNSKAPSSTATUS_VISNING } from '../strukturkant/Utsagnsstatus';
-import type { Kunnskapsstatus } from '../api/types';
+import type { Kunnskapsstatus, Tolkningsargument } from '../api/types';
+import { TOLKNINGSARGUMENTER } from './utsagnsgrunnlag';
 import {
-  AKTORKOTYPE_TEKST, TOMT_UTKAST, forslagNokkel, godkjenningMangler, grunnvarsel, skrivemater, tilForesporsel, type GodkjenningUtkast,
+  AKTORKOTYPE_TEKST, TOMT_UTKAST, forslagNokkel, godkjenningMangler, grunnvarsel, skrivemater, tilForesporsel, trengerTolkningsargument,
+  type GodkjenningUtkast,
 } from './aktorkoGodkjenning';
 import { AKTORKORUTE_TEKST } from './aktorkorute';
 
@@ -101,8 +103,13 @@ export function Godkjenningsskjema({ detalj, onFerdig, forslag }: {
   const [feil, setFeil] = useState<string | null>(null);
   const sett = (endring: Partial<GodkjenningUtkast>) => setU((x) => ({ ...x, ...endring }));
   const n = detalj.nokkel;
-  const mangler = godkjenningMangler(u);
+  const mangler = godkjenningMangler(u, detalj);
   const valgtForslag = detalj.hjemmelforslag.find((f) => forslagNokkel(f) === u.hjemmel) ?? null;
+  // [Ny, #440, Johanns avgjørelse 2026-11-05] Det forhåndsklassifiseringen kan gi i tillegg til regelen: navnet (grunnformen) når det ikke
+  // står i teksten, og hjemmelen når den står i korpus og ikke alt er et av regelens forslag. API-et godtar dem bare som filas verdier.
+  const fk = detalj.forhandsklassifisering?.handling === 'godkjenn' ? detalj.forhandsklassifisering : null;
+  const forhandNavn = fk?.nyNode && !skrivemater(detalj).includes(fk.nyNode) ? fk.nyNode : null;
+  const forhandHjemmel = fk?.hjemmel?.kanLagres && !fk.hjemmel.erRegelensForslag ? fk.hjemmel : null;
 
   async function send() {
     const body = tilForesporsel(u, detalj);
@@ -127,8 +134,7 @@ export function Godkjenningsskjema({ detalj, onFerdig, forslag }: {
         {detalj.forhandsklassifisering && detalj.forhandsklassifisering.handling === 'godkjenn' ? '; «Godta forslaget» over fyller ut skjemaet' : ''}.
       </Metatekst>
       {forslag && (
-        <FyltUt merknader={forslag.merknader}
-          hva={`typen, navnet, hjemmelen${forslag.utkast.type && forslag.utkast.type !== 'aktor' ? ', hvor den gjelder' : ''}, «faglig vurdert» og begrunnelsen`} />
+        <FyltUt merknader={forslag.merknader} hva="typen, navnet, hjemmelen og begrunnelsen" />
       )}
 
       <Fieldset data-size="sm" style={{ marginBottom: '0.6rem' }}>
@@ -144,10 +150,22 @@ export function Godkjenningsskjema({ detalj, onFerdig, forslag }: {
         {skrivemater(detalj).map((s) => (
           <Radio key={s} name={`aktorko-navn-${n}`} value={s} label={`«${s}»`} checked={u.navn === s} onChange={() => sett({ navn: s })} />
         ))}
+        {forhandNavn && (
+          <Radio name={`aktorko-navn-${n}`} value={forhandNavn} label={`«${forhandNavn}» (forhåndsklassifiseringen)`}
+            description="Navnet i forhåndsklassifiseringen, ikke en skrivemåte i teksten. Forekomstene tagges mot det."
+            checked={u.navn === forhandNavn} onChange={() => sett({ navn: forhandNavn })} />
+        )}
       </Fieldset>
 
       <Fieldset data-size="sm" style={{ marginBottom: '0.6rem' }}>
         <Fieldset.Legend>Hjemmel for at {u.type ? AKTORKOTYPE_TEKST[u.type].bestemt.toLowerCase() : 'den'} finnes</Fieldset.Legend>
+        {forhandHjemmel && (
+          <Radio name={`aktorko-hjemmel-${n}`} value="forhand"
+            label={`${forhandHjemmel.rettskilde ?? 'Rettskilden'} ${forhandHjemmel.bestemmelse ?? forhandHjemmel.eid}`}
+            description={`Forhåndsklassifiseringens hjemmel, ${KUNNSKAPSSTATUS_VISNING[forhandHjemmel.kunnskapsstatus as Kunnskapsstatus]?.tekst.toLowerCase() ?? forhandHjemmel.kunnskapsstatus ?? 'uten kunnskapsstatus'}. `
+              + 'Sitatet følger med i begrunnelsen. Hjemmelens art settes ikke.'}
+            checked={u.hjemmel === 'forhand'} onChange={() => sett({ hjemmel: 'forhand', gjelder: null })} />
+        )}
         {detalj.hjemmelforslag.map((f) => (
           <Radio key={forslagNokkel(f)} name={`aktorko-hjemmel-${n}`} value={forslagNokkel(f)}
             label={`${f.kortnavn ?? f.rettskilde} ${f.bestemmelse ?? f.eid}`}
@@ -175,6 +193,25 @@ export function Godkjenningsskjema({ detalj, onFerdig, forslag }: {
         <Metatekst style={{ marginBottom: '0.6rem' }}>
           {AKTORKOTYPE_TEKST[u.type].bestemt} gjelder i {valgtForslag.kortnavn ?? valgtForslag.rettskilde}, der hjemmelen står.
         </Metatekst>
+      )}
+      {u.type && u.type !== 'aktor' && u.hjemmel === 'forhand' && forhandHjemmel && (
+        <Metatekst style={{ marginBottom: '0.6rem' }}>
+          {AKTORKOTYPE_TEKST[u.type].bestemt} gjelder i {forhandHjemmel.rettskilde ?? 'rettskilden'}, der hjemmelen står.
+        </Metatekst>
+      )}
+      {trengerTolkningsargument(u, detalj) && (
+        // Radiogrupper og avkrysningsbokser i Fieldset, aldri i Field (docs/09 §51).
+        <Fieldset data-size="sm" style={{ marginBottom: '0.6rem' }}>
+          <Fieldset.Legend>Tolkningsargumenter (hjemmelen er fortolkning)</Fieldset.Legend>
+          {TOLKNINGSARGUMENTER.map((a) => (
+            <Checkbox key={a.verdi} label={a.tekst} value={a.verdi} checked={(u.tolkningsargumenter ?? []).includes(a.verdi)}
+              onChange={(e) => {
+                const valgt = new Set<Tolkningsargument>(u.tolkningsargumenter ?? []);
+                if (e.target.checked) valgt.add(a.verdi); else valgt.delete(a.verdi);
+                sett({ tolkningsargumenter: TOLKNINGSARGUMENTER.map((x) => x.verdi).filter((x) => valgt.has(x)) });
+              }} />
+          ))}
+        </Fieldset>
       )}
 
       <Fieldset data-size="sm" style={{ marginBottom: '0.6rem' }}>

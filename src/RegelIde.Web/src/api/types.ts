@@ -3030,6 +3030,8 @@ export interface ForhandRelasjon { relasjon: string; til: ForhandNode | null; me
 export interface ForhandHjemmel {
   rettskildeId: string | null; rettskilde: string | null; eid: string; bestemmelse: string | null; sitat: string | null;
   sitatKilde: 'klassifiseringen' | 'basen' | 'ingen'; kunnskapsstatus: string | null; erRegelensForslag: boolean;
+  /** [Ny, Johanns avgjørelse 2026-11-05] Godkjenningen kan lagre hjemmelen fra fila (står entydig i korpus). */
+  kanLagres: boolean;
 }
 export interface ForhandKobling { virksomhetId: string; virksomhetNavn: string; finnes: boolean; relasjon: string; navneformgrunn: string | null }
 export interface AktorkoForhandsklassifisering {
@@ -3064,9 +3066,11 @@ export interface AktorkoDetalj {
 /** [Ny, issue #440 PR 2] Hva navnet blir ved godkjenning. Ingenting er forhåndsvalgt. */
 export type Aktorkotype = 'aktor' | 'klasse' | 'rolle' | 'omrade';
 export interface AktorkoGodkjenningRequest {
-  type: Aktorkotype; navn: string; hjemmel: 'forslag' | 'mangler'; hjemmelRettskildeId: string | null; hjemmelEid: string | null;
-  godkjenning: 'faglig_vurdert' | 'godkjent'; begrunnelse: string | null; gjelderILovkildeId: string | null; gjelderFast: boolean | null;
-  forventetForekomster: number;
+  type: Aktorkotype; navn: string; hjemmel: 'forslag' | 'mangler' | 'forhandsklassifisering'; hjemmelRettskildeId: string | null;
+  hjemmelEid: string | null; godkjenning: 'faglig_vurdert' | 'godkjent'; begrunnelse: string | null; gjelderILovkildeId: string | null;
+  gjelderFast: boolean | null; forventetForekomster: number;
+  /** [Ny, #440, 2026-11-05] Når hjemmelen fra forhåndsklassifiseringen er fortolkning: argumentene mennesket har valgt. */
+  tolkningsargumenter?: Tolkningsargument[] | null;
 }
 export interface AktorkoKoblingRequest {
   virksomhetId: string; navn: string; navneformgrunn: string; forventetForekomster: number;

@@ -109,37 +109,43 @@ export function skrivemateFor(navn: string | null, kandidater: string[]): string
 const GODKJENNBARE: Forhandstype[] = ['aktor', 'klasse', 'rolle', 'omrade'];
 
 /**
- * «Godta forslaget» for godkjenningen: utkastet skjemaet fylles med, og merknadene om det som ikke kunne fylles ut. Hjemmelen er forslagets
- * når den er et av regelens forslag, ellers «hjemmel mangler» (godkjenningen kan ikke lagre en annen hjemmel; den står i «eget steg»). Hvor en
- * klasse uten hjemmel gjelder, er rettskilden hjemmelen står i når navnet står der; ellers tom. «Faglig vurdert» er fylt ut: et forslag fra
- * en KI-agent er ikke godkjent før et menneske sier det.
+ * «Godta forslaget» for godkjenningen: utkastet skjemaet fylles med, og merknadene om det som ikke kunne fylles ut.
+ * [ENDRET, Johanns avgjørelser 2026-11-05]
+ * - Navnet er skrivemåten i teksten når forslagets navn står der, ellers forslagets navn (grunnformen). API-et godtar det bare når det er
+ *   filas navn for nøkkelen.
+ * - Hjemmelen er regelens forslag når den er det, ellers forhåndsklassifiseringens (`forhand`) når bestemmelsen står i korpus, ellers
+ *   «hjemmel mangler» med en merknad. Uten hjemmel i fila er det «hjemmel mangler».
+ * - Hvor en klasse uten hjemmel gjelder, er tomt (fila sier det ikke).
+ * - Godkjenningsnivået står tomt: Johann velger selv. Tolkningsargumentene ved fortolkning står også tomme (fila har dem ikke).
  */
 export function godkjenningFraForslag(f: AktorkoForhandsklassifisering, detalj: AktorkoDetalj): { utkast: GodkjenningUtkast; merknader: string[] } {
   const merknader: string[] = [];
   const type = GODKJENNBARE.includes(f.typeforslag) ? (f.typeforslag as Aktorkotype) : null;
-  const navn = skrivemateFor(f.nyNode, skrivemater(detalj));
-  if (!navn) {
-    merknader.push(`Navnet i forslaget, «${f.nyNode ?? detalj.navn}», står ikke i teksten. Velg skrivemåten selv, eller vent med navnet (se «Eget steg»).`);
+  const iTeksten = skrivemateFor(f.nyNode, skrivemater(detalj));
+  const navn = iTeksten ?? f.nyNode;
+  if (!iTeksten && f.nyNode) {
+    merknader.push(`Navnet «${f.nyNode}» er forslagets navn og står ikke i teksten. Forekomstene tagges mot det.`);
   }
   const h = f.hjemmel;
   const forslag = h?.erRegelensForslag && h.rettskildeId
     ? detalj.hjemmelforslag.find((x) => forslagNokkel(x) === forslagNokkel({ rettskildeId: h.rettskildeId!, eid: h.eid })) ?? null
     : null;
-  let gjelder: string | null = null;
-  if (h && !forslag) {
-    merknader.push(`Forslagets hjemmel (${h.rettskilde ?? 'rettskilden'} ${h.bestemmelse ?? h.eid}) er ikke et av regelens forslag. `
+  const forhand = !forslag && h?.kanLagres ? h : null;
+  if (h && !forslag && !forhand) {
+    merknader.push(`Forslagets hjemmel (${h.rettskilde ?? 'rettskilden'} ${h.bestemmelse ?? h.eid}) står ikke entydig i korpus. `
       + 'Godkjenningen lagrer «hjemmel mangler»; hjemmelen registreres i eget steg.');
   }
-  if (type && type !== 'aktor' && !forslag) {
-    if (h?.rettskildeId && detalj.perRettskilde.some((r) => r.rettskildeId === h.rettskildeId)) {
-      gjelder = h.rettskildeId;
-    } else {
-      merknader.push(`Forslaget sier ikke hvor ${AKTORKOTYPE_TEKST[type].bestemt.toLowerCase()} gjelder. Velg rettskilden, eller hele korpuset.`);
-    }
+  if (forhand?.kunnskapsstatus === 'fortolkning') {
+    merknader.push('Hjemmelen er fortolkning. Velg tolkningsargumentene; forhåndsklassifiseringen har dem ikke.');
   }
+  if (type && type !== 'aktor' && !forslag && !forhand) {
+    merknader.push(`Forslaget sier ikke hvor ${AKTORKOTYPE_TEKST[type].bestemt.toLowerCase()} gjelder. Velg rettskilden, eller hele korpuset.`);
+  }
+  merknader.push('Velg hvor sikkert det er. Det fylles ikke ut.');
   return {
     utkast: {
-      type, navn, hjemmel: forslag ? forslagNokkel(forslag) : 'mangler', gjelder, godkjenning: 'faglig_vurdert', begrunnelse: forhandBegrunnelse(f),
+      type, navn, hjemmel: forslag ? forslagNokkel(forslag) : forhand ? 'forhand' : 'mangler', gjelder: null, godkjenning: null,
+      begrunnelse: forhandBegrunnelse(f), tolkningsargumenter: [],
     },
     merknader,
   };

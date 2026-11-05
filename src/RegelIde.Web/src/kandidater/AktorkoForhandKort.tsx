@@ -90,10 +90,12 @@ function Hjemmelcelle({ f }: { f: AktorkoForhandsklassifisering }) {
           : <span>{h.rettskilde ?? 'Rettskilden er ikke funnet i basen'}</span>}
         <span title={h.eid}>{h.bestemmelse ?? h.eid}</span>
         <KunnskapsstatusTag status={(h.kunnskapsstatus as Kunnskapsstatus | null) ?? null} />
+        {/* [ENDRET, Johanns avgjørelse 2026-11-05] Godkjenningen kan også lagre hjemmelen fra fila når den står i korpus. */}
         <Tag data-size="sm" data-color="neutral"
-          title={h.erRegelensForslag ? 'Samme bestemmelse som køens hjemmelforslag: godkjenningen kan lagre den.'
-            : 'Ikke et av køens hjemmelforslag: godkjenningen kan ikke lagre den (eget steg).'}>
-          {h.erRegelensForslag ? 'Regelens forslag' : 'Ikke regelens forslag'}
+          title={h.erRegelensForslag ? 'Samme bestemmelse som køens hjemmelforslag.'
+            : h.kanLagres ? 'Ikke et av køens hjemmelforslag, men godkjenningen kan lagre den fra forhåndsklassifiseringen.'
+              : 'Bestemmelsen står ikke entydig i korpus: godkjenningen kan ikke lagre den (eget steg).'}>
+          {h.erRegelensForslag ? 'Regelens forslag' : h.kanLagres ? 'Kan lagres' : 'Står ikke i korpus'}
         </Tag>
       </Paragraph>
       {h.sitat ? (
