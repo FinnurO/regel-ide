@@ -119,40 +119,13 @@ public sealed class RettskildeRepository(RegelIdeDbContext db, VirksomhetOppslag
     /// mistet alle «styret ved»-tilfellene — altså nettopp NTNU-saken.
     /// </para>
     /// </summary>
-    public async Task<List<RettskildeEntitet>> RettskilderFastsattAvAsync(Guid virksomhetId, CancellationToken ct = default)
-    {
-        var registernavn = await db.Virksomheter
-            .Where(v => v.Id == virksomhetId)
-            .Select(v => v.Navn)
-            .FirstOrDefaultAsync(ct);
-        if (registernavn is null) return [];
+    // [ENDRET, issue #441] Regelen er flyttet til AktorRettskildeoppslag (Data), så aktørsidens rettskildeliste og dette endepunktet ikke kan
+    // svare ulikt. Logikken er uendret.
+    public Task<List<RettskildeEntitet>> RettskilderFastsattAvAsync(Guid virksomhetId, CancellationToken ct = default) =>
+        AktorRettskildeoppslag.FastsattAvAsync(db, virksomhetId, ct);
 
-        var navneformer = await db.Begreper
-            .Where(b => b.Begrepskategori == "virksomhet"
-                        && b.Entitetsstatus == "gjeldende"
-                        && b.VirksomhetReferanseId == virksomhetId)
-            .Select(b => b.Term)
-            .ToListAsync(ct);
-
-        var navn = navneformer.Append(registernavn).Select(n => n.ToLower()).Distinct().ToList();
-        return await db.Rettskilder
-            .Where(r => r.Entitetsstatus == "gjeldende"
-                        && r.FastsattAvOrgannavn != null
-                        && navn.Contains(r.FastsattAvOrgannavn!.ToLower()))
-            .ToListAsync(ct);
-    }
-
-    public async Task<List<RettskildeEntitet>> RettskilderAnsvarligForAsync(Guid virksomhetId)
-    {
-        var navn = await db.Virksomheter.Where(v => v.Id == virksomhetId).Select(v => v.Navn).FirstOrDefaultAsync();
-        if (navn is null) return [];
-
-        var navnLower = navn.ToLower();
-        return await db.Rettskilder
-            .Where(r => r.Entitetsstatus == "gjeldende" && r.AnsvarligDepartement != null
-                        && r.AnsvarligDepartement!.Any(d => d.ToLower() == navnLower))
-            .ToListAsync();
-    }
+    public Task<List<RettskildeEntitet>> RettskilderAnsvarligForAsync(Guid virksomhetId) =>
+        AktorRettskildeoppslag.AnsvarligForAsync(db, virksomhetId);
 
     // Filter på Entitetsstatus="gjeldende" lagt til 2026-07-26 (node-nivå versjonering, håndbok/rundskriv,
     // docs/08-byggesteg1-teknisk-design.md §2.1) — virkningsløst for Lov/Forskrift-noder (alltid
