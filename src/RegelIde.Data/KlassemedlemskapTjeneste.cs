@@ -252,10 +252,9 @@ public sealed class KlassemedlemskapTjeneste(RegelIdeDbContext db, StrukturkantT
                     : $"{k.Kode} {k.Term}: {egne.Count} aktører med ansvarsområde til kommunen og samme kommunenummer — ikke entydig, ingen valgt.");
             }
         }
-        // [ENDRET, issue #442] Medlemskapet er avledet bare når premissene bærer det (§4.6); før stod det alltid avledet. Territoriekantene er
-        // eksternt dokumentert (#390), så svaret for kommunene er uendret.
+        // Det samlede svaret for kommunene er uendret (avledet): å håndheve svakeste premiss også her er #411. Hvert medlem har sitt eget svar.
         return new UtledetMedlemskap(klasse.Id, klasse.Term, Klasseregler.OmraderegisterKommune, klasse.LovreferanseEid, klasse.Kunnskapsstatus,
-            Samlet(medlemmer), kommuner.Count, medlemmer, hull)
+            Strukturkanter.Avledet, kommuner.Count, medlemmer, hull)
         { Omradetype = Omradetyper.Kommune, Beskrivelse = Klasseregler.Beskriv(Klasseregler.OmraderegisterKommune) };
     }
 
