@@ -44,10 +44,6 @@
     <EmbeddedResource Include="Strukturkonvertering\kompetanseleksikon.json" LogicalName="RegelIde.Data.Strukturkonvertering.kompetanseleksikon.json" />
     <!-- [Ny, issue #429] De fem funnene fra saken — innebygd, så FunnSeed virker uten filsti. -->
     <EmbeddedResource Include="Seed\funn-429.json" LogicalName="RegelIde.Data.Seed.funn-429.json" />
-    <!-- [Ny, issue #440, 2026-11-05] Forhåndsklassifiseringen av aktørkøen (PR #462), vist i køen. Fila i data/fasit er kilden; den
-         innebygges så API-et leser den uten filsti, og den skrives aldri til basen. -->
-    <EmbeddedResource Include="..\..\data\fasit\strukturmodell\aktorko-forhand\klassifisering.json" Link="Aktorko\forhandsklassifisering.json"
-                      LogicalName="RegelIde.Data.Aktorko.forhandsklassifisering.json" />
     <None Include="Seed\organisasjoner-norge.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -62,6 +58,14 @@
     <None Include="Seed\kartverket-fylker-kommuner.json;Seed\brreg-kommuner.json;Seed\brreg-domstoler.json;Seed\kartverket-ssr-rettssteder.json;Seed\ssb-klass-104-fylkesendringer-2024.json;Seed\statsforvalter-embetsomrader.json;Seed\helseregioner-rhf.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- [Ny, issue #440, 2026-11-05] Forhåndsklassifiseringen av aktørkøen (PR #462), vist i køen. Fila i data/fasit er kilden; den
+         innebygges så API-et leser den uten filsti, og den skrives aldri til basen. Egen ItemGroup, så den ikke står på samme linje som
+         ressursen #442 legger til i gruppen over. -->
+    <EmbeddedResource Include="..\..\data\fasit\strukturmodell\aktorko-forhand\klassifisering.json" Link="Aktorko\forhandsklassifisering.json"
+                      LogicalName="RegelIde.Data.Aktorko.forhandsklassifisering.json" />
   </ItemGroup>
 
 </Project>
