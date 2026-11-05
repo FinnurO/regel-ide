@@ -1792,6 +1792,133 @@ export interface KompetanseViaKlasseDto {
   hull: string[];
 }
 
+/** [Ny, issue #441] Navneformen i hjemmelkortet på aktørsiden. */
+export interface AktorHjemmelNavneformDto {
+  id: string;
+  term: string;
+  navneformgrunn: Navneformgrunn | null;
+  kunnskapsstatus: Kunnskapsstatus | null;
+  godkjenning: Godkjenning | null;
+  oppdagelsesKilde: string | null;
+  hjemmelArt: HjemmelArt | null;
+  rettskildeId: string | null;
+  rettskildeTittel: string | null;
+  eid: string | null;
+}
+
+/** [Ny, issue #441] `begreper.hjemmel_art`: hva slags hjemmel navneformen har for at aktøren finnes. */
+export type HjemmelArt = 'oppretting' | 'navnevedtak';
+
+/** [Ny, issue #441] Hvor hjemmelen er funnet, i regelens rekkefølge. */
+export type Hjemmelkilde = 'oppretter_kant' | 'hjemmel_art' | 'disposisjonstype';
+
+/** [Ny, issue #441] «Mest omtalt i (ikke hjemmel)»: bare direkte utsagn og taggede forekomster. */
+export interface MestOmtaltDto {
+  rettskildeId: string;
+  tittel: string;
+  kortnavn: string | null;
+  utsagn: number;
+  taggedeForekomster: number;
+  bestemmelser: string[];
+  eid: string | null;
+  sitat: string | null;
+}
+
+/** [Ny, issue #441] «Det som finnes» under hullet: klasse (utledet medlemskap) eller register. Ingen av dem er hjemmel. */
+export interface DetSomFinnesDto {
+  art: 'klasse' | 'register';
+  tekst: string;
+  nodeId: string | null;
+  hjemmelRettskildeId: string | null;
+  hjemmelTittel: string | null;
+  hjemmelEid: string | null;
+  klassensKunnskapsstatus: Kunnskapsstatus | null;
+  kunnskapsstatus: Kunnskapsstatus | null;
+  forslag: boolean;
+}
+
+/** [Ny, issue #441] GET /api/virksomheter/{id}/hjemmel. */
+export interface AktorHjemmelDto {
+  virksomhetId: string;
+  status: 'hjemlet' | 'mangler';
+  kilde: Hjemmelkilde | null;
+  rettskildeId: string | null;
+  rettskildeTittel: string | null;
+  kortnavn: string | null;
+  dokumentId: string | null;
+  eid: string | null;
+  sitat: string | null;
+  gjelderFra: string | null;
+  disposisjonstyper: string[];
+  navneform: AktorHjemmelNavneformDto | null;
+  oppretterkant: StrukturkantDto | null;
+  navnevedtak: AktorHjemmelNavneformDto | null;
+  hjemmelArtForslag: HjemmelArt | null;
+  maVelgeHjemmelArt: boolean;
+  venter: boolean;
+  utsagnIKilden: StrukturkantDto[];
+  hullmerknad: string | null;
+  mestOmtalt: MestOmtaltDto[];
+  detSomFinnes: DetSomFinnesDto[];
+}
+
+/** [Ny, issue #441] Kvitteringen for «Godkjenn hjemmelen». */
+export interface HjemmelGodkjentDto {
+  navneformId: string | null;
+  navneformGodkjent: boolean;
+  oppretterkantId: string | null;
+  oppretterkantGodkjent: boolean;
+  hjemmelArt: HjemmelArt | null;
+}
+
+/** [Ny, issue #441] Én rad i «Andre rettskilder aktøren står i». `rettskildeId` null = kilde utenfor korpus. */
+export interface AktorRettskilderadDto {
+  gruppe: 'direkte' | 'via_klasse';
+  rettskildeId: string | null;
+  tittel: string;
+  kortnavn: string | null;
+  kildetype: string | null;
+  dokumentId: string | null;
+  kildeUtenforKorpusType: string | null;
+  ansvarligDepartement: boolean;
+  fastsattAv: boolean;
+  navnetTagget: number;
+  navnetreffVenter: number;
+  navneformerVenter: number;
+  kompetanse: number;
+  plikt: number;
+  oppgave: number;
+  annet: number;
+  venter: number;
+  utsagn: StrukturkantDto[];
+  viaKlasse: KompetanseViaKlasseTreffDto[];
+}
+
+/** [Ny, issue #441] Tallene for filterknappene, og kontrollsummen (kanterIRadene + kanterIHjemmelen = kanter). */
+export interface AktorRettskildeTallDto {
+  rettskilder: number;
+  medUtsagn: number;
+  venter: number;
+  ansvarligDepartement: number;
+  fastsattAv: number;
+  navnetTagget: number;
+  direkte: number;
+  viaKlasse: number;
+  kanter: number;
+  kanterIRadene: number;
+  kanterIHjemmelen: number;
+}
+
+/** [Ny, issue #441] GET /api/virksomheter/{id}/rettskilder. */
+export interface AktorRettskilderDto {
+  virksomhetId: string;
+  hjemmelRettskildeId: string | null;
+  rader: AktorRettskilderadDto[];
+  premisser: StrukturkantDto[];
+  hull: string[];
+  tall: AktorRettskildeTallDto;
+}
+
 /** [Ny, issue #353] Hvorfor en plikt gjelder (eller kan gjelde) kommunen: fra kommunens egen virksomhet, fra en klasse
  * kommunen er REGISTRERT medlem av, eller fra en klasse uten ett eneste registrert medlem (avgjøres ikke — `grunnlagHull`). */
 /** [Ny, #353-retting] `kommunen_skal` = kommunen er pliktsubjektet; `overfor_kommunen` = andre har plikten overfor kommunen. */

@@ -5,6 +5,7 @@ import type {
   BegrepDto,
   KommuneTilhorighetDto, VirksomhetTilhorighetDto,
   KompetanseViaKlasseDto,
+  AktorHjemmelDto, AktorRettskilderDto, HjemmelArt, HjemmelGodkjentDto,
   KommunePlikterDto,
   Ordningstype,
   Plikttype,
@@ -1339,6 +1340,20 @@ export const api = {
   /** [Ny, issue #418] Kompetanse aktøren har (eller andre har overfor den) via klasser den er medlem av og roller, avledet. */
   hentKompetanseViaKlasse: (virksomhetId: string) =>
     kall<KompetanseViaKlasseDto>(`/api/virksomheter/${virksomhetId}/kompetanse-via-klasse`),
+  /** [Ny, issue #441] Hjemmelen for at aktøren finnes (eller hullet, med «mest omtalt i» og «det som finnes»). */
+  hentAktorHjemmel: (virksomhetId: string) =>
+    kall<AktorHjemmelDto>(`/api/virksomheter/${virksomhetId}/hjemmel`),
+  /** [Ny, issue #441] «Godkjenn hjemmelen»: navneformen og R oppretter i én transaksjon; `hjemmelArt` bare når regelen ikke avgjør det. */
+  godkjennAktorHjemmel: (virksomhetId: string, hjemmelArt: HjemmelArt | null) =>
+    kall<HjemmelGodkjentDto>(`/api/virksomheter/${virksomhetId}/hjemmel/godkjenn`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ hjemmelArt }),
+    }),
+  /** [Ny, issue #441] Én rad per rettskilde aktøren står i (erstatter sju kall på aktørsiden). */
+  hentAktorRettskilder: (virksomhetId: string) =>
+    kall<AktorRettskilderDto>(`/api/virksomheter/${virksomhetId}/rettskilder`),
+  /** [Ny, issue #441] «Godkjenn alle N» i én rad: bare aktørens egne ventende utsagn i rettskilden. */
+  godkjennAlleAktorutsagn: (virksomhetId: string, rettskildeId: string) =>
+    kall<{ godkjent: number; hoppetOver: number }>(`/api/virksomheter/${virksomhetId}/rettskilder/${rettskildeId}/godkjenn-alle`, { method: 'POST' }),
   /** [Ny, issue #353 AC5, docs/32 S6] Pliktene (P) som gjelder kommunen med dette kommunenummeret — direkte, via registrert
    * medlemskap eller fra en klasse uten registrert medlemskap — med motparten løst via område eller et synlig hull. 404 når
    * kommunenummeret ikke er et gjeldende kommuneområde. `type` = én P-typekode, utelatt = alle. */

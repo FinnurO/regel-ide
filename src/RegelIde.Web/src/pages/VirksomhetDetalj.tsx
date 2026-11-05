@@ -4,7 +4,7 @@ import { Link as RouterLink, useNavigate, useParams } from 'react-router';
 import { Alert, Button, Card, Dialog, Field, Heading, Label, Link, Paragraph, Select, Spinner, Table, Tabs, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import { rettskildeLenkeForId } from '../api/eidLenker';
-import type { Aktortype, KodelisteDto, Ordningstype, Navneformgrunn, RettskildeNodeDto, RettskildeSammendrag, StrukturkantDto, VirksomhetKandidatDto, VirksomhetSlettOversiktDto, VirksomhetsbegrepDto, VirksomhetWhereUsedDto } from '../api/types';
+import type { AktorHjemmelDto, AktorRettskilderDto, Aktortype, KodelisteDto, Ordningstype, Navneformgrunn, RettskildeNodeDto, RettskildeSammendrag, StrukturkantDto, VirksomhetKandidatDto, VirksomhetSlettOversiktDto, VirksomhetsbegrepDto, VirksomhetWhereUsedDto } from '../api/types';
 import { NavneformgrunnTag, NavneformgrunnVelger } from '../virksomhet/Navneformgrunn';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 import { LeggTilMyndighetstildelingForm } from '../virksomhet/LeggTilMyndighetstildelingForm';
@@ -18,6 +18,8 @@ import { Metatekst } from '../entitet/Metatekst';
 import { AktortypeTag, AktortypeVelger, OrdningstypeTag, OrdningstypeVelger } from '../begrep/Nodetype';
 import { AktoridentitetKort, erForslag, Registerdata, UtsagnKilde } from '../virksomhet/Aktoridentitet';
 import { GodkjenningTag, KunnskapsstatusTag } from '../strukturkant/Utsagnsstatus';
+import { AktorHjemmelKort } from '../virksomhet/AktorHjemmelKort';
+import { AktorRettskilder } from '../virksomhet/AktorRettskilder';
 
 /** [Ny, issue #157] Rad-etiketter for bekreftelsesdialogen — KUN de feltene som faktisk kan være > 0
  * for en reell virksomhet vises (0-rader skjules, se `SlettVirksomhetSeksjon` under). Rekkefølgen her
@@ -52,7 +54,9 @@ const SLETT_OVERSIKT_ETIKETTER: [key: keyof VirksomhetSlettOversiktDto, etikett:
  * fastsatt), holdt adskilt. Se docs/design-canvas/VirksomhetDetalj.dc.html.
  */
 // [ENDRET, issue #390] + 'omrade' («Område og tilhørighet»), bare for et rettssubjekt.
-type Fane = 'grunndata' | 'navneformer' | 'omrade' | 'myndighet' | 'rettskilder' | 'kandidater' | 'farligSone';
+// [ENDRET, issue #441, Johanns avgjørelser 2026-10-30] + 'oversikt' (hjemmelen og rettskildene, standardfanen). «Myndighet & relasjoner» heter
+// «Etter kategori» og beholdes. «Rettskilder» (fastsatt av) er tatt ut: det er filteret «Fastsatt av» i rettskildelista på oversikten.
+type Fane = 'oversikt' | 'grunndata' | 'navneformer' | 'omrade' | 'myndighet' | 'kandidater' | 'farligSone';
 
 export default function VirksomhetDetalj() {
   const { id } = useParams<{ id: string }>();
@@ -60,7 +64,7 @@ export default function VirksomhetDetalj() {
   const { virksomheter, virksomheterPerId, laster: virksomheterLaster, oppdater: oppdaterVirksomheter } = useVirksomheter();
   // [Ny, issue #385] Avviste navneforslag vises bare på forespørsel.
   const [visAvvisteNavneformer, setVisAvvisteNavneformer] = useState(false);
-  const [fane, setFane] = useState<Fane>('grunndata');
+  const [fane, setFane] = useState<Fane>('oversikt');
 
   const [begrep, setBegrep] = useState<VirksomhetsbegrepDto[] | null>(null);
   // [ENDRET, issue #311] ÉN liste med alle strukturkantene virksomheten står i (var tildelinger + relasjoner
@@ -72,9 +76,11 @@ export default function VirksomhetDetalj() {
   const [visLeggTilRelasjon, setVisLeggTilRelasjon] = useState(false);
   // Departement-virksomhet-lenke (2026-08-30) — ikke betinget på noen egen "er departement"-boolsk,
   // se oppgavebeskrivelsen: lastes for ENHVER virksomhet, seksjonen skjules bare når listen er tom.
-  const [rettskilderAnsvarligFor, setRettskilderAnsvarligFor] = useState<RettskildeSammendrag[] | null>(null);
-  // [Ny, fastsatt-av-runden, 2026-09-10, issue #215] Et ANNET spørsmål enn ansvarligFor over.
-  const [rettskilderFastsattAv, setRettskilderFastsattAv] = useState<RettskildeSammendrag[] | null>(null);
+  // [FJERNET, issue #441] rettskilderAnsvarligFor og rettskilderFastsattAv: begge er merker i rettskildelista (GET /rettskilder).
+  // [Ny, issue #441] Hjemmelen for aktøren og rettskildene, én rad per rettskilde.
+  const [hjemmel, setHjemmel] = useState<AktorHjemmelDto | null>(null);
+  const [aktorRettskilder, setAktorRettskilder] = useState<AktorRettskilderDto | null>(null);
+  const [aktorRettskilderFeil, setAktorRettskilderFeil] = useState<string | null>(null);
   // [Ny, navneform-kjede-runden, 2026-09-08] «Where used» — ETT kall som dekker ALLE navneformene
   // (hvor de er tagget) OG hvilket gruppebegrep hver myndighetstildeling gjelder. Se
   // VirksomhetWhereUsedTjeneste for hvorfor det er ett samlet oppslag og ikke ett per navneform.
@@ -162,18 +168,26 @@ export default function VirksomhetDetalj() {
     if (!id) return;
     api.hentVirksomhetsbegrep(id, visAvvisteNavneformer).then(setBegrep)
       .catch((e) => setFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved henting av begrep.'));
-    api.hentStrukturkanter({ virksomhetId: id }).then(setKanter).catch(() => setKanter([]));
-    api.hentVentendeKandidater(id).then(setKandidater).catch(() => setKandidater([]));
-    api.hentRettskilderAnsvarligFor(id).then(setRettskilderAnsvarligFor).catch(() => setRettskilderAnsvarligFor([]));
-    api.hentRettskilderFastsattAv(id).then(setRettskilderFastsattAv).catch(() => setRettskilderFastsattAv([]));
+    // [ENDRET, issue #441] Oversikten trenger to kall (hjemmel og rettskilder) i stedet for sju. De andre fanene henter sitt eget når de åpnes.
+    if (fane === 'oversikt') {
+      api.hentAktorHjemmel(id).then(setHjemmel)
+        .catch((e) => setFeil(e instanceof ApiError ? e.message : 'Kunne ikke hente hjemmelen for aktøren.'));
+      setAktorRettskilderFeil(null);
+      api.hentAktorRettskilder(id).then(setAktorRettskilder)
+        .catch((e) => setAktorRettskilderFeil(e instanceof ApiError ? e.message : 'Kunne ikke hente rettskildene.'));
+    }
+    if (fane === 'myndighet') api.hentStrukturkanter({ virksomhetId: id }).then(setKanter).catch(() => setKanter([]));
+    if (fane === 'kandidater') api.hentVentendeKandidater(id).then(setKandidater).catch(() => setKandidater([]));
     // Tom-ved-feil, samme mønster som de andre valgfrie seksjonene over: en virksomhet uten
     // koblinger er et helt normalt svar, ikke en feil som fortjener en banner.
-    api.hentVirksomhetWhereUsed(id).then(setWhereUsed)
-      .catch(() => setWhereUsed({ navneformForekomster: [], gruppetildelinger: [] }));
+    if (fane === 'navneformer') {
+      api.hentVirksomhetWhereUsed(id).then(setWhereUsed)
+        .catch(() => setWhereUsed({ navneformForekomster: [], gruppetildelinger: [] }));
+    }
   }
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(lastAlt, [id, visAvvisteNavneformer]);
+  useEffect(lastAlt, [id, visAvvisteNavneformer, fane]);
   // [FJERNET, issue #311] Nodehenting for tildelingenes/relasjonenes hjemler — StrukturkantTabell gjør det selv.
   // [Ny, navneform-kjede-runden, 2026-09-08] Nodene for rettskildene navneformene er TAGGET i, slik
   // at «Brukt i»-kolonnen kan vise «§ 1 — overskrift» i stedet for en rå eId — samme lazy-per-
@@ -309,23 +323,33 @@ export default function VirksomhetDetalj() {
 
       <Tabs value={fane} onChange={(v) => setFane(v as Fane)} style={{ marginBottom: '1rem' }}>
         <Tabs.List>
+          <Tabs.Tab value="oversikt">Oversikt</Tabs.Tab>
           <Tabs.Tab value="grunndata">Grunndata</Tabs.Tab>
           <Tabs.Tab value="navneformer">Navneformer</Tabs.Tab>
           {/* [Ny, issue #390 AK 1] Det rettssubjektet hører til via territoriet (fylke, tingrett, lagdømme …), med kjeden. */}
           {aktortype === 'rettssubjekt' && <Tabs.Tab value="omrade">Område og tilhørighet</Tabs.Tab>}
-          <Tabs.Tab value="myndighet">Myndighet &amp; relasjoner</Tabs.Tab>
-          <Tabs.Tab value="rettskilder">Rettskilder</Tabs.Tab>
+          {/* [ENDRET, issue #441] Var «Myndighet & relasjoner»; tabellene per kategori beholdes (Johann 2026-10-30). */}
+          <Tabs.Tab value="myndighet">Etter kategori</Tabs.Tab>
           <Tabs.Tab value="kandidater">Kandidater</Tabs.Tab>
           <Tabs.Tab value="farligSone">Farlig sone</Tabs.Tab>
         </Tabs.List>
       </Tabs>
 
+      {/* [Ny, issue #441] Oversikten: hjemmelen for aktøren øverst og uthevet, identiteten, og de andre rettskildene som relasjoner (docs/09 §52). */}
+      {fane === 'oversikt' && id && (
+        <>
+          <AktorHjemmelKort virksomhetId={id} hjemmel={hjemmel} onEndret={() => { lastAlt(); oppdaterVirksomheter(); }} />
+          <AktoridentitetKort virksomhet={virksomhet} navneformer={begrep} rettskilder={rettskilder}
+            onEndret={() => { lastAlt(); oppdaterVirksomheter(); setAktortypeOverstyrt(undefined); }} />
+          <AktorRettskilder virksomhetId={id} svar={aktorRettskilder} feil={aktorRettskilderFeil} onEndret={lastAlt} />
+        </>
+      )}
+
       {fane === 'grunndata' && (
       <section style={{ marginBottom: '2rem' }}>
         {/* [Ny, issue #385 «aktøridentitet»] Identiteten først (lovens navn og typen, med forslagene), så klassifiseringen, så
           * registerdata som attributter. */}
-        <AktoridentitetKort virksomhet={virksomhet} navneformer={begrep} rettskilder={rettskilder}
-          onEndret={() => { lastAlt(); oppdaterVirksomheter(); setAktortypeOverstyrt(undefined); }} />
+        {/* [ENDRET, issue #441] Identitetskortet står på oversikten. */}
         <Card style={{ padding: '1rem', marginBottom: '1rem' }}>
           <Heading level={2} data-size="sm" style={{ marginBottom: '0.35rem' }}>Klassifisering</Heading>
           <Table>
@@ -739,80 +763,8 @@ export default function VirksomhetDetalj() {
       </section>
       )}
 
-      {fane === 'myndighet' && (
-      <section style={{ marginBottom: '2rem' }}>
-        <Heading level={3} data-size="xs" style={{ marginBottom: '0.75rem' }}>
-          Ansvarlig for
-        </Heading>
-        <Metatekst style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
-          Gjeldende lover/forskrifter der Lovdata oppgir denne virksomheten som ansvarlig departement
-          (eksakt navnetreff, ingen fuzzy-matching — se rettskildens egen "Ansvarlig departement"-felt).
-        </Metatekst>
-        <Card style={{ padding: rettskilderAnsvarligFor && rettskilderAnsvarligFor.length > 0 ? 0 : '1rem', overflow: 'hidden' }}>
-          {!rettskilderAnsvarligFor && <Spinner aria-label="Laster …" data-size="sm" />}
-          {rettskilderAnsvarligFor && rettskilderAnsvarligFor.length === 0 && (
-            <Paragraph style={{ margin: 0 }}>Ingen rettskilder registrert med denne virksomheten som ansvarlig departement.</Paragraph>
-          )}
-          {rettskilderAnsvarligFor && rettskilderAnsvarligFor.length > 0 && (
-            <Table>
-              <Table.Body>
-                {rettskilderAnsvarligFor.map((r) => (
-                  <Table.Row key={r.id}>
-                    <Table.Cell>
-                      <Link asChild>
-                        <RouterLink to={`/rettskilder/${r.id}`}>{r.tittel}</RouterLink>
-                      </Link>
-                    </Table.Cell>
-                    <Table.Cell>{r.kildetype}</Table.Cell>
-                  </Table.Row>
-                ))}
-              </Table.Body>
-            </Table>
-          )}
-        </Card>
-      </section>
-      )}
-
-      {/* [Ny, fastsatt-av-runden, 2026-09-10, issue #215] Motstykket til «Ansvarlig for» over, og et
-          ANNET spørsmål: Kunnskapsdepartementet har departementsansvaret for NTNUs ph.d.-forskrift,
-          NTNUs styre har FASTSATT den. Uten denne seksjonen var forskriften usynlig fra NTNUs egen
-          side, selv om dokumentet sier rett ut hvem som fastsatte den.
-          [ENDRET, issue #268] Egen fane «Rettskilder» — et ANNET spørsmål enn «Myndighet &
-          relasjoner» (hvilke rettskilder virksomheten selv har fastsatt, ikke hvem som styrer den). */}
-      {fane === 'rettskilder' && (
-      <section style={{ marginBottom: '2rem' }}>
-        <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
-          Fastsatt av denne virksomheten
-        </Heading>
-        <Metatekst style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
-          Gjeldende rettskilder der «Fastsatt av»-frasen i hjemmelslinja peker på denne virksomheten —
-          matchet mot registernavnet og virksomhetens navneformer. «Fastsatt av styret ved X» regnes
-          som fastsatt av X: styret er organet innad, institusjonen er den katalogen kjenner.
-        </Metatekst>
-        <Card style={{ padding: rettskilderFastsattAv && rettskilderFastsattAv.length > 0 ? 0 : '1rem', overflow: 'hidden' }}>
-          {!rettskilderFastsattAv && <Spinner aria-label="Laster …" data-size="sm" />}
-          {rettskilderFastsattAv && rettskilderFastsattAv.length === 0 && (
-            <Paragraph style={{ margin: 0 }}>Ingen rettskilder er registrert som fastsatt av denne virksomheten.</Paragraph>
-          )}
-          {rettskilderFastsattAv && rettskilderFastsattAv.length > 0 && (
-            <Table>
-              <Table.Body>
-                {rettskilderFastsattAv.map((r) => (
-                  <Table.Row key={r.id}>
-                    <Table.Cell>
-                      <Link asChild>
-                        <RouterLink to={`/rettskilder/${r.id}`}>{r.tittel}</RouterLink>
-                      </Link>
-                    </Table.Cell>
-                    <Table.Cell>{r.kildetype}</Table.Cell>
-                  </Table.Row>
-                ))}
-              </Table.Body>
-            </Table>
-          )}
-        </Card>
-      </section>
-      )}
+      {/* [FJERNET, issue #441] «Ansvarlig for» (384 rader for KD) og fanen «Rettskilder» (fastsatt av): begge er merker og filtre i
+        * rettskildelista på oversikten. Lovdatas «Ansvarlig departement» er en sekundær kilde, aldri et utsagn. */}
 
       {fane === 'kandidater' && (
       <section style={{ marginBottom: '2rem' }}>

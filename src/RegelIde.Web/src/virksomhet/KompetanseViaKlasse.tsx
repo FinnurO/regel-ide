@@ -57,7 +57,8 @@ function Treff({ t, premisser }: { t: KompetanseViaKlasseTreffDto; premisser: Ma
   );
 }
 
-function Treffliste({ treff, premisser, tomTekst }: { treff: KompetanseViaKlasseTreffDto[]; premisser: Map<string, StrukturkantDto>; tomTekst: string }) {
+// [ENDRET, issue #441] Eksportert: aktørsidens rettskildeliste viser treffene via klasse i samme tabell.
+export function Treffliste({ treff, premisser, tomTekst }: { treff: KompetanseViaKlasseTreffDto[]; premisser: Map<string, StrukturkantDto>; tomTekst: string }) {
   return (
     <Card style={{ padding: treff.length > 0 ? 0 : '1rem', overflow: 'hidden', marginBottom: '1rem' }}>
       {treff.length === 0 ? (
