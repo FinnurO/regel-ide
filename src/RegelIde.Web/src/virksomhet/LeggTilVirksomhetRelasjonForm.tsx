@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Alert, Button, Card, Field, Label, Radio, Select, Textfield } from '@digdir/designsystemet-react';
+import { Alert, Button, Card, Field, Fieldset, Label, Radio, Select, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { Aktortype, KildeUtenforKorpusDokumentasjon, KildeUtenforKorpusType, Kompetansegrunnlag, Kompetanseundertype, Normform, RelasjonsTypeKonfigurasjonDto, RettskildeSammendrag, StrukturkantDto, VirksomhetDto, Delegeringsadgang, DelegeringSlutning } from '../api/types';
 import { FAMILIE_VISNING } from '../strukturkant/StrukturkantTabell';
@@ -324,13 +324,13 @@ export function LeggTilVirksomhetRelasjonForm({ virksomhetId, virksomheter, rett
         </div>
       )}
 
-      <Field data-size="sm" style={{ marginBottom: '0.75rem' }}>
-        <Label>Polaritet</Label>
+      <Fieldset data-size="sm" style={{ marginBottom: '0.75rem' }}>
+        <Fieldset.Legend>Polaritet</Fieldset.Legend>
         <Radio name="relasjon-polaritet" value="positiv" label="Positiv — relasjonen gjelder"
           checked={polaritet === 'positiv'} onChange={() => setPolaritet('positiv')} />
         <Radio name="relasjon-polaritet" value="negativ" label="Negativ — teksten sier at det IKKE gjelder (f.eks. «kan ikke instruere»)"
           checked={polaritet === 'negativ'} onChange={() => setPolaritet('negativ')} />
-      </Field>
+      </Fieldset>
 
       <div style={{ marginBottom: '0.75rem' }}>
         <RettskildeVelger rettskilder={rettskilder} value={hjemmelRettskildeId} onChange={setHjemmelRettskildeId}

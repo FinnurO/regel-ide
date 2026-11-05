@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link as RouterLink, useNavigate, useParams } from 'react-router';
 import {
-  Alert, Breadcrumbs, Button, Card, Divider, Field, Heading, Label, Link, Paragraph, Radio, Search,
+  Alert, Breadcrumbs, Button, Card, Divider, Field, Fieldset, Heading, Label, Link, Paragraph, Radio, Search,
   Select, Spinner, Table, Tag, Textarea, Textfield,
 } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
@@ -1087,7 +1087,7 @@ export default function NavnekandidatVeiviser() {
               <Heading level={2} data-size="sm" style={{ marginBottom: '0.35rem' }}>2. Hva slags ting er dette?</Heading>
               {/* [FJERNET, issue #310] Merknaden «Administrativ inndeling er bevisst ikke med i denne
                 * runden» — kategorien er slått inn i Område, som nå velges under begrep-sporet. */}
-              <Field data-size="sm" style={{ marginBottom: '0.75rem' }}>
+              <Fieldset aria-label="Hva slags ting er dette?" data-size="sm" style={{ marginBottom: '0.75rem' }}>
                 <Radio
                   name="slag"
                   label="Navngitt aktør"
@@ -1137,7 +1137,7 @@ export default function NavnekandidatVeiviser() {
                   onChange={() => setSlag('irrelevant')}
                   disabled={steg !== 2}
                 />
-              </Field>
+              </Fieldset>
 
               {/* [Ny, issue #298 AC3] Saksbehandlerens eksplisitte valg: lovspesifikt (dagens
                 * oppførsel, fortsatt default — AC5 «ingen regresjon») eller fast/nasjonalt gruppebegrep
@@ -1173,7 +1173,7 @@ export default function NavnekandidatVeiviser() {
                     samme organ uansett hvilken lov som nevner det. Finnes det alt et fast begrep med
                     nøyaktig denne teksten, kobles kandidaten til DET i stedet for å opprette en ny rad.
                   </Metatekst>
-                  <Field data-size="sm">
+                  <Fieldset aria-label="Lovspesifikt eller fast, nasjonalt begrep?" data-size="sm">
                     <Radio
                       name="gruppeScope" label="Lovspesifikt gruppebegrep for denne loven" value="lovspesifikt"
                       checked={gruppeScope === 'lovspesifikt'} onChange={() => setGruppeScope('lovspesifikt')}
@@ -1182,7 +1182,7 @@ export default function NavnekandidatVeiviser() {
                       name="gruppeScope" label="Fast, nasjonalt begrep" value="fast"
                       checked={gruppeScope === 'fast'} onChange={() => setGruppeScope('fast')}
                     />
-                  </Field>
+                  </Fieldset>
                 </div>
               )}
 
@@ -1199,12 +1199,12 @@ export default function NavnekandidatVeiviser() {
                     Valgfritt — f.eks. at «språkutviklingskommuner» selv inngår i «forvaltningsområdet
                     for samiske språk». Den overordnede gruppen må finnes som gruppebegrep fra før.
                   </Metatekst>
-                  <Field data-size="sm" style={{ marginBottom: '0.5rem' }}>
+                  <Fieldset aria-label="Er denne gruppen selv medlem av en annen gruppe?" data-size="sm" style={{ marginBottom: '0.5rem' }}>
                     <Radio name="gruppeAvGruppe" label="Nei" value="nei"
                       checked={!erGruppeAvGruppe} onChange={() => setErGruppeAvGruppe(false)} />
                     <Radio name="gruppeAvGruppe" label="Ja" value="ja"
                       checked={erGruppeAvGruppe} onChange={() => setErGruppeAvGruppe(true)} />
-                  </Field>
+                  </Fieldset>
                   {erGruppeAvGruppe && (
                     gruppebegrep === null ? (
                       <Spinner aria-label="Laster gruppebegrepene …" data-size="sm" />
@@ -1236,14 +1236,14 @@ export default function NavnekandidatVeiviser() {
                     Typen registreres som et eget utsagn med grunnlaget og statusen fra de to siste stegene. Velg «Vet ikke» om kilden ikke
                     avgjør det — da står typen som uavklart.
                   </Metatekst>
-                  <Field data-size="sm">
+                  <Fieldset aria-label="Hva slags aktør?" data-size="sm">
                     {(Object.keys(AKTORTYPE_VISNING) as Aktortype[]).map((a) => (
                       <Radio key={a} name="aktortype" label={AKTORTYPE_VISNING[a].tekst} description={AKTORTYPE_VISNING[a].forklaring} value={a}
                         checked={aktortypeValg === a} onChange={() => setAktortypeValg(a)} disabled={steg !== 2} />
                     ))}
                     <Radio name="aktortype" label="Vet ikke — la typen stå uavklart" value="uavklart"
                       checked={aktortypeValg === 'uavklart'} onChange={() => setAktortypeValg('uavklart')} disabled={steg !== 2} />
-                  </Field>
+                  </Fieldset>
                   {aktortypeValg === 'ordning' && (
                     <Field data-size="sm" style={{ maxWidth: '16rem', marginTop: '0.5rem' }}>
                       <Label>Ordningstype</Label>
@@ -1316,7 +1316,7 @@ export default function NavnekandidatVeiviser() {
                   && ' Velg deretter hvilken klasse teksten navngir den som medlem av.'}
               </Metatekst>
 
-              <Field data-size="sm" style={{ marginBottom: '0.75rem' }}>
+              <Fieldset aria-label="Hvilken aktør?" data-size="sm" style={{ marginBottom: '0.75rem' }}>
                 <Radio name="vei" label="Velg fra katalogen" value="eksisterende"
                   checked={vei === 'eksisterende'} onChange={() => setVei('eksisterende')} disabled={!aktiv('aktor')} />
                 <Radio name="vei" label="Søk i Brønnøysundregisteret og opprett" value="brreg"
@@ -1324,7 +1324,7 @@ export default function NavnekandidatVeiviser() {
                 <Radio name="vei" label="Opprett aktør med bare navn" value="kunNavn"
                   description="For aktører uten egen Brreg-registrering, f.eks. Tilsynsutvalget for dommere eller Kystvakten som del av Forsvaret."
                   checked={vei === 'kunNavn'} onChange={() => setVei('kunNavn')} disabled={!aktiv('aktor')} />
-              </Field>
+              </Fieldset>
 
               {vei === 'eksisterende' && (
                 <VirksomhetVelger
@@ -1500,7 +1500,7 @@ export default function NavnekandidatVeiviser() {
                 det står i et organisatorisk forhold til en annen, navngitt aktør.
               </Metatekst>
 
-              <Field data-size="sm" style={{ marginBottom: '0.75rem' }}>
+              <Fieldset aria-label="Utover navneform?" data-size="sm" style={{ marginBottom: '0.75rem' }}>
                 <Radio name="tillegg" label="Ingen" value="ingen"
                   checked={tillegg === 'ingen'} onChange={() => setTillegg('ingen')} disabled={!aktiv('tillegg')} />
                 <Radio
@@ -1521,7 +1521,7 @@ export default function NavnekandidatVeiviser() {
                   onChange={() => setTillegg('relasjon')}
                   disabled={!aktiv('tillegg')}
                 />
-              </Field>
+              </Fieldset>
 
               {tillegg === 'rolle' && (
                 <>
@@ -1613,14 +1613,14 @@ export default function NavnekandidatVeiviser() {
                     tomValgTekst="Velg aktør …"
                     style={{ marginBottom: '0.75rem', maxWidth: '28rem' }}
                   />
-                  <Field data-size="sm" style={{ marginBottom: '0.75rem' }}>
+                  <Fieldset aria-label="Hjemlet i denne rettskilden?" data-size="sm" style={{ marginBottom: '0.75rem' }}>
                     <Radio name="hjemletHer" label="Hjemlet i denne rettskilden"
                       description="Relasjonen fremgår faktisk av denne setningen."
                       checked={relasjonHjemletHer} onChange={() => setRelasjonHjemletHer(true)} />
                     <Radio name="hjemletHer" label="Ikke hjemlet her — oppgi kilden"
                       description="Relasjonen er kjent, men denne teksten er ikke den formelle hjemmelen."
                       checked={!relasjonHjemletHer} onChange={() => setRelasjonHjemletHer(false)} />
-                  </Field>
+                  </Fieldset>
                   {!relasjonHjemletHer && (
                     <Textfield data-size="sm" label="Kilde utenfor korpus (påkrevd)" placeholder="f.eks. lenke til org-kart"
                       value={relasjonKommentar} onChange={(e) => setRelasjonKommentar(e.target.value)}

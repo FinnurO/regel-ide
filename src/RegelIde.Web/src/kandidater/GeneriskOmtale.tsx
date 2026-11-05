@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link as RouterLink } from 'react-router';
 import {
-  Alert, Button, Divider, Field, Heading, Label, Link, Radio, Select, Spinner, Table, Tag, Textfield,
+  Alert, Button, Divider, Field, Fieldset, Heading, Label, Link, Radio, Select, Spinner, Table, Tag, Textfield,
 } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type {
@@ -182,23 +182,23 @@ export function GeneriskOmtale({
       )}
 
       <Divider style={{ margin: '0.75rem 0' }} />
-      <Field data-size="sm" style={{ marginBottom: '0.5rem' }}>
+      <Fieldset aria-label="Marker eller bind?" data-size="sm" style={{ marginBottom: '0.5rem' }}>
         <Radio name="generiskBind" label="Bare marker som generisk" value="nei" disabled={disabled}
           description="Omtalen kobles til den generiske navneformen, uten betydning for denne rettskilden ennå. Den står da som «generisk» i aktørsveipet."
           checked={verdi.bind === false} onChange={() => sett({ bind: false })} />
         <Radio name="generiskBind" label="Marker og bind for denne rettskilden" value="ja" disabled={disabled}
           description={herBindinger.length > 0 ? 'Det finnes alt en binding her — en ny må ha et annet paragrafspenn eller en annen periode.' : `Hva «${term}» betyr her.`}
           checked={verdi.bind === true} onChange={() => sett({ bind: true })} />
-      </Field>
+      </Fieldset>
 
       {verdi.bind && (
         <div style={{ display: 'grid', gap: '0.6rem', marginBottom: '0.6rem' }}>
-          <Field data-size="sm">
+          <Fieldset aria-label="Hva betyr ordet her?" data-size="sm">
             <Radio name="referentType" label="En aktør" value="virksomhet" checked={verdi.referentType === 'virksomhet'} disabled={disabled}
               onChange={() => sett({ referentType: 'virksomhet' })} />
             <Radio name="referentType" label="En klasse eller rolle («kommunen» som barnehagemyndighet)" value="begrep" disabled={disabled}
               checked={verdi.referentType === 'begrep'} onChange={() => sett({ referentType: 'begrep' })} />
-          </Field>
+          </Fieldset>
           {verdi.referentType === 'virksomhet' && (
             <VirksomhetVelger virksomheter={virksomheter} value={verdi.virksomhetId} onChange={(virksomhetId) => sett({ virksomhetId })}
               label="Betyr aktøren" tomValgTekst="Velg aktør …" style={{ maxWidth: '28rem' }} />
