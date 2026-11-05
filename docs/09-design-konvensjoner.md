@@ -1432,3 +1432,42 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
   samme endring og er dekket av testen under.
 - **Vakt:** `design/feltgrupper.test.ts` leser alle `.tsx`-filene (`import.meta.glob` med `?raw`) og feiler med fil og linje for hver
   `Radio` eller `Checkbox` i en `Field`. Regelen står i den rene modulen `design/feltgrupper.ts` (§17). Testen fant de 17 før rettingen.
+
+## 52. Den samlede aktørsiden (issue #441, Johanns avgjørelser 2026-10-30 og 2026-11-01)
+
+- **Fanene:** Oversikt (standard) | Grunndata | Navneformer | Område og tilhørighet (rettssubjekt) | Etter kategori | Kandidater | Farlig sone.
+  «Etter kategori» er den gamle «Myndighet & relasjoner» med tabellene per kategori, og beholdes. Fanen «Rettskilder» (fastsatt av) og
+  seksjonen «Ansvarlig for» er tatt ut: begge er merker og filtre i rettskildelista. Hver fane henter sitt eget når den åpnes; oversikten gjør
+  to kall (`/hjemmel` og `/rettskilder`) i stedet for sju.
+- **Oversikten** har tre kort i fast rekkefølge: «Hjemmel for aktøren» (`virksomhet/AktorHjemmelKort.tsx`), «Identitet» (§40) og «Andre
+  rettskilder aktøren står i» (`virksomhet/AktorRettskilder.tsx`).
+- **Hjemmelkortet er uthevet** med `Card data-color="accent" variant="tinted"` (første bruk av `variant="tinted"`). Det er det eneste uthevede
+  kortet på siden. Innhold: et `neutral`-merke for hvor regelen fant hjemmelen («Opprettelsesvedtak», «Navneform med hjemmel for aktøren»,
+  «Navneformens hjemmel er et organiseringsvedtak»), lenke til bestemmelsen, disposisjonstypene (`DisposisjonstypeTagger`, §41), sitatet i
+  kursiv, og en tabell med navneformen og R oppretter, hver med `KunnskapsstatusTag` og `GodkjenningTag` (§35). `hjemmel_art` vises som
+  `neutral`-merke («Oppretting» / «Navnevedtak»).
+- **«Godkjenn hjemmelen»** er én knapp (`POST /api/virksomheter/{id}/hjemmel/godkjenn`) med `Metatekst` som sier hva som godkjennes. Når
+  regelen ikke avgjør `hjemmel_art` (kilden er både oppretting og navneendring, eller bare omorganisering), står en radiogruppe i `Fieldset`
+  (§51) uten forhåndsvalg, og knappen er av til den er valgt. «Alle N utsagn om aktøren i vedtaket» står i en lukket `Details` med
+  `StrukturkantTabell` (§31) og «Godkjenn alle N» med to klikk (§32). Vedtaket står ikke på nytt i rettskildelista.
+- **Hullet:** `warning`-`Alert` «Hjemmel for aktøren mangler» (låst tekst, #441) med samme `Metatekst` som i aktørkøen (§50). «Mest omtalt i
+  (ikke hjemmel)» viser rettskilden, bestemmelsen, antall utsagn og taggede forekomster og sitatet. Står flere likt øverst, vises alle. «Det som
+  finnes» er en tabell med klasse (lenke, klassens hjemmel og to `KunnskapsstatusTag`, klassen og medlemskapet, som §39) og register («Registerdata»
+  `neutral`, eller kantens kunnskapsstatus).
+- **Rettskildelista:** filtre som `Chip.Radio` (som §50) med antall: Alle, Med utsagn, Venter, (Direkte, Via klasse når aktøren har treff via
+  klasse), Ansvarlig departement, Fastsatt av, Navnet tagget; tomme filtre vises ikke. Tabellen er kompakt med fast layout og paginert (§9).
+  Kolonnene er Rettskilde, Forhold (merkene), Komp., Plikt, Oppgave, Annet og Venter. Radtittelen er en `tertiary`-knapp med ▸/▾ og
+  `aria-expanded`; den utfoldede raden er en egen tabellrad over alle kolonnene.
+- **Fargeroller (låst per betydning, §15/§31):** «Ansvarlig dep. (Lovdata, sekundær)», «Fastsatt av», «Navnet tagget N» og «Via klasse» er
+  `neutral` (klassifiseringer). Kilde utenfor korpus er `warning` med kildetypen, som i `StrukturkantTabell`. Lovdatas «Ansvarlig departement» er
+  et merke for en sekundær kilde og aldri et utsagn: det teller ikke i noen kolonne.
+- **Utfoldet rad:** direkte utsagn i `StrukturkantTabell` med Godkjenn/Avvis per ventende utsagn og «Godkjenn alle N» (to klikk; bare aktørens egne
+  utsagn i rettskilden, `POST …/rettskilder/{rettskildeId}/godkjenn-alle`), «Åpne rettskilden», og `Metatekst` om navnetreff og navneformforslag som
+  venter (behandles på sine faner). Uten utsagn sier `Metatekst` hvor forholdet kommer fra. Via klasse: `Treffliste` fra §48 (status, svakeste
+  premiss, kjeden) og lenke til klassen der forslagene godkjennes.
+- **Gruppene for en kommune** står som en overskriftsrad «Direkte» / «Via klasse (avledet)» i tabellen. Hullene fra oppslaget via klasse vises bare
+  når aktøren har treff via klasse. Under tabellen står kontrollsummen som `Metatekst`: «N utsagn der aktøren er part: X i radene og Y i vedtaket
+  med hjemmelen» (AK 3, regelen i `virksomhet/rettskildeliste.ts` med vitest).
+- **Kaldsjekket 2026-11-05** i kopien `regelide_aktorside` (web 5373 mot API 5387): KD, Karasjok kommune og Fiskeri- og kystdepartementet, og
+  «Godkjenn hjemmelen» for KD.
+

@@ -96,6 +96,7 @@ builder.Services.AddScoped<FunnTjeneste>();
 builder.Services.AddScoped<UtgattAktorFunnregel>(); // [Ny, #429 PR 2] maskinregelen for utgåtte aktører, tørrkjøring som standard
 // [Ny, issue #440] Aktørkøen (bare lesing i PR 1) — se AktorkoTjeneste og AktorkoEndepunkter.
 builder.Services.AddScoped<AktorkoTjeneste>();
+builder.Services.AddScoped<AktorsideTjeneste>(); // [Ny, issue #441] den samlede aktørsiden (lesing + «Godkjenn hjemmelen»)
 builder.Services.AddScoped<AktorkoSkrivTjeneste>(); // [Ny, issue #440 PR 2] skrivingen i aktørkøen, én transaksjon per handling
 builder.Services.AddScoped<BegrepsoppdagelseSveipTjeneste>();
 builder.Services.AddScoped<VilkarregisterTjeneste>();
@@ -1771,6 +1772,7 @@ kildefeil.MapPost("/{id:guid}/avvis", async (Guid id, AvvisKildefeilRequest body
 app.MapFunnEndepunkter();
 // [Ny, issue #440] Aktørkøen — endepunktene står i AktorkoEndepunkter.cs.
 app.MapAktorkoEndepunkter();
+app.MapAktorsideEndepunkter(); // [Ny, issue #441]
 
 var lovdataResynk = app.MapGroup("/api/administrasjon/lovdata-resynk").WithOpenApi();
 
