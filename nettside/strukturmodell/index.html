@@ -91,6 +91,7 @@
         <li><a href="#departementet">Hvem er «departementet»?</a></li>
         <li><a href="#nytt-pilot">Etter piloten på barnehageloven</a></li>
         <li><a href="#aktorkoen">Aktørkøen</a></li>
+        <li><a href="#hjemmel-for-aktoren">Hjemmel for aktøren</a></li>
       </ul>
     </div>
   </section>
@@ -846,6 +847,33 @@
         <p>Spørsmålet er om pilotens utsagn nå har en aktør å høre til. Av 110 utsagn som de faste mønstrene fant i de 20 pilotkildene, manglet 31 en aktør. De 31 gjaldt 19 ulike navn. I en testkopi av databasen ble de 19 navnene opprettet gjennom godkjenningen i køen. Etterpå manglet <strong>0 av 110</strong> en aktør.</p>
       </div>
       <p class="struktur-forbehold"><strong>Forbehold:</strong> målingen er gjort i en testkopi. I den delte databasen er navnene ikke opprettet ennå. Det skal et menneske gjøre i køen. I testkopien ble alle 19 opprettet som aktører med «hjemmel mangler», fordi målingen spør om navnet finnes, ikke hva det er. Utsagnene fra språkmodellen er ikke målt. Bygget i <a href="https://github.com/FinnurO/regel-ide/issues/440" target="_blank" rel="noopener">#440</a> (<a href="https://github.com/FinnurO/regel-ide/pull/444" target="_blank" rel="noopener">PR #444</a> og <a href="https://github.com/FinnurO/regel-ide/pull/453" target="_blank" rel="noopener">PR #453</a>).</p>
+    </div>
+  </section>
+
+  <section class="section" id="hjemmel-for-aktoren">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Nytt 5. november 2026 · Aktørsiden <span class="pill" data-tone="success">Bygget</span></span>
+        <h2>Hvorfor finnes aktøren?</h2>
+        <p>Aktørsiden samles rundt ett spørsmål: hvilken bestemmelse er grunnen til at aktøren finnes? Svaret står øverst. De andre rettskildene aktøren står i, kommer under, som relasjoner.</p>
+      </div>
+      <div class="prose">
+        <h3>Hjemmelen finnes etter en fast regel</h3>
+        <p>Regelen prøver tre steder, i denne rekkefølgen:</p>
+        <ol>
+          <li>Et vedtak som sier at aktøren opprettes, for eksempel en kongelig resolusjon om departementsstrukturen.</li>
+          <li>Et navn på aktøren som er merket med at bestemmelsen oppretter aktøren eller gir den navnet.</li>
+          <li>Det gjeldende navnet, når det står i et vedtak om oppretting, navneendring eller omorganisering.</li>
+        </ol>
+        <p>Finner regelen ingenting, står det «Hjemmel for aktøren mangler». Ingenting gjettes inn i stedet. En bestemmelse der navnet bare står, er ikke grunnen til at aktøren finnes.</p>
+        <p>Kunnskapsdepartementet er et eksempel. Hjemmelen er den kongelige resolusjonen fra 16. desember 2005, punkt 1: «Opprettelse av … Kunnskapsdepartementet (KD).» Én godkjenning bekrefter både navnet og at vedtaket oppretter departementet.</p>
+        <h3>Når hjemmelen mangler</h3>
+        <p>For Karasjok kommune mangler hjemmelen. Siden viser da hvor kommunen står mest, men sier at dette ikke er hjemmel. Bare koblinger i modellen og merkede forekomster av navnet teller. Ord i fritekst teller ikke, og det gjør heller ikke regler som gjelder alle kommuner. Derfor er svaret forskriften om samiske språk, der Karasjok er en språkutviklingskommune. Politidistriktforskriften teller ikke, fordi Karasjok der bare er et stedsnavn.</p>
+        <h3>De andre rettskildene: én rad hver</h3>
+        <p>Før sto Kunnskapsdepartementets koblinger i én liste på 449 rader. Nå har hver rettskilde én rad, med antall kompetanser, plikter, oppgaver og andre koblinger, og hvor mange forslag som venter. At Lovdata oppgir departementet som ansvarlig, vises som et merke. Det er en opplysning fra Lovdata, ikke noe lovteksten sier. Alle 65 koblingene telles én gang hver: 50 står i radene og 15 i vedtaket med hjemmelen. For en kommune står det som gjelder via klassen «kommune», for seg, merket som avledet.</p>
+        <p><strong>Målt i en testkopi 5. november:</strong> 14 av 538 aktører som finnes i dag, har en hjemmel etter regelen. Resten viser hullet.</p>
+        <p>Oppgaver som en kommune har via klassen «kommune», vises ennå ikke på kommunens side. Det kommer i en egen sak.</p>
+      </div>
     </div>
   </section>
 
