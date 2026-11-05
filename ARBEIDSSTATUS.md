@@ -41,6 +41,12 @@ dokumentasjon (primaer|sekundaer), begge påkrevd uten hjemmel og NULL med.
 
 **Rekkefølge for migrasjoner (ikke stable, §15):** #310 → #311 → #330 → #312 → #316 (Johann 2026-10-08: #330 før #312).
 
+## Klassene fylkeskommune og departement #442 (sak 1 av 3, startet 2026-11-05)
+
+| Sak | Gren | Status | Verifisert hvordan |
+|---|---|---|---|
+| #442 klassene fylkeskommune og departement, «minst hjemmel eller medlemsregel», arkivering av «kommunene» | `klasser-fylkeskommune-departement` | **PR åpen, venter på Johann (§19). Ikke flettet.** Migrasjonen `KlasserFylkeskommuneOgDepartement` (bare CHECK) og skrivingen (`POST /api/klasser/fylkeskommune-departement?skriv=true`) er IKKE kjørt mot delt `regelide`; hovedøkta kjører dem etter fletting. Tørrkjøringstallene mot delt base (bare SELECT): 2 klasser, 14 territoriekanter, 7 medlemskanter, 1 arkivering | `KlasseoppsettTjenesteTests` og de berørte Data-testene lokalt, Api-suiten lokalt (DI), tsc -b. Kopien `regelide_klasser`: skrevet to ganger (idempotent), 14 og 16 medlemmer, kaldsjekk i nettleseren (5387 + 5473), kopien slettet |
+
 ## Aktørkøen #440 (startet 2026-10-31)
 
 | PR | Gren | Status | Verifisert hvordan |

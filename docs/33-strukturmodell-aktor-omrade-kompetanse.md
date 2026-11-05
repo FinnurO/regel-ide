@@ -1996,6 +1996,81 @@ En `hjemmel_art` som alt er satt (de 13 navnevedtakene), beholdes. Feiler et ste
   en hjemmel.
 - Utdanningsdirektoratet finnes ikke som aktør i basen (står i aktørkøen), og ble ikke åpnet.
 
+### 5.18 Klassene fylkeskommune og departement (#442, modell B, bygget 2026-11-05)
+
+**Hvorfor.** Johanns avgjørelse 2026-11-05 etter beslutningsnotatet «Norge, staten og forvaltningsnivåene»: modell B («to lag»). Territoriet
+(fylker, kommuneområder) og rettssubjektene (fylkeskommunene, kommunene) er atskilt og bundet med territoriekanter (A), og klassene ligger over
+rettssubjektene. Saken er sak 1 av 3. Norge, staten og Svalbard er sak 2; navneform for områder, avgrensning på M-kanter, Oslo kommune og
+Statsministerens kontor er sak 3 (#464). Spørsmålene saken flytter er S1 (hvorfor finnes klassen, og hvem er medlem?) og S6 (gitt en
+fylkeskommune eller et departement: hva gjelder via klassen?).
+
+**[LÅST, #442] Klasser må ha minst hjemmel eller medlemsregel, og kan ha begge.** `Klassegrunnlag.Vurder` (ren funksjon): `begge` | `hjemmel` |
+`medlemsregel` | `mangler`. Hjemmel er `lovreferanse_eid` (eller kilde utenfor korpus på begrepet). Hullet vises bare ved `mangler`, i
+klassevisningen (`GET /api/klasser/{id}/grunnlag`, docs/09 §53) og i aktørsidens hjemmelkort («Det som finnes», `DetSomFinnes.Grunnlag`).
+Grunnloven er forankring og står i begrunnelsen, aldri som hjemmel (notatet avsnitt 2, juristrunden N7/N8).
+
+| Klasse | Hjemmel | Medlemsregel (`Klasseregler`) | Medlemmer |
+|---|---|---|---|
+| kommune (#384) | kl. § 2-1 første ledd | `omraderegister_kommune` | 357 |
+| fylkeskommune | kl. § 2-1 første ledd (tekstfunn). Forankring: Grl. § 49 andre ledd og § 72 tredje ledd bokstav b | `omraderegister_fylkeskommune`, kilde kl. § 3-1 første ledd andre punktum og fjerde ledd | 14 |
+| departement | ingen (ingen lovdefinisjon; Grunnloven bruker ikke ordet). Forankring: Grl. § 12 andre ledd og § 28 | `organiseringsvedtak_departement`, kilde organiseringsvedtakene | 16 |
+
+CHECK `ck_begreper_medlemskapsregel` er utvidet med de to nye reglene (migrasjonen `KlasserFylkeskommuneOgDepartement`; `Down` nekter når en
+klasse bruker dem). Migrasjonen skriver ingen data.
+
+**Regelen for fylkeskommunen** (`KlassemedlemskapTjeneste.FylkeskommuneAsync`, juristrunden N8): for hvert gjeldende fylke unntatt Oslo, aktøren
+som har forvaltningsnivå fylkeskommune, aktørtype rettssubjekt, lever, og har `A har_ansvarsomrade` til fylket med hjemmel i kl. § 3-1 første
+ledd. Nøyaktig én → medlem, med kanten som premiss; ingen eller flere → hull. Statsforvalteren har også kant til fylkene, men verken nivået,
+aktørtypen eller hjemmelen, og blir ikke medlem. Oslo står i `Unntatt` med lovteksten, ikke som hull. Lovspesifikke medlemmer (Oslo kommune
+etter opplæringslova § 28-2 sjette ledd og andre) skrives ikke før oppslagene leser avgrensningen på M-kanter (#464).
+
+**Territoriekanten fylkeskommune → fylke** (juristrunden N9): hjemmel kl. § 3-1 første ledd, `tekstfunn`, oppdagelseskilde
+`monster:fylkeskommune-navneregel`, `maskinelt_foreslatt`. Paret finnes med navneregelen i fjerde ledd («Fylkeskommunen skal ha samme navn som
+fylket»): fylkeskommunen for fylket «X» er aktøren med forvaltningsnivå fylkeskommune og registernavn eller navneform «X fylkeskommune», uten
+forskjell på store og små bokstaver (Brreg skriver «AGDER FYLKESKOMMUNE»). Uten nøyaktig ett treff lages ingen kant (#345-mønsteret).
+Registeret identifiserer partene, men er ikke kilden for kanten.
+
+**Regelen for departementene** (`KlassemedlemskapTjeneste.DepartementAsync`, juristrunden N12): levende aktører (ikke nedlagt, ikke erstattet)
+med (a) livsløpets R oppretter (oppdagelseskilde `monster:livslop*`, docs/33 §5.9; en manuell R oppretter teller ikke, fordi Kongen i statsråd
+også oppretter utvalg og råd), eller (b) en M-kant til klassen uten avgrensning. Premissene prøves sammen, og det sterkeste vinner. Hull: en
+levende aktør med navneform hjemlet i navnevedtaket uten noen av premissene. For de 9 med oppretterkant er medlemskapet `avledet` (kanten er
+normalisering, men et forslag). For de 7 uten er premisset en M-kant, merket `fortolkning` (vedtaket forutsetter departementet, men oppretter
+det ikke):
+- Finans-, Justis- og beredskaps-, Kommunal- og distrikts- og Landbruks- og matdepartementet: hjemmel i navnevedtaket i korpus (navneformen fra
+  §5.10 med `hjemmel_art = navnevedtak`), oppdagelseskilde `monster:klasse-departement-navnevedtak`, `maskinelt_foreslatt`.
+- Utenriks-, Samferdsels- og Forsvarsdepartementet: kgl.res. utenfor korpus (`kgl_res`, `sekundaer`), med sitat og lenke fra
+  `Seed/departementer-kgl-res-442.json` (slått opp på organisasjonsnummeret), `manuelt_foreslatt`. Ingen primærkilde ble funnet i åpne kilder;
+  regjeringen.no sine historiske artikler er sekundærkilden, og sitatene er kontrollert ordrett mot sidene 2026-11-05. UD: «resolusjon av
+  7. juni 1905» (siden sier ikke «kongelig»), formelt opprettet 1. desember 1905. SD: kgl.res. 22. februar 1946 (navnebytte fra
+  Arbeidsdepartementet). FD: kgl.res. 30. juli 1885, knyttet med «Samtidig» (ikke uttrykkelig samme resolusjon).
+Statsministerens kontor er ikke medlem etter den alminnelige regelen (statsansatteloven § 2 tredje ledd); en M-kant med avgrensning
+(karanteneloven § 1) teller ikke i regelen og er sak 3.
+
+**[ENDRET] `UtledetMedlem`:** `Kommunenummer` heter `Omradekode`, området er valgfritt (departementene har ikke noe), og hvert medlem har
+`Premissart` (territoriekant | oppretterkant | medlemskant) og sitt eget svar etter svakeste premiss (§4.6). Det samlede svaret for kommunene er
+uendret (`avledet`); for de nye klassene er det det svakeste premissets svar (`fortolkning` for departement). Kompetanse via klasse (#418) tar et
+medlem uten område uten territoriet som mellomledd.
+
+**Skrivingen** (`KlasseoppsettTjeneste`, `POST /api/klasser/fylkeskommune-departement[?skriv=true]`): de to klassene (`manuelt_foreslatt`), 14
+territoriekanter, 7 M-kanter, og arkiveringen av klassen «kommunene». Alt nytt er forslag. Tørrkjøring er standard og gjør det samme i en
+transaksjon som rulles tilbake, så tallene er de skrivingen gir. Idempotent: en ny kjøring gir `finnes`, og et avvist forslag foreslås ikke på
+nytt (`avvist`). Skrivingen kontrollerer først at de tre leddene i kommuneloven står i én gjeldende rettskilde med ordlyden avgjørelsen bygger på
+(også «unntatt Oslo»); ellers skrives ingenting. Kjøres av hovedøkta etter fletting.
+
+**Klassen «kommunene» er arkivert** (juristrunden N18): ordet i reindriftsloven § 2 andre ledd er en del av tittelen på lov 21. desember 1984
+nr. 101, og klassen har 0 medlemmer. Det fantes ingen arkiveringsvei for en klasse; den følger #310 (`entitetsstatus = 'arkivert'`, aldri DELETE)
+og avvisningen av en navneform (#385: `godkjenning = avvist` med begrunnelse). Taggen arkiveres, og M-kanten «kommunene» → «kommune»
+(godkjent, kan ikke avvises) settes `foreldet`. Hver har en proveniensrad med de gamle verdiene. Klassen nektes arkivert hvis den har medlemmer.
+
+**Målt 2026-11-05.** Den delte basen, bare SELECT (`torrkjoring-delt-base.sql` i PR-en): 14 av 14 fylker har nøyaktig ett treff på navneregelen,
+0 kanter finnes; 0 klasser med de nye reglene og 0 konflikter; 9 levende departementer med R oppretter, 4 med navnevedtak, 3 med orgnr fra
+kgl.res.-fila; «kommunene» har 1 tagg, 1 kant og 0 medlemmer; kommunelovens tre ledd står én gang. I kopien `regelide_klasser` (migrasjonen, så
+skrivingen to ganger): tørrkjøring og første skriving 2 klasser, 14 territoriekanter, 7 medlemskanter, 1 arkivering; fylkeskommune 14 medlemmer,
+0 hull; departement 16 medlemmer, 0 hull; andre skriving bare `finnes`. Aktørkøen i kopien etterpå: kjent klasse 75 → 127 («departement» 32,
+«fylkeskommune» 20), bøyningsform 123 → 170 («fylkeskommunen» 34, «fylkeskommuner» 26, «fylkeskommunene» 13, «departementene» 6), aktørkøen
+393 → 294 forekomster. «fylkeskommunen» rutes som bøyningsform av klassen og arver ingen standardregel (§5.16 regel 4); en fjerde standardregel
+er Johanns valg (§5.10).
+
 ### 5.6 Konvertering av eksisterende data
 
 | Fra | Til | Automatisk? |
