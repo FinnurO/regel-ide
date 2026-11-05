@@ -93,11 +93,19 @@ public sealed record Rutingssvar(
 /// <summary>Én forekomst i køen: én ventende navnekandidat.</summary>
 /// <param name="Gruppe">[Ny, #440 PR 2] <see cref="NavnekandidatEntitet.AktorkoGruppe"/>: navnet et menneske har lagt forekomsten under («skill
 /// ut» / «ta med»). Null = beregnet av regelen.</param>
+/// <param name="Frase">[Ny, #440, Johanns avgjørelse 2026-11-05] Navnet med forleddet foran slik det står i teksten («felles samarbeidsutvalg»),
+/// når forleddssperren slo til for forekomsten (<see cref="Aktorkoregler.SperretFrase"/>). Null = ingen sperre; da er navnet bare
+/// <see cref="Tekst"/>.</param>
 public sealed record KoForekomst(
     Guid NavnekandidatId, string Tekst, Guid RettskildeId, string NodeEid, int Start, int Slutt, string Kategori, string? Oppdagelseskilde,
-    string? Konfidens, string? Gruppe = null)
+    string? Konfidens, string? Gruppe = null, string? Frase = null)
 {
-    public string Normalisert { get; } = Aktorkoregler.Normaliser(Tekst);
+    /// <summary>Navnet forekomsten står for, slik det står i teksten: frasen med forleddet når sperren slo til, ellers teksten.</summary>
+    public string Navnetekst => Frase ?? Tekst;
+
+    /// <summary>[ENDRET, #440, 2026-11-05] Regnes av <see cref="Navnetekst"/>, ikke bare <see cref="Tekst"/>, og ved hvert kall (ikke lagret
+    /// ved konstruksjon): ellers ville <c>with { Frase = … }</c> beholdt den gamle verdien.</summary>
+    public string Normalisert => Aktorkoregler.Normaliser(Navnetekst);
 }
 
 /// <summary>Én skrivemåte av en variant, slik den står i teksten («Foreldrerådet» og «foreldrerådet» er to skrivemåter av samme ord).</summary>
@@ -251,8 +259,13 @@ public static partial class Aktorkoregler
     /// <item><b>Samme ord:</b> <see cref="Normaliser"/>. «Foreldrerådet» = «foreldrerådet».</item>
     /// <item><b>Bøyning:</b> <see cref="FlerordsBoyning"/>. Sammenslåingen er transitiv (en sammenhengende kjede av bøyninger blir ett navn).</item>
     /// </list>
+    /// [Ny, Johanns avgjørelse 2026-11-05, #440] <b>Forleddssperren gjelder også her</b>, med samme regel som hjemmelregelen: en forekomst
+    /// der sperren slo til (<see cref="KoForekomst.Frase"/>, regnet av <see cref="SperretFrase"/>), grupperes som hele frasen («felles
+    /// samarbeidsutvalg»). Frasen har et ord mer enn «samarbeidsutvalget», så regel 2 slår dem aldri sammen, og den står som eget navn.
+    /// <para>
     /// Det tredje nivået, genitivforledd, er bare et forslag (<see cref="FinnGenitivforslag"/>): «domstolens leder» slås aldri sammen med
     /// «leder».
+    /// </para>
     /// <para>
     /// Resultatet avhenger ikke av rekkefølgen på inndataene: komponentene er de samme uansett, nøkkelen er valgt etter antall og ordinal
     /// rekkefølge, og lista er sortert på antall forekomster og så nøkkel.
@@ -342,9 +355,11 @@ public static partial class Aktorkoregler
         return new Kogruppe(nokkel, varianter[0].Skrivemater[0].Tekst, varianter, alle, manuell);
     }
 
-    /// <summary>Skrivemåtene, vanligste først. Likhet: liten forbokstav først (en stor forbokstav er ofte bare setningsstart), så ordinal.</summary>
+    /// <summary>Skrivemåtene, vanligste først. Likhet: liten forbokstav først (en stor forbokstav er ofte bare setningsstart), så ordinal.
+    /// [ENDRET, #440, 2026-11-05] Av <see cref="KoForekomst.Navnetekst"/>: med forleddet når sperren slo til, så «felles samarbeidsutvalg» kan
+    /// godkjennes som det står i teksten.</summary>
     private static List<Skrivemate> Skrivemater(IEnumerable<KoForekomst> forekomster) => forekomster
-        .GroupBy(f => FlereMellomrom().Replace(f.Tekst.Trim(), " "), StringComparer.Ordinal)
+        .GroupBy(f => FlereMellomrom().Replace(f.Navnetekst.Trim(), " "), StringComparer.Ordinal)
         .Select(g => new Skrivemate(g.Key, g.Count()))
         .OrderByDescending(s => s.Forekomster).ThenBy(s => s.Tekst.Length > 0 && char.IsUpper(s.Tekst[0])).ThenBy(s => s.Tekst, StringComparer.Ordinal)
         .ToList();
@@ -365,6 +380,9 @@ public static partial class Aktorkoregler
             {
                 var ordene = v.Normalisert.Split(' ');
                 if (ordene.Length < 2 || !ordene[0].EndsWith('s')) continue;
+                // [Ny, #440, 2026-11-05] En variant forleddssperren har skilt ut («felles samarbeidsutvalg»), er avgjort som et annet navn. «felles»
+                // ender på «s» uten å være genitiv, og et forslag om å slå den sammen igjen ville motsagt sperren.
+                if (g.Forekomster.Where(f => f.Normalisert == v.Normalisert).All(f => f.Frase is not null)) continue;
                 var etterledd = string.Join(' ', ordene[1..]);
                 var mal = gruppeFor
                     .Where(x => x.Value != g.Nokkel && (x.Key == etterledd || FlerordsBoyning(x.Key, etterledd) is not null))
@@ -496,11 +514,30 @@ public static partial class Aktorkoregler
 
     private static (int Pos, string Tekst, bool Ordrett, string? Sperret)? FinnKjerne(string setning, int fra, List<string[]> former)
     {
+        (int, string, bool, string?)? sperret = null;
+        foreach (var ledd in Fraseledd(setning, fra))
+        {
+            if (Kjerne(setning, ledd, former) is { } k)
+            {
+                if (k.Sperret is null) return k;
+                sperret ??= k;
+            }
+        }
+        return sperret;
+    }
+
+    /// <summary>
+    /// [Ny, #440, 2026-11-05: skilt ut av <c>FinnKjerne</c> uten endring i oppførselen, så grupperingen bruker nøyaktig samme frase som
+    /// hjemmelregelen] Leddene i nominalfrasen som begynner ved <paramref name="fra"/> (rett etter uttrykket): fram til første ord i
+    /// <see cref="Frasestopp"/>, et skilletegn eller setningsslutt, delt ved «og»/«eller» med valgfri ny artikkel. Et tomt ledd eller et ledd
+    /// med mer enn <see cref="MaksOrdPerLedd"/> ord avslutter frasen og gis ikke ut.
+    /// </summary>
+    private static IEnumerable<List<Match>> Fraseledd(string setning, int fra)
+    {
         // Tokens etter uttrykket: ord, eller ett tegn som ikke er en bokstav eller mellomrom (skilletegn og tall avslutter frasen).
         var tokens = new List<Match>();
         for (var m = Frasetokens().Match(setning, fra); m.Success; m = m.NextMatch()) tokens.Add(m);
         var ledd = new List<Match>();
-        (int, string, bool, string?)? sperret = null;
         var i = 0;
         while (true)
         {
@@ -509,14 +546,10 @@ public static partial class Aktorkoregler
             var deler = !slutt && Sideordning.Contains(ord!);
             if (slutt || deler)
             {
-                if (ledd.Count == 0 || ledd.Count > MaksOrdPerLedd) return sperret;
-                if (Kjerne(setning, ledd, former) is { } k)
-                {
-                    if (k.Sperret is null) return k;
-                    sperret ??= k;
-                }
-                if (slutt) return sperret;
-                ledd.Clear();
+                if (ledd.Count == 0 || ledd.Count > MaksOrdPerLedd) yield break;
+                yield return ledd;
+                if (slutt) yield break;
+                ledd = [];
                 i++;
                 if (i < tokens.Count && Artikler.Contains(tokens[i].Value.ToLowerInvariant())) i++;
                 continue;
@@ -524,6 +557,43 @@ public static partial class Aktorkoregler
             ledd.Add(tokens[i]);
             i++;
         }
+    }
+
+    /// <summary>
+    /// [Ny, Johanns avgjørelse 2026-11-05, #440] Forleddssperren for grupperingen, med samme regel som hjemmelregelen: står forekomsten
+    /// (<paramref name="start"/>–<paramref name="slutt"/> i <paramref name="tekst"/>) som kjernen i et ledd i en nominalfrase et
+    /// <see cref="Opprettelsesuttrykk"/> styrer, og står det et ord foran den i leddet som ikke er i <see cref="TillatteForledd"/>, er det et
+    /// annet navn. Svaret er da leddet slik det står i teksten, fra det første ordet som sperrer («felles samarbeidsutvalg»; tallord foran
+    /// tas ikke med). Ellers null.
+    /// <para>
+    /// <b>Avgrensning:</b> sperren gjelder bare der hjemmelregelen leser en frase, altså etter «skal … ha et» og «det skal være (et)». Andre
+    /// steder vet regelen ikke hvor frasen begynner (er «skal» i «skal samarbeidsutvalget» et forledd?), og da gjettes det ikke (CLAUDE.md §8).
+    /// Målt i bhl. § 5 første ledd: «det skal være felles samarbeidsutvalg».
+    /// </para>
+    /// </summary>
+    public static string? SperretFrase(string tekst, int start, int slutt)
+    {
+        foreach (var (s0, setning) in Setninger(tekst))
+        {
+            if (start < s0 || slutt > s0 + setning.Length) continue;
+            foreach (var (_, monster) in Opprettelsesuttrykk)
+            {
+                foreach (Match m in monster.Matches(setning))
+                {
+                    foreach (var ledd in Fraseledd(setning, m.Index + m.Length))
+                    {
+                        var siste = ledd[^1];
+                        if (s0 + siste.Index + siste.Length != slutt) continue;
+                        var kjerne = ledd.FindIndex(t => s0 + t.Index == start);
+                        if (kjerne <= 0) continue;
+                        var forste = ledd.FindIndex(t => !TillatteForledd.Contains(t.Value.ToLowerInvariant()));
+                        if (forste < 0 || forste >= kjerne) return null;
+                        return setning[ledd[forste].Index..(siste.Index + siste.Length)];
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     private static (int Pos, string Tekst, bool Ordrett, string? Sperret)? Kjerne(string setning, List<Match> ledd, List<string[]> former)
@@ -736,7 +806,38 @@ public sealed class AktorkoTjeneste(RegelIdeDbContext db)
             .Select(k => new KoForekomst(k.Id, k.ForeslattTekst, k.RettskildeId, k.NodeEid, k.StartOffset, k.EndOffset, k.Kategori,
                 k.OppdagelsesKilde, k.Konfidens, k.AktorkoGruppe))
             .OrderBy(f => f.NavnekandidatId).ToList();
-        return (forekomster, forekomster.Select(f => Aktorkoregler.Ruter(tabell, f.Tekst, f.RettskildeId)).ToList());
+        var svar = forekomster.Select(f => Aktorkoregler.Ruter(tabell, f.Tekst, f.RettskildeId)).ToList();
+        await SettForleddssperreAsync(forekomster, svar, ct);
+        return (forekomster, svar);
+    }
+
+    /// <summary>
+    /// [Ny, Johanns avgjørelse 2026-11-05, #440] Forleddssperren i grupperingen (<see cref="Aktorkoregler.SperretFrase"/>): for forekomstene i
+    /// aktørkøen leses leddet de står i, og der sperren slår til, får forekomsten frasen («felles samarbeidsutvalg»). Rutingen er uendret; den
+    /// er gjort på teksten før dette. Bare når teksten fortsatt har navnet på posisjonen sveipet fant (samme vakt som utdraget i
+    /// <see cref="DetaljAsync"/>); ellers er teksten endret, og en frase ville vært gjettet.
+    /// </summary>
+    private async Task SettForleddssperreAsync(List<KoForekomst> forekomster, List<Rutingssvar> svar, CancellationToken ct)
+    {
+        var iKo = Enumerable.Range(0, forekomster.Count).Where(i => svar[i].Rute == Aktorkoruter.Aktorko).ToList();
+        if (iKo.Count == 0) return;
+        var ider = iKo.Select(i => forekomster[i].RettskildeId).Distinct().ToList();
+        var eids = iKo.Select(i => forekomster[i].NodeEid).Distinct().ToList();
+        // Samme grove forfilter som hjemmelnodene: sperren kan bare slå til der et av uttrykkene står.
+        var noder = (await db.RettskildeNoder
+                .Where(n => ider.Contains(n.RettskildeId) && eids.Contains(n.Eid) && n.Entitetsstatus == "gjeldende" && n.Tekst != null
+                            && n.Tekst.ToLower().Contains("skal") && (n.Tekst.ToLower().Contains("ha e") || n.Tekst.ToLower().Contains("være")))
+                .Select(n => new { n.RettskildeId, n.Eid, n.Tekst })
+                .ToListAsync(ct))
+            .GroupBy(n => (n.RettskildeId, n.Eid)).ToDictionary(g => g.Key, g => g.First().Tekst!);
+        foreach (var i in iKo)
+        {
+            var f = forekomster[i];
+            if (!noder.TryGetValue((f.RettskildeId, f.NodeEid), out var tekst)) continue;
+            if (f.Start < 0 || f.Slutt > tekst.Length || f.Slutt <= f.Start
+                || !string.Equals(tekst[f.Start..f.Slutt], f.Tekst, StringComparison.OrdinalIgnoreCase)) continue;
+            if (Aktorkoregler.SperretFrase(tekst, f.Start, f.Slutt) is { } frase) forekomster[i] = f with { Frase = frase };
+        }
     }
 
     private static List<Kogruppe> KoGrupper(List<KoForekomst> forekomster, List<Rutingssvar> svar) =>

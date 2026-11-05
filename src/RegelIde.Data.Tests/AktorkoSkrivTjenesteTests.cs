@@ -167,6 +167,50 @@ public class AktorkoSkrivTjenesteTests
         Assert.StartsWith("Klassen «", kvittering.Linjer[0]);
     }
 
+    /// <summary>[Ny, Johanns avgjørelse 2026-11-05, #440] «Hvilke navn står i køen når loven sier "det skal være felles ‹utvalg›"?» Forleddssperren
+    /// gjelder i grupperingen også: forekomsten i § 1 blir eget navn med hele frasen, og kan godkjennes slik den står i teksten.</summary>
+    [Fact]
+    public async Task Forleddssperren_gir_felles_utvalg_eget_navn_i_koen_og_det_kan_godkjennes()
+    {
+        await using var db = _fixture.NyDbContext();
+        var utvalg = Unik("testutvalg");
+        var bestemt = utvalg + "et";
+        var tekster = new[]
+        {
+            $"Kommunen kan bestemme at det skal være felles {utvalg} for kommunal barnehage og grunnskole.",
+            $"{Stor(bestemt)} skal få uttale seg.",
+            $"Barnehagen skal legge saken fram for {bestemt}.",
+        };
+        var (lov, eider) = await RettskildeAsync(db, tekster);
+        var felles = Kandidat(db, lov, eider[0], tekster[0], utvalg);
+        Kandidat(db, lov, eider[1], tekster[1], Stor(bestemt));
+        Kandidat(db, lov, eider[2], tekster[2], bestemt);
+        await db.SaveChangesAsync();
+        var ko = new AktorkoTjeneste(db);
+
+        var su = await ko.DetaljAsync(bestemt);
+        Assert.NotNull(su);
+        Assert.Equal((2, 1), (su.Forekomster, su.Varianter.Count)); // ikke tre: «felles ‹utvalg›» er ikke en bøyning av ‹utvalg›et
+        Assert.Empty(su.Hjemmelforslag);
+        Assert.Contains("forleddssperre", Assert.Single(su.SperredeTreff!).Sperret); // sperren i hjemmelregelen vises som før
+
+        var fs = await ko.DetaljAsync($"felles {utvalg}");
+        Assert.NotNull(fs);
+        Assert.Equal(($"felles {utvalg}", 1), (fs.Navn, fs.Forekomster));
+        Assert.Equal(felles.Id, fs.PerRettskilde.Single().Forekomster.Single().NavnekandidatId);
+        var forslag = Assert.Single(fs.Hjemmelforslag);
+        Assert.Equal((eider[0], $"felles {utvalg}", Strukturkanter.Tekstfunn), (forslag.Eid, forslag.Treff, forslag.Kunnskapsstatus));
+        Assert.Contains((await ko.KoAsync()).Navn, r => r.Nokkel == $"felles {utvalg}");
+        Assert.Null(await ko.DetaljAsync(utvalg)); // ordet alene står ikke i køen lenger
+
+        var kvittering = await Tjeneste(db).GodkjennAsync($"felles {utvalg}", new AktorkoGodkjenning(
+            Nodetyper.Klasse, $"felles {utvalg}", Aktorkohjemmel.Forslag, lov, eider[0], Strukturkanter.FagligVurdert, ForventetForekomster: 1), "test");
+        var begrep = await db.Begreper.SingleAsync(b => b.Id == kvittering!.BegrepId);
+        Assert.Equal(($"felles {utvalg}", Nodetyper.Klasse), (begrep.Term, begrep.Begrepskategori));
+        Assert.Equal("Godkjent", (await db.Navnekandidater.AsNoTracking().SingleAsync(k => k.Id == felles.Id)).Status);
+        Assert.Equal(2, (await ko.DetaljAsync(bestemt))!.Forekomster); // de to andre står fortsatt
+    }
+
     [Theory]
     [InlineData(null, "forslag", Strukturkanter.Godkjent, "Velg hva navnet er")]
     [InlineData("aktor", null, Strukturkanter.Godkjent, "Velg hjemmel")]

@@ -295,6 +295,86 @@ public class AktorkoreglerTests
         Assert.Empty(Aktorkoregler.FinnHjemmelforslag([navn], noder));
     }
 
+    // ------------------------------------------------------------------ Forleddssperren i grupperingen (Johanns avgjørelse 2026-11-05)
+
+    private const string BhlParagraf5 =
+        "Kommunen kan bestemme at det skal være felles samarbeidsutvalg for kommunal barnehage og grunnskole. Der begge parter ønsker det, "
+        + "kan det etableres tilsvarende ordning for privat barnehage og kommunal eller privat skole.";
+
+    /// <summary>Forekomsten av <paramref name="navn"/> (første treff) i <paramref name="tekst"/>, med frasen sperren gir.</summary>
+    private static string? Sperret(string tekst, string navn)
+    {
+        var start = tekst.IndexOf(navn, StringComparison.Ordinal);
+        Assert.True(start >= 0, $"«{navn}» står ikke i teksten");
+        return Aktorkoregler.SperretFrase(tekst, start, start + navn.Length);
+    }
+
+    /// <summary>«Hvilket navn står forekomsten for?» Samme regel som hjemmelregelen: et ord foran kjernen som ikke er tall- eller mengdeord,
+    /// gjør det til et annet navn. Svaret er frasen slik den står i teksten, fra det første ordet som sperrer.</summary>
+    [Theory]
+    [InlineData(BhlParagraf5, "samarbeidsutvalg", "felles samarbeidsutvalg")]
+    [InlineData("For to kommuner skal det være et felles forliksråd.", "forliksråd", "felles forliksråd")]
+    [InlineData("I hver kommune skal det være to felles forliksråd.", "forliksråd", "felles forliksråd")] // tallordet foran tas ikke med
+    [InlineData("Departementet skal ha et regionalt kontor.", "kontor", "regionalt kontor")]
+    [InlineData("Retten skal ha en justitiarius og nitten andre dommere.", "dommere", null)] // tall- og mengdeord sperrer ikke
+    [InlineData("Barnehagen skal ha et eget samarbeidsutvalg.", "samarbeidsutvalg", null)]
+    [InlineData("For å sikre samarbeidet skal hver barnehage ha et foreldreråd og et samarbeidsutvalg.", "samarbeidsutvalg", null)] // ingen forledd
+    [InlineData("Samarbeidsutvalget skal være et rådgivende organ.", "Samarbeidsutvalget", null)] // ikke i frasen uttrykket styrer
+    [InlineData("Kommunen skal legge saken fram for felles samarbeidsutvalg.", "samarbeidsutvalg", null)] // ingen frase: ikke gjettet (§8)
+    [InlineData("Det skal være felles samarbeidsutvalg.", "felles samarbeidsutvalg", null)] // forleddet står alt i forekomsten
+    public void Forleddssperren_i_grupperingen_folger_hjemmelregelen(string tekst, string navn, string? forventet) =>
+        Assert.Equal(forventet, Sperret(tekst, navn));
+
+    [Fact]
+    public void Felles_samarbeidsutvalg_blir_eget_navn_og_ikke_en_variant_av_samarbeidsutvalget()
+    {
+        var felles = F("samarbeidsutvalg") with { Frase = Sperret(BhlParagraf5, "samarbeidsutvalg") };
+        var forekomster = new[] { F("samarbeidsutvalget"), F("Samarbeidsutvalget"), felles };
+
+        var grupper = Aktorkoregler.Grupper(forekomster);
+
+        Assert.Equal(2, grupper.Count);
+        var su = Assert.Single(grupper, g => g.Nokkel == "samarbeidsutvalget");
+        Assert.Equal(["samarbeidsutvalget"], su.Varianter.Select(v => v.Normalisert));
+        Assert.Equal(2, su.Forekomster.Count);
+        var fs = Assert.Single(grupper, g => g.Nokkel == "felles samarbeidsutvalg");
+        Assert.Equal(("felles samarbeidsutvalg", "samme_ord"), (fs.Navn, Assert.Single(fs.Varianter).Regel));
+        Assert.Equal("felles samarbeidsutvalg", Assert.Single(fs.Varianter[0].Skrivemater).Tekst); // kan godkjennes slik det står
+        Assert.Equal(felles.NavnekandidatId, Assert.Single(fs.Forekomster).NavnekandidatId);
+        // «felles» ender på «s», men er ikke genitiv: sperren har avgjort det, og det blir ikke et forslag om å slå dem sammen igjen.
+        Assert.DoesNotContain(Aktorkoregler.FinnGenitivforslag(grupper), f => f.FraNokkel == "felles samarbeidsutvalg");
+        // Hjemmelregelen på det nye navnet: «det skal være felles samarbeidsutvalg» er et forslag (tekstfunn), ikke lenger sperret.
+        var noder = new[] { new HjemmelNode(Barnehageloven, "https://lovdata.no/eli/lov/2005/06/17/64/nor/§5/ledd-1", BhlParagraf5, false, 1) };
+        var h = Assert.Single(Aktorkoregler.FinnHjemmelforslag(fs.Varianter.Select(v => v.Normalisert), noder));
+        Assert.Equal(("skal_vaere", "felles samarbeidsutvalg", Strukturkanter.Tekstfunn), (h.Uttrykk, h.Treff, h.Kunnskapsstatus));
+        Assert.Empty(Aktorkoregler.FinnHjemmelforslag(su.Varianter.Select(v => v.Normalisert), noder));
+    }
+
+    [Fact]
+    public void Uten_sperre_er_grupperingen_uendret()
+    {
+        // Samme forekomster uten frase: «samarbeidsutvalg» er en bøyning av «samarbeidsutvalget», som før.
+        var grupper = Aktorkoregler.Grupper([F("samarbeidsutvalget"), F("Samarbeidsutvalget"), F("samarbeidsutvalg")]);
+        var su = Assert.Single(grupper);
+        Assert.Equal("samarbeidsutvalget", su.Nokkel);
+        Assert.Equal(("samarbeidsutvalg", "boyning", "−et"), (su.Varianter[1].Normalisert, su.Varianter[1].Regel, su.Varianter[1].Suffiks));
+
+        // To forekomster med samme sperrede frase er samme ord, og bøyning med like forledd gjelder frasene imellom (regel 2).
+        var fraser = Aktorkoregler.Grupper([F("forliksråd") with { Frase = "felles forliksråd" }, F("forliksrådet") with { Frase = "felles forliksrådet" },
+            F("forliksrådet")]);
+        Assert.Equal(2, fraser.Count);
+        Assert.Contains(fraser, g => g.Nokkel == "forliksrådet" && g.Forekomster.Count == 1);
+        Assert.Contains(fraser, g => g.Varianter.Select(v => v.Normalisert).Order().SequenceEqual(["felles forliksråd", "felles forliksrådet"]));
+    }
+
+    [Fact]
+    public void Normalisert_folger_frasen_ogsa_etter_with()
+    {
+        var f = F("Samarbeidsutvalg");
+        Assert.Equal("samarbeidsutvalg", f.Normalisert);
+        Assert.Equal("felles samarbeidsutvalg", (f with { Frase = "Felles  samarbeidsutvalg" }).Normalisert);
+    }
+
     [Fact]
     public void Ordrett_variant_gir_tekstfunn_selv_om_en_annen_variant_er_en_boyning()
     {
