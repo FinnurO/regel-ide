@@ -215,6 +215,10 @@ public static partial class Aktorkoregler
     /// <para>
     /// Ved flere treff i samme tabell velges det første i ordinal rekkefølge, så svaret er det samme hver gang. Alle treffene står i svaret.
     /// </para>
+    /// <para>
+    /// [Ny merknad, #456] Aktørkøen ruter med forleddssperren gjennom overlasten med <see cref="KoForekomst"/>, som sender frasen hit når
+    /// sperren slo til. Sveipene kaller denne med teksten alene og har ikke sperren.
+    /// </para>
     /// </summary>
     public static Rutingssvar Ruter(Rutingstabell tabell, string tekst, Guid rettskildeId)
     {
@@ -241,6 +245,41 @@ public static partial class Aktorkoregler
             if (bx.Count > 0) return new(Aktorkoruter.Boyningsform, k, bx, Aktorkoruter.KjentBegrep, x, BoyningSuffiks(x, k));
         }
         return new(Aktorkoruter.Aktorko, k, []);
+    }
+
+    /// <summary>
+    /// [Ny, #456, Johanns klarsignal 2026-11-05] Rutingen for én forekomst i køen, med forleddssperren: forekomsten rutes på
+    /// <see cref="KoForekomst.Navnetekst"/>, altså på frasen når sperren slo til (<see cref="MedForleddssperre"/>), ellers på teksten som før.
+    /// <para>
+    /// <b>Hvorfor.</b> Grupperingen og hjemmelregelen fikk sperren i #440/#454, men rutingen leste bare forekomstens tekst. Da Johann godkjente
+    /// «samarbeidsutvalget», ville «samarbeidsutvalg» i bhl. § 5 første ledd («det skal være felles samarbeidsutvalg») gått til ruten
+    /// «bøyningsform» og ut av køen, selv om det er et annet organ. Med frasen blir «felles samarbeidsutvalg» ikke en bøyningsform av
+    /// «samarbeidsutvalget»: den har et ord mer, og suffiksene sammenlignes på slutten av hele frasen (samme regel 2 som grupperingen,
+    /// <see cref="FlerordsBoyning"/>). Den blir i køen som eget navn.
+    /// </para>
+    /// <para>
+    /// Rutes frasen, gjelder det alle fire reglene, ikke bare bøyningsformen: en sperret forekomst er et annet navn, og da er den heller ikke
+    /// «likt ord» med det kjente ordet (samme som hjemmelregelen, der sperren også stopper et ordrett treff). Blir frasen selv kjent («felles
+    /// samarbeidsutvalg» godkjent som aktør), treffer regel 2 den, og forekomsten går ut av køen som den skal. Ingen ny frasedeling: sperren
+    /// er <see cref="SperretFrase"/>, den samme hjelperen grupperingen bruker.
+    /// </para>
+    /// </summary>
+    public static Rutingssvar Ruter(Rutingstabell tabell, KoForekomst forekomst) =>
+        Ruter(tabell, forekomst.Navnetekst, forekomst.RettskildeId);
+
+    /// <summary>
+    /// [Ny, #456: skilt ut av <c>AktorkoTjeneste.SettForleddssperreAsync</c> uten endring i regelen, så rutingen og grupperingen setter frasen
+    /// på samme måte og vakten kan testes uten database] Forekomsten med <see cref="KoForekomst.Frase"/> satt når forleddssperren
+    /// (<see cref="SperretFrase"/>) slår til i <paramref name="nodetekst"/>. Bare når teksten fortsatt har navnet på posisjonen sveipet fant
+    /// (samme vakt som utdraget i detaljvisningen); ellers er teksten endret, og en frase ville vært gjettet (CLAUDE.md §8). Uten nodetekst, eller
+    /// uten sperre, er forekomsten uendret.
+    /// </summary>
+    public static KoForekomst MedForleddssperre(KoForekomst forekomst, string? nodetekst)
+    {
+        var f = forekomst;
+        if (nodetekst is null || f.Start < 0 || f.Slutt > nodetekst.Length || f.Slutt <= f.Start
+            || !string.Equals(nodetekst[f.Start..f.Slutt], f.Tekst, StringComparison.OrdinalIgnoreCase)) return f;
+        return SperretFrase(nodetekst, f.Start, f.Slutt) is { } frase ? f with { Frase = frase } : f;
     }
 
     /// <summary>Regel 2 på ord med flere ledd: likt antall ord, like forledd, og det siste ordet er en bøyningsform.</summary>
@@ -806,23 +845,25 @@ public sealed class AktorkoTjeneste(RegelIdeDbContext db)
             .Select(k => new KoForekomst(k.Id, k.ForeslattTekst, k.RettskildeId, k.NodeEid, k.StartOffset, k.EndOffset, k.Kategori,
                 k.OppdagelsesKilde, k.Konfidens, k.AktorkoGruppe))
             .OrderBy(f => f.NavnekandidatId).ToList();
-        var svar = forekomster.Select(f => Aktorkoregler.Ruter(tabell, f.Tekst, f.RettskildeId)).ToList();
-        await SettForleddssperreAsync(forekomster, svar, ct);
+        // [ENDRET, #456] Sperren settes FØR rutingen, på alle ventende, og rutingen leser frasen (Aktorkoregler.Ruter med forekomsten). Før
+        // (#440/#454) ble rutingen gjort på teksten, og sperren bare satt for forekomstene som alt var i køen.
+        await SettForleddssperreAsync(forekomster, ct);
+        var svar = forekomster.Select(f => Aktorkoregler.Ruter(tabell, f)).ToList();
         return (forekomster, svar);
     }
 
     /// <summary>
-    /// [Ny, Johanns avgjørelse 2026-11-05, #440] Forleddssperren i grupperingen (<see cref="Aktorkoregler.SperretFrase"/>): for forekomstene i
-    /// aktørkøen leses leddet de står i, og der sperren slår til, får forekomsten frasen («felles samarbeidsutvalg»). Rutingen er uendret; den
-    /// er gjort på teksten før dette. Bare når teksten fortsatt har navnet på posisjonen sveipet fant (samme vakt som utdraget i
-    /// <see cref="DetaljAsync"/>); ellers er teksten endret, og en frase ville vært gjettet.
+    /// [Ny, Johanns avgjørelse 2026-11-05, #440] Forleddssperren (<see cref="Aktorkoregler.SperretFrase"/>): for forekomstene leses leddet de
+    /// står i, og der sperren slår til, får forekomsten frasen («felles samarbeidsutvalg»). Vakten og regelen står i
+    /// <see cref="Aktorkoregler.MedForleddssperre"/>.
+    /// [ENDRET, #456] Gjelder alle ventende forekomster, ikke bare dem i køen, og kjøres før rutingen, så rutingen og grupperingen bruker samme
+    /// frase.
     /// </summary>
-    private async Task SettForleddssperreAsync(List<KoForekomst> forekomster, List<Rutingssvar> svar, CancellationToken ct)
+    private async Task SettForleddssperreAsync(List<KoForekomst> forekomster, CancellationToken ct)
     {
-        var iKo = Enumerable.Range(0, forekomster.Count).Where(i => svar[i].Rute == Aktorkoruter.Aktorko).ToList();
-        if (iKo.Count == 0) return;
-        var ider = iKo.Select(i => forekomster[i].RettskildeId).Distinct().ToList();
-        var eids = iKo.Select(i => forekomster[i].NodeEid).Distinct().ToList();
+        if (forekomster.Count == 0) return;
+        var ider = forekomster.Select(f => f.RettskildeId).Distinct().ToList();
+        var eids = forekomster.Select(f => f.NodeEid).Distinct().ToList();
         // Samme grove forfilter som hjemmelnodene: sperren kan bare slå til der et av uttrykkene står.
         var noder = (await db.RettskildeNoder
                 .Where(n => ider.Contains(n.RettskildeId) && eids.Contains(n.Eid) && n.Entitetsstatus == "gjeldende" && n.Tekst != null
@@ -830,13 +871,10 @@ public sealed class AktorkoTjeneste(RegelIdeDbContext db)
                 .Select(n => new { n.RettskildeId, n.Eid, n.Tekst })
                 .ToListAsync(ct))
             .GroupBy(n => (n.RettskildeId, n.Eid)).ToDictionary(g => g.Key, g => g.First().Tekst!);
-        foreach (var i in iKo)
+        for (var i = 0; i < forekomster.Count; i++)
         {
             var f = forekomster[i];
-            if (!noder.TryGetValue((f.RettskildeId, f.NodeEid), out var tekst)) continue;
-            if (f.Start < 0 || f.Slutt > tekst.Length || f.Slutt <= f.Start
-                || !string.Equals(tekst[f.Start..f.Slutt], f.Tekst, StringComparison.OrdinalIgnoreCase)) continue;
-            if (Aktorkoregler.SperretFrase(tekst, f.Start, f.Slutt) is { } frase) forekomster[i] = f with { Frase = frase };
+            if (noder.TryGetValue((f.RettskildeId, f.NodeEid), out var tekst)) forekomster[i] = Aktorkoregler.MedForleddssperre(f, tekst);
         }
     }
 
