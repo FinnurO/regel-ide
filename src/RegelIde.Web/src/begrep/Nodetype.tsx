@@ -1,4 +1,4 @@
-import { Field, Label, Radio, Select, Tag } from '@digdir/designsystemet-react';
+import { Field, Fieldset, Label, Radio, Select, Tag } from '@digdir/designsystemet-react';
 import type { Aktortype, Begrepsnodetype, Kandidatnodetype, Ordningstype } from '../api/types';
 
 /**
@@ -69,7 +69,7 @@ export function NodetypeVelger({
   typer?: readonly Begrepsnodetype[];
 }) {
   return (
-    <Field data-size="sm">
+    <Fieldset aria-label="Hva slags begrep?" data-size="sm">
       {typer.map((type) => (
         <Radio
           key={type}
@@ -82,7 +82,7 @@ export function NodetypeVelger({
           disabled={disabled}
         />
       ))}
-    </Field>
+    </Fieldset>
   );
 }
 

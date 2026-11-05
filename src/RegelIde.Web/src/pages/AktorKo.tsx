@@ -164,6 +164,12 @@ function Grupperingsregel({ fordeling }: { fordeling: AktorkoFordeling | null })
               står under navnet det ligner. Slås aldri sammen automatisk: «domstolens leder» er ikke «leder».
               {fordeling && ` Nå: ${tall(fordeling.genitivforslag)} forslag.`}</Paragraph>
           </li>
+          {/* [Ny, Johanns avgjørelse 2026-11-05, #440] Samme forleddssperre som hjemmelregelen. */}
+          <li>
+            <Paragraph data-size="sm"><strong>Forleddssperren:</strong> står navnet etter «skal … ha et» eller «det skal være», og står et annet
+              ord enn et tall- eller mengdeord foran det, er det et annet navn. «felles samarbeidsutvalg» står derfor for seg, ikke under
+              «samarbeidsutvalget». Samme regel som i hjemmelforslaget.</Paragraph>
+          </li>
         </ol>
       </Details.Content>
     </Details>

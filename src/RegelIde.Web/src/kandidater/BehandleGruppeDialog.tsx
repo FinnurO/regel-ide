@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import {
-  Alert, Button, Card, Dialog, Divider, Field, Heading, Label, Radio, Search, Table, Textfield,
+  Alert, Button, Card, Dialog, Divider, Fieldset, Heading, Radio, Search, Table, Textfield,
 } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { BrregEnhetDto, Kandidatnodetype, NavnekandidatBatchResultatDto, NavnekandidatDto, Navneformgrunn } from '../api/types';
@@ -216,13 +216,13 @@ export function BehandleGruppeDialog({
             </Alert>
           )}
           {harBeggeSpor && (
-            <Field data-size="sm" style={{ marginBottom: '0.5rem' }}>
-              <Label>Behandle alle som:</Label>
+            <Fieldset data-size="sm" style={{ marginBottom: '0.5rem' }}>
+              <Fieldset.Legend>Behandle alle som:</Fieldset.Legend>
               <Radio name="behandleSom" value="virksomhet" label="Virksomhet (navneform for en konkret virksomhet)"
                 checked={spor === 'virksomhet'} onChange={() => setSpor('virksomhet')} />
               <Radio name="behandleSom" value="begrep" label="Begrep loven definerer (klasse, rolle eller område)"
                 checked={spor === 'begrep'} onChange={() => setSpor('begrep')} />
-            </Field>
+            </Fieldset>
           )}
           {spor === 'begrep' && (
             <div style={{ marginBottom: '0.5rem' }}>
@@ -244,14 +244,14 @@ export function BehandleGruppeDialog({
           {(erBlandet || spor === 'begrep') && <Divider style={{ margin: '0.75rem 0' }} />}
           {spor === 'virksomhet' && (
             <>
-              <Field data-size="sm" style={{ marginBottom: '0.75rem' }}>
+              <Fieldset aria-label="Hvilken aktør?" data-size="sm" style={{ marginBottom: '0.75rem' }}>
                 <Radio name="vei" label="Velg fra katalogen" value="eksisterende"
                   checked={vei === 'eksisterende'} onChange={() => setVei('eksisterende')} />
                 <Radio name="vei" label="Søk i Brønnøysundregisteret og opprett" value="brreg"
                   checked={vei === 'brreg'} onChange={() => setVei('brreg')} />
                 <Radio name="vei" label="Opprett med bare navn" value="kunNavn"
                   checked={vei === 'kunNavn'} onChange={() => setVei('kunNavn')} />
-              </Field>
+              </Fieldset>
 
               {vei === 'eksisterende' && (
                 <VirksomhetVelger
@@ -351,12 +351,12 @@ export function BehandleGruppeDialog({
                 (issue #298).
                 {flereRettskilder && ' Lovspesifikt her oppretter/gjenbruker ÉN rad PER lov gruppen spenner over, ikke én delt rad for hele gruppen.'}
               </Metatekst>
-              <Field data-size="sm">
+              <Fieldset aria-label="Lovspesifikt eller fast, nasjonalt begrep?" data-size="sm">
                 <Radio name="gruppeScope" label="Lovspesifikt begrep" value="lovspesifikt"
                   checked={gruppeScope === 'lovspesifikt'} onChange={() => setGruppeScope('lovspesifikt')} />
                 <Radio name="gruppeScope" label="Fast, nasjonalt begrep" value="fast"
                   checked={gruppeScope === 'fast'} onChange={() => setGruppeScope('fast')} />
-              </Field>
+              </Fieldset>
             </>
           )}
 

@@ -1,4 +1,4 @@
-import { Alert, Button, Checkbox, Field, Label, Radio, Select, Textarea, Textfield } from '@digdir/designsystemet-react';
+import { Alert, Button, Checkbox, Field, Fieldset, Label, Radio, Select, Textarea, Textfield } from '@digdir/designsystemet-react';
 import type { Kunnskapsstatus, RettskildeNodeDto } from '../api/types';
 import { Metatekst } from '../entitet/Metatekst';
 import { KildeUtenforKorpusVelger } from '../strukturkant/KildeUtenforKorpus';
@@ -43,7 +43,10 @@ export function GrunnlagSteg({
 
   return (
     <>
-      <Field data-size="sm" style={{ marginBottom: '0.75rem' }}>
+      {/* [ENDRET, #440, 2026-11-05] Radiogruppen står i `Fieldset`, ikke `Field`: i en `Field` peker alle etikettene på den første knappen,
+          så et klikk på en etikett valgte den første knappen (docs/09 §51). Gruppen hadde ingen etikett;
+          den får navnet fra stegets overskrift som `aria-label`, så skjermbildet er uendret. */}
+      <Fieldset data-size="sm" aria-label="Hva bygger dette på?" style={{ marginBottom: '0.75rem' }}>
         <Radio name="grunnlag" label="Hjemmel i korpus" value="hjemmel" disabled={disabled}
           description="En bestemmelse i denne rettskilden sier det — f.eks. leddet der navnet står."
           checked={verdi.grunnlag === 'hjemmel'} onChange={() => sett({ grunnlag: 'hjemmel' })} />
@@ -53,7 +56,7 @@ export function GrunnlagSteg({
         <Radio name="grunnlag" label="Hjemmel mangler" value="mangler" disabled={disabled}
           description="Ingen kilde er funnet ennå. Lagres som et synlig hull (uavklart), ikke som et tomt felt."
           checked={verdi.grunnlag === 'mangler'} onChange={() => sett({ grunnlag: 'mangler' })} />
-      </Field>
+      </Fieldset>
 
       {verdi.grunnlag === 'hjemmel' && (
         <Field data-size="sm" style={{ maxWidth: '36rem', marginBottom: '0.75rem' }}>
@@ -124,26 +127,26 @@ export function SikkerhetSteg({
       {verdi.kunnskapsstatus && <Metatekst style={{ marginBottom: '0.5rem' }}>{KUNNSKAPSSTATUS_VISNING[verdi.kunnskapsstatus].forklaring}</Metatekst>}
 
       {verdi.kunnskapsstatus === 'fortolkning' && (
-        <Field data-size="sm" style={{ marginBottom: '0.5rem' }}>
-          <Label>Tolkningsargumenter (minst ett)</Label>
+        <Fieldset data-size="sm" style={{ marginBottom: '0.5rem' }}>
+          <Fieldset.Legend>Tolkningsargumenter (minst ett)</Fieldset.Legend>
           <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
             {TOLKNINGSARGUMENTER.map((a) => (
               <Checkbox key={a.verdi} data-size="sm" label={a.tekst} checked={verdi.argumenter.includes(a.verdi)} disabled={disabled}
                 onChange={(e) => sett({ argumenter: e.target.checked ? [...verdi.argumenter, a.verdi] : verdi.argumenter.filter((x) => x !== a.verdi) })} />
             ))}
           </div>
-        </Field>
+        </Fieldset>
       )}
 
-      <Field data-size="sm" style={{ marginBottom: '0.5rem' }}>
-        <Label>Godkjenning</Label>
+      <Fieldset data-size="sm" style={{ marginBottom: '0.5rem' }}>
+        <Fieldset.Legend>Godkjenning</Fieldset.Legend>
         <Radio name="godkjenning" label="Faglig vurdert" value="faglig_vurdert" disabled={disabled}
           description="Vurdert av deg, men ikke godkjent. Står som forslag til noen godkjenner det."
           checked={verdi.godkjenning === 'faglig_vurdert'} onChange={() => sett({ godkjenning: 'faglig_vurdert' })} />
         <Radio name="godkjenning" label="Godkjent" value="godkjent" disabled={disabled}
           description="Gjelder fra nå. En aktørtype settes på aktøren først når den er godkjent."
           checked={verdi.godkjenning === 'godkjent'} onChange={() => sett({ godkjenning: 'godkjent' })} />
-      </Field>
+      </Fieldset>
 
       <Textarea data-size="sm" aria-label="Begrunnelse" placeholder={grunnlag.grunnlag === 'mangler' ? 'Hva mangler?' : 'Begrunnelse (fritekst)'}
         value={verdi.begrunnelse} readOnly={disabled} rows={2} onChange={(e) => sett({ begrunnelse: e.target.value })}
