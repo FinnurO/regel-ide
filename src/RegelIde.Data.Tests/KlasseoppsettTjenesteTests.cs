@@ -19,8 +19,24 @@ namespace RegelIde.Data.Tests;
 /// basen (regelen er unik blant gjeldende), så skrivingen kjøres i hver test og er idempotent.
 /// </summary>
 [Collection(DataTestCollection.Navn)]
-public class KlasseoppsettTjenesteTests(EmbeddedPostgresFixture fixture)
+public class KlasseoppsettTjenesteTests(EmbeddedPostgresFixture fixture) : IAsyncLifetime
 {
+    public Task InitializeAsync() => Task.CompletedTask;
+
+    /// <summary>
+    /// Etter hver test arkiveres klassene skrivingen opprettet (og testens egne klasser uten grunnlag). Testbasen er delt med resten av samlingen,
+    /// og en gjeldende klasse «fylkeskommune» eller «departement» endrer rutingen der: «Fylkeskommunen» blir en bøyningsform av en kjent klasse og
+    /// ikke en ny navnekandidat (målt i CI: 11 tester i NavnekandidatOppdagelseTjenesteTests feilet før denne ryddingen). Arkiveres, ikke slettes,
+    /// fordi kantene peker på dem.
+    /// </summary>
+    public async Task DisposeAsync()
+    {
+        await using var db = fixture.NyDbContext();
+        await db.Database.ExecuteSqlRawAsync(
+            "UPDATE begreper SET entitetsstatus = 'arkivert' WHERE entitetsstatus = 'gjeldende' AND begrepskategori = 'klasse' "
+            + "AND (medlemskapsregel IN ('omraderegister_fylkeskommune', 'organiseringsvedtak_departement') OR term LIKE 'tomklasse %')");
+    }
+
     private static readonly string[] Fylkesnavn =
         ["Oslo", "Rogaland", "Møre og Romsdal", "Nordland", "Østfold", "Akershus", "Buskerud", "Innlandet", "Vestfold", "Telemark", "Agder",
          "Vestland", "Trøndelag", "Troms", "Finnmark"];
