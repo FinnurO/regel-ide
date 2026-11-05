@@ -717,9 +717,12 @@ public sealed record Hjemmelforslagvisning(
 /// <param name="ForsteHjemmelforslag">Det første forslaget (rettskilde, så rekkefølgen i teksten).</param>
 /// <param name="GenitivforslagInn">Varianter med genitivforledd i andre navn som kan høre hit (bare forslag).</param>
 /// <param name="BareMerknader">Alle forekomstene står i merknader eller veiledning (#419).</param>
+/// <param name="Forhand">[Ny, #440, 2026-11-05] Forhåndsklassifiseringen (type, sikkerhet, handling, om den kan være utdatert), knyttet med
+/// nøkkelen. Null når navnet ikke står i klassifiseringen (kom i køen etterpå).</param>
 public sealed record AktorkoRad(
     string Nokkel, string Navn, int Forekomster, int Rettskilder, IReadOnlyList<Kovariant> Varianter, IReadOnlyList<Guid> RettskildeIder,
-    int Hjemmelforslag, Hjemmelforslagvisning? ForsteHjemmelforslag, int GenitivforslagInn, bool BareMerknader, bool Manuell = false);
+    int Hjemmelforslag, Hjemmelforslagvisning? ForsteHjemmelforslag, int GenitivforslagInn, bool BareMerknader, bool Manuell = false,
+    AktorkoForhandKort? Forhand = null);
 
 public sealed record AktorkoListe(int Ventende, int AntallNavn, int MedFlereForekomster, IReadOnlyList<AktorkoRad> Navn);
 
@@ -742,11 +745,13 @@ public sealed record RettskildeForekomster(Guid RettskildeId, string Tittel, str
 /// <param name="SperredeTreff">[Ny, #440 PR 2] Treff forleddssperren stoppet («felles samarbeidsutvalg»). Vises, men er ikke forslag.</param>
 /// <param name="Manuell">[Ny, #440 PR 2] Navnet er satt sammen av et menneske («skill ut» / «ta med»), ikke bare av regelen.</param>
 /// <param name="Hullmerknad">[Ny, Johanns avgjørelse 2026-11-01] Metateksten under «Hjemmel for aktøren mangler»: hva som er undersøkt.</param>
+/// <param name="Forhandsklassifisering">[Ny, #440, 2026-11-05] Forslaget fra forhåndsklassifiseringen (KI-agent og juristrunde, ikke kontrollert
+/// av menneske) med relasjoner, hjemmel og hva som må gjøres i eget steg. Null når navnet ikke står i klassifiseringen.</param>
 public sealed record AktorkoDetalj(
     string Nokkel, string Navn, int Forekomster, IReadOnlyList<Kovariant> Varianter, IReadOnlyList<Genitivforslag> GenitivforslagInn,
     IReadOnlyList<Genitivforslag> GenitivforslagUt, IReadOnlyList<RettskildeForekomster> PerRettskilde,
     IReadOnlyList<Hjemmelforslagvisning> Hjemmelforslag, string Hjemmelregel, IReadOnlyList<Hjemmelforslagvisning>? SperredeTreff = null,
-    bool Manuell = false, string? Hullmerknad = null);
+    bool Manuell = false, string? Hullmerknad = null, AktorkoForhandsklassifisering? Forhandsklassifisering = null);
 
 // ------------------------------------------------------------------------------------------------ Tjenesten
 
@@ -980,7 +985,7 @@ public sealed class AktorkoTjeneste(RegelIdeDbContext db)
             return new AktorkoRad(g.Nokkel, g.Navn, g.Forekomster.Count, g.Rettskilder, g.Varianter,
                 g.Forekomster.Select(f => f.RettskildeId).Distinct().ToList(), forslag.Count,
                 forslag.Count > 0 ? Vis(forslag[0], titler) : null, genitiv.Count(x => x.TilNokkel == g.Nokkel),
-                g.Forekomster.All(f => merknadsnoder.Contains((f.RettskildeId, f.NodeEid))), g.Manuell);
+                g.Forekomster.All(f => merknadsnoder.Contains((f.RettskildeId, f.NodeEid))), g.Manuell, Forhandsklassifisering.Kort(g));
         }).ToList();
         return new AktorkoListe(forekomster.Count, grupper.Count, grupper.Count(g => g.Forekomster.Count > 1), rader);
     }
@@ -1073,13 +1078,59 @@ public sealed class AktorkoTjeneste(RegelIdeDbContext db)
             .OrderByDescending(r => r.Forekomster.Count).ThenBy(r => r.Tittel, StringComparer.Ordinal).ToList();
 
         var genitiv = Aktorkoregler.FinnGenitivforslag(grupper);
+        var forslag = ForslagFor(g, hjemmelnoder);
         return new AktorkoDetalj(g.Nokkel, g.Navn, g.Forekomster.Count, g.Varianter,
             genitiv.Where(x => x.TilNokkel == g.Nokkel).ToList(), genitiv.Where(x => x.FraNokkel == g.Nokkel).ToList(), perRettskilde,
-            ForslagFor(g, hjemmelnoder).Select(h => Vis(h, titler) with { AnnenParagraf = AnnenParagraf(h, g.Forekomster, titler) }).ToList(),
+            forslag.Select(h => Vis(h, titler) with { AnnenParagraf = AnnenParagraf(h, g.Forekomster, titler) }).ToList(),
             Hjemmelregel,
             Aktorkoregler.FinnHjemmeltreff(g.Varianter.Select(v => v.Normalisert), ider.SelectMany(id => hjemmelnoder[id]))
                 .Where(t => t.Sperret is not null).Select(t => Vis(t.Forslag, titler) with { Sperret = t.Sperret }).ToList(),
-            g.Manuell, Hullmerknad);
+            g.Manuell, Hullmerknad, await ForhandsklassifiseringAsync(g, forslag, ct));
+    }
+
+    /// <summary>
+    /// [Ny, #440, 2026-11-05] Forhåndsklassifiseringen for et navn, med det visningen trenger fra basen: nodene relasjonene peker på (finnes
+    /// id-en, og er den en aktør eller et begrep?) og bestemmelsen hjemmelen står i (rettskilden, og teksten når fila ikke har sitatet). En eId
+    /// som står i flere rettskilder (versjoner), knyttes bare til rettskilden fila oppgir, til den ene rettskilden navnet står i, eller til
+    /// ingen: rettskilden gjettes ikke.
+    /// </summary>
+    private async Task<AktorkoForhandsklassifisering?> ForhandsklassifiseringAsync(Kogruppe g, IReadOnlyList<Hjemmelforslag> forslag, CancellationToken ct)
+    {
+        if (Forhandsklassifisering.Finn(g) is not { } p) return null;
+        var ider = Forhandsklassifisering.NodeIder(p).ToList();
+        var noder = new Dictionary<Guid, (string Art, string Navn, string? Kategori)>();
+        foreach (var v in await db.Virksomheter.Where(v => ider.Contains(v.Id)).Select(v => new { v.Id, v.Navn }).ToListAsync(ct))
+        {
+            noder[v.Id] = ("virksomhet", v.Navn, "virksomhet");
+        }
+        foreach (var b in await db.Begreper.Where(b => ider.Contains(b.Id)).Select(b => new { b.Id, b.Term, b.Begrepskategori }).ToListAsync(ct))
+        {
+            noder.TryAdd(b.Id, ("begrep", b.Term, b.Begrepskategori));
+        }
+
+        var bestemmelser = new Dictionary<string, (Guid RettskildeId, string Rettskilde, string? Tekst)>(StringComparer.Ordinal);
+        if (p.Hjemmel is { } h)
+        {
+            var under = h.Eid + "/";
+            var treff = await db.RettskildeNoder
+                .Where(n => (n.Eid == h.Eid || n.Eid.StartsWith(under)) && n.Entitetsstatus == "gjeldende" && n.Tekst != null)
+                .Select(n => new { n.RettskildeId, n.Eid, n.Tekst, n.Sorteringsrekkefolge }).ToListAsync(ct);
+            var kilder = treff.Select(t => t.RettskildeId).Distinct().ToList();
+            var navnets = kilder.Where(k => g.Forekomster.Any(f => f.RettskildeId == k)).ToList();
+            Guid? valgt = h.RettskildeId is { } fra && kilder.Contains(fra) ? fra
+                : kilder.Count == 1 ? kilder[0]
+                : navnets.Count == 1 ? navnets[0]
+                : null;
+            if (valgt is { } rid)
+            {
+                var noderI = treff.Where(t => t.RettskildeId == rid).OrderBy(t => t.Sorteringsrekkefolge).ToList();
+                // Har bestemmelsen selv tekst, er det sitatet. Ellers (en paragraf med ledd) er det leddene i rekkefølge.
+                var tekst = noderI.FirstOrDefault(t => t.Eid == h.Eid)?.Tekst ?? string.Join(" ", noderI.Select(t => t.Tekst));
+                var tittel = await db.Rettskilder.Where(r => r.Id == rid).Select(r => r.Kortnavn ?? r.Tittel).FirstAsync(ct);
+                bestemmelser[h.Eid] = (rid, tittel, tekst);
+            }
+        }
+        return Forhandsklassifisering.Visning(p, g, forslag.Select(f => (f.RettskildeId, f.Eid)).ToList(), new ForhandOppslag(noder, bestemmelser));
     }
 
     /// <summary>Paragrafen i en eId («§ 33b»), uten ledd og punkt. Null uten paragraf.</summary>
