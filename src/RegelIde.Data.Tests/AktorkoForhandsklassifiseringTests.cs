@@ -84,12 +84,26 @@ public class AktorkoForhandsklassifiseringTests
         Assert.Equal(Forhandstype.Rolle, v.Type);
         Assert.False(v.Hjemmel!.ErRegelensForslag);
         Assert.Equal("klassifiseringen", v.Hjemmel.SitatKilde);
+        // Uten bestemmelsen i korpus (tomt oppslag) kan hjemmelen ikke lagres, og den står som eget steg.
+        Assert.False(v.Hjemmel.KanLagres);
         Assert.Contains(v.EgneSteg, s => s.StartsWith("Hjemmelen ("));
         // Navnet i forslaget står i teksten: ingen merknad om skrivemåten.
         Assert.DoesNotContain(v.EgneSteg, s => s.StartsWith("Navnet i forslaget"));
         // Kommunen er ikke slått opp i det tomme oppslaget: relasjonen vises uten lenke og står som eget steg.
         Assert.False(v.Relasjoner.Single().Til!.Finnes);
         Assert.False(v.Relasjoner.Single().SkrivesAvHandlingen);
+    }
+
+    [Fact]
+    public void Hjemmelen_fra_fila_kan_lagres_nar_bestemmelsen_star_i_korpus()
+    {
+        var p = Post("bostedskommune");
+        var rk = Guid.NewGuid();
+        var oppslag = new ForhandOppslag(new Dictionary<Guid, (string, string, string?)>(),
+            new Dictionary<string, (Guid, string, string?)> { [p.Hjemmel!.Eid] = (rk, "Forskriften", "teksten") });
+        var v = Forhandsklassifisering.Visning(p, Gruppe(p), [], oppslag);
+        Assert.Equal((true, rk), (v.Hjemmel!.KanLagres, v.Hjemmel.RettskildeId));
+        Assert.DoesNotContain(v.EgneSteg, s => s.StartsWith("Hjemmelen ("));
     }
 
     [Fact]
@@ -100,8 +114,8 @@ public class AktorkoForhandsklassifiseringTests
         var v = Forhandsklassifisering.Visning(p, Gruppe(p), [(h.RettskildeId!.Value, h.Eid)], TomtOppslag);
         Assert.True(v.Hjemmel!.ErRegelensForslag);
         Assert.DoesNotContain(v.EgneSteg, s => s.StartsWith("Hjemmelen ("));
-        // «foreldreråd» (grunnformen) står ikke i teksten.
-        Assert.Contains(v.EgneSteg, s => s.StartsWith("Navnet i forslaget, «foreldreråd»"));
+        // [ENDRET, Johanns avgjørelse 2026-11-05] Grunnformen «foreldreråd» står ikke i teksten, men kan lagres: ikke lenger eget steg.
+        Assert.DoesNotContain(v.EgneSteg, s => s.StartsWith("Navnet i forslaget"));
     }
 
     [Fact]

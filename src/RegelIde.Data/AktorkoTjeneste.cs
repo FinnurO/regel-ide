@@ -1109,28 +1109,34 @@ public sealed class AktorkoTjeneste(RegelIdeDbContext db)
         }
 
         var bestemmelser = new Dictionary<string, (Guid RettskildeId, string Rettskilde, string? Tekst)>(StringComparer.Ordinal);
-        if (p.Hjemmel is { } h)
-        {
-            var under = h.Eid + "/";
-            var treff = await db.RettskildeNoder
-                .Where(n => (n.Eid == h.Eid || n.Eid.StartsWith(under)) && n.Entitetsstatus == "gjeldende" && n.Tekst != null)
-                .Select(n => new { n.RettskildeId, n.Eid, n.Tekst, n.Sorteringsrekkefolge }).ToListAsync(ct);
-            var kilder = treff.Select(t => t.RettskildeId).Distinct().ToList();
-            var navnets = kilder.Where(k => g.Forekomster.Any(f => f.RettskildeId == k)).ToList();
-            Guid? valgt = h.RettskildeId is { } fra && kilder.Contains(fra) ? fra
-                : kilder.Count == 1 ? kilder[0]
-                : navnets.Count == 1 ? navnets[0]
-                : null;
-            if (valgt is { } rid)
-            {
-                var noderI = treff.Where(t => t.RettskildeId == rid).OrderBy(t => t.Sorteringsrekkefolge).ToList();
-                // Har bestemmelsen selv tekst, er det sitatet. Ellers (en paragraf med ledd) er det leddene i rekkefølge.
-                var tekst = noderI.FirstOrDefault(t => t.Eid == h.Eid)?.Tekst ?? string.Join(" ", noderI.Select(t => t.Tekst));
-                var tittel = await db.Rettskilder.Where(r => r.Id == rid).Select(r => r.Kortnavn ?? r.Tittel).FirstAsync(ct);
-                bestemmelser[h.Eid] = (rid, tittel, tekst);
-            }
-        }
+        if (p.Hjemmel is { } h && await ForhandBestemmelseAsync(g, h, ct) is { } bestemmelse) bestemmelser[h.Eid] = bestemmelse;
         return Forhandsklassifisering.Visning(p, g, forslag.Select(f => (f.RettskildeId, f.Eid)).ToList(), new ForhandOppslag(noder, bestemmelser));
+    }
+
+    /// <summary>
+    /// [Ny, #440, 2026-11-05] Bestemmelsen forhåndsklassifiseringens hjemmel står i: rettskilden og teksten. Rettskilden er fila sin når
+    /// eId-en står der, ellers den ene rettskilden med eId-en, ellers den ene av dem der navnet står. Ellers null: rettskilden gjettes ikke
+    /// (en eId kan stå i flere versjoner). Teksten er bestemmelsens egen, eller leddene i rekkefølge når eId-en er en paragraf. Brukes av
+    /// visningen og av godkjenningen (<see cref="AktorkoSkrivTjeneste.GodkjennAsync"/>), så de alltid peker på samme rettskilde.
+    /// </summary>
+    public async Task<(Guid RettskildeId, string Rettskilde, string? Tekst)?> ForhandBestemmelseAsync(Kogruppe g, ForhandHjemmelFil h, CancellationToken ct = default)
+    {
+        var under = h.Eid + "/";
+        var treff = await db.RettskildeNoder
+            .Where(n => (n.Eid == h.Eid || n.Eid.StartsWith(under)) && n.Entitetsstatus == "gjeldende")
+            .Select(n => new { n.RettskildeId, n.Eid, n.Tekst, n.Sorteringsrekkefolge }).ToListAsync(ct);
+        var kilder = treff.Where(t => t.Eid == h.Eid).Select(t => t.RettskildeId).Distinct().ToList();
+        var navnets = kilder.Where(k => g.Forekomster.Any(f => f.RettskildeId == k)).ToList();
+        Guid? valgt = h.RettskildeId is { } fra && kilder.Contains(fra) ? fra
+            : kilder.Count == 1 ? kilder[0]
+            : navnets.Count == 1 ? navnets[0]
+            : null;
+        if (valgt is not { } rid) return null;
+        var noderI = treff.Where(t => t.RettskildeId == rid && t.Tekst != null).OrderBy(t => t.Sorteringsrekkefolge).ToList();
+        // Har bestemmelsen selv tekst, er det sitatet. Ellers (en paragraf med ledd) er det leddene i rekkefølge.
+        var tekst = noderI.FirstOrDefault(t => t.Eid == h.Eid)?.Tekst ?? (noderI.Count > 0 ? string.Join(" ", noderI.Select(t => t.Tekst)) : null);
+        var tittel = await db.Rettskilder.Where(r => r.Id == rid).Select(r => r.Kortnavn ?? r.Tittel).FirstAsync(ct);
+        return (rid, tittel, tekst);
     }
 
     /// <summary>Paragrafen i en eId («§ 33b»), uten ledd og punkt. Null uten paragraf.</summary>

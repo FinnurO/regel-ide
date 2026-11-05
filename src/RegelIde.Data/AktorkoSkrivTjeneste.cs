@@ -26,6 +26,9 @@ public static class Aktorkohjemmel
 {
     public const string Forslag = "forslag";
     public const string Mangler = "mangler";
+    /// <summary>[Ny, Johanns avgjørelse 2026-11-05] Hjemmelen i forhåndsklassifiseringen for navnet (<see cref="Forhandsklassifisering"/>).
+    /// eId-en må være nøyaktig filas for nøkkelen; rettskilden og kunnskapsstatusen tas fra fila og korpus, ikke fra forespørselen.</summary>
+    public const string Forhandsklassifisering = "forhandsklassifisering";
 }
 
 /// <summary>
@@ -40,9 +43,11 @@ public static class Aktorkohjemmel
 /// <param name="GjelderFast">For klasse, rolle eller område uten hjemmel: fast begrep for hele korpuset i stedet for én rettskilde.</param>
 /// <param name="ForventetForekomster">Antall forekomster brukeren så. Er det endret siden, avvises godkjenningen (409), så ingen godkjenner
 /// noe annet enn det som ble vist.</param>
+/// <param name="Tolkningsargumenter">[Ny, #440, 2026-11-05] Når hjemmelen fra forhåndsklassifiseringen er <c>fortolkning</c>: argumentene
+/// (lukket liste, <see cref="Strukturkanter.Tolkningsargumenter"/>). Fila har dem ikke, så mennesket velger; de gjettes ikke.</param>
 public sealed record AktorkoGodkjenning(
     string? Type, string? Navn, string? Hjemmel, Guid? HjemmelRettskildeId, string? HjemmelEid, string? Godkjenning, string? Begrunnelse = null,
-    Guid? GjelderILovkildeId = null, bool? GjelderFast = null, int? ForventetForekomster = null);
+    Guid? GjelderILovkildeId = null, bool? GjelderFast = null, int? ForventetForekomster = null, IReadOnlyList<string>? Tolkningsargumenter = null);
 
 /// <summary>[Ny, #440 PR 2] Koble navnet til en aktør som finnes, som ny navneform.</summary>
 /// <param name="Navneformgrunn">Påkrevd: gjeldende, utgatt, kortform, feilskriving eller parallellnavn.</param>
@@ -99,13 +104,25 @@ public sealed class AktorkoSkrivTjeneste(
         {
             throw new ArgumentException($"Velg hva navnet er: {string.Join(", ", Aktorkotyper.Alle)}. Ingenting er forhåndsvalgt.");
         }
-        var navn = KrevSkrivemate(g, valg.Navn);
+        // [ENDRET, Johanns avgjørelse 2026-11-05] Navnet kan også være navnet i forhåndsklassifiseringen (grunnformen, «foreldreråd»),
+        // kontrollert mot fila for nøkkelen. Ellers en skrivemåte fra teksten, som før.
+        var post = Forhandsklassifisering.Finn(g);
+        var navnFraForslag = post is { NyNode: { } nyNode } && Forhandsklassifisering.Handling(post) == Forhandshandling.Godkjenn
+                             && Normaliser(valg.Navn) == nyNode && g.Varianter.SelectMany(v => v.Skrivemater).All(s => s.Tekst != nyNode);
+        var navn = navnFraForslag ? post!.NyNode! : KrevSkrivemate(g, valg.Navn);
         if (valg.Godkjenning is not (Strukturkanter.FagligVurdert or Strukturkanter.Godkjent))
         {
             throw new ArgumentException("Velg hvor sikkert det er: faglig_vurdert eller godkjent. Ingenting er forhåndsvalgt.");
         }
+        if (valg.Tolkningsargumenter is { Count: > 0 } && valg.Hjemmel != Aktorkohjemmel.Forhandsklassifisering)
+        {
+            throw new ArgumentException("Tolkningsargumenter brukes bare med hjemmelen fra forhåndsklassifiseringen når den er fortolkning.");
+        }
 
         Hjemmelforslag? forslag = null;
+        // Hjemmelen som lagres, uansett hvor den kom fra: regelens forslag eller forhåndsklassifiseringen.
+        Guid? hjemmelRettskilde = null;
+        string? hjemmelEid = null;
         Utsagnsgrunnlag grunnlag;
         var egen = string.IsNullOrWhiteSpace(valg.Begrunnelse) ? "" : " " + valg.Begrunnelse.Trim();
         if (valg.Hjemmel == Aktorkohjemmel.Forslag)
@@ -121,6 +138,37 @@ public sealed class AktorkoSkrivTjeneste(
                 Begrunnelse = $"Hjemmelforslag etter regelen i aktørkøen (docs/33 §5.16): «{Aktorkoregler.UttrykkTekst(forslag.Uttrykk)}» med "
                               + $"«{forslag.Treff}» som kjerne i frasen.{egen}",
             };
+            (hjemmelRettskilde, hjemmelEid) = (forslag.RettskildeId, forslag.Eid);
+        }
+        else if (valg.Hjemmel == Aktorkohjemmel.Forhandsklassifisering)
+        {
+            // [Ny, Johanns avgjørelse 2026-11-05] Hjemmelen fra fila, aldri fri: eId-en må være filas for nøkkelen, rettskilden er den
+            // visningen viser (ForhandBestemmelseAsync), og kunnskapsstatusen og sitatet kommer fra fila.
+            var h = post?.Hjemmel ?? throw new ArgumentException(
+                $"«{g.Navn}» har ingen hjemmel i forhåndsklassifiseringen. Velg et av regelens forslag, eller «hjemmel mangler».");
+            if (valg.HjemmelEid?.Trim() != h.Eid)
+            {
+                throw new ArgumentException($"Hjemmelen er ikke forhåndsklassifiseringens for «{g.Navn}» ({h.Eid}). Ingen annen hjemmel kan lagres herfra.");
+            }
+            var b = await ko.ForhandBestemmelseAsync(g, h, ct) ?? throw new ArgumentException(
+                $"Bestemmelsen {h.Eid} står ikke entydig i korpus, og fila har ingen kilde utenfor korpus. Den registreres på aktørsiden eller begrepssiden.");
+            if (valg.HjemmelRettskildeId is { } r && r != b.RettskildeId)
+            {
+                throw new ArgumentException("Rettskilden er ikke den bestemmelsen står i. Ingen gjettet fallback.");
+            }
+            if (valg.Tolkningsargumenter is { Count: > 0 } && h.Kunnskapsstatus != Strukturkanter.Fortolkning)
+            {
+                throw new ArgumentException("Tolkningsargumenter brukes bare når hjemmelen er fortolkning.");
+            }
+            var sitat = string.IsNullOrWhiteSpace(h.Sitat) ? b.Tekst : h.Sitat;
+            grunnlag = new Utsagnsgrunnlag
+            {
+                Grunnlag = Utsagnsgrunnlag.Hjemmel, HjemmelRettskildeId = b.RettskildeId, HjemmelEid = h.Eid, Kunnskapsstatus = h.Kunnskapsstatus,
+                Godkjenning = valg.Godkjenning!, Tolkningsargumenter = valg.Tolkningsargumenter,
+                Begrunnelse = $"Hjemmel fra forhåndsklassifiseringen ({Forhandsklassifisering.Kilde}, n{post!.Nr}; KI-agent og juristrunde, #440)"
+                              + (sitat is null ? "." : $": «{sitat}».") + (post.HjemmelMerknad is { } m && m != "ikke relevant" ? $" {m}." : "") + egen,
+            };
+            (hjemmelRettskilde, hjemmelEid) = (b.RettskildeId, h.Eid);
         }
         else if (valg.Hjemmel == Aktorkohjemmel.Mangler)
         {
@@ -132,7 +180,7 @@ public sealed class AktorkoSkrivTjeneste(
         }
         else
         {
-            throw new ArgumentException("Velg hjemmel: et av forslagene, eller «hjemmel mangler». Ingenting er forhåndsvalgt.");
+            throw new ArgumentException("Velg hjemmel: et av forslagene, forhåndsklassifiseringens, eller «hjemmel mangler». Ingenting er forhåndsvalgt.");
         }
         grunnlag.Valider();
 
@@ -142,9 +190,9 @@ public sealed class AktorkoSkrivTjeneste(
         if (type != Aktorkotyper.Aktor)
         {
             var rettskilder = g.Forekomster.Select(f => f.RettskildeId).ToHashSet();
-            if (forslag is not null)
+            if (hjemmelRettskilde is { } hr)
             {
-                lov = forslag.RettskildeId;
+                lov = hr;
             }
             else if (valg.GjelderFast == true)
             {
@@ -166,7 +214,8 @@ public sealed class AktorkoSkrivTjeneste(
         {
             var linjer = new List<string>();
             var varsler = new List<string>();
-            var hjemmeltekst = forslag is null ? "hjemmel mangler" : $"{await TittelAsync(forslag.RettskildeId, ct)} {AktorkoTjeneste.Bestemmelse(forslag.Eid) ?? forslag.Eid}";
+            var hjemmeltekst = hjemmelRettskilde is not { } hrid ? "hjemmel mangler" : $"{await TittelAsync(hrid, ct)} {AktorkoTjeneste.Bestemmelse(hjemmelEid!) ?? hjemmelEid}";
+            if (navnFraForslag) linjer.Add($"Navnet «{navn}» er navnet i forhåndsklassifiseringen (står ikke i teksten); forekomstene tagges mot det.");
             Guid? virksomhetId = null, begrepId = null, navneformId = null;
             string? hjemmelArt = null;
             var tagget = 0;
@@ -179,7 +228,10 @@ public sealed class AktorkoSkrivTjeneste(
                 virksomhetId = v.Id;
                 linjer.Add($"Aktøren «{navn}» er opprettet (uten organisasjonsnummer; navnet kommer fra lovteksten).");
 
-                var resultat = await identitet.RegistrerNavnetSomGjeldendeAsync(v.Id, grunnlag, bruker, ct, forslag is null ? null : [forslag.Treff]);
+                // Formene som kan vise navnet i hjemmelen: regelens treff, eller (forhåndsklassifiseringen) skrivemåtene i teksten.
+                IReadOnlyCollection<string>? former = forslag is not null ? [forslag.Treff]
+                    : hjemmelEid is not null ? g.Varianter.SelectMany(x => x.Skrivemater).Select(x => x.Tekst).ToList() : null;
+                var resultat = await identitet.RegistrerNavnetSomGjeldendeAsync(v.Id, grunnlag, bruker, ct, former);
                 var navneform = resultat.Navneform ?? throw new InvalidOperationException(resultat.Merknad ?? "Navneformen ble ikke registrert.");
                 if (forslag is not null && resultat.Merknad is null)
                 {
@@ -202,7 +254,7 @@ public sealed class AktorkoSkrivTjeneste(
             {
                 var (begrep, ny) = fast
                     ? await begreper.OpprettEllerGjenbrukFastGruppebegrepAsync(type, navn, bruker, null, ct)
-                    : await begreper.OpprettEllerGjenbrukGruppebegrepAsync(type, lov!.Value, navn, bruker, forslag?.Eid, ct);
+                    : await begreper.OpprettEllerGjenbrukGruppebegrepAsync(type, lov!.Value, navn, bruker, hjemmelEid, ct);
                 begrepId = begrep.Id;
                 var hvor = fast ? "for hele korpuset" : $"i {await TittelAsync(lov!.Value, ct)}";
                 if (ny)
@@ -460,6 +512,8 @@ public sealed class AktorkoSkrivTjeneste(
                                                + "nytt og se over forekomstene før du godkjenner.");
         }
     }
+
+    private static string Normaliser(string? navn) => string.Join(' ', (navn ?? "").Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));
 
     /// <summary>Navnet må være en av skrivemåtene i teksten: ingenting skrives om (CLAUDE.md §8, «Statsforvalteren i innlandet»).</summary>
     private static string KrevSkrivemate(Kogruppe g, string? navn)

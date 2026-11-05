@@ -134,10 +134,13 @@ public sealed record ForhandRelasjon(string Relasjon, ForhandNode? Til, string? 
 /// <param name="RettskildeId">Rettskilden bestemmelsen står i: fra fila, eller slått opp på eId-en i basen (bare når det er nøyaktig én).</param>
 /// <param name="Sitat">Teksten. Fra fila når den har sitatet; ellers bestemmelsens tekst i basen nå.</param>
 /// <param name="SitatKilde"><c>klassifiseringen</c>, <c>basen</c> eller <c>ingen</c> (eId-en finnes ikke i basen).</param>
-/// <param name="ErRegelensForslag">Samme rettskilde og eId som et av køens hjemmelforslag. Bare da kan godkjenningen lagre hjemmelen.</param>
+/// <param name="ErRegelensForslag">Samme rettskilde og eId som et av køens hjemmelforslag.</param>
+/// <param name="KanLagres">[ENDRET, Johanns avgjørelse 2026-11-05] Godkjenningen kan lagre hjemmelen fra fila
+/// (<see cref="Aktorkohjemmel.Forhandsklassifisering"/>): bestemmelsen står i korpus, og rettskilden er entydig. Fila har ingen hjemmel
+/// utenfor korpus (type og lenke), så en eId som ikke står i korpus, kan ikke lagres og står som eget steg.</param>
 public sealed record ForhandHjemmel(
     Guid? RettskildeId, string? Rettskilde, string Eid, string? Bestemmelse, string? Sitat, string SitatKilde, string? Kunnskapsstatus,
-    bool ErRegelensForslag);
+    bool ErRegelensForslag, bool KanLagres = false);
 
 /// <summary>Aktøren navnet skal kobles til (handlingen <see cref="Forhandshandling.Koble"/>).</summary>
 /// <param name="Navneformgrunn">Grunnen relasjonen gir: <c>utgatt</c> for utgått navn, <c>kortform</c> når merknaden sier kortform. Null når
@@ -193,9 +196,15 @@ public static class Forhandsklassifisering
     /// tallene endrer seg), prøves de andre variantene; da er navnet alltid endret siden, og <see cref="Utdatert"/> sier det. Null når ingen
     /// variant står som nøkkel: navnet kom i køen etter klassifiseringen.
     /// </summary>
-    public static ForhandPost? Finn(Kogruppe g) =>
-        PerNokkel.Value.GetValueOrDefault(g.Nokkel)
-        ?? g.Varianter.Select(v => PerNokkel.Value.GetValueOrDefault(v.Normalisert)).FirstOrDefault(p => p is not null);
+    /// <remarks>[ENDRET, 2026-11-05] Siste utvei: posten som har en av navnets varianter blant sine varianter, når det er nøyaktig én
+    /// («omsorgskommunen» alene i køen er varianten av posten «omsorgskommune»). Flere poster gir null: posten gjettes ikke.</remarks>
+    public static ForhandPost? Finn(Kogruppe g)
+    {
+        if (PerNokkel.Value.GetValueOrDefault(g.Nokkel) is { } p) return p;
+        if (g.Varianter.Select(v => PerNokkel.Value.GetValueOrDefault(v.Normalisert)).FirstOrDefault(x => x is not null) is { } q) return q;
+        var ord = g.Varianter.Select(v => v.Normalisert).ToHashSet(StringComparer.Ordinal);
+        return Alle.Where(x => x.Varianter.Any(v => ord.Contains(v.Normalisert))).ToList() is [var eneste] ? eneste : null;
+    }
 
     /// <summary>Posten med nummeret («n70»), for «ta med i n70».</summary>
     public static ForhandPost? FinnNr(string nr) => PerNr.Value.GetValueOrDefault(nr);
@@ -294,23 +303,19 @@ public static class Forhandsklassifisering
             oppslag.Bestemmelser.TryGetValue(h.Eid, out var b);
             var rettskildeId = h.RettskildeId ?? (b.RettskildeId == Guid.Empty ? null : b.RettskildeId);
             var regelens = rettskildeId is { } id && regelensForslag.Contains((id, h.Eid));
+            var kanLagres = b.RettskildeId != Guid.Empty || regelens;
             var sitat = !string.IsNullOrWhiteSpace(h.Sitat) ? h.Sitat : b.Tekst;
-            hjemmel = new ForhandHjemmel(rettskildeId, h.Rettskilde ?? b.Rettskilde, h.Eid, AktorkoTjeneste.Bestemmelse(h.Eid), sitat,
-                !string.IsNullOrWhiteSpace(h.Sitat) ? "klassifiseringen" : b.Tekst is not null ? "basen" : "ingen", h.Kunnskapsstatus, regelens);
-            if (handling == Forhandshandling.Godkjenn && !regelens)
+            hjemmel = new ForhandHjemmel(kanLagres ? b.RettskildeId : rettskildeId, b.Rettskilde ?? h.Rettskilde, h.Eid, AktorkoTjeneste.Bestemmelse(h.Eid),
+                sitat, !string.IsNullOrWhiteSpace(h.Sitat) ? "klassifiseringen" : b.Tekst is not null ? "basen" : "ingen", h.Kunnskapsstatus, regelens, kanLagres);
+            if (handling == Forhandshandling.Godkjenn && !kanLagres)
             {
-                egneSteg.Add($"Hjemmelen ({hjemmel.Rettskilde ?? "rettskilden"} {hjemmel.Bestemmelse ?? h.Eid}, {h.Kunnskapsstatus ?? "uten kunnskapsstatus"}) er ikke et "
-                             + "av regelens hjemmelforslag, og godkjenningen i køen kan bare lagre et av dem eller «hjemmel mangler». Hjemmelen registreres "
-                             + "etterpå på aktørsiden eller begrepssiden.");
+                egneSteg.Add($"Hjemmelen ({h.Rettskilde ?? "rettskilden"} {hjemmel.Bestemmelse ?? h.Eid}) er ikke funnet entydig i korpus, og fila har ingen kilde "
+                             + "utenfor korpus. Godkjenningen kan ikke lagre den; den registreres etterpå på aktørsiden eller begrepssiden.");
             }
         }
 
-        if (handling == Forhandshandling.Godkjenn && p.NyNode is { } nyNode
-            && !g.Varianter.SelectMany(v => v.Skrivemater).Any(s => string.Equals(s.Tekst, nyNode, StringComparison.OrdinalIgnoreCase)))
-        {
-            egneSteg.Add($"Navnet i forslaget, «{nyNode}», står ikke i teksten. Køen lagrer bare en skrivemåte fra teksten (CLAUDE.md §8), så du må "
-                         + "velge skrivemåten selv, eller vente med navnet til grunnformen kan opprettes.");
-        }
+        // [ENDRET, Johanns avgjørelse 2026-11-05] Et navn i forslaget som ikke står i teksten (grunnformen), kan nå lagres av godkjenningen,
+        // kontrollert mot fila. Det er ikke lenger et eget steg.
         if (handling == Forhandshandling.Godkjenn && Forhandstype.FraFil(p.Type) == Forhandstype.Aktor && p.Undertype is { } undertype)
         {
             egneSteg.Add($"Aktørtypen ({undertype}) settes på aktørsiden; godkjenningen oppretter aktøren uten type.");
