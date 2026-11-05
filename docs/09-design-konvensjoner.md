@@ -1390,8 +1390,8 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
   «Hvor sikkert er det?» (Faglig vurdert / Godkjent). For klasse, rolle eller område uten hjemmel kommer «Hvor gjelder ‹den›?» (rettskildene
   der navnet står, eller hele korpuset). Knappen «Godkjenn «‹navn›»» er av med `Metatekst` som sier hva som mangler.
 - **Radioknapper i `Fieldset`, aldri i `Field`.** I en `Field` peker alle etikettene på den første knappen: i kaldsjekken 2026-11-05 valgte et
-  klikk på «Klasse» «Aktør». `Fieldset` + `Fieldset.Legend`, som `GeneriskEnSkjerm`. (Veiviserens `SikkerhetSteg` og stegene i
-  `NavnekandidatVeiviser.tsx` bruker `Field` rundt `Radio`; ikke kontrollert her.)
+  klikk på «Klasse» «Aktør». `Fieldset` + `Fieldset.Legend`, som `GeneriskEnSkjerm`. [ENDRET 2026-11-05] Veiviseren og de andre stedene
+  med samme mønster er rettet; regelen gjelder hele frontenden, se §51.
 - **Kvitteringen** er veiviserens «Dette skjedde» (§15): `success`-`Alert`, varslene som `warning`-`Alert`, linjene som `Metatekst`, og «Se
   aktøren ↗» / «Se begrepet ↗». Raden blir stående med `Tag` `success` «Behandlet: godkjent» (eller «ikke en aktør», «koblet») til køen leses
   på nytt; en godkjenning flytter ikke lista under brukeren.
@@ -1414,3 +1414,21 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
   Raden får ikke «Ikke i køen», og `Metatekst` ved «Legg N i navnekandidatkøen» sier hvor mange som er generiske ord. Alle andre kjente
   ord, også bøyningsformer av et generisk ord, holdes utenfor. Regelen er delt: `blirNavnekandidatIAktorsveipet` i
   `kandidater/aktorkorute.ts` speiler `AktorsveipRad.BlirNavnekandidat` i tjenesten. Gjelder bare aktørsveipet, ikke lasteren.
+
+## 51. Radiogrupper i `Fieldset`, aldri i `Field` (#440, Johanns avgjørelse 2026-11-05)
+
+- **Regelen:** en gruppe `Radio` (eller `Checkbox`) står i `Fieldset`, med `Fieldset.Legend` når gruppen har en synlig etikett. `Field` er for
+  ett felt med én etikett (`Select`, `Textfield`, `Combobox`).
+- **Hvorfor:** `Radio` og `Checkbox` er selv en `Field` (`<ds-field>` med input og etikett). Står flere av dem i en ytre `Field`, kobler den
+  ytre alle etikettene til den første knappen, og et klikk på en etikett velger den første. Funnet i aktørkøen (§50, «Klasse» valgte
+  «Aktør»).
+- **Gruppe uten synlig etikett:** `Fieldset` med `aria-label` lik spørsmålet i overskriften over («Hva slags ting er dette?»), ikke en ny
+  `Legend`. Da er skjermbildet uendret, og gruppen har et navn for skjermleser.
+- **Rettet 2026-11-05:** 17 grupper i 6 filer (16 radiogrupper og én gruppe avkrysningsbokser): `NavnekandidatVeiviser.tsx` (7),
+  `Utsagnssteg.tsx` (3: grunnlaget, tolkningsargumentene og godkjenningen i `SikkerhetSteg`), `BehandleGruppeDialog.tsx` (3),
+  `GeneriskOmtale.tsx` (2), `NodetypeVelger` i `begrep/Nodetype.tsx` (1) og `LeggTilVirksomhetRelasjonForm.tsx` (1).
+- **Kaldsjekket i veiviseren** (5373 mot API på 5387, ingenting lagret): et klikk på etiketten velger knappen den står ved, i «Hva slags
+  ting er dette?», «Hva slags aktør?», «Hvilken aktør?», grunnlaget og godkjenningen. De andre filene er ikke klikket i nettleseren; de har
+  samme endring og er dekket av testen under.
+- **Vakt:** `design/feltgrupper.test.ts` leser alle `.tsx`-filene (`import.meta.glob` med `?raw`) og feiler med fil og linje for hver
+  `Radio` eller `Checkbox` i en `Field`. Regelen står i den rene modulen `design/feltgrupper.ts` (§17). Testen fant de 17 før rettingen.

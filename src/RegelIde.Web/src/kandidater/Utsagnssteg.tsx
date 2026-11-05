@@ -44,7 +44,7 @@ export function GrunnlagSteg({
   return (
     <>
       {/* [ENDRET, #440, 2026-11-05] Radiogruppen står i `Fieldset`, ikke `Field`: i en `Field` peker alle etikettene på den første knappen,
-          så et klikk på etiketten «Kilde utenfor korpus» valgte «Hjemmel i korpus» (docs/09 §51). Gruppen hadde ingen etikett;
+          så et klikk på en etikett valgte den første knappen (docs/09 §51). Gruppen hadde ingen etikett;
           den får navnet fra stegets overskrift som `aria-label`, så skjermbildet er uendret. */}
       <Fieldset data-size="sm" aria-label="Hva bygger dette på?" style={{ marginBottom: '0.75rem' }}>
         <Radio name="grunnlag" label="Hjemmel i korpus" value="hjemmel" disabled={disabled}
