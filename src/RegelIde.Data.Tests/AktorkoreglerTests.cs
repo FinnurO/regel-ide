@@ -367,6 +367,157 @@ public class AktorkoreglerTests
         Assert.Contains(fraser, g => g.Varianter.Select(v => v.Normalisert).Order().SequenceEqual(["felles forliksråd", "felles forliksrådet"]));
     }
 
+    // ------------------------------------------------------------------ Forleddssperren i rutingen (#456, Johanns klarsignal 2026-11-05)
+
+    private static readonly Guid SamarbeidsutvalgetId = Guid.Parse("00000000-0000-0000-0000-00000000c456");
+
+    /// <summary><see cref="Tabell"/> med «samarbeidsutvalget» som kjent aktør (navneform) eller kjent klasse, slik det blir når Johann godkjenner
+    /// det i køen.</summary>
+    private static Rutingstabell TabellMedSamarbeidsutvalget(string art)
+    {
+        var t = Tabell();
+        var aktorer = t.Aktorer.ToDictionary(x => x.Key, x => x.Value);
+        var begreper = t.Begreper.ToDictionary(x => x.Key, x => x.Value);
+        if (art == "navneform")
+            aktorer["samarbeidsutvalget"] = [new("samarbeidsutvalget", "navneform", "Samarbeidsutvalget", SamarbeidsutvalgetId, Guid.NewGuid(), null, null)];
+        else
+            begreper["samarbeidsutvalget"] = [new("samarbeidsutvalget", art, "samarbeidsutvalget", null, Guid.NewGuid(), Barnehageloven, null)];
+        return new Rutingstabell(t.Generiske, aktorer, begreper, t.HjemmelLover);
+    }
+
+    /// <summary>Forekomsten av <paramref name="navn"/> (første treff) i <paramref name="tekst"/>, med posisjonen sveipet fant, og med frasen
+    /// sperren gir (<see cref="Aktorkoregler.MedForleddssperre"/>, samme vei som tjenesten).</summary>
+    private static KoForekomst Lest(string tekst, string navn)
+    {
+        var start = tekst.IndexOf(navn, StringComparison.Ordinal);
+        Assert.True(start >= 0, $"«{navn}» står ikke i teksten");
+        var f = new KoForekomst(Guid.NewGuid(), navn, Barnehageloven, $"https://test/§{Interlocked.Increment(ref _teller)}/ledd-1", start,
+            start + navn.Length, "gruppe", null, null);
+        return Aktorkoregler.MedForleddssperre(f, tekst);
+    }
+
+    /// <summary>«Står ‹felles samarbeidsutvalg› fortsatt i køen når ‹samarbeidsutvalget› er godkjent?» Ja: forleddssperren gjelder i rutingen
+    /// som i grupperingen, og forekomsten er et eget navn, ikke en bøyningsform av det kjente ordet.</summary>
+    [Theory]
+    [InlineData("navneform", Aktorkoruter.KjentAktor)]
+    [InlineData(Nodetyper.Klasse, Aktorkoruter.KjentBegrep)]
+    public void Felles_samarbeidsutvalg_rutes_til_koen_selv_om_samarbeidsutvalget_er_kjent(string art, string kjentRute)
+    {
+        var tabell = TabellMedSamarbeidsutvalget(art);
+        var felles = Lest(BhlParagraf5, "samarbeidsutvalg");
+        Assert.Equal("felles samarbeidsutvalg", felles.Frase);
+
+        var svar = Aktorkoregler.Ruter(tabell, felles);
+        Assert.Equal(Aktorkoruter.Aktorko, svar.Rute);
+        Assert.Equal("felles samarbeidsutvalg", svar.Normalisert);
+        Assert.Empty(svar.Treff);
+
+        // Kontroll: uten sperren (teksten alene, slik rutingen var før #456) er det en bøyningsform av det kjente ordet.
+        var uten = Aktorkoregler.Ruter(tabell, felles.Tekst, felles.RettskildeId);
+        Assert.Equal((Aktorkoruter.Boyningsform, kjentRute, "samarbeidsutvalget", "−et"), (uten.Rute, uten.BoyningAvRute, uten.Ligner, uten.Suffiks));
+
+        // Og i køen står den som eget navn, ved siden av de andre forekomstene av «samarbeidsutvalget» som (før godkjenningen) var der.
+        var grupper = Aktorkoregler.Grupper([F("samarbeidsutvalget"), felles]);
+        Assert.Contains(grupper, g => g.Nokkel == "felles samarbeidsutvalg" && g.Forekomster.Single().NavnekandidatId == felles.NavnekandidatId);
+    }
+
+    [Fact]
+    public void Blir_frasen_selv_kjent_rutes_forekomsten_ut_av_koen()
+    {
+        // Når «felles samarbeidsutvalg» er godkjent som aktør, er forekomsten kjent: samme ord, eller en bøyningsform med like forledd.
+        var t = TabellMedSamarbeidsutvalget("navneform");
+        var aktorer = t.Aktorer.ToDictionary(x => x.Key, x => x.Value);
+        aktorer["felles samarbeidsutvalg"] = [new("felles samarbeidsutvalg", "navneform", "Felles samarbeidsutvalg", Guid.NewGuid(), Guid.NewGuid(), null, null)];
+        var tabell = new Rutingstabell(t.Generiske, aktorer, t.Begreper, t.HjemmelLover);
+
+        Assert.Equal(Aktorkoruter.KjentAktor, Aktorkoregler.Ruter(tabell, Lest(BhlParagraf5, "samarbeidsutvalg")).Rute);
+        var boyning = Aktorkoregler.Ruter(tabell, Lest("Det skal være felles samarbeidsutvalget for skolene.", "samarbeidsutvalget"));
+        Assert.Equal((Aktorkoruter.Boyningsform, "felles samarbeidsutvalg"), (boyning.Rute, boyning.Ligner));
+    }
+
+    /// <summary>«Rutes alt annet som før?» Uten sperre gir forekomsten nøyaktig samme svar som teksten alene, også der en frase er lest
+    /// (tall- og mengdeord, ingen forledd) og der regelen ikke vet hvor frasen begynner.</summary>
+    [Theory]
+    [InlineData("departementet")]
+    [InlineData("Departementet")]
+    [InlineData("  kommunen ")]
+    [InlineData("Kongen")]
+    [InlineData("Kongen  i statsråd")]
+    [InlineData("Stortinget")]
+    [InlineData("kommune")]
+    [InlineData("departement")]
+    [InlineData("kommuner")]
+    [InlineData("Kongens")]
+    [InlineData("Utdanningsdirektoratet")]
+    [InlineData("departementene")]
+    [InlineData("fylkeskommunen")]
+    [InlineData("samarbeidsutvalg")]
+    public void Uten_sperre_er_rutingen_uendret(string tekst)
+    {
+        var tabell = TabellMedSamarbeidsutvalget("navneform");
+        var f = F(tekst);
+        Assert.Null(f.Frase);
+        Assert.Equal(Aktorkoregler.Ruter(tabell, tekst, Barnehageloven), Aktorkoregler.Ruter(tabell, f), RutingssvarLikhet.Instans);
+    }
+
+    [Theory]
+    [InlineData("For å sikre samarbeidet skal hver barnehage ha et foreldreråd og et samarbeidsutvalg.", "samarbeidsutvalg")] // ingen forledd
+    [InlineData("Barnehagen skal ha et eget samarbeidsutvalg.", "samarbeidsutvalg")]                                         // mengdeord
+    [InlineData("Kommunen skal legge saken fram for felles samarbeidsutvalg.", "samarbeidsutvalg")]                          // ingen frase lest
+    public void En_lest_forekomst_uten_sperre_er_fortsatt_en_boyningsform(string tekst, string navn)
+    {
+        var f = Lest(tekst, navn);
+        Assert.Null(f.Frase);
+        var svar = Aktorkoregler.Ruter(TabellMedSamarbeidsutvalget("navneform"), f);
+        Assert.Equal((Aktorkoruter.Boyningsform, "samarbeidsutvalget"), (svar.Rute, svar.Ligner));
+    }
+
+    [Fact]
+    public void Sperren_settes_bare_naar_teksten_fortsatt_har_navnet_paa_posisjonen()
+    {
+        var lest = Lest(BhlParagraf5, "samarbeidsutvalg");
+        Assert.NotNull(lest.Frase);
+        // Teksten er endret siden sveipet: posisjonen peker ikke lenger på navnet. Da gjettes ikke en frase (CLAUDE.md §8), og forekomsten
+        // rutes på teksten som før.
+        var endret = "Kort. " + BhlParagraf5;
+        var f = lest with { Frase = null };
+        Assert.Null(Aktorkoregler.MedForleddssperre(f, endret).Frase);
+        Assert.Null(Aktorkoregler.MedForleddssperre(f, null).Frase);
+        Assert.Null(Aktorkoregler.MedForleddssperre(f with { Start = -1 }, BhlParagraf5).Frase);
+        Assert.Equal(Aktorkoruter.Boyningsform, Aktorkoregler.Ruter(TabellMedSamarbeidsutvalget("navneform"), Aktorkoregler.MedForleddssperre(f, endret)).Rute);
+    }
+
+    /// <summary>AK3 med sperren: summen av rutene er antall ventende, og ingen kandidat står i to ruter, også når noen forekomster har frase.</summary>
+    [Fact]
+    public void Med_sperre_er_summen_av_rutene_antall_ventende_og_ingen_kandidat_star_i_to_ruter()
+    {
+        var tabell = TabellMedSamarbeidsutvalget("navneform");
+        var ventende = new[] { "departementet", "Kongen", "kommune", "kommuner", "departement", "Utdanningsdirektoratet", "samarbeidsutvalget",
+                "samarbeidsutvalg", "Stortinget", "kommunen" }.Select(t => F(t))
+            .Concat([Lest(BhlParagraf5, "samarbeidsutvalg"), Lest("For to kommuner skal det være et felles forliksråd.", "forliksråd"),
+                Lest("Departementet skal ha et regionalt kontor.", "kontor"), Lest("Retten skal ha en justitiarius og nitten andre dommere.", "dommere")])
+            .ToList();
+
+        var svar = ventende.Select(f => (f.NavnekandidatId, Aktorkoregler.Ruter(tabell, f).Rute)).ToList();
+
+        Assert.Equal(ventende.Count, svar.Select(s => s.NavnekandidatId).Distinct().Count()); // én rute per kandidat
+        Assert.All(svar, s => Assert.Contains(s.Rute, Aktorkoruter.Alle));
+        Assert.Equal(ventende.Count, Aktorkoruter.Alle.Sum(r => svar.Count(s => s.Rute == r)));
+        // Sperren flytter bare den ene: «samarbeidsutvalg» uten frase er fortsatt en bøyningsform, med frasen er den i køen.
+        Assert.Equal(Aktorkoruter.Boyningsform, svar[7].Rute);
+        Assert.Equal(Aktorkoruter.Aktorko, svar[10].Rute);
+    }
+
+    /// <summary>Likhet på det rutingen svarer (recorden har lister, så standardlikheten sammenligner referanser).</summary>
+    private sealed class RutingssvarLikhet : IEqualityComparer<Rutingssvar>
+    {
+        public static readonly RutingssvarLikhet Instans = new();
+        public bool Equals(Rutingssvar? a, Rutingssvar? b) => a is not null && b is not null
+            && (a.Rute, a.Normalisert, a.BoyningAvRute, a.Ligner, a.Suffiks, a.Standardregel) == (b.Rute, b.Normalisert, b.BoyningAvRute, b.Ligner, b.Suffiks, b.Standardregel)
+            && a.Treff.SequenceEqual(b.Treff);
+        public int GetHashCode(Rutingssvar s) => HashCode.Combine(s.Rute, s.Normalisert);
+    }
+
     [Fact]
     public void Normalisert_folger_frasen_ogsa_etter_with()
     {
