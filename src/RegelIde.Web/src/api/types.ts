@@ -3013,6 +3013,32 @@ export interface AktorkoRad {
   hjemmelforslag: number; forsteHjemmelforslag: AktorkoHjemmelforslag | null; genitivforslagInn: number; bareMerknader: boolean;
   /** [Ny, #440 PR 2] Grupperingen er satt av et menneske («skill ut» / «ta med»). */
   manuell?: boolean;
+  /** [Ny, #440, 2026-11-05] Forhåndsklassifiseringen; null når navnet kom i køen etterpå. */
+  forhand?: AktorkoForhandKort | null;
+}
+/** [Ny, #440, 2026-11-05] Forhåndsklassifiseringen (data/fasit/strukturmodell/aktorko-forhand, PR #462). Speiler `Forhandsklassifisering` i API-et. */
+export type Forhandstype = 'aktor' | 'klasse' | 'rolle' | 'omrade' | 'omtale' | 'ikke_aktor' | 'venter';
+export type Forhandshandling = 'godkjenn' | 'koble' | 'ikke_aktor' | 'generisk_omtale' | 'ta_med' | 'venter';
+export type Forhandssikkerhet = 'hoy' | 'middels' | 'lav';
+export interface AktorkoForhandKort {
+  nr: number; type: Forhandstype; sikkerhet: Forhandssikkerhet | null; handling: Forhandshandling;
+  /** Hva som er endret siden klassifiseringen; null når navnet er likt. */
+  utdatert: string | null;
+}
+export interface ForhandNode { id: string | null; navn: string; art: 'virksomhet' | 'begrep' | null; kategori: string | null; ny: boolean; finnes: boolean }
+export interface ForhandRelasjon { relasjon: string; til: ForhandNode | null; merknad: string | null; skrivesAvHandlingen: boolean; egetSteg: string | null }
+export interface ForhandHjemmel {
+  rettskildeId: string | null; rettskilde: string | null; eid: string; bestemmelse: string | null; sitat: string | null;
+  sitatKilde: 'klassifiseringen' | 'basen' | 'ingen'; kunnskapsstatus: string | null; erRegelensForslag: boolean;
+}
+export interface ForhandKobling { virksomhetId: string; virksomhetNavn: string; finnes: boolean; relasjon: string; navneformgrunn: string | null }
+export interface AktorkoForhandsklassifisering {
+  nr: number; type: Forhandstype; typeforslag: Forhandstype; undertype: string | null; nyNode: string | null; handling: Forhandshandling;
+  sikkerhet: Forhandssikkerhet | null; begrunnelse: string; relasjoner: ForhandRelasjon[]; hjemmel: ForhandHjemmel | null;
+  hjemmelStatus: string | null; hjemmelMerknad: string | null; juristdom: string | null; juristAlvor: string | null;
+  juristInnvending: string | null; modellererSvar: string | null; replikk: string | null; rettetEtterJuristen: boolean;
+  venterPaModellvalg: boolean; pilot: boolean; utdatert: string | null; kobling: ForhandKobling | null; taMedINokkel: string | null;
+  taMedINavn: string | null; egneSteg: string[]; kilde: string;
 }
 export interface AktorkoListe { ventende: number; antallNavn: number; medFlereForekomster: number; navn: AktorkoRad[] }
 export interface AktorkoGenitivforslag { fraNokkel: string; fraVariant: string; tilNokkel: string; etterledd: string; forekomster: number }
@@ -3031,6 +3057,8 @@ export interface AktorkoDetalj {
   manuell?: boolean;
   /** [Ny, Johanns avgjørelse 2026-11-01] Metateksten under «Hjemmel for aktøren mangler». */
   hullmerknad?: string | null;
+  /** [Ny, #440, 2026-11-05] Forhåndsklassifiseringen; null når navnet kom i køen etterpå. */
+  forhandsklassifisering?: AktorkoForhandsklassifisering | null;
 }
 
 /** [Ny, issue #440 PR 2] Hva navnet blir ved godkjenning. Ingenting er forhåndsvalgt. */

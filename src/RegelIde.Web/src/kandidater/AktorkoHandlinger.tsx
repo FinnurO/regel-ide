@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link as RouterLink } from 'react-router';
 import { Alert, Button, Card, Details, Field, Fieldset, Heading, Label, Radio, Select, Textarea } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
@@ -23,7 +23,32 @@ import { AKTORKORUTE_TEKST } from './aktorkorute';
  *
  * <p><b>Ingenting er forhåndsvalgt</b> (#440 AK5): typen, skrivemåten, hjemmelen og hvor sikkert det er, velges aktivt. Knappen er av med
  * `Metatekst` som sier hva som mangler. Reglene står i `aktorkoGodkjenning.ts` (med vitest).</p>
+ *
+ * <p>[ENDRET, #440, Johanns avgjørelse 2026-11-05] «Godta forslaget» i forhåndsklassifiseringen (`AktorkoForhandKort.tsx`) fyller ut skjemaene
+ * her (`forslag`-propene), og et menneske trykker på skjemaets egen knapp. Det er fortsatt ingen stille godkjenning: ingenting er fylt ut før
+ * noen har trykket «Godta forslaget», og ingenting lagres før skjemaets knapp. Det som ikke kunne fylles ut, står som merknad.</p>
  */
+
+/** Utkastet «Godta forslaget» fyller godkjenningen med. `nr` øker ved hvert klikk, så samme forslag kan fylles ut på nytt. */
+export interface ForslagTilGodkjenning { nr: number; utkast: GodkjenningUtkast; merknader: string[] }
+
+/** Det «Godta forslaget» fyller de andre handlingene med. */
+export interface ForslagTilAndre {
+  nr: number; handling: 'koble' | 'ikke_aktor' | 'generisk_omtale';
+  aktorId?: string; navn?: string | null; grunn?: string; begrunnelse?: string; ord?: string; merknader: string[];
+}
+
+/** Boksen som sier at skjemaet er fylt ut fra forslaget, og hva som ikke kunne fylles ut. `info`: et forslag ingen har vurdert (§50). */
+function FyltUt({ merknader, hva }: { merknader: string[]; hva: string }) {
+  return (
+    <Alert data-color="info" data-size="sm" style={{ marginBottom: '0.6rem' }}>
+      Fylt ut fra forhåndsklassifiseringen: {hva}. Se over, og bekreft med knappen under. Ingenting er lagret ennå.
+      {merknader.length > 0 && (
+        <ul style={{ margin: '0.3rem 0 0 1.1rem', padding: 0 }}>{merknader.map((m) => <li key={m}>{m}</li>)}</ul>
+      )}
+    </Alert>
+  );
+}
 
 function feiltekst(e: unknown, standard: string) {
   return e instanceof ApiError ? e.message : standard;
@@ -61,8 +86,17 @@ export function Kvittering({ k }: { k: AktorkoKvittering }) {
 }
 
 /** Godkjenningsskjemaet: aktør eller klasse/rolle/område, navneform med hjemmel eller «hjemmel mangler», og tagger for alle forekomstene. */
-export function Godkjenningsskjema({ detalj, onFerdig }: { detalj: AktorkoDetalj; onFerdig: (k: AktorkoKvittering) => void }) {
+export function Godkjenningsskjema({ detalj, onFerdig, forslag }: {
+  detalj: AktorkoDetalj; onFerdig: (k: AktorkoKvittering) => void; forslag?: ForslagTilGodkjenning;
+}) {
   const [u, setU] = useState<GodkjenningUtkast>(TOMT_UTKAST);
+  const kort = useRef<HTMLDivElement>(null);
+  // [Ny, #440] «Godta forslaget»: utkastet erstatter det som står, og skjemaet rulles fram. Ingenting sendes.
+  useEffect(() => {
+    if (!forslag) return;
+    setU(forslag.utkast);
+    kort.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [forslag?.nr]); // eslint-disable-line react-hooks/exhaustive-deps
   const [sender, setSender] = useState(false);
   const [feil, setFeil] = useState<string | null>(null);
   const sett = (endring: Partial<GodkjenningUtkast>) => setU((x) => ({ ...x, ...endring }));
@@ -85,12 +119,14 @@ export function Godkjenningsskjema({ detalj, onFerdig }: { detalj: AktorkoDetalj
   }
 
   return (
-    <Card style={{ padding: '0.75rem', marginTop: '0.75rem' }} data-color="neutral">
+    <Card ref={kort} style={{ padding: '0.75rem', marginTop: '0.75rem' }} data-color="neutral">
       <Heading level={4} data-size="2xs" style={{ marginBottom: '0.2rem' }}>Godkjenn</Heading>
       <Metatekst style={{ marginBottom: '0.6rem' }}>
         Én godkjenning oppretter {u.type ? AKTORKOTYPE_TEKST[u.type].bestemt.toLowerCase() : 'aktøren eller begrepet'}, navnet med hjemmel eller
-        «hjemmel mangler», og tagger for alle {detalj.forekomster} forekomstene, i én transaksjon. Ingenting er forhåndsvalgt.
+        «hjemmel mangler», og tagger for alle {detalj.forekomster} forekomstene, i én transaksjon. Ingenting er forhåndsvalgt
+        {detalj.forhandsklassifisering && detalj.forhandsklassifisering.handling === 'godkjenn' ? '; «Godta forslaget» over fyller ut skjemaet' : ''}.
       </Metatekst>
+      {forslag && <FyltUt merknader={forslag.merknader} hva="typen, navnet, hjemmelen, hvor den gjelder, «faglig vurdert» og begrunnelsen" />}
 
       <Fieldset data-size="sm" style={{ marginBottom: '0.6rem' }}>
         <Fieldset.Legend>Hva er «{detalj.navn}»?</Fieldset.Legend>
@@ -161,7 +197,9 @@ export function Godkjenningsskjema({ detalj, onFerdig }: { detalj: AktorkoDetalj
 }
 
 /** «Ikke en aktør», «Koble til en aktør som finnes» og «Tagg alle som generisk omtale», i en lukket `Details`. */
-export function AndreHandlinger({ detalj, onFerdig }: { detalj: AktorkoDetalj; onFerdig: (k: AktorkoKvittering) => void }) {
+export function AndreHandlinger({ detalj, onFerdig, forslag }: {
+  detalj: AktorkoDetalj; onFerdig: (k: AktorkoKvittering) => void; forslag?: ForslagTilAndre;
+}) {
   const n = detalj.nokkel;
   const [begrunnelse, setBegrunnelse] = useState('');
   const [virksomheter, setVirksomheter] = useState<VirksomhetDto[] | null>(null);
@@ -171,6 +209,24 @@ export function AndreHandlinger({ detalj, onFerdig }: { detalj: AktorkoDetalj; o
   const [feil, setFeil] = useState<string | null>(null);
   const [sender, setSender] = useState(false);
   const [apnet, setApnet] = useState(false);
+  // [ENDRET, #440] Styrt åpen/lukket, så «Godta forslaget» kan åpne den.
+  const [apen, setApen] = useState(false);
+  const boks = useRef<HTMLDivElement>(null);
+
+  // [Ny, #440] «Godta forslaget»: fyller ut handlingen forslaget gjelder, åpner boksen og ruller dit. Ingenting sendes.
+  useEffect(() => {
+    if (!forslag) return;
+    setApen(true);
+    setApnet(true);
+    if (forslag.handling === 'koble') {
+      setAktorId(forslag.aktorId ?? '');
+      setNavn(forslag.navn ?? null);
+      setGrunn(forslag.grunn ?? '');
+    } else if (forslag.handling === 'ikke_aktor') {
+      setBegrunnelse(forslag.begrunnelse ?? '');
+    }
+    boks.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [forslag?.nr]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (apnet && virksomheter === null) api.hentVirksomheter().then((v) => setVirksomheter(v.filter((x) => !x.erstattetAvId))).catch(() => setVirksomheter([]));
@@ -192,10 +248,17 @@ export function AndreHandlinger({ detalj, onFerdig }: { detalj: AktorkoDetalj; o
   const varsel = navn && aktor ? grunnvarsel(grunn || null, navn, aktor.navn) : null;
 
   return (
-    <Details style={{ marginTop: '0.75rem' }} onToggle={() => setApnet(true)}>
+    <div ref={boks}>
+    <Details style={{ marginTop: '0.75rem' }} open={apen}
+      onToggle={(e) => { const o = (e.target as HTMLDetailsElement).open; setApen(o); if (o) setApnet(true); }}>
       <Details.Summary>Andre handlinger: ikke en aktør, koble til en aktør som finnes, generisk omtale</Details.Summary>
       <Details.Content>
         {feil && <Alert data-color="danger" data-size="sm" style={{ marginBottom: '0.5rem' }}>{feil}</Alert>}
+        {forslag && (
+          <FyltUt merknader={forslag.merknader}
+            hva={forslag.handling === 'koble' ? '«Koble til en aktør som finnes»' : forslag.handling === 'ikke_aktor' ? '«Ikke en aktør» med begrunnelsen'
+              : `tørrkjøringen av «Tagg alle som generisk omtale» for «${forslag.ord}»`} />
+        )}
 
         <Heading level={5} data-size="2xs" style={{ marginBottom: '0.3rem' }}>Ikke en aktør</Heading>
         <Metatekst style={{ marginBottom: '0.3rem' }}>Alle {detalj.forekomster} forekomstene avvises med begrunnelsen. Radene slettes ikke.</Metatekst>
@@ -243,15 +306,21 @@ export function AndreHandlinger({ detalj, onFerdig }: { detalj: AktorkoDetalj; o
         <Metatekst style={{ marginBottom: '0.3rem' }}>
           Per ord, og bare nøyaktig ordet (ikke bøyningsformer). Tørrkjøringen viser hva som ville skjedd; «Lagre» er et eget klikk.
         </Metatekst>
-        {detalj.varianter.map((v) => <GeneriskOmtale key={v.normalisert} ord={v.normalisert} onFerdig={onFerdig} />)}
+        {detalj.varianter.map((v) => (
+          <GeneriskOmtale key={v.normalisert} ord={v.normalisert} onFerdig={onFerdig}
+            torrkjorVed={forslag?.handling === 'generisk_omtale' && forslag.ord === v.normalisert ? forslag.nr : undefined} />
+        ))}
       </Details.Content>
     </Details>
+    </div>
   );
 }
 
 /** Tørrkjøring og lagring av «Tagg alle som generisk omtale» for ett ord (Johanns avgjørelse 2026-10-30). Også brukt i fordelingen. */
-export function GeneriskOmtale({ ord, onFerdig, onLagret }: {
+export function GeneriskOmtale({ ord, onFerdig, onLagret, torrkjorVed }: {
   ord: string; onFerdig?: (k: AktorkoKvittering) => void; onLagret?: (r: GeneriskOmtaleRapport) => void;
+  /** [Ny, #440] «Godta forslaget» tørrkjører (skriver ingenting). Lagringen er fortsatt et eget klikk. */
+  torrkjorVed?: number;
 }) {
   const [torr, setTorr] = useState<GeneriskOmtaleRapport | null>(null);
   const [lagret, setLagret] = useState<GeneriskOmtaleRapport | null>(null);
@@ -280,6 +349,10 @@ export function GeneriskOmtale({ ord, onFerdig, onLagret }: {
       setSender(false);
     }
   }
+
+  useEffect(() => {
+    if (torrkjorVed !== undefined && !lagret) void kjor(false);
+  }, [torrkjorVed]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const utenfor = torr ? Object.entries(torr.utenforPerRute) : [];
   return (
