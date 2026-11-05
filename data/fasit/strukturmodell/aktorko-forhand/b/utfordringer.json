@@ -1,0 +1,2026 @@
+[
+ {
+  "id": "n97",
+  "dom": "innvending",
+  "gjelder": "utenfor_raden",
+  "alvor": "lav",
+  "innvending": "Typen omtale holder, men noden det vises til («forvaltningsorgan»), foreslås ikke i noe kort i a eller b, og den finnes ikke i basen (SELECT mot begreper og virksomheter). Omtalen peker derfor på ingenting. Klassen må foreslås i eget kort, med hjemmel i fvl. § 1 første ledd andre punktum («Som forvaltningsorgan reknes i denne lov et hvert organ for stat eller kommune»). Det er en definisjon, altså tekstfunn. Samme forekomst står også som n176 («statlig forvaltningsorgan»), med samme eId og samme tekst. Grupperingen har gitt to navn for én omtale, og de to bør slås sammen («ta med»).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "forvaltningsloven § 1 første ledd andre punktum",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "barnehageloven § 40 første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n98",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Typen klasse holder. Men § 1 første ledd beskriver familievernets formål og oppgaver, og avgrenser ikke hvilke kontorer som hører til. Medlemsregelen står i § 2 første ledd: «Familievernkontorene drives av den statlige regionale familievernmyndigheten eller den som statlig regional familievernmyndighet inngår avtale med … De kontorer det inngås slik avtale med, faller inn under denne loven.» Etter Johanns regel 2 (hjemmel eller medlemsregel med kilde) bør § 2 første ledd være hjemmelen, med status fortolkning. En relasjon til driftsansvarlig myndighet mangler også. At «statlig regional familievernmyndighet» er Bufetat, er en [slutning] og står ikke i loven.",
+  "retting": {
+   "hjemmel": {
+    "eid": "https://lovdata.no/eli/lov/1997/06/19/62/nor/§2/ledd-1",
+    "kunnskapsstatus": "fortolkning"
+   }
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "familievernkontorloven § 2 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "familievernkontorloven § 1 første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n99",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Det er et avkortet treff av «Felles klagenemnd» (§ 7-5 andre ledd). Navnet på noden det vises til, må følge n100. Der foreslår jeg «Felles klagenemnd» uten «(NTNU)», fordi nemnda er nasjonal.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2026-02-03-387 § 7-5 andre ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n100",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "hoy",
+  "innvending": "Feil referent og en styringslinje som ikke finnes. «Felles klagenemnd» er den nasjonale klagenemnda som Kunnskapsdepartementet oppnevner, ikke et organ i NTNU. Det sier korpuset selv. UiB-forskriftene (FOR-2025-02-13-282 og -283 § 17-2 andre ledd) har «den nasjonale Felles klagenemnd», og Noroff-forskriften (FOR-2024-10-11-3715 § 4-5 tredje ledd) har «Felles Klagenemnd oppnevnt av Kunnskapsdepartementet». UiS- og Oslo Nye Høyskole-forskriftene viser til samme nemnd. Lovgrunnlaget er uhl. § 14-2 første ledd: «Departementet kan opprette nasjonale klagenemnder som skal behandle klager på enkeltvedtak …» Status er fortolkning, fordi bestemmelsen er en adgang og ikke navngir nemnda. Relasjonen organ_i NTNU gjør en nasjonal nemnd til et organ under institusjonen den overprøver, og må ut. Advarsel for grupperingen: «felles klagenemnd» betyr noe annet i FOR-2020-02-13-688 § 2-9, nemlig felles klagenemnd for Skrivekunstakademiet og Norsk barnebokinstitutt. Slike forekomster må ikke slås inn hit.",
+  "retting": {
+   "ny_node": "Felles klagenemnd",
+   "relasjoner": [
+    {
+     "relasjon": "opprettet_av",
+     "til": {
+      "id": "61b9a4f8-b938-4a97-903e-b993b0134fc8",
+      "navn": "Kunnskapsdepartementet",
+      "tabell": "virksomheter",
+      "kategori": "virksomhet"
+     },
+     "merknad": "[slutning] uhl. § 14-2 første ledd gir adgangen; at Felles klagenemnd er opprettet etter den, bygger på Noroff-forskriften § 4-5 og UiB-forskriftene § 17-2"
+    }
+   ],
+   "hjemmel": {
+    "eid": "https://lovdata.no/eli/lov/2024/03/08/9/nor/§14-2/ledd-1",
+    "kunnskapsstatus": "fortolkning"
+   },
+   "hjemmel_status": "fortolkning"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "universitets- og høyskoleloven § 14-2 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FOR-2025-02-13-282 § 17-2 andre ledd",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "FOR-2024-10-11-3715 § 4-5 tredje ledd",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "FOR-2020-02-13-688 § 2-9 første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n101",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Typen og hjemmelen holder: bhl. § 5 første ledd, med forleddssperren fra §5.16. Men relasjonen organ_i kommune står ikke i teksten, og den er ikke merket som slutning. Teksten sier «Kommunen kan bestemme at det skal være felles samarbeidsutvalg for kommunal barnehage og grunnskole». Det er kommunens kompetanse til å bestemme, ikke at utvalget er organ i kommunen. Utvalget er for barnehagen og skolen. Etter andre punktum kan det også omfatte privat barnehage og privat skole, og da er det i hvert fall ikke et kommunalt organ. Tredje punktum viser til § 4 tredje ledd, så klassen er en underklasse av samarbeidsutvalg (n41).",
+  "retting": {
+   "relasjoner": [
+    {
+     "relasjon": "underklasse_av",
+     "til": {
+      "ny_node": "samarbeidsutvalg"
+     },
+     "merknad": "bhl. § 5 første ledd tredje punktum: settes sammen etter § 4 tredje ledd"
+    },
+    {
+     "relasjon": "organ_for",
+     "til": {
+      "ny_node": "barnehage"
+     },
+     "merknad": "felles for barnehage og grunnskole; etter andre punktum også privat barnehage og skole"
+    },
+    {
+     "relasjon": "kan_bestemmes_av",
+     "til": {
+      "id": "eb25cd79-007e-404d-9cd5-c85800b65272",
+      "navn": "kommune",
+      "tabell": "begreper",
+      "kategori": "klasse"
+     },
+     "merknad": "kompetanse («Kommunen kan bestemme»), ikke organtilhørighet"
+    }
+   ]
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 5 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "barnehageloven § 4 tredje ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n102",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Typen ordning holder, og ftrl. § 1-1 som hjemmel med status fortolkning kan stå. Men relasjonene mangler, og de står i korpuset. (1) Nav-loven § 4 andre ledd: «Etaten skal forvalte arbeidsmarkedsloven, folketrygdloven, med unntak av kapittel 5 …» Det gir R forvaltes_av Arbeids- og velferdsetaten, avgrenset til folketrygdloven unntatt kapittel 5, som tekstfunn. (2) Ftrl. § 21-11 a første ledd gir R forvaltes_av Helsedirektoratet for kapittel 5 (docs/33 §4.5). Forekomsten i hol. § 11-5 gjelder helsetjenester, altså kapittel 5. Merk at docs/33 §4.5 sier at det er et «synlig hull» for de andre kapitlene. Nav-loven § 4 andre ledd fyller det hullet.",
+  "retting": {
+   "relasjoner": [
+    {
+     "relasjon": "forvaltes_av",
+     "til": {
+      "id": "bbabbed0-d4d4-4f02-a9b7-69ad0aab4c2c",
+      "navn": "HELSEDIREKTORATET",
+      "tabell": "virksomheter",
+      "kategori": "virksomhet"
+     },
+     "merknad": "ftrl. § 21-11 a første ledd, avgrenset til kapittel 5 (tekstfunn)"
+    },
+    {
+     "relasjon": "forvaltes_av",
+     "til": {
+      "id": "b3bdec90-3c3a-4f8a-8f3c-519e47e93054",
+      "navn": "ARBEIDS- OG VELFERDSETATEN",
+      "tabell": "virksomheter",
+      "kategori": "virksomhet"
+     },
+     "merknad": "Nav-loven § 4 andre ledd, folketrygdloven unntatt kapittel 5 (tekstfunn)"
+    }
+   ]
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "arbeids- og velferdsforvaltningsloven § 4 andre ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "folketrygdloven § 21-11 a første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "folketrygdloven § 1-1 første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n103",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "hoy",
+  "innvending": "Typen klasse og hjemmelen (dl. § 27 første ledd, normalisering) holder. Relasjonen organ_i kommune er feil. Den gjør forliksrådet til et organ i kommunen som rettssubjekt, og den styringslinjen finnes ikke. Forliksrådet er en domstol: dl. § 1 andre ledd («meklingsinstitusjoner med begrenset domsmyndighet»), og § 27 fjerde ledd («leder for domstolen»). Namsfogden er sekretariat (§ 27 sjette ledd). Kommunestyret velger medlemmene og formannen (§ 27 tredje ledd, § 57), men det er oppnevningskompetanse, ikke organtilhørighet. «I hver kommune» er territorielt. Tilknytningen er at forliksrådet har kommunens territorium som virkeområde, og § 27 sjuende ledd tillater felles forliksråd for flere kommuner. Derfor er «ett per kommune» heller ikke unntaksfritt.",
+  "retting": {
+   "relasjoner": [
+    {
+     "relasjon": "har_ansvarsomrade",
+     "til": {
+      "id": "eb25cd79-007e-404d-9cd5-c85800b65272",
+      "navn": "kommune",
+      "tabell": "begreper",
+      "kategori": "klasse"
+     },
+     "merknad": "kommunens territorium, ikke rettssubjektet (dl. § 27 første ledd); felles forliksråd for flere kommuner etter § 27 sjuende ledd"
+    },
+    {
+     "relasjon": "sekretariat",
+     "til": {
+      "tekst": "namsfogden"
+     },
+     "merknad": "dl. § 27 sjette ledd"
+    }
+   ]
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "domstolloven § 27 første, tredje, sjette og sjuende ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "domstolloven § 1 andre ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n104",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Det er tittelen på en opphevet forskrift og ikke en aktør.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n105",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Det er tittelen på et dokument.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n106",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Fosterforeldre er private parter. Institusjonen opptrer her på vegne av barnet, og det er regellaget. Navnet har to referenter, men begge er ikke-aktører, så grupperingen skader ikke.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n107",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder som venter. Hvordan «fremmed stat» skal modelleres, avhenger av valget for «stat» og «Norge», altså om stat blir rettssubjekt, område eller klasse. Sverige og Finland (n28, n45) venter av samme grunn. Hvis notatet bare gjelder Norges forvaltningsnivåer, kan navnet klassifiseres som ikke-aktør (avtalepart, avtalen er en kilde utenfor korpus).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n108",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Referenten finnes alt i basen. Virksomheten «BARNEVERNS- OG HELSENEMNDA» (d1aabe5f-3e6d-4016-b6e9-244d5b00fd64, orgnr 995710757) har navneformen «Barneverns- og helsenemnda». Forslaget oppretter likevel en ny klasse «barneverns- og helsenemnd» og kobler det utgåtte navnet dit, uten noen relasjon til virksomheten. Da får samme organ to noder. «fylkesnemnda» i hol. § 10-6 andre ledd er det gamle navnet (teksten i korpuset er ikke oppdatert, mens § 9-11 andre ledd bruker det nye). Navnet bør kobles som utgått navneform til den eksisterende virksomheten. Hjemmelen er bvl. § 14-1 første ledd, fortolkning. Vil man i tillegg ha en klasse fordi § 14-1 andre ledd taler om «nemndenes stedlige virkeområde», må forholdet til virksomheten avgjøres først. Ellers lager vi et duplikat.",
+  "retting": {
+   "type": "omtale",
+   "ny_node": null,
+   "relasjoner": [
+    {
+     "relasjon": "utgatt_navn",
+     "til": {
+      "id": "d1aabe5f-3e6d-4016-b6e9-244d5b00fd64",
+      "navn": "BARNEVERNS- OG HELSENEMNDA",
+      "tabell": "virksomheter",
+      "kategori": "virksomhet"
+     },
+     "merknad": "hol. § 10-6 andre ledd bruker fortsatt «fylkesnemnda»; § 9-11 andre ledd har det nye navnet"
+    }
+   ],
+   "hjemmel": {
+    "eid": "https://lovdata.no/eli/lov/2021/06/18/97/nor/§14-1/ledd-1",
+    "kunnskapsstatus": "fortolkning"
+   }
+  },
+  "ny_rad": null,
+  "implementeringsstatus": "bygget",
+  "kilder": [
+   {
+    "ref": "barnevernsloven § 14-1 første og andre ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "helse- og omsorgstjenesteloven § 9-11 andre ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n109",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder (pilot). Treffet har tatt med «Før», og referenten er klassen kommune via standardregelen. Fylkeskommunen står utenfor tekstformen.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n110",
+  "dom": "innvending",
+  "gjelder": "utenfor_raden",
+  "alvor": "lav",
+  "innvending": "Rollen, hjemmelen (dl. § 10 første ledd) og statusen holder. Men relasjonen peker på ny_node «lagmannsrett», og den foreslås ikke i noe kort i a eller b. Klassen finnes heller ikke i basen, bare de seks lagmannsrettene som virksomheter. n86 og n143 viser til den samme ikke-foreslåtte noden. Klassen trenger et eget kort med hjemmel i dl. § 1 første ledd nr. 2 («lagmannsrettene») og de seks virksomhetene som medlemmer, på samme måte som n189 gjør for tingrett.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "domstolloven § 10 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "domstolloven § 1 første ledd nr. 2",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n111",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Det er klassen barnehage med vilkår, og vilkårene hører til regellaget.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n112",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Typen område (utgått fylke) holder. Relasjonen etterfulgt_av Innlandet er upresis. Innlandet ble opprettet av Hedmark og Oppland, så Hedmarks territorium inngår i Innlandet. Det er ikke en etterfølger én til én, og arv over etterfulgt_av ville gitt feil svar for Oppland-delen. Bruk inngår_i, eller O består_av fra Innlandet, med gyldighet fra 1.1.2020. Sammenslåingen er Stortingets vedtak og en kilde utenfor korpus. «Mangler» kan stå for selve fylket. Merk likevel at LOV-2016-06-17-61, som er lastet, lister «Hedmark» blant rikets fylker. Reindriftsloven § 4 bruker fortsatt det gamle navnet om det geografiske området.",
+  "retting": {
+   "relasjoner": [
+    {
+     "relasjon": "inngar_i",
+     "til": {
+      "id": "6ab58594-9255-4e6f-b8d0-9b91057e119c",
+      "navn": "Innlandet",
+      "tabell": "begreper",
+      "kategori": "omrade"
+     },
+     "merknad": "[slutning] Innlandet = Hedmark + Oppland fra 1.1.2020 (Stortingets vedtak 2017, kilde utenfor korpus); ikke etterfølger én til én"
+    }
+   ]
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "reindriftsloven § 4 første ledd",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "LOV-2016-06-17-61 kap. I",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "Stortingets vedtak om regionreformen 2017",
+    "funksjon": "ikke_funnet"
+   }
+  ]
+ },
+ {
+  "id": "n113",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Typen og hjemmelen (helseforetaksloven § 2 tredje ledd, tekstfunn) holder. Relasjonen gjengir bare halve leddet. Teksten sier «eies av ett eller flere regionale helseforetak eller helseforetak». Et helseforetak kan altså også eies av et annet helseforetak.",
+  "retting": {
+   "relasjoner": [
+    {
+     "relasjon": "eies_av",
+     "til": {
+      "ny_node": "regionalt helseforetak"
+     },
+     "merknad": "helseforetaksloven § 2 tredje ledd"
+    },
+    {
+     "relasjon": "eies_av",
+     "til": {
+      "ny_node": "helseforetak"
+     },
+     "merknad": "helseforetaksloven § 2 tredje ledd («eller helseforetak»)"
+    }
+   ]
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "helseforetaksloven § 2 tredje ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n114",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Distributiv omtale av klassen privat barnehage.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n115",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Det er riktig å koble navnet til den eksisterende virksomheten. Lovens navn er primært (docs/33 §5.8), så «Høyesterett» bør bli den gjeldende navneformen. Men korpuset har en bedre hjemmel enn oppregningen i dl. § 1. Det er Grl. § 88 første ledd («Høyesterett dømmer i siste instans»), og § 88 andre ledd har sammensetningen. Grunnloven er lastet. Dl. § 1 første ledd nr. 1 kan stå som tilleggskilde.",
+  "retting": {
+   "hjemmel": {
+    "eid": "https://lovdata.no/eli/lov/1814/05/17/nor/§88/ledd-1",
+    "kunnskapsstatus": "tekstfunn"
+   }
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Grunnloven § 88 første og andre ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "domstolloven § 1 første ledd nr. 1",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n116",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Feil undertype. Organisatorisk enhet er etter docs/33 §4.1 en «intern enhet uten selvstendig myndighet». Ankeutvalget har selvstendig avgjørelsesmyndighet etter loven: tvl. § 30-1 andre ledd («Anker over kjennelser og beslutninger avgjøres av Høyesteretts ankeutvalg»), § 30-2 sjuende ledd og § 30-3 andre ledd. Dl. § 5 første ledd sier at det er Høyesterett satt med tre dommere. Det er en sammensetning (lærdom L15, G settes_med), ikke en fast enhet med egne medlemmer. Modellér det som organ med organ_i Høyesterett og merknaden om sammensetningen. Fortolkning holder som status.",
+  "retting": {
+   "undertype": "organ",
+   "relasjoner": [
+    {
+     "relasjon": "organ_i",
+     "til": {
+      "id": "da59aa06-9f66-4b6e-a4cc-a9c0ca066929",
+      "navn": "NORGES HØYESTERETT",
+      "tabell": "virksomheter",
+      "kategori": "virksomhet"
+     },
+     "merknad": "Høyesterett satt med tre dommere (dl. § 5 første ledd, G settes_med); kompetansen står i tvl. §§ 30-1 til 30-3"
+    }
+   ]
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "domstolloven § 5 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "tvisteloven § 30-1 andre ledd",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "tvisteloven § 30-2 sjuende ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n117",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Det er private parter, og forbudet i hol. § 5-6 hører til regellaget.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n118",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Dette er i samsvar med juristrunde-440 h15: dl. § 55 a første ledd med status fortolkning. Aktøren finnes ikke i basen (SELECT på «innstillingsråd»).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "domstolloven § 55 a første ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n119",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. «klageinstansen» i § 8 andre ledd viser tilbake til første ledd («Kommunens klageorgan er klageinstans»), altså n127.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n120",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Typen klasse og underklasse_av barnehage holder. Relasjonen eies_av kommune er en slutning som ikke er merket, og merknaden «bhl. § 7 første ledd» gir et inntrykk av at den står der. Det gjør den ikke. Leddet sier «Kommunen har ansvaret for at kommunale barnehager drives i samsvar med loven». Det er ansvar, ikke eierskap. Eierskap forutsetter at barnehagen er et eget rettssubjekt. Kravet om eget rettssubjekt i § 7a første ledd gjelder bare private barnehager, så en kommunal barnehage er en del av kommunen. Erstatt eies_av med ansvarsrelasjonen fra teksten (tekstfunn).",
+  "retting": {
+   "relasjoner": [
+    {
+     "relasjon": "underklasse_av",
+     "til": {
+      "ny_node": "barnehage"
+     },
+     "merknad": ""
+    },
+    {
+     "relasjon": "ansvarlig",
+     "til": {
+      "id": "eb25cd79-007e-404d-9cd5-c85800b65272",
+      "navn": "kommune",
+      "tabell": "begreper",
+      "kategori": "klasse"
+     },
+     "merknad": "bhl. § 7 første ledd: «Kommunen har ansvaret for at kommunale barnehager drives i samsvar med loven» (tekstfunn); [slutning] ikke eget rettssubjekt, jf. § 7a første ledd"
+    }
+   ]
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 7 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "barnehageloven § 7a første og andre ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n121",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Én omtale av to klasser, og begge foreslås (n120, n4).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n122",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Det er i samsvar med juristrunde-440 h16: hol. § 5-5 første ledd («Kommunen skal ha en eller flere kommuneleger»), normalisering, rolle.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "helse- og omsorgstjenesteloven § 5-5 første ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n123",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Typen omtale holder (forekomsten står i en merknad, §5.14, men en omtale er ikke en hjemmel). Noden det vises til, «barnehagekommune (der barnet går i barnehage)», foreslås ikke i noe kort, så omtalen peker på ingenting. Merknaden kaller den selv «vertskommunen», og tilskuddsforskriften § 15 andre ledd bruker uttrykket normativt («kommunen der barnet går i barnehage»). Rollen bør enten være «vertskommune» (n192), avgrenset til refusjonsforholdet i tilskuddsforskriften § 15, eller foreslås i et eget kort. «Vertskommune» i kommuneloven kap. 20 (vertskommunesamarbeid) er en annen referent. Rollen må derfor være lovspesifikk og ikke et fast begrep for hele korpuset.",
+  "retting": {
+   "relasjoner": [
+    {
+     "relasjon": "omtale_av",
+     "til": {
+      "ny_node": "vertskommune"
+     },
+     "merknad": "rollen i refusjonsforholdet etter tilskuddsforskriften § 15 (lovspesifikk; ikke vertskommune etter koml. kap. 20)"
+    }
+   ]
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "forskrift om tildeling av tilskudd til private barnehager § 15 første og andre ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n124",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Kommune-delen er en generisk omtale. Fylkeskommune-delen venter med god grunn, siden den hører til notatet om forvaltningsnivåene.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n125",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Det er omtale av rollen lokal barnehagemyndighet, i samsvar med #418 (b) og docs/33 §5.10.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n126",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Det er en generell omtale i merknaden av hovedregelen i fvl. § 28, og den peker på samme rolle som n127.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n127",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder (pilot). Det er en rolle i samsvar med Johanns avgjørelse 2026-11-05, og fvl. § 28 andre ledd sier hvem som innehar den. Status fortolkning er riktig. En presisering: rollen innehas av et organ i kommunen (kommunestyret, formannskapet eller en særskilt klagenemnd), ikke av kommunen som rettssubjekt. Merknaden sier dette, men en relasjon rolle_innehas_av til kommunestyre (n139) e.l. ville uttrykt det uten fritekst.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "forvaltningsloven § 28 andre ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "forskrift om saksbehandlingsregler ved opptak i barnehage § 8 første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n128",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Genitivformen viser til klassen i n157.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n129",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Feil type. Navnet er ikke kommuneklassen med et vilkår, men en klasse som teksten selv definerer. Tilskuddsforskriften § 3 sjuende ledd siste punktum: «Med kommuner i tiltakssonen i Finnmark og Nord-Troms menes alle kommuner i Finnmark samt sju kommuner i Nord-Troms (Kåfjord, Skjervøy, Nordreisa, Kvænangen, Karlsøy, Lyngen og Storfjord).» Det er en ekstensjonal klasse med hjemmel, som «kommuner i forvaltningsområdet» i docs/33 §4.1. Forekomsten i § 7 sjuende ledd viser selv til definisjonen («jf. § 3 sjuende ledd siste punktum»). Navnet her er nøyaktig klassens navn, så klassen bør opprettes fra dette kortet. Medlemskapet går via området i n188. Forslaget er heller ikke konsistent: n188 oppretter området, men her og i n130 er tiltakssonen bare et vilkår. Medlemmene er offentlige pliktsubjekter («skal gi driftstilskudd»), så dette er ikke private parters rettigheter.",
+  "retting": {
+   "type": "klasse",
+   "ny_node": "kommuner i tiltakssonen i Finnmark og Nord-Troms",
+   "relasjoner": [
+    {
+     "relasjon": "underklasse_av",
+     "til": {
+      "id": "eb25cd79-007e-404d-9cd5-c85800b65272",
+      "navn": "kommune",
+      "tabell": "begreper",
+      "kategori": "klasse"
+     },
+     "merknad": ""
+    },
+    {
+     "relasjon": "medlemsregel",
+     "til": {
+      "ny_node": "tiltakssonen i Finnmark og Nord-Troms"
+     },
+     "merknad": "kommunene i området (n188), listet i § 3 sjuende ledd siste punktum"
+    }
+   ],
+   "hjemmel": {
+    "eid": "https://lovdata.no/eli/forskrift/2015/10/09/1166/nor/§3/ledd-7",
+    "kunnskapsstatus": "tekstfunn"
+   },
+   "hjemmel_status": "tekstfunn"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": "bygget",
+  "kilder": [
+   {
+    "ref": "forskrift om tildeling av tilskudd til private barnehager § 3 sjuende ledd siste punktum",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "samme forskrift § 7 sjuende ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n130",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Typen omtale holder, men referenten er feil. Det er omtale av klassen «kommuner i tiltakssonen i Finnmark og Nord-Troms» (se n129), som defineres i samme ledd («Med kommuner i tiltakssonen … menes …»). Det er ikke den generelle kommuneklassen. Bare «som ikke har kommunale ordinære barnehager» er et vilkår for regellaget.",
+  "retting": {
+   "relasjoner": [
+    {
+     "relasjon": "omtale_av",
+     "til": {
+      "ny_node": "kommuner i tiltakssonen i Finnmark og Nord-Troms"
+     },
+     "merknad": "vilkår: som ikke har kommunale ordinære barnehager (regellaget)"
+    }
+   ]
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "forskrift om tildeling av tilskudd til private barnehager § 3 sjuende ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n131",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Det er klassen kommune med et vilkår for regellaget, og teksten definerer ingen egen klasse.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n132",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Det er klassen kommune med et vilkår for regellaget, og teksten definerer ingen egen klasse.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n133",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Det er klassen kommune med et vilkår for regellaget, og teksten definerer ingen egen klasse.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n134",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Det er klassen kommune med et vilkår for regellaget, og teksten definerer ingen egen klasse.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n135",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Det er klassen kommune med et vilkår for regellaget, og teksten definerer ingen egen klasse.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n136",
+  "dom": "kontroller",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Må avgjøres. § 3 sjette ledd siste punktum definerer begrepet: «Med sentralitetssone 5 og sentralitetssone 6 menes kommuner som grupperes i nest-minst sentrale kommuner (klasse 5) eller minst sentrale kommuner (klasse 6) i den siste versjonen av sentralitetsindeksen som utarbeides av Statistisk sentralbyrå (oppdatert juni 2023).» Etter Johanns regel 2 er det en klasse med medlemsregel og kilde (SSB, utenfor korpus). Forekomsten er § 7 sjette ledd, som viser til § 3 sjette ledd siste punktum. I motsetning til tiltakssonen (n129, n188) har den ikke noe territorielt anker i registeret, og medlemskapet skifter med indeksen. Avgjør om slike tariffkriterier skal bli klasser i strukturen, eller om de skal bli vilkår i regellaget. Velges klasse, blir det klasse med hjemmel i § 3 sjette ledd og medlemsregel med kilde utenfor korpus.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "forskrift om tildeling av tilskudd til private barnehager § 3 sjette ledd siste punktum",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "SSBs sentralitetsindeks",
+    "funksjon": "ikke_funnet"
+   }
+  ]
+ },
+ {
+  "id": "n137",
+  "dom": "kontroller",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Må avgjøres. § 3 sjette ledd siste punktum definerer begrepet: «Med sentralitetssone 5 og sentralitetssone 6 menes kommuner som grupperes i nest-minst sentrale kommuner (klasse 5) eller minst sentrale kommuner (klasse 6) i den siste versjonen av sentralitetsindeksen som utarbeides av Statistisk sentralbyrå (oppdatert juni 2023).» Etter Johanns regel 2 er det en klasse med medlemsregel og kilde (SSB, utenfor korpus). Forekomsten er § 3 sjette ledd. I motsetning til tiltakssonen (n129, n188) har den ikke noe territorielt anker i registeret, og medlemskapet skifter med indeksen. Avgjør om slike tariffkriterier skal bli klasser i strukturen, eller om de skal bli vilkår i regellaget. Velges klasse, blir det klasse med hjemmel i § 3 sjette ledd og medlemsregel med kilde utenfor korpus.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "forskrift om tildeling av tilskudd til private barnehager § 3 sjette ledd siste punktum",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "SSBs sentralitetsindeks",
+    "funksjon": "ikke_funnet"
+   }
+  ]
+ },
+ {
+  "id": "n138",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Klassen kommune er omtalt i en merknad, og merknaden er ikke hjemmel.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n139",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Koml. § 5-3 første ledd står ordrett («Kommunestyret er det øverste organet i kommunen»). Klassen finnes ikke i basen.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "kommuneloven § 5-3 første ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n140",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. «selv» gir delegeringsadgang uttrykkelig_forbudt på kanten (P avtale i hol. § 6-1), ikke en ny node.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n141",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Rollen holder, men «mangler» er feil. Medlemsregelen står i samme ledd: «kompetent myndighet i en stat utpekt i samsvar med lov, forskrift eller administrasjonsbestemmelse i vedkommende stat». Etter Johanns regel 2 skal hullet da ikke vises. Hjemmelen er § 8 første ledd med status fortolkning, og selve utpekingen er en kilde utenfor korpus (fremmed rett). Yrkeskvalifikasjonsloven § 3 nr. 3 og 4 har en parallell («myndighet utpekt i henhold til lover eller forskrifter i vedkommende medlemsstat»). Rollen ligger utenfor norsk forvaltning, og den bør behandles på samme måte som n107 når stat-notatet er klart.",
+  "retting": {
+   "hjemmel": {
+    "eid": "https://lovdata.no/eli/forskrift/2008/09/12/1071/nor/§8/ledd-1",
+    "kunnskapsstatus": "fortolkning"
+   },
+   "hjemmel_status": "fortolkning"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2008-09-12-1071 § 8 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "yrkeskvalifikasjonsloven § 3 første ledd nr. 3",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n142",
+  "dom": "innvending",
+  "gjelder": "utenfor_raden",
+  "alvor": "lav",
+  "innvending": "Typen omtale holder. Det er kortform for barnekoordinator, og samme ledd sier «Dersom det er oppnevnt barnekoordinator»). Men noden «barnekoordinator» foreslås ikke i noe kort, og den finnes ikke i basen. Omtalen peker derfor på ingenting, og hjemmelen står på feil kort. En omtale har ikke hjemmel. Rollen trenger et eget kort: rolle «barnekoordinator», rolle_for kommune, hjemmel hol. § 7-2 a første ledd («skal kommunen oppnevne en barnekoordinator»), fortolkning. Oppnevning forutsetter rollen, men kunnskapsstatusen er riktig.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "helse- og omsorgstjenesteloven § 7-2 a første ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n143",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "«Mangler» er feil. Dl. § 10 første ledd er lovgrunnlaget for stillingene: «Lagmannsrettene skal ha en førstelagmann som leder og så mange lagmenn, lagdommere og jordskiftelagdommere som til enhver tid er bestemt.» Juristrunde-440 h17 sa det samme. Det står i samme ledd som hjemmelen n110 bruker for førstelagmannen, så de to kortene er inkonsistente. Status er normalisering (lagmenn → lagmann). Antallet er en kilde utenfor korpus (L14). § 11 fjerde ledd (lagmann som avdelingsleder) er en annen betydning. Det er ikke kontrollert hvilken av dem § 11 tredje ledd viser til. I tillegg: ny_node «lagmannsrett» er ikke foreslått i noe kort (se n110).",
+  "retting": {
+   "hjemmel": {
+    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§10/ledd-1",
+    "kunnskapsstatus": "normalisering"
+   },
+   "hjemmel_status": "normalisering"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "domstolloven § 10 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "domstolloven § 11 fjerde ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n144",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "«Mangler» er feil. Forekomsten står i § 3 andre ledd nr. 1, og innledningen i samme ledd oppretter rollen: «Klagenemnda skal ha seks medlemmer og være sammensatt slik: 1. En leder og en nestleder som skal være jurister …» Ordet står ordrett, så status er tekstfunn. Relasjonen til NOKUTs klagenemnd (n33) er riktig, fordi § 3 er i kap. 2. Navnet «leder (av nemnd)» antyder én felles rolle for alle nemnder. §§ 7 og 11 oppretter tilsvarende ledere for de to andre klagenemndene i samme forskrift, så rollen må være avgrenset per nemnd, eller hver nemnd må få sin egen relasjon.",
+  "retting": {
+   "hjemmel": {
+    "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§3/ledd-2",
+    "kunnskapsstatus": "tekstfunn"
+   },
+   "hjemmel_status": "tekstfunn"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2025-07-02-1462 § 3 andre ledd nr. 1",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "samme forskrift §§ 7 og 11 andre ledd nr. 1",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n145",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "«Mangler» er feil, og begrepet er definert i korpuset. Organisasjonsplan for redningstjenesten (FOR-2019-12-06-1740) kap. 1 pkt. 1.3 tredje ledd (eId kap-1/rom-1-3/ledd-3): «De lokale redningssentralene: Det ledelses- og koordineringsapparatet som iverksettes i et politidistrikt under en redningsaksjon.» Det er en definisjon, altså tekstfunn. Instruks for redningstjenesten (FOR-2013-09-13-1102) pkt. 1.5 nr. 3 gir medlemsregelen og ansvarsområdet: «De lokale redningssentralene har ansvar i et område som tilsvarer politidistriktene og Svalbard.» Nr. 2 og pkt. 2.6 viser at de er underlagt Hovedredningssentralen. Klasse kan stå (én per politidistrikt og Svalbard), og sikkerheten kan heves.",
+  "retting": {
+   "relasjoner": [
+    {
+     "relasjon": "har_ansvarsomrade",
+     "til": {
+      "tekst": "hvert politidistrikt og Svalbard"
+     },
+     "merknad": "Instruks for redningstjenesten pkt. 1.5 nr. 3 (tekstfunn)"
+    },
+    {
+     "relasjon": "underlagt",
+     "til": {
+      "tekst": "Hovedredningssentralen"
+     },
+     "merknad": "Instruks pkt. 1.5 nr. 2 og pkt. 2.6; Organisasjonsplan pkt. 1.4"
+    }
+   ],
+   "hjemmel": {
+    "eid": "kap-1/rom-1-3/ledd-3",
+    "kunnskapsstatus": "tekstfunn"
+   },
+   "hjemmel_status": "tekstfunn",
+   "sikkerhet": "hoy"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Organisasjonsplan for redningstjenesten (FOR-2019-12-06-1740) pkt. 1.3 tredje ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "Instruks for redningstjenesten (FOR-2013-09-13-1102) pkt. 1.5 nr. 2 og 3",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n146",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Utdanningsstøtteloven § 18 første ledd med status fortolkning er riktig, og forskriften § 1 første ledd nr. 3 navngir nemnda. En liten presisering: at nemnda er klageinstans for Lånekassens vedtak, er en [slutning]. Loven sier «enkeltvedtak etter denne loven».",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "utdanningsstøtteloven § 18 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FOR-2025-07-02-1462 § 1 første ledd nr. 3",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n147",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Typen område (utgått kommune) holder. De seks andre kommunene i samme tittel er rutet som kjente områder, og det taler for samme løsning. Relasjonen etterfulgt_av Orkland er upresis. Orkland ble dannet av Agdenes, Meldal, Orkdal og en del av Snillfjord, så Meldals territorium inngår i Orkland. Det er ikke en etterfølger én til én (som n112). Forekomsten står i tittelen på Trollheimenloven (LOV-1984-12-21-101). Den loven er lastet, og § 1 og § 3 første ledd navngir Meldal som kommune i lovens område (se n190).",
+  "retting": {
+   "relasjoner": [
+    {
+     "relasjon": "inngar_i",
+     "til": {
+      "id": "b026a774-a0b2-4acf-a8fd-14f69492b77b",
+      "navn": "Orkland",
+      "tabell": "begreper",
+      "kategori": "omrade"
+     },
+     "merknad": "[slutning] Orkland fra 1.1.2020 = Agdenes + Meldal + Orkdal + del av Snillfjord; kilde utenfor korpus"
+    }
+   ]
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Trollheimenloven (LOV-1984-12-21-101) § 1 første ledd",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "reindriftsloven § 2 andre ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n148",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder (pilot). «myndighetsnivåene» betyr forvaltningsnivåene og hører til notatet. Leddet er en ikke-normativ beskrivelse («kan gi informasjon … til»), og ingen kant kan bygges på det. Blir notatet forsinket, kan navnet også klassifiseres som ikke-aktør uten at noe går tapt.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n149",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder (pilot). § 5 står i kap. 2 (NOKUTs klagenemnd), så genitiven peker på NOKUTs klagenemnd. Merk at §§ 9 og 13 har samme ordlyd for de to andre nemndene. Senere forekomster av «nemndas leder» må grupperes per kapittel og ikke slås sammen.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2025-07-02-1462 § 5 første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n150",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Samme feil som n144. Rollen opprettes i § 3 andre ledd: «Klagenemnda skal ha seks medlemmer og være sammensatt slik: 1. En leder og en nestleder …», og forekomsten står i det punktet. Status er tekstfunn, ikke «mangler». Rollen må avgrenses per nemnd (§§ 7 og 11 har egne nestledere).",
+  "retting": {
+   "hjemmel": {
+    "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§3/ledd-2",
+    "kunnskapsstatus": "tekstfunn"
+   },
+   "hjemmel_status": "tekstfunn"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2025-07-02-1462 § 3 andre ledd nr. 1",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n151",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Aktøren holder, og den finnes ikke i basen (SELECT på «kvalitet i utdanning» og «nokut»). Men «mangler» er for strengt. Uhl. § 16-1 første ledd navngir organet med fullt navn og kortform («Nasjonalt organ for kvalitet i utdanningen (NOKUT)»). Kapittel 16 gir det oppgaver og faglig uavhengighet (§ 16-2), og § 16-4 gir det et styre. Fagskoleloven § 4 b har det samme. Ingen bestemmelse oppretter NOKUT uttrykkelig, så status blir fortolkning. Etter docs/33 §5.8 er lovens fulle navn primært, og «NOKUT» er kortform. Godkjenningen kan bare bruke skrivemåten i forekomsten, så det fulle navnet må legges til som navneform etterpå.",
+  "retting": {
+   "hjemmel": {
+    "eid": "https://lovdata.no/eli/lov/2024/03/08/9/nor/§16-1/ledd-1",
+    "kunnskapsstatus": "fortolkning"
+   },
+   "hjemmel_status": "fortolkning"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "universitets- og høyskoleloven § 16-1 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "universitets- og høyskoleloven §§ 16-2 og 16-4",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "fagskoleloven § 4 b første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n152",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Det er en annen skrivemåte for NTNU, og den står i tittelen på den opphevede forskriften. En navneform med grunn er nok.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n153",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Det er en del av en lovtittel (lov om Norgespris og strømstønad).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n154",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Ikke-aktør er feil. Navnet er subjekt for en kompetanse, og kompetanse er struktur (FORMAT.md): «kan offentlige myndigheter uten hinder av taushetsplikt innhente opplysninger fra Folkeregisteret». Referenten er klassen av offentlige organer som utfører oppgaver etter barnehageloven, altså forvaltningsorgan (fvl. § 1) med en avgrensning. Navnet bør være en omtale av klassen forvaltningsorgan. Den klassen mangler et kort (se n97).",
+  "retting": {
+   "type": "omtale",
+   "relasjoner": [
+    {
+     "relasjon": "omtale_av",
+     "til": {
+      "ny_node": "forvaltningsorgan"
+     },
+     "merknad": "avgrenset: som utfører oppgaver etter barnehageloven; subjekt for innhentingskompetanse (§ 1 første ledd)"
+    }
+   ]
+  },
+  "ny_rad": null,
+  "implementeringsstatus": "bygget",
+  "kilder": [
+   {
+    "ref": "FOR-2018-09-28-1479 § 1 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "forvaltningsloven § 1 første ledd andre punktum",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n155",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Det er private organisasjoner med medvirkningsrett, og det hører til regellaget.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n156",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Rollen og hjemmelen holder, men statusen er for svak. FOR-2017-06-22-1049 § 1 andre ledd sier «Barnehagen skal ha minst én pedagogisk leder per syv barn …». Ordet står ordrett, og «minst én» er et mengdeord. Det er altså tekstfunn, ikke fortolkning. Bhl. § 25 første ledd («Pedagogiske ledere må ha utdanning som barnehagelærer») forutsetter rollen på lovnivå og kan stå som tilleggskilde.",
+  "retting": {
+   "hjemmel": {
+    "eid": "https://lovdata.no/eli/forskrift/2017/06/22/1049/nor/§1/ledd-2",
+    "kunnskapsstatus": "tekstfunn"
+   },
+   "hjemmel_status": "tekstfunn"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2017-06-22-1049 § 1 andre ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "barnehageloven § 25 første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n157",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder (pilot). Opplæringslova § 11-13 første ledd («Kommunen og fylkeskommunen skal ha ei pedagogisk-psykologisk teneste») er kontrollert, og status er normalisering. Hjemmelen står i en annen lov, og det er tillatt for saksbehandleren (juristrunde-440 punkt 7). Fylkeskommune-delen venter med god grunn. To små ting: PPT er en tjeneste (organisatorisk enhet) og ikke et organ, så organ_i er bare en etikett. Og «én per kommune» er ikke unntaksfritt, fordi tjenesten kan være interkommunal.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "opplæringslova § 11-13 første ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n158",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Bestemt form av n157.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n159",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder (pilot). Flertallsform av rollen i n156.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n160",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Omtale av rollen barnehageeier (n3), avgrenset til private.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n161",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n162",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Vedlegg I er en ekstensjonal liste, men medlemmene er private barnehager med krav på tilskudd. Det er private parters rettigheter og hører til regellaget (FORMAT.md). Til forskjell fra n129 blir det derfor ikke en egen klasse her.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n163",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Vilkår for regellaget.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n164",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Vilkår for regellaget.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n165",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Private skoler med barnehage i et unntak fra økonomiforskriften. Det hører til regellaget.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n166",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Flertallsform av klassen i n10.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n167",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Typen omtale holder, men noden det vises til, «domstol (den som behandler saken)», er ikke en node i modellen. Den foreslås ikke i noe kort og finnes ikke i basen. «retten» er nettopp det generiske ordet docs/33 §5.7 bruker som eksempel. Det bør tagges som generisk navneform («Tagg alle som generisk omtale», §5.16.1). Referenten (den domstolen som har saken) avgjøres da i saken (#314). Det er ikke en fast relasjon.",
+  "retting": {
+   "relasjoner": [
+    {
+     "relasjon": "generisk_omtale",
+     "til": null,
+     "merknad": "generisk navneform «retten»; referenten avgjøres i saken (#314), oppløsning saksforhold"
+    }
+   ]
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "domstolloven § 101 første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n168",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Rollen holder, men «mangler» er for strengt, og rollen er ikke avgrenset (docs/33 §4.1: en rolle er «alltid avgrenset»). Dl. § 101 første ledd sier hvordan rollen oppstår («Rettsvitner oppnevnes av retten eller av den tjenestemann som skal styre forretningen»). Andre ledd gir medlemsregelen (borgerplikt for den som står i manntallet for kommunale valg i domssognet). Hjemmelen er § 101 første ledd med status fortolkning. Oppnevning forutsetter rollen, så regelen ville ikke gitt forslag, men et menneske kan registrere den. Rollen innehas av privatpersoner. Strukturverdien ligger i oppnevningskompetansen til retten.",
+  "retting": {
+   "relasjoner": [
+    {
+     "relasjon": "rolle_for",
+     "til": {
+      "tekst": "retten / den som styrer forretningen"
+     },
+     "merknad": "dl. § 101 første ledd"
+    }
+   ],
+   "hjemmel": {
+    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§101/ledd-1",
+    "kunnskapsstatus": "fortolkning"
+   },
+   "hjemmel_status": "fortolkning"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "domstolloven § 101 første og andre ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n169",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Barnehagens revisor er en privat part.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n170",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Det er riktig at ingen ny node skal opprettes, men da er typen omtale og ikke område med ny_node null. To samme_som-relasjoner til to forskjellige noder (Oslo kommuneområde 0301 og Oslo fylke 03) er selvmotsigende. Høyesteretts sete er en by. Etter #312 går har_sete_i til kommuneområdet, så bare c119f08f (kommune 0301) skal stå. At rikets hovedstad er Oslo, står ikke i korpuset, og Grl. § 68 sier også bare «rikets hovedstad». Slutningen er riktig merket. Den beste statusen er eksternt dokumentert.",
+  "retting": {
+   "type": "omtale",
+   "relasjoner": [
+    {
+     "relasjon": "samme_som",
+     "til": {
+      "id": "c119f08f-ced7-453c-905b-46c8ef53b253",
+      "navn": "Oslo",
+      "tabell": "begreper",
+      "kategori": "omrade"
+     },
+     "merknad": "[slutning] kommuneområdet Oslo (0301), ikke fylket; kilde utenfor korpus"
+    }
+   ]
+  },
+  "ny_rad": null,
+  "implementeringsstatus": "bygget",
+  "kilder": [
+   {
+    "ref": "domstolloven § 3 første ledd",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "hovedstadsstatus for Oslo",
+    "funksjon": "ikke_funnet"
+   }
+  ]
+ },
+ {
+  "id": "n171",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Det er i samsvar med juristrunde-440 h18: koble til «SAMEDIGGI / SAMETINGET», sameloven § 1-2 første ledd, normalisering.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "sameloven § 1-2 første ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n172",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Det er et register og ikke en aktør.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n173",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. «skattemyndighetene» betyr Skatteetaten. Forekomsten står i en merknad, så den er omtale og ikke hjemmel.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n174",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Sokn i Den norske kirke er eiere i et unntak fra økonomiforskriften. Det hører til regellaget og er ikke forvaltningsstruktur.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n175",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Lov 2017/06/16/56 § 4 første ledd er tekstfunn, og aktøren finnes ikke i basen (SELECT på «undersøkelseskommisjon»). Samme ledd har også instruksjonsforbudet i faglige spørsmål, altså en negativ kant med fra = null etter lærdom 5. «departementet» løses med standardregelen (§5.10), og det er riktig at det står som tekst.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "lov om Statens undersøkelseskommisjon for helse- og omsorgstjenesten § 4 første ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n176",
+  "dom": "innvending",
+  "gjelder": "utenfor_raden",
+  "alvor": "lav",
+  "innvending": "Dette er samme forekomst som n97 (bhl. § 40 første ledd, samme eId, samme omtale «et statlig forvaltningsorgan»). Grupperingen har delt én omtale i to navn, fordi artikkelen «et» ikke er en bøyningsform. Kortene bør slås sammen («ta med»). Ellers tagges samme tekstspenn to ganger. Noden «forvaltningsorgan» foreslås ikke i noe kort (se n97).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 40 første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n177",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Det står i en merknad. Fylkeskommune-delen venter med god grunn. Merk at forskriften selv regner disse barnehagene som «private barnehager» (merknaden til § 1).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n178",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Det er en privat yrkesutøver.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n179",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Det er en organisasjonsform og et vilkår i regellaget.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n180",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Rollen og relasjonen til Lånekassens klagenemnd (kap. 4) holder, men «mangler» er feil. § 11 andre ledd nr. 2 oppretter plassen: «Ett medlem, med personlig varamedlem, som skal representere elever og studenter.» Teksten bruker ikke ordet «student- og elevrepresentant» der, så status er fortolkning. Merk at § 11 tredje ledd bruker flertall om én plass. Det er en ordlyd fra forskriften, ikke en feil i kortet.",
+  "retting": {
+   "hjemmel": {
+    "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§11/ledd-2/punkt-2",
+    "kunnskapsstatus": "fortolkning"
+   },
+   "hjemmel_status": "fortolkning"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2025-07-02-1462 § 11 andre ledd nr. 2",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n181",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Rollen og relasjonen til NOKUTs klagenemnd (kap. 2) holder, men «mangler» er feil. § 3 andre ledd nr. 4 oppretter plassene: «To medlemmer med personlige varamedlemmer som representerer studenter i høyere utdanning og i høyere yrkesfaglig utdanning.» Status er fortolkning, fordi ordet «studentrepresentant» står i § 3 tredje og fjerde ledd og § 4 første ledd, men ikke i punktet som oppretter plassene.",
+  "retting": {
+   "hjemmel": {
+    "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§3/ledd-2/punkt-4",
+    "kunnskapsstatus": "fortolkning"
+   },
+   "hjemmel_status": "fortolkning"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2025-07-02-1462 § 3 andre ledd nr. 4",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n182",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Studentsamskipnader er selvstendige rettssubjekter etter studentsamskipnadsloven. Her opptrer de som barnehageeiere i regellaget.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n183",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Omtale av rollen styrer (n11).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n184",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. «Domstoladministrasjonen ledes av et styre» (dl. § 33 første ledd) med status normalisering er forsvarlig. Navnet står ordrett i § 33 a første ledd. Navnet «styret» (n44) må ikke slås inn hit uten skilling (bhl. § 7 mot dl. § 33 a, juristrunde-440).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "domstolloven § 33 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "domstolloven § 33 a første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n185",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Det er kortform for n186. Sysselmesteren finnes ikke i basen (SELECT på «sysselmester»).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n186",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Svalbardloven § 5 første ledd («På Svalbard skal det være en sysselmester») med status normalisering er kontrollert. § 5 andre ledd («samme myndighet som en statsforvalter») kan senere gi en relasjon til klassen statsforvalter.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "svalbardloven § 5 første og andre ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n187",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Ikke-aktør er feil. Navnet er subjekt for en kompetanse («kan kreve bevisopptak ved domstolene etter § 44»), og kompetanse er struktur. Leddet gir medlemsregelen selv: et særskilt organ «som er oppnevnt av Kongen, Stortinget eller et departement eller en statsforvalter for å granske faktiske forhold med sikte på å avdekke lovbrudd eller kritikkverdige forhold». Det er en intensjonal klasse med medlemsregel og kilde (Johanns regel 2). Granskingskommisjon og kontrollutvalg i samme setning er eksempler på medlemmer.",
+  "retting": {
+   "type": "klasse",
+   "ny_node": "særskilt organ (granskingsorgan etter dl. § 43 andre ledd)",
+   "relasjoner": [
+    {
+     "relasjon": "medlemsregel",
+     "til": null,
+     "merknad": "oppnevnt av Kongen, Stortinget, et departement eller en statsforvalter for å granske faktiske forhold (dl. § 43 andre ledd)"
+    }
+   ],
+   "hjemmel": {
+    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§43/ledd-2",
+    "kunnskapsstatus": "fortolkning"
+   },
+   "hjemmel_status": "fortolkning",
+   "sikkerhet": "middels"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": "bygget",
+  "kilder": [
+   {
+    "ref": "domstolloven § 43 andre ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n188",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "hoy",
+  "innvending": "Typen område og hjemmelen (§ 3 sjuende ledd siste punktum, tekstfunn) holder. Relasjonen bestar_av Troms er feil. Teksten sier «sju kommuner i Nord-Troms (Kåfjord, Skjervøy, Nordreisa, Kvænangen, Karlsøy, Lyngen og Storfjord)», ikke Troms. O bestar_av arves geografisk (docs/33 §4.2). Da ville alle kommunene i Troms, også Tromsø, Harstad og Senja, regnes som i tiltakssonen og få tiltakssonesatsene. Det er motsatt rettslig resultat for dem. Merknaden «(listet)» hjelper ikke, fordi kanten er det som traverseres. Kantene må gå til de sju kommuneområdene, som alle finnes i registeret. Finnmark kan stå («alle kommuner i Finnmark»).",
+  "retting": {
+   "relasjoner": [
+    {
+     "relasjon": "bestar_av",
+     "til": {
+      "id": "a4f24173-a2cf-440d-bcf5-e2a3c2bde2f2",
+      "navn": "Finnmark",
+      "tabell": "begreper",
+      "kategori": "omrade"
+     },
+     "merknad": "alle kommuner i Finnmark"
+    },
+    {
+     "relasjon": "bestar_av",
+     "til": {
+      "id": "23b16bcb-7dd0-465d-b333-bae6b4ba7ee2",
+      "navn": "Kåfjord",
+      "tabell": "begreper",
+      "kategori": "omrade"
+     },
+     "merknad": "§ 3 sjuende ledd siste punktum"
+    },
+    {
+     "relasjon": "bestar_av",
+     "til": {
+      "id": "2c693abe-2809-4d09-ad2e-621e6bec92cd",
+      "navn": "Skjervøy",
+      "tabell": "begreper",
+      "kategori": "omrade"
+     },
+     "merknad": "§ 3 sjuende ledd siste punktum"
+    },
+    {
+     "relasjon": "bestar_av",
+     "til": {
+      "id": "f636b659-7b1a-4d8d-abcb-8fd099f84217",
+      "navn": "Nordreisa",
+      "tabell": "begreper",
+      "kategori": "omrade"
+     },
+     "merknad": "§ 3 sjuende ledd siste punktum"
+    },
+    {
+     "relasjon": "bestar_av",
+     "til": {
+      "id": "5ab3fa7b-eceb-4247-a227-317aa9da3d98",
+      "navn": "Kvænangen",
+      "tabell": "begreper",
+      "kategori": "omrade"
+     },
+     "merknad": "§ 3 sjuende ledd siste punktum"
+    },
+    {
+     "relasjon": "bestar_av",
+     "til": {
+      "id": "10f3e35b-4fb0-4d7f-904d-0c399c009e2b",
+      "navn": "Karlsøy",
+      "tabell": "begreper",
+      "kategori": "omrade"
+     },
+     "merknad": "§ 3 sjuende ledd siste punktum"
+    },
+    {
+     "relasjon": "bestar_av",
+     "til": {
+      "id": "0f6010b7-3abe-4d2d-ad8a-e43c78cece23",
+      "navn": "Lyngen",
+      "tabell": "begreper",
+      "kategori": "omrade"
+     },
+     "merknad": "§ 3 sjuende ledd siste punktum"
+    },
+    {
+     "relasjon": "bestar_av",
+     "til": {
+      "id": "83fd4ff3-2832-4850-9abb-21ba60e174ca",
+      "navn": "Storfjord",
+      "tabell": "begreper",
+      "kategori": "omrade"
+     },
+     "merknad": "§ 3 sjuende ledd siste punktum"
+    }
+   ]
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "forskrift om tildeling av tilskudd til private barnehager § 3 sjuende ledd siste punktum",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n189",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Klassen og hjemmelen (dl. § 1 første ledd nr. 3) holder. Medlemsregelen har to feil. (1) Basen har 28 tingretter som virksomheter, ikke 23 (SELECT 2026-11-05). (2) Kilden for medlemskapet bør være inndelingsforskriften (FOR-2021-01-22-163 §§ 2–9), som navngir tingrettene og virkeområdene deres. At de «finnes som virksomheter» er ikke en kilde. Forekomsten i dl. § 47 («tingretten på det sted hvor søkeren bor») er en distributiv omtale som løses via område. Det er riktig at den ikke får en egen node.",
+  "retting": {
+   "relasjoner": [
+    {
+     "relasjon": "medlemsregel",
+     "til": null,
+     "merknad": "tingrettene i inndelingsforskriften (FOR-2021-01-22-163) §§ 2–9; 28 tingretter som virksomheter i basen"
+    }
+   ]
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "domstolloven § 1 første ledd nr. 3",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FOR-2021-01-22-163 §§ 2–9",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n190",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Typen område holder, men «mangler» er feil, og relasjonene mangler. Trollheimenloven (LOV-1984-12-21-101) er lastet. § 1 og § 3 første ledd avgrenser området til «kommunene Meldal, Midtre Gauldal, Oppdal, Rennebu, Rindal, Sunndal og Surnadal», og § 4 kaller det «området som omfattes av denne lov». Reindriftsloven § 2 andre ledd navngir det «Trollheimen og omegn» og viser til den loven. Hjemmelen er Trollheimenloven § 1 første ledd, fortolkning, og området består av de sju kommuneområdene (Meldal er utgått, se n147). Navnet i loven er «Trollheimen og omegn». Tekstformen «Trollheimen» er avkortet, og det bør godkjennes med skrivemåten «Trollheimen og omegn», som står i leddet.",
+  "retting": {
+   "ny_node": "Trollheimen og omegn",
+   "relasjoner": [
+    {
+     "relasjon": "bestar_av",
+     "til": {
+      "ny_node": "Meldal (kommune, utgått)"
+     },
+     "merknad": "Trollheimenloven § 1 første ledd"
+    },
+    {
+     "relasjon": "bestar_av",
+     "til": {
+      "id": "e1c180b5-7690-457f-b2b3-6a11924923d5",
+      "navn": "Midtre Gauldal",
+      "tabell": "begreper",
+      "kategori": "omrade"
+     },
+     "merknad": "Trollheimenloven § 1 første ledd"
+    },
+    {
+     "relasjon": "bestar_av",
+     "til": {
+      "id": "95ab8adf-8c31-41fb-af64-8b68e3c3c0c4",
+      "navn": "Oppdal",
+      "tabell": "begreper",
+      "kategori": "omrade"
+     },
+     "merknad": "Trollheimenloven § 1 første ledd"
+    },
+    {
+     "relasjon": "bestar_av",
+     "til": {
+      "id": "63566b24-31e1-4499-adc3-c24ddf9e7da1",
+      "navn": "Rennebu",
+      "tabell": "begreper",
+      "kategori": "omrade"
+     },
+     "merknad": "Trollheimenloven § 1 første ledd"
+    },
+    {
+     "relasjon": "bestar_av",
+     "til": {
+      "id": "513efd19-b0d6-4109-b9cd-3945d0cfd48d",
+      "navn": "Rindal",
+      "tabell": "begreper",
+      "kategori": "omrade"
+     },
+     "merknad": "Trollheimenloven § 1 første ledd"
+    },
+    {
+     "relasjon": "bestar_av",
+     "til": {
+      "id": "7cdcd1ea-0e35-4c85-b6ae-3cef048d67bd",
+      "navn": "Sunndal",
+      "tabell": "begreper",
+      "kategori": "omrade"
+     },
+     "merknad": "Trollheimenloven § 1 første ledd"
+    },
+    {
+     "relasjon": "bestar_av",
+     "til": {
+      "id": "ff49832c-e201-45da-a606-0d18eeca63ad",
+      "navn": "Surnadal",
+      "tabell": "begreper",
+      "kategori": "omrade"
+     },
+     "merknad": "Trollheimenloven § 1 første ledd"
+    }
+   ],
+   "hjemmel": {
+    "eid": "https://lovdata.no/eli/lov/1984/12/21/101/nor/§1/ledd-1",
+    "kunnskapsstatus": "fortolkning"
+   },
+   "hjemmel_status": "fortolkning"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Trollheimenloven (LOV-1984-12-21-101) §§ 1, 3 og 4",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "reindriftsloven § 2 andre ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n191",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Omtale av Arbeids- og velferdsetaten med merket slutning kan stå, men samme_som er feil relasjon. Trygdekontorene var lokalkontorene til trygdeetaten, som gikk inn i Arbeids- og velferdsetaten i 2006. De er en forgjenger og ikke samme aktør. Navnet bør registreres som utgått navneform (§5.9) eller som etterfulgt_av, med [slutning]. Nav-loven (lastet) navngir etaten, men sier ikke at den etterfølger trygdeetaten.",
+  "retting": {
+   "relasjoner": [
+    {
+     "relasjon": "utgatt_navn",
+     "til": {
+      "id": "b3bdec90-3c3a-4f8a-8f3c-519e47e93054",
+      "navn": "ARBEIDS- OG VELFERDSETATEN",
+      "tabell": "virksomheter",
+      "kategori": "virksomhet"
+     },
+     "merknad": "[slutning] trygdekontorene var trygdeetatens lokalkontorer, og de ble en del av Arbeids- og velferdsetaten i 2006; forskriften er fra 2005"
+    }
+   ]
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "arbeids- og velferdsforvaltningsloven §§ 3 og 4",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n192",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Det er en rolle i samsvar med Johanns avgjørelse om bostedskommune, lovspesifikk med hjemmel i forskriften § 2 første ledd. Merk: «vertskommune» i kommuneloven kap. 20 (vertskommunesamarbeid) er en annen referent. Rollen må derfor forbli lovspesifikk og ikke gjøres til et fast begrep for hele korpuset (se n123).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2017-06-22-1050 § 2 første ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n193",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder (pilot). Årsplanen er et dokument.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ }
+]
