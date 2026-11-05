@@ -157,8 +157,9 @@ public sealed class AktorsideTjeneste(RegelIdeDbContext db, StrukturkantTjeneste
             {
                 // (3) Gjeldende navneform med hjemmel i en organiseringskilde.
                 var ider = gjeldende.Where(n => n.LovkildeId is not null).Select(n => n.LovkildeId!.Value).Distinct().ToList();
+                var typer3 = Hjemmelkilder.Organiseringstyper.ToArray(); // et sett kan ikke oversettes til SQL, en tabell kan
                 var organisering = await db.RettskildeDisposisjonstyper
-                    .Where(d => ider.Contains(d.RettskildeId) && Hjemmelkilder.Organiseringstyper.Contains(d.Disposisjonstype))
+                    .Where(d => ider.Contains(d.RettskildeId) && typer3.Contains(d.Disposisjonstype))
                     .Select(d => d.RettskildeId).Distinct().ToListAsync(ct);
                 var treff = gjeldende.Where(n => n.LovkildeId is { } l && organisering.Contains(l) && n.LovreferanseEid is not null).ToList();
                 if (treff.Count == 1)
@@ -297,8 +298,14 @@ public sealed class AktorsideTjeneste(RegelIdeDbContext db, StrukturkantTjeneste
             var m = utledet?.Medlemmer.FirstOrDefault();
             if (utledet is null || m is null) continue;
             var klasse = await db.Begreper.Where(b => b.Id == klasseId).Select(b => new { b.LovkildeId, b.LovreferanseEid }).FirstAsync(ct);
-            var tittel = klasse.LovkildeId is { } l ? (await RettskildetitlerAsync([l], ct)).GetValueOrDefault(l) : null;
-            svar.Add(new DetSomFinnes("klasse", $"Medlem av klassen «{utledet.Term}»", klasseId, klasse.LovkildeId, tittel, klasse.LovreferanseEid,
+            // Et fast begrep (LovkildeId NULL, #298) har hjemmelen bare som eId: rettskilden er den gjeldende versjonen som har noden.
+            var kildeId = klasse.LovkildeId ?? (klasse.LovreferanseEid is { } keid
+                ? await db.RettskildeNoder.Where(n => n.Eid == keid && n.Entitetsstatus == "gjeldende")
+                    .Join(db.Rettskilder.Where(r => r.Entitetsstatus == "gjeldende"), n => n.RettskildeId, r => r.Id, (n, r) => (Guid?)r.Id)
+                    .FirstOrDefaultAsync(ct)
+                : null);
+            var tittel = kildeId is { } l ? (await RettskildetitlerAsync([l], ct)).GetValueOrDefault(l) : null;
+            svar.Add(new DetSomFinnes("klasse", $"Medlem av klassen «{utledet.Term}»", klasseId, kildeId, tittel, klasse.LovreferanseEid,
                 utledet.KlassensKunnskapsstatus, utledet.Kunnskapsstatus, !m.Validert));
         }
         var registerkanter = await db.Strukturkanter
