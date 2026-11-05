@@ -1944,6 +1944,58 @@ bøyningsform 123, aktørkøen 393 forekomster i 80 rettskilder, som blir 192 na
 genitivforslag). 0 havner hos Agder fylkeskommune. Utdanningsdirektoratet står én gang, 9 forekomster i 5 rettskilder, med hullet.
 Foreldrerådet får forslaget barnehageloven § 4 første ledd (normalisering). 18 navn har hjemmelforslag.
 
+### 5.17 Den samlede aktørsiden: hjemmel for aktøren og de andre rettskildene (#441, bygget 2026-11-05)
+
+**Hvorfor.** Johann 2026-10-30: «Kan vi få til en enklere visning der aktøren er samlet, og at man fremhever rettskilden der hvor aktøren er
+hjemlet først? og så blir de andre rettskildene relasjoner?» KD hadde 449 rader i én flat rekke under «Myndighet & relasjoner», og hjemmelen
+var gjemt som «Bygger på» i navneformforslaget. Spørsmålet siden svarer på er S1 fra aktørens side: hvorfor finnes aktøren, og hvor står den.
+
+**Hjemmelregelen** (`AktorsideTjeneste.HjemmelAsync`, [LÅST #441]), prøvd i rekkefølge:
+1. **R oppretter** til aktøren (livsløpet, §5.9). Navneformen som godkjennes sammen med kanten, er den gjeldende navneformen med hjemmel i samme
+   vedtak, ellers den gjeldende med `hjemmel_art` (da vist som «Navnet:»). Målt: 30 kanter, aldri mer enn én per aktør. Skulle det komme flere,
+   velges den med nyeste gyldighet.
+2. **En navneform med `hjemmel_art`** (oppretting / navnevedtak). Flere: den gjeldende; ellers ingen.
+3. **Den gjeldende navneformen** når hjemmelen dens står i en kilde med disposisjonstype oppretting, navneendring eller omorganisering (#395).
+4. Ellers **hullet**: «Hjemmel for aktøren mangler» med hullmerknaden fra aktørkøen (`AktorkoTjeneste.Hullmerknad`). En hjemmel der navnet bare
+   står, er ikke hjemmel for at aktøren finnes.
+
+**«Mest omtalt i (ikke hjemmel)»** regnes av direkte utsagn (kanter der aktøren er part, med hjemmel i korpus) og taggede forekomster av
+navneformene (`VirksomhetWhereUsedTjeneste`), aldri av fritekst eller treff via klasse. Står flere rettskilder likt, vises alle. **«Det som
+finnes»** er klassene aktøren er utledet medlem av (#384) og registeret (orgnr, organisasjonsform og kanter med kilde utenfor korpus av typen
+register). Ingen av dem er hjemmel.
+
+**«Godkjenn hjemmelen»** (`POST /api/virksomheter/{id}/hjemmel/godkjenn`) godkjenner navneformen og R oppretter i ÉN transaksjon og setter
+`hjemmel_art` når navneformen mangler den: oppretting når kilden er oppretterkanten; etter disposisjonstypen oppretting eller navnevedtak når
+bare én av dem står på kilden. Står begge, eller bare omorganisering, avgjør regelen det ikke, og et menneske velger (`hjemmelArt` i kroppen).
+En `hjemmel_art` som alt er satt (de 13 navnevedtakene), beholdes. Feiler et steg, rulles alt tilbake (testet med en oppretterkant i en merknad,
+#419).
+
+**Rettskildelista** (`GET /api/virksomheter/{id}/rettskilder`, erstatter sju kall): én rad per rettskilde, gruppe `direkte` eller `via_klasse`.
+- Direkte: kantene der aktøren er part (samme sett som «Etter kategori»), hver i raden til hjemmelrettskilden, kanter uten hjemmel i én rad per
+  kildetype utenfor korpus. Tellerne er K, P, F og annet. «Venter» er ventende utsagn + navnetreff (virksomhetskandidater) + navneformforslag med
+  hjemmel i rettskilden. Merkene er Lovdatas «Ansvarlig departement» (sekundær kilde, aldri et utsagn), «Fastsatt av» (#215) og «Navnet tagget».
+  Regelen for de to første er flyttet til `AktorRettskildeoppslag` (Data), så de gamle endepunktene og lista svarer likt.
+- Rettskilden med hjemmelen gjentas ikke; utsagnene der står i hjemmelkortet. Kontrollsum (AK 3): tellerne i de direkte radene + utsagnene i
+  hjemmelkortet = alle kantene der aktøren er part.
+- Via klasse: kompetansen (#418) og, for en kommune, pliktene via registrert eller utledet medlemskap (#353, grunnlag `medlem_av`), med svakeste
+  premiss. Klasser uten avgjort medlemskap gir ikke treff. Oppgaver (F) via klasse er ikke med: det finnes ikke et oppslag for dem ennå.
+- Sortering: direkte før via klasse; rader med utsagn først; så flest utsagn, flest som venter, og tittelen.
+- «Godkjenn alle N» (`POST …/rettskilder/{rettskildeId}/godkjenn-alle`) godkjenner bare aktørens egne ventende utsagn i rettskilden, aldri andre
+  aktørers forslag i samme kilde (det gjør `godkjenn-alle` per hjemmel). Forslag med hjemmel i en merknad hoppes over.
+
+**Målt i kopien `regelide_aktorside` av den delte basen 2026-11-05:**
+- KD: hjemmelen er FOR-2005-12-16-1479 punkt 1 (oppretterkanten, normalisering, forslag; navneformen tekstfunn, forslag, `navnevedtak`). 391 rader,
+  8 med utsagn, 8 som venter, 384 «ansvarlig departement», 93 «fastsatt av», 3 med navnet tagget. 65 kanter = 50 i radene + 15 i vedtaket.
+  «Godkjenn hjemmelen» i kopien godkjente navneformen og R oppretter; `hjemmel_art` ble stående som `navnevedtak`.
+- Karasjok kommune: hullet; «mest omtalt i» er forskriften om samiske språk § 1 første ledd (1 utsagn, 1 tagget forekomst), ikke
+  politidistriktforskriften. Det som finnes: medlem av klassen «kommune» (avledet) og Enhetsregisteret/territoriet. 13 rader: 2 direkte
+  (samiske språk, register) og 11 via klassen «kommune» med 87 kompetanser og 9 plikter (skissen 2026-10-30 sa 10), alle 96 venter.
+- Fiskeri- og kystdepartementet (nedlagt): regel 3, FOR-2004-10-01-1304 punkt 7 («Fiskeridepartementets navn endres til …»). Kilden er både
+  oppretting og navneendring, så `hjemmel_art` må velges.
+- Over alle aktører (unntatt erstattede): 42 hjemlet (30 oppretterkant, 4 `hjemmel_art`, 8 disposisjonstype), 524 mangler. Av 538 levende har 14
+  en hjemmel.
+- Utdanningsdirektoratet finnes ikke som aktør i basen (står i aktørkøen), og ble ikke åpnet.
+
 ### 5.6 Konvertering av eksisterende data
 
 | Fra | Til | Automatisk? |

@@ -48,6 +48,11 @@ viser kompetansen kommunen har via klassen og rollen («lokal barnehagemyndighet
 En aktørs identitet (#385) er lovens navn — den gjeldende navneformen — og aktørtypen, begge modellutsagn med grunnlag og godkjenning;
 organisasjonsnummer og registernavn fra Enhetsregisteret er attributter. Navneformer foreslås fra lovteksten, og et navnetreff gir
 navneformen en kilde og en tagg på nøyaktig spenn.
+Aktørsiden er samlet (#441): kortet «Hjemmel for aktøren» står øverst og svarer på hvorfor aktøren finnes — R oppretter først, så en
+navneform med `hjemmel_art`, så den gjeldende navneformen i et organiseringsvedtak — med sitat, kunnskapsstatus og «Godkjenn hjemmelen»
+(navneformen og R oppretter i én transaksjon). Mangler hjemmelen, står hullet med «mest omtalt i» (bare utsagn og taggede forekomster) og
+det som finnes (klasse og register). Under står de andre rettskildene som relasjoner, én rad per rettskilde med kompetanse, plikt, oppgave,
+annet og ventende forslag, og for en kommune utsagnene via klasse for seg (`GET /api/virksomheter/{id}/hjemmel` og `/rettskilder`).
 Organiseringskildene (#395): rettskildene er klassifisert etter disposisjonstype (oppretting, navneendring, nedleggelse, omorganisering,
 overføring/ressortfordeling, delegering, instruks, ikrafttredelse, regulering) og kildeform (konsolidert eller kunngjort), og kunngjorte
 organiseringsvedtak fra Norsk Lovtidend avd. I (2001–) er importert gjennom samme parser. Av dem bygges departementenes livsløp —

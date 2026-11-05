@@ -166,16 +166,16 @@ export function AktorRettskilder({ virksomhetId, svar, feil, onEndret }: {
                 {svar.rader.length === 0 ? 'Aktøren står ikke i noen andre rettskilder: ingen utsagn, merker eller taggede forekomster.' : 'Ingen rader med dette filteret.'}
               </Paragraph>
             ) : (
-              <Table data-density="compact">
+              <Table data-density="compact" style={{ tableLayout: 'fixed', width: '100%' }}>
                 <Table.Head>
                   <Table.Row>
                     <Table.HeaderCell>Rettskilde</Table.HeaderCell>
-                    <Table.HeaderCell>Forhold</Table.HeaderCell>
-                    <Table.HeaderCell style={{ textAlign: 'right' }} title="Kompetanse (K)">Komp.</Table.HeaderCell>
-                    <Table.HeaderCell style={{ textAlign: 'right' }} title="Plikt (P)">Plikt</Table.HeaderCell>
-                    <Table.HeaderCell style={{ textAlign: 'right' }} title="Oppgave (F)">Oppgave</Table.HeaderCell>
-                    <Table.HeaderCell style={{ textAlign: 'right' }} title="Relasjoner, medlemskap, ansvarsområder og andre utsagn">Annet</Table.HeaderCell>
-                    <Table.HeaderCell style={{ textAlign: 'right' }}>Venter</Table.HeaderCell>
+                    <Table.HeaderCell style={{ width: '15rem' }}>Forhold</Table.HeaderCell>
+                    <Table.HeaderCell style={{ textAlign: 'right', width: '4.5rem' }} title="Kompetanse (K)">Komp.</Table.HeaderCell>
+                    <Table.HeaderCell style={{ textAlign: 'right', width: '4.5rem' }} title="Plikt (P)">Plikt</Table.HeaderCell>
+                    <Table.HeaderCell style={{ textAlign: 'right', width: '4.5rem' }} title="Oppgave (F)">Oppgave</Table.HeaderCell>
+                    <Table.HeaderCell style={{ textAlign: 'right', width: '4.5rem' }} title="Relasjoner, medlemskap, ansvarsområder og andre utsagn">Annet</Table.HeaderCell>
+                    <Table.HeaderCell style={{ textAlign: 'right', width: '6.5rem' }}>Venter</Table.HeaderCell>
                   </Table.Row>
                 </Table.Head>
                 <Table.Body>
@@ -197,12 +197,13 @@ export function AktorRettskilder({ virksomhetId, svar, feil, onEndret }: {
                         <Table.Row>
                           <Table.Cell>
                             {kanFoldes ? (
-                              <button type="button" className="tabell-sorter-knapp" aria-expanded={apen}
+                              <Button data-size="sm" variant="tertiary" aria-expanded={apen}
+                                style={{ whiteSpace: 'normal', textAlign: 'left', height: 'auto', justifyContent: 'flex-start', paddingInline: '0.25rem' }}
                                 onClick={() => setApne((a) => { const ny = new Set(a); if (ny.has(n)) ny.delete(n); else ny.add(n); return ny; })}>
                                 {apen ? '▾' : '▸'} {r.tittel}
-                              </button>
+                              </Button>
                             ) : r.tittel}
-                            {r.kildetype && <Metatekst as="span" style={{ marginLeft: '0.35rem' }}>{r.kildetype}</Metatekst>}
+                            {r.kildetype && <Metatekst as="span" style={{ marginLeft: '0.35rem', color: 'var(--ds-color-neutral-text-subtle)' }}>{r.kildetype}</Metatekst>}
                           </Table.Cell>
                           <Table.Cell><Merker r={r} /></Table.Cell>
                           <Table.Cell style={{ textAlign: 'right' }}>{r.kompetanse}</Table.Cell>
@@ -228,7 +229,7 @@ export function AktorRettskilder({ virksomhetId, svar, feil, onEndret }: {
             )}
           </Card>
           {rader.length > 0 && <Pagineringskontroll {...paginering} />}
-          {svar.hull.map((h) => <Metatekst key={h} style={{ display: 'block', marginTop: '0.5rem' }}>{h}</Metatekst>)}
+          {visGrupper && svar.hull.map((h) => <Metatekst key={h} style={{ display: 'block', marginTop: '0.5rem' }}>{h}</Metatekst>)}
           <Metatekst style={{ marginTop: '0.5rem' }}>
             {svar.tall.kanter} utsagn der aktøren er part: {svar.tall.kanterIRadene} i radene og {svar.tall.kanterIHjemmelen} i vedtaket med hjemmelen.
           </Metatekst>
