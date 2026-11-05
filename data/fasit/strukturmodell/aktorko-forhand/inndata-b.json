@@ -1,0 +1,4405 @@
+{
+ "issue": "#440 (aktørkøen), forhåndsklassifisering",
+ "beskrivelse": "Aktørkøen (/aktorko, docs/33 §5.16) viser 193 ukjente navn fra 393 ventende forekomster i 80 rettskilder, alle som «ny aktør». Hvert kort er ETT navn i køen med alle forekomstene (hele leddet fra basen). Modellereren foreslår hva navnet er, før Johann oppretter noe. Ingenting er skrevet til basen. Fire navn er holdt utenfor etter Johanns avgjørelse (fylkeskommunen, departementene, Norge, staten: venter på et eget beslutningsnotat om Norge og forvaltningsnivåene). Kort med type «venter» er modellererens forslag om at også dette navnet hører til det notatet: vurder om det stemmer.",
+ "typer": {
+  "aktør": "rettssubjekt, organ, organisatorisk_enhet eller ordning (docs/33 §4.1). Skal opprettes som ny Virksomhet. undertype sier hvilken.",
+  "klasse": "mengde aktører (ekstensjonal eller med medlemsregel). Johanns regel 2026-11-05: en klasse har hjemmel ELLER medlemsregel med kilde; hullet vises bare når begge mangler.",
+  "rolle": "noe en aktør er overfor noen eller i noe (stilling, verv, funksjon), docs/33 §4.1 og §4.2. Innehas, arves ikke.",
+  "område": "territorium (docs/33 §4.1, §5.13).",
+  "omtale": "navnet er en omtale av en node som finnes eller som foreslås i et annet kort (generisk omtale av klasse, kortform, annen skrivemåte, avkortet treff). Ingen ny node.",
+  "ikke_aktør": "ingen strukturnode (privat part, personkrets, dokument, register, beløp, vilkår som hører til regellaget).",
+  "venter": "venter på modellvalg (Norge/nivåene), ingen forslag."
+ },
+ "relasjoner": "til.id = eksisterende node (kontrollert at den finnes i delt regelide 2026-11-05); til.ny_node = node som foreslås opprettet i et annet kort (samme navn). [slutning] i merknaden betyr at koblingen ikke står i teksten.",
+ "kunnskapsstatus": "tekstfunn / normalisering / fortolkning (docs/profil/03 §5, docs/33 §4.6). hjemmel = null og hjemmel_status = mangler betyr at modellereren ikke fant en bestemmelse som oppretter eller definerer noden.",
+ "beslutninger": [
+  "Johann 2026-11-05: alle 193 forhåndsklassifiseres av modellerer og jurist; Johann ser bare uenighet.",
+  "Johann 2026-11-05: en klasse har enten hjemmel eller medlemsregel med kilde. Hullet vises bare når begge mangler.",
+  "Johann 2026-11-05: «bostedskommune» og lignende er roller en kommune har overfor noen. «den kommunen» og «En kommune» er omtaler av klassen, merket generisk. Ingen av dem blir nye aktører.",
+  "Johann 2026-11-05: Norge, staten, fylkeskommunen og departementene venter på et eget beslutningsnotat. Ingen forslag for dem.",
+  "Juristrunde-440 (data/fasit/strukturmodell/juristrunde-440/sammendrag.md): hjemmelregelen i køen; «Barnehagen, skolen, dommere, foreldrerådet og forliksrådet er klasser eller roller»; «barna, medlemmer og virksomheten er ikke aktører»; Sametinget finnes som «SAMEDIGGI / SAMETINGET»; Innstillingsrådet: dl. § 55 a første ledd med status fortolkning.",
+  "docs/33 §5.10: standardregelen «kommunen» → klassen kommune (eb25cd79-007e-404d-9cd5-c85800b65272, hjemlet i kommuneloven § 2-1 første ledd). Rollen «lokal barnehagemyndighet» (0ab29a09-…) er rollen klassen kommune har (#418 (b)).",
+  "docs/33 §5.14: merknader og veiledning er aldri hjemmel.",
+  "FORMAT.md: private parters rettigheter annoteres ikke som struktur. docs/33 §4.1: person er utsatt som nodetype."
+ ],
+ "eksisterende_noder_brukt": {
+  "0f3ca180": {
+   "id": "0f3ca180-982c-4a1c-b905-2fb56b0f0dba",
+   "navn": "STORTINGET",
+   "kategori": "virksomhet"
+  },
+  "89ad2c6a": {
+   "id": "89ad2c6a-3633-47a9-8b7f-4ec9f7ece0ed",
+   "navn": "Kongen i statsråd",
+   "kategori": "virksomhet"
+  },
+  "5e69bca7": {
+   "id": "5e69bca7-fd4a-4c6c-9d2e-3dcaf9cca1bb",
+   "navn": "SKATTEETATEN",
+   "kategori": "virksomhet"
+  },
+  "c169972e": {
+   "id": "c169972e-9ce3-403f-b86f-55586f5636f5",
+   "navn": "STATENS LÅNEKASSE FOR UTDANNING",
+   "kategori": "virksomhet"
+  },
+  "96d9bb64": {
+   "id": "96d9bb64-17ea-4bdd-b2a4-bd79e197ee62",
+   "navn": "STATENS HELSETILSYN",
+   "kategori": "virksomhet"
+  },
+  "34e89712": {
+   "id": "34e89712-fac3-403b-8eab-e80e7e175c9b",
+   "navn": "DOMSTOLADMINISTRASJONEN",
+   "kategori": "virksomhet"
+  },
+  "e0a41e43": {
+   "id": "e0a41e43-744b-4aa1-8e54-d660c478e959",
+   "navn": "SAMEDIGGI / SAMETINGET",
+   "kategori": "virksomhet"
+  },
+  "aaf4157f": {
+   "id": "aaf4157f-99d1-42f3-9e6c-d53e553db090",
+   "navn": "BARNE-, UNGDOMS- OG FAMILIEDIREKTORATET",
+   "kategori": "virksomhet"
+  },
+  "61b9a4f8": {
+   "id": "61b9a4f8-b938-4a97-903e-b993b0134fc8",
+   "navn": "Kunnskapsdepartementet",
+   "kategori": "virksomhet"
+  },
+  "b3bdec90": {
+   "id": "b3bdec90-3c3a-4f8a-8f3c-519e47e93054",
+   "navn": "ARBEIDS- OG VELFERDSETATEN",
+   "kategori": "virksomhet"
+  },
+  "e8d3c02c": {
+   "id": "e8d3c02c-ac3b-4806-bda4-8d8f0939b8eb",
+   "navn": "REGISTERENHETEN I BRØNNØYSUND",
+   "kategori": "virksomhet"
+  },
+  "daf7c915": {
+   "id": "daf7c915-4fe6-4462-b70d-89d2e6086162",
+   "navn": "DIREKTORATET FOR HØYERE UTDANNING OG KOMPETANSE",
+   "kategori": "virksomhet"
+  },
+  "bbabbed0": {
+   "id": "bbabbed0-d4d4-4f02-a9b7-69ad0aab4c2c",
+   "navn": "HELSEDIREKTORATET",
+   "kategori": "virksomhet"
+  },
+  "da59aa06": {
+   "id": "da59aa06-9f66-4b6e-a4cc-a9c0ca066929",
+   "navn": "NORGES HØYESTERETT",
+   "kategori": "virksomhet"
+  },
+  "5cf8c6ed": {
+   "id": "5cf8c6ed-a4e9-420b-81e4-0a797db99f07",
+   "navn": "Klagenemnda for godkjenning av utenlandsk utdanning og yrkesgodkjenning",
+   "kategori": "virksomhet"
+  },
+  "44ce9fbc": {
+   "id": "44ce9fbc-755e-4a97-b2ef-a44b31898a41",
+   "navn": "HELSE SØR-ØST RHF",
+   "kategori": "virksomhet"
+  },
+  "448071cb": {
+   "id": "448071cb-7b62-4823-bc20-efc3eaa8b676",
+   "navn": "HELSE VEST RHF",
+   "kategori": "virksomhet"
+  },
+  "11fe43ce": {
+   "id": "11fe43ce-15f2-405b-b0c3-8aad13cd36b0",
+   "navn": "HELSE MIDT-NORGE RHF",
+   "kategori": "virksomhet"
+  },
+  "f72fa629": {
+   "id": "f72fa629-822a-49e6-a7c4-22c4f8137f03",
+   "navn": "HELSE NORD RHF",
+   "kategori": "virksomhet"
+  },
+  "72dc2d24": {
+   "id": "72dc2d24-ebd4-443f-b958-efae0434ea06",
+   "navn": "NORGES TEKNISK-NATURVITENSKAPELIGE UNIVERSITET NTNU",
+   "kategori": "virksomhet"
+  },
+  "2119244a": {
+   "id": "2119244a-6ef2-4de3-afe0-1fc2ce829415",
+   "navn": "Oslo",
+   "kategori": "omrade"
+  },
+  "c119f08f": {
+   "id": "c119f08f-ced7-453c-905b-46c8ef53b253",
+   "navn": "Oslo",
+   "kategori": "omrade"
+  },
+  "9d97776f": {
+   "id": "9d97776f-190e-484f-bfd1-b018dbf64e2c",
+   "navn": "Nordland",
+   "kategori": "omrade"
+  },
+  "6ab58594": {
+   "id": "6ab58594-9255-4e6f-b8d0-9b91057e119c",
+   "navn": "Innlandet",
+   "kategori": "omrade"
+  },
+  "77c85339": {
+   "id": "77c85339-9009-4e5a-a3b9-02027b688cae",
+   "navn": "Trøndelag",
+   "kategori": "omrade"
+  },
+  "b026a774": {
+   "id": "b026a774-a0b2-4acf-a8fd-14f69492b77b",
+   "navn": "Orkland",
+   "kategori": "omrade"
+  },
+  "c6aca841": {
+   "id": "c6aca841-4d3f-439a-97f8-0a55d8b46688",
+   "navn": "Troms",
+   "kategori": "omrade"
+  },
+  "a4f24173": {
+   "id": "a4f24173-a2cf-440d-bcf5-e2a3c2bde2f2",
+   "navn": "Finnmark",
+   "kategori": "omrade"
+  },
+  "02886613": {
+   "id": "02886613-f57a-4b47-942b-b3ec96b8cd51",
+   "navn": "Helseregion Nord",
+   "kategori": "omrade"
+  },
+  "3c1da8b6": {
+   "id": "3c1da8b6-ac6e-4ae1-bc58-c6b9ab1227df",
+   "navn": "Svalbard",
+   "kategori": "omrade"
+  },
+  "ee62c46e": {
+   "id": "ee62c46e-6915-4bc5-b0f8-fb94b8241b21",
+   "navn": "Helseregion Midt-Norge",
+   "kategori": "omrade"
+  },
+  "2eaae486": {
+   "id": "2eaae486-0346-4b83-9255-871b2006b0fb",
+   "navn": "Helseregion Vest",
+   "kategori": "omrade"
+  },
+  "395c45ef": {
+   "id": "395c45ef-277b-4791-aa5c-62de314a8894",
+   "navn": "Helseregion Sør-Øst",
+   "kategori": "omrade"
+  },
+  "eb25cd79": {
+   "id": "eb25cd79-007e-404d-9cd5-c85800b65272",
+   "navn": "kommune",
+   "kategori": "klasse"
+  },
+  "c96d739f": {
+   "id": "c96d739f-a56c-4f42-8c3f-4d01ec1f0e0e",
+   "navn": "departementet",
+   "kategori": "virksomhet"
+  },
+  "e25b89e3": {
+   "id": "e25b89e3-8e19-4dde-8a45-ea45235f8cb3",
+   "navn": "kommunen",
+   "kategori": "virksomhet"
+  },
+  "93233509": {
+   "id": "93233509-eee5-403d-ac1a-b3a2a46f82ef",
+   "navn": "statsforvalteren",
+   "kategori": "virksomhet"
+  },
+  "0ab29a09": {
+   "id": "0ab29a09-7a27-4bf2-a8a5-6d73d6e98a0a",
+   "navn": "lokal barnehagemyndighet",
+   "kategori": "rolle"
+  },
+  "99f62b57": {
+   "id": "99f62b57-f268-4f15-89ff-ddf56cbd513d",
+   "navn": "statsforvalter",
+   "kategori": "klasse"
+  }
+ },
+ "kort": [
+  {
+   "id": "n97",
+   "navn": "et statlig forvaltningsorgan",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "et statlig forvaltningsorgan",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Lov om barnehager (barnehageloven)",
+     "bestemmelse": "§ 40 første ledd",
+     "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§40/ledd-1",
+     "tekstform": "et statlig forvaltningsorgan",
+     "merknad": false,
+     "hele_leddet": "En kommune eller fylkeskommune må oppfylle et vedtak fra et statlig forvaltningsorgan som gir en privat part rett til tjenester etter kapitlet her, selv om kommunen eller fylkeskommunen får vedtaket kjent ugyldig gjennom søksmål etter tvisteloven § 1-4 a. Vedtak kan i tilfeller som nevnt i første punktum bare omgjøres til skade for den private parten etter forvaltningsloven § 35 første ledd bokstav c dersom det er ugyldig fordi den private parten, eller noen som handlet på den private partens vegne, forsettlig eller grovt uaktsomt har gitt uriktige opplysninger eller holdt tilbake opplysninger."
+    }
+   ],
+   "foreslatt": {
+    "type": "omtale",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [
+     {
+      "relasjon": "omtale_av",
+      "til": {
+       "ny_node": "forvaltningsorgan"
+      },
+      "merknad": "avgrenset til statlige"
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "middels",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n98",
+   "navn": "familievernkontor",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "familievernkontor",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Lov om kommunale helse- og omsorgstjenester m.m. (helse- og omsorgstjenesteloven)",
+     "bestemmelse": "§ 11-1 fjerde ledd",
+     "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§11-1/ledd-4",
+     "tekstform": "familievernkontor",
+     "merknad": false,
+     "hele_leddet": "Kommunen dekker reiseutgifter for behandlingspersonell som gir helsetjenester etter folketrygdloven kapittel 5. Det samme gjelder for kommunalt ansatt helsepersonell eller helsepersonell som har avtale med kommunen for å yte helsehjelp, herunder helsepersonell ansatt ved familievernkontor. Det er et vilkår at pasienten på grunn av sin helsetilstand ikke kan møte frem på behandlingsstedet."
+    }
+   ],
+   "foreslatt": {
+    "type": "klasse",
+    "undertype": null,
+    "ny_node": "familievernkontor",
+    "relasjoner": [],
+    "hjemmel": {
+     "rettskildeId": "b1c51234-480e-4bc3-b106-744800d086c9",
+     "rettskilde": "Lov om familievernkontorer",
+     "eid": "https://lovdata.no/eli/lov/1997/06/19/62/nor/§1/ledd-1",
+     "sitat": "Familievernet er en spesialtjeneste som har familierelaterte problemer som sitt fagfelt. Familievernkontorene skal gi et tilbud om behandling og rådgivning der det foreligger vansker, konflikter eller kriser i familien. Familievernkontorene skal foreta mekling etter lov om ekteskap § 26 og barneloven § 51. Familievernkontorene skal bistå der retten oppnevner en ansatt fra familievernet etter barnelova § 65 a.",
+     "kunnskapsstatus": "fortolkning"
+    },
+    "hjemmel_status": "fortolkning",
+    "sikkerhet": "middels",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n99",
+   "navn": "Felles",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "felles",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift for gradene philosophiae doctor (ph.d.) og philosophiae doctor i kunstnerisk utviklingsarbeid (ph.d. i kunstnerisk utviklingsarbeid) ved Norges teknisk-naturvitenskapelige universitet (NTNU)",
+     "bestemmelse": "§ 7-5 andre ledd",
+     "eid": "https://lovdata.no/eli/forskrift/2026/02/03/387/nor/§7-5/ledd-2",
+     "tekstform": "Felles",
+     "merknad": false,
+     "hele_leddet": "Klage behandles av Felles klagenemnd."
+    }
+   ],
+   "foreslatt": {
+    "type": "omtale",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [
+     {
+      "relasjon": "omtale_av",
+      "til": {
+       "ny_node": "Felles klagenemnd"
+      },
+      "merknad": "avkortet treff"
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n100",
+   "navn": "Felles klagenemnd",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "felles klagenemnd",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift for gradene philosophiae doctor (ph.d.) og philosophiae doctor i kunstnerisk utviklingsarbeid (ph.d. i kunstnerisk utviklingsarbeid) ved Norges teknisk-naturvitenskapelige universitet (NTNU)",
+     "bestemmelse": "§ 7-4 andre ledd",
+     "eid": "https://lovdata.no/eli/forskrift/2026/02/03/387/nor/§7-4/ledd-2",
+     "tekstform": "Felles klagenemnd",
+     "merknad": false,
+     "hele_leddet": "Klage over vedtak om tvungen avslutning behandles av Felles klagenemnd."
+    }
+   ],
+   "foreslatt": {
+    "type": "aktør",
+    "undertype": "organ",
+    "ny_node": "Felles klagenemnd (NTNU)",
+    "relasjoner": [
+     {
+      "relasjon": "organ_i",
+      "til": {
+       "id": "72dc2d24-ebd4-443f-b958-efae0434ea06",
+       "navn": "NORGES TEKNISK-NATURVITENSKAPELIGE UNIVERSITET NTNU",
+       "tabell": "virksomheter",
+       "kategori": "virksomhet"
+      },
+      "merknad": "forskriften er NTNUs egen ph.d.-forskrift"
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "mangler",
+    "sikkerhet": "middels",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n101",
+   "navn": "felles samarbeidsutvalg",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "felles samarbeidsutvalg",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [
+    {
+     "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§5/ledd-1",
+     "bestemmelse": "Barnehageloven – bhl § 5 første ledd",
+     "kunnskapsstatus": "tekstfunn"
+    }
+   ],
+   "forekomster": [
+    {
+     "rettskilde": "Lov om barnehager (barnehageloven)",
+     "bestemmelse": "§ 5 første ledd",
+     "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§5/ledd-1",
+     "tekstform": "samarbeidsutvalg",
+     "merknad": false,
+     "hele_leddet": "Kommunen kan bestemme at det skal være felles samarbeidsutvalg for kommunal barnehage og grunnskole. Der begge parter ønsker det, kan det etableres tilsvarende ordning for privat barnehage og kommunal eller privat skole. Samarbeidsutvalget skal også i slike tilfeller settes sammen etter § 4 tredje ledd, men slik at foreldre og ansatte fra både barnehagen og skolen skal være representert, jf. opplæringslova § 10-4 første ledd første punktum."
+    }
+   ],
+   "foreslatt": {
+    "type": "klasse",
+    "undertype": null,
+    "ny_node": "felles samarbeidsutvalg (barnehage og grunnskole)",
+    "relasjoner": [
+     {
+      "relasjon": "organ_i",
+      "til": {
+       "id": "eb25cd79-007e-404d-9cd5-c85800b65272",
+       "navn": "kommune",
+       "tabell": "begreper",
+       "kategori": "klasse"
+      },
+      "merknad": "kommunen kan bestemme det"
+     }
+    ],
+    "hjemmel": {
+     "rettskildeId": "cc249ccf-642c-46e5-b600-ad5e6536d85f",
+     "rettskilde": "Lov om barnehager (barnehageloven)",
+     "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§5/ledd-1",
+     "sitat": "Kommunen kan bestemme at det skal være felles samarbeidsutvalg for kommunal barnehage og grunnskole. Der begge parter ønsker det, kan det etableres tilsvarende ordning for privat barnehage og kommunal eller privat skole. Samarbeidsutvalget skal også i slike tilfeller settes sammen etter § 4 tredje ledd, men slik at foreldre og ansatte fra både barnehagen og skolen skal være representert, jf. opplæringslova § 10-4 første ledd første punktum.",
+     "kunnskapsstatus": "tekstfunn"
+    },
+    "hjemmel_status": "tekstfunn",
+    "sikkerhet": "middels",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n102",
+   "navn": "Folketrygden",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "folketrygden",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Lov om kommunale helse- og omsorgstjenester m.m. (helse- og omsorgstjenesteloven)",
+     "bestemmelse": "§ 11-5 andre ledd",
+     "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§11-5/ledd-2",
+     "tekstform": "Folketrygden",
+     "merknad": false,
+     "hele_leddet": "Folketrygden yter stønad til dekning av utgifter til helsetjenester etter de regler som er fastsatt i og i medhold av folketrygdloven."
+    }
+   ],
+   "foreslatt": {
+    "type": "aktør",
+    "undertype": "ordning",
+    "ny_node": "Folketrygden",
+    "relasjoner": [],
+    "hjemmel": {
+     "rettskildeId": "026d259f-77c2-4969-98d1-7bf6bd05ae98",
+     "rettskilde": "Lov om folketrygd (folketrygdloven)",
+     "eid": "https://lovdata.no/eli/lov/1997/02/28/19/nor/§1-1/ledd-1",
+     "sitat": "Folketrygdens formål er å gi økonomisk trygghet ved å sikre inntekt og kompensere for særlige utgifter ved arbeidsløshet, svangerskap og fødsel, aleneomsorg for barn, sykdom og skade, uførhet, alderdom og dødsfall.",
+     "kunnskapsstatus": "fortolkning"
+    },
+    "hjemmel_status": "fortolkning",
+    "sikkerhet": "middels",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n103",
+   "navn": "Forliksrådet",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "forliksrådet",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [
+    {
+     "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§27/ledd-1",
+     "bestemmelse": "Domstolloven – dl § 27 første ledd",
+     "kunnskapsstatus": "normalisering"
+    }
+   ],
+   "forekomster": [
+    {
+     "rettskilde": "Lov om domstolene (domstolloven)",
+     "bestemmelse": "§ 27 andre ledd",
+     "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§27/ledd-2",
+     "tekstform": "Forliksrådet",
+     "merknad": false,
+     "hele_leddet": "Forliksrådet skal ha tre medlemmer og like mange varamedlemmer. Blant medlemmene og blant varamedlemmene skal det være både kvinner og menn. Varamedlemmene tilkalles i den rekkefølge oppnevnelsen viser."
+    }
+   ],
+   "foreslatt": {
+    "type": "klasse",
+    "undertype": null,
+    "ny_node": "forliksråd",
+    "relasjoner": [
+     {
+      "relasjon": "organ_i",
+      "til": {
+       "id": "eb25cd79-007e-404d-9cd5-c85800b65272",
+       "navn": "kommune",
+       "tabell": "begreper",
+       "kategori": "klasse"
+      },
+      "merknad": "ett per kommune"
+     }
+    ],
+    "hjemmel": {
+     "rettskildeId": "7ddc517c-4a70-47e1-ae5a-f25dcbc47118",
+     "rettskilde": "Lov om domstolene (domstolloven)",
+     "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§27/ledd-1",
+     "sitat": "I hver kommune skal det være et forliksråd.",
+     "kunnskapsstatus": "normalisering"
+    },
+    "hjemmel_status": "normalisering",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n104",
+   "navn": "forskrift 16. desember 2005 nr. 1508 om midlertidig dispensasjon og unntak fra utdanningskravet for styrer og pedagogisk leder gitt med hjemmel i lov 17. juni 2005 nr. 64 om barnehager (barnehageloven) § 17 fjerde ledd og § 18 sjette ledd",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "forskrift 16. desember 2005 nr. 1508 om midlertidig dispensasjon og unntak fra utdanningskravet for styrer og pedagogisk leder gitt med hjemmel i lov 17. juni 2005 nr. 64 om barnehager (barnehageloven) § 17 fjerde ledd og § 18 sjette ledd",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om pedagogisk bemanning og dispensasjon i barnehager",
+     "bestemmelse": "§ 6 første ledd",
+     "eid": "https://lovdata.no/eli/forskrift/2017/06/22/1049/nor/§6/ledd-1",
+     "tekstform": "forskrift 16. desember 2005 nr. 1508 om midlertidig dispensasjon og unntak fra utdanningskravet for styrer og pedagogisk leder gitt med hjemmel i lov 17. juni 2005 nr. 64 om barnehager (barnehageloven) § 17 fjerde ledd og § 18 sjette ledd",
+     "merknad": false,
+     "hele_leddet": "Forskriften trer i kraft 1. august 2017. Fra samme tidspunkt oppheves forskrift 16. desember 2005 nr. 1508 om midlertidig dispensasjon og unntak fra utdanningskravet for styrer og pedagogisk leder gitt med hjemmel i lov 17. juni 2005 nr. 64 om barnehager (barnehageloven) § 17 fjerde ledd og § 18 sjette ledd og forskrift 16. desember 2005 nr. 1507 om pedagogisk bemanning fastsatt med hjemmel i lov 17. juni 2005 nr. 64 om barnehager (barnehageloven) § 18 sjette ledd."
+    }
+   ],
+   "foreslatt": {
+    "type": "ikke_aktør",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n105",
+   "navn": "Forskrift om rammeplan for barnehagens innhold og oppgaver (rammeplanen)",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "forskrift om rammeplan for barnehagens innhold og oppgaver (rammeplanen)",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om rammeplan for barnehagens innhold og oppgaver",
+     "bestemmelse": null,
+     "eid": "https://lovdata.no/eli/forskrift/2017/04/24/487/nor/ledd-1",
+     "tekstform": "Forskrift om rammeplan for barnehagens innhold og oppgaver (rammeplanen)",
+     "merknad": false,
+     "hele_leddet": "Stortinget har i lov 17. juni 2005 nr. 64 om barnehager (barnehageloven) fastsatt overordnede bestemmelser om barnehagens innhold og oppgaver, jf. § 1, § 1a, § 2, § 3, § 4 og § 5. Forskrift om rammeplan for barnehagens innhold og oppgaver (rammeplanen) fastsetter utfyllende bestemmelser om barnehagens innhold og oppgaver."
+    }
+   ],
+   "foreslatt": {
+    "type": "ikke_aktør",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n106",
+   "navn": "fosterforeldrene eller institusjonen der barnet bor",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "fosterforeldrene eller institusjonen der barnet bor",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Lov om barnehager (barnehageloven)",
+     "bestemmelse": "§ 32 fjerde ledd",
+     "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§32/ledd-4",
+     "tekstform": "fosterforeldrene eller institusjonen der barnet bor",
+     "merknad": false,
+     "hele_leddet": "Dersom barnevernstjenesten har overtatt omsorgen etter barnevernsloven §§ 5-1 eller 4-2 eller vedtatt flytteforbud etter barnevernsloven § 4-3, har barnevernstjenesten og fosterforeldrene eller institusjonen der barnet bor, rett til å ta avgjørelser etter dette kapittelet på vegne av barnet. Dersom barnevernstjenesten mener at fosterforeldrenes eller institusjonens vurderinger ikke er til barnets beste, skal fosterforeldrene eller institusjonen rette seg etter barnevernstjenestens beslutning."
+    }
+   ],
+   "foreslatt": {
+    "type": "ikke_aktør",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n107",
+   "navn": "fremmed stat",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "fremmed stat",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om godkjenning av yrkeskvalifikasjoner for styrer og pedagogisk leder i barnehage fra annen stat",
+     "bestemmelse": "§ 8 andre ledd",
+     "eid": "https://lovdata.no/eli/forskrift/2008/09/12/1071/nor/§8/ledd-2",
+     "tekstform": "fremmed stat",
+     "merknad": false,
+     "hele_leddet": "Det kan også gis godkjenning etter gjensidig avtale med fremmed stat."
+    }
+   ],
+   "foreslatt": {
+    "type": "venter",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "-",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n108",
+   "navn": "fylkesnemnda",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "fylkesnemnda",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Lov om kommunale helse- og omsorgstjenester m.m. (helse- og omsorgstjenesteloven)",
+     "bestemmelse": "§ 10-6 andre ledd",
+     "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§10-6/ledd-2",
+     "tekstform": "fylkesnemnda",
+     "merknad": false,
+     "hele_leddet": "Dersom begjæringen skal forelegges et folkevalgt organ, skal begjæringen, dersom organet er enig, med eventuelle merknader omgående sendes til fylkesnemnda. Haster saken, kan den sendes til nemnda uten at den er forelagt det folkevalgte organet på forhånd."
+    }
+   ],
+   "foreslatt": {
+    "type": "klasse",
+    "undertype": null,
+    "ny_node": "barneverns- og helsenemnd",
+    "relasjoner": [
+     {
+      "relasjon": "utgatt_navn",
+      "til": {
+       "ny_node": "barneverns- og helsenemnd"
+      },
+      "merknad": "«fylkesnemnda» er det gamle navnet; hol. § 9-11 bruker det nye"
+     }
+    ],
+    "hjemmel": {
+     "rettskildeId": "9f4ab024-42b6-4552-98b6-06b4d7a391db",
+     "rettskilde": "Lov om barnevern (barnevernsloven)",
+     "eid": "https://lovdata.no/eli/lov/2021/06/18/97/nor/§14-1/ledd-1",
+     "sitat": "Barneverns- og helsenemnda er et uavhengig og upartisk avgjørelsesorgan. Nemnda avgjør nærmere bestemte saker om tvang etter barnevernsloven og enkelte saker etter helse- og omsorgstjenesteloven og smittevernloven.",
+     "kunnskapsstatus": "fortolkning"
+    },
+    "hjemmel_status": "fortolkning",
+    "sikkerhet": "middels",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n109",
+   "navn": "Før kommunen",
+   "pilot": true,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "før kommunen",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Lov om barnehager (barnehageloven)",
+     "bestemmelse": "§ 34 første ledd",
+     "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§34/ledd-1",
+     "tekstform": "Før kommunen",
+     "merknad": false,
+     "hele_leddet": "Før kommunen eller fylkeskommunen fatter vedtak om spesialpedagogisk hjelp, skal det foreligge en sakkyndig vurdering av om barnet har særlige behov for spesialpedagogisk hjelp."
+    }
+   ],
+   "foreslatt": {
+    "type": "omtale",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [
+     {
+      "relasjon": "omtale_av",
+      "til": {
+       "id": "eb25cd79-007e-404d-9cd5-c85800b65272",
+       "navn": "kommune",
+       "tabell": "begreper",
+       "kategori": "klasse"
+      },
+      "merknad": "feiltreff: «Før» er innledende ord"
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n110",
+   "navn": "Førstelagmannen",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "førstelagmannen",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [
+    {
+     "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§10/ledd-1",
+     "bestemmelse": "Domstolloven – dl § 10 første ledd",
+     "kunnskapsstatus": "normalisering"
+    }
+   ],
+   "forekomster": [
+    {
+     "rettskilde": "Lov om domstolene (domstolloven)",
+     "bestemmelse": "§ 11 tredje ledd",
+     "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§11/ledd-3",
+     "tekstform": "Førstelagmannen",
+     "merknad": false,
+     "hele_leddet": "Førstelagmannen kan bemyndige lagmennene til å utføre de forretningene som etter andre lovbestemmelser er tillagt denne."
+    }
+   ],
+   "foreslatt": {
+    "type": "rolle",
+    "undertype": null,
+    "ny_node": "førstelagmann",
+    "relasjoner": [
+     {
+      "relasjon": "rolle_for",
+      "til": {
+       "ny_node": "lagmannsrett"
+      },
+      "merknad": "én per lagmannsrett"
+     }
+    ],
+    "hjemmel": {
+     "rettskildeId": "7ddc517c-4a70-47e1-ae5a-f25dcbc47118",
+     "rettskilde": "Lov om domstolene (domstolloven)",
+     "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§10/ledd-1",
+     "sitat": "Lagmannsrettene skal ha en førstelagmann som leder og så mange lagmenn, lagdommere og jordskiftelagdommere som til enhver tid er bestemt.",
+     "kunnskapsstatus": "normalisering"
+    },
+    "hjemmel_status": "normalisering",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n111",
+   "navn": "Godkjente barnehager som mottar tilskudd",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "godkjente barnehager som mottar tilskudd",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om tildeling av tilskudd til private barnehager",
+     "bestemmelse": "§ 6a første ledd",
+     "eid": "https://lovdata.no/eli/forskrift/2015/10/09/1166/nor/§6a/ledd-1",
+     "tekstform": "Godkjente barnehager som mottar tilskudd",
+     "merknad": false,
+     "hele_leddet": "Godkjente barnehager som mottar tilskudd og som får ny godkjenning for å oppfylle kravet om samlet barnehageanlegg i barnehageloven § 7b, har rett på tilskudd."
+    }
+   ],
+   "foreslatt": {
+    "type": "omtale",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [
+     {
+      "relasjon": "omtale_av",
+      "til": {
+       "ny_node": "barnehage"
+      },
+      "merknad": "avgrensning: godkjente, mottar tilskudd"
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n112",
+   "navn": "Hedmark",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "hedmark",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Lov om reindrift (reindriftsloven)",
+     "bestemmelse": "§ 4 første ledd",
+     "eid": "https://lovdata.no/eli/lov/2007/06/15/40/nor/§4/ledd-1",
+     "tekstform": "Hedmark",
+     "merknad": false,
+     "hele_leddet": "Den samiske befolkningen har på grunnlag av alders tids bruk rett til å utøve reindrift innenfor de delene av fylkene Finnmark, Troms, Nordland, Trøndelag og Hedmark hvor reindriftssamene fra gammelt av har utøvet reindrift (det samiske reinbeiteområdet)."
+    }
+   ],
+   "foreslatt": {
+    "type": "område",
+    "undertype": "fylke (utgått)",
+    "ny_node": "Hedmark (fylke, utgått)",
+    "relasjoner": [
+     {
+      "relasjon": "etterfulgt_av",
+      "til": {
+       "id": "6ab58594-9255-4e6f-b8d0-9b91057e119c",
+       "navn": "Innlandet",
+       "tabell": "begreper",
+       "kategori": "omrade"
+      },
+      "merknad": "slutning: Hedmark inngår i Innlandet fra 2020; ikke kontrollert i korpus"
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "mangler",
+    "sikkerhet": "middels",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n113",
+   "navn": "helseforetak",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "helseforetak",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Lov om kommunale helse- og omsorgstjenester m.m. (helse- og omsorgstjenesteloven)",
+     "bestemmelse": "§ 6-1 første ledd",
+     "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§6-1/ledd-1",
+     "tekstform": "helseforetak",
+     "merknad": false,
+     "hele_leddet": "Kommunestyret selv skal inngå samarbeidsavtale med det regionale helseforetaket i helseregionen eller med helseforetak som det regionale helseforetaket bestemmer. Kommunen kan inngå avtale alene eller sammen med andre kommuner."
+    }
+   ],
+   "foreslatt": {
+    "type": "klasse",
+    "undertype": null,
+    "ny_node": "helseforetak",
+    "relasjoner": [
+     {
+      "relasjon": "eies_av",
+      "til": {
+       "ny_node": "regionalt helseforetak"
+      },
+      "merknad": "helseforetaksloven § 2 tredje ledd"
+     }
+    ],
+    "hjemmel": {
+     "rettskildeId": "6c93ce7e-fe46-4809-8470-c9b5c260b0ad",
+     "rettskilde": "Lov om helseforetak m.m. (helseforetaksloven)",
+     "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§2/ledd-3",
+     "sitat": "Helseforetak er virksomhet som eies av ett eller flere regionale helseforetak eller helseforetak og som er opprettet i medhold av § 9. Helseforetak yter spesialisthelsetjenester, forskning og undervisning samt andre tjenester som står i naturlig sammenheng med dette, eller som er pålagt i lov eller avtalt med den kommunale helse- og omsorgstjenesten.",
+     "kunnskapsstatus": "tekstfunn"
+    },
+    "hjemmel_status": "tekstfunn",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n114",
+   "navn": "Hver private barnehage",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "hver private barnehage",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Lov om barnehager (barnehageloven)",
+     "bestemmelse": "§ 7a første ledd",
+     "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§7a/ledd-1",
+     "tekstform": "Hver private barnehage",
+     "merknad": false,
+     "hele_leddet": "Hver private barnehage skal være et selvstendig rettssubjekt."
+    }
+   ],
+   "foreslatt": {
+    "type": "omtale",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [
+     {
+      "relasjon": "omtale_av",
+      "til": {
+       "ny_node": "privat barnehage"
+      },
+      "merknad": "distributivt"
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n115",
+   "navn": "Høyesterett",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "høyesterett",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Lov om domstolene (domstolloven)",
+     "bestemmelse": "§ 3 første ledd",
+     "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§3/ledd-1",
+     "tekstform": "Høyesterett",
+     "merknad": false,
+     "hele_leddet": "Høyesterett har sitt sete i rikets hovedstad når ikke særlige forhold er til hinder. Retten skal ha en justitiarius og nitten andre dommere."
+    }
+   ],
+   "foreslatt": {
+    "type": "omtale",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [
+     {
+      "relasjon": "samme_som",
+      "til": {
+       "id": "da59aa06-9f66-4b6e-a4cc-a9c0ca066929",
+       "navn": "NORGES HØYESTERETT",
+       "tabell": "virksomheter",
+       "kategori": "virksomhet"
+      },
+      "merknad": "navneform; registernavnet er «Norges Høyesterett»"
+     }
+    ],
+    "hjemmel": {
+     "rettskildeId": "7ddc517c-4a70-47e1-ae5a-f25dcbc47118",
+     "rettskilde": "Lov om domstolene (domstolloven)",
+     "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§1/ledd-1/punkt-1",
+     "sitat": "Høyesterett",
+     "kunnskapsstatus": "tekstfunn"
+    },
+    "hjemmel_status": "tekstfunn",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n116",
+   "navn": "Høyesteretts ankeutvalg",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "høyesteretts ankeutvalg",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Lov om domstolene (domstolloven)",
+     "bestemmelse": "§ 5 første ledd",
+     "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§5/ledd-1",
+     "tekstform": "Høyesteretts ankeutvalg",
+     "merknad": false,
+     "hele_leddet": "I saker som etter lov skal avgjøres av Høyesteretts ankeutvalg, settes Høyesterett med tre dommere. Det kan bestemmes at slike saker skal avgjøres i avdeling med fem dommere."
+    }
+   ],
+   "foreslatt": {
+    "type": "aktør",
+    "undertype": "organisatorisk_enhet",
+    "ny_node": "Høyesteretts ankeutvalg",
+    "relasjoner": [
+     {
+      "relasjon": "organ_i",
+      "til": {
+       "id": "da59aa06-9f66-4b6e-a4cc-a9c0ca066929",
+       "navn": "NORGES HØYESTERETT",
+       "tabell": "virksomheter",
+       "kategori": "virksomhet"
+      },
+      "merknad": ""
+     }
+    ],
+    "hjemmel": {
+     "rettskildeId": "7ddc517c-4a70-47e1-ae5a-f25dcbc47118",
+     "rettskilde": "Lov om domstolene (domstolloven)",
+     "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§5/ledd-1",
+     "sitat": "I saker som etter lov skal avgjøres av Høyesteretts ankeutvalg, settes Høyesterett med tre dommere. Det kan bestemmes at slike saker skal avgjøres i avdeling med fem dommere.",
+     "kunnskapsstatus": "fortolkning"
+    },
+    "hjemmel_status": "fortolkning",
+    "sikkerhet": "middels",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n117",
+   "navn": "ideelle organisasjoner",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "ideelle organisasjoner",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Lov om kommunale helse- og omsorgstjenester m.m. (helse- og omsorgstjenesteloven)",
+     "bestemmelse": "§ 5-6 første ledd",
+     "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§5-6/ledd-1",
+     "tekstform": "ideelle organisasjoner",
+     "merknad": false,
+     "hele_leddet": "Brukerromsordninger etablert i medhold av brukerromsloven er å anse som en kommunal helse- og omsorgstjeneste. Kommunen avgjør om den vil etablere en brukerromsordning. Kommunen kan ikke inngå avtale med andre private enn ideelle organisasjoner om drift av brukerromsordning."
+    }
+   ],
+   "foreslatt": {
+    "type": "ikke_aktør",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n118",
+   "navn": "Innstillingsrådet",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "innstillingsrådet",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Lov om domstolene (domstolloven)",
+     "bestemmelse": "§ 55a første ledd",
+     "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§55a/ledd-1",
+     "tekstform": "Innstillingsrådet",
+     "merknad": false,
+     "hele_leddet": "Innstillingsrådet for dommere skal avgi innstilling i forbindelse med dommerutnevnelse og foreta enkelte konstitusjoner etter nærmere bestemmelser i §§ 55 e og 55 f. Innstillingsrådet skal bestå av tre dommere fra Høyesterett, lagmannsrettene eller tingrettene, en advokat, en jurist ansatt i det offentlige og to medlemmer som ikke er jurister. Når Innstillingsrådet behandler saker som gjelder utnevnelse eller konstitusjon av jordskiftelagdommere og jordskiftedommere, deltar en jordskiftelagdommer eller en jordskiftedommer og en jordskiftekandidat i stedet for henholdsvis en dommer og juristen ansatt i det offentlige. Kongen oppnevner medlemmene av Innstillingsrådet med personlige varamedlemm…"
+    }
+   ],
+   "foreslatt": {
+    "type": "aktør",
+    "undertype": "organ",
+    "ny_node": "Innstillingsrådet for dommere",
+    "relasjoner": [],
+    "hjemmel": {
+     "rettskildeId": "7ddc517c-4a70-47e1-ae5a-f25dcbc47118",
+     "rettskilde": "Lov om domstolene (domstolloven)",
+     "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§55a/ledd-1",
+     "sitat": "Innstillingsrådet for dommere skal avgi innstilling i forbindelse med dommerutnevnelse og foreta enkelte konstitusjoner etter nærmere bestemmelser i §§ 55 e og 55 f. Innstillingsrådet skal bestå av tre dommere fra Høyesterett, lagmannsrettene eller tingrettene, en advokat, en jurist ansatt i det offentlige og to medlemmer som ikke er jurister. Når Innstillingsrådet behandler saker som gjelder utnevnelse eller konstitusjon av jordskiftelagdommere og jordskiftedommere, deltar en jordskiftelagdommer eller en jordskiftedommer og en jordskiftekandidat i stedet for henholdsvis en dommer og juristen ansatt i det offentlige. Kongen oppnevner medlemmene av Innstillingsrådet med personlige varamedlemmer, og fastsetter hvilket medlem som skal være leder for Innstillingsrådet.",
+     "kunnskapsstatus": "fortolkning"
+    },
+    "hjemmel_status": "fortolkning",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n119",
+   "navn": "klageinstansen",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "klageinstansen",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om saksbehandlingsregler ved opptak i barnehage",
+     "bestemmelse": "§ 8 andre ledd",
+     "eid": "https://lovdata.no/eli/forskrift/2005/12/16/1477/nor/§8/ledd-2",
+     "tekstform": "klageinstansen",
+     "merknad": false,
+     "hele_leddet": "Dersom klageinstansen finner at klageren skulle vært tilbudt den ønskede plassen, skal barnet tilbys første ledige plass etter at barn med prioritet etter barnehageloven § 18 er tilbudt plass."
+    }
+   ],
+   "foreslatt": {
+    "type": "omtale",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [
+     {
+      "relasjon": "omtale_av",
+      "til": {
+       "ny_node": "klageinstans (kommunal)"
+      },
+      "merknad": "kommunens klageorgan, forskrift om saksbehandling ved barnehageopptak § 8 første ledd"
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n120",
+   "navn": "kommunale barnehager",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "kommunale barnehager",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om finansiering av private barnehager (finansieringsforskriften)",
+     "bestemmelse": "§ 2 første ledd",
+     "eid": "https://lovdata.no/eli/forskrift/2026/03/23/454/nor/§2/ledd-1",
+     "tekstform": "kommunale barnehager",
+     "merknad": false,
+     "hele_leddet": "Kommunen skal beregne antall heltidsplasser i kommunale barnehager. Kommunen skal gjøre dette på én av følgende måter:"
+    }
+   ],
+   "foreslatt": {
+    "type": "klasse",
+    "undertype": null,
+    "ny_node": "kommunal barnehage",
+    "relasjoner": [
+     {
+      "relasjon": "underklasse_av",
+      "til": {
+       "ny_node": "barnehage"
+      },
+      "merknad": ""
+     },
+     {
+      "relasjon": "eies_av",
+      "til": {
+       "id": "eb25cd79-007e-404d-9cd5-c85800b65272",
+       "navn": "kommune",
+       "tabell": "begreper",
+       "kategori": "klasse"
+      },
+      "merknad": "bhl. § 7 første ledd"
+     }
+    ],
+    "hjemmel": {
+     "rettskildeId": "cc249ccf-642c-46e5-b600-ad5e6536d85f",
+     "rettskilde": "Lov om barnehager (barnehageloven)",
+     "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§7/ledd-1",
+     "sitat": "Kommunen har ansvaret for at kommunale barnehager drives i samsvar med loven.",
+     "kunnskapsstatus": "fortolkning"
+    },
+    "hjemmel_status": "fortolkning",
+    "sikkerhet": "middels",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n121",
+   "navn": "Kommunale og private barnehager",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "kommunale og private barnehager",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Lov om barnehager (barnehageloven)",
+     "bestemmelse": "§ 7a andre ledd",
+     "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§7a/ledd-2",
+     "tekstform": "Kommunale og private barnehager",
+     "merknad": false,
+     "hele_leddet": "Kommunale og private barnehager skal være registrert med eget organisasjonsnummer i Enhetsregisteret."
+    }
+   ],
+   "foreslatt": {
+    "type": "omtale",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [
+     {
+      "relasjon": "omtale_av",
+      "til": {
+       "ny_node": "kommunal barnehage"
+      },
+      "merknad": ""
+     },
+     {
+      "relasjon": "omtale_av",
+      "til": {
+       "ny_node": "privat barnehage"
+      },
+      "merknad": ""
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n122",
+   "navn": "Kommunelegen",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "kommunelegen",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Lov om kommunale helse- og omsorgstjenester m.m. (helse- og omsorgstjenesteloven)",
+     "bestemmelse": "§ 5-5 andre ledd",
+     "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§5-5/ledd-2",
+     "tekstform": "Kommunelegen",
+     "merknad": false,
+     "hele_leddet": "Kommunelegen skal være medisinskfaglig rådgiver for kommunen."
+    }
+   ],
+   "foreslatt": {
+    "type": "rolle",
+    "undertype": null,
+    "ny_node": "kommunelege",
+    "relasjoner": [
+     {
+      "relasjon": "rolle_for",
+      "til": {
+       "id": "eb25cd79-007e-404d-9cd5-c85800b65272",
+       "navn": "kommune",
+       "tabell": "begreper",
+       "kategori": "klasse"
+      },
+      "merknad": "én eller flere per kommune"
+     }
+    ],
+    "hjemmel": {
+     "rettskildeId": "a3680bbb-82b1-41ab-8fb1-f4713aa6cd31",
+     "rettskilde": "Lov om kommunale helse- og omsorgstjenester m.m. (helse- og omsorgstjenesteloven)",
+     "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§5-5/ledd-1",
+     "sitat": "Kommunen skal ha en eller flere kommuneleger som skal utføre de oppgaver kommunelegen er tillagt i lov eller instruks. Kommunen kan samarbeide med andre kommuner om ansettelse av kommunelege. Kommunelegen plikter på anmodning fra departementet å delta i lokal redningssentral.",
+     "kunnskapsstatus": "normalisering"
+    },
+    "hjemmel_status": "normalisering",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n123",
+   "navn": "kommunen der barnet faktisk går i barnehage",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "kommunen der barnet faktisk går i barnehage",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om tildeling av tilskudd til private barnehager",
+     "bestemmelse": null,
+     "eid": "kap-merknader-til-de-enkelte-bestemmelsene/rom-15-refusjon-for-barn-fra-andre-kommuner/rom-F/ledd-1",
+     "tekstform": "kommunen der barnet faktisk går i barnehage",
+     "merknad": true,
+     "hele_leddet": "Bestemmelsen regulerer tilfeller der barn som er folkeregistrert i én kommune, går i en privat barnehage i en annen kommune. Kommunen der barnet er folkeregistrert blir i slike tilfeller refusjonspliktig overfor kommunen der barnet faktisk går i barnehage (vertskommunen)."
+    }
+   ],
+   "foreslatt": {
+    "type": "omtale",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [
+     {
+      "relasjon": "omtale_av",
+      "til": {
+       "ny_node": "barnehagekommune (der barnet går i barnehage)"
+      },
+      "merknad": "rolle"
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "middels",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n124",
+   "navn": "Kommunen eller fylkeskommunen",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "kommunen eller fylkeskommunen",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Lov om barnehager (barnehageloven)",
+     "bestemmelse": "§ 35 første ledd",
+     "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§35/ledd-1",
+     "tekstform": "Kommunen eller fylkeskommunen",
+     "merknad": false,
+     "hele_leddet": "Kommunen eller fylkeskommunen fatter vedtak om spesialpedagogisk hjelp. Dersom vedtaket avviker fra den sakkyndige vurderingen, skal dette begrunnes i vedtaket."
+    }
+   ],
+   "foreslatt": {
+    "type": "omtale",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [
+     {
+      "relasjon": "omtale_av",
+      "til": {
+       "id": "eb25cd79-007e-404d-9cd5-c85800b65272",
+       "navn": "kommune",
+       "tabell": "begreper",
+       "kategori": "klasse"
+      },
+      "merknad": "generisk"
+     },
+     {
+      "relasjon": "venter",
+      "til": null,
+      "merknad": "fylkeskommune-delen venter på modellvalg (Norge/nivåene)"
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n125",
+   "navn": "kommunen som barnehagemyndighet",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "kommunen som barnehagemyndighet",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Lov om barnehager (barnehageloven)",
+     "bestemmelse": "§ 30 andre ledd",
+     "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§30/ledd-2",
+     "tekstform": "kommunen som barnehagemyndighet",
+     "merknad": false,
+     "hele_leddet": "Barnehagen og kommunen som barnehagemyndighet kan kreve politiattest som nevnt i første ledd for andre personer som regelmessig oppholder seg i barnehagen eller har vesentlig innflytelse på barnehagens drift."
+    }
+   ],
+   "foreslatt": {
+    "type": "omtale",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [
+     {
+      "relasjon": "omtale_av",
+      "til": {
+       "id": "0ab29a09-7a27-4bf2-a8a5-6d73d6e98a0a",
+       "navn": "lokal barnehagemyndighet",
+       "tabell": "begreper",
+       "kategori": "rolle"
+      },
+      "merknad": "rollen finnes i basen (bhl. § 10 første ledd)"
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n126",
+   "navn": "kommunens eget klageorgan",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "kommunens eget klageorgan",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om tildeling av tilskudd til private barnehager",
+     "bestemmelse": null,
+     "eid": "kap-merknader-til-de-enkelte-bestemmelsene/rom-til-14/ledd-3",
+     "tekstform": "kommunens eget klageorgan",
+     "merknad": true,
+     "hele_leddet": "Bestemmelsen innebærer at det gjøres unntak fra hovedregelen i forvaltningsloven § 28 om at kommunens eget klageorgan er klageinstans. For øvrig gjelder reglene om enkeltvedtak i forvaltningsloven."
+    }
+   ],
+   "foreslatt": {
+    "type": "omtale",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [
+     {
+      "relasjon": "omtale_av",
+      "til": {
+       "ny_node": "klageinstans (kommunal)"
+      },
+      "merknad": ""
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n127",
+   "navn": "Kommunens klageorgan",
+   "pilot": true,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "kommunens klageorgan",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om saksbehandlingsregler ved opptak i barnehage",
+     "bestemmelse": "§ 8 første ledd",
+     "eid": "https://lovdata.no/eli/forskrift/2005/12/16/1477/nor/§8/ledd-1",
+     "tekstform": "Kommunens klageorgan",
+     "merknad": false,
+     "hele_leddet": "Kommunens klageorgan er klageinstans."
+    }
+   ],
+   "foreslatt": {
+    "type": "rolle",
+    "undertype": null,
+    "ny_node": "klageinstans (kommunal)",
+    "relasjoner": [
+     {
+      "relasjon": "rolle_for",
+      "til": {
+       "id": "eb25cd79-007e-404d-9cd5-c85800b65272",
+       "navn": "kommune",
+       "tabell": "begreper",
+       "kategori": "klasse"
+      },
+      "merknad": "kommunestyret, formannskapet eller en særskilt klagenemnd etter kommunestyrets bestemmelse"
+     }
+    ],
+    "hjemmel": {
+     "rettskildeId": "62cbf5b8-9c51-482c-b5dc-b40a8869991b",
+     "rettskilde": "Lov om behandlingsmåten i forvaltningssaker (forvaltningsloven)",
+     "eid": "https://lovdata.no/eli/lov/1967/02/10/nor/§28/ledd-2",
+     "sitat": "For enkeltvedtak som er truffet av forvaltningsorgan opprettet i medhold av lov om kommuner og fylkeskommuner, er klageinstansen kommunestyret eller fylkestinget, eller etter disses bestemmelse, formannskapet eller fylkesutvalget eller en eller flere særskilte klagenemnder oppnevnt av kommunestyret eller fylkestinget. For enkeltvedtak som er truffet av egne rettssubjekter som har fått overført myndighet fra kommunen eller fylkeskommunen, er klageinstansen én eller flere særskilte klagenemnder som er oppnevnt av det øverste organet i rettssubjektet. Departementet er likevel klageinstans når vedtak er truffet av kommunestyret eller fylkestinget eller av det øverste organet i et eget rettssubjekt som har fått overført myndighet fra kommunen eller fylkeskommunen. Vedkommende statlige organ er klageinstans når vedtak er truffet i henhold til myndighet delegert fra et statlig forvaltningsorgan.",
+     "kunnskapsstatus": "fortolkning"
+    },
+    "hjemmel_status": "fortolkning",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n128",
+   "navn": "Kommunens pedagogisk-psykologiske tjeneste",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "kommunens pedagogisk-psykologiske tjeneste",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Lov om barnehager (barnehageloven)",
+     "bestemmelse": "§ 33 første ledd",
+     "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§33/ledd-1",
+     "tekstform": "Kommunens pedagogisk-psykologiske tjeneste",
+     "merknad": false,
+     "hele_leddet": "Kommunens pedagogisk-psykologiske tjeneste er sakkyndig instans i saker om spesialpedagogisk hjelp. Den pedagogisk-psykologiske tjenesten skal sørge for at det blir utarbeidet lovpålagte sakkyndige vurderinger."
+    }
+   ],
+   "foreslatt": {
+    "type": "omtale",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [
+     {
+      "relasjon": "omtale_av",
+      "til": {
+       "ny_node": "pedagogisk-psykologisk tjeneste"
+      },
+      "merknad": "genitiv: kommunens"
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n129",
+   "navn": "Kommuner i tiltakssonen i Finnmark og Nord-Troms",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "kommuner i tiltakssonen i finnmark og nord-troms",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om tildeling av tilskudd til private barnehager",
+     "bestemmelse": "§ 7 sjuende ledd",
+     "eid": "https://lovdata.no/eli/forskrift/2015/10/09/1166/nor/§7/ledd-7",
+     "tekstform": "Kommuner i tiltakssonen i Finnmark og Nord-Troms",
+     "merknad": false,
+     "hele_leddet": "Kommuner i tiltakssonen i Finnmark og Nord-Troms, jf. § 3 sjuende ledd siste punktum, som ikke har kommunale familiebarnehager, skal gi driftstilskudd til private familiebarnehager etter følgende tabell: Arbeidsgiveravgiftsone | Sats for heltidsplass for barn fra null år til to år | Sats for heltidsplass for barn fra tre år til seks år\nSone I | 266 400 | 213 100\nSone Ia | 266 400 | 213 100\nSone II | 259 200 | 207 400\nSone III | 250 500 | 200 400\nSone IV | 248 000 | 198 300\nSone IVa | 253 600 | 202 900\nSone V | 237 300 | 189 800"
+    }
+   ],
+   "foreslatt": {
+    "type": "omtale",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [
+     {
+      "relasjon": "omtale_av",
+      "til": {
+       "id": "eb25cd79-007e-404d-9cd5-c85800b65272",
+       "navn": "kommune",
+       "tabell": "begreper",
+       "kategori": "klasse"
+      },
+      "merknad": "avgrensning med vilkår"
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n130",
+   "navn": "Kommuner i tiltakssonen i Finnmark og Nord-Troms som ikke har kommunale ordinære barnehager",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "kommuner i tiltakssonen i finnmark og nord-troms som ikke har kommunale ordinære barnehager",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om tildeling av tilskudd til private barnehager",
+     "bestemmelse": "§ 3 sjuende ledd",
+     "eid": "https://lovdata.no/eli/forskrift/2015/10/09/1166/nor/§3/ledd-7",
+     "tekstform": "Kommuner i tiltakssonen i Finnmark og Nord-Troms som ikke har kommunale ordinære barnehager",
+     "merknad": false,
+     "hele_leddet": "Kommuner i tiltakssonen i Finnmark og Nord-Troms som ikke har kommunale ordinære barnehager, skal gi driftstilskuddet ut fra følgende tabell: Kroner per heltidsplass driftsutgifter, inklusive administrasjonspåslag\nOrdinære barnehager, barn fra null år til to år | 339 700\nOrdinære barnehager, barn fra tre år til seks år | 186 800Med kommuner i tiltakssonen i Finnmark og Nord-Troms menes alle kommuner i Finnmark samt sju kommuner i Nord-Troms (Kåfjord, Skjervøy, Nordreisa, Kvænangen, Karlsøy, Lyngen og Storfjord)."
+    }
+   ],
+   "foreslatt": {
+    "type": "omtale",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [
+     {
+      "relasjon": "omtale_av",
+      "til": {
+       "id": "eb25cd79-007e-404d-9cd5-c85800b65272",
+       "navn": "kommune",
+       "tabell": "begreper",
+       "kategori": "klasse"
+      },
+      "merknad": "avgrensning med vilkår"
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n131",
+   "navn": "Kommuner som fastsetter egne satser",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "kommuner som fastsetter egne satser",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om tildeling av tilskudd til private barnehager",
+     "bestemmelse": "§ 10 første ledd",
+     "eid": "https://lovdata.no/eli/forskrift/2015/10/09/1166/nor/§10/ledd-1",
+     "tekstform": "Kommuner som fastsetter egne satser",
+     "merknad": false,
+     "hele_leddet": "Kommuner som fastsetter egne satser, jf. § 3, § 7 og § 8, skal indeksregulere satsgrunnlaget med faktoren for forventet pris- og kostnadsvekst i kommunesektoren (kommunal deflator) før kommunen fatter vedtak om tilskudd, jf. § 1."
+    }
+   ],
+   "foreslatt": {
+    "type": "omtale",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [
+     {
+      "relasjon": "omtale_av",
+      "til": {
+       "id": "eb25cd79-007e-404d-9cd5-c85800b65272",
+       "navn": "kommune",
+       "tabell": "begreper",
+       "kategori": "klasse"
+      },
+      "merknad": "avgrensning med vilkår"
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n132",
+   "navn": "Kommuner som har private barnehager med barn som er folkeregistrert i en annen kommune",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "kommuner som har private barnehager med barn som er folkeregistrert i en annen kommune",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om tildeling av tilskudd til private barnehager",
+     "bestemmelse": "§ 15 første ledd",
+     "eid": "https://lovdata.no/eli/forskrift/2015/10/09/1166/nor/§15/ledd-1",
+     "tekstform": "Kommuner som har private barnehager med barn som er folkeregistrert i en annen kommune",
+     "merknad": false,
+     "hele_leddet": "Kommuner som har private barnehager med barn som er folkeregistrert i en annen kommune, har rett til refusjon for barnehageplassen fra kommunen der barnet er folkeregistrert."
+    }
+   ],
+   "foreslatt": {
+    "type": "omtale",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [
+     {
+      "relasjon": "omtale_av",
+      "til": {
+       "id": "eb25cd79-007e-404d-9cd5-c85800b65272",
+       "navn": "kommune",
+       "tabell": "begreper",
+       "kategori": "klasse"
+      },
+      "merknad": "avgrensning med vilkår"
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n133",
+   "navn": "Kommuner som ikke har kommunale familiebarnehager",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "kommuner som ikke har kommunale familiebarnehager",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om tildeling av tilskudd til private barnehager",
+     "bestemmelse": "§ 7 femte ledd",
+     "eid": "https://lovdata.no/eli/forskrift/2015/10/09/1166/nor/§7/ledd-5",
+     "tekstform": "Kommuner som ikke har kommunale familiebarnehager",
+     "merknad": false,
+     "hele_leddet": "Kommuner som ikke har kommunale familiebarnehager, skal gi driftstilskudd til private familiebarnehager etter følgende tabell: Arbeidsgiveravgiftsone | Sats for heltidsplass for barn fra null år til to år | Sats for heltidsplass for barn fra tre år til seks år\nSone I | 253 200 | 200 000\nSone Ia | 253 200 | 200 000\nSone II | 246 000 | 194 100\nSone III | 237 300 | 187 200\nSone IV | 234 600 | 185 000\nSone IVa | 240 400 | 189 700\nSone V | 224 000 | 176 600"
+    }
+   ],
+   "foreslatt": {
+    "type": "omtale",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [
+     {
+      "relasjon": "omtale_av",
+      "til": {
+       "id": "eb25cd79-007e-404d-9cd5-c85800b65272",
+       "navn": "kommune",
+       "tabell": "begreper",
+       "kategori": "klasse"
+      },
+      "merknad": "avgrensning med vilkår"
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n134",
+   "navn": "Kommuner som ikke har kommunale ordinære barnehager",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "kommuner som ikke har kommunale ordinære barnehager",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om tildeling av tilskudd til private barnehager",
+     "bestemmelse": "§ 3 femte ledd",
+     "eid": "https://lovdata.no/eli/forskrift/2015/10/09/1166/nor/§3/ledd-5",
+     "tekstform": "Kommuner som ikke har kommunale ordinære barnehager",
+     "merknad": false,
+     "hele_leddet": "Kommuner som ikke har kommunale ordinære barnehager, skal gi driftstilskuddet ut fra følgende tabell: Kroner per heltidsplass driftsutgifter, inklusive administrasjonspåslag\nOrdinære barnehager, barn fra null år til to år | 326 500\nOrdinære barnehager, barn fra tre år til seks år | 173 600"
+    }
+   ],
+   "foreslatt": {
+    "type": "omtale",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [
+     {
+      "relasjon": "omtale_av",
+      "til": {
+       "id": "eb25cd79-007e-404d-9cd5-c85800b65272",
+       "navn": "kommune",
+       "tabell": "begreper",
+       "kategori": "klasse"
+      },
+      "merknad": "avgrensning med vilkår"
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n135",
+   "navn": "Kommuner som ikke har kommunale åpne barnehager",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "kommuner som ikke har kommunale åpne barnehager",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om tildeling av tilskudd til private barnehager",
+     "bestemmelse": "§ 8 femte ledd",
+     "eid": "https://lovdata.no/eli/forskrift/2015/10/09/1166/nor/§8/ledd-5",
+     "tekstform": "Kommuner som ikke har kommunale åpne barnehager",
+     "merknad": false,
+     "hele_leddet": "Kommuner som ikke har kommunale åpne barnehager, skal gi tilskudd til private åpne barnehager etter følgende tabell: Arbeidsgiveravgiftsone | Åpningstid på 6 til 15 timer | Åpningstid på 16 timer eller mer\nSone I | 26 900 | 41 300\nSone Ia | 26 900 | 41 300\nSone II | 26 300 | 40 400\nSone III | 25 600 | 39 200\nSone IV | 25 400 | 38 900\nSone IVa | 25 900 | 39 600\nSone V | 24 500 | 37 500"
+    }
+   ],
+   "foreslatt": {
+    "type": "omtale",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [
+     {
+      "relasjon": "omtale_av",
+      "til": {
+       "id": "eb25cd79-007e-404d-9cd5-c85800b65272",
+       "navn": "kommune",
+       "tabell": "begreper",
+       "kategori": "klasse"
+      },
+      "merknad": "avgrensning med vilkår"
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n136",
+   "navn": "Kommuner som ligger i sentralitetssone 5 eller 6",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "kommuner som ligger i sentralitetssone 5 eller 6",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om tildeling av tilskudd til private barnehager",
+     "bestemmelse": "§ 7 sjette ledd",
+     "eid": "https://lovdata.no/eli/forskrift/2015/10/09/1166/nor/§7/ledd-6",
+     "tekstform": "Kommuner som ligger i sentralitetssone 5 eller 6",
+     "merknad": false,
+     "hele_leddet": "Kommuner som ligger i sentralitetssone 5 eller 6, jf. § 3 sjette ledd siste punktum, som ikke har kommunale familiebarnehager, skal gi driftstilskuddet ut fra følgende tabell: Arbeidsgiveravgiftsone | Sats for heltidsplass for barn fra null år til to år | Sats for heltidsplass for barn fra tre år til seks år\nSone I | 258 700 | 205 400\nSone Ia | 258 700 | 205 400\nSone II | 251 500 | 199 700\nSone III | 242 800 | 192 700\nSone IV | 240 100 | 190 600\nSone IVa | 245 900 | 195 200\nSone V | 229 600 | 182 100"
+    }
+   ],
+   "foreslatt": {
+    "type": "omtale",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [
+     {
+      "relasjon": "omtale_av",
+      "til": {
+       "id": "eb25cd79-007e-404d-9cd5-c85800b65272",
+       "navn": "kommune",
+       "tabell": "begreper",
+       "kategori": "klasse"
+      },
+      "merknad": "avgrensning med vilkår"
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n137",
+   "navn": "Kommuner som ligger i sentralitetssone 5 eller sentralitetssone 6 som ikke har kommunale ordinære barnehager",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "kommuner som ligger i sentralitetssone 5 eller sentralitetssone 6 som ikke har kommunale ordinære barnehager",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om tildeling av tilskudd til private barnehager",
+     "bestemmelse": "§ 3 sjette ledd",
+     "eid": "https://lovdata.no/eli/forskrift/2015/10/09/1166/nor/§3/ledd-6",
+     "tekstform": "Kommuner som ligger i sentralitetssone 5 eller sentralitetssone 6 som ikke har kommunale ordinære barnehager",
+     "merknad": false,
+     "hele_leddet": "Kommuner som ligger i sentralitetssone 5 eller sentralitetssone 6 som ikke har kommunale ordinære barnehager, skal gi driftstilskuddet ut fra følgende tabell: Kroner per heltidsplass driftsutgifter, inklusive administrasjonspåslag\nOrdinære barnehager, barn fra null år til to år | 332 000\nOrdinære barnehager, barn fra tre år til seks år | 179 000Med sentralitetssone 5 og sentralitetssone 6 menes kommuner som grupperes i nest-minst sentrale kommuner (klasse 5) eller minst sentrale kommuner (klasse 6) i den siste versjonen av sentralitetsindeksen som utarbeides av Statistisk sentralbyrå (oppdatert juni 2023)."
+    }
+   ],
+   "foreslatt": {
+    "type": "omtale",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [
+     {
+      "relasjon": "omtale_av",
+      "til": {
+       "id": "eb25cd79-007e-404d-9cd5-c85800b65272",
+       "navn": "kommune",
+       "tabell": "begreper",
+       "kategori": "klasse"
+      },
+      "merknad": "avgrensning med vilkår"
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n138",
+   "navn": "kommuner som slår seg sammen",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "kommuner som slår seg sammen",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om tildeling av tilskudd til private barnehager",
+     "bestemmelse": null,
+     "eid": "kap-merknader-til-de-enkelte-bestemmelsene/rom-til-16/ledd-1",
+     "tekstform": "kommuner som slår seg sammen",
+     "merknad": true,
+     "hele_leddet": "Bestemmelsen slår fast at kommuner som slår seg sammen, skal bruke de tidligere kommunenes regnskap og barnetall i tilskuddsberegningen til private barnehager frem til den nye kommunen har et eget regnskap og barnetall. Den nye kommunen har et eget regnskap og barnetall som kan brukes til tilskuddsberegning to år etter at kommunesammenslåingen er gjennomført."
+    }
+   ],
+   "foreslatt": {
+    "type": "omtale",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [
+     {
+      "relasjon": "omtale_av",
+      "til": {
+       "id": "eb25cd79-007e-404d-9cd5-c85800b65272",
+       "navn": "kommune",
+       "tabell": "begreper",
+       "kategori": "klasse"
+      },
+      "merknad": "avgrensning"
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n139",
+   "navn": "kommunestyret",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "kommunestyret",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Lov om kommunale helse- og omsorgstjenester m.m. (helse- og omsorgstjenesteloven)",
+     "bestemmelse": "§ 4-2 andre ledd",
+     "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§4-2/ledd-2",
+     "tekstform": "kommunestyret",
+     "merknad": false,
+     "hele_leddet": "Departementet kan i forskrift gi nærmere bestemmelser om plikten etter første ledd, herunder krav til politisk behandling av kvalitetskrav i kommunestyret eller annet folkevalgt organ."
+    }
+   ],
+   "foreslatt": {
+    "type": "klasse",
+    "undertype": null,
+    "ny_node": "kommunestyre",
+    "relasjoner": [
+     {
+      "relasjon": "organ_i",
+      "til": {
+       "id": "eb25cd79-007e-404d-9cd5-c85800b65272",
+       "navn": "kommune",
+       "tabell": "begreper",
+       "kategori": "klasse"
+      },
+      "merknad": "øverste organ i hver kommune"
+     }
+    ],
+    "hjemmel": {
+     "rettskildeId": "74201f01-4dae-4046-9f68-bf6c9d034c41",
+     "rettskilde": "Lov om kommuner og fylkeskommuner (kommuneloven)",
+     "eid": "https://lovdata.no/eli/lov/2018/06/22/83/nor/§5-3/ledd-1",
+     "sitat": "Kommunestyret er det øverste organet i kommunen, og fylkestinget er det øverste organet i fylkeskommunen.",
+     "kunnskapsstatus": "tekstfunn"
+    },
+    "hjemmel_status": "tekstfunn",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n140",
+   "navn": "Kommunestyret selv",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "kommunestyret selv",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Lov om kommunale helse- og omsorgstjenester m.m. (helse- og omsorgstjenesteloven)",
+     "bestemmelse": "§ 6-1 første ledd",
+     "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§6-1/ledd-1",
+     "tekstform": "Kommunestyret selv",
+     "merknad": false,
+     "hele_leddet": "Kommunestyret selv skal inngå samarbeidsavtale med det regionale helseforetaket i helseregionen eller med helseforetak som det regionale helseforetaket bestemmer. Kommunen kan inngå avtale alene eller sammen med andre kommuner."
+    }
+   ],
+   "foreslatt": {
+    "type": "omtale",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [
+     {
+      "relasjon": "omtale_av",
+      "til": {
+       "ny_node": "kommunestyre"
+      },
+      "merknad": "«selv» = kan ikke delegeres"
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n141",
+   "navn": "kompetent myndighet",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "kompetent myndighet",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om godkjenning av yrkeskvalifikasjoner for styrer og pedagogisk leder i barnehage fra annen stat",
+     "bestemmelse": "§ 8 første ledd",
+     "eid": "https://lovdata.no/eli/forskrift/2008/09/12/1071/nor/§8/ledd-1",
+     "tekstform": "kompetent myndighet",
+     "merknad": false,
+     "hele_leddet": "For å få godkjenning etter forskriften, må søkeren dokumentere yrkeskvalifikasjoner med tilsvarende nivå som det som følger av barnehageloven § 24 andre ledd og § 25 første ledd. Beviset skal være utstedt av kompetent myndighet i en stat utpekt i samsvar med lov, forskrift eller administrasjonsbestemmelse i vedkommende stat."
+    }
+   ],
+   "foreslatt": {
+    "type": "rolle",
+    "undertype": null,
+    "ny_node": "kompetent myndighet (annen stat)",
+    "relasjoner": [],
+    "hjemmel": null,
+    "hjemmel_status": "mangler",
+    "sikkerhet": "middels",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n142",
+   "navn": "koordinatoren",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "koordinatoren",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Lov om barnehager (barnehageloven)",
+     "bestemmelse": "§ 2b andre ledd",
+     "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§2b/ledd-2",
+     "tekstform": "koordinatoren",
+     "merknad": false,
+     "hele_leddet": "Kommunen skal samordne tjenestetilbudet etter første ledd. Ved behov skal kommunen bestemme hvilken kommunal tjenesteyter som skal ivareta samordningen. Dersom det er oppnevnt barnekoordinator etter helse- og omsorgstjenesteloven § 7-2 a , skal koordinatoren sørge for samordning av tjenestetilbudet."
+    }
+   ],
+   "foreslatt": {
+    "type": "omtale",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [
+     {
+      "relasjon": "omtale_av",
+      "til": {
+       "ny_node": "barnekoordinator"
+      },
+      "merknad": ""
+     }
+    ],
+    "hjemmel": {
+     "rettskildeId": "a3680bbb-82b1-41ab-8fb1-f4713aa6cd31",
+     "rettskilde": "Lov om kommunale helse- og omsorgstjenester m.m. (helse- og omsorgstjenesteloven)",
+     "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§7-2a/ledd-1",
+     "sitat": "For familier som har eller venter barn med alvorlig sykdom, skade eller nedsatt funksjonsevne, og som vil ha behov for langvarige og sammensatte eller koordinerte helse- og omsorgstjenester og andre velferdstjenester, skal kommunen oppnevne en barnekoordinator dersom foreldrene eller den som samtykker på vegne av barnet, ønsker dette.",
+     "kunnskapsstatus": "fortolkning"
+    },
+    "hjemmel_status": "fortolkning",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n143",
+   "navn": "lagmennene",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "lagmennene",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Lov om domstolene (domstolloven)",
+     "bestemmelse": "§ 11 tredje ledd",
+     "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§11/ledd-3",
+     "tekstform": "lagmennene",
+     "merknad": false,
+     "hele_leddet": "Førstelagmannen kan bemyndige lagmennene til å utføre de forretningene som etter andre lovbestemmelser er tillagt denne."
+    }
+   ],
+   "foreslatt": {
+    "type": "rolle",
+    "undertype": null,
+    "ny_node": "lagmann",
+    "relasjoner": [
+     {
+      "relasjon": "rolle_for",
+      "til": {
+       "ny_node": "lagmannsrett"
+      },
+      "merknad": ""
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "mangler",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n144",
+   "navn": "leder",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "leder",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om enkelte klagenemnder på Kunnskapsdepartementets område",
+     "bestemmelse": "§ 3 andre ledd punkt 1",
+     "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§3/ledd-2/punkt-1",
+     "tekstform": "leder",
+     "merknad": false,
+     "hele_leddet": "En leder og en nestleder som skal være jurister, jf. advokatloven § 67. Leder skal ikke være ansatt eller medlem av styret ved institusjon som går inn under henholdsvis fagskoleloven eller lov om universiteter og høyskoler. Departementet utpeker leder og nestleder. Nestleder er vara for leder."
+    }
+   ],
+   "foreslatt": {
+    "type": "rolle",
+    "undertype": null,
+    "ny_node": "leder (av nemnd)",
+    "relasjoner": [
+     {
+      "relasjon": "rolle_for",
+      "til": {
+       "ny_node": "NOKUTs klagenemnd"
+      },
+      "merknad": "FOR-2025-07-02-1462 § 3 andre ledd nr. 1"
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "mangler",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n145",
+   "navn": "lokal redningssentral",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "lokal redningssentral",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Lov om kommunale helse- og omsorgstjenester m.m. (helse- og omsorgstjenesteloven)",
+     "bestemmelse": "§ 5-5 første ledd",
+     "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§5-5/ledd-1",
+     "tekstform": "lokal redningssentral",
+     "merknad": false,
+     "hele_leddet": "Kommunen skal ha en eller flere kommuneleger som skal utføre de oppgaver kommunelegen er tillagt i lov eller instruks. Kommunen kan samarbeide med andre kommuner om ansettelse av kommunelege. Kommunelegen plikter på anmodning fra departementet å delta i lokal redningssentral."
+    }
+   ],
+   "foreslatt": {
+    "type": "klasse",
+    "undertype": null,
+    "ny_node": "lokal redningssentral",
+    "relasjoner": [],
+    "hjemmel": null,
+    "hjemmel_status": "mangler",
+    "sikkerhet": "lav",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n146",
+   "navn": "Lånekassens klagenemnd",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "lånekassens klagenemnd",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om enkelte klagenemnder på Kunnskapsdepartementets område",
+     "bestemmelse": "§ 10 første ledd",
+     "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§10/ledd-1",
+     "tekstform": "Lånekassens klagenemnd",
+     "merknad": false,
+     "hele_leddet": "Lånekassens klagenemnd skal behandle klager på enkeltvedtak etter lov om utdanningsstøtte og tilhørende forskrifter."
+    }
+   ],
+   "foreslatt": {
+    "type": "aktør",
+    "undertype": "organ",
+    "ny_node": "Lånekassens klagenemnd",
+    "relasjoner": [
+     {
+      "relasjon": "klageinstans_for",
+      "til": {
+       "id": "c169972e-9ce3-403f-b86f-55586f5636f5",
+       "navn": "STATENS LÅNEKASSE FOR UTDANNING",
+       "tabell": "virksomheter",
+       "kategori": "virksomhet"
+      },
+      "merknad": "utdanningsstøtteloven § 18 første ledd"
+     }
+    ],
+    "hjemmel": {
+     "rettskildeId": "04821b16-c254-4616-ae7f-ef3e8632da6a",
+     "rettskilde": "Lov om utdanningsstøtte (utdanningsstøtteloven)",
+     "eid": "https://lovdata.no/eli/lov/2005/06/03/37/nor/§18/ledd-1",
+     "sitat": "Departementet oppnevner en klagenemnd som er klageinstans for enkeltvedtak etter denne loven, herunder vedtak om tildeling av utdanningsstøtte, forrentning og tilbakebetaling. Departementet kan gi forskrift om klagenemnda og om saksbehandlingen i nemnda.",
+     "kunnskapsstatus": "fortolkning"
+    },
+    "hjemmel_status": "fortolkning",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n147",
+   "navn": "Meldal",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "meldal",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Lov om reindrift (reindriftsloven)",
+     "bestemmelse": "§ 2 andre ledd",
+     "eid": "https://lovdata.no/eli/lov/2007/06/15/40/nor/§2/ledd-2",
+     "tekstform": "Meldal",
+     "merknad": false,
+     "hele_leddet": "For reindrift i Trollheimen og omegn gjelder reglene i lov 21. desember 1984 nr. 101 om reindrift i kommunene Meldal, Midtre Gauldal, Oppdal, Rennebu, Rindal, Sunndal og Surnadal."
+    }
+   ],
+   "foreslatt": {
+    "type": "område",
+    "undertype": "kommune (utgått)",
+    "ny_node": "Meldal (kommune, utgått)",
+    "relasjoner": [
+     {
+      "relasjon": "etterfulgt_av",
+      "til": {
+       "id": "b026a774-a0b2-4acf-a8fd-14f69492b77b",
+       "navn": "Orkland",
+       "tabell": "begreper",
+       "kategori": "omrade"
+      },
+      "merknad": "slutning: Meldal inngår i Orkland fra 2020; ikke kontrollert i korpus"
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "mangler",
+    "sikkerhet": "middels",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n148",
+   "navn": "myndighetsnivåene",
+   "pilot": true,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "myndighetsnivåene",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om rammeplan for barnehagens innhold og oppgaver",
+     "bestemmelse": null,
+     "eid": "kap-7/rom-planlegging/rom-arsplan/ledd-1",
+     "tekstform": "myndighetsnivåene",
+     "merknad": false,
+     "hele_leddet": "Barnehagen skal utarbeide en årsplan. I tillegg skal det utarbeides planer for kortere og lengre tidsrom og for ulike barnegrupper etter behov. Årsplanen er et arbeidsredskap for barnehagepersonalet og dokumenterer barnehagens valg og begrunnelser. Årsplanen kan gi informasjon om barnehagens pedagogiske arbeid til myndighetsnivåene, barnehagens samarbeidsparter og andre interesserte."
+    }
+   ],
+   "foreslatt": {
+    "type": "venter",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "-",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n149",
+   "navn": "nemndas leder",
+   "pilot": true,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "nemndas leder",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om enkelte klagenemnder på Kunnskapsdepartementets område",
+     "bestemmelse": "§ 5 første ledd",
+     "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§5/ledd-1",
+     "tekstform": "nemndas leder",
+     "merknad": false,
+     "hele_leddet": "Klagenemnda kan delegere til nemndas leder å fatte vedtak i enkle saker. Beslutningen om delegering må være enstemmig."
+    }
+   ],
+   "foreslatt": {
+    "type": "omtale",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [
+     {
+      "relasjon": "omtale_av",
+      "til": {
+       "ny_node": "leder (av nemnd)"
+      },
+      "merknad": "genitiv: NOKUTs klagenemnd"
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n150",
+   "navn": "nestleder",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "nestleder",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om enkelte klagenemnder på Kunnskapsdepartementets område",
+     "bestemmelse": "§ 3 andre ledd punkt 1",
+     "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§3/ledd-2/punkt-1",
+     "tekstform": "nestleder",
+     "merknad": false,
+     "hele_leddet": "En leder og en nestleder som skal være jurister, jf. advokatloven § 67. Leder skal ikke være ansatt eller medlem av styret ved institusjon som går inn under henholdsvis fagskoleloven eller lov om universiteter og høyskoler. Departementet utpeker leder og nestleder. Nestleder er vara for leder."
+    }
+   ],
+   "foreslatt": {
+    "type": "rolle",
+    "undertype": null,
+    "ny_node": "nestleder (av nemnd)",
+    "relasjoner": [
+     {
+      "relasjon": "rolle_for",
+      "til": {
+       "ny_node": "NOKUTs klagenemnd"
+      },
+      "merknad": ""
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "mangler",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n151",
+   "navn": "NOKUT",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "nokut",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om enkelte klagenemnder på Kunnskapsdepartementets område",
+     "bestemmelse": "§ 2 første ledd",
+     "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§2/ledd-1",
+     "tekstform": "NOKUT",
+     "merknad": false,
+     "hele_leddet": "Klagenemnda skal avgjøre klager over følgende vedtak fattet av NOKUT:"
+    }
+   ],
+   "foreslatt": {
+    "type": "aktør",
+    "undertype": "organ",
+    "ny_node": "NOKUT",
+    "relasjoner": [],
+    "hjemmel": null,
+    "hjemmel_status": "mangler",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n152",
+   "navn": "Norges teknisk–naturvitenskapelig universitet (NTNU)",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "norges teknisk–naturvitenskapelig universitet (ntnu)",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift for gradene philosophiae doctor (ph.d.) og philosophiae doctor i kunstnerisk utviklingsarbeid (ph.d. i kunstnerisk utviklingsarbeid) ved Norges teknisk-naturvitenskapelige universitet (NTNU)",
+     "bestemmelse": "§ 26 første ledd",
+     "eid": "https://lovdata.no/eli/forskrift/2026/02/03/387/nor/§26/ledd-1",
+     "tekstform": "Norges teknisk–naturvitenskapelig universitet (NTNU)",
+     "merknad": false,
+     "hele_leddet": "Forskriften trer i kraft straks og samtidig oppheves forskrift 5. desember 2018 nr. 1878 for gradene philosophiae doctor (ph.d.) og philosophiae doctor (ph.d.) i kunstnerisk utviklingsarbeid ved Norges teknisk–naturvitenskapelig universitet (NTNU), vedtatt av styret."
+    }
+   ],
+   "foreslatt": {
+    "type": "omtale",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [
+     {
+      "relasjon": "samme_som",
+      "til": {
+       "id": "72dc2d24-ebd4-443f-b958-efae0434ea06",
+       "navn": "NORGES TEKNISK-NATURVITENSKAPELIGE UNIVERSITET NTNU",
+       "tabell": "virksomheter",
+       "kategori": "virksomhet"
+      },
+      "merknad": "skrivemåte med tankestrek og «naturvitenskapelig»"
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n153",
+   "navn": "Norgespris",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "norgespris",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om Energiklagenemnda",
+     "bestemmelse": "§ 1 første ledd",
+     "eid": "https://lovdata.no/eli/forskrift/2019/10/24/1420/nor/§1/ledd-1",
+     "tekstform": "Norgespris",
+     "merknad": false,
+     "hele_leddet": "Energiklagenemnda behandler klager over enkeltvedtak truffet av Reguleringsmyndigheten for energi med hjemmel i energiloven, naturgassloven, offentleglova og lov om Norgespris og strømstønad til husholdninger."
+    }
+   ],
+   "foreslatt": {
+    "type": "ikke_aktør",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n154",
+   "navn": "offentlige myndigheter",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "offentlige myndigheter",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om behandling av personopplysninger i barnehagesektoren",
+     "bestemmelse": "§ 1 første ledd",
+     "eid": "https://lovdata.no/eli/forskrift/2018/09/28/1479/nor/§1/ledd-1",
+     "tekstform": "offentlige myndigheter",
+     "merknad": false,
+     "hele_leddet": "Når det er nødvendig for å utføre oppgaver etter barnehageloven, kan offentlige myndigheter uten hinder av taushetsplikt innhente opplysninger fra Folkeregisteret om:"
+    }
+   ],
+   "foreslatt": {
+    "type": "ikke_aktør",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "middels",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n155",
+   "navn": "Pasient- og brukerorganisasjoner",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "pasient- og brukerorganisasjoner",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Lov om kommunale helse- og omsorgstjenester m.m. (helse- og omsorgstjenesteloven)",
+     "bestemmelse": "§ 6-1 tredje ledd",
+     "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§6-1/ledd-3",
+     "tekstform": "Pasient- og brukerorganisasjoner",
+     "merknad": false,
+     "hele_leddet": "Pasient- og brukererfaringer skal inngå i vurderingsgrunnlaget ved utarbeidelsen av avtalen. Pasient- og brukerorganisasjoner skal medvirke i forbindelse med utarbeidelse av avtalene."
+    }
+   ],
+   "foreslatt": {
+    "type": "ikke_aktør",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n156",
+   "navn": "Pedagogisk leder",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "pedagogisk leder",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om rammeplan for barnehagens innhold og oppgaver",
+     "bestemmelse": null,
+     "eid": "kap-2/rom-pedagogisk-leder/ledd-1",
+     "tekstform": "Pedagogisk leder",
+     "merknad": false,
+     "hele_leddet": "Pedagogisk leder er gitt ansvaret for å iverksette og lede det pedagogiske arbeidet, i tråd med godt faglig skjønn. Den pedagogiske lederen skal veilede og sørge for at barnehageloven og rammeplanen oppfylles gjennom det pedagogiske arbeidet. Den pedagogiske lederen leder arbeidet med planlegging, gjennomføring, dokumentasjon, vurdering og utvikling av arbeidet i barnegruppen eller innenfor de områdene han/hun er satt til å lede."
+    }
+   ],
+   "foreslatt": {
+    "type": "rolle",
+    "undertype": null,
+    "ny_node": "pedagogisk leder",
+    "relasjoner": [
+     {
+      "relasjon": "rolle_for",
+      "til": {
+       "ny_node": "barnehage"
+      },
+      "merknad": ""
+     }
+    ],
+    "hjemmel": {
+     "rettskildeId": "8d8680e2-fbc3-4d3c-9cd4-69ef591e15d9",
+     "rettskilde": "Forskrift om pedagogisk bemanning og dispensasjon i barnehager",
+     "eid": "https://lovdata.no/eli/forskrift/2017/06/22/1049/nor/§1/ledd-2",
+     "sitat": "Barnehagen skal ha minst én pedagogisk leder per syv barn under tre år og én pedagogisk leder per 14 barn over tre år. Ett barn til utløser krav om en ny fulltidsstilling som pedagogisk leder. Barn regnes for å være over tre år fra og med august det året de fyller tre år.",
+     "kunnskapsstatus": "fortolkning"
+    },
+    "hjemmel_status": "fortolkning",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n157",
+   "navn": "pedagogisk-psykologisk tjeneste",
+   "pilot": true,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "pedagogisk-psykologisk tjeneste",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Lov om barnehager (barnehageloven)",
+     "bestemmelse": "§ 2b første ledd",
+     "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§2b/ledd-1",
+     "tekstform": "pedagogisk-psykologisk tjeneste",
+     "merknad": false,
+     "hele_leddet": "Barnehagen og pedagogisk-psykologisk tjeneste skal samarbeide med andre tjenesteytere dersom samarbeid er nødvendig for å gi barnet et helhetlig og samordnet tjenestetilbud. Dersom barnet har individuell plan etter annen lov og forskrift, skal barnehagen og pedagogisk-psykologisk tjeneste delta i samarbeid om utarbeidelse og oppfølging av tiltak og mål i den individuelle planen."
+    }
+   ],
+   "foreslatt": {
+    "type": "klasse",
+    "undertype": null,
+    "ny_node": "pedagogisk-psykologisk tjeneste",
+    "relasjoner": [
+     {
+      "relasjon": "organ_i",
+      "til": {
+       "id": "eb25cd79-007e-404d-9cd5-c85800b65272",
+       "navn": "kommune",
+       "tabell": "begreper",
+       "kategori": "klasse"
+      },
+      "merknad": "én per kommune og fylkeskommune"
+     }
+    ],
+    "hjemmel": {
+     "rettskildeId": "0332d4be-0f0f-4a33-b26c-4bef0dcad5e0",
+     "rettskilde": "Lov om grunnskoleopplæringa og den vidaregåande opplæringa (opplæringslova)",
+     "eid": "https://lovdata.no/eli/lov/2023/06/09/30/nor/§11-13/ledd-1",
+     "sitat": "Kommunen og fylkeskommunen skal ha ei pedagogisk-psykologisk teneste.",
+     "kunnskapsstatus": "normalisering"
+    },
+    "hjemmel_status": "normalisering",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n158",
+   "navn": "pedagogisk-psykologiske tjenesten",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "pedagogisk-psykologiske tjenesten",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Lov om barnehager (barnehageloven)",
+     "bestemmelse": "§ 33 første ledd",
+     "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§33/ledd-1",
+     "tekstform": "pedagogisk-psykologiske tjenesten",
+     "merknad": false,
+     "hele_leddet": "Kommunens pedagogisk-psykologiske tjeneste er sakkyndig instans i saker om spesialpedagogisk hjelp. Den pedagogisk-psykologiske tjenesten skal sørge for at det blir utarbeidet lovpålagte sakkyndige vurderinger."
+    }
+   ],
+   "foreslatt": {
+    "type": "omtale",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [
+     {
+      "relasjon": "omtale_av",
+      "til": {
+       "ny_node": "pedagogisk-psykologisk tjeneste"
+      },
+      "merknad": "bestemt form"
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n159",
+   "navn": "pedagogiske ledere",
+   "pilot": true,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "pedagogiske ledere",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Lov om barnehager (barnehageloven)",
+     "bestemmelse": "§ 51 andre ledd",
+     "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§51/ledd-2",
+     "tekstform": "pedagogiske ledere",
+     "merknad": false,
+     "hele_leddet": "Barnehagens styrer og pedagogiske ledere plikter å veilede studenter i slik øvingsopplæring."
+    }
+   ],
+   "foreslatt": {
+    "type": "omtale",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [
+     {
+      "relasjon": "omtale_av",
+      "til": {
+       "ny_node": "pedagogisk leder"
+      },
+      "merknad": "flertall"
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n160",
+   "navn": "private barnehageeiere",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "private barnehageeiere",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om behandling av personopplysninger i barnehagesektoren",
+     "bestemmelse": "§ 2 første ledd",
+     "eid": "https://lovdata.no/eli/forskrift/2018/09/28/1479/nor/§2/ledd-1",
+     "tekstform": "private barnehageeiere",
+     "merknad": false,
+     "hele_leddet": "Kommuner, fylkeskommuner og private barnehager skal sørge for tilgangsstyring slik at de som arbeider for virksomheten, bare har tilgang til personopplysninger dersom og i den utstrekning de trenger opplysningene for formål som omtalt i barnehageloven § 47 a. Kommuner, fylkeskommuner og private barnehageeiere skal sørge for at de som arbeider for virksomheten, har nødvendig kunnskap om personvern og informasjonssikkerhet før de gis tilgang til personopplysninger."
+    }
+   ],
+   "foreslatt": {
+    "type": "omtale",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [
+     {
+      "relasjon": "omtale_av",
+      "til": {
+       "ny_node": "barnehageeier"
+      },
+      "merknad": "avgrenset til private"
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n161",
+   "navn": "private barnehagen",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "private barnehagen",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om tildeling av tilskudd til private barnehager",
+     "bestemmelse": "§ 11 første ledd",
+     "eid": "https://lovdata.no/eli/forskrift/2015/10/09/1166/nor/§11/ledd-1",
+     "tekstform": "private barnehagen",
+     "merknad": false,
+     "hele_leddet": "Kommunen skal i beregningen av tilskuddet til den private barnehagen trekke fra et beløp tilsvarende det andre offentlige tilskudd og indirekte offentlig økonomisk støtte dekker av barnehagens drifts-, og administrasjonsutgifter, og kapitalkostnader."
+    }
+   ],
+   "foreslatt": {
+    "type": "omtale",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [
+     {
+      "relasjon": "omtale_av",
+      "til": {
+       "ny_node": "privat barnehage"
+      },
+      "merknad": "bestemt form"
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n162",
+   "navn": "Private barnehager opplistet i vedlegg I",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "private barnehager opplistet i vedlegg i",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om tildeling av tilskudd til private barnehager",
+     "bestemmelse": "§ 4b første ledd",
+     "eid": "https://lovdata.no/eli/forskrift/2015/10/09/1166/nor/§4b/ledd-1",
+     "tekstform": "Private barnehager opplistet i vedlegg I",
+     "merknad": false,
+     "hele_leddet": "Private barnehager opplistet i vedlegg I som har historiske pensjonsforpliktelser basert på avtale om offentlig tjenestepensjon, og som har høyere pensjonsutgifter enn det som blir dekket gjennom pensjonspåslaget etter § 4, skal få dekket sine pensjonsutgifter oppad begrenset til 20 prosent av pensjonsgivende lønn i den private barnehagen."
+    }
+   ],
+   "foreslatt": {
+    "type": "omtale",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [
+     {
+      "relasjon": "omtale_av",
+      "til": {
+       "ny_node": "privat barnehage"
+      },
+      "merknad": "avgrensning: listet i vedlegg I"
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n163",
+   "navn": "Private barnehager som samlet over de tre siste årene har mer enn fem prosent høyere utgifter til pensjon",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "private barnehager som samlet over de tre siste årene har mer enn fem prosent høyere utgifter til pensjon",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om finansiering av private barnehager (finansieringsforskriften)",
+     "bestemmelse": "§ 15 første ledd",
+     "eid": "https://lovdata.no/eli/forskrift/2026/03/23/454/nor/§15/ledd-1",
+     "tekstform": "Private barnehager som samlet over de tre siste årene har mer enn fem prosent høyere utgifter til pensjon",
+     "merknad": false,
+     "hele_leddet": "Private barnehager som samlet over de tre siste årene har mer enn fem prosent høyere utgifter til pensjon enn det de får dekket etter barnehageloven § 19b første ledd, har etter søknad krav på å få dekket utgiftene som overstiger fem prosent. Dersom barnehagen tidligere har fått tilskudd etter søknadsordningen i denne paragrafen eller etter tidligere § 4a, skal dette tilskuddet hensyntas i vurderingen etter første punktum."
+    }
+   ],
+   "foreslatt": {
+    "type": "omtale",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [
+     {
+      "relasjon": "omtale_av",
+      "til": {
+       "ny_node": "privat barnehage"
+      },
+      "merknad": "avgrensning med vilkår"
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n164",
+   "navn": "Private barnehager som samlet over de tre siste årene har mer enn fem prosent høyere utgifter til pensjon enn det de får dekket gjennom pensjonspåslaget etter § 4",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "private barnehager som samlet over de tre siste årene har mer enn fem prosent høyere utgifter til pensjon enn det de får dekket gjennom pensjonspåslaget etter § 4",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om tildeling av tilskudd til private barnehager",
+     "bestemmelse": "§ 4a første ledd",
+     "eid": "https://lovdata.no/eli/forskrift/2015/10/09/1166/nor/§4a/ledd-1",
+     "tekstform": "Private barnehager som samlet over de tre siste årene har mer enn fem prosent høyere utgifter til pensjon enn det de får dekket gjennom pensjonspåslaget etter § 4",
+     "merknad": false,
+     "hele_leddet": "Private barnehager som samlet over de tre siste årene har mer enn fem prosent høyere utgifter til pensjon enn det de får dekket gjennom pensjonspåslaget etter § 4, har etter søknad krav på å få dekket utgiftene som overstiger fem prosent. Dersom barnehagen tidligere har fått tilskudd etter søknadsordningen i denne paragrafen eller etter tidligere § 4a, skal dette tilskuddet hensyntas i vurderingen etter første punktum."
+    }
+   ],
+   "foreslatt": {
+    "type": "omtale",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [
+     {
+      "relasjon": "omtale_av",
+      "til": {
+       "ny_node": "privat barnehage"
+      },
+      "merknad": "avgrensning med vilkår"
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n165",
+   "navn": "private grunnskoler godkjent etter opplæringslova 2023 § 22-1",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "private grunnskoler godkjent etter opplæringslova 2023 § 22-1",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om regnskapsplikt mv. for private barnehager (økonomiforskrift til barnehageloven)",
+     "bestemmelse": "§ 3a første ledd punkt 2",
+     "eid": "https://lovdata.no/eli/forskrift/2022/12/16/2322/nor/§3a/ledd-1/punkt-2",
+     "tekstform": "private grunnskoler godkjent etter opplæringslova 2023 § 22-1",
+     "merknad": false,
+     "hele_leddet": "barnehager som er en del av virksomheten til Den franske skolen i Oslo, Den tysk-norske skolen i Oslo, International School of Bergen, International School of Stavanger eller Oslo International School og barnehager som er en del av private grunnskoler godkjent etter opplæringslova 2023 § 22-1"
+    }
+   ],
+   "foreslatt": {
+    "type": "ikke_aktør",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n166",
+   "navn": "regionale helseforetak",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "regionale helseforetak",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om ansvar for spesialpedagogisk hjelp for barn under opplæringspliktig alder",
+     "bestemmelse": "§ 6 første ledd",
+     "eid": "https://lovdata.no/eli/forskrift/2017/06/22/1050/nor/§6/ledd-1",
+     "tekstform": "regionale helseforetak",
+     "merknad": false,
+     "hele_leddet": "For pasienter i helseinstitusjoner som et regionalt helseforetak eier eller for pasienter i private helseinstitusjoner som har avtale med regionale helseforetak, har fylkeskommunen der institusjonen ligger ansvaret for å oppfylle retten til spesialpedagogisk hjelp. Ansvaret gjelder bare for pasienter i institusjonsplasser som regionale helseforetak finansierer."
+    }
+   ],
+   "foreslatt": {
+    "type": "omtale",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [
+     {
+      "relasjon": "omtale_av",
+      "til": {
+       "ny_node": "regionalt helseforetak"
+      },
+      "merknad": "flertall"
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n167",
+   "navn": "retten",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "retten",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Lov om domstolene (domstolloven)",
+     "bestemmelse": "§ 101 første ledd",
+     "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§101/ledd-1",
+     "tekstform": "retten",
+     "merknad": false,
+     "hele_leddet": "Rettsvitner oppnevnes av retten eller av den tjenestemann som skal styre forretningen."
+    }
+   ],
+   "foreslatt": {
+    "type": "omtale",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [
+     {
+      "relasjon": "omtale_av",
+      "til": {
+       "ny_node": "domstol (den som behandler saken)"
+      },
+      "merknad": "generisk"
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "middels",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n168",
+   "navn": "Rettsvitner",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "rettsvitner",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Lov om domstolene (domstolloven)",
+     "bestemmelse": "§ 101 første ledd",
+     "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§101/ledd-1",
+     "tekstform": "Rettsvitner",
+     "merknad": false,
+     "hele_leddet": "Rettsvitner oppnevnes av retten eller av den tjenestemann som skal styre forretningen."
+    }
+   ],
+   "foreslatt": {
+    "type": "rolle",
+    "undertype": null,
+    "ny_node": "rettsvitne",
+    "relasjoner": [],
+    "hjemmel": null,
+    "hjemmel_status": "mangler",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n169",
+   "navn": "revisor",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "revisor",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Lov om barnehager (barnehageloven)",
+     "bestemmelse": "§ 56 åttende ledd",
+     "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§56/ledd-8",
+     "tekstform": "revisor",
+     "merknad": false,
+     "hele_leddet": "Dersom Utdanningsdirektoratet i forbindelse med gjennomføring av tilsyn har behov for opplysninger fra barnehagens regnskapsfører, revisor eller bank, skal Utdanningsdirektoratet få tilgang til slike opplysninger, med unntak av det som regnes som opplysninger om noens personlige forhold etter forvaltningsloven § 13 første ledd nr. 1."
+    }
+   ],
+   "foreslatt": {
+    "type": "ikke_aktør",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n170",
+   "navn": "rikets hovedstad",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "rikets hovedstad",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Lov om domstolene (domstolloven)",
+     "bestemmelse": "§ 3 første ledd",
+     "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§3/ledd-1",
+     "tekstform": "rikets hovedstad",
+     "merknad": false,
+     "hele_leddet": "Høyesterett har sitt sete i rikets hovedstad når ikke særlige forhold er til hinder. Retten skal ha en justitiarius og nitten andre dommere."
+    }
+   ],
+   "foreslatt": {
+    "type": "område",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [
+     {
+      "relasjon": "samme_som",
+      "til": {
+       "id": "c119f08f-ced7-453c-905b-46c8ef53b253",
+       "navn": "Oslo",
+       "tabell": "begreper",
+       "kategori": "omrade"
+      },
+      "merknad": "slutning: rikets hovedstad er Oslo; ikke kontrollert"
+     },
+     {
+      "relasjon": "samme_som",
+      "til": {
+       "id": "2119244a-6ef2-4de3-afe0-1fc2ce829415",
+       "navn": "Oslo",
+       "tabell": "begreper",
+       "kategori": "omrade"
+      },
+      "merknad": "Oslo er både kommune og fylke"
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "mangler",
+    "sikkerhet": "lav",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n171",
+   "navn": "Sametinget",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "sametinget",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Lov om reindrift (reindriftsloven)",
+     "bestemmelse": "§ 71 første ledd",
+     "eid": "https://lovdata.no/eli/lov/2007/06/15/40/nor/§71/ledd-1",
+     "tekstform": "Sametinget",
+     "merknad": false,
+     "hele_leddet": "Det opprettes et reindriftsstyre på syv medlemmer med personlige varamedlemmer der fire av medlemmene med varamedlemmer oppnevnes av Kongen og tre medlemmer med varamedlemmer oppnevnes av Sametinget. Reindriftsstyret er faglig rådgiver for Landbruksdirektoratet, reinforskningen og rettledningstjenesten, og skal behandle de saker som følger av loven her samt etter Kongens nærmere bestemmelser. Reindriftsstyrets virkeområde kan avgrenses til å omfatte reindrift innenfor det samiske reinbeiteområdet."
+    }
+   ],
+   "foreslatt": {
+    "type": "omtale",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [
+     {
+      "relasjon": "samme_som",
+      "til": {
+       "id": "e0a41e43-744b-4aa1-8e54-d660c478e959",
+       "navn": "SAMEDIGGI / SAMETINGET",
+       "tabell": "virksomheter",
+       "kategori": "virksomhet"
+      },
+      "merknad": "registernavnet er «SAMEDIGGI / SAMETINGET»"
+     }
+    ],
+    "hjemmel": {
+     "rettskildeId": "b2b2bc4b-f2a3-44e8-a665-ea491a2185b7",
+     "rettskilde": "Lov om Sametinget og andre samiske rettsforhold (sameloven)",
+     "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§1-2/ledd-1",
+     "sitat": "Den samiske folkegruppe skal ha et eget landsomfattende sameting valgt av og blant samene.",
+     "kunnskapsstatus": "normalisering"
+    },
+    "hjemmel_status": "normalisering",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n172",
+   "navn": "sentralt register",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "sentralt register",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Lov om kommunale helse- og omsorgstjenester m.m. (helse- og omsorgstjenesteloven)",
+     "bestemmelse": "§ 5-7 andre ledd",
+     "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§5-7/ledd-2",
+     "tekstform": "sentralt register",
+     "merknad": false,
+     "hele_leddet": "Departementet kan i forskrift gi nærmere bestemmelser om hvilke opplysninger som skal gis, når disse skal gis og hvordan de skal registreres og formidles videre til et sentralt register."
+    }
+   ],
+   "foreslatt": {
+    "type": "ikke_aktør",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n173",
+   "navn": "skattemyndighetene",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "skattemyndighetene",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om foreldrebetaling i barnehager",
+     "bestemmelse": null,
+     "eid": "kap-merknader-til-de-enkelte-bestemmelsene/ledd-15",
+     "tekstform": "skattemyndighetene",
+     "merknad": true,
+     "hele_leddet": "Bestemmelsen slår fast at kommunen må innhente den dokumentasjonen som er nødvendig for å fatte vedtak om moderasjon. Videre gir den kommunen hjemmel til å innhente grunnlaget for siste fastsetting av formues- og inntektsskatt for husholdningen fra skattemyndighetene for å dokumentere husholdningens person- og kapitalinntekt for det siste året, og opplysninger fra Folkeregisteret for å finne ut hvem som omfattes av husholdningen. Dersom søker er samboer uten felles barn, må søker opplyse kommunen om hvem som omfattes av husholdningen, jf. § 3d andre ledd. For andre søkere kan kommunen innhente informasjon fra Folkeregisteret på egen hånd, slik at søker ikke trenger å opplyse om dette. Hvis s…"
+    }
+   ],
+   "foreslatt": {
+    "type": "omtale",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [
+     {
+      "relasjon": "omtale_av",
+      "til": {
+       "id": "5e69bca7-fd4a-4c6c-9d2e-3dcaf9cca1bb",
+       "navn": "SKATTEETATEN",
+       "tabell": "virksomheter",
+       "kategori": "virksomhet"
+      },
+      "merknad": "generisk"
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "middels",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n174",
+   "navn": "sokn i Den norske kirke",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "sokn i den norske kirke",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om regnskapsplikt mv. for private barnehager (økonomiforskrift til barnehageloven)",
+     "bestemmelse": "§ 3a første ledd punkt 1",
+     "eid": "https://lovdata.no/eli/forskrift/2022/12/16/2322/nor/§3a/ledd-1/punkt-1",
+     "tekstform": "sokn i Den norske kirke",
+     "merknad": false,
+     "hele_leddet": "barnehager som er en del av virksomheten til sokn i Den norske kirke"
+    }
+   ],
+   "foreslatt": {
+    "type": "ikke_aktør",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "middels",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n175",
+   "navn": "Statens undersøkelseskommisjon for helse- og omsorgstjenesten",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "statens undersøkelseskommisjon for helse- og omsorgstjenesten",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Lov om kommunale helse- og omsorgstjenester m.m. (helse- og omsorgstjenesteloven)",
+     "bestemmelse": "§ 12-3a første ledd",
+     "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§12-3a/ledd-1",
+     "tekstform": "Statens undersøkelseskommisjon for helse- og omsorgstjenesten",
+     "merknad": false,
+     "hele_leddet": "Virksomheter som er omfattet av loven her, skal snarest mulig og senest innen fem virkedager sende melding til statsforvalteren og Statens undersøkelseskommisjon for helse- og omsorgstjenesten om dødsfall eller svært alvorlig skade på pasient eller bruker som følge av tjenesteytelsen eller ved at en pasient eller bruker skader en annen, jf. helsetilsynsloven § 6 og lov om Statens undersøkelseskommisjon for helse- og omsorgstjenesten § 7. Meldeplikten gjelder dersom utfallet er uventet ut fra påregnelig risiko. En kopi av meldingen skal sendes til Statens helsetilsyn."
+    }
+   ],
+   "foreslatt": {
+    "type": "aktør",
+    "undertype": "organ",
+    "ny_node": "Statens undersøkelseskommisjon for helse- og omsorgstjenesten",
+    "relasjoner": [
+     {
+      "relasjon": "administrativt_underlagt",
+      "til": {
+       "tekst": "departementet"
+      },
+      "merknad": "lov 2017/06/16/56 § 4 første ledd"
+     }
+    ],
+    "hjemmel": {
+     "rettskildeId": "a516007b-5dc5-4824-ba68-35ebaa590c12",
+     "rettskilde": "Lov om Statens undersøkelseskommisjon for helse- og omsorgstjenesten",
+     "eid": "https://lovdata.no/eli/lov/2017/06/16/56/nor/§4/ledd-1",
+     "sitat": "Statens undersøkelseskommisjon for helse- og omsorgstjenesten (undersøkelseskommisjonen) er et forvaltningsorgan administrativt underlagt departementet. Den skal utføre sine oppgaver uavhengig og selvstendig, og den kan ikke instrueres i faglige spørsmål.",
+     "kunnskapsstatus": "tekstfunn"
+    },
+    "hjemmel_status": "tekstfunn",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n176",
+   "navn": "statlig forvaltningsorgan",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "statlig forvaltningsorgan",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Lov om barnehager (barnehageloven)",
+     "bestemmelse": "§ 40 første ledd",
+     "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§40/ledd-1",
+     "tekstform": "statlig forvaltningsorgan",
+     "merknad": false,
+     "hele_leddet": "En kommune eller fylkeskommune må oppfylle et vedtak fra et statlig forvaltningsorgan som gir en privat part rett til tjenester etter kapitlet her, selv om kommunen eller fylkeskommunen får vedtaket kjent ugyldig gjennom søksmål etter tvisteloven § 1-4 a. Vedtak kan i tilfeller som nevnt i første punktum bare omgjøres til skade for den private parten etter forvaltningsloven § 35 første ledd bokstav c dersom det er ugyldig fordi den private parten, eller noen som handlet på den private partens vegne, forsettlig eller grovt uaktsomt har gitt uriktige opplysninger eller holdt tilbake opplysninger."
+    }
+   ],
+   "foreslatt": {
+    "type": "omtale",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [
+     {
+      "relasjon": "omtale_av",
+      "til": {
+       "ny_node": "forvaltningsorgan"
+      },
+      "merknad": "avgrenset til statlige"
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "middels",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n177",
+   "navn": "statlige og fylkeskommunale barnehager",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "statlige og fylkeskommunale barnehager",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om tildeling av tilskudd til private barnehager",
+     "bestemmelse": null,
+     "eid": "kap-merknader-til-de-enkelte-bestemmelsene/rom-til-1/rom-F/ledd-1",
+     "tekstform": "statlige og fylkeskommunale barnehager",
+     "merknad": true,
+     "hele_leddet": "Forskriften regulerer tilskudd til private barnehager. Med private barnehager menes i forskriften her alle ikke-kommunale barnehager. Det omfatter også statlige og fylkeskommunale barnehager. Barnehagen må være godkjent, jf. barnehageloven § 19, jf. § 14 og § 15."
+    }
+   ],
+   "foreslatt": {
+    "type": "omtale",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [
+     {
+      "relasjon": "omtale_av",
+      "til": {
+       "ny_node": "barnehage"
+      },
+      "merknad": "statlige"
+     },
+     {
+      "relasjon": "venter",
+      "til": null,
+      "merknad": "fylkeskommunale: venter på modellvalg (Norge/nivåene)"
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "middels",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n178",
+   "navn": "statsautorisert revisor",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "statsautorisert revisor",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om regnskapsplikt mv. for private barnehager (økonomiforskrift til barnehageloven)",
+     "bestemmelse": "§ 7 første ledd",
+     "eid": "https://lovdata.no/eli/forskrift/2022/12/16/2322/nor/§7/ledd-1",
+     "tekstform": "statsautorisert revisor",
+     "merknad": false,
+     "hele_leddet": "Barnehagen skal få regnskapet revidert av en statsautorisert revisor. Rapporteringen etter denne forskriften § 8 skal attesteres av en statsautorisert revisor."
+    }
+   ],
+   "foreslatt": {
+    "type": "ikke_aktør",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n179",
+   "navn": "stiftelse",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "stiftelse",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om regnskapsplikt mv. for private barnehager (økonomiforskrift til barnehageloven)",
+     "bestemmelse": "§ 3a første ledd punkt 3",
+     "eid": "https://lovdata.no/eli/forskrift/2022/12/16/2322/nor/§3a/ledd-1/punkt-3",
+     "tekstform": "stiftelse",
+     "merknad": false,
+     "hele_leddet": "barnehager som sammen med en eller flere andre barnehager var organisert i samme stiftelse før kravet i barnehageloven § 7a første ledd ble vedtatt, og som ikke driver annen virksomhet enn barnehagevirksomhet eller tilleggsvirksomhet som er tillatt etter barnehageloven § 23a andre ledd og som ikke gjør utdelinger."
+    }
+   ],
+   "foreslatt": {
+    "type": "ikke_aktør",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n180",
+   "navn": "student- og elevrepresentantene",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "student- og elevrepresentantene",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om enkelte klagenemnder på Kunnskapsdepartementets område",
+     "bestemmelse": "§ 11 tredje ledd",
+     "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§11/ledd-3",
+     "tekstform": "student- og elevrepresentantene",
+     "merknad": false,
+     "hele_leddet": "Medlemmene oppnevnes for inntil fire år, med unntak av student- og elevrepresentantene som oppnevnes for inntil to år. Medlemmene kan gjenoppnevnes én gang. Personer som har vært varamedlemmer kan oppnevnes i to perioder som fast medlem."
+    }
+   ],
+   "foreslatt": {
+    "type": "rolle",
+    "undertype": null,
+    "ny_node": "student- og elevrepresentant",
+    "relasjoner": [
+     {
+      "relasjon": "rolle_for",
+      "til": {
+       "ny_node": "Lånekassens klagenemnd"
+      },
+      "merknad": "FOR-2025-07-02-1462 § 11"
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "mangler",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n181",
+   "navn": "studentrepresentantene",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "studentrepresentantene",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om enkelte klagenemnder på Kunnskapsdepartementets område",
+     "bestemmelse": "§ 3 tredje ledd",
+     "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§3/ledd-3",
+     "tekstform": "studentrepresentantene",
+     "merknad": false,
+     "hele_leddet": "Medlemmene oppnevnes for inntil fire år, med unntak av studentrepresentantene som oppnevnes for inntil to år. Medlemmene kan gjenoppnevnes én gang. Personer som har vært varamedlemmer kan oppnevnes i to perioder som fast medlem."
+    }
+   ],
+   "foreslatt": {
+    "type": "rolle",
+    "undertype": null,
+    "ny_node": "studentrepresentant",
+    "relasjoner": [
+     {
+      "relasjon": "rolle_for",
+      "til": {
+       "ny_node": "NOKUTs klagenemnd"
+      },
+      "merknad": "FOR-2025-07-02-1462 § 3"
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "mangler",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n182",
+   "navn": "studentsamskipnadene",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "studentsamskipnadene",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om regnskapsplikt mv. for private barnehager (økonomiforskrift til barnehageloven)",
+     "bestemmelse": "§ 3 andre ledd",
+     "eid": "https://lovdata.no/eli/forskrift/2022/12/16/2322/nor/§3/ledd-2",
+     "tekstform": "studentsamskipnadene",
+     "merknad": false,
+     "hele_leddet": "Når vilkårene i barnehageloven § 23a andre ledd er oppfylt, kan barnehagene til studentsamskipnadene, jf. studentsamskipnadsloven, drive studentvelferdstjenester etter forskrift om studentsamskipnader § 8 første ledd."
+    }
+   ],
+   "foreslatt": {
+    "type": "ikke_aktør",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "middels",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n183",
+   "navn": "styreren i barnehagen",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "styreren i barnehagen",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Lov om barnehager (barnehageloven)",
+     "bestemmelse": "§ 43 andre ledd",
+     "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§43/ledd-2",
+     "tekstform": "styreren i barnehagen",
+     "merknad": false,
+     "hele_leddet": "Dersom en som arbeider i barnehagen, får mistanke om eller kjennskap til at styreren i barnehagen krenker et barn med for eksempel utestenging, mobbing, vold, diskriminering eller trakassering, skal vedkommende melde fra direkte til den som er ansvarlig for barnehagen etter § 7."
+    }
+   ],
+   "foreslatt": {
+    "type": "omtale",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [
+     {
+      "relasjon": "omtale_av",
+      "til": {
+       "ny_node": "styrer"
+      },
+      "merknad": ""
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n184",
+   "navn": "Styret for domstoladministrasjonen",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "styret for domstoladministrasjonen",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Lov om domstolene (domstolloven)",
+     "bestemmelse": "§ 33a første ledd",
+     "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§33a/ledd-1",
+     "tekstform": "Styret for domstoladministrasjonen",
+     "merknad": false,
+     "hele_leddet": "Styret for domstoladministrasjonen består av ni medlemmer med personlige varamedlemmer. Kongen oppnevner tre dommere, en jordskiftedommer, en representant fra de øvrige tilsatte i domstolene og to advokater til styret, og Stortinget velger to medlemmer. Kongen fastsetter hvilket medlem som skal være leder for styret for domstoladministrasjonen."
+    }
+   ],
+   "foreslatt": {
+    "type": "aktør",
+    "undertype": "organ",
+    "ny_node": "Styret for domstoladministrasjonen",
+    "relasjoner": [
+     {
+      "relasjon": "organ_i",
+      "til": {
+       "id": "34e89712-fac3-403b-8eab-e80e7e175c9b",
+       "navn": "DOMSTOLADMINISTRASJONEN",
+       "tabell": "virksomheter",
+       "kategori": "virksomhet"
+      },
+      "merknad": "Domstoladministrasjonen ledes av et styre"
+     }
+    ],
+    "hjemmel": {
+     "rettskildeId": "7ddc517c-4a70-47e1-ae5a-f25dcbc47118",
+     "rettskilde": "Lov om domstolene (domstolloven)",
+     "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§33/ledd-1",
+     "sitat": "Domstoladministrasjonen ledes av et styre som sørger for at den sentrale administrasjonen av domstolene skjer på en forsvarlig og hensiktsmessig måte.",
+     "kunnskapsstatus": "normalisering"
+    },
+    "hjemmel_status": "normalisering",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n185",
+   "navn": "Sysselmesteren",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "sysselmesteren",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om barnehagevirksomhet i Longyearbyen",
+     "bestemmelse": "§ 5 fjerde ledd",
+     "eid": "https://lovdata.no/eli/forskrift/2022/06/17/1219/nor/§5/ledd-4",
+     "tekstform": "Sysselmesteren",
+     "merknad": false,
+     "hele_leddet": "Når statsforvalteren behandler klage over enkeltvedtak, skal saken forelegges Sysselmesteren til uttalelse om svalbardfaglige hensyn. Statsforvalteren skal legge stor vekt på Sysselmesterens uttalelse i vurderingen av saken."
+    }
+   ],
+   "foreslatt": {
+    "type": "omtale",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [
+     {
+      "relasjon": "omtale_av",
+      "til": {
+       "ny_node": "Sysselmesteren på Svalbard"
+      },
+      "merknad": "kortform"
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n186",
+   "navn": "Sysselmesteren på Svalbard",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "sysselmesteren på svalbard",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om barnehagevirksomhet i Longyearbyen",
+     "bestemmelse": "§ 5 tredje ledd",
+     "eid": "https://lovdata.no/eli/forskrift/2022/06/17/1219/nor/§5/ledd-3",
+     "tekstform": "Sysselmesteren på Svalbard",
+     "merknad": false,
+     "hele_leddet": "Statsforvalteren skal føre tilsyn i samråd med Sysselmesteren på Svalbard."
+    }
+   ],
+   "foreslatt": {
+    "type": "aktør",
+    "undertype": "organ",
+    "ny_node": "Sysselmesteren på Svalbard",
+    "relasjoner": [
+     {
+      "relasjon": "har_ansvarsomrade",
+      "til": {
+       "id": "3c1da8b6-ac6e-4ae1-bc58-c6b9ab1227df",
+       "navn": "Svalbard",
+       "tabell": "begreper",
+       "kategori": "omrade"
+      },
+      "merknad": "Svalbard"
+     }
+    ],
+    "hjemmel": {
+     "rettskildeId": "57f0be28-4f23-4623-acff-c98fce1758b6",
+     "rettskilde": "Lov om Svalbard [Svalbardloven]",
+     "eid": "https://lovdata.no/eli/lov/1925/07/17/11/nor/§5/ledd-1",
+     "sitat": "På Svalbard skal det være en sysselmester som oppnevnes av Kongen.",
+     "kunnskapsstatus": "normalisering"
+    },
+    "hjemmel_status": "normalisering",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n187",
+   "navn": "særskilt organ",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "særskilt organ",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Lov om domstolene (domstolloven)",
+     "bestemmelse": "§ 43 andre ledd",
+     "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§43/ledd-2",
+     "tekstform": "særskilt organ",
+     "merknad": false,
+     "hele_leddet": "En granskingskommisjon, et kontrollutvalg eller et annet særskilt organ som er oppnevnt av Kongen, Stortinget eller et departement eller en statsforvalter for å granske faktiske forhold med sikte på å avdekke lovbrudd eller kritikkverdige forhold, kan kreve bevisopptak ved domstolene etter § 44. Videre kan et forvaltningsorgan som ledd i forberedelsen av eller kontrollen med enkeltvedtak kreve slikt bevisopptak. Også i de her nevnte tilfelle gjelder reglene om bevisopptak i sivile tvister når ikke annet er bestemt ved lov."
+    }
+   ],
+   "foreslatt": {
+    "type": "ikke_aktør",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n188",
+   "navn": "tiltakssonen i Finnmark og Nord-Troms",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "tiltakssonen i finnmark og nord-troms",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om tildeling av tilskudd til private barnehager",
+     "bestemmelse": null,
+     "eid": "kap-merknader-til-de-enkelte-bestemmelsene/rom-til-7/rom-femte-ledd/ledd-1",
+     "tekstform": "tiltakssonen i Finnmark og Nord-Troms",
+     "merknad": true,
+     "hele_leddet": "Det følger av bestemmelsen at kommuner som ikke har kommunale familiebarnehager, har plikt til å bruke satser fastsatt av departementet i utregningen av driftstilskudd til private familiebarnehager. Departementet fastsetter en sats per heltidsplass for barn over tre år og en sats per heltidsplass for barn under tre år. Departementet fastsetter egne satser for tiltakssonen i Finnmark og Nord-Troms og for kommuner i sentralitetssone 5 og 6, se sjette og sjuende ledd."
+    }
+   ],
+   "foreslatt": {
+    "type": "område",
+    "undertype": null,
+    "ny_node": "tiltakssonen i Finnmark og Nord-Troms",
+    "relasjoner": [
+     {
+      "relasjon": "bestar_av",
+      "til": {
+       "id": "a4f24173-a2cf-440d-bcf5-e2a3c2bde2f2",
+       "navn": "Finnmark",
+       "tabell": "begreper",
+       "kategori": "omrade"
+      },
+      "merknad": "alle kommuner i Finnmark"
+     },
+     {
+      "relasjon": "bestar_av",
+      "til": {
+       "id": "c6aca841-4d3f-439a-97f8-0a55d8b46688",
+       "navn": "Troms",
+       "tabell": "begreper",
+       "kategori": "omrade"
+      },
+      "merknad": "sju kommuner i Nord-Troms (listet)"
+     }
+    ],
+    "hjemmel": {
+     "rettskildeId": "bb421303-527c-4339-8a8b-e005cf5f5252",
+     "rettskilde": "Forskrift om tildeling av tilskudd til private barnehager",
+     "eid": "https://lovdata.no/eli/forskrift/2015/10/09/1166/nor/§3/ledd-7",
+     "sitat": "Kommuner i tiltakssonen i Finnmark og Nord-Troms som ikke har kommunale ordinære barnehager, skal gi driftstilskuddet ut fra følgende tabell: Kroner per heltidsplass driftsutgifter, inklusive administrasjonspåslag\nOrdinære barnehager, barn fra null år til to år | 339 700\nOrdinære barnehager, barn fra tre år til seks år | 186 800Med kommuner i tiltakssonen i Finnmark og Nord-Troms menes alle kommuner i Finnmark samt sju kommuner i Nord-Troms (Kåfjord, Skjervøy, Nordreisa, Kvænangen, Karlsøy, Lyngen og Storfjord).",
+     "kunnskapsstatus": "tekstfunn"
+    },
+    "hjemmel_status": "tekstfunn",
+    "sikkerhet": "middels",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n189",
+   "navn": "tingretten",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "tingretten",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Lov om domstolene (domstolloven)",
+     "bestemmelse": "§ 47 første ledd",
+     "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§47/ledd-1",
+     "tekstform": "tingretten",
+     "merknad": false,
+     "hele_leddet": "Den rett som har en sak til behandling kan beslutte at bevisopptak skal søkes foretatt ved utenlandsk myndighet. Står saken ikke for noen rett, kan slik beslutning etter søknad treffes av tingretten på det sted hvor søkeren bor, eller hvor det er et verneting for saken."
+    }
+   ],
+   "foreslatt": {
+    "type": "klasse",
+    "undertype": null,
+    "ny_node": "tingrett",
+    "relasjoner": [
+     {
+      "relasjon": "medlemsregel",
+      "til": null,
+      "merknad": "de 23 tingrettene finnes som virksomheter"
+     }
+    ],
+    "hjemmel": {
+     "rettskildeId": "7ddc517c-4a70-47e1-ae5a-f25dcbc47118",
+     "rettskilde": "Lov om domstolene (domstolloven)",
+     "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§1/ledd-1/punkt-3",
+     "sitat": "tingrettene",
+     "kunnskapsstatus": "normalisering"
+    },
+    "hjemmel_status": "normalisering",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n190",
+   "navn": "Trollheimen",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "trollheimen",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Lov om reindrift (reindriftsloven)",
+     "bestemmelse": "§ 2 andre ledd",
+     "eid": "https://lovdata.no/eli/lov/2007/06/15/40/nor/§2/ledd-2",
+     "tekstform": "Trollheimen",
+     "merknad": false,
+     "hele_leddet": "For reindrift i Trollheimen og omegn gjelder reglene i lov 21. desember 1984 nr. 101 om reindrift i kommunene Meldal, Midtre Gauldal, Oppdal, Rennebu, Rindal, Sunndal og Surnadal."
+    }
+   ],
+   "foreslatt": {
+    "type": "område",
+    "undertype": "annet",
+    "ny_node": "Trollheimen",
+    "relasjoner": [],
+    "hjemmel": null,
+    "hjemmel_status": "mangler",
+    "sikkerhet": "middels",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n191",
+   "navn": "trygdekontorene",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "trygdekontorene",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om føring av register til bruk i forbindelse med kontroll av beregning og utbetaling av kontantstøtte.",
+     "bestemmelse": "§ 1 første ledd",
+     "eid": "https://lovdata.no/eli/forskrift/2005/12/16/1510/nor/§1/ledd-1",
+     "tekstform": "trygdekontorene",
+     "merknad": false,
+     "hele_leddet": "Kommunen har plikt til å opprette og føre register til bruk for trygdekontorene i forbindelse med kontroll av beregning og utbetaling av kontantstøtte etter kontantstøtteloven. Registeret kan samkjøres mot trygdekontorets register over mottakere av kontantstøtte."
+    }
+   ],
+   "foreslatt": {
+    "type": "omtale",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [
+     {
+      "relasjon": "samme_som",
+      "til": {
+       "id": "b3bdec90-3c3a-4f8a-8f3c-519e47e93054",
+       "navn": "ARBEIDS- OG VELFERDSETATEN",
+       "tabell": "virksomheter",
+       "kategori": "virksomhet"
+      },
+      "merknad": "utgått betegnelse: trygdekontorene ble en del av Arbeids- og velferdsetaten [slutning]"
+     }
+    ],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "middels",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n192",
+   "navn": "vertskommune",
+   "pilot": false,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "vertskommune",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om ansvar for spesialpedagogisk hjelp for barn under opplæringspliktig alder",
+     "bestemmelse": "§ 2 første ledd",
+     "eid": "https://lovdata.no/eli/forskrift/2017/06/22/1050/nor/§2/ledd-1",
+     "tekstform": "vertskommune",
+     "merknad": false,
+     "hele_leddet": "For barn under opplæringspliktig alder som får spesialpedagogisk hjelp utenfor bostedskommunen, betaler bostedskommunen for utgiftene til spesialpedagogisk hjelp etter avtale med vertskommunen."
+    }
+   ],
+   "foreslatt": {
+    "type": "rolle",
+    "undertype": null,
+    "ny_node": "vertskommune",
+    "relasjoner": [
+     {
+      "relasjon": "rolle_for",
+      "til": {
+       "id": "eb25cd79-007e-404d-9cd5-c85800b65272",
+       "navn": "kommune",
+       "tabell": "begreper",
+       "kategori": "klasse"
+      },
+      "merknad": "kommunen der hjelpen gis"
+     }
+    ],
+    "hjemmel": {
+     "rettskildeId": "4345e0ee-98a4-411e-aa38-7c1201a6a1f3",
+     "rettskilde": "Forskrift om ansvar for spesialpedagogisk hjelp for barn under opplæringspliktig alder",
+     "eid": "https://lovdata.no/eli/forskrift/2017/06/22/1050/nor/§2/ledd-1",
+     "sitat": "For barn under opplæringspliktig alder som får spesialpedagogisk hjelp utenfor bostedskommunen, betaler bostedskommunen for utgiftene til spesialpedagogisk hjelp etter avtale med vertskommunen.",
+     "kunnskapsstatus": "fortolkning"
+    },
+    "hjemmel_status": "fortolkning",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  },
+  {
+   "id": "n193",
+   "navn": "Årsplanen",
+   "pilot": true,
+   "forekomster_totalt": 1,
+   "varianter": [
+    {
+     "normalisert": "årsplanen",
+     "regel": "samme_ord",
+     "forekomster": 1
+    }
+   ],
+   "koens_hjemmelforslag": [],
+   "forekomster": [
+    {
+     "rettskilde": "Forskrift om rammeplan for barnehagens innhold og oppgaver",
+     "bestemmelse": null,
+     "eid": "kap-7/rom-planlegging/rom-arsplan/ledd-1",
+     "tekstform": "Årsplanen",
+     "merknad": false,
+     "hele_leddet": "Barnehagen skal utarbeide en årsplan. I tillegg skal det utarbeides planer for kortere og lengre tidsrom og for ulike barnegrupper etter behov. Årsplanen er et arbeidsredskap for barnehagepersonalet og dokumenterer barnehagens valg og begrunnelser. Årsplanen kan gi informasjon om barnehagens pedagogiske arbeid til myndighetsnivåene, barnehagens samarbeidsparter og andre interesserte."
+    }
+   ],
+   "foreslatt": {
+    "type": "ikke_aktør",
+    "undertype": null,
+    "ny_node": null,
+    "relasjoner": [],
+    "hjemmel": null,
+    "hjemmel_status": "ikke relevant",
+    "sikkerhet": "hoy",
+    "grupperingen_slaar_sammen_ulike_referenter": false
+   }
+  }
+ ]
+}

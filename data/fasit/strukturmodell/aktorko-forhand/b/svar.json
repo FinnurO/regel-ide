@@ -1,0 +1,352 @@
+[
+ {
+  "id": "n97",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Klassen «forvaltningsorgan» legges til som tilleggsnode i klassifisering.json (fvl. § 1 første ledd andre punktum, tekstfunn), og n176 merkes «ta med i n97».",
+  "kilder": [
+   "docs/33 §4.1",
+   "§5.16"
+  ]
+ },
+ {
+  "id": "n98",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Rettingen føres inn i den endelige klassifiseringen (klassifisering.json) slik juristen foreslår.",
+  "kilder": [
+   "docs/33 §4.1",
+   "§5.16"
+  ]
+ },
+ {
+  "id": "n100",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Rettingen føres inn i den endelige klassifiseringen (klassifisering.json) slik juristen foreslår.",
+  "kilder": [
+   "docs/33 §4.1",
+   "§5.16"
+  ]
+ },
+ {
+  "id": "n101",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Rettingen føres inn i den endelige klassifiseringen (klassifisering.json) slik juristen foreslår.",
+  "kilder": [
+   "docs/33 §4.1",
+   "§5.16"
+  ]
+ },
+ {
+  "id": "n102",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Rettingen føres inn i den endelige klassifiseringen (klassifisering.json) slik juristen foreslår.",
+  "kilder": [
+   "docs/33 §4.1",
+   "§5.16"
+  ]
+ },
+ {
+  "id": "n103",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Rettingen føres inn i den endelige klassifiseringen (klassifisering.json) slik juristen foreslår.",
+  "kilder": [
+   "docs/33 §4.1",
+   "§5.16"
+  ]
+ },
+ {
+  "id": "n108",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Rettingen føres inn i den endelige klassifiseringen (klassifisering.json) slik juristen foreslår.",
+  "kilder": [
+   "docs/33 §4.1",
+   "§5.16"
+  ]
+ },
+ {
+  "id": "n110",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Klassen «lagmannsrett» legges til som tilleggsnode (dl. § 1 første ledd nr. 2, de seks lagmannsrettene som medlemmer).",
+  "kilder": [
+   "docs/33 §4.1",
+   "§5.16"
+  ]
+ },
+ {
+  "id": "n112",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Rettingen føres inn i den endelige klassifiseringen (klassifisering.json) slik juristen foreslår.",
+  "kilder": [
+   "docs/33 §4.1",
+   "§5.16"
+  ]
+ },
+ {
+  "id": "n113",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Rettingen føres inn i den endelige klassifiseringen (klassifisering.json) slik juristen foreslår.",
+  "kilder": [
+   "docs/33 §4.1",
+   "§5.16"
+  ]
+ },
+ {
+  "id": "n115",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Rettingen føres inn i den endelige klassifiseringen (klassifisering.json) slik juristen foreslår.",
+  "kilder": [
+   "docs/33 §4.1",
+   "§5.16"
+  ]
+ },
+ {
+  "id": "n116",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Rettingen føres inn i den endelige klassifiseringen (klassifisering.json) slik juristen foreslår.",
+  "kilder": [
+   "docs/33 §4.1",
+   "§5.16"
+  ]
+ },
+ {
+  "id": "n120",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Rettingen føres inn i den endelige klassifiseringen (klassifisering.json) slik juristen foreslår.",
+  "kilder": [
+   "docs/33 §4.1",
+   "§5.16"
+  ]
+ },
+ {
+  "id": "n123",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Rettingen føres inn i den endelige klassifiseringen (klassifisering.json) slik juristen foreslår.",
+  "kilder": [
+   "docs/33 §4.1",
+   "§5.16"
+  ]
+ },
+ {
+  "id": "n129",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Rettingen føres inn i den endelige klassifiseringen (klassifisering.json) slik juristen foreslår.",
+  "kilder": [
+   "docs/33 §4.1",
+   "§5.16"
+  ]
+ },
+ {
+  "id": "n130",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Rettingen føres inn i den endelige klassifiseringen (klassifisering.json) slik juristen foreslår.",
+  "kilder": [
+   "docs/33 §4.1",
+   "§5.16"
+  ]
+ },
+ {
+  "id": "n136",
+  "svar": "avvis",
+  "tekst": "Modellereren holder fast ved omtale av klassen kommune med vilkår i regellaget, ikke en ny klasse. (1) Medlemskapet bestemmes av SSBs sentralitetsindeks, en statistisk klassifisering utenfor korpus som skifter mellom versjoner; forskriften selv sier «den siste versjonen». En klasse med et slikt kriterium ville få medlemmer som endres uten at noen rettskilde endres, og docs/33 §7 punkt 4 sier at intensjonale klasser lagres som kriterium og avgjøres i regellaget. (2) Navnet brukes bare som vilkår for hvilken satstabell som gjelder, ikke som subjekt for kompetanse eller plikt utover det kommunen alt har. (3) Tiltakssonen er annerledes: den er listet ekstensjonalt med navngitte kommuner (§ 3 sjuende ledd), så der aksepteres klasse og område (n129, n188).",
+  "kilder": [
+   "docs/33 §7 punkt 4",
+   "FOR-2015-10-09-1166 § 3 sjette ledd siste punktum"
+  ]
+ },
+ {
+  "id": "n137",
+  "svar": "avvis",
+  "tekst": "Som n136: vilkår på klassen kommune i regellaget, ikke ny klasse, fordi medlemskapet følger en ekstern, versjonert statistikk og navnet bare velger satstabell.",
+  "kilder": [
+   "docs/33 §7 punkt 4"
+  ]
+ },
+ {
+  "id": "n141",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Rettingen føres inn i den endelige klassifiseringen (klassifisering.json) slik juristen foreslår.",
+  "kilder": [
+   "docs/33 §4.1",
+   "§5.16"
+  ]
+ },
+ {
+  "id": "n142",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Rollen «barnekoordinator» legges til som tilleggsnode med hjemmel hol. § 7-2 a første ledd (fortolkning); n142 blir ren omtale uten hjemmel.",
+  "kilder": [
+   "docs/33 §4.1",
+   "§5.16"
+  ]
+ },
+ {
+  "id": "n143",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Rettingen føres inn i den endelige klassifiseringen (klassifisering.json) slik juristen foreslår.",
+  "kilder": [
+   "docs/33 §4.1",
+   "§5.16"
+  ]
+ },
+ {
+  "id": "n144",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Rettingen føres inn i den endelige klassifiseringen (klassifisering.json) slik juristen foreslår.",
+  "kilder": [
+   "docs/33 §4.1",
+   "§5.16"
+  ]
+ },
+ {
+  "id": "n145",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Rettingen føres inn i den endelige klassifiseringen (klassifisering.json) slik juristen foreslår.",
+  "kilder": [
+   "docs/33 §4.1",
+   "§5.16"
+  ]
+ },
+ {
+  "id": "n147",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Rettingen føres inn i den endelige klassifiseringen (klassifisering.json) slik juristen foreslår.",
+  "kilder": [
+   "docs/33 §4.1",
+   "§5.16"
+  ]
+ },
+ {
+  "id": "n150",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Rettingen føres inn i den endelige klassifiseringen (klassifisering.json) slik juristen foreslår.",
+  "kilder": [
+   "docs/33 §4.1",
+   "§5.16"
+  ]
+ },
+ {
+  "id": "n151",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Rettingen føres inn i den endelige klassifiseringen (klassifisering.json) slik juristen foreslår.",
+  "kilder": [
+   "docs/33 §4.1",
+   "§5.16"
+  ]
+ },
+ {
+  "id": "n154",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Rettingen føres inn i den endelige klassifiseringen (klassifisering.json) slik juristen foreslår.",
+  "kilder": [
+   "docs/33 §4.1",
+   "§5.16"
+  ]
+ },
+ {
+  "id": "n156",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Rettingen føres inn i den endelige klassifiseringen (klassifisering.json) slik juristen foreslår.",
+  "kilder": [
+   "docs/33 §4.1",
+   "§5.16"
+  ]
+ },
+ {
+  "id": "n167",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Rettingen føres inn i den endelige klassifiseringen (klassifisering.json) slik juristen foreslår.",
+  "kilder": [
+   "docs/33 §4.1",
+   "§5.16"
+  ]
+ },
+ {
+  "id": "n168",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Rettingen føres inn i den endelige klassifiseringen (klassifisering.json) slik juristen foreslår.",
+  "kilder": [
+   "docs/33 §4.1",
+   "§5.16"
+  ]
+ },
+ {
+  "id": "n170",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Rettingen føres inn i den endelige klassifiseringen (klassifisering.json) slik juristen foreslår.",
+  "kilder": [
+   "docs/33 §4.1",
+   "§5.16"
+  ]
+ },
+ {
+  "id": "n176",
+  "svar": "aksepter",
+  "tekst": "Aksepteres: ta med i n97 (samme forekomst).",
+  "kilder": [
+   "docs/33 §4.1",
+   "§5.16"
+  ]
+ },
+ {
+  "id": "n180",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Rettingen føres inn i den endelige klassifiseringen (klassifisering.json) slik juristen foreslår.",
+  "kilder": [
+   "docs/33 §4.1",
+   "§5.16"
+  ]
+ },
+ {
+  "id": "n181",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Rettingen føres inn i den endelige klassifiseringen (klassifisering.json) slik juristen foreslår.",
+  "kilder": [
+   "docs/33 §4.1",
+   "§5.16"
+  ]
+ },
+ {
+  "id": "n187",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Rettingen føres inn i den endelige klassifiseringen (klassifisering.json) slik juristen foreslår.",
+  "kilder": [
+   "docs/33 §4.1",
+   "§5.16"
+  ]
+ },
+ {
+  "id": "n188",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Rettingen føres inn i den endelige klassifiseringen (klassifisering.json) slik juristen foreslår.",
+  "kilder": [
+   "docs/33 §4.1",
+   "§5.16"
+  ]
+ },
+ {
+  "id": "n189",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Rettingen føres inn i den endelige klassifiseringen (klassifisering.json) slik juristen foreslår.",
+  "kilder": [
+   "docs/33 §4.1",
+   "§5.16"
+  ]
+ },
+ {
+  "id": "n190",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Rettingen føres inn i den endelige klassifiseringen (klassifisering.json) slik juristen foreslår.",
+  "kilder": [
+   "docs/33 §4.1",
+   "§5.16"
+  ]
+ },
+ {
+  "id": "n191",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Rettingen føres inn i den endelige klassifiseringen (klassifisering.json) slik juristen foreslår.",
+  "kilder": [
+   "docs/33 §4.1",
+   "§5.16"
+  ]
+ }
+]

@@ -1,0 +1,2055 @@
+[
+ {
+  "id": "n2",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Klasse er riktig: kommunale barnehager er enheter i kommunen, private er som hovedregel egne rettssubjekter (bhl. § 7a første ledd), så «barnehage» er en mengde, ikke én aktør. Loven har ingen legaldefinisjon; § 6 første ledd (godkjenningsplikten) med § 14 a som medlemsregel er det nærmeste, og fortolkning er riktig status. Forekomstene i veiledningskapitlene (merknad) er bare omtale og brukes ikke som hjemmel (docs/33 §5.14).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 6 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "barnehageloven § 14 a",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "barnehageloven § 7a første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n3",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Rollen er riktig, men innehaverne er ufullstendige og hjemmelen for smal. § 7 første ledd gjelder bare kommunale barnehager. For private barnehager legger § 7 andre ledd ansvaret på rettssubjektet som driver barnehagen (ved styret, det bestemmende organet eller den fysiske personen), og etter § 7a første ledd er det som hovedregel barnehagen selv. Med bare «rolle_innehas_av kommune» blir forekomstene i tilskudds- og foreldrebetalingsforskriftene, som gjelder private barnehager, knyttet til kommunen. Hjemmelen bør være hele § 7 («Ansvaret for barnehagen»), fortsatt fortolkning, fordi ordet «barnehageeier» ikke står i loven.",
+  "retting": {
+   "relasjoner": [
+    {
+     "relasjon": "rolle_for",
+     "til": {
+      "ny_node": "barnehage"
+     },
+     "merknad": "eieren av den enkelte barnehagen"
+    },
+    {
+     "relasjon": "rolle_innehas_av",
+     "til": {
+      "id": "eb25cd79-007e-404d-9cd5-c85800b65272",
+      "navn": "kommune"
+     },
+     "merknad": "kommunale barnehager, bhl. § 7 første ledd"
+    },
+    {
+     "relasjon": "rolle_innehas_av",
+     "til": {
+      "ny_node": "privat barnehage"
+     },
+     "merknad": "rettssubjektet som driver en privat barnehage, bhl. § 7 andre ledd og § 7a første ledd [slutning: den private barnehagen er selv rettssubjektet, med unntakene i § 7a tredje ledd]"
+    }
+   ],
+   "hjemmel": {
+    "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§7",
+    "kunnskapsstatus": "fortolkning"
+   }
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 7 første og andre ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "barnehageloven § 7a første og tredje ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n4",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Klasse og underklasse av barnehage holder. Merk at § 7a første ledd er et krav med unntak (tredje ledd: åpne barnehager og små eiere), ikke en definisjon av «privat»; skillet kommunal/privat står i § 7 første og andre ledd og § 14. Fortolkning er derfor riktig status.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 7a første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "barnehageloven § 7 første og andre ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n5",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Aktør (organ) uten hjemmel i korpus er riktig. Søk i rettskildene ga ingen bestemmelse som oppretter eller navngir direktoratet; overgangsforskriften FOR-2021-10-06-3079 forutsetter det. Opprettelsesvedtaket er ikke i korpus (ikke kontrollert på Lovdata). Ingen eksisterende virksomhet eller navneform med navnet (SELECT mot virksomheter og begreper).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 56 første ledd",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "opprettelsesvedtak for Utdanningsdirektoratet",
+    "funksjon": "ikke_funnet"
+   }
+  ]
+ },
+ {
+  "id": "n7",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "«Spesialisthelsetjenesten» i hotl. §§ 5-11, 9-7, 9-9 og 9-13 er tjenestesektoren som pliktsubjekt (RHF, HF og private som yter spesialisthelsetjenester), ikke en rolle som bare de regionale helseforetakene har. Shl. § 2-1 a første ledd er RHF-enes sørge-for-ansvar, ikke en bestemmelse om hvem som yter tjenesten, og koblingen til RHF er en slutning som ikke er merket. Fasiten har ordet som annet:tjenestesektor (helse-og-omsorgstjenesteloven a47) og klassen «virksomheter som yter spesialisthelsetjenester» (spesialisthelsetjenesteloven a52). Shl. § 1-2 første ledd («spesialisthelsetjenester som tilbys eller ytes i riket av staten og private») er bedre grunnlag.",
+  "retting": {
+   "type": "klasse",
+   "ny_node": "virksomheter som yter spesialisthelsetjenester",
+   "relasjoner": [
+    {
+     "relasjon": "medlemsregel",
+     "til": null,
+     "merknad": "virksomheter som tilbyr eller yter spesialisthelsetjenester, staten (RHF/HF) og private, shl. § 1-2 første ledd"
+    },
+    {
+     "relasjon": "omtale_av",
+     "til": {
+      "ny_node": "regionalt helseforetak"
+     },
+     "merknad": "[slutning] RHF har sørge-for-ansvaret (§ 2-1 a), men er ikke eneste tjenesteyter"
+    }
+   ],
+   "hjemmel": {
+    "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§1-2/ledd-1",
+    "kunnskapsstatus": "fortolkning"
+   }
+  },
+  "ny_rad": null,
+  "implementeringsstatus": "bygget",
+  "kilder": [
+   {
+    "ref": "spesialisthelsetjenesteloven § 1-2 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "spesialisthelsetjenesteloven § 2-1 a første ledd",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "fasit helse-og-omsorgstjenesteloven a47; spesialisthelsetjenesteloven a52 og a54",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n8",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Klasse med organ_i barnehage og bhl. § 4 første ledd med normalisering stemmer med juristrunde-440 og den presiserte regelen (kjernen «foreldreråd» står i bøyd form).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 4 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "barnehageloven § 4 andre ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n10",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Klassen holder, men relasjonene er feil plassert. (1) De fire «har_ansvarsomrade»-kantene er lagt på klassen, slik at klassen dekker alle fire helseregioner. Ansvarsområdet hører til hvert medlem, og de fire kantene RHF → helseregion finnes alt som godkjente A-kanter med vedtektene som kilde (SELECT mot strukturkanter). Docs/33 §4.2 og §4.5 punkt 5 løser motparten via medlemmets område, ikke via klassen. (2) At de fire RHF-ene er medlemmer, står ikke i hfl. § 4; det er en slutning fra registeret og vedtektene og må merkes. (3) «I hver helseregion skal det være ett regionalt helseforetak» er uttrykket «skal det være ett» med kjernen ordrett: tekstfunn, ikke normalisering.",
+  "retting": {
+   "relasjoner": [
+    {
+     "relasjon": "medlem",
+     "til": {
+      "id": "f72fa629-822a-49e6-a7c4-22c4f8137f03",
+      "navn": "HELSE NORD RHF"
+     },
+     "merknad": "[slutning] fra registeret og vedtektene, ikke fra hfl. § 4"
+    },
+    {
+     "relasjon": "medlem",
+     "til": {
+      "id": "448071cb-7b62-4823-bc20-efc3eaa8b676",
+      "navn": "HELSE VEST RHF"
+     },
+     "merknad": "[slutning], som over"
+    },
+    {
+     "relasjon": "medlem",
+     "til": {
+      "id": "44ce9fbc-755e-4a97-b2ef-a44b31898a41",
+      "navn": "HELSE SØR-ØST RHF"
+     },
+     "merknad": "[slutning], som over"
+    },
+    {
+     "relasjon": "medlem",
+     "til": {
+      "id": "11fe43ce-15f2-405b-b0c3-8aad13cd36b0",
+      "navn": "HELSE MIDT-NORGE RHF"
+     },
+     "merknad": "[slutning], som over"
+    }
+   ],
+   "hjemmel": {
+    "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§4/ledd-1",
+    "kunnskapsstatus": "tekstfunn"
+   }
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "helseforetaksloven § 4 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "godkjente A har_ansvarsomrade RHF → helseregion (vedtektene § 3)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "docs/33 §4.2 og §4.5 punkt 5",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n11",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Rolle med tekstfunn i forskrift om pedagogisk bemanning § 4 første ledd holder. Barnehageloven § 24 andre ledd («Barnehagen skal ha en daglig leder», overskrift «Styrer») er lovgrunnlaget og kan nevnes som støtte (fortolkning via overskriften).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "forskrift om pedagogisk bemanning og dispensasjon § 4 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "barnehageloven § 24 andre ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n12",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Generisk omtale av klassen kommune, i tråd med Johanns avgjørelse 2026-11-05.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "helse- og omsorgstjenesteloven §§ 5-3, 5-5 og 6-1",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n13",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Én generisk rolle «medlem (av organ)» for to ulike organer (forliksrådet og NOKUTs klagenemnd) slår sammen to roller; modellereren har selv flagget grupperingen. Fasitpraksis gjør medlemmene til en rolle i det enkelte organet (#309 nr. 21: «medlemmer av Sametinget») eller til objektet i en G har_medlemmer-kant (FORMAT.md, #352). Hjemmelen mangler heller ikke: «Forliksrådet skal ha tre medlemmer» (dl. § 27 andre ledd) og «Klagenemnda skal ha seks medlemmer» (FOR-2025-07-02-1462 § 3 andre ledd) oppretter vervene. At køregelen ikke foreslår «skal ha» uten artikkel (juristrunde-440), hindrer ikke at et menneske registrerer det med fortolkning. Forekomstene bør skilles ut per organ.",
+  "retting": {
+   "ny_node": "medlem av forliksrådet",
+   "relasjoner": [
+    {
+     "relasjon": "rolle_for",
+     "til": {
+      "ny_node": "forliksråd"
+     },
+     "merknad": "dl. § 27 andre ledd; forekomstene i FOR-2025-07-02-1462 § 3 skilles ut som «medlem av NOKUTs klagenemnd» med hjemmel § 3 andre ledd"
+    }
+   ],
+   "hjemmel": {
+    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§27/ledd-2",
+    "kunnskapsstatus": "fortolkning"
+   },
+   "grupperingen_slaar_sammen_ulike_referenter": true
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "domstolloven § 27 andre ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "forskrift om enkelte klagenemnder på KDs område § 3 andre ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "#309 nr. 21; FORMAT.md om organsammensetning",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n14",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Klasse uten funnet hjemmel er forsvarlig. Opplæringslova (2023) og privatskolelova er i korpus, men ingen bestemmelse oppretter eller definerer «skole» (bare forutsetninger, f.eks. § 17-2 andre ledd «Ein skole skal leiast av ein rektor»). Hullet bør vise at andre lover er søkt uten funn.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "opplæringslova §§ 10-5 og 17-2",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "legaldefinisjon av skole",
+    "funksjon": "ikke_funnet"
+   }
+  ]
+ },
+ {
+  "id": "n15",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Rollen holder for hotl. §§ 5-9 og 12-3 (helsetilsynsloven § 3 første ledd, tekstfunn; fasiten a35). Forekomsten i FOR-2023-03-28-449 § 17 har en annen referent: kommunen, og det står i forskriften selv (§ 19 første ledd «Kommunen fører tilsyn …», § 20 første ledd «kommunen som tilsynsmyndighet»). Merknaden «ikke kontrollert» kan derfor erstattes med tekstfunn, og forekomsten bør skilles ut, så rollen ikke får kommunen som innehaver i helse- og omsorgstjenesteloven.",
+  "retting": {
+   "relasjoner": [
+    {
+     "relasjon": "rolle_innehas_av",
+     "til": {
+      "id": "96d9bb64-17ea-4bdd-b2a4-bd79e197ee62",
+      "navn": "STATENS HELSETILSYN"
+     },
+     "merknad": "helsetilsynsloven § 3 første ledd"
+    },
+    {
+     "relasjon": "rolle_innehas_av",
+     "til": {
+      "id": "99f62b57-f268-4f15-89ff-ddf56cbd513d",
+      "navn": "statsforvalter"
+     },
+     "merknad": "helsetilsynsloven § 3 første ledd"
+    },
+    {
+     "relasjon": "rolle_innehas_av",
+     "til": {
+      "id": "eb25cd79-007e-404d-9cd5-c85800b65272",
+      "navn": "kommune"
+     },
+     "merknad": "bare FOR-2023-03-28-449, jf. § 19 første ledd og § 20 første ledd (tekstfunn); forekomsten skilles ut"
+    }
+   ]
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "helsetilsynsloven § 3 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "forskrift om helse og miljø i barnehager og skoler § 19 første ledd og § 20 første ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n16",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "En omtale uten mål er ikke brukbar: typen «omtale» forutsetter en node. Forekomstene har to referenter. I FOR-2023-03-28-449 §§ 15 og 17 er det virksomhetene i forskriftens § 2 (barnehager, skoler, SFO og private barnepassvirksomheter). I hotl. § 12-3 a andre ledd er det «Virksomheter som er omfattet av loven her» fra første ledd (fasiten a60, klasse). Bør behandles likt med n47: hotl.-forekomsten skilles ut som omtale av den klassen, og forskriftsforekomstene blir ikke_aktør (pliktsubjekt i regellaget).",
+  "retting": {
+   "type": "ikke_aktør",
+   "relasjoner": [
+    {
+     "relasjon": "omtale_av",
+     "til": {
+      "ny_node": "virksomheter som er omfattet av helse- og omsorgstjenesteloven"
+     },
+     "merknad": "bare hotl. § 12-3 a andre ledd (anafor til første ledd); skilles ut"
+    }
+   ]
+  },
+  "ny_rad": null,
+  "implementeringsstatus": "bygget",
+  "kilder": [
+   {
+    "ref": "forskrift om helse og miljø i barnehager og skoler § 2 første ledd",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "helse- og omsorgstjenesteloven § 12-3 a første ledd",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "fasit helse-og-omsorgstjenesteloven a60",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n17",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "«Mangler» er for strengt. Barnehageloven § 14 første ledd nevner «åpen barnehage» som barnehageform ved siden av ordinær barnehage og familiebarnehage, og § 7a tredje ledd har en særregel for åpne barnehager. Det er ingen definisjon, men loven forutsetter klassen, og medlemsregelen (barnehager godkjent som åpen barnehage) har kilde. Etter Johanns regel 2026-11-05 skal hullet da ikke vises. Status fortolkning.",
+  "retting": {
+   "hjemmel": {
+    "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§14/ledd-1",
+    "kunnskapsstatus": "fortolkning"
+   },
+   "hjemmel_status": "fortolkning"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 14 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "barnehageloven § 7a tredje ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n18",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Personkrets, ikke aktør. Plikten i bhl. § 42 andre ledd er en plikt for den enkelte arbeidstaker og hører til regellaget.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 42 andre ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n19",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Barna er private parter (juristrunde-440, FORMAT.md).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FORMAT.md «Ikke annoter»",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n20",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Kvalifikasjonskrav og profesjon, ikke en strukturnode. Hører til regellaget (FOR-2005-12-16-1555 § 5 første ledd).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "forskrift om familiebarnehager § 5 første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n21",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Genitivomtale av samarbeidsutvalget i den enkelte barnehagen (bhl. § 4 første ledd).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 4 første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n22",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Genitivomtale av rollen styrer (forskrift om pedagogisk bemanning § 4 første ledd, bhl. § 24 andre ledd).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "forskrift om pedagogisk bemanning og dispensasjon § 4 første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n23",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Klasse av kommunale enheter med hjemmel i barnevernsloven § 15-3 første ledd («I hver kommune skal det være en barnevernstjeneste»). Normalisering er riktig fordi kortets navn er den bestemte formen. Merknaden «én per kommune» er lovens ordlyd; interkommunalt samarbeid (vertskommune) endrer ikke klassen.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnevernsloven § 15-3 første ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n24",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Rolle er riktig etter Johanns avgjørelse 2026-11-05, men relasjonstypen er snudd. Kommunen er innehaveren av rollen; rollen er «for» barnet. I n3 bruker modellereren «rolle_innehas_av» for innehaveren og «rolle_for» for det rollen gjelder, og her står kommunen som «rolle_for». Barnet er privat part og får ingen node, så relasjonen skal være rolle_innehas_av kommune, og «overfor barnet» står i merknaden.",
+  "retting": {
+   "relasjoner": [
+    {
+     "relasjon": "rolle_innehas_av",
+     "til": {
+      "id": "eb25cd79-007e-404d-9cd5-c85800b65272",
+      "navn": "kommune"
+     },
+     "merknad": "overfor barnet (privat part, ingen node)"
+    }
+   ]
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "forskrift om ansvar for spesialpedagogisk hjelp § 2 første og andre ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n25",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Generisk omtale av klassen kommune etter Johanns avgjørelse 2026-11-05. Fasiten har formen «den kommunen som har bistandsbehovet» som situasjonsbestemt rolle (helse-og-omsorgstjenesteloven a4); det er ikke uforenlig, fordi bistandsforholdet er en P-kant mellom medlemmer av klassen.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "helse- og omsorgstjenesteloven § 5-3 andre og tredje ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n26",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "«Den nye kommunen» er en kommune etter sammenslåing, altså et medlem av klassen kommune i en bestemt tidsposisjon. Det er ikke en rolle kommunen har overfor noen (Johanns kriterium for rolle 2026-11-05). Forholdet til de tidligere kommunene er etterfølgerrelasjonen (R etterfølger, docs/33 §5.9.3), som teksten ikke oppretter. Riktig er generisk omtale av klassen kommune med avgrensningen i merknaden. Relasjonen «rolle_for kommune» har dessuten samme snudde retning som n24.",
+  "retting": {
+   "type": "omtale",
+   "ny_node": null,
+   "relasjoner": [
+    {
+     "relasjon": "omtale_av",
+     "til": {
+      "id": "eb25cd79-007e-404d-9cd5-c85800b65272",
+      "navn": "kommune"
+     },
+     "merknad": "generisk; kommunen etter sammenslåing eller deling [slutning: etterfølgerforholdet er R etterfølger, ikke en rolle]"
+    }
+   ],
+   "hjemmel_status": "ikke relevant"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": "bygget",
+  "kilder": [
+   {
+    "ref": "finansieringsforskriften § 24 første ledd",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "tildelingsforskriften § 16 første ledd",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "docs/33 §5.9.3 (etterfølger)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n27",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Generisk omtale av klassen regionalt helseforetak; «i helseregionen» velger medlemmet via området (fasiten helse-og-omsorgstjenesteloven a44). I § 6-1 første ledd kan motparten også være «helseforetak som det regionale helseforetaket bestemmer», men det er en egen forekomst.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "helse- og omsorgstjenesteloven § 6-1 første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n28",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Navnet hører ikke til beslutningsnotatet om Norge og forvaltningsnivåene, og det har to betydninger. I reindriftsloven § 39 første ledd («Kunngjøring skal også skje i Sverige og Finland») er Finland et territorium: et område som kilden navngir, og det kan klassifiseres nå (omradetype annet, #312-regelen). I § 81 første ledd er Finland traktatpart, altså en fremmed stat som folkerettslig subjekt. Den forekomsten kan vente, eller bli ikke_aktør (ikke en del av norsk forvaltning). Grupperingen slår sammen to referenter.",
+  "retting": {
+   "type": "område",
+   "ny_node": "Finland",
+   "grupperingen_slaar_sammen_ulike_referenter": true
+  },
+  "ny_rad": null,
+  "implementeringsstatus": "bygget",
+  "kilder": [
+   {
+    "ref": "reindriftsloven § 39 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "reindriftsloven § 81 første ledd",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "docs/33 §4.1 (#312: bare områder kilden navngir)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n29",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Ikke_aktør er riktig, men relasjonen er ikke en slutning. Folkeregisterloven § 1-3 første ledd sier det: «Skattekontoret er registermyndighet i første instans. Skattedirektoratet er sentral registermyndighet og behandlingsansvarlig for registeret.» Begge er en del av Skatteetaten, så målnoden kan beholdes, med tekstfunn og presisering. Merk også at forekomsten i foreldrebetalingsforskriften er i merknadskapitlet.",
+  "retting": {
+   "relasjoner": [
+    {
+     "relasjon": "fores_av",
+     "til": {
+      "id": "5e69bca7-fd4a-4c6c-9d2e-3dcaf9cca1bb",
+      "navn": "SKATTEETATEN"
+     },
+     "merknad": "folkeregisterloven § 1-3 første ledd: skattekontoret og Skattedirektoratet er registermyndighet (tekstfunn; Skatteetaten som felles virksomhet er normalisering)"
+    }
+   ]
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "folkeregisterloven § 1-3 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "folkeregisterloven § 1-1 første ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n30",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Private parter.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FORMAT.md «Ikke annoter»",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n31",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Ikke_aktør er feil for minst én forekomst. I hotl. § 10-4 første ledd har institusjonen kompetanse («kan institusjonen sette som vilkår at den rusmiddelavhengige kan holdes tilbake»), altså tvangsmyndighet. Fasiten har den som egen node, «institusjon utpekt av regionalt helseforetak» (helse-og-omsorgstjenesteloven a48, med kompetanse i § 10-4). I FOR-2017-06-22-1050 § 5 første ledd er det barnevernsinstitusjonen, med en plikt («skal institusjonen sørge for nødvendig lokale»). Barnevernsloven § 16-1 tredje ledd sier at barnevernsinstitusjonene er statlig barnevernsmyndighet på lokalt nivå. Begge er klasser, med ulike referenter, og bør skilles ut.",
+  "retting": {
+   "type": "klasse",
+   "ny_node": "institusjon utpekt av regionalt helseforetak",
+   "relasjoner": [
+    {
+     "relasjon": "medlemsregel",
+     "til": null,
+     "merknad": "institusjoner utpekt av RHF etter shl. § 2-1 a fjerde ledd (hotl. §§ 10-2 til 10-4); forekomsten i FOR-2017-06-22-1050 § 5 skilles ut som barnevernsinstitusjon (bvl. § 16-1 tredje ledd)"
+    }
+   ],
+   "hjemmel": {
+    "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§10-4/ledd-1",
+    "kunnskapsstatus": "fortolkning"
+   },
+   "hjemmel_status": "fortolkning"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": "bygget",
+  "kilder": [
+   {
+    "ref": "helse- og omsorgstjenesteloven § 10-4 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "spesialisthelsetjenesteloven § 2-1 a fjerde ledd",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "barnevernsloven § 16-1 tredje ledd",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "fasit helse-og-omsorgstjenesteloven a48",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n32",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Kortform for Kunnskapsdepartementet i en forskrift fastsatt av KD. Koblingen er en tekstlesning av forkortelsen, men bør registreres med fortolkning, ikke som tekstfunn, fordi forskriften ikke definerer forkortelsen.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "finansieringsforskriften §§ 7 og 17",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n33",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Aktør (organ) er riktig. Begge forekomstene står i kapittel 2 («NOKUTs klagenemnd»), så kortformen er entydig der; §§ 6, 7 og 11 bruker samme ord om to andre nemnder, og bindingen må derfor ha paragrafspenn. § 1 første ledd bokstav a navngir nemnda, men oppretter den ikke, så fortolkning er riktig. Opprettingskompetansen står i universitets- og høyskoleloven § 14-2 første ledd («Departementet kan opprette nasjonale klagenemnder») og bør nevnes i begrunnelsen. Verken NOKUT eller nemnda finnes i virksomheter (SELECT).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "forskrift om enkelte klagenemnder på KDs område § 1 første ledd bokstav a og kapittel 2",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "universitets- og høyskoleloven § 14-2 første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n34",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Omtale av rollen bostedskommune. «Folkeregistrert» og «bosted» peker på samme tilknytning, men det er en slutning og bør merkes [slutning] i merknaden.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "finansieringsforskriften § 23 første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n35",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "hoy",
+  "innvending": "Aktøren, typen og hjemmelen holder (svalbardloven § 30 andre ledd, tekstfunn; finnes ikke i virksomheter). Men «har_ansvarsomrade Svalbard» er feil. Korpuset sier gjennomgående at lokalstyret har myndighet «for Longyearbyen arealplanområde», og at Sysselmesteren har den samme myndigheten for Svalbard utenfor (FOR-2015-06-22-747 § 9 femte og sjette ledd, § 10 fjerde og femte ledd). Forekomsten selv sier «innenfor Longyearbyen arealplanområde». Kanten gir motsatt resultat for resten av Svalbard. Området er navngitt i kilden og skal ha egen node (#312-regelen), selv om det ikke er i registeret.",
+  "retting": {
+   "relasjoner": [
+    {
+     "relasjon": "har_ansvarsomrade",
+     "til": {
+      "ny_node": "Longyearbyen arealplanområde"
+     },
+     "merknad": "FOR-2022-06-17-1219 § 3 andre ledd; FOR-2015-06-22-747 § 9 femte ledd. Området er en del av Svalbard (O bestar_av) [slutning]"
+    }
+   ]
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "svalbardloven § 30 andre ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "forskrift om barnehagevirksomhet i Longyearbyen § 3 andre ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "forskrift om anvendelse av helselover for Svalbard og Jan Mayen § 9 femte og sjette ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n36",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Rolle er riktig (Johanns avgjørelse 2026-11-05), men relasjonen er snudd på samme måte som i n24: kommunen er innehaveren, ikke det rollen er «for».",
+  "retting": {
+   "relasjoner": [
+    {
+     "relasjon": "rolle_innehas_av",
+     "til": {
+      "id": "eb25cd79-007e-404d-9cd5-c85800b65272",
+      "navn": "kommune"
+     },
+     "merknad": "overfor barnet i fosterhjem (privat part, ingen node)"
+    }
+   ]
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "forskrift om ansvar for spesialpedagogisk hjelp § 3 første og andre ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n37",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Personkrets i barnehagen, ikke aktør.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "rammeplanen kap. 2 og 3",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n38",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Familiebarnehage er ikke en underklasse av privat barnehage. Barnehageloven § 15 andre ledd taler om «kommunale og private familiebarnehager», og § 14 første ledd har familiebarnehage som barnehageform ved siden av ordinær og åpen. Klassen må være underklasse av barnehage. «Private familiebarnehager» er da snittet av to klasser og bør være en omtale med avgrensning, slik modellereren selv gjør med «private ordinære barnehager» (n39). Definisjonen i FOR-2005-12-16-1555 § 1 første ledd holder som hjemmel for klassen familiebarnehage.",
+  "retting": {
+   "relasjoner": [
+    {
+     "relasjon": "underklasse_av",
+     "til": {
+      "ny_node": "barnehage"
+     },
+     "merknad": "barnehageform, bhl. §§ 14 og 15; kortets navn «private familiebarnehager» er omtale med avgrensning privat"
+    }
+   ]
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 15 første og andre ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "barnehageloven § 14 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "forskrift om familiebarnehager § 1 første ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n39",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Omtale av klassen privat barnehage med avgrensningen «ordinær» (barnehageform etter bhl. § 14 første ledd).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 14 første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n40",
+  "dom": "kontroller",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Usikkert hva «regjeringen» er i modellen, og det avgjøres ikke av kildene alene. Grunnloven bruker «regjeringen» både om utøvende makt (§§ 11, 13, 41) og om organet (§ 82 «Regjeringen skal meddele Stortinget …», § 76 «av regjeringen ved en statsråd»). Kollegiet heter i § 12 første ledd «et råd» og ellers «statsrådet». To lesninger må avgjøres: (a) regjeringen er statsrådet, et eget organ (Grl. § 12 første ledd, fortolkning) med organsammensetning mot «Kongen i statsråd» (Kongen + statsrådet), eller (b) regjeringen er navneform for «Kongen i statsråd», slik «Kongen» ble i #335. Mediestøtteloven § 3 (forslag til Stortinget i budsjettproposisjon) taler for (b); lov om informasjonsplikt § 2 («medlemmer av regjeringen») taler for (a). Relasjonen «kontroller_forhold_til» er en plassholder og bør ikke opprettes. Navnet kan også høre hjemme i notatet om staten og departementene. Sjekk med Johann.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Grunnloven § 12 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "Grunnloven §§ 76 og 82",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "mediestøtteloven § 3 første ledd",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "#335 (Kongen og Kongen i statsråd samme aktør)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n41",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Klasse med organ_i barnehage og bhl. § 4 første ledd med normalisering, i samsvar med juristrunde-440. «Felles samarbeidsutvalg» (§ 5) er riktig holdt utenfor av forleddssperren.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 4 første ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n42",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "«Mangler» er for strengt. Rammeplanen kap. 3 (samiske barnehager, første ledd) gir en medlemsregel med kilde: «Barnehageeieren skal vedtektsfeste at barnehagen har som formål å styrke barnas identitet i et barnehagemiljø med samisk språk og samisk kultur.» Etter Johanns regel 2026-11-05 er medlemsregel med kilde nok, og hullet skal ikke vises. Rammeplanen er forskrift; kapittel 3 er ikke merknad.",
+  "retting": {
+   "relasjoner": [
+    {
+     "relasjon": "underklasse_av",
+     "til": {
+      "ny_node": "barnehage"
+     },
+     "merknad": ""
+    },
+    {
+     "relasjon": "medlemsregel",
+     "til": null,
+     "merknad": "barnehager som har vedtektsfestet formålet om samisk språk og kultur, rammeplanen kap. 3 (samiske barnehager) første ledd"
+    }
+   ],
+   "hjemmel": {
+    "eid": "kap-3/rom-samiske-barnehager/ledd-1",
+    "kunnskapsstatus": "fortolkning"
+   },
+   "hjemmel_status": "fortolkning"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "forskrift om rammeplan for barnehagens innhold og oppgaver kap. 3, samiske barnehager første ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n44",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Grupperingen er riktig flagget (to referenter). DA-styret er organet i dl. § 33 første ledd («Domstoladministrasjonen ledes av et styre»), fasiten domstolloven da_styre. Men for bhl. § 7 andre ledd foreslås en ny node for styret i et privat rettssubjekt. Det er et selskapsorgan hos en privat part, og i samme ledd gjøres «det bestemmende organ» (n70, n81) og «den fysiske personen» (n74) til omtale av barnehageeier. Samme løsning bør gjelde styret, med [slutning] fordi styret er organet til rettssubjektet og ikke rettssubjektet selv.",
+  "retting": {
+   "relasjoner": [
+    {
+     "relasjon": "omtale_av",
+     "til": {
+      "ny_node": "barnehageeier"
+     },
+     "merknad": "bhl. § 7 andre ledd: styret i rettssubjektet som driver en privat barnehage [slutning: organet som bærer eierens ansvar]"
+    },
+    {
+     "relasjon": "omtale_av",
+     "til": {
+      "ny_node": "Styret for domstoladministrasjonen"
+     },
+     "merknad": "dl. § 33 a første ledd; organet er hjemlet i dl. § 33 første ledd"
+    }
+   ]
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 7 andre ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "domstolloven § 33 første ledd og § 33 a første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "fasit domstolloven da_styre",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n45",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Navnet hører ikke til notatet om Norge og forvaltningsnivåene. Begge forekomstene er territoriale: «norsk reinbeiting i Sverige» (reindriftsloven § 2 første ledd) og «Kunngjøring skal også skje i Sverige» (§ 39 første ledd). Sverige er da et område som kilden navngir, og kan klassifiseres nå (omradetype annet). Spørsmålet om stater som rettssubjekt oppstår ikke her.",
+  "retting": {
+   "type": "område",
+   "ny_node": "Sverige"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": "bygget",
+  "kilder": [
+   {
+    "ref": "reindriftsloven § 2 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "reindriftsloven § 39 første ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n46",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Privat part (søker om moderasjon).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "foreldrebetalingsforskriften § 3e første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n47",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Grupperingen er riktig flagget, men ikke_aktør passer bare den ene referenten. I bhl. § 6 første ledd er «virksomheter» de som skal søke godkjenning (privat personkrets i regellaget). I hotl. § 12-3 a første ledd er kortets navn et avkortet treff av «Virksomheter som er omfattet av loven her», som fasiten har som klasse (helse-og-omsorgstjenesteloven a60: kommunale enheter eller private). Klassen er pliktsubjekt i en P informasjon-kant overfor statsforvalteren og Ukom. Med ikke_aktør mister den kanten fra-noden. Hotl.-forekomsten bør skilles ut som klasse; bhl.-forekomsten kan bli ikke_aktør.",
+  "retting": {
+   "relasjoner": [
+    {
+     "relasjon": "omtale_av",
+     "til": {
+      "ny_node": "virksomheter som er omfattet av helse- og omsorgstjenesteloven"
+     },
+     "merknad": "bare hotl. § 12-3 a første ledd, avkortet treff; skilles ut som klasse (fasiten a60)"
+    }
+   ],
+   "grupperingen_slaar_sammen_ulike_referenter": true
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "helse- og omsorgstjenesteloven § 12-3 a første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "barnehageloven § 6 første ledd",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "fasit helse-og-omsorgstjenesteloven a60",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n48",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Beløp i merknadskapittel, ikke en node.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "docs/33 §5.14",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n49",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Generisk omtale av klassen barnehage.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "rammeplanen kap. 1",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n50",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Omtale av klassen barnehage med avgrensning. Plikten i § 17 første ledd er en P samarbeid-kant fra klassen til seg selv (docs/33 §4.5 punkt 6), ikke en ny node.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 17 første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n51",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Tilskuddsart, ikke node.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n52",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Åpen personkrets uten medlemsregel: «tjenesteytere» bestemt av hva barnet trenger i den enkelte saken. Samarbeidsplikten i bhl. § 2b første ledd blir en P samarbeid-kant med til = null (motparten avgjøres i saken, docs/33 §4.5). En klasse ville verken ha hjemmel eller medlemsregel og bare vise et hull.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 2b første ledd",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "docs/33 §4.5",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n53",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Kortform for Høyesteretts ankeutvalg (navngitt i dl. § 5 første ledd). Fasiten har det som annet:rettsformasjon (domstolloven hr_ankeutv). At det er en sammensetning av Høyesterett og ikke et eget organ, må avgjøres i kortet for selve noden.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "domstolloven § 5 første ledd",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "fasit domstolloven hr_ankeutv",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n54",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Generisk omtale. Klassen «folkevalgt organ» har hjemmel i kommuneloven § 5-1 første og andre ledd (ekstensjonal liste, bokstav k dekker folkevalgte organer hjemlet i særlov). Det bør stå på kortet for målnoden.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "kommuneloven § 5-1 første og andre ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n55",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Register, ikke aktør. «fores_for» etaten er en tekstlesning av «til bruk for Arbeids- og velferdsetaten» i § 10 fjerde ledd.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 10 fjerde ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n56",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "«Arbeidsgiver» i politiattestforskriften § 4 er en privatrettslig egenskap. Plikten gjelder overfor søkere (private parter) og hører til regellaget (FORMAT.md). En strukturrolle «arbeidsgiver» uten hjemmel og med «rolle_for barnehage» blander arbeidsrett inn i strukturen. Referenten er barnehageeieren, men det er en slutning. Ikke_aktør er riktig type.",
+  "retting": {
+   "type": "ikke_aktør",
+   "ny_node": null,
+   "relasjoner": [
+    {
+     "relasjon": "omtale_av",
+     "til": {
+      "ny_node": "barnehageeier"
+     },
+     "merknad": "[slutning] arbeidsgiveren for de ansatte i barnehagen; plikten overfor søkere hører til regellaget"
+    }
+   ],
+   "hjemmel_status": "ikke relevant"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": "bygget",
+  "kilder": [
+   {
+    "ref": "forskrift om politiattest i barnehager § 4 første ledd",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "FORMAT.md «Ikke annoter»",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n57",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Rollen holder (fasiten domstolloven avdleder), men hjemmelen står i samme ledd: «I så fall kan det utnevnes en dommer som leder for hver avdeling» (dl. § 19 fjerde ledd andre punktum). Det er en valgfri stilling (L14), og hjemmelregelen i køen foreslår ikke utnevning. Men et menneske kan registrere den med fortolkning, slik juristrunde-440 gjorde for Innstillingsrådet. «Mangler» er derfor feil. Ledd fire gjelder tingrettene; lagmannsrettene har tilsvarende regel i § 11 fjerde ledd («kan det utnevnes en lagmann som leder for hver avdeling»), så rollen kan også være rolle_for lagmannsrett.",
+  "retting": {
+   "hjemmel": {
+    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§19/ledd-4",
+    "kunnskapsstatus": "fortolkning"
+   },
+   "hjemmel_status": "fortolkning"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "domstolloven § 19 fjerde ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "fasit domstolloven avdleder",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n58",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Omtale av partene i samarbeidsavtalen er riktig, men listen er ufullstendig. Etter hotl. § 6-1 første ledd kan avtalen inngås med det regionale helseforetaket «eller med helseforetak som det regionale helseforetaket bestemmer», og kommunen kan inngå avtale sammen med andre kommuner. Fasiten (helse-og-omsorgstjenesteloven a58) har «kommune(r) og RHF/HF».",
+  "retting": {
+   "relasjoner": [
+    {
+     "relasjon": "omtale_av",
+     "til": {
+      "id": "eb25cd79-007e-404d-9cd5-c85800b65272",
+      "navn": "kommune"
+     },
+     "merknad": "part i samarbeidsavtalen, alene eller sammen med andre kommuner (§ 6-1 første ledd)"
+    },
+    {
+     "relasjon": "omtale_av",
+     "til": {
+      "ny_node": "regionalt helseforetak"
+     },
+     "merknad": "part i samarbeidsavtalen"
+    },
+    {
+     "relasjon": "omtale_av",
+     "til": {
+      "ny_node": "helseforetak"
+     },
+     "merknad": "helseforetak som RHF bestemmer, § 6-1 første ledd"
+    }
+   ]
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "helse- og omsorgstjenesteloven § 6-1 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "fasit helse-og-omsorgstjenesteloven a58",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n59",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Privat part.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n60",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Private parter.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n61",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Aktør (organ) holder; etaten finnes ikke i virksomheter (bare direktoratet). Barnevernsloven § 16-1 første ledd («De statlige barnevernsmyndighetene består av departementet, barne-, ungdoms- og familieetaten og statsforvalterne») navngir etaten direkte og bør stå sammen med andre ledd. Koblingen sentralt nivå = direktoratet er riktig merket som slutning. Forskriftens henvisning til «barnevernloven § 5-1» er til den opphevede loven.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnevernsloven § 16-1 første og andre ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n62",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Disjunktiv omtale av to kjente referenter (barnehagen som arbeidsgiver eller kommunen).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 29 tredje ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n63",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Genitivomtale av foreldrerådet i den enkelte barnehagen.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 4 første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n64",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Personkrets, ikke aktør.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n65",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Privat part (bhl. § 56 åttende ledd).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n66",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Dokument, ikke aktør (vedtekter er kilde utenfor korpus, L12).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "#309 L12",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n67",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Personkrets, ikke aktør.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n68",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Genitivomtale av rollen bostedskommune, i tråd med Johanns avgjørelse 2026-11-05.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 49 første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n69",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Generisk omtale av barnevernstjenesten. Det er en slutning, fordi «barnevernet» i dagligtale også kan omfatte de statlige barnevernsmyndighetene (bvl. § 16-1). Middels sikkerhet er riktig.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnevernsloven § 15-3 første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n70",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Samme tekststed som n81: bhl. § 7 andre ledd har uttrykket «det bestemmende organ» én gang, men køen har det som to navn, med og uten artikkel. Godkjennes begge, blir forekomsten tagget to ganger. Navnene bør slås sammen (ta med i n81). Omtale av barnehageeier er ellers riktig, men må merkes [slutning]: loven legger ansvaret på organet, ikke på rettssubjektet.",
+  "retting": {
+   "relasjoner": [
+    {
+     "relasjon": "omtale_av",
+     "til": {
+      "ny_node": "barnehageeier"
+     },
+     "merknad": "[slutning] organet som bærer ansvaret etter § 7 andre ledd for rettssubjektet som driver barnehagen; samme forekomst som n81"
+    }
+   ]
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 7 andre ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n71",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Følger av n26: «de nye kommunene» etter kommuneoppdeling er medlemmer av klassen kommune, ikke en egen rolle.",
+  "retting": {
+   "relasjoner": [
+    {
+     "relasjon": "omtale_av",
+     "til": {
+      "id": "eb25cd79-007e-404d-9cd5-c85800b65272",
+      "navn": "kommune"
+     },
+     "merknad": "generisk, flertall; kommunene etter deling [slutning]"
+    }
+   ]
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "finansieringsforskriften § 24 første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n72",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Generisk omtale av klassen privat barnehage.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 56 første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n73",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Generisk omtale av klassen regionalt helseforetak (alle medlemmer).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "helse- og omsorgstjenesteloven § 6-4 første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n74",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "For et enkeltpersonforetak er den fysiske personen selv rettssubjektet og eieren, så omtale av barnehageeier er riktig. Person som nodetype er utsatt (docs/33 §4.1), og det gjør omtalen riktigere enn en ny node.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 7 andre ledd tredje punktum",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n75",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Anaforisk omtale av «Kommunens pedagogisk-psykologiske tjeneste» i første punktum i samme ledd (bhl. § 33 første ledd).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 33 første ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n76",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Generisk omtale av rollen pedagogisk leder (forskrift om pedagogisk bemanning § 1 andre ledd; bhl. § 25).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "forskrift om pedagogisk bemanning og dispensasjon § 1 andre ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n77",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Generisk omtale av klassen privat barnehage med avgrensning ordinær.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n78",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Omtale av barnehageeier: § 7 har overskriften «Ansvaret for barnehagen». Forutsetter at barnehageeier får begge innehaverne (se n3).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 7",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n79",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Som n78; henvisningen til bhl. § 7 er eksplisitt.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 7",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n80",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Som n78; henvisningen til § 7 er eksplisitt.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 7",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n81",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Omtale av barnehageeier holder, men koblingen må merkes [slutning]: § 7 andre ledd legger ansvaret på «det bestemmende organ som gjelder for barnehagens organisasjonsform», altså organet og ikke rettssubjektet. Samme forekomst står også som n70, og de to bør slås sammen.",
+  "retting": {
+   "relasjoner": [
+    {
+     "relasjon": "omtale_av",
+     "til": {
+      "ny_node": "barnehageeier"
+     },
+     "merknad": "[slutning] organet som bærer ansvaret etter § 7 andre ledd for rettssubjektet som driver barnehagen"
+    }
+   ]
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 7 andre ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n82",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "«Utgiftene dekkes av det offentlige» (dl. § 105 a andre ledd) gjelder utgifter til rettsvitner, og referenten er staten som bærer domstolenes utgifter. Det avhenger av hvordan staten modelleres, så venter er riktig.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "domstolloven § 105 a andre ledd",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "docs/33 §4.5 (P betaling, «Utgiftene dekkes av det offentlige» i #309)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n83",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Ikke en strukturnode. Sametinget er en annen node.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n84",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Avkortet treff: teksten er «Direktoratet for høyere utdanning og kompetanse», og virksomheten finnes. Ingen ny navneform skal lages av «Direktoratet» alene (§5.11: kortform tagges ikke alene).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "forskrift om godkjenning av yrkeskvalifikasjoner for styrer og pedagogisk leder § 3 tredje ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n85",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Køens forslag dl. § 9 første ledd gjelder Høyesteretts direktør og er riktig forkastet (juristrunde-440). Rollen samsvarer med fasiten (domstolloven da_dir). Ingen «skal ha en direktør» for DA; dl. § 33 b andre ledd og § 33 a femte ledd forutsetter stillingen, så «mangler» (ikke funnet av regelen) er forsvarlig. § 33 b andre ledd kan registreres som fortolkning.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "domstolloven § 33 b første og andre ledd",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "domstolloven § 33 a femte ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n86",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Køens forslag dl. § 3 er riktig forkastet, men «mangler» er feil: dl. § 52 første ledd definerer ordet («Ved dommere forstaaes i denne lov … alle de medlemmer av en domstol, som kan træffe eller være med i dømmende avgjørelser …»). Det er tekstfunn, med avgrensning «i denne lov» (#309 L7). Fasiten bygger på samme bestemmelse (domstolloven: dommer). Relasjonene er også ufullstendige: forekomsten i § 55 første ledd nevner jordskifterettene, og § 52 annet punktum regner forliksrådets medlemmer som dommere.",
+  "retting": {
+   "relasjoner": [
+    {
+     "relasjon": "rolle_for",
+     "til": {
+      "id": "da59aa06-9f66-4b6e-a4cc-a9c0ca066929",
+      "navn": "NORGES HØYESTERETT"
+     },
+     "merknad": "dl. § 55 første ledd"
+    },
+    {
+     "relasjon": "rolle_for",
+     "til": {
+      "ny_node": "tingrett"
+     },
+     "merknad": "dl. § 55 første ledd"
+    },
+    {
+     "relasjon": "rolle_for",
+     "til": {
+      "ny_node": "lagmannsrett"
+     },
+     "merknad": "dl. § 55 første ledd"
+    },
+    {
+     "relasjon": "rolle_for",
+     "til": {
+      "ny_node": "jordskifterett"
+     },
+     "merknad": "dl. § 55 første ledd"
+    },
+    {
+     "relasjon": "rolle_for",
+     "til": {
+      "ny_node": "forliksråd"
+     },
+     "merknad": "dl. § 52 første ledd annet punktum"
+    }
+   ],
+   "hjemmel": {
+    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§52/ledd-1",
+    "kunnskapsstatus": "tekstfunn"
+   },
+   "hjemmel_status": "tekstfunn"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "domstolloven § 52 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "domstolloven § 55 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "#309 L7",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "fasit domstolloven «dommer»",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n87",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Omtale av den generiske rollen domstolleder (fasiten domstolloven «domstolens leder»). Her er det tingrettens leder, som etter dl. § 19 første ledd er sorenskriveren. Forutsetter at rollen i n88 ikke låses til Høyesterett.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "domstolloven § 19 første og fjerde ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n88",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Domstolloven bruker «domstollederen» om lederen av hver domstol (§§ 55 b, 55 g, 121 d, 237). Fasiten har en generisk rolle «domstolens leder» som sorenskriver, førstelagmann eller justitiarius har, og leser forekomsten i § 6 som høyesterettsjustitiarius. Rollen er bare koblet til Høyesterett, mens n87 kobler tingrettens leder (dl. § 19) til samme rolle. Det er selvmotsigende. Rollen bør være generisk, med lederstillingene som innehavere, alle [slutning].",
+  "retting": {
+   "relasjoner": [
+    {
+     "relasjon": "rolle_for",
+     "til": {
+      "id": "da59aa06-9f66-4b6e-a4cc-a9c0ca066929",
+      "navn": "NORGES HØYESTERETT"
+     },
+     "merknad": "justitiarius, dl. § 3 første ledd («Retten skal ha en justitiarius»); § 6 andre ledd [slutning]"
+    },
+    {
+     "relasjon": "rolle_for",
+     "til": {
+      "ny_node": "lagmannsrett"
+     },
+     "merknad": "førstelagmannen, dl. § 10 første ledd («førstelagmann som leder») [slutning]"
+    },
+    {
+     "relasjon": "rolle_for",
+     "til": {
+      "ny_node": "tingrett"
+     },
+     "merknad": "sorenskriveren, dl. § 19 første ledd («sorenskriver som leder») [slutning]"
+    }
+   ]
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "domstolloven § 3 første ledd, § 10 første ledd og § 19 første ledd",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "domstolloven §§ 6, 55 b, 55 g og 237",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "fasit domstolloven hr_just og «domstolens leder»",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n89",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Omtale av barnehageeier, avgrenset til familiebarnehager.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n90",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Omtale av barnehageeier, avgrenset til private barnehager.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n91",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "«Eieren» i bhl. § 56 sjuende ledd er ikke barnehageeieren i § 7-betydningen. Leddet handler om tilsyn med økonomiske forhold i private barnehager (kap. V), der barnehagen selv er rettssubjektet (§ 7a første ledd). Eieren er den som eier eller kontrollerer barnehagen, altså aksjonær eller morselskap. Det følger av § 22 første ledd bokstav a og av at «eierens nærstående» står ved siden av. Det er en privat part, som «eierens nærstående» (n92, ikke_aktør). Omtale av barnehageeier ville gjort Udirs innsynsrett overfor eierne til innsyn i barnehagen selv.",
+  "retting": {
+   "type": "ikke_aktør",
+   "relasjoner": [],
+   "hjemmel_status": "ikke relevant"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": "bygget",
+  "kilder": [
+   {
+    "ref": "barnehageloven § 56 sjuende ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "barnehageloven § 22 første ledd bokstav a",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "barnehageloven § 7a første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n92",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Private parter (definert i bhl. § 22).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "barnehageloven § 22 første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n93",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Generisk omtale av klassen kommune etter Johanns avgjørelse 2026-11-05.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n94",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Kommunedelen er generisk omtale av klassen kommune, og fylkeskommunedelen venter riktig på notatet om Norge og forvaltningsnivåene.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ },
+ {
+  "id": "n95",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Register, ikke aktør. Enhetsregisterloven (2025) § 1-2 første ledd er i korpus og sitert ordrett. At registerføreren er Registerenheten i Brønnøysund, er riktig merket som slutning.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "enhetsregisterloven § 1-2 første ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n96",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Personkrets for en opplysningsplikt i regellaget.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": []
+ }
+]
