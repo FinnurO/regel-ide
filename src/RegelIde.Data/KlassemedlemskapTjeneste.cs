@@ -11,7 +11,56 @@ public static class Klasseregler
     /// <summary>Klassen «kommune»: kommunene i områderegisteret (Kartverkets inndeling) med sitt rettssubjekt.</summary>
     public const string OmraderegisterKommune = "omraderegister_kommune";
 
-    public static readonly string[] Alle = [OmraderegisterKommune];
+    /// <summary>[Ny, issue #442, Johanns avgjørelse 2026-11-05] Klassen «fylkeskommune»: hvert fylke unntatt Oslo utgjør en fylkeskommune
+    /// (kommuneloven § 3-1 første ledd andre punktum). Medlem er aktøren med forvaltningsnivå fylkeskommune og aktørtype rettssubjekt som har
+    /// territoriekanten med hjemmel i § 3-1 første ledd til fylket. Statsforvalteren har også ansvarsområde til fylkene, men verken nivået,
+    /// aktørtypen eller hjemmelen (juristrunden N8). Kanten skrives av <see cref="KlasseoppsettTjeneste"/>, ikke av registeret.</summary>
+    public const string OmraderegisterFylkeskommune = "omraderegister_fylkeskommune";
+
+    /// <summary>[Ny, issue #442, Johanns avgjørelse 2026-11-05] Klassen «departement»: ingen lovdefinisjon (Grunnloven bruker ikke ordet, og
+    /// ingen lov definerer det, juristrunden N12). Kilden er organiseringsvedtakene. Medlem er en levende aktør med R <c>oppretter</c> lest av
+    /// livsløpet (docs/33 §5.9), ellers en M-kant til klassen uten avgrensning, med navnevedtaket eller en kgl.res. utenfor korpus som premiss
+    /// (fortolkning: vedtaket forutsetter departementet, men oppretter det ikke).</summary>
+    public const string OrganiseringsvedtakDepartement = "organiseringsvedtak_departement";
+
+    public static readonly string[] Alle = [OmraderegisterKommune, OmraderegisterFylkeskommune, OrganiseringsvedtakDepartement];
+
+    /// <summary>[Ny, issue #442] Kommuneloven § 3-1 første ledd: «Hver kommune hører til et fylke. Hvert fylke unntatt Oslo utgjør en
+    /// fylkeskommune.» Hjemmelen for territoriekanten fylkeskommune → fylke og kilden for regelen.</summary>
+    public const string KommunelovenFylkeskommuneEid = "https://lovdata.no/eli/lov/2018/06/22/83/nor/§3-1/ledd-1";
+
+    /// <summary>[Ny, issue #442] Kommuneloven § 3-1 fjerde ledd: «Fylkeskommunen skal ha samme navn som fylket.» Navneregelen som parer
+    /// fylket med fylkeskommunen (samme mønster som lagdømmet og lagmannsretten i #345).</summary>
+    public const string KommunelovenNavneregelEid = "https://lovdata.no/eli/lov/2018/06/22/83/nor/§3-1/ledd-4";
+
+    /// <summary>[Ny, issue #442] Fylket loven unntar: «Hvert fylke unntatt Oslo utgjør en fylkeskommune». Ordet er lovens, og
+    /// <see cref="KlasseoppsettTjeneste"/> kontrollerer at det står i § 3-1 første ledd før noe skrives. Oslo kommune og fylkeskommunens
+    /// oppgaver er sak 3 (#464).</summary>
+    public const string UnntattFylke = "Oslo";
+
+    /// <summary>[Ny, issue #442] Det oppdagelseskilden for livsløpets R oppretter begynner med (<c>monster:livslop</c>,
+    /// <c>monster:livslop-nytt-departement</c>). Livsløpet skriver R oppretter bare fra Kongen i statsråd til et departement.</summary>
+    public const string LivslopPrefiks = "monster:livslop";
+
+    /// <summary>[Ny, issue #442] Hva regelen sier, og kilden, slik klassevisningen og aktørsiden viser den. <see cref="KildeEider"/> er
+    /// bestemmelsene i korpus regelen bygger på (tom når kilden er et register eller vedtak som står som premisser).</summary>
+    public sealed record Regelbeskrivelse(string Regel, string Tekst, string Kilde, IReadOnlyList<string> KildeEider);
+
+    public static Regelbeskrivelse? Beskriv(string? regel) => regel switch
+    {
+        OmraderegisterKommune => new(regel,
+            "Kommunene i områderegisteret, med virksomheten som har ansvarsområde til kommunen og samme kommunenummer.",
+            "Områderegisteret (Kartverket) og Enhetsregisteret", []),
+        OmraderegisterFylkeskommune => new(regel,
+            "Hvert fylke unntatt Oslo utgjør en fylkeskommune: aktøren med forvaltningsnivå fylkeskommune og aktørtype rettssubjekt som har "
+            + "territoriekanten etter kommuneloven § 3-1 første ledd til fylket.",
+            "Kommuneloven § 3-1 første ledd andre punktum og fjerde ledd", [KommunelovenFylkeskommuneEid, KommunelovenNavneregelEid]),
+        OrganiseringsvedtakDepartement => new(regel,
+            "Levende aktører som organiseringsvedtakene oppretter (R oppretter fra Kongen i statsråd), eller som har en medlemskant med "
+            + "navnevedtaket eller en kongelig resolusjon som premiss.",
+            "Organiseringsvedtakene (kgl.res.)", []),
+        _ => null,
+    };
 
     /// <summary>
     /// Id-en migrasjonen <c>KlasseKommuneOgUtledetMedlemskap</c> gir klassen «kommune». Den er fast bare for at migrasjonens <c>Down</c>
@@ -27,18 +76,39 @@ public static class Klasseregler
     public const string KommunelovenInndelingEid = "https://lovdata.no/eli/lov/2018/06/22/83/nor/§2-1/ledd-1";
 }
 
-/// <summary>Ett utledet medlem: rettssubjektet, kommunen (området) det er rettssubjekt for, og territoriekanten som er premisset.</summary>
+/// <summary>Ett utledet medlem: aktøren, området den er medlem for (kommune eller fylke; null for departementene) og premisset.
+/// [ENDRET, issue #442] <c>Kommunenummer</c> heter <see cref="Omradekode"/> (fylkesnummer for en fylkeskommune), og område er valgfritt.
+/// <see cref="Premissart"/>: <c>territoriekant</c> (A til området) | <c>oppretterkant</c> (R oppretter fra livsløpet) | <c>medlemskant</c>
+/// (M til klassen, med navnevedtaket eller en kgl.res. som premiss). <see cref="Kunnskapsstatus"/> er svaret for dette medlemmet etter
+/// svakeste premiss (docs/33 §4.6): et premiss som ikke er vurdert, gir <c>uavklart</c>, og en fortolkning gir <c>fortolkning</c>.</summary>
 public sealed record UtledetMedlem(
-    Guid VirksomhetId, string Navn, string Kommunenummer, Guid OmradeId, string Omradenavn, Guid PremissKantId, bool Validert);
+    Guid VirksomhetId, string Navn, string? Omradekode, Guid? OmradeId, string? Omradenavn, Guid PremissKantId, bool Validert,
+    string Premissart, string? PremissKunnskapsstatus, string Kunnskapsstatus);
+
+/// <summary>[Ny, issue #442] Hva premisset for et utledet medlemskap er.</summary>
+public static class Premissart
+{
+    public const string Territoriekant = "territoriekant";
+    public const string Oppretterkant = "oppretterkant";
+    public const string Medlemskant = "medlemskant";
+}
 
 /// <summary>
-/// Svaret på «hvem er medlem av klassen?» for en klasse med <see cref="BegrepEntitet.Medlemskapsregel"/>. <see cref="Kunnskapsstatus"/> er
-/// alltid <c>avledet</c> (medlemskapet er ikke lagret, det følger av premissene); <see cref="KlassensKunnskapsstatus"/> gjelder klassen selv.
-/// <see cref="Hull"/> er kommunene som ikke kunne gjøres til medlem, i klartekst — de er IKKE med i <see cref="Medlemmer"/>.
+/// Svaret på «hvem er medlem av klassen?» for en klasse med <see cref="BegrepEntitet.Medlemskapsregel"/>. Medlemskapet er ikke lagret; det
+/// følger av premissene. [ENDRET, issue #442] <see cref="Kunnskapsstatus"/> er svaret etter det svakeste premisset blant medlemmene (før: alltid
+/// <c>avledet</c>, som fortsatt er svaret for kommunene); <see cref="KlassensKunnskapsstatus"/> gjelder klassen selv.
+/// <see cref="Hull"/> er det som ikke kunne gjøres til medlem, i klartekst — det er IKKE med i <see cref="Medlemmer"/>.
+/// <see cref="AntallOmrader"/> er antall områder regelen går gjennom (kommuner, fylker unntatt Oslo), null for departementene.
+/// <see cref="Unntatt"/> er det loven selv unntar (Oslo for fylkeskommunen). Det er ikke et hull.
 /// </summary>
 public sealed record UtledetMedlemskap(
     Guid KlasseId, string Term, string Regel, string? Hjemmel, string? KlassensKunnskapsstatus, string Kunnskapsstatus,
-    int AntallOmrader, IReadOnlyList<UtledetMedlem> Medlemmer, IReadOnlyList<string> Hull);
+    int? AntallOmrader, IReadOnlyList<UtledetMedlem> Medlemmer, IReadOnlyList<string> Hull)
+{
+    public string? Omradetype { get; init; }
+    public IReadOnlyList<string> Unntatt { get; init; } = [];
+    public Klasseregler.Regelbeskrivelse? Beskrivelse { get; init; }
+}
 
 /// <summary>
 /// [Ny, issue #384, Johanns beslutning 2026-10-16, docs/33 §4.2] Medlemskap som UTLEDES, ikke registreres: «kommune» har 357 medlemmer, og
@@ -75,6 +145,8 @@ public sealed class KlassemedlemskapTjeneste(RegelIdeDbContext db, StrukturkantT
             alle = klasse is null ? null : klasse.Medlemskapsregel switch
             {
                 Klasseregler.OmraderegisterKommune => await KommuneAsync(klasse, ct),
+                Klasseregler.OmraderegisterFylkeskommune => await FylkeskommuneAsync(klasse, ct),
+                Klasseregler.OrganiseringsvedtakDepartement => await DepartementAsync(klasse, ct),
                 // CHECK-en slipper ikke inn andre verdier; står det likevel noe annet, er det en regel koden ikke kjenner — ingen gjetting.
                 _ => throw new InvalidOperationException($"Ukjent medlemskapsregel '{klasse.Medlemskapsregel}' på «{klasse.Term}»."),
             };
@@ -118,7 +190,8 @@ public sealed class KlassemedlemskapTjeneste(RegelIdeDbContext db, StrukturkantT
                 // Flere kanter fra samme aktør til samme kommune (f.eks. en godkjent og et forslag): den godkjente er premisset.
                 var kant = egne[0].OrderBy(x => x.Status == Strukturkanter.Godkjent ? 0 : 1).ThenBy(x => x.Id).First();
                 var v = aktorer[egne[0].Key];
-                medlemmer.Add(new UtledetMedlem(v.Id, v.Navn, k.Kode, k.Id, k.Term, kant.Id, kant.Status == Strukturkanter.Godkjent));
+                medlemmer.Add(new UtledetMedlem(v.Id, v.Navn, k.Kode, k.Id, k.Term, kant.Id, kant.Status == Strukturkanter.Godkjent,
+                    Premissart.Territoriekant, kant.Kunnskapsstatus, SvakestePremiss.SvarStatus(kant.Kunnskapsstatus)));
             }
             else
             {
@@ -127,7 +200,131 @@ public sealed class KlassemedlemskapTjeneste(RegelIdeDbContext db, StrukturkantT
                     : $"{k.Kode} {k.Term}: {egne.Count} aktører med ansvarsområde til kommunen og samme kommunenummer — ikke entydig, ingen valgt.");
             }
         }
+        // [ENDRET, issue #442] Medlemskapet er avledet bare når premissene bærer det (§4.6); før stod det alltid avledet. Territoriekantene er
+        // eksternt dokumentert (#390), så svaret for kommunene er uendret.
         return new UtledetMedlemskap(klasse.Id, klasse.Term, Klasseregler.OmraderegisterKommune, klasse.LovreferanseEid, klasse.Kunnskapsstatus,
-            Strukturkanter.Avledet, kommuner.Count, medlemmer, hull);
+            Samlet(medlemmer), kommuner.Count, medlemmer, hull)
+        { Omradetype = Omradetyper.Kommune, Beskrivelse = Klasseregler.Beskriv(Klasseregler.OmraderegisterKommune) };
+    }
+
+    /// <summary>[Ny, issue #442] Det samlede svaret for klassen etter det svakeste premisset blant medlemmene (docs/33 §4.6). Uten medlemmer:
+    /// <c>avledet</c> (det er ingenting å svekke; hullene sier hva som mangler).</summary>
+    private static string Samlet(IReadOnlyList<UtledetMedlem> medlemmer) =>
+        medlemmer.Count == 0 ? Strukturkanter.Avledet
+            : SvakestePremiss.SvarStatus(SvakestePremiss.Finn(medlemmer.Select(m => (m.PremissKantId, m.PremissKunnskapsstatus)))!.Value.Kunnskapsstatus);
+
+    /// <summary>
+    /// [Ny, issue #442, Johanns avgjørelse 2026-11-05, juristrunden N8/N9] Regelen <c>omraderegister_fylkeskommune</c>: for hvert gjeldende fylke i
+    /// områderegisteret unntatt Oslo, aktøren som (1) har forvaltningsnivå fylkeskommune, (2) har aktørtype rettssubjekt, (3) lever og ikke er
+    /// erstattet, og (4) har <c>A har_ansvarsomrade</c> til fylket med hjemmel i kommuneloven § 3-1 første ledd. Nøyaktig én → medlem, med kanten som
+    /// premiss. Ingen eller flere → hull. Statsforvalteren har også ansvarsområde til fylket, men oppfyller ingen av de tre første vilkårene og har
+    /// ikke hjemmelen. Et vilkår alene ville vært for skjørt (N8). Registeret brukes ikke som kilde for kanten (N9); kanten skrives av
+    /// <see cref="KlasseoppsettTjeneste"/> med navneregelen i § 3-1 fjerde ledd.
+    /// </summary>
+    private async Task<UtledetMedlemskap> FylkeskommuneAsync(BegrepEntitet klasse, CancellationToken ct)
+    {
+        var fylker = await db.Begreper
+            .Where(b => b.Begrepskategori == Nodetyper.Omrade && b.Omradetype == Omradetyper.Fylke && b.Omradekode != null
+                        && b.Entitetsstatus == "gjeldende" && b.GyldigTil == null)
+            .Select(b => new { b.Id, b.Term, Kode = b.Omradekode! }).ToListAsync(ct);
+        var unntatt = fylker.Where(f => f.Term == Klasseregler.UnntattFylke).OrderBy(f => f.Kode, StringComparer.Ordinal).ToList();
+        var regelFylker = fylker.Where(f => f.Term != Klasseregler.UnntattFylke).OrderBy(f => f.Kode, StringComparer.Ordinal).ToList();
+        var fylkeIder = regelFylker.Select(f => f.Id).ToList();
+        var kanter = await kanttjeneste.FiltrerGjeldendeAsync(await db.Strukturkanter
+            .Where(k => k.Kategori == Strukturkanter.Ansvarsomrade && k.Typekode == "har_ansvarsomrade" && k.FraVirksomhetId != null
+                        && k.TilBegrepId != null && fylkeIder.Contains(k.TilBegrepId.Value)
+                        && k.HjemmelEid == Klasseregler.KommunelovenFylkeskommuneEid)
+            .ToListAsync(ct), ct);
+        var aktorIder = kanter.Select(k => k.FraVirksomhetId!.Value).Distinct().ToList();
+        var visning = await new VirksomhetVisningsnavnTjeneste(db).AlleAsync(ct);
+        var aktorer = (await db.Virksomheter
+                .Where(v => aktorIder.Contains(v.Id) && v.Forvaltningsniva == "fylkeskommune" && v.Aktortype == "rettssubjekt"
+                            && v.Livsstatus == null && v.ErstattetAvId == null)
+                .Select(v => new { v.Id, v.Navn }).ToListAsync(ct))
+            .ToDictionary(v => v.Id, v => visning.GetValueOrDefault(v.Id) ?? v.Navn);
+
+        var medlemmer = new List<UtledetMedlem>();
+        var hull = new List<string>();
+        foreach (var f in regelFylker)
+        {
+            var egne = kanter.Where(k => k.TilBegrepId == f.Id && aktorer.ContainsKey(k.FraVirksomhetId!.Value))
+                .GroupBy(k => k.FraVirksomhetId!.Value).ToList();
+            if (egne.Count == 1)
+            {
+                var kant = egne[0].OrderBy(x => x.Status == Strukturkanter.Godkjent ? 0 : 1).ThenBy(x => x.Id).First();
+                medlemmer.Add(new UtledetMedlem(egne[0].Key, aktorer[egne[0].Key], f.Kode, f.Id, f.Term, kant.Id, kant.Status == Strukturkanter.Godkjent,
+                    Premissart.Territoriekant, kant.Kunnskapsstatus, SvakestePremiss.SvarStatus(kant.Kunnskapsstatus)));
+            }
+            else
+            {
+                hull.Add(egne.Count == 0
+                    ? $"{f.Kode} {f.Term}: ingen fylkeskommune (rettssubjekt) med territoriekant etter kommuneloven § 3-1 første ledd. Ikke medlem (ikke funnet ≠ oppfunnet)."
+                    : $"{f.Kode} {f.Term}: {egne.Count} fylkeskommuner med territoriekant til fylket. Ikke entydig, ingen valgt.");
+            }
+        }
+        return new UtledetMedlemskap(klasse.Id, klasse.Term, Klasseregler.OmraderegisterFylkeskommune, klasse.LovreferanseEid, klasse.Kunnskapsstatus,
+            Samlet(medlemmer), regelFylker.Count, medlemmer, hull)
+        {
+            Omradetype = Omradetyper.Fylke,
+            Unntatt = unntatt.Select(f => $"{f.Kode} {f.Term}: «Hvert fylke unntatt Oslo utgjør en fylkeskommune» (kommuneloven § 3-1 første ledd). "
+                                          + "Oslo kommune i fylkeskommunens sted er egen sak (#464).").ToList(),
+            Beskrivelse = Klasseregler.Beskriv(Klasseregler.OmraderegisterFylkeskommune),
+        };
+    }
+
+    /// <summary>
+    /// [Ny, issue #442, Johanns avgjørelse 2026-11-05, juristrunden N12] Regelen <c>organiseringsvedtak_departement</c>. Kandidatene er levende
+    /// aktører (ikke nedlagt, ikke erstattet). Premissene prøves sammen, og det sterkeste vinner (svakeste premiss, så godkjent, så id):
+    /// <list type="number">
+    /// <item><b>R oppretter</b> lest av livsløpet (<see cref="Klasseregler.LivslopPrefiks"/>, docs/33 §5.9) til aktøren. Livsløpet skriver bare
+    /// R oppretter fra Kongen i statsråd til et departement; en manuell R oppretter (Kongen i statsråd oppretter også utvalg og råd) teller ikke.</item>
+    /// <item><b>M medlem_av</b> fra aktøren til klassen, uten avgrensning. For de sju uten oppretterkant har den navnevedtaket (i korpus) eller en
+    /// kgl.res. utenfor korpus som hjemmel, merket fortolkning. En M-kant med avgrensning er lovspesifikk (Statsministerens kontor etter
+    /// karanteneloven § 1, sak 3) og er ikke alminnelig medlemskap.</item>
+    /// </list>
+    /// <b>Hull:</b> en levende aktør med en gjeldende navneform hjemlet i navnevedtaket (<see cref="DepartementNavneformHjemmelTjeneste.OppdagelsesKilde"/>)
+    /// men uten noen av premissene. Det er livsløpets eget spor av at aktøren er et departement; da er skrivingen for #442 ikke kjørt.
+    /// </summary>
+    private async Task<UtledetMedlemskap> DepartementAsync(BegrepEntitet klasse, CancellationToken ct)
+    {
+        var levende = (await db.Virksomheter.Where(v => v.Livsstatus == null && v.ErstattetAvId == null).Select(v => v.Id).ToListAsync(ct)).ToHashSet();
+        var oppretter = (await kanttjeneste.FiltrerGjeldendeAsync(await db.Strukturkanter
+                .Where(k => k.Kategori == Strukturkanter.Relasjon && k.Typekode == "oppretter" && k.TilVirksomhetId != null
+                            && k.OppdagelsesKilde.StartsWith(Klasseregler.LivslopPrefiks))
+                .ToListAsync(ct), ct))
+            .Where(k => levende.Contains(k.TilVirksomhetId!.Value)).Select(k => (Aktor: k.TilVirksomhetId!.Value, Kant: k, Art: Premissart.Oppretterkant));
+        var mKanter = (await kanttjeneste.FiltrerGjeldendeAsync(await db.Strukturkanter
+                .Where(k => k.Kategori == Strukturkanter.Medlemskap && k.TilBegrepId == klasse.Id && k.FraVirksomhetId != null
+                            && (k.AvgrensningParagrafspennJson == "[]" || k.AvgrensningParagrafspennJson == "") && k.AvgrensningTekst == null)
+                .ToListAsync(ct), ct))
+            .Where(k => levende.Contains(k.FraVirksomhetId!.Value)).Select(k => (Aktor: k.FraVirksomhetId!.Value, Kant: k, Art: Premissart.Medlemskant));
+        var premisser = oppretter.Concat(mKanter).GroupBy(p => p.Aktor).ToList();
+        var visning = await new VirksomhetVisningsnavnTjeneste(db).AlleAsync(ct);
+        var ider = premisser.Select(g => g.Key).ToList();
+        var navn = await db.Virksomheter.Where(v => ider.Contains(v.Id)).ToDictionaryAsync(v => v.Id, v => v.Navn, ct);
+        var sortering = StringComparer.Create(new System.Globalization.CultureInfo("nb-NO"), ignoreCase: true);
+
+        var medlemmer = premisser.Select(g =>
+            {
+                var p = g.OrderBy(x => SvakestePremiss.Rang(x.Kant.Kunnskapsstatus)).ThenBy(x => x.Kant.Status == Strukturkanter.Godkjent ? 0 : 1)
+                    .ThenBy(x => x.Kant.Id).First();
+                return new UtledetMedlem(g.Key, visning.GetValueOrDefault(g.Key) ?? navn[g.Key], null, null, null, p.Kant.Id,
+                    p.Kant.Status == Strukturkanter.Godkjent, p.Art, p.Kant.Kunnskapsstatus, SvakestePremiss.SvarStatus(p.Kant.Kunnskapsstatus));
+            })
+            .OrderBy(m => m.Navn, sortering).ToList();
+
+        var medlemSett = medlemmer.Select(m => m.VirksomhetId).ToHashSet();
+        var medNavnevedtak = await db.Begreper
+            .Where(b => b.Begrepskategori == "virksomhet" && b.Navneformgrunn == "gjeldende" && b.Entitetsstatus == "gjeldende"
+                        && b.HjemmelArt == "navnevedtak" && b.OppdagelsesKilde == DepartementNavneformHjemmelTjeneste.OppdagelsesKilde
+                        && b.VirksomhetReferanseId != null)
+            .Select(b => b.VirksomhetReferanseId!.Value).Distinct().ToListAsync(ct);
+        var hull = medNavnevedtak.Where(id => levende.Contains(id) && !medlemSett.Contains(id))
+            .Select(id => $"{visning.GetValueOrDefault(id) ?? id.ToString()}: navnevedtaket er hjemmel for navnet, men det finnes verken R oppretter "
+                          + "eller en medlemskant. Ikke medlem (ikke funnet ≠ oppfunnet).")
+            .Order(sortering).ToList();
+        return new UtledetMedlemskap(klasse.Id, klasse.Term, Klasseregler.OrganiseringsvedtakDepartement, klasse.LovreferanseEid,
+            klasse.Kunnskapsstatus, Samlet(medlemmer), null, medlemmer, hull)
+        { Beskrivelse = Klasseregler.Beskriv(Klasseregler.OrganiseringsvedtakDepartement) };
     }
 }
