@@ -1464,9 +1464,11 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
                     "ck_begreper_generisk_uten_referanse",
                     "navneformgrunn IS DISTINCT FROM 'generisk' OR (begrepskategori = 'virksomhet' AND virksomhet_referanse_id IS NULL)");
                 // [Ny, issue #384] Utledet medlemskap finnes bare på klasser, og regelen er lukket (Klasseregler.Alle).
+                // [ENDRET, issue #442] + omraderegister_fylkeskommune og organiseringsvedtak_departement (migrasjonen KlasserFylkeskommuneOgDepartement).
                 t.HasCheckConstraint(
                     "ck_begreper_medlemskapsregel",
-                    "medlemskapsregel IS NULL OR (begrepskategori = 'klasse' AND medlemskapsregel IN ('omraderegister_kommune'))");
+                    "medlemskapsregel IS NULL OR (begrepskategori = 'klasse' AND medlemskapsregel IN "
+                    + "('omraderegister_kommune', 'omraderegister_fylkeskommune', 'organiseringsvedtak_departement'))");
                 // [Ny, issue #384] Kunnskapsstatus for begrepet selv. Tekstfunn og normalisering krever hjemmel; begrepet har ingen
                 // felt for det de andre statusene krever (BegrepEntitet.Kunnskapsstatus).
                 // [ENDRET, issue #385] + fortolkning (begrunnelse og minst ett tolkningsargument) og eksternt dokumentert (kilde utenfor

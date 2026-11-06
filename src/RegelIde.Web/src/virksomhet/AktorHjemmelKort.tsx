@@ -131,13 +131,22 @@ export function AktorHjemmelKort({ virksomhetId, hjemmel, onEndret }: { virksomh
                       </Table.Cell>
                       <Table.Cell>
                         <span style={{ display: 'inline-flex', gap: '0.3rem', flexWrap: 'wrap', alignItems: 'center' }}>
-                          {d.art === 'klasse' && (
+                          {/* [ENDRET, issue #442, Johanns avgjørelse 2026-11-05] En klasse skal ha minst hjemmel eller medlemsregel, og kan ha
+                            * begge. Medlemsregelen vises når klassen har den, og hullet bare når begge mangler (før: «hjemmel ikke registrert» for
+                            * enhver klasse uten hjemmel, også departement, som har medlemsregel). */}
+                          {d.art === 'klasse' && (d.hjemmelEid || !d.medlemsregel) && (
                             <Metatekst as="span">
                               Klassen:{' '}
                               {d.hjemmelRettskildeId && d.hjemmelEid
                                 ? <Link asChild><RouterLink to={rettskildeLenkeForId(d.hjemmelRettskildeId, d.hjemmelEid)}>{d.hjemmelTittel ?? 'hjemmelen'} {eidKort(d.hjemmelEid)}</RouterLink></Link>
-                                : d.hjemmelEid ? eidKort(d.hjemmelEid) : 'hjemmel ikke registrert'}
+                                : d.hjemmelEid ? eidKort(d.hjemmelEid) : null}
                             </Metatekst>
+                          )}
+                          {d.art === 'klasse' && d.medlemsregel && (
+                            <Metatekst as="span" title={d.medlemsregel}>Medlemsregel: {d.medlemsregelKilde ?? 'se klassen'}</Metatekst>
+                          )}
+                          {d.art === 'klasse' && d.grunnlag === 'mangler' && (
+                            <Tag data-size="sm" data-color="warning">Klassen mangler hjemmel og medlemsregel</Tag>
                           )}
                           {d.art === 'klasse' && d.klassensKunnskapsstatus && <KunnskapsstatusTag status={d.klassensKunnskapsstatus} />}
                           {d.art === 'klasse' && <Metatekst as="span">Medlemskapet:</Metatekst>}

@@ -45,6 +45,9 @@ Uten binding gir en standardregel svaret (#394): «departementet» er lovens ans
 som sekundær kilde), «statsforvalteren» og «kommunen» er klassene — med kilden og premissene synlige i lovteksten.
 En klasse kan ha kompetanse og roller, lest distributivt (#418): «Kommunen kan gi lokal forskrift» gjelder hver kommune, og aktørsiden
 viser kompetansen kommunen har via klassen og rollen («lokal barnehagemyndighet»), aldri sterkere enn premissene.
+Klassene kommune, fylkeskommune og departement (#442) har hver en medlemsregel, og medlemskapet regnes ut: de 357 kommunene og de 14
+fylkeskommunene via territoriekanten til sitt område (fylkeskommunen med hjemmel i kommuneloven § 3-1, ikke statsforvalteren og ikke Oslo), og de
+16 departementene via organiseringsvedtakene. En klasse skal ha minst hjemmel eller medlemsregel, og kan ha begge.
 En aktørs identitet (#385) er lovens navn — den gjeldende navneformen — og aktørtypen, begge modellutsagn med grunnlag og godkjenning;
 organisasjonsnummer og registernavn fra Enhetsregisteret er attributter. Navneformer foreslås fra lovteksten, og et navnetreff gir
 navneformen en kilde og en tagg på nøyaktig spenn.

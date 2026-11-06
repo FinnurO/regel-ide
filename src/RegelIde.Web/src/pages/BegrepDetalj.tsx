@@ -5,6 +5,7 @@ import { ApiError, api } from '../api/client';
 import { NavneformgrunnTag } from '../virksomhet/Navneformgrunn';
 import { GruppeMedlemmer } from '../virksomhet/GruppeMedlemmer';
 import { UtledetMedlemskap } from '../begrep/UtledetMedlemskap';
+import { KlasseGrunnlag } from '../begrep/KlasseGrunnlag';
 import { finnRettskildeForEid, rettskildeLenke, rettskildeLenkeForId } from '../api/eidLenker';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 import type { BegrepBruktIRettskildeDto, BegrepDefinisjonRelasjonDto, BegrepDto, Begrepsnodetype, BegrepTaggetForekomstDto, RettskildeSammendrag, VilkarDto } from '../api/types';
@@ -230,6 +231,9 @@ export default function BegrepDetalj() {
       )}
       </>
       )}
+
+      {/* [Ny, issue #442] Grunnlaget for en klasse: hjemmel, medlemsregel eller begge (hullet bare når begge mangler). */}
+      {fane === 'grunndata' && begrep.begrepskategori === 'klasse' && id && <KlasseGrunnlag klasseId={id} />}
 
       {/* [Ny, issue #310 «nodetype-akse»] Typen kan endres av et menneske — for 'gruppe'-rader som ikke
         * sto på den godkjente reklassifiseringslista (andre miljøer), eller for å rette en feil type.

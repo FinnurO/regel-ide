@@ -472,7 +472,7 @@ namespace RegelIde.Data.Migrasjoner
 
                             t.HasCheckConstraint("ck_begreper_kunnskapsstatus", "kunnskapsstatus IS NULL OR (kunnskapsstatus IN ('tekstfunn', 'normalisering') AND lovreferanse_eid IS NOT NULL) OR (kunnskapsstatus = 'eksternt_dokumentert' AND kilde_utenfor_korpus_tekst IS NOT NULL) OR (kunnskapsstatus = 'fortolkning' AND begrunnelse IS NOT NULL AND cardinality(tolkningsargumenter) > 0) OR kunnskapsstatus IN ('uavklart', 'omstridt')");
 
-                            t.HasCheckConstraint("ck_begreper_medlemskapsregel", "medlemskapsregel IS NULL OR (begrepskategori = 'klasse' AND medlemskapsregel IN ('omraderegister_kommune'))");
+                            t.HasCheckConstraint("ck_begreper_medlemskapsregel", "medlemskapsregel IS NULL OR (begrepskategori = 'klasse' AND medlemskapsregel IN ('omraderegister_kommune', 'omraderegister_fylkeskommune', 'organiseringsvedtak_departement'))");
 
                             t.HasCheckConstraint("ck_begreper_navneformgrunn", "navneformgrunn IS NULL OR navneformgrunn IN ('gjeldende', 'utgatt', 'kortform', 'feilskriving', 'parallellnavn', 'generisk')");
 

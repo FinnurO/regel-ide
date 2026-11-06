@@ -1,0 +1,30 @@
+{
+  "beskrivelse": "Issue #442 (Johanns avgjørelse 2026-11-05, juristrunden N12): premisset for at Utenriks-, Samferdsels- og Forsvarsdepartementet er medlem av klassen «departement». Navnene er eldre enn det eldste organiseringsvedtaket i korpuset (docs/33 §5.10, DepartementNavneformHjemmelTjeneste: uten_navnevedtak), så kilden er en kgl.res. utenfor korpus. Ingen primærkilde ble funnet i åpne kilder 2026-11-05 (Lovtidend før 2001 er ikke i Lovdatas åpne data, docs/33 §5.9.1). Dokumentasjonen er derfor sekundær: regjeringen.no sine historiske artikler om departementsinndelingen. Sitatene er kontrollert ordrett mot sidene (hentet med curl 2026-11-05). Nøkkelen er organisasjonsnummeret (CLAUDE.md §4), ikke navnet.",
+  "hentet": "2026-11-05",
+  "departementer": [
+    {
+      "organisasjonsnummer": "972417920",
+      "navn": "Utenriksdepartementet",
+      "dato": "1905-06-07",
+      "lenke": "https://www.regjeringen.no/no/om-regjeringa/tidligere-regjeringer-og-historie/historiske-artikler/ministerier_regjeringer/opplosningen-av-unionen-med-sverige/statsradet-under-og-etter-opplosningen-a/id438663/",
+      "sitat": "Ved resolusjon av 7. juni 1905 ble det besluttet at Handelsdepartementets utenriksavdeling fra 15. juni samme år skulle betyres av Jørgen Løvland, til nå norsk statsminister i Stockholm. 1. desember 1905 ble Utenriksdepartementet formelt opprettet.",
+      "begrunnelse": "Resolusjonen 7. juni 1905 la Handelsdepartementets utenriksavdeling under en egen statsråd; Utenriksdepartementet ble formelt opprettet 1. desember 1905. Siden kaller vedtaket «resolusjon», ikke «kongelig resolusjon» (regjeringen utøvde kongemakten i juni 1905), og oppgir ingen vedtaksform for opprettelsen 1. desember. At det er en kgl.res. om departementet, er derfor en fortolkning, og vedtaket forutsetter departementet uten å opprette det i ordlyden (juristrunden N12)."
+    },
+    {
+      "organisasjonsnummer": "972417904",
+      "navn": "Samferdselsdepartementet",
+      "dato": "1946-02-22",
+      "lenke": "https://www.regjeringen.no/no/om-regjeringa/tidligere-regjeringer-og-historie/historiske-artikler/ministerier_regjeringer/nyere_tid/statsradet-siden-1945/id438700/",
+      "sitat": "Ved kongelig resolusjon av 22. februar 1946 ble Arbeidsdepartementet omdøpt til Samferdselsdepartementet.",
+      "begrunnelse": "Navnevedtaket: kgl.res. 22. februar 1946 ga Arbeidsdepartementet navnet Samferdselsdepartementet. Som for navnevedtakene i korpuset forutsetter vedtaket at enheten er et departement, men oppretter det ikke (juristrunden N12). Kilden er sekundær."
+    },
+    {
+      "organisasjonsnummer": "972417823",
+      "navn": "Forsvarsdepartementet",
+      "dato": "1885-07-30",
+      "lenke": "https://www.regjeringen.no/no/om-regjeringa/tidligere-regjeringer-og-historie/historiske-artikler/ministerier_regjeringer/unionen-med-sverige/departementsinndeling-1814-1905/id437994/",
+      "sitat": "Ved kongelig resolusjon av 30. juli 1885 ble det fra 3. august 1885 opprettet et departement for offentlige arbeider. […] Samtidig ble Armédepartementet og Marinedepartementets marineavdeling slått sammen til et forsvarsdepartement.",
+      "begrunnelse": "Siden knytter sammenslåingen til et forsvarsdepartement til kgl.res. 30. juli 1885 med «Samtidig», men sier ikke uttrykkelig at det var samme resolusjon. Store norske leksikon oppgir 1. september 1885 som datoen Forsvarsdepartementet ble opprettet, og regjeringen.no sin egen historikkside for FD oppgir 1884 (trolig feil). Datoen og at det er samme kgl.res., er derfor en fortolkning."
+    }
+  ]
+}

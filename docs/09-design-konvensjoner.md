@@ -1471,3 +1471,22 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
 - **Kaldsjekket 2026-11-05** i kopien `regelide_aktorside` (web 5373 mot API 5387): KD, Karasjok kommune og Fiskeri- og kystdepartementet, og
   «Godkjenn hjemmelen» for KD.
 
+## 53. Grunnlag for klassen og medlemmer per regel (issue #442, Johanns avgjørelse 2026-11-05)
+
+- **«Grunnlag for klassen»** (`begrep/KlasseGrunnlag.tsx`) står i fanen Grunndata på en klasse, etter «Lenket til». Regelen er låst: en klasse
+  skal ha minst hjemmel eller medlemsregel, og kan ha begge. En kompakt tabell med to rader, Hjemmel (lenke, `KunnskapsstatusTag`,
+  `GodkjenningTag`) og Medlemsregel (teksten og kilden, med lenker til bestemmelsene). Begrunnelsen (forankringen) står som `Metatekst` under.
+- **Hullet** er en `warning`-`Alert` «Klassen mangler hjemmel og medlemsregel», og vises bare når begge mangler. «Ingen» i Hjemmel-raden er
+  `Metatekst` med «(klassen har medlemsregel)», ikke et varsel.
+- **Hjemmelkortet på aktørsiden** (§52, «Det som finnes»): en klasse med hjemmel viser «Klassen: <lenke>», en klasse med medlemsregel
+  «Medlemsregel: <kilde>» (teksten i `title`), og en klasse uten noen av dem en `warning`-`Tag` med samme tekst som hullet. «hjemmel ikke
+  registrert» er tatt ut. Medlemskapets merke er medlemmets eget svar etter svakeste premiss (`fortolkning` for UD).
+- **`UtledetMedlemskap`** (§39) har overskrift og forklaring per regel (`REGELTEKST`): «utledet av områderegisteret» (kommune), «utledet av
+  territoriekantene» (fylkeskommune), «utledet av organiseringsvedtakene» (departement). Område-kolonnene (Fylkesnr./Kommunenr. og område) vises
+  bare når regelen går gjennom områder. Premiss-kolonnen sier premissarten (Territoriekant, Opprettelsesvedtak, Medlemskant) med «Forslag» når
+  premisset ikke er godkjent, og en ny kolonne «Medlemskapet» har `KunnskapsstatusTag`. Det loven selv unntar (Oslo), står som `Metatekst`
+  «Unntatt i loven», ikke i hull-varselet.
+- **«Virksomheter i gruppen»** (`GruppeMedlemmer`) viser «Forslag» også for `manuelt_foreslatt` (før bare maskinelle forslag, så de manuelle
+  kgl.res.-kantene for UD, SD og FD så godkjente ut).
+- **Kaldsjekket 2026-11-05** i kopien `regelide_klasser` (API 5387; web på 5473 med proxy, fordi 5373 var i bruk av en annen agent): klassene
+  fylkeskommune og departement (Grunndata og Relasjoner), Agder fylkeskommune og Utenriksdepartementet. Skjermbildene står i PR-en.

@@ -86,8 +86,10 @@ public sealed class KompetanseViaKlasseTjeneste(RegelIdeDbContext db, Strukturka
                 kantPerId[premiss.Id] = premiss;
             }
             Besok(klasseId, [m.PremissKantId], [klasseId]);
-            territorier.Add(m.OmradeId);
-            Besok(m.OmradeId, [m.PremissKantId], []);
+            // [ENDRET, issue #442] Et departement er medlem uten territorium (premisset er R oppretter eller en M-kant).
+            if (m.OmradeId is not { } omrade) continue;
+            territorier.Add(omrade);
+            Besok(omrade, [m.PremissKantId], []);
         }
         // (2) Registrerte M- og I-kanter fra aktøren.
         foreach (var k in mi.Where(k => k.FraVirksomhetId == v.Id)) Besok(k.TilBegrepId!.Value, [k.Id], [k.TilBegrepId!.Value]);
