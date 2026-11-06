@@ -1944,6 +1944,78 @@ bøyningsform 123, aktørkøen 393 forekomster i 80 rettskilder, som blir 192 na
 genitivforslag). 0 havner hos Agder fylkeskommune. Utdanningsdirektoratet står én gang, 9 forekomster i 5 rettskilder, med hullet.
 Foreldrerådet får forslaget barnehageloven § 4 første ledd (normalisering). 18 navn har hjemmelforslag.
 
+#### 5.16.2 Forhåndsklassifiseringen i køen (#440, Johanns avgjørelse 2026-11-05)
+
+**Hvorfor.** De 193 navnene er forhåndsklassifisert av modellereren og vurdert av juristutfordreren i to runder (PR #462,
+`data/fasit/strukturmodell/aktorko-forhand/`). Johann skal kunne godta forslaget med én knapp, men ingenting skal skrives uten at han ser det.
+
+**Lasting.** `klassifisering.json` er innebygd i `RegelIde.Data` (`Forhandsklassifisering`, ressursen `RegelIde.Data.Aktorko.forhandsklassifisering.json`)
+og skrives aldri til basen. Posten knyttes til navnet med nøkkelen. Står ikke nøkkelen i fila, prøves de andre variantene. Navnet merkes
+«klassifisering kan være utdatert» når nøkkelen, antall forekomster eller variantene (ordene eller tallene per ord) er endret siden
+2026-11-05. Teksten sier hva. Et navn som ikke står i fila, vises som «ikke forhåndsklassifisert».
+
+**Handlingen** (`Forhandsklassifisering.Handling`) er samme utledning som «Anbefaling» i `anbefalinger.md`, med ett avvik:
+- aktør, klasse, rolle og område → godkjenn (`/godkjenn`);
+- ikke aktør → `/ikke-aktor`;
+- omtale med «samme som» eller «utgått navn» til en aktør → `/koble`;
+- omtale med `ta_med_i` → `/{det andre navnet}/ta-med`;
+- annen omtale → `/generisk-omtale` for ordet;
+- `venter_pa_modellvalg` → ingen knapp, «Venter på #463».
+
+Avviket: Finland og Sverige har typen område i fila, men `venter_pa_modellvalg`. De teller derfor som venter (10, ikke 8), og opprett
+område blir 4. Tallene (testet i `AktorkoForhandsklassifiseringTests`): godkjenn 62, generisk omtale 73, ikke aktør 39, venter 10, koble 7,
+ta med 2.
+
+**Skrivingen (Johanns avgjørelser 2026-11-05).** «Godta forslaget» fyller ut skjemaene fra PR 2 (§5.16.1) og sender ingenting. `/godkjenn`
+er utvidet, så forslaget kan lagres uten å miste hjemmelen, men aldri fritt:
+- **Hjemmelen** (`Aktorkohjemmel.Forhandsklassifisering`): eId-en må være nøyaktig filas for nøkkelen. Rettskilden løses som i visningen
+  (`AktorkoTjeneste.ForhandBestemmelseAsync`), og en annen rettskilde i forespørselen avvises. Kunnskapsstatusen er filas. Sitatet og
+  hjemmelmerknaden står i begrunnelsen. Hjemmelens art settes ikke (fila sier ikke om det er oppretting). Er kunnskapsstatusen fortolkning,
+  må mennesket velge minst ett tolkningsargument fra den lukkede lista; fila har dem ikke, og de gjettes ikke. Fila har ingen hjemmel utenfor
+  korpus (type og lenke); en eId som ikke står entydig i korpus, kan ikke lagres og står som eget steg (0 av 57 i målingen).
+- **Navnet** kan være filas navn for nøkkelen (grunnformen «foreldreråd», eller «NOKUTs klagenemnd»), også når det ikke står i teksten.
+  Forekomstene tagges mot det. Et annet navn som ikke står i teksten, avvises som før.
+- **En aktør beholder hjemmelen** når kunnskapsstatusen er normalisering eller fortolkning, selv om bestemmelsen ikke viser navnet ordrett
+  (`RegistrerNavnetSomGjeldendeAsync(…, kreverNavnetIHjemmelen: false)`). Ellers ville fem hjemler blitt «hjemmel mangler» (Sysselmesteren,
+  Styret for domstoladministrasjonen, Felles klagenemnd, Folketrygden, Lånekassens klagenemnd). Tekstfunn krever fortsatt navnet ordrett.
+- **Godkjenningsnivået** fylles ikke ut; mennesket velger.
+- **Koblingen** tar navneformgrunnen fra relasjonen: utgått navn → `utgatt`, merknad «kortform» → `kortform`. Ellers velger mennesket; den
+  leses ikke ut av fritekst.
+- Ingen migrasjon. Testene står i `AktorkoForhandGodkjenningTests` (også at en annen eId, en annen rettskilde, et navn som ikke står i fila
+  og tolkningsargumenter uten fortolkning avvises).
+
+**Eget steg** (`AktorkoForhandsklassifisering.EgneSteg`, vist i kortet): alt handlingen ikke skriver:
+- alle relasjoner unntatt den koblingen skriver (Johann: egen sak for strukturkantene). Medlemsregler registreres på klassen. Omtale av en
+  node registreres som navneformbinding (§5.7). En relasjon til en ny node krever at noden opprettes først;
+- en hjemmel som ikke står entydig i korpus;
+- aktørtypen (organ, rettssubjekt, ordning).
+
+**Hjemmelen i visningen.** Fila har sitatet for 35 av 61 hjemler. For de 26 andre vises bestemmelsens tekst i basen, eller leddene i
+rekkefølge når eId-en er en paragraf. Rettskilden er fila sin, ellers den ene rettskilden med eId-en, eller den ene av dem der navnet står.
+Ellers knyttes ingen rettskilde; den gjettes ikke.
+
+**Knytningen** prøver nøkkelen, så de andre variantene som nøkkel, og til sist posten som har en av navnets varianter, når det er nøyaktig én.
+Det siste er nytt etter #467: «fylkeskommunen» er nå bøyningsform av klassen og ute av køen, men «fylkeskommunens» (1 forekomst) står igjen og
+får postens forslag merket «klassifisering kan være utdatert» (nøkkel, tall og varianter i teksten).
+
+**Målt 2026-11-05 i kopien `regelide_forhand`, før utvidelsen:** av de 62 var 18 fylt helt ut, og 16 av dem lagret «hjemmel mangler»
+selv om forslaget hadde en hjemmel.
+
+**Målt 2026-11-06 i kopien `regelide_forhand2` av den delte basen etter #467 (API 5487, før kaldsjekken skrev noe):**
+- 192 navn og 294 forekomster. 192 av 192 er knyttet. Bare «departementene» er ute av køen. 1 navn er utdatert: «fylkeskommunens».
+- Handlingene: godkjenn 62, generisk omtale 73, ikke aktør 39, venter 9, koble 7, ta med 2.
+- Av de 62 som skal godkjennes:
+  - **28 er én knapp pluss godkjenningsnivået:** alt annet er fylt ut, og hjemmelen lagres;
+  - **29 trenger i tillegg tolkningsargumentet**, fordi hjemmelen er fortolkning;
+  - **5 trenger «hvor den gjelder»**, fordi fila ikke har noen hjemmel: skolen, direktøren, domstollederen, Hedmark og Meldal;
+  - ingen mister hjemmelen: alle 57 hjemler kan lagres.
+
+Kaldsjekken 2026-11-06 godkjente:
+- «bostedskommune» som rolle, med forskrift 2017/1050 § 2 første ledd (fortolkning, ordlyd, faglig vurdert);
+- Utdanningsdirektoratet som aktør, med «hjemmel mangler».
+
+Den tagget også «den kommunen» som generisk omtale (2 av 2). Alt gikk gjennom «Godta forslaget» og skjemaets knapp.
+
 ### 5.17 Den samlede aktørsiden: hjemmel for aktøren og de andre rettskildene (#441, bygget 2026-11-05)
 
 **Hvorfor.** Johann 2026-10-30: «Kan vi få til en enklere visning der aktøren er samlet, og at man fremhever rettskilden der hvor aktøren er

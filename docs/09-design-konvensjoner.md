@@ -1490,3 +1490,39 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
   kgl.res.-kantene for UD, SD og FD så godkjente ut).
 - **Kaldsjekket 2026-11-05** i kopien `regelide_klasser` (API 5387; web på 5473 med proxy, fordi 5373 var i bruk av en annen agent): klassene
   fylkeskommune og departement (Grunndata og Relasjoner), Agder fylkeskommune og Utenriksdepartementet. Skjermbildene står i PR-en.
+
+## 54. Forhåndsklassifiseringen i aktørkøen (#440, Johanns avgjørelse 2026-11-05)
+
+- **Kilden** er `data/fasit/strukturmodell/aktorko-forhand/klassifisering.json` (PR #462), innebygd i API-et og knyttet til navnet med
+  nøkkelen (docs/33 §5.16.2). Visningen står i `kandidater/AktorkoForhandKort.tsx`, reglene i `kandidater/aktorkoForhand.ts` med vitest.
+- **Merket** er låst tekst: «Forhåndsklassifisert (KI-agent og juristrunde), ikke kontrollert av menneske». Samme stil som fasitmerket i §46:
+  `info` (et ubekreftet forslag), hele teksten synlig, og `title` med fil, nummer og hvem som har vurdert.
+- **Raden** i køen får `info` «Forhåndsklassifisert: ‹type›», `neutral` «Sikkerhet høy/middels/lav» (agentens egen sikkerhet, ikke en
+  bekreftelse, derfor ikke `success` som `KonfidensTag`), `warning` «Venter på #463» og `warning` «Klassifisering kan være utdatert»
+  (som «Kilde endret – vurder på nytt» i §49).
+- **Detaljen** har kortet øverst: overskrift med type, undertype og ny node, merkene, en nøkkel/verdi-tabell (relasjoner, hjemmel eller
+  medlemsregel, begrunnelse, juristens vurdering) og «Må gjøres i eget steg» som `Metatekst`-liste.
+  - Relasjoner: lenke til aktøren (`/virksomheter/:id`) eller begrepet (`/begreper/:id`) når id-en finnes i basen; ny node som «navn» med
+    `neutral` «Ny node». Hver relasjon har `neutral` «Eget steg» (grunnen i `title`) eller «Skrives av koblingen».
+  - Hjemmel: lenke til rettskilden, bestemmelsen, `KunnskapsstatusTag`, `neutral` «Regelens forslag» / «Kan lagres» / «Står ikke i korpus», og sitatet
+    som `Metatekst` med aksentkant (som hjemmelforslaget i §50). Har fila ikke sitatet, står bestemmelsens tekst i basen med «(teksten i
+    basen; klassifiseringen har ikke sitatet)». Uten hjemmel: «Mangler» eller «Ikke relevant», med merknaden.
+- **«Godta forslaget»** (`secondary`) skriver aldri. Den fyller ut skjemaet handlingen hører til, åpner det og ruller dit, og en `info`-`Alert`
+  «Fylt ut fra forhåndsklassifiseringen … Ingenting er lagret ennå» står ved skjemaet med det som ikke kunne fylles ut. Mennesket trykker på
+  skjemaets egen knapp. Godkjenning: type, navn, hjemmel og begrunnelsen. [ENDRET, Johanns avgjørelser 2026-11-05] Godkjenningsnivået
+  («Hvor sikkert er det?») fylles aldri ut. Navnet kan være forslagets grunnform: den står som eget valg «‹navn›» (forhåndsklassifiseringen) med
+  beskrivelse, og overskriften er da «Navnet». Hjemmelen kan være forhåndsklassifiseringens (eget valg med kunnskapsstatusen). Er den
+  fortolkning, står «Tolkningsargumenter» som `Checkbox` i `Fieldset` (§51) uten forhåndsvalg, og knappen er av til ett er valgt. Koble: aktør,
+  skrivemåte og grunn (bare når relasjonen sier den). Ikke en aktør: begrunnelsen. Generisk omtale: tørrkjøringen; «Lagre» er eget klikk. Ta med: bekreftes i
+  kortet med teksten om hva som skjer. Navn som venter på modellvalg har ingen knapp, bare `Metatekst` «Venter på #463».
+- **Filtrene** under de andre: `Select` «Forslag: type» og «Forslag: sikkerhet» med antall, og `Chip.Checkbox` «Bare aktører med høy
+  sikkerhet N» (første bruk), som setter de to til aktør og høy. Ingressen sier hvor mange navn som er forhåndsklassifisert og hvor mange som
+  kan være utdatert.
+- **Kaldsjekket 2026-11-05** i kopien `regelide_forhand` (web 5373 mot API 5487; 5387 var opptatt av en annen agent): Utdanningsdirektoratet
+  (aktør) og «bostedskommune» (rolle) godkjent, «den kommunen» tagget som generisk omtale, alle via «Godta forslaget» og skjemaets knapp.
+  KD (koble) og fylkeskommunen (venter) kontrollert uten lagring. Funnet: merknaden «Fylt ut» sto øverst i «Andre handlinger», langt fra
+  tørrkjøringen; den står nå ved avsnittet den gjelder.
+- **Kaldsjekket på nytt 2026-11-06** etter Johanns avgjørelser og flettingen av #467, i kopien `regelide_forhand2` (web 5373 mot API 5487; i en
+  headless Edge via CDP fordi Browser-panelet ikke tegnet): «bostedskommune» godkjent med forskriftens § 2 første ledd (fortolkning, ordlyd),
+  Utdanningsdirektoratet med «hjemmel mangler», «den kommunen» lagret som generisk omtale. «foreldrerådet» fylt ut med grunnformen
+  «foreldreråd» og regelens forslag (ikke lagret). «fylkeskommunens» viser «Klassifisering kan være utdatert».

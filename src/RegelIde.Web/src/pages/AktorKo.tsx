@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link as RouterLink, useSearchParams } from 'react-router';
 import {
-  Alert, Breadcrumbs, Button, Card, Chip, Details, Field, Heading, Label, Link, Paragraph, Search, Spinner, Table, Tag,
+  Alert, Breadcrumbs, Button, Card, Chip, Details, Field, Heading, Label, Link, Paragraph, Search, Select, Spinner, Table, Tag,
 } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type {
@@ -13,7 +13,15 @@ import { KunnskapsstatusTag } from '../strukturkant/Utsagnsstatus';
 import { usePaginering } from '../tabell/usePaginering';
 import { Pagineringskontroll } from '../tabell/Pagineringskontroll';
 import { AKTORKORUTE_TEKST } from '../kandidater/aktorkorute';
-import { AndreHandlinger, GeneriskOmtale, Godkjenningsskjema, Kvittering } from '../kandidater/AktorkoHandlinger';
+import {
+  AndreHandlinger, GeneriskOmtale, Godkjenningsskjema, Kvittering, type ForslagTilAndre, type ForslagTilGodkjenning,
+} from '../kandidater/AktorkoHandlinger';
+import { ForhandKort, ForhandRadmerker } from '../kandidater/AktorkoForhandKort';
+import {
+  FORHANDSTYPE_TEKST, SIKKERHET_TEKST, erBareSikreAktorer, forhandBegrunnelse, godkjenningFraForslag, koblingFraForslag, passerForhandsfilter,
+  type Sikkerhetsfilter, type Typefilter,
+} from '../kandidater/aktorkoForhand';
+import type { Forhandssikkerhet, Forhandstype } from '../api/types';
 
 /**
  * [Ny, issue #440 PR 1, Johanns avgjørelser 2026-10-30] Aktørkøen: ett sted for ukjente aktører, gruppert per navn med alle forekomster.
@@ -24,6 +32,10 @@ import { AndreHandlinger, GeneriskOmtale, Godkjenningsskjema, Kvittering } from 
  * eller «hjemmel mangler», og tagger for alle forekomstene, i én transaksjon) og de andre handlingene: ikke en aktør, koble til en aktør
  * som finnes, skill ut / ta med, og «Tagg alle som generisk omtale» per ord. Skjemaene står i `kandidater/AktorkoHandlinger.tsx`.
  * Ingenting er forhåndsvalgt. Hjemmelforslaget er fortsatt et forslag (`info`) til noen har valgt det.</p>
+ *
+ * <p>[ENDRET, #440, Johanns avgjørelse 2026-11-05] Forhåndsklassifiseringen (PR #462) står i hver rad og øverst i detaljen, med
+ * «Godta forslaget», som fyller ut skjemaet handlingen hører til (`kandidater/AktorkoForhandKort.tsx`, docs/09 §54). Filtrene for type og
+ * sikkerhet, og «Bare aktører med høy sikkerhet», står under de andre filtrene.</p>
  *
  * <p>Oppsettet følger skissen Johann så 2026-10-30, visning (c): fordelingen øverst (hver kandidat havner på nøyaktig ett sted), regelen
  * for grupperingen, og køen som én lukket `Details` per navn (samme mønster som forslagskøen, docs/09 §36). Detaljen hentes først når
@@ -222,6 +234,9 @@ function Navnedetalj({ nokkel, kvittering, onBehandlet, onGrupperingEndret }: {
 }) {
   const [detalj, setDetalj] = useState<AktorkoDetalj | null>(null);
   const [feil, setFeil] = useState<string | null>(null);
+  // [Ny, #440] Det «Godta forslaget» fyller ut. Telleren gjør at et nytt klikk fyller ut på nytt etter at noen har endret skjemaet.
+  const [tilGodkjenning, setTilGodkjenning] = useState<ForslagTilGodkjenning | undefined>(undefined);
+  const [tilAndre, setTilAndre] = useState<ForslagTilAndre | undefined>(undefined);
 
   useEffect(() => {
     if (kvittering) return;
@@ -245,10 +260,34 @@ function Navnedetalj({ nokkel, kvittering, onBehandlet, onGrupperingEndret }: {
   if (feil && !detalj) return <Alert data-color="danger" data-size="sm">{feil}</Alert>;
   if (!detalj) return <Spinner aria-label="Laster navnet …" data-size="sm" />;
 
+  /** [Ny, #440] «Godta forslaget»: fyller ut skjemaet handlingen hører til. Ingenting sendes. */
+  function godta() {
+    const f = detalj?.forhandsklassifisering;
+    if (!f || !detalj) return;
+    const nr = Date.now();
+    if (f.handling === 'godkjenn') {
+      setTilGodkjenning({ nr, ...godkjenningFraForslag(f, detalj) });
+    } else if (f.handling === 'koble') {
+      const k = koblingFraForslag(f, detalj);
+      setTilAndre({ nr, handling: 'koble', aktorId: k.aktorId, navn: k.navn, grunn: k.grunn, merknader: k.merknader });
+    } else if (f.handling === 'ikke_aktor') {
+      setTilAndre({ nr, handling: 'ikke_aktor', begrunnelse: forhandBegrunnelse(f), merknader: [] });
+    } else if (f.handling === 'generisk_omtale') {
+      const merknader = detalj.varianter.length > 1
+        ? [`Navnet har ${detalj.varianter.length} varianter nå; generisk omtale gjelder ett ord om gangen. Tørrkjør de andre selv.`] : [];
+      setTilAndre({ nr, handling: 'generisk_omtale', ord: detalj.nokkel, merknader });
+    }
+  }
+
   const merknader = detalj.perRettskilde.flatMap((r) => r.forekomster).filter((f) => f.erMerknad).length;
   return (
     <div>
       {feil && <Alert data-color="danger" data-size="sm" style={{ marginBottom: '0.5rem' }}>{feil}</Alert>}
+      {detalj.forhandsklassifisering ? (
+        <ForhandKort f={detalj.forhandsklassifisering} detalj={detalj} onGodta={godta} onGrupperingEndret={onGrupperingEndret} />
+      ) : (
+        <Metatekst style={{ marginBottom: '0.5rem' }}>Ikke forhåndsklassifisert: navnet kom i køen etter klassifiseringen (2026-11-05).</Metatekst>
+      )}
       <Heading level={4} data-size="2xs" style={{ marginBottom: '0.3rem' }}>Varianter</Heading>
       {detalj.varianter.map((v) => (
         <Variantlinje key={v.normalisert} v={v} navnetsOrd={detalj.nokkel}
@@ -331,8 +370,8 @@ function Navnedetalj({ nokkel, kvittering, onBehandlet, onGrupperingEndret }: {
         ))}
         <Metatekst>Regelen: {detalj.hjemmelregel}</Metatekst>
       </Card>
-      <Godkjenningsskjema detalj={detalj} onFerdig={onBehandlet} />
-      <AndreHandlinger detalj={detalj} onFerdig={onBehandlet} />
+      <Godkjenningsskjema detalj={detalj} onFerdig={onBehandlet} forslag={tilGodkjenning} />
+      <AndreHandlinger detalj={detalj} onFerdig={onBehandlet} forslag={tilAndre} />
     </div>
   );
 }
@@ -364,6 +403,7 @@ function Navnerad({ rad, kvittering, onBehandlet, onGrupperingEndret }: {
             </Tag>
           )}
           {rad.bareMerknader && <Tag data-size="sm" data-color="neutral">Bare i veiledning</Tag>}
+          {rad.forhand && <ForhandRadmerker f={rad.forhand} />}
           {rad.manuell && <Tag data-size="sm" data-color="neutral" title="Grupperingen er endret av et menneske.">Gruppert av menneske</Tag>}
           {kvittering && (
             <Tag data-size="sm" data-color="success">
@@ -387,6 +427,9 @@ export default function AktorKo() {
   const [feil, setFeil] = useState<string | null>(null);
   const [sok, setSok] = useState('');
   const [filter, setFilter] = useState<Filter>('alle');
+  // [Ny, #440] Forhåndsklassifiseringen: type og sikkerhet.
+  const [typefilter, setTypefilter] = useState<Typefilter>('alle');
+  const [sikkerhetsfilter, setSikkerhetsfilter] = useState<Sikkerhetsfilter>('alle');
   // [Ny, #440 PR 2] Kvitteringene per navn. Et behandlet navn blir stående i lista med kvitteringen til køen leses på nytt.
   const [kvitteringer, setKvitteringer] = useState<Record<string, AktorkoKvittering>>({});
   const [lesning, setLesning] = useState(0);
@@ -411,8 +454,9 @@ export default function AktorKo() {
     const q = sok.trim().toLowerCase();
     return iRettskilden.filter((r) =>
       (filter === 'alle' || (filter === 'flere' && r.forekomster > 1) || (filter === 'hjemmel' && r.hjemmelforslag > 0))
+      && passerForhandsfilter(r.forhand, typefilter, sikkerhetsfilter)
       && (!q || r.navn.toLowerCase().includes(q) || r.varianter.some((v) => v.normalisert.includes(q))));
-  }, [iRettskilden, sok, filter]);
+  }, [iRettskilden, sok, filter, typefilter, sikkerhetsfilter]);
   const paginering = usePaginering(synlige);
 
   const antall: Record<Filter, number> = {
@@ -420,6 +464,12 @@ export default function AktorKo() {
     flere: iRettskilden.filter((r) => r.forekomster > 1).length,
     hjemmel: iRettskilden.filter((r) => r.hjemmelforslag > 0).length,
   };
+  // [Ny, #440] Antallene i valgene for type og sikkerhet regnes i rettskildeutvalget, uten de andre filtrene (som «Alle N»).
+  const perType = (t: Typefilter) => iRettskilden.filter((r) => passerForhandsfilter(r.forhand, t, 'alle')).length;
+  const perSikkerhet = (s: Sikkerhetsfilter) => iRettskilden.filter((r) => passerForhandsfilter(r.forhand, 'alle', s)).length;
+  const sikreAktorer = iRettskilden.filter((r) => passerForhandsfilter(r.forhand, 'aktor', 'hoy')).length;
+  const utdaterte = iRettskilden.filter((r) => r.forhand?.utdatert).length;
+  const klassifiserte = iRettskilden.filter((r) => r.forhand).length;
 
   return (
     <>
@@ -473,8 +523,39 @@ export default function AktorKo() {
           )}
         </div>
       </div>
+      {/* [Ny, #440] Filtrene for forhåndsklassifiseringen. Select (som andre filtre med mange valg) og én snarvei som Chip. */}
+      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-end', marginBottom: '0.5rem', flexWrap: 'wrap' }}>
+        <Field data-size="sm" style={{ minWidth: '14rem' }}>
+          <Label>Forslag: type</Label>
+          <Select data-size="sm" value={typefilter} onChange={(e) => setTypefilter(e.target.value as Typefilter)}>
+            <Select.Option value="alle">Alle typer ({tall(iRettskilden.length)})</Select.Option>
+            {(Object.keys(FORHANDSTYPE_TEKST) as Forhandstype[]).map((t) => (
+              <Select.Option key={t} value={t}>{FORHANDSTYPE_TEKST[t]} ({tall(perType(t))})</Select.Option>
+            ))}
+            <Select.Option value="uten">Ikke forhåndsklassifisert ({tall(perType('uten'))})</Select.Option>
+          </Select>
+        </Field>
+        <Field data-size="sm" style={{ minWidth: '11rem' }}>
+          <Label>Forslag: sikkerhet</Label>
+          <Select data-size="sm" value={sikkerhetsfilter} onChange={(e) => setSikkerhetsfilter(e.target.value as Sikkerhetsfilter)}>
+            <Select.Option value="alle">Alle ({tall(iRettskilden.length)})</Select.Option>
+            {(Object.keys(SIKKERHET_TEKST) as Forhandssikkerhet[]).map((s) => (
+              <Select.Option key={s} value={s}>{SIKKERHET_TEKST[s].charAt(0).toUpperCase() + SIKKERHET_TEKST[s].slice(1)} ({tall(perSikkerhet(s))})</Select.Option>
+            ))}
+          </Select>
+        </Field>
+        <Chip.Checkbox data-size="sm" checked={erBareSikreAktorer(typefilter, sikkerhetsfilter)}
+          onChange={(e) => {
+            const på = (e.target as HTMLInputElement).checked;
+            setTypefilter(på ? 'aktor' : 'alle');
+            setSikkerhetsfilter(på ? 'hoy' : 'alle');
+          }}>
+          Bare aktører med høy sikkerhet {tall(sikreAktorer)}
+        </Chip.Checkbox>
+      </div>
       <Metatekst style={{ marginBottom: '0.5rem' }}>
-        Sortert på antall forekomster. «Hjemmel» viser det første forslaget etter regelen, eller hullet.
+        Sortert på antall forekomster. «Hjemmel» viser det første forslaget etter regelen, eller hullet. {tall(klassifiserte)} navn er
+        forhåndsklassifisert (KI-agent og juristrunde, ikke kontrollert av menneske){utdaterte > 0 ? `; ${tall(utdaterte)} kan være utdatert` : ''}.
       </Metatekst>
 
       <Card style={{ padding: 0, overflow: 'hidden' }} data-size="sm">
