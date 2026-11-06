@@ -7,10 +7,11 @@ import { Metatekst } from '../entitet/Metatekst';
 import { VirksomhetVelger } from '../virksomhet/VirksomhetVelger';
 import { NAVNEFORMGRUNN_VALG } from '../virksomhet/Navneformgrunn';
 import { KUNNSKAPSSTATUS_VISNING } from '../strukturkant/Utsagnsstatus';
-import type { Kunnskapsstatus, Tolkningsargument } from '../api/types';
+import type { Kunnskapsstatus } from '../api/types';
 import { TOLKNINGSARGUMENTER } from './utsagnsgrunnlag';
 import {
-  AKTORKOTYPE_TEKST, TOMT_UTKAST, forslagNokkel, godkjenningMangler, grunnvarsel, skrivemater, tilForesporsel, trengerTolkningsargument,
+  AKTORKOTYPE_TEKST, TOMT_UTKAST, forhandTolkningsargumenter, forslagNokkel, godkjenningMangler, grunnvarsel, skrivemater, tilForesporsel,
+  trengerTolkningsargument,
   type GodkjenningUtkast,
 } from './aktorkoGodkjenning';
 import { AKTORKORUTE_TEKST } from './aktorkorute';
@@ -110,6 +111,7 @@ export function Godkjenningsskjema({ detalj, onFerdig, forslag }: {
   const fk = detalj.forhandsklassifisering?.handling === 'godkjenn' ? detalj.forhandsklassifisering : null;
   const forhandNavn = fk?.nyNode && !skrivemater(detalj).includes(fk.nyNode) ? fk.nyNode : null;
   const forhandHjemmel = fk?.hjemmel?.kanLagres && !fk.hjemmel.erRegelensForslag ? fk.hjemmel : null;
+  const forhandArgumenter = forhandTolkningsargumenter(detalj);
 
   async function send() {
     const body = tilForesporsel(u, detalj);
@@ -200,17 +202,15 @@ export function Godkjenningsskjema({ detalj, onFerdig, forslag }: {
         </Metatekst>
       )}
       {trengerTolkningsargument(u, detalj) && (
-        // Radiogrupper og avkrysningsbokser i Fieldset, aldri i Field (docs/09 §51).
+        // Radiogrupper og avkrysningsbokser i Fieldset, aldri i Field (docs/09 §51). [ENDRET, 2026-11-06] Låst: argumentene er filas
+        // (juristrunden), ikke et valg, og API-et godtar ingen andre (docs/09 §54).
         <Fieldset data-size="sm" style={{ marginBottom: '0.6rem' }}>
           <Fieldset.Legend>Tolkningsargumenter (hjemmelen er fortolkning)</Fieldset.Legend>
+          <Fieldset.Description>Fra forhåndsklassifiseringen (KI-agent og juristrunde). De følger hjemmelen og kan ikke endres her.</Fieldset.Description>
           {TOLKNINGSARGUMENTER.map((a) => (
-            <Checkbox key={a.verdi} label={a.tekst} value={a.verdi} checked={(u.tolkningsargumenter ?? []).includes(a.verdi)}
-              onChange={(e) => {
-                const valgt = new Set<Tolkningsargument>(u.tolkningsargumenter ?? []);
-                if (e.target.checked) valgt.add(a.verdi); else valgt.delete(a.verdi);
-                sett({ tolkningsargumenter: TOLKNINGSARGUMENTER.map((x) => x.verdi).filter((x) => valgt.has(x)) });
-              }} />
+            <Checkbox key={a.verdi} label={a.tekst} value={a.verdi} readOnly checked={forhandArgumenter.includes(a.verdi)} />
           ))}
+          {forhandHjemmel?.tolkningsbegrunnelse && <Metatekst>{forhandHjemmel.tolkningsbegrunnelse}</Metatekst>}
         </Fieldset>
       )}
 

@@ -85,23 +85,35 @@ public class AktorkoForhandGodkjenningTests
     }
 
     [Fact]
-    public async Task Fortolkning_krever_tolkningsargument_som_mennesket_velger()
+    public async Task Fortolkning_lagres_bare_med_filas_tolkningsargumenter()
     {
+        // [ENDRET, Johanns oppdrag 2026-11-06] Argumentene står i fila (juristrunden i aktorko-forhand/tolkningsargumenter/); mennesket velger
+        // dem ikke fritt. Uten argumenter, med færre eller med andre enn filas avvises godkjenningen og ingenting skrives.
         await using var db = _fixture.NyDbContext();
         var p = Post("omsorgskommune");
+        Assert.Equal(["ordlyd", "kontekst_system"], p.Hjemmel!.Tolkningsargumenter);
         await OppsettAsync(db, "omsorgskommune", "Omsorgskommunen skal betale.", "Omsorgskommunen skal betale for hjelpen.", "Omsorgskommunen");
-        var uten = new AktorkoGodkjenning(Nodetyper.Rolle, "omsorgskommune", Aktorkohjemmel.Forhandsklassifisering, null, p.Hjemmel!.Eid,
+        var uten = new AktorkoGodkjenning(Nodetyper.Rolle, "omsorgskommune", Aktorkohjemmel.Forhandsklassifisering, null, p.Hjemmel.Eid,
             Strukturkanter.FagligVurdert);
+        var t = Tjeneste(db);
+        var begreper = await db.Begreper.CountAsync();
 
         // «omsorgskommune» står ikke i teksten (bare «Omsorgskommunen»), men er navnet i fila.
-        var feil = await Assert.ThrowsAsync<ArgumentException>(() => Tjeneste(db).GodkjennAsync("omsorgskommunen", uten, "test"));
-        Assert.Contains("tolkningsargument", feil.Message);
+        var feil = await Assert.ThrowsAsync<ArgumentException>(() => t.GodkjennAsync("omsorgskommunen", uten, "test"));
+        Assert.Contains("tolkningsargument", feil.Message, StringComparison.OrdinalIgnoreCase);
+        await Assert.ThrowsAsync<ArgumentException>(() => t.GodkjennAsync("omsorgskommunen", uten with { Tolkningsargumenter = ["ordlyd"] }, "test"));
+        await Assert.ThrowsAsync<ArgumentException>(() => t.GodkjennAsync("omsorgskommunen",
+            uten with { Tolkningsargumenter = ["ordlyd", "kontekst_system", "formal"] }, "test"));
+        Assert.Equal(begreper, await db.Begreper.CountAsync());
 
-        var k = await Tjeneste(db).GodkjennAsync("omsorgskommunen", uten with { Tolkningsargumenter = ["ordlyd"] }, "test");
+        // Rekkefølgen spiller ingen rolle; det som lagres, er filas liste.
+        var k = await t.GodkjennAsync("omsorgskommunen", uten with { Tolkningsargumenter = ["kontekst_system", "ordlyd"] }, "test");
         var begrep = await db.Begreper.SingleAsync(b => b.Id == k!.BegrepId);
         Assert.Equal(("omsorgskommune", Strukturkanter.Fortolkning), (begrep.Term, begrep.Kunnskapsstatus));
+        Assert.Equal(["ordlyd", "kontekst_system"], begrep.Tolkningsargumenter);
         Assert.Contains("Hjemmel fra forhåndsklassifiseringen", begrep.Begrunnelse);
         Assert.Contains(p.Hjemmel.Sitat!, begrep.Begrunnelse);
+        Assert.Contains("Tolkningsargumenter: " + p.Hjemmel.Tolkningsbegrunnelse, begrep.Begrunnelse);
     }
 
     [Fact]

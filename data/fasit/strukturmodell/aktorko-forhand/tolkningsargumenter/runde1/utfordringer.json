@@ -1,0 +1,632 @@
+[
+ {
+  "id": "n2",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Begge bærer. Ordlyd: § 6 første ledd gir kriteriene for barnehagedriften. Kontekst og system: medlemsregelen trenger § 14 a (godkjenningen), og loven har ingen legaldefinisjon av «barnehage» (SELECT: ingen «menes med barnehage» i bhl.). FOR-2008-09-12-1071 § 2 nr. 4 definerer barnehage som virksomhet godkjent etter barnehageloven, men bare «i denne forskriften». Fortolkning er riktig status.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§6/ledd-1",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§14a/ledd-1",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "https://lovdata.no/eli/forskrift/2008/09/12/1071/nor/§2/ledd-1/punkt-4",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n3",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Begge bærer. Ordlyd: § 7 første og andre ledd fordeler ansvaret mellom kommunen og rettssubjektet som driver en privat barnehage. Kontekst og system: ordet «barnehageeier» står ikke i § 7. Koblingen til ordet og innehaveren «privat barnehage» krever § 7a første ledd og § 11 første ledd. Fortolkning er riktig, fordi ordet ikke står i hjemmelen.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§7",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§7a/ledd-1",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n4",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Begge bærer. Ordlyd: «private barnehage» står ordrett. Kontekst og system: § 7a første ledd forutsetter klassen, men avgrenser den ikke. Medlemsregelen (ikke kommunal) kommer fra motsetningen kommunal/privat i § 7 første og andre ledd og § 7a andre ledd. Ingen bestemmelse oppretter eller definerer klassen, så status er fortolkning.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§7a/ledd-1",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§7/ledd-2",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§7a/ledd-2",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n7",
+  "dom": "innvending",
+  "gjelder": "utenfor_raden",
+  "alvor": "middels",
+  "innvending": "Argumentene og statusen for hjemmelen holder. Ordlyd: shl. § 1-2 første ledd sier «staten og private». Kontekst og system: å lese det bestemte «spesialisthelsetjenesten» i hotl. som kretsen av tjenesteytere krever bruken i hotl. Men relasjonen «omtale_av regionalt helseforetak» bæres ikke av noen av argumentene. Den strider mot hjemmelen, som sier at både staten og private yter tjenestene. Den gjeninnfører også koblingen til RHF som forrige juristrunde avviste og modellereren aksepterte. Etter docs/33 §5.16.2 registreres en omtale som navneformbinding, og da blir ordet en navneform for RHF. Relasjonen bør ut. Hjemmelmerknaden er også utdatert: «det regionale helseforetaket skal sørge for …; hvem som yter den, er en slutning» gjelder den gamle hjemmelen shl. § 2-1 a. Den nye hjemmelen sier hvem som yter. Hjemmelmerknaden skrives inn i begrunnelsen når hjemmelen lagres (AktorkoSkrivTjeneste.cs linje 169: «… «sitat». {merknad}.»; bare den eksakte verdien «ikke relevant» filtreres bort). For fortolkning er begrunnelsen kravet i docs/33 §4.6.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§1-2/ledd-1",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-1a/ledd-7",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n13",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Hjemmelen holder, men status er tekstfunn, ikke normalisering. «Forliksrådet skal ha tre medlemmer» oppretter vervet, og kjernen «medlemmer» står ordrett i den formen køen har (variant «medlemmer»). «tre» er et tallord og er tillatt forledd (docs/33 §5.16.1 punkt 3 og 5). Kalibreringen er n144/n150: «leder» og «nestleder» fikk tekstfunn på «Klagenemnda skal ha seks medlemmer og være sammensatt slik: 1. En leder og en nestleder». Også der kommer organet («rolle_for») fra subjektet i setningen. N143 (lagmenn → lagmann) og n110 fikk normalisering fordi ordet i teksten er en annen form enn køens. Det gjelder ikke her. Med tekstfunn skal tolkningsargumenter være tom; godkjenningen avviser argumenter uten fortolkning (AktorkoSkrivTjeneste.cs linje 159). Beholdes fortolkning, bærer ordlyd alene. Hjemmelmerknaden «ikke relevant: vervet er en rolle i det enkelte organet» filtreres ikke bort (bare den eksakte verdien «ikke relevant» gjør det). Den havner i begrunnelsen og bør skrives om.",
+  "retting": {
+   "kunnskapsstatus": "tekstfunn",
+   "tolkningsargumenter": []
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§27/ledd-2",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§3/ledd-2",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n17",
+  "dom": "innvending",
+  "gjelder": "utenfor_raden",
+  "alvor": "lav",
+  "innvending": "Argumentene og statusen holder. Ordlyd: § 14 første ledd har «åpen barnehage» som barnehageform ved siden av ordinær barnehage og familiebarnehage, og det bærer underklasse_av barnehage. Kontekst og system: at det er en fast rettslig kategori, og ikke bare en beskrivelse, støttes av særregelen i § 7a tredje ledd. Ingen definisjon finnes (SELECT). Men hjemmelmerknaden «mangler: ingen definisjon i lovteksten er kontrollert» skrives inn i begrunnelsen for en hjemmel med status fortolkning. «Mangler» motsier hjemmelen. Skriv for eksempel «§ 14 første ledd forutsetter barnehageformen; § 7a tredje ledd; ingen definisjon». Hjemmelmerknaden skrives inn i begrunnelsen når hjemmelen lagres (AktorkoSkrivTjeneste.cs linje 169: «… «sitat». {merknad}.»; bare den eksakte verdien «ikke relevant» filtreres bort). For fortolkning er begrunnelsen kravet i docs/33 §4.6.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§14/ledd-1",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§7a/ledd-3",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n24",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Feil hjemmel, og derfor feil status. Forskriften definerer rollen selv i § 1 første ledd nr. 1: «I denne forskriften menes med … bostedskommune: den kommunen hvor barnet er folkeregistrert» (basen, og Lovdata kontrollert). Hjemmelen bør være § 1 første ledd nr. 1, med status tekstfunn, som en legaldefinisjon (kalibrering n86 dl. § 52, n145). «den kommunen» gir rolle_innehas_av kommune som tekstfunn, og medlemsregelen (folkeregistrert) står der også. Hjemmelmerknaden «forskriften bruker rollen uten å definere den» er feil. Feltet eId finnes ikke i forslaget. Rettingen av kunnskapsstatus forutsetter derfor at eId-en endres til …/forskrift/2017/06/22/1050/nor/§1/ledd-1/punkt-1. Beholdes § 2 første ledd, er status fortolkning, og da bærer både ordlyd og kontekst og system (definisjonen i § 1).",
+  "retting": {
+   "kunnskapsstatus": "tekstfunn",
+   "tolkningsargumenter": []
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/eli/forskrift/2017/06/22/1050/nor/§1/ledd-1/punkt-1",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/eli/forskrift/2017/06/22/1050/nor/§2/ledd-1",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n31",
+  "dom": "innvending",
+  "gjelder": "utenfor_raden",
+  "alvor": "lav",
+  "innvending": "Argumentene og statusen holder. Ordlyd: «en institusjon utpekt av regionalt helseforetak», og «institusjonen» viser tilbake i samme setning. Kontekst og system: medlemsregelen ligger i utpekingen etter shl. § 2-1 a. Men henvisningen i medlemsregelen er feil. Shl. § 2-1 a FJERDE ledd er plikten til å planlegge, gjennomføre, evaluere og korrigere. Utpekingen står i FEMTE ledd: «De regionale helseforetakene skal peke ut institusjoner … som kan ta imot rusmiddelavhengige med hjemmel i helse- og omsorgstjenesteloven §§ 10-2 til 10-4» (basen, og Lovdata kontrollert). Hotl. §§ 10-3 og 10-4 viser fortsatt til «fjerde ledd», mens § 10-2 viser til «femte ledd». Henvisningen i hotl. § 10-4 er altså foreldet. Medlemsregelen bør vise til shl. § 2-1 a femte ledd [slutning: ikke kontrollert når leddet ble flyttet]. At den foreldede henvisningen må korrigeres, er selv et kontekst-og-system-argument.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§10-4/ledd-1",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-1a/ledd-5",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§10-2/ledd-1",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n33",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Begge bærer. Ordlyd: § 1 første ledd nr. 1 navngir NOKUTs klagenemnd ordrett som en av klagenemndene. Isolert sett ville den hjemmelen nærmet seg tekstfunn. Men forslaget tagger forekomstene «Klagenemnda» (§§ 2 og 3) mot noden. Den kortformen kan bare løses gjennom kapittelinndelingen (kap. 2), og det er kontekst og system. Klageinstans_for NOKUT kommer fra § 2 første ledd. Fortolkning er derfor riktig status for det samlede forslaget.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§1/ledd-1/punkt-1",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§2/ledd-1",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n36",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Samme feil som n24. Forskriften definerer rollen i § 1 første ledd nr. 3: «omsorgskommune: den kommunen som har det økonomiske ansvaret etter barnevernloven, jf. barnevernloven § 9-1». Hjemmelen bør være § 1 første ledd nr. 3 med tekstfunn. «den kommunen» gir rolle_innehas_av kommune. Hjemmelmerknaden «bruker rollen uten å definere den» er feil. Rettingen forutsetter at eId-en endres (feltet finnes ikke i forslaget). Merk at definisjonen viser til «barnevernloven § 9-1». I bvl. 2021 er § 9-1 definisjonen av fosterhjem, så henvisningen gjelder trolig den opphevde loven fra 1992 [slutning: ikke kontrollert hvor betalingsansvaret står nå]. Det svekker ikke tekstfunnet for rollen. Beholdes § 3 første ledd, er status fortolkning med ordlyd og kontekst og system.",
+  "retting": {
+   "kunnskapsstatus": "tekstfunn",
+   "tolkningsargumenter": []
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/eli/forskrift/2017/06/22/1050/nor/§1/ledd-1/punkt-3",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/eli/forskrift/2017/06/22/1050/nor/§3/ledd-1",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "https://lovdata.no/eli/lov/2021/06/18/97/nor/§9-1/ledd-1",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n42",
+  "dom": "innvending",
+  "gjelder": "utenfor_raden",
+  "alvor": "lav",
+  "innvending": "Argumentene og statusen holder. Ordlyd: rammeplanen kap. 3, samiske barnehager, første ledd («Barnehageeieren skal vedtektsfeste at barnehagen har som formål …»). Kontekst og system: at plikten leses som medlemsregel og ikke som en plikt som bare forutsetter klassen, bygger på sammenhengen med fjerde ledd (samiske avdelinger) og bhl. § 10 tredje ledd. «Formål» i teksten er barnehagens vedtektsfestede formål, ikke et formålsargument. Men hjemmelmerknaden «mangler: bare rammeplanen (bhl. § 2 bygger på formålet); ingen definisjon kontrollert» skrives inn i begrunnelsen og motsier at det er hjemmel. Den lovbestemmelsen som henger sammen med dette, er § 10 tredje ledd, ikke § 2. Hjemmelmerknaden skrives inn i begrunnelsen når hjemmelen lagres (AktorkoSkrivTjeneste.cs linje 169: «… «sitat». {merknad}.»; bare den eksakte verdien «ikke relevant» filtreres bort). For fortolkning er begrunnelsen kravet i docs/33 §4.6.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Forskrift om rammeplan for barnehagens innhold og oppgaver kap-3/rom-samiske-barnehager/ledd-1",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§10/ledd-3",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n57",
+  "dom": "innvending",
+  "gjelder": "utenfor_raden",
+  "alvor": "lav",
+  "innvending": "Normalisering holder. «kan det utnevnes en dommer som leder for hver avdeling» oppretter stillingen, og at «leder for avdeling» betyr «avdelingsleder», står i samme ledd («Avdelingslederen fordeler …», «bemyndige avdelingsledere»). Det er en vanlig språklig sammentrekning uten ny materiell påstand. Rolle_for tingrett er subjektet i første punktum. Fortolkning ville vært for svakt. Normaliseringsregelen («leder for hver avdeling» = avdelingsleder, jf. samme ledd femte punktum) bør stå i begrunnelsen. Tolkningsargumentene må ikke sendes med normalisering, fordi godkjenningen avviser det; reserven ordlyd er ellers riktig. Men hjemmelmerknaden er «mangler», og den skrives inn i begrunnelsen. Lagmannsrettene har en tilsvarende regel i § 11 fjerde ledd («en lagmann som leder for hver avdeling»). Den hjemler ikke rollen for tingrett, men hvis rollen skal gjelde «domstol» generelt, slik navnet «avdelingsleder (domstol)» antyder, trengs også § 11 fjerde ledd. Hjemmelmerknaden skrives inn i begrunnelsen når hjemmelen lagres (AktorkoSkrivTjeneste.cs linje 169: «… «sitat». {merknad}.»; bare den eksakte verdien «ikke relevant» filtreres bort). For fortolkning er begrunnelsen kravet i docs/33 §4.6.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§19/ledd-4",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§11/ledd-4",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n61",
+  "dom": "kontroller",
+  "gjelder": "utenfor_raden",
+  "alvor": null,
+  "innvending": "For hjemmelen holder begge. Ordlyd: § 16-1 andre ledd navngir etaten og nivåene. Kontekst og system: at etaten er et organ (en statlig barnevernsmyndighet) står i første ledd. Men relasjonen ledes_av Barne-, ungdoms- og familiedirektoratet [slutning: sentralt nivå = direktoratet] har ikke støtte i korpuset. SELECT finner «sentrale nivå» bare i § 16-1 andre ledd. Direktoratet forekommer i delegeringsvedtak og forskrifter, men ingen tekst sier at det er etatens sentrale nivå. Slutningen bæres verken av ordlyd eller av kontekst og system. Den krever forarbeider (Prop. til bvl. 2021 § 16-1, ikke kontrollert) eller eksternt dokumentert grunnlag (instruks eller tildelingsbrev). Kontroller dette før relasjonen registreres. Relasjonen er et eget steg (docs/33 §5.16.2), så det rører ikke argumentene for hjemmelen.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/eli/lov/2021/06/18/97/nor/§16-1/ledd-2",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/eli/lov/2021/06/18/97/nor/§16-1/ledd-1",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "forarbeider til bvl. § 16-1 / instruks for Bufdir",
+    "funksjon": "ikke_funnet"
+   }
+  ]
+ },
+ {
+  "id": "n98",
+  "dom": "innvending",
+  "gjelder": "utenfor_raden",
+  "alvor": "lav",
+  "innvending": "Argumentene og statusen holder. Ordlyd: § 2 første ledd gir medlemsregelen (kontorer drevet av statlig regional familievernmyndighet, og kontorer det er inngått avtale med). Kontekst og system: klassen forutsettes av hele loven (tittelen og § 1), som ikke oppretter den. Men hjemmelmerknaden «familievernkontorloven § 1 forutsetter kontorene» står igjen fra før hjemmelen ble flyttet til § 2 første ledd. Den skrives inn i begrunnelsen og peker på en annen paragraf enn eId-en. Hjemmelmerknaden skrives inn i begrunnelsen når hjemmelen lagres (AktorkoSkrivTjeneste.cs linje 169: «… «sitat». {merknad}.»; bare den eksakte verdien «ikke relevant» filtreres bort). For fortolkning er begrunnelsen kravet i docs/33 §4.6.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/eli/lov/1997/06/19/62/nor/§2/ledd-1",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/eli/lov/1997/06/19/62/nor/§1/ledd-1",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n100",
+  "dom": "innvending",
+  "gjelder": "utenfor_raden",
+  "alvor": "lav",
+  "innvending": "Argumentene og statusen holder. Ordlyd: uhl. § 14-2 første ledd gir departementet adgang til å opprette nasjonale klagenemnder, men navngir ikke nemnda. Kontekst og system: identiteten bygger på forskriftene i korpuset («den nasjonale Felles klagenemnd» i UiB-forskriftene; «Felles klagenemnd for studentsaker, jf. universitets- og høyskolelovens § 14-2» i ph.d.-forskriften for Høgskolen i Molde). Selve opprettingsvedtaket er ikke i korpus, og det er grunnen til at status er fortolkning. Men hjemmelmerknaden «mangler: forskriften forutsetter nemnda; institusjonens klagenemnd i universitets- og høyskoleloven er ikke kontrollert» skrives inn i begrunnelsen. Den sier både «mangler» og antyder den lesningen forrige runde avviste, nemlig at det er en klagenemnd ved institusjonen (NTNU). Hjemmelmerknaden skrives inn i begrunnelsen når hjemmelen lagres (AktorkoSkrivTjeneste.cs linje 169: «… «sitat». {merknad}.»; bare den eksakte verdien «ikke relevant» filtreres bort). For fortolkning er begrunnelsen kravet i docs/33 §4.6. Merk navnevarianten «Felles klagenemnd for studentsaker» (UiN, Molde).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/eli/lov/2024/03/08/9/nor/§14-2/ledd-1",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "Forskrift for graden philosophiae doctor (ph.d.) i kunstnerisk utviklingsarbeid ved Universitetet i Bergen §17-2/ledd-2",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "Forskrift for graden philosophiae doctor (ph.d.) ved Høgskolen i Molde §5-8/ledd-2",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n102",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Begge bærer. Ordlyd: § 1-1 navngir trygden og angir ytelsene, og det viser en stønadsordning. Kontekst og system: typen ordning, og at trygden ikke er et rettssubjekt, følger av at forvaltningen er lagt til andre organer (Nav-loven § 4 andre ledd, ftrl. § 21-11 a; metodenotatet §6 «Tekstens subjekt er ikke nødvendigvis rettssubjektet»). Formål er ikke et argument her, selv om hjemmelen er en formålsbestemmelse. Formålet brukes ikke til å tolke en annen regel, og teksten leses bare for hva ordningen er. Ingen bestemmelse i kap. 1 oppretter trygden (SELECT § 1-2), så status er fortolkning.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/eli/lov/1997/02/28/19/nor/§1-1/ledd-1",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "Nav-loven § 4 andre ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n116",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Begge bærer. Ordlyd: dl. § 5 første ledd navngir ankeutvalget og sier at det er Høyesterett satt med tre dommere (organ_i Høyesterett). Kontekst og system: at det er et organ med egen avgjørelsesmyndighet, og ikke bare en sammensetning, bygger på tvl. §§ 30-1 til 30-3 («etter lov skal avgjøres av»).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§5/ledd-1",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "tvisteloven § 30-1 andre ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n118",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Ordlyd alene bærer: navnet står ordrett, og leddet gir oppgavene, sammensetningen og oppnevningen. Ingen annen bestemmelse trengs. Fortolkning, og ikke tekstfunn, fordi leddet forutsetter rådet og ikke oppretter det (juristrunde-440 h15, enighet etter runde 2).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§55a/ledd-1",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n120",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Begge bærer. Ordlyd: «kommunale barnehager» står ordrett og gir underklasse_av barnehage. Kontekst og system: klassen forutsettes, og motsetningen kommunal/privat i § 7 og § 7a andre ledd viser at det er en fast kategori. Merknad: «[slutning] ikke eget rettssubjekt, jf. § 7a første ledd» i relasjonsmerknaden er en antitetisk slutning (§ 7a første ledd gjelder bare private). Får relasjonen egen kunnskapsstatus, skal argumentet der være antitetisk_analogisk. For hjemmelen trengs det ikke.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§7/ledd-1",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§7a/ledd-1",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n127",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Begge bærer. Ordlyd: fvl. § 28 andre ledd sier hvem som er klageinstans for vedtak truffet av kommunale organer (kommunestyret, eller etter dets bestemmelse formannskapet eller særskilte klagenemnder). Kontekst og system: forekomsten står i forskrift om saksbehandlingsregler ved opptak i barnehage § 8 første ledd («Kommunens klageorgan er klageinstans»). At det uttrykket viser til organet etter fvl. § 28 andre ledd, er en systemslutning mellom to kilder. «Klageinstansen» er definert i § 28 første ledd.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/eli/lov/1967/02/10/nor/§28/ledd-2",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "Forskrift om saksbehandlingsregler ved opptak i barnehage §8/ledd-1",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n141",
+  "dom": "innvending",
+  "gjelder": "utenfor_raden",
+  "alvor": "lav",
+  "innvending": "Argumentene og statusen holder. Ordlyd: § 8 første ledd gir medlemsregelen («kompetent myndighet i en stat utpekt i samsvar med lov, forskrift eller administrasjonsbestemmelse i vedkommende stat»). Kontekst og system: presiseringen «annen stat» kommer fra §§ 1 og 3 («fra annen stat»). § 2 nr. 2 bruker samme medlemsregel («en myndighet i en stat utpekt i henhold til lover eller forskrifter i staten»). Selve utpekingen er fremmed rett. Men hjemmelmerknaden «mangler» skrives inn i begrunnelsen. Hjemmelmerknaden skrives inn i begrunnelsen når hjemmelen lagres (AktorkoSkrivTjeneste.cs linje 169: «… «sitat». {merknad}.»; bare den eksakte verdien «ikke relevant» filtreres bort). For fortolkning er begrunnelsen kravet i docs/33 §4.6.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/eli/forskrift/2008/09/12/1071/nor/§8/ledd-1",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/eli/forskrift/2008/09/12/1071/nor/§2/ledd-1/punkt-2",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n146",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Begge bærer. Ordlyd: utdstl. § 18 første ledd sier «en klagenemnd som er klageinstans for enkeltvedtak etter denne loven». Kontekst og system: navnet står bare i FOR-2025-07-02-1462 § 1 første ledd nr. 3 og § 10. Klageinstans_for Lånekassen forutsetter utdstl. § 16 («Lånekassen forvalter utdanningsstøtten»).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/eli/lov/2005/06/03/37/nor/§18/ledd-1",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§10/ledd-1",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "https://lovdata.no/eli/lov/2005/06/03/37/nor/§16/ledd-1",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n151",
+  "dom": "innvending",
+  "gjelder": "utenfor_raden",
+  "alvor": "lav",
+  "innvending": "Argumentene og statusen holder. Ordlyd: § 16-1 første ledd navngir organet med fullt navn og kortform. Kontekst og system: at det er et eget organ, følger av § 16-2 (faglig uavhengig), § 16-3 og § 16-4 («NOKUT skal ledes av et styre»). Ingen bestemmelse sier at NOKUT opprettes eller er et forvaltningsorgan (SELECT kap. 16). Men hjemmelmerknaden begynner med «mangler:», og den skrives inn i begrunnelsen. Resten av merknaden («forutsetter NOKUT …, men oppretter det ikke») er god og kan stå uten «mangler». Hjemmelmerknaden skrives inn i begrunnelsen når hjemmelen lagres (AktorkoSkrivTjeneste.cs linje 169: «… «sitat». {merknad}.»; bare den eksakte verdien «ikke relevant» filtreres bort). For fortolkning er begrunnelsen kravet i docs/33 §4.6.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/eli/lov/2024/03/08/9/nor/§16-1/ledd-1",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/eli/lov/2024/03/08/9/nor/§16-4/ledd-1",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n168",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Kontekst og system er med, men bærer ikke. Alt slutningen trenger, står i dl. § 101. Første ledd forutsetter rollen («Rettsvitner oppnevnes av …») og gir rolle_for retten eller den som styrer forretningen. Andre ledd i samme paragraf gir medlemsregelen. Ingen annen bestemmelse brukes. Står kontekst og system på lista, leter en etterprøvende jurist etter et systemargument som ikke finnes. Ordlyd alene. Hjemmelmerknaden «mangler» skrives dessuten inn i begrunnelsen og må skrives om. Hjemmelmerknaden skrives inn i begrunnelsen når hjemmelen lagres (AktorkoSkrivTjeneste.cs linje 169: «… «sitat». {merknad}.»; bare den eksakte verdien «ikke relevant» filtreres bort). For fortolkning er begrunnelsen kravet i docs/33 §4.6.",
+  "retting": {
+   "tolkningsargumenter": [
+    "ordlyd"
+   ]
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§101/ledd-1",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§101/ledd-2",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n180",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Status bør være normalisering. § 11 andre ledd nr. 2 oppretter plassen («Ett medlem … som skal representere elever og studenter»), og § 11 tredje ledd kaller den selv «student- og elevrepresentantene». At «medlem som skal representere elever og studenter» betyr «student- og elevrepresentant», er en ren språklig sammentrekning, bekreftet av forskriften selv, uten ny materiell påstand. Det er samme slags normalisering som n143 (lagmenn → lagmann) og n184 («ledes av et styre» → Styret for domstoladministrasjonen). Kortformen «Klagenemnda» (kap. 4) hindret ikke tekstfunn i n144/n150. Forrige runde valgte fortolkning bare fordi ordet ikke står i punktet. Det skiller ikke fortolkning fra normalisering (metodenotatet §5). Normaliseringsregelen skal stå i begrunnelsen. Advarsel for grupperingen: § 11 fjerde ledd kaller den samme plassen «studentrepresentantene». Den forekomsten må ikke slås inn i n181 (NOKUTs klagenemnd). Hjemmelmerknaden «mangler» må skrives om. Beholdes fortolkning, bærer ordlyd og kontekst og system.",
+  "retting": {
+   "kunnskapsstatus": "normalisering",
+   "tolkningsargumenter": []
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§11/ledd-2/punkt-2",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§11/ledd-3",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§11/ledd-4",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n181",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Samme som n180. § 3 andre ledd nr. 4 oppretter plassene («To medlemmer … som representerer studenter …»), og § 3 tredje og fjerde ledd og § 4 første ledd bruker forskriftens egen betegnelse «studentrepresentantene». Sammentrekningen er en normalisering uten ny materiell påstand, med kalibrering i n143 og n184. Rolle_for NOKUTs klagenemnd følger av kap. 2, som i n144/n150. Hjemmelmerknaden «mangler» må skrives om. Beholdes fortolkning, bærer ordlyd og kontekst og system.",
+  "retting": {
+   "kunnskapsstatus": "normalisering",
+   "tolkningsargumenter": []
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§3/ledd-2/punkt-4",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§3/ledd-3",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n187",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Ordlyd alene bærer. Klassen og medlemsregelen står i samme setning («et annet særskilt organ som er oppnevnt av Kongen, Stortinget eller et departement eller en statsforvalter for å granske …»), med granskingskommisjon og kontrollutvalg som eksempler. Fortolkning, og ikke normalisering, fordi det er et tolkningsskritt å lese en beskrivelse av subjektet i en kompetanseregel som en klassedefinisjon. Det er ingen definisjon eller opprettelse (jf. kalibreringen). Ingen annen bestemmelse trengs.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§43/ledd-2",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n190",
+  "dom": "innvending",
+  "gjelder": "utenfor_raden",
+  "alvor": "lav",
+  "innvending": "Argumentene og statusen holder. Ordlyd: § 1 første ledd regner opp de sju kommunene. Kontekst og system: navnet «Trollheimen og omegn» står bare i reindriftsloven § 2 andre ledd, som viser til loven. Trollheimenloven § 3 første ledd og § 4 («området som omfattes av denne lov») viser at oppregningen avgrenser et område. Formål bærer ikke, selv om hjemmelen er en formålsbestemmelse; den leses for den geografiske oppregningen. Men hjemmelmerknaden «mangler» skrives inn i begrunnelsen. Hjemmelmerknaden skrives inn i begrunnelsen når hjemmelen lagres (AktorkoSkrivTjeneste.cs linje 169: «… «sitat». {merknad}.»; bare den eksakte verdien «ikke relevant» filtreres bort). For fortolkning er begrunnelsen kravet i docs/33 §4.6.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/eli/lov/1984/12/21/101/nor/§1/ledd-1",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "Lov om reindrift (reindriftsloven) §2/ledd-2",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "https://lovdata.no/eli/lov/1984/12/21/101/nor/§4/ledd-1",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n192",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Samme feil som n24 og n36. Forskriften definerer rollen i § 1 første ledd nr. 2: «vertskommune: den kommunen som gir barnet spesialpedagogisk hjelp». Hjemmelen bør være § 1 første ledd nr. 2 med tekstfunn. Rettingen forutsetter at eId-en endres (feltet finnes ikke i forslaget). Relasjonen er også snudd på samme måte som forrige runde rettet i n24 og n36. Kommunen er innehaveren (rolle_innehas_av kommune, «den kommunen» i definisjonen), ikke det rollen er «for». Hjemmelmerknaden «-» gir « -.» i begrunnelsen. Beholdes § 2 første ledd, er status fortolkning med ordlyd og kontekst og system (definisjonen).",
+  "retting": {
+   "kunnskapsstatus": "tekstfunn",
+   "tolkningsargumenter": []
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/eli/forskrift/2017/06/22/1050/nor/§1/ledd-1/punkt-2",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/eli/forskrift/2017/06/22/1050/nor/§2/ledd-1",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ }
+]

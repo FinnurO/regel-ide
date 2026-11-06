@@ -116,7 +116,8 @@ const GODKJENNBARE: Forhandstype[] = ['aktor', 'klasse', 'rolle', 'omrade'];
  * - Hjemmelen er regelens forslag når den er det, ellers forhåndsklassifiseringens (`forhand`) når bestemmelsen står i korpus, ellers
  *   «hjemmel mangler» med en merknad. Uten hjemmel i fila er det «hjemmel mangler».
  * - Hvor en klasse uten hjemmel gjelder, er tomt (fila sier det ikke).
- * - Godkjenningsnivået står tomt: Johann velger selv. Tolkningsargumentene ved fortolkning står også tomme (fila har dem ikke).
+ * - Godkjenningsnivået står tomt: Johann velger selv.
+ * - [ENDRET, 2026-11-06] Tolkningsargumentene ved fortolkning følger hjemmelen fra fila (`forhandTolkningsargumenter`); de velges ikke.
  */
 export function godkjenningFraForslag(f: AktorkoForhandsklassifisering, detalj: AktorkoDetalj): { utkast: GodkjenningUtkast; merknader: string[] } {
   const merknader: string[] = [];
@@ -135,8 +136,8 @@ export function godkjenningFraForslag(f: AktorkoForhandsklassifisering, detalj: 
     merknader.push(`Forslagets hjemmel (${h.rettskilde ?? 'rettskilden'} ${h.bestemmelse ?? h.eid}) står ikke entydig i korpus. `
       + 'Godkjenningen lagrer «hjemmel mangler»; hjemmelen registreres i eget steg.');
   }
-  if (forhand?.kunnskapsstatus === 'fortolkning') {
-    merknader.push('Hjemmelen er fortolkning. Velg tolkningsargumentene; forhåndsklassifiseringen har dem ikke.');
+  if (forhand?.kunnskapsstatus === 'fortolkning' && !forhand.tolkningsargumenter?.length) {
+    merknader.push('Hjemmelen er fortolkning, men forhåndsklassifiseringen har ingen tolkningsargumenter. Den kan ikke lagres herfra; velg en annen hjemmel.');
   }
   if (type && type !== 'aktor' && !forslag && !forhand) {
     merknader.push(`Forslaget sier ikke hvor ${AKTORKOTYPE_TEKST[type].bestemt.toLowerCase()} gjelder. Velg rettskilden, eller hele korpuset.`);
@@ -145,7 +146,7 @@ export function godkjenningFraForslag(f: AktorkoForhandsklassifisering, detalj: 
   return {
     utkast: {
       type, navn, hjemmel: forslag ? forslagNokkel(forslag) : forhand ? 'forhand' : 'mangler', gjelder: null, godkjenning: null,
-      begrunnelse: forhandBegrunnelse(f), tolkningsargumenter: [],
+      begrunnelse: forhandBegrunnelse(f),
     },
     merknader,
   };

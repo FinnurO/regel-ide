@@ -20,17 +20,23 @@ export interface GodkjenningUtkast {
   gjelder: string | null; // rettskildeId, eller 'fast'
   godkjenning: 'faglig_vurdert' | 'godkjent' | null;
   begrunnelse: string;
-  /** [Ny, #440, 2026-11-05] For forhåndsklassifiseringens hjemmel når den er fortolkning. Velges av mennesket; fila har dem ikke. */
-  tolkningsargumenter?: Tolkningsargument[];
 }
 
 export const TOMT_UTKAST: GodkjenningUtkast = {
-  type: null, navn: null, hjemmel: null, gjelder: null, godkjenning: null, begrunnelse: '', tolkningsargumenter: [],
+  type: null, navn: null, hjemmel: null, gjelder: null, godkjenning: null, begrunnelse: '',
 };
 
 /** [Ny, #440] Forhåndsklassifiseringens hjemmel krever tolkningsargumenter når den er fortolkning (`Utsagnsgrunnlag.Valider`). */
 export function trengerTolkningsargument(u: GodkjenningUtkast, detalj?: AktorkoDetalj): boolean {
   return u.hjemmel === 'forhand' && detalj?.forhandsklassifisering?.hjemmel?.kunnskapsstatus === 'fortolkning';
+}
+
+/**
+ * [ENDRET, Johanns oppdrag 2026-11-06] Tolkningsargumentene er filas (juristrunden i `aktorko-forhand/tolkningsargumenter/`), ikke et valg:
+ * de følger hjemmelen, vises låst i skjemaet og sendes som de står. API-et godtar ingen andre. Tom liste når fila ikke har dem.
+ */
+export function forhandTolkningsargumenter(detalj?: AktorkoDetalj): Tolkningsargument[] {
+  return detalj?.forhandsklassifisering?.hjemmel?.tolkningsargumenter ?? [];
 }
 
 export const forslagNokkel = (f: { rettskildeId: string; eid: string }) => `${f.rettskildeId}|${f.eid}`;
@@ -41,7 +47,9 @@ export function godkjenningMangler(u: GodkjenningUtkast, detalj?: AktorkoDetalj)
   if (!u.navn) return 'Velg skrivemåten som blir navnet.';
   if (!u.hjemmel) return 'Velg hjemmel: et forslag, eller «hjemmel mangler».';
   if (u.type !== 'aktor' && u.hjemmel === 'mangler' && !u.gjelder) return `Velg hvor ${AKTORKOTYPE_TEKST[u.type].bestemt.toLowerCase()} gjelder.`;
-  if (trengerTolkningsargument(u, detalj) && !(u.tolkningsargumenter?.length)) return 'Velg minst ett tolkningsargument: hjemmelen er fortolkning.';
+  if (trengerTolkningsargument(u, detalj) && forhandTolkningsargumenter(detalj).length === 0) {
+    return 'Forhåndsklassifiseringen har ingen tolkningsargumenter for hjemmelen. Velg en annen hjemmel.';
+  }
   if (!u.godkjenning) return 'Velg hvor sikkert det er.';
   return null;
 }
@@ -61,7 +69,7 @@ export function tilForesporsel(u: GodkjenningUtkast, detalj: AktorkoDetalj): Akt
     hjemmel: forhand ? 'forhandsklassifisering' : forslag ? 'forslag' : 'mangler',
     hjemmelRettskildeId: forhand?.rettskildeId ?? forslag?.rettskildeId ?? null,
     hjemmelEid: forhand?.eid ?? forslag?.eid ?? null,
-    tolkningsargumenter: forhand && u.tolkningsargumenter?.length ? u.tolkningsargumenter : null,
+    tolkningsargumenter: forhand && trengerTolkningsargument(u, detalj) ? forhandTolkningsargumenter(detalj) : null,
     godkjenning: u.godkjenning!,
     begrunnelse: u.begrunnelse.trim() || null,
     gjelderILovkildeId: utenHjemmel && u.gjelder !== 'fast' ? u.gjelder : null,

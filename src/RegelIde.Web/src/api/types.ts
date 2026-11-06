@@ -3052,6 +3052,10 @@ export interface ForhandHjemmel {
   sitatKilde: 'klassifiseringen' | 'basen' | 'ingen'; kunnskapsstatus: string | null; erRegelensForslag: boolean;
   /** [Ny, Johanns avgjørelse 2026-11-05] Godkjenningen kan lagre hjemmelen fra fila (står entydig i korpus). */
   kanLagres: boolean;
+  /** [Ny, #440, 2026-11-06] Filas tolkningsargumenter når hjemmelen er fortolkning (juristrunden i aktorko-forhand/tolkningsargumenter/). */
+  tolkningsargumenter?: Tolkningsargument[] | null;
+  /** Hva argumentene bygger på; står i begrunnelsen som lagres. */
+  tolkningsbegrunnelse?: string | null;
 }
 export interface ForhandKobling { virksomhetId: string; virksomhetNavn: string; finnes: boolean; relasjon: string; navneformgrunn: string | null }
 export interface AktorkoForhandsklassifisering {

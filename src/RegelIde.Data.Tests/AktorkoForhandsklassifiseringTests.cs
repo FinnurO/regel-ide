@@ -49,6 +49,35 @@ public class AktorkoForhandsklassifiseringTests
     }
 
     [Fact]
+    public void Hver_hjemmel_med_fortolkning_har_tolkningsargumenter_fra_den_lukkede_lista_og_ingen_andre_har_det()
+    {
+        // [Ny, Johanns oppdrag 2026-11-06] Juristrunden i aktorko-forhand/tolkningsargumenter/: 29 av de 62 som skal godkjennes, har
+        // fortolkning (n108 fylkesnemnda er en kobling og bruker ikke hjemmelen). Argumentene står i fila; godkjenningen godtar bare dem.
+        var fortolkning = Forhandsklassifisering.Alle.Where(p => p.Hjemmel?.Kunnskapsstatus == Strukturkanter.Fortolkning).ToList();
+        Assert.Equal(29, fortolkning.Count(p => Forhandsklassifisering.Handling(p) == Forhandshandling.Godkjenn));
+        Assert.All(fortolkning.Where(p => Forhandsklassifisering.Handling(p) == Forhandshandling.Godkjenn), p =>
+        {
+            Assert.NotEmpty(p.Hjemmel!.Tolkningsargumenter!);
+            Assert.All(p.Hjemmel.Tolkningsargumenter!, a => Assert.Contains(a, Strukturkanter.Tolkningsargumenter));
+            Assert.Equal(p.Hjemmel.Tolkningsargumenter!.Count, p.Hjemmel.Tolkningsargumenter.Distinct().Count());
+            Assert.False(string.IsNullOrWhiteSpace(p.Hjemmel.Tolkningsbegrunnelse));
+        });
+        Assert.DoesNotContain(Forhandsklassifisering.Alle, p => p.Hjemmel is { Tolkningsargumenter: { Count: > 0 } } h
+                                                                && h.Kunnskapsstatus != Strukturkanter.Fortolkning);
+        // Ingen hjemmelmerknad sier «mangler» om en hjemmel som finnes (merknaden står i begrunnelsen som lagres).
+        Assert.DoesNotContain(fortolkning, p => (p.HjemmelMerknad ?? "").StartsWith("mangler", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Visningen_har_filas_tolkningsargumenter()
+    {
+        var p = Post("bostedskommune");
+        var v = Forhandsklassifisering.Visning(p, Gruppe(p), [], TomtOppslag);
+        Assert.Equal(["ordlyd", "kontekst_system"], v.Hjemmel!.Tolkningsargumenter);
+        Assert.Contains("§ 1 første ledd nr. 1", v.Hjemmel.Tolkningsbegrunnelse);
+    }
+
+    [Fact]
     public void Koblingen_tar_grunnen_bare_fra_relasjonen()
     {
         Assert.Equal("kortform", Forhandsklassifisering.Navneformgrunn(Forhandsklassifisering.Koblingsrelasjon(Post("kd"))!));

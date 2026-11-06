@@ -1971,8 +1971,17 @@ er utvidet, så forslaget kan lagres uten å miste hjemmelen, men aldri fritt:
 - **Hjemmelen** (`Aktorkohjemmel.Forhandsklassifisering`): eId-en må være nøyaktig filas for nøkkelen. Rettskilden løses som i visningen
   (`AktorkoTjeneste.ForhandBestemmelseAsync`), og en annen rettskilde i forespørselen avvises. Kunnskapsstatusen er filas. Sitatet og
   hjemmelmerknaden står i begrunnelsen. Hjemmelens art settes ikke (fila sier ikke om det er oppretting). Er kunnskapsstatusen fortolkning,
-  må mennesket velge minst ett tolkningsargument fra den lukkede lista; fila har dem ikke, og de gjettes ikke. Fila har ingen hjemmel utenfor
+  er tolkningsargumentene filas (se under); andre avvises. Fila har ingen hjemmel utenfor
   korpus (type og lenke); en eId som ikke står entydig i korpus, kan ikke lagres og står som eget steg (0 av 57 i målingen).
+- **Tolkningsargumentene** [ENDRET, Johanns oppdrag 2026-11-06]: `hjemmel.tolkningsargumenter` (lukket liste) og `hjemmel.tolkningsbegrunnelse`
+  står i fila for de 29 hjemlene med fortolkning blant navnene som skal godkjennes. De er satt i en juristrunde i to runder
+  (`aktorko-forhand/tolkningsargumenter/`: `inndata.json`, `runde1/`, `svar/`, `runde2/`, `endelig.json`), uten uenighet igjen. «Godta forslaget»
+  og valget av filas hjemmel tar dem med; skjemaet viser dem låst. `/godkjenn` krever nøyaktig filas argumenter (som mengde) og lagrer filas
+  liste; tolkningsbegrunnelsen står i begrunnelsen. Fila uten argumenter for en fortolkning kan ikke lagres med filas hjemmel. Kunnskapsstatusen
+  er ikke endret: juristrunden foreslår sterkere status for sju (tekstfunn for n13, og for n24, n36 og n192 med definisjonen i
+  FOR-2017-06-22-1050 § 1 første ledd som hjemmel; normalisering for n57, n180 og n181). Det venter på Johann; til da lagres de som fortolkning,
+  som aldri sier mer enn teksten. 16 hjemmelmerknader som sa «mangler» eller var utdaterte, er skrevet om i samme runde, fordi merknaden
+  lagres i begrunnelsen.
 - **Navnet** kan være filas navn for nøkkelen (grunnformen «foreldreråd», eller «NOKUTs klagenemnd»), også når det ikke står i teksten.
   Forekomstene tagges mot det. Et annet navn som ikke står i teksten, avvises som før.
 - **En aktør beholder hjemmelen** når kunnskapsstatusen er normalisering eller fortolkning, selv om bestemmelsen ikke viser navnet ordrett
@@ -2006,7 +2015,8 @@ selv om forslaget hadde en hjemmel.
 - Handlingene: godkjenn 62, generisk omtale 73, ikke aktør 39, venter 9, koble 7, ta med 2.
 - Av de 62 som skal godkjennes:
   - **28 er én knapp pluss godkjenningsnivået:** alt annet er fylt ut, og hjemmelen lagres;
-  - **29 trenger i tillegg tolkningsargumentet**, fordi hjemmelen er fortolkning;
+  - **29 trenger i tillegg tolkningsargumentet**, fordi hjemmelen er fortolkning. [ENDRET 2026-11-06] Argumentene står nå i fila, så de 29
+    er også én knapp pluss godkjenningsnivået: **57 av 62** (regnet fra fila, ikke målt i appen);
   - **5 trenger «hvor den gjelder»**, fordi fila ikke har noen hjemmel: skolen, direktøren, domstollederen, Hedmark og Meldal;
   - ingen mister hjemmelen: alle 57 hjemler kan lagres.
 

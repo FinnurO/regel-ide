@@ -101,7 +101,9 @@ public sealed record ForhandHjemmelFil(
     [property: JsonPropertyName("eid")] string Eid,
     [property: JsonPropertyName("sitat")] string? Sitat,
     [property: JsonPropertyName("kunnskapsstatus")] string? Kunnskapsstatus,
-    [property: JsonPropertyName("kilde")] string? Kilde);
+    [property: JsonPropertyName("kilde")] string? Kilde,
+    [property: JsonPropertyName("tolkningsargumenter")] List<string>? Tolkningsargumenter = null,
+    [property: JsonPropertyName("tolkningsbegrunnelse")] string? Tolkningsbegrunnelse = null);
 
 public sealed record ForhandFil(
     [property: JsonPropertyName("generert")] string Generert,
@@ -138,9 +140,13 @@ public sealed record ForhandRelasjon(string Relasjon, ForhandNode? Til, string? 
 /// <param name="KanLagres">[ENDRET, Johanns avgjørelse 2026-11-05] Godkjenningen kan lagre hjemmelen fra fila
 /// (<see cref="Aktorkohjemmel.Forhandsklassifisering"/>): bestemmelsen står i korpus, og rettskilden er entydig. Fila har ingen hjemmel
 /// utenfor korpus (type og lenke), så en eId som ikke står i korpus, kan ikke lagres og står som eget steg.</param>
+/// <param name="Tolkningsargumenter">[Ny, #440, Johanns oppdrag 2026-11-06] Argumentene fra fila når hjemmelen er fortolkning (lukket liste,
+/// <see cref="Strukturkanter.Tolkningsargumenter"/>), vurdert i juristrunden i <c>aktorko-forhand/tolkningsargumenter/</c>. Godkjenningen
+/// lagrer disse og ingen andre. Null når fila ikke har dem.</param>
+/// <param name="Tolkningsbegrunnelse">Hva hvert argument bygger på, i klart språk. Står i begrunnelsen som lagres.</param>
 public sealed record ForhandHjemmel(
     Guid? RettskildeId, string? Rettskilde, string Eid, string? Bestemmelse, string? Sitat, string SitatKilde, string? Kunnskapsstatus,
-    bool ErRegelensForslag, bool KanLagres = false);
+    bool ErRegelensForslag, bool KanLagres = false, IReadOnlyList<string>? Tolkningsargumenter = null, string? Tolkningsbegrunnelse = null);
 
 /// <summary>Aktøren navnet skal kobles til (handlingen <see cref="Forhandshandling.Koble"/>).</summary>
 /// <param name="Navneformgrunn">Grunnen relasjonen gir: <c>utgatt</c> for utgått navn, <c>kortform</c> når merknaden sier kortform. Null når
@@ -306,7 +312,8 @@ public static class Forhandsklassifisering
             var kanLagres = b.RettskildeId != Guid.Empty || regelens;
             var sitat = !string.IsNullOrWhiteSpace(h.Sitat) ? h.Sitat : b.Tekst;
             hjemmel = new ForhandHjemmel(kanLagres ? b.RettskildeId : rettskildeId, b.Rettskilde ?? h.Rettskilde, h.Eid, AktorkoTjeneste.Bestemmelse(h.Eid),
-                sitat, !string.IsNullOrWhiteSpace(h.Sitat) ? "klassifiseringen" : b.Tekst is not null ? "basen" : "ingen", h.Kunnskapsstatus, regelens, kanLagres);
+                sitat, !string.IsNullOrWhiteSpace(h.Sitat) ? "klassifiseringen" : b.Tekst is not null ? "basen" : "ingen", h.Kunnskapsstatus, regelens, kanLagres,
+                h.Tolkningsargumenter, h.Tolkningsbegrunnelse);
             if (handling == Forhandshandling.Godkjenn && !kanLagres)
             {
                 egneSteg.Add($"Hjemmelen ({h.Rettskilde ?? "rettskilden"} {hjemmel.Bestemmelse ?? h.Eid}) er ikke funnet entydig i korpus, og fila har ingen kilde "

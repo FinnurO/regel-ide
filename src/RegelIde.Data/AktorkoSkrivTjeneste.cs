@@ -44,7 +44,8 @@ public static class Aktorkohjemmel
 /// <param name="ForventetForekomster">Antall forekomster brukeren så. Er det endret siden, avvises godkjenningen (409), så ingen godkjenner
 /// noe annet enn det som ble vist.</param>
 /// <param name="Tolkningsargumenter">[Ny, #440, 2026-11-05] Når hjemmelen fra forhåndsklassifiseringen er <c>fortolkning</c>: argumentene
-/// (lukket liste, <see cref="Strukturkanter.Tolkningsargumenter"/>). Fila har dem ikke, så mennesket velger; de gjettes ikke.</param>
+/// (lukket liste, <see cref="Strukturkanter.Tolkningsargumenter"/>). [ENDRET, Johanns oppdrag 2026-11-06] Fila har dem nå; de må være
+/// nøyaktig filas (rekkefølgen spiller ingen rolle). Ingen fri inndata.</param>
 public sealed record AktorkoGodkjenning(
     string? Type, string? Navn, string? Hjemmel, Guid? HjemmelRettskildeId, string? HjemmelEid, string? Godkjenning, string? Begrunnelse = null,
     Guid? GjelderILovkildeId = null, bool? GjelderFast = null, int? ForventetForekomster = null, IReadOnlyList<string>? Tolkningsargumenter = null);
@@ -160,13 +161,31 @@ public sealed class AktorkoSkrivTjeneste(
             {
                 throw new ArgumentException("Tolkningsargumenter brukes bare når hjemmelen er fortolkning.");
             }
+            // [Ny, Johanns oppdrag 2026-11-06] Ved fortolkning er argumentene filas, kontrollert som mengde. Fila uten argumenter kan ikke
+            // godkjennes med denne hjemmelen: argumentene velges ikke fritt.
+            IReadOnlyList<string>? argumenter = null;
+            if (h.Kunnskapsstatus == Strukturkanter.Fortolkning)
+            {
+                if (h.Tolkningsargumenter is not { Count: > 0 } fra)
+                {
+                    throw new ArgumentException($"Forhåndsklassifiseringen har ingen tolkningsargumenter for hjemmelen til «{g.Navn}». "
+                                                + "Velg et av regelens forslag eller «hjemmel mangler»; argumentene velges ikke fritt.");
+                }
+                if (!(valg.Tolkningsargumenter ?? []).ToHashSet(StringComparer.Ordinal).SetEquals(fra))
+                {
+                    throw new ArgumentException($"Tolkningsargumentene må være forhåndsklassifiseringens for «{g.Navn}»: {string.Join(", ", fra)}. "
+                                                + "Ingen andre kan lagres herfra.");
+                }
+                argumenter = fra;
+            }
             var sitat = string.IsNullOrWhiteSpace(h.Sitat) ? b.Tekst : h.Sitat;
             grunnlag = new Utsagnsgrunnlag
             {
                 Grunnlag = Utsagnsgrunnlag.Hjemmel, HjemmelRettskildeId = b.RettskildeId, HjemmelEid = h.Eid, Kunnskapsstatus = h.Kunnskapsstatus,
-                Godkjenning = valg.Godkjenning!, Tolkningsargumenter = valg.Tolkningsargumenter,
+                Godkjenning = valg.Godkjenning!, Tolkningsargumenter = argumenter?.ToList(),
                 Begrunnelse = $"Hjemmel fra forhåndsklassifiseringen ({Forhandsklassifisering.Kilde}, n{post!.Nr}; KI-agent og juristrunde, #440)"
-                              + (sitat is null ? "." : $": «{sitat}».") + (post.HjemmelMerknad is { } m && m != "ikke relevant" ? $" {m}." : "") + egen,
+                              + (sitat is null ? "." : $": «{sitat}».") + (post.HjemmelMerknad is { } m && m != "ikke relevant" ? $" {m}." : "")
+                              + (argumenter is not null && h.Tolkningsbegrunnelse is { } tb ? $" Tolkningsargumenter: {tb}" : "") + egen,
             };
             (hjemmelRettskilde, hjemmelEid) = (b.RettskildeId, h.Eid);
         }
