@@ -1529,3 +1529,7 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
   headless Edge via CDP fordi Browser-panelet ikke tegnet): «bostedskommune» godkjent med forskriftens § 2 første ledd (fortolkning, ordlyd),
   Utdanningsdirektoratet med «hjemmel mangler», «den kommunen» lagret som generisk omtale. «foreldrerådet» fylt ut med grunnformen
   «foreldreråd» og regelens forslag (ikke lagret). «fylkeskommunens» viser «Klassifisering kan være utdatert».
+- **Kaldsjekket 2026-11-06 med tolkningsargumentene** (PR #471) i kopien `regelide_tolk` (web 5373 mot API 5487, headless Edge, kopien slettet
+  etterpå): «bostedskommune» godkjent med legaldefinisjonen § 1 første ledd nr. 1 (tekstfunn, ingen argumenter vist), «kommunale barnehager»
+  godkjent som «kommunal barnehage» med bhl. § 7 første ledd (fortolkning; ordlyd og kontekst og system låst og lagret, tolkningsbegrunnelsen i
+  begrepets begrunnelse). Knappen var av til godkjenningsnivået var valgt.

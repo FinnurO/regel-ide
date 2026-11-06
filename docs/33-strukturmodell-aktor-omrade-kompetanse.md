@@ -2018,7 +2018,8 @@ selv om forslaget hadde en hjemmel.
 - Av de 62 som skal godkjennes:
   - **28 er én knapp pluss godkjenningsnivået:** alt annet er fylt ut, og hjemmelen lagres;
   - **29 trenger i tillegg tolkningsargumentet**, fordi hjemmelen er fortolkning. [ENDRET 2026-11-06] Argumentene står nå i fila, så de 29
-    er også én knapp pluss godkjenningsnivået: **57 av 62** (regnet fra fila, ikke målt i appen);
+    er også én knapp pluss godkjenningsnivået: **57 av 62**. Målt 2026-11-06 med GET i kopien `regelide_tolk` etter Johanns avgjørelser:
+    20 tekstfunn, 14 normalisering, 22 fortolkning med argumenter, og Utdanningsdirektoratet med «hjemmel mangler»; de 5 under står igjen;
   - **5 trenger «hvor den gjelder»**, fordi fila ikke har noen hjemmel: skolen, direktøren, domstollederen, Hedmark og Meldal;
   - ingen mister hjemmelen: alle 57 hjemler kan lagres.
 
