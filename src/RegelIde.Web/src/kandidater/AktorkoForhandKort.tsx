@@ -8,7 +8,7 @@ import { KunnskapsstatusTag } from '../strukturkant/Utsagnsstatus';
 import { FORHAND_MERKE, FORHANDSTYPE_TEKST, MODELLVALG_SAK, SIKKERHET_TEKST, handlingstekst, juristlinje, relasjonstekst } from './aktorkoForhand';
 
 /**
- * [Ny, issue #440, Johanns avgjørelse 2026-11-05] Forhåndsklassifiseringen for ett navn i aktørkøen (docs/09 §53): forslaget (type, relasjoner
+ * [Ny, issue #440, Johanns avgjørelse 2026-11-05] Forhåndsklassifiseringen for ett navn i aktørkøen (docs/09 §54): forslaget (type, relasjoner
  * med lenker, hjemmel eller medlemsregel med sitat, sikkerhet, juristens vurdering), det som må gjøres i eget steg, og «Godta forslaget».
  *
  * <p>Knappen skriver ingenting. Den fyller ut skjemaet som hører til handlingen (godkjenn, koble, ikke en aktør, generisk omtale); et menneske

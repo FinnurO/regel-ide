@@ -4,7 +4,7 @@ import type {
 import { AKTORKOTYPE_TEKST, forslagNokkel, skrivemater, type GodkjenningUtkast } from './aktorkoGodkjenning';
 
 /**
- * [Ny, issue #440, Johanns avgjørelse 2026-11-05] Forhåndsklassifiseringen i aktørkøen (docs/09 §53, docs/33 §5.16.2): tekstene, filtrene og
+ * [Ny, issue #440, Johanns avgjørelse 2026-11-05] Forhåndsklassifiseringen i aktørkøen (docs/09 §54, docs/33 §5.16.2): tekstene, filtrene og
  * hvordan «Godta forslaget» fyller skjemaene. Rene funksjoner med vitest.
  *
  * <p><b>Ingen stille godkjenning.</b> «Godta forslaget» fyller bare ut et eksisterende skjema; et menneske ser det og trykker på skjemaets egen

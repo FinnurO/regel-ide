@@ -1703,13 +1703,29 @@ export interface BegrepDto {
 }
 
 /** [Ny, issue #384] Ett utledet medlem: rettssubjektet, kommunen det er rettssubjekt for, og territoriekanten (premisset). */
+/** [ENDRET, issue #442] `kommunenummer` heter `omradekode` (fylkesnummer for en fylkeskommune), og området er null for departementene.
+ * `kunnskapsstatus` er medlemmets eget svar etter svakeste premiss (docs/33 §4.6). */
 export interface UtledetMedlemDto {
-  virksomhetId: string; navn: string; kommunenummer: string; omradeId: string; omradenavn: string; premissKantId: string; validert: boolean;
+  virksomhetId: string; navn: string; omradekode: string | null; omradeId: string | null; omradenavn: string | null; premissKantId: string;
+  validert: boolean; premissart: 'territoriekant' | 'oppretterkant' | 'medlemskant'; premissKunnskapsstatus: Kunnskapsstatus | null;
+  kunnskapsstatus: Kunnskapsstatus;
 }
-/** [Ny, issue #384] GET /api/gruppebegrep/{id}/utledet-medlemskap — beregnet, ikke lagret. */
+/** [Ny, issue #442] Medlemsregelen i klartekst (speilet av `Klasseregler.Regelbeskrivelse`). */
+export interface RegelbeskrivelseDto { regel: string; tekst: string; kilde: string; kildeEider: string[] }
+/** [Ny, issue #384] GET /api/gruppebegrep/{id}/utledet-medlemskap — beregnet, ikke lagret. [ENDRET, issue #442] + fylkeskommune og departement:
+ * `antallOmrader` er null for departementene, `unntatt` er det loven selv unntar (Oslo), og `kunnskapsstatus` er det svakeste premissets svar. */
 export interface UtledetMedlemskapDto {
   klasseId: string; term: string; regel: string; hjemmel: string | null; klassensKunnskapsstatus: Kunnskapsstatus | null;
-  kunnskapsstatus: Kunnskapsstatus; antallOmrader: number; medlemmer: UtledetMedlemDto[]; hull: string[];
+  kunnskapsstatus: Kunnskapsstatus; antallOmrader: number | null; medlemmer: UtledetMedlemDto[]; hull: string[];
+  omradetype: Omradetype | null; unntatt: string[]; beskrivelse: RegelbeskrivelseDto | null;
+}
+/** [Ny, issue #442] En bestemmelse klassens hjemmel eller medlemsregel bygger på. */
+export interface KlassegrunnlagKildeDto { eid: string; rettskildeId: string | null; tittel: string | null }
+/** [Ny, issue #442] GET /api/klasser/{id}/grunnlag. «Klasser må ha minst hjemmel eller medlemsregel, og kan ha begge.» */
+export interface KlassegrunnlagDto {
+  klasseId: string; term: string; status: 'begge' | 'hjemmel' | 'medlemsregel' | 'mangler';
+  hjemmel: KlassegrunnlagKildeDto | null; kildeUtenforKorpus: string | null; kunnskapsstatus: Kunnskapsstatus | null;
+  godkjenning: Godkjenning | null; begrunnelse: string | null; medlemsregel: RegelbeskrivelseDto | null; regelKilder: KlassegrunnlagKildeDto[];
 }
 
 /** [Ny, issue #312] Speilet av `Omradetyper.Alle` (CHECK ck_begreper_omradetype). */
@@ -1835,6 +1851,10 @@ export interface DetSomFinnesDto {
   klassensKunnskapsstatus: Kunnskapsstatus | null;
   kunnskapsstatus: Kunnskapsstatus | null;
   forslag: boolean;
+  /** [Ny, issue #442] For en klasse: grunnlaget (hullet bare ved `mangler`) og medlemsregelen i klartekst. */
+  grunnlag?: 'begge' | 'hjemmel' | 'medlemsregel' | 'mangler' | null;
+  medlemsregel?: string | null;
+  medlemsregelKilde?: string | null;
 }
 
 /** [Ny, issue #441] GET /api/virksomheter/{id}/hjemmel. */

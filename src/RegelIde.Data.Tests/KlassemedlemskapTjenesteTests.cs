@@ -101,10 +101,10 @@ public class KlassemedlemskapTjenesteTests
         Assert.NotNull(svar);
         Assert.Equal((Strukturkanter.Avledet, Strukturkanter.Tekstfunn, Klasseregler.KommunelovenInndelingEid),
             (svar.Kunnskapsstatus, svar.KlassensKunnskapsstatus, svar.Hjemmel));
-        var medlem = Assert.Single(svar.Medlemmer, m => m.Kommunenummer == k1);
+        var medlem = Assert.Single(svar.Medlemmer, m => m.Omradekode == k1);
         Assert.Equal((kommune1, omr1, territorie1, true), (medlem.VirksomhetId, medlem.OmradeId, medlem.PremissKantId, medlem.Validert));
         Assert.DoesNotContain(svar.Medlemmer, m => m.VirksomhetId == tingrett);
-        Assert.DoesNotContain(svar.Medlemmer, m => m.Kommunenummer == k2 || m.Kommunenummer == k3);
+        Assert.DoesNotContain(svar.Medlemmer, m => m.Omradekode == k2 || m.Omradekode == k3);
         Assert.Contains(svar.Hull, h => h.StartsWith(k2) && h.Contains("ikke funnet"));
         Assert.Contains(svar.Hull, h => h.StartsWith(k3) && h.Contains("ikke entydig"));
         // Ingenting er lagret: ingen M-kant til klassen fra testens aktører.

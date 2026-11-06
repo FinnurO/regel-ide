@@ -44,6 +44,9 @@
     <EmbeddedResource Include="Strukturkonvertering\kompetanseleksikon.json" LogicalName="RegelIde.Data.Strukturkonvertering.kompetanseleksikon.json" />
     <!-- [Ny, issue #429] De fem funnene fra saken — innebygd, så FunnSeed virker uten filsti. -->
     <EmbeddedResource Include="Seed\funn-429.json" LogicalName="RegelIde.Data.Seed.funn-429.json" />
+    <!-- [Ny, issue #442] Kgl.res. utenfor korpus for UD, SD og FD (sekundær dokumentasjon, ordrett kontrollert) — innebygd, så
+         KlasseoppsettTjeneste virker uten filsti. -->
+    <EmbeddedResource Include="Seed\departementer-kgl-res-442.json" LogicalName="RegelIde.Data.Seed.departementer-kgl-res-442.json" />
     <None Include="Seed\organisasjoner-norge.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

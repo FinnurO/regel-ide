@@ -180,7 +180,7 @@ import type {
   NavnekandidatGruppeBatchRequest,
   SlettNavnekandidaterResultatDto,
   VisningsinnstillingInput,
-  AktorsveipRapport, GeneriskNavneformOversikt, GeneriskTaggOppslag, GeneriskKandidatkontekst, NavneformBindingRequest, UtledetMedlemskapDto,
+  AktorsveipRapport, GeneriskNavneformOversikt, GeneriskTaggOppslag, GeneriskKandidatkontekst, NavneformBindingRequest, UtledetMedlemskapDto, KlassegrunnlagDto,
   FunnDto,
   FunnTilgangDto,
   FunnVurderingspunktInn,
@@ -1251,6 +1251,8 @@ export const api = {
 
   /** [Ny, issue #384] Medlemmene av en klasse med utledet medlemskap («kommune»), beregnet av områderegisteret. */
   hentUtledetMedlemskap: (begrepId: string) => kall<UtledetMedlemskapDto>(`/api/gruppebegrep/${begrepId}/utledet-medlemskap`),
+  /** [Ny, issue #442] Klassens hjemmel og medlemsregel (minst én, kan ha begge). */
+  hentKlassegrunnlag: (klasseId: string) => kall<KlassegrunnlagDto>(`/api/klasser/${klasseId}/grunnlag`),
 
   /** [Ny, issue #394 AK 4] Veiviserens én-skjerm: standardregelen, forslag til referent med grunnlag, og bindingene i rettskilden. */
   hentGeneriskKandidatkontekst: (kandidatId: string) =>

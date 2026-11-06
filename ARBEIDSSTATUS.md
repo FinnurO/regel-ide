@@ -41,6 +41,12 @@ dokumentasjon (primaer|sekundaer), begge påkrevd uten hjemmel og NULL med.
 
 **Rekkefølge for migrasjoner (ikke stable, §15):** #310 → #311 → #330 → #312 → #316 (Johann 2026-10-08: #330 før #312).
 
+## Klassene fylkeskommune og departement #442 (sak 1 av 3, startet 2026-11-05)
+
+| Sak | Gren | Status | Verifisert hvordan |
+|---|---|---|---|
+| #442 klassene fylkeskommune og departement, «minst hjemmel eller medlemsregel», arkivering av «kommunene» | `klasser-fylkeskommune-departement` | **PR åpen, venter på Johann (§19). Ikke flettet.** Migrasjonen `KlasserFylkeskommuneOgDepartement` (bare CHECK) og skrivingen (`POST /api/klasser/fylkeskommune-departement?skriv=true`) er IKKE kjørt mot delt `regelide`; hovedøkta kjører dem etter fletting. Tørrkjøringstallene mot delt base (bare SELECT): 2 klasser, 14 territoriekanter, 7 medlemskanter, 1 arkivering | `KlasseoppsettTjenesteTests` og de berørte Data-testene lokalt, Api-suiten lokalt (DI), tsc -b. Kopien `regelide_klasser`: skrevet to ganger (idempotent), 14 og 16 medlemmer, kaldsjekk i nettleseren (5387 + 5473), kopien slettet |
+
 ## Aktørkøen #440 (startet 2026-10-31)
 
 | PR | Gren | Status | Verifisert hvordan |
@@ -48,4 +54,4 @@ dokumentasjon (primaer|sekundaer), begge påkrevd uten hjemmel og NULL med.
 | PR 1, bare lesing (ruting, gruppering, hjemmelforslag, `GET /api/aktorko*`, siden, menyen, samme ruting i sveipene) | — | **Landet** (#444). Ingen migrasjon, ingenting skrevet til delt `regelide` (pg_stat før/etter API-oppstart og målinger: uendret) | Data-filtrert 175 (inkl. AK1–AK4), tsc -b --force, vitest, kald API-sjekk og nettleser på 5387/5373 |
 | Unntak i aktørsveipet for generisk ord uten binding (Johann 2026-10-31, valg 2) + juristrunden på hjemmelregelen (`data/fasit/strukturmodell/juristrunde-440/`) | `aktorsveip-generisk-lenke` | **PR åpen, venter på Johann (§19). Ikke merget.** Ingen migrasjon, ingenting skrevet til delt `regelide` (juristrunden: bare GET og SELECT) | Data-filtrert (AktorkoreglerTests, GeneriskNavneformTjenesteTests, StrukturforslagTjenesteTests, FasitimportTests), tsc -b --force, vitest |
 | PR 2, skriving (godkjenning i én transaksjon) | — | Juristrunden ligger i PR-en over; regelen presiseres etter Johanns svar på uenigheten | — |
-| Forhåndsklassifiseringen i køen med «Godta forslaget» (docs/33 §5.16.2, docs/09 §53) | `aktorko-forhandsvisning` | **PR #466 åpen, venter på Johann (§19). Ikke merget.** Ingen migrasjon, ingen ny skrivevei, ingenting skrevet til delt `regelide` | Data-filtrert (AktorkoForhandsklassifiseringTests 10), tsc -b, vitest, kaldsjekk i kopien `regelide_forhand` (slettet): Udir, «bostedskommune», «den kommunen» |
+| Forhåndsklassifiseringen i køen med «Godta forslaget» (docs/33 §5.16.2, docs/09 §54) | `aktorko-forhandsvisning` | **PR #466 åpen, venter på Johann (§19). Ikke merget.** Ingen migrasjon, ingen ny skrivevei, ingenting skrevet til delt `regelide` | Data-filtrert (AktorkoForhandsklassifiseringTests 10), tsc -b, vitest, kaldsjekk i kopien `regelide_forhand` (slettet): Udir, «bostedskommune», «den kommunen» |

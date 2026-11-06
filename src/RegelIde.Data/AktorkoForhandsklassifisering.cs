@@ -7,7 +7,7 @@ namespace RegelIde.Data;
 // forslaget med én knapp. Klassifiseringen er laget av en KI-agent (modellereren) og vurdert av juristutfordreren i to runder; ingen menneske
 // har kontrollert den. Den er DATA i repoet (data/fasit/strukturmodell/aktorko-forhand/klassifisering.json), innebygd i assemblyen, og
 // skrives aldri til basen. «Godta forslaget» fyller bare skjemaene i køen; skrivingen går gjennom de eksisterende endepunktene
-// (AktorkoSkrivTjeneste), og et menneske bekrefter hvert kall (docs/33 §5.16.2, docs/09 §53).
+// (AktorkoSkrivTjeneste), og et menneske bekrefter hvert kall (docs/33 §5.16.2, docs/09 §54).
 
 /// <summary>Handlingen et forslag tilsvarer i køen. Lukket vokabular, speilet i frontenden (<c>aktorkoForhand.ts</c>).</summary>
 public static class Forhandshandling

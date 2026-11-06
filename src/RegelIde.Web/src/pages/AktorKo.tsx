@@ -34,7 +34,7 @@ import type { Forhandssikkerhet, Forhandstype } from '../api/types';
  * Ingenting er forhåndsvalgt. Hjemmelforslaget er fortsatt et forslag (`info`) til noen har valgt det.</p>
  *
  * <p>[ENDRET, #440, Johanns avgjørelse 2026-11-05] Forhåndsklassifiseringen (PR #462) står i hver rad og øverst i detaljen, med
- * «Godta forslaget», som fyller ut skjemaet handlingen hører til (`kandidater/AktorkoForhandKort.tsx`, docs/09 §53). Filtrene for type og
+ * «Godta forslaget», som fyller ut skjemaet handlingen hører til (`kandidater/AktorkoForhandKort.tsx`, docs/09 §54). Filtrene for type og
  * sikkerhet, og «Bare aktører med høy sikkerhet», står under de andre filtrene.</p>
  *
  * <p>Oppsettet følger skissen Johann så 2026-10-30, visning (c): fordelingen øverst (hver kandidat havner på nøyaktig ett sted), regelen

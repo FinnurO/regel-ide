@@ -60,6 +60,7 @@ builder.Services.AddScoped<DepartementNavneformHjemmelTjeneste>(); // [Ny, issue
 builder.Services.AddScoped<AktoridentitetTjeneste>();
 builder.Services.AddScoped<OmgjoringTjeneste>(); // [Ny, issue #386]
 builder.Services.AddScoped<KlassemedlemskapTjeneste>(); // [Ny, issue #384] utledet medlemskap («kommune» fra områderegisteret)
+builder.Services.AddScoped<KlasseoppsettTjeneste>(); // [Ny, issue #442] klassene fylkeskommune og departement som forslag (skrives bare på kall)
 builder.Services.AddScoped<RegelIde.Data.Strukturkonvertering.KiStrukturkonverterer>();
 // [Ny, issue #312 «områderegister»] «Gitt kommune X → fylke, tingrett, lagdømme, statsforvalter, RHF» (AC5).
 builder.Services.AddScoped<OmradeOppslagTjeneste>();
@@ -4266,6 +4267,39 @@ app.MapGet("/api/gruppebegrep/{id:guid}/utledet-medlemskap", async (Guid id, Kla
     .WithName("HentUtledetMedlemskap")
     .WithSummary("Issue #384 — medlemmene av en klasse med medlemskapsregel (klassen «kommune»: kommunene i områderegisteret med sitt " +
         "rettssubjekt), med premiss per medlem og hullene. Beregnet, ikke lagret.");
+
+// [Ny, issue #442, Johanns avgjørelse 2026-11-05] Grunnlaget for en klasse: hjemmel, medlemsregel eller begge. «Klasser må ha minst hjemmel eller
+// medlemsregel, og kan ha begge»; hullet vises bare når begge mangler.
+app.MapGet("/api/klasser/{id:guid}/grunnlag", async (Guid id, KlassemedlemskapTjeneste klassemedlemskap, CancellationToken ct) =>
+        await klassemedlemskap.GrunnlagAsync(id, ct) is { } g
+            ? Results.Ok(g)
+            : Results.NotFound(new { feil = $"Begrepet '{id}' er ikke en gjeldende klasse." }))
+    .WithOpenApi()
+    .WithName("HentKlassegrunnlag")
+    .WithSummary("Issue #442 — klassens hjemmel og medlemsregel med kilde, og status begge | hjemmel | medlemsregel | mangler.");
+
+// [Ny, issue #442] Skrivingen for klassene fylkeskommune og departement. Tørrkjøring er standard (samme arbeid i en transaksjon som rulles
+// tilbake, så tallene er de skrivingen gir). Alt nytt er forslag; en ny kjøring skriver ingenting (idempotent). Kjøres av hovedøkta etter fletting.
+app.MapPost("/api/klasser/fylkeskommune-departement", async (bool? skriv, HttpRequest request, RegelIdeDbContext db, KlasseoppsettTjeneste tjeneste,
+        CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            return Results.Ok(await tjeneste.KjorAsync(skriv ?? false, bruker.Navn, ct));
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Results.Conflict(new { feil = ex.Message });
+        }
+    })
+    .WithOpenApi()
+    .WithName("KlasserFylkeskommuneDepartement")
+    .WithSummary("Issue #442 — klassene fylkeskommune (kl. § 2-1 første ledd, medlemsregel etter § 3-1) og departement (medlemsregel, " +
+        "organiseringsvedtakene), 14 territoriekanter fylkeskommune → fylke (§ 3-1 første ledd, navneregelen i fjerde ledd), medlemskanter for " +
+        "departementene uten oppretterkant (navnevedtaket eller kgl.res. utenfor korpus, fortolkning), og arkivering av klassen «kommunene». " +
+        "Alt som forslag. ?skriv=true skriver; uten er det en tørrkjøring.");
 
 // [FJERNET, issue #311] VirksomhetRelasjon-endepunktene (GET/POST /api/virksomheter/{id}/relasjoner,
 // POST /api/virksomhet-relasjoner/{id}/godkjenn, DELETE /api/virksomhet-relasjoner/{id}). Relasjoner er
