@@ -1,0 +1,377 @@
+[
+ {
+  "id": "n2",
+  "navn": "barnehagen",
+  "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§6/ledd-1",
+  "kunnskapsstatus": "fortolkning",
+  "tolkningsargumenter": [
+   "ordlyd",
+   "kontekst_system"
+  ],
+  "tolkningsbegrunnelse": "Ordlyd: § 6 første ledd angir hvilke virksomheter som må ha barnehagedriften godkjent. Kontekst og system: at klassen er de godkjente barnehagene, følger av sammenhengen med § 14 a og § 6 tredje ledd; loven har ingen definisjon.",
+  "hjemmel_merknad_ny": null,
+  "kunnskapsstatus_forslag_til_johann": null
+ },
+ {
+  "id": "n3",
+  "navn": "barnehageeier",
+  "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§7",
+  "kunnskapsstatus": "fortolkning",
+  "tolkningsargumenter": [
+   "ordlyd",
+   "kontekst_system"
+  ],
+  "tolkningsbegrunnelse": "Ordlyd: § 7 første og andre ledd legger ansvaret for barnehagen på kommunen (kommunale) og rettssubjektet som driver (private). Kontekst og system: ordet «barnehageeier» står i § 11 første ledd, ikke i § 7; at eieren er den ansvarlige etter § 7, følger av sammenhengen med § 7a.",
+  "hjemmel_merknad_ny": null,
+  "kunnskapsstatus_forslag_til_johann": null
+ },
+ {
+  "id": "n4",
+  "navn": "private barnehager",
+  "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§7a/ledd-1",
+  "kunnskapsstatus": "fortolkning",
+  "tolkningsargumenter": [
+   "ordlyd",
+   "kontekst_system"
+  ],
+  "tolkningsbegrunnelse": "Ordlyd: § 7a første ledd bruker «private barnehage» og krever eget rettssubjekt. Kontekst og system: medlemsregelen (barnehage som ikke er kommunal) følger av motstillingen i § 7 første og andre ledd og § 7a andre ledd.",
+  "hjemmel_merknad_ny": null,
+  "kunnskapsstatus_forslag_til_johann": null
+ },
+ {
+  "id": "n7",
+  "navn": "spesialisthelsetjenesten",
+  "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§1-2/ledd-1",
+  "kunnskapsstatus": "fortolkning",
+  "tolkningsargumenter": [
+   "ordlyd",
+   "kontekst_system"
+  ],
+  "tolkningsbegrunnelse": "Ordlyd: shl. § 1-2 første ledd («spesialisthelsetjenester som tilbys eller ytes i riket av staten og private»). Kontekst og system: at det bestemte «spesialisthelsetjenesten» i hotl. betyr kretsen av dem som yter tjenestene, følger av bruken der som pliktsubjekt.",
+  "hjemmel_merknad_ny": "shl. § 1-2 første ledd: spesialisthelsetjenester som tilbys eller ytes av staten og private; klassen er dem som yter dem",
+  "kunnskapsstatus_forslag_til_johann": null
+ },
+ {
+  "id": "n13",
+  "navn": "medlemmer",
+  "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§27/ledd-2",
+  "kunnskapsstatus": "fortolkning",
+  "tolkningsargumenter": [
+   "ordlyd"
+  ],
+  "tolkningsbegrunnelse": "Ordlyd: dl. § 27 andre ledd «Forliksrådet skal ha tre medlemmer» oppretter vervet.",
+  "hjemmel_merknad_ny": "vervet er en rolle i det enkelte organet (forliksrådet)",
+  "kunnskapsstatus_forslag_til_johann": "tekstfunn"
+ },
+ {
+  "id": "n17",
+  "navn": "åpne barnehager",
+  "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§14/ledd-1",
+  "kunnskapsstatus": "fortolkning",
+  "tolkningsargumenter": [
+   "ordlyd",
+   "kontekst_system"
+  ],
+  "tolkningsbegrunnelse": "Ordlyd: § 14 første ledd nevner åpen barnehage som barnehageform ved siden av ordinær barnehage og familiebarnehage. Kontekst og system: at det er en fast rettslig kategori, støttes av særregelen i § 7a tredje ledd; loven har ingen definisjon.",
+  "hjemmel_merknad_ny": "§ 14 første ledd forutsetter barnehageformen; særregel i § 7a tredje ledd; ingen definisjon",
+  "kunnskapsstatus_forslag_til_johann": null
+ },
+ {
+  "id": "n24",
+  "navn": "bostedskommune",
+  "eid": "https://lovdata.no/eli/forskrift/2017/06/22/1050/nor/§2/ledd-1",
+  "kunnskapsstatus": "fortolkning",
+  "tolkningsargumenter": [
+   "ordlyd",
+   "kontekst_system"
+  ],
+  "tolkningsbegrunnelse": "Ordlyd: § 2 første ledd legger betalingsansvaret på bostedskommunen. Kontekst og system: forskriften definerer bostedskommune i § 1 første ledd nr. 1 («den kommunen hvor barnet er folkeregistrert»), og §§ 2–3 skiller bostedskommune, vertskommune og omsorgskommune.",
+  "hjemmel_merknad_ny": "definisjonen står i § 1 første ledd nr. 1 («den kommunen hvor barnet er folkeregistrert»)",
+  "kunnskapsstatus_forslag_til_johann": "tekstfunn (med hjemmel § 1 første ledd nr. 1)"
+ },
+ {
+  "id": "n31",
+  "navn": "institusjonen",
+  "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§10-4/ledd-1",
+  "kunnskapsstatus": "fortolkning",
+  "tolkningsargumenter": [
+   "ordlyd",
+   "kontekst_system"
+  ],
+  "tolkningsbegrunnelse": "Ordlyd: hotl. § 10-4 første ledd «en institusjon utpekt av regionalt helseforetak … kan institusjonen». Kontekst og system: medlemsregelen ligger i utpekingen etter spesialisthelsetjenesteloven § 2-1 a (nå femte ledd; § 10-4 viser fortsatt til fjerde ledd).",
+  "hjemmel_merknad_ny": null,
+  "kunnskapsstatus_forslag_til_johann": null
+ },
+ {
+  "id": "n33",
+  "navn": "Klagenemnda",
+  "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§1/ledd-1/punkt-1",
+  "kunnskapsstatus": "fortolkning",
+  "tolkningsargumenter": [
+   "ordlyd",
+   "kontekst_system"
+  ],
+  "tolkningsbegrunnelse": "Ordlyd: § 1 første ledd nr. 1 navngir NOKUTs klagenemnd. Kontekst og system: at «Klagenemnda» i §§ 2–3 er den, følger av kapittel 2; forskriften oppretter ikke nemnda.",
+  "hjemmel_merknad_ny": null,
+  "kunnskapsstatus_forslag_til_johann": null
+ },
+ {
+  "id": "n36",
+  "navn": "omsorgskommune",
+  "eid": "https://lovdata.no/eli/forskrift/2017/06/22/1050/nor/§3/ledd-1",
+  "kunnskapsstatus": "fortolkning",
+  "tolkningsargumenter": [
+   "ordlyd",
+   "kontekst_system"
+  ],
+  "tolkningsbegrunnelse": "Ordlyd: § 3 første ledd legger det økonomiske ansvaret på omsorgskommunen. Kontekst og system: forskriften definerer omsorgskommune i § 1 første ledd nr. 3, og §§ 2–3 skiller rollene.",
+  "hjemmel_merknad_ny": "definisjonen står i § 1 første ledd nr. 3 («den kommunen som har det økonomiske ansvaret etter barnevernloven»)",
+  "kunnskapsstatus_forslag_til_johann": "tekstfunn (med hjemmel § 1 første ledd nr. 3)"
+ },
+ {
+  "id": "n42",
+  "navn": "samiske barnehager",
+  "eid": "kap-3/rom-samiske-barnehager/ledd-1",
+  "kunnskapsstatus": "fortolkning",
+  "tolkningsargumenter": [
+   "ordlyd",
+   "kontekst_system"
+  ],
+  "tolkningsbegrunnelse": "Ordlyd: rammeplanen kap. 3 (samiske barnehager) første ledd: eieren skal vedtektsfeste det samiske formålet. Kontekst og system: at plikten leses som medlemsregel, bygger på fjerde ledd (samiske avdelinger) og barnehageloven § 10 tredje ledd.",
+  "hjemmel_merknad_ny": "rammeplanen kap. 3 (samiske barnehager) første ledd gir medlemsregelen (vedtektsfestet samisk formål); ingen definisjon",
+  "kunnskapsstatus_forslag_til_johann": null
+ },
+ {
+  "id": "n57",
+  "navn": "avdelingsledere",
+  "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§19/ledd-4",
+  "kunnskapsstatus": "fortolkning",
+  "tolkningsargumenter": [
+   "ordlyd"
+  ],
+  "tolkningsbegrunnelse": "Ordlyd: dl. § 19 fjerde ledd «kan det utnevnes en dommer som leder for hver avdeling»; samme ledd kaller dem «avdelingsledere».",
+  "hjemmel_merknad_ny": "§ 19 fjerde ledd: «kan det utnevnes en dommer som leder for hver avdeling»; ordet «avdelingsledere» står i samme ledd",
+  "kunnskapsstatus_forslag_til_johann": "normalisering"
+ },
+ {
+  "id": "n61",
+  "navn": "barne-, ungdoms- og familieetaten",
+  "eid": "https://lovdata.no/eli/lov/2021/06/18/97/nor/§16-1/ledd-2",
+  "kunnskapsstatus": "fortolkning",
+  "tolkningsargumenter": [
+   "ordlyd",
+   "kontekst_system"
+  ],
+  "tolkningsbegrunnelse": "Ordlyd: bvl. § 16-1 andre ledd navngir etaten og nivåene. Kontekst og system: første ledd regner etaten blant de statlige barnevernsmyndighetene.",
+  "hjemmel_merknad_ny": null,
+  "kunnskapsstatus_forslag_til_johann": null
+ },
+ {
+  "id": "n98",
+  "navn": "familievernkontor",
+  "eid": "https://lovdata.no/eli/lov/1997/06/19/62/nor/§2/ledd-1",
+  "kunnskapsstatus": "fortolkning",
+  "tolkningsargumenter": [
+   "ordlyd",
+   "kontekst_system"
+  ],
+  "tolkningsbegrunnelse": "Ordlyd: § 2 første ledd gir medlemsregelen (kontorer drevet av statlig regional familievernmyndighet eller etter avtale med den). Kontekst og system: loven forutsetter kontorene (tittelen og § 1), men oppretter dem ikke.",
+  "hjemmel_merknad_ny": "§ 2 første ledd gir medlemsregelen; loven forutsetter kontorene og oppretter dem ikke",
+  "kunnskapsstatus_forslag_til_johann": null
+ },
+ {
+  "id": "n100",
+  "navn": "Felles klagenemnd",
+  "eid": "https://lovdata.no/eli/lov/2024/03/08/9/nor/§14-2/ledd-1",
+  "kunnskapsstatus": "fortolkning",
+  "tolkningsargumenter": [
+   "ordlyd",
+   "kontekst_system"
+  ],
+  "tolkningsbegrunnelse": "Ordlyd: uhl. § 14-2 første ledd gir departementet adgang til å opprette nasjonale klagenemnder, men navngir ikke nemnda. Kontekst og system: at Felles klagenemnd er en slik nemnd, står i forskrifter i korpuset (UiB-forskriftene § 17-2 andre ledd: «den nasjonale Felles klagenemnd»).",
+  "hjemmel_merknad_ny": "uhl. § 14-2 første ledd gir adgangen; at Felles klagenemnd er en nasjonal klagenemnd etter den, står i forskrifter i korpuset; vedtaket som oppretter den, er ikke i korpus",
+  "kunnskapsstatus_forslag_til_johann": null
+ },
+ {
+  "id": "n102",
+  "navn": "Folketrygden",
+  "eid": "https://lovdata.no/eli/lov/1997/02/28/19/nor/§1-1/ledd-1",
+  "kunnskapsstatus": "fortolkning",
+  "tolkningsargumenter": [
+   "ordlyd",
+   "kontekst_system"
+  ],
+  "tolkningsbegrunnelse": "Ordlyd: ftrl. § 1-1 forutsetter folketrygden som ordning («Folketrygdens formål …»). Kontekst og system: loven som helhet regulerer ytelsene, og Nav-loven § 4 andre ledd og ftrl. § 21-11 a fordeler forvaltningen. Formål bærer ikke, selv om bestemmelsen er en formålsbestemmelse.",
+  "hjemmel_merknad_ny": null,
+  "kunnskapsstatus_forslag_til_johann": null
+ },
+ {
+  "id": "n116",
+  "navn": "Høyesteretts ankeutvalg",
+  "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§5/ledd-1",
+  "kunnskapsstatus": "fortolkning",
+  "tolkningsargumenter": [
+   "ordlyd",
+   "kontekst_system"
+  ],
+  "tolkningsbegrunnelse": "Ordlyd: dl. § 5 første ledd navngir ankeutvalget og sier hvordan det settes. Kontekst og system: avgjørelsesmyndigheten står i tvisteloven §§ 30-1 til 30-3.",
+  "hjemmel_merknad_ny": null,
+  "kunnskapsstatus_forslag_til_johann": null
+ },
+ {
+  "id": "n118",
+  "navn": "Innstillingsrådet",
+  "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§55a/ledd-1",
+  "kunnskapsstatus": "fortolkning",
+  "tolkningsargumenter": [
+   "ordlyd"
+  ],
+  "tolkningsbegrunnelse": "Ordlyd: dl. § 55 a første ledd navngir Innstillingsrådet for dommere, oppgavene, sammensetningen og at Kongen oppnevner medlemmene; bestemmelsen forutsetter rådet uten å si at det opprettes.",
+  "hjemmel_merknad_ny": null,
+  "kunnskapsstatus_forslag_til_johann": null
+ },
+ {
+  "id": "n120",
+  "navn": "kommunale barnehager",
+  "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§7/ledd-1",
+  "kunnskapsstatus": "fortolkning",
+  "tolkningsargumenter": [
+   "ordlyd",
+   "kontekst_system"
+  ],
+  "tolkningsbegrunnelse": "Ordlyd: § 7 første ledd bruker «kommunale barnehager». Kontekst og system: klassen avgrenses mot private barnehager i § 7 andre ledd og § 7a; loven har ingen definisjon.",
+  "hjemmel_merknad_ny": null,
+  "kunnskapsstatus_forslag_til_johann": null
+ },
+ {
+  "id": "n127",
+  "navn": "Kommunens klageorgan",
+  "eid": "https://lovdata.no/eli/lov/1967/02/10/nor/§28/ledd-2",
+  "kunnskapsstatus": "fortolkning",
+  "tolkningsargumenter": [
+   "ordlyd",
+   "kontekst_system"
+  ],
+  "tolkningsbegrunnelse": "Ordlyd: fvl. § 28 andre ledd peker ut klageinstansen for kommunale vedtak; «klageinstansen» er definert i første ledd. Kontekst og system: «Kommunens klageorgan» i forskrift om saksbehandlingsregler ved opptak i barnehage § 8 første ledd er klageinstansen etter § 28 andre ledd.",
+  "hjemmel_merknad_ny": null,
+  "kunnskapsstatus_forslag_til_johann": null,
+  "etter_replikk": true
+ },
+ {
+  "id": "n141",
+  "navn": "kompetent myndighet",
+  "eid": "https://lovdata.no/eli/forskrift/2008/09/12/1071/nor/§8/ledd-1",
+  "kunnskapsstatus": "fortolkning",
+  "tolkningsargumenter": [
+   "ordlyd",
+   "kontekst_system"
+  ],
+  "tolkningsbegrunnelse": "Ordlyd: § 8 første ledd gir medlemsregelen («kompetent myndighet i en stat utpekt i samsvar med lov …»). Kontekst og system: presiseringen «annen stat» kommer fra forskriftens tittel og §§ 1 og 3.",
+  "hjemmel_merknad_ny": "§ 8 første ledd gir medlemsregelen; utpekingen følger av fremmed rett",
+  "kunnskapsstatus_forslag_til_johann": null
+ },
+ {
+  "id": "n146",
+  "navn": "Lånekassens klagenemnd",
+  "eid": "https://lovdata.no/eli/lov/2005/06/03/37/nor/§18/ledd-1",
+  "kunnskapsstatus": "fortolkning",
+  "tolkningsargumenter": [
+   "ordlyd",
+   "kontekst_system"
+  ],
+  "tolkningsbegrunnelse": "Ordlyd: utdanningsstøtteloven § 18 første ledd: departementet oppnevner en klagenemnd som er klageinstans. Kontekst og system: navnet Lånekassens klagenemnd står i FOR-2025-07-02-1462 § 1 første ledd nr. 3 og § 10.",
+  "hjemmel_merknad_ny": null,
+  "kunnskapsstatus_forslag_til_johann": null
+ },
+ {
+  "id": "n151",
+  "navn": "NOKUT",
+  "eid": "https://lovdata.no/eli/lov/2024/03/08/9/nor/§16-1/ledd-1",
+  "kunnskapsstatus": "fortolkning",
+  "tolkningsargumenter": [
+   "ordlyd",
+   "kontekst_system"
+  ],
+  "tolkningsbegrunnelse": "Ordlyd: uhl. § 16-1 første ledd navngir organet med fullt navn og kortform. Kontekst og system: at det er et eget organ, følger av § 16-2 (faglig uavhengig) og § 16-4 (styre); ingen bestemmelse oppretter det.",
+  "hjemmel_merknad_ny": "uhl. § 16-1 og fagskoleloven § 4 b forutsetter NOKUT («Nasjonalt organ for kvalitet i utdanningen (NOKUT)»), men oppretter det ikke",
+  "kunnskapsstatus_forslag_til_johann": null
+ },
+ {
+  "id": "n168",
+  "navn": "Rettsvitner",
+  "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§101/ledd-1",
+  "kunnskapsstatus": "fortolkning",
+  "tolkningsargumenter": [
+   "ordlyd"
+  ],
+  "tolkningsbegrunnelse": "Ordlyd: dl. § 101 forutsetter rollen («Rettsvitner oppnevnes av retten eller av den tjenestemann som skal styre forretningen») og gir tjenesteplikten i andre ledd.",
+  "hjemmel_merknad_ny": "§ 101 første ledd: oppnevnes av retten eller den som styrer forretningen; andre ledd: tjenesteplikten",
+  "kunnskapsstatus_forslag_til_johann": null
+ },
+ {
+  "id": "n180",
+  "navn": "student- og elevrepresentantene",
+  "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§11/ledd-2/punkt-2",
+  "kunnskapsstatus": "fortolkning",
+  "tolkningsargumenter": [
+   "ordlyd",
+   "kontekst_system"
+  ],
+  "tolkningsbegrunnelse": "Ordlyd: § 11 andre ledd nr. 2 oppretter plassen, og tredje ledd kaller den «student- og elevrepresentantene». Kontekst og system: «Klagenemnda» i § 11 er Lånekassens klagenemnd (kap. 4, § 10).",
+  "hjemmel_merknad_ny": "§ 11 andre ledd nr. 2 oppretter plassen; tredje ledd kaller den «student- og elevrepresentantene»",
+  "kunnskapsstatus_forslag_til_johann": "normalisering",
+  "etter_replikk": true
+ },
+ {
+  "id": "n181",
+  "navn": "studentrepresentantene",
+  "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§3/ledd-2/punkt-4",
+  "kunnskapsstatus": "fortolkning",
+  "tolkningsargumenter": [
+   "ordlyd",
+   "kontekst_system"
+  ],
+  "tolkningsbegrunnelse": "Ordlyd: § 3 andre ledd nr. 4 oppretter plassene, og tredje og fjerde ledd kaller dem «studentrepresentantene». Kontekst og system: «Klagenemnda» i § 3 er NOKUTs klagenemnd (kap. 2, § 1 første ledd nr. 1).",
+  "hjemmel_merknad_ny": "§ 3 andre ledd nr. 4 oppretter plassene; tredje ledd kaller dem «studentrepresentantene»",
+  "kunnskapsstatus_forslag_til_johann": "normalisering",
+  "etter_replikk": true
+ },
+ {
+  "id": "n187",
+  "navn": "særskilt organ",
+  "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§43/ledd-2",
+  "kunnskapsstatus": "fortolkning",
+  "tolkningsargumenter": [
+   "ordlyd"
+  ],
+  "tolkningsbegrunnelse": "Ordlyd: dl. § 43 andre ledd gir selv medlemsregelen («et annet særskilt organ som er oppnevnt av Kongen, Stortinget eller et departement eller en statsforvalter for å granske faktiske forhold …»).",
+  "hjemmel_merknad_ny": null,
+  "kunnskapsstatus_forslag_til_johann": null
+ },
+ {
+  "id": "n190",
+  "navn": "Trollheimen",
+  "eid": "https://lovdata.no/eli/lov/1984/12/21/101/nor/§1/ledd-1",
+  "kunnskapsstatus": "fortolkning",
+  "tolkningsargumenter": [
+   "ordlyd",
+   "kontekst_system"
+  ],
+  "tolkningsbegrunnelse": "Ordlyd: Trollheimenloven § 1 første ledd regner opp de sju kommunene. Kontekst og system: navnet «Trollheimen og omegn» står i reindriftsloven § 2 andre ledd, og §§ 3–4 viser at oppregningen avgrenser et område. Formål bærer ikke.",
+  "hjemmel_merknad_ny": "§ 1 første ledd regner opp kommunene; navnet «Trollheimen og omegn» står i reindriftsloven § 2 andre ledd",
+  "kunnskapsstatus_forslag_til_johann": null
+ },
+ {
+  "id": "n192",
+  "navn": "vertskommune",
+  "eid": "https://lovdata.no/eli/forskrift/2017/06/22/1050/nor/§2/ledd-1",
+  "kunnskapsstatus": "fortolkning",
+  "tolkningsargumenter": [
+   "ordlyd",
+   "kontekst_system"
+  ],
+  "tolkningsbegrunnelse": "Ordlyd: § 2 første ledd: betaling etter avtale med vertskommunen. Kontekst og system: forskriften definerer vertskommune i § 1 første ledd nr. 2, og §§ 2–3 skiller rollene.",
+  "hjemmel_merknad_ny": "definisjonen står i § 1 første ledd nr. 2 («den kommunen som gir barnet spesialpedagogisk hjelp»)",
+  "kunnskapsstatus_forslag_til_johann": "tekstfunn (med hjemmel § 1 første ledd nr. 2)"
+ }
+]

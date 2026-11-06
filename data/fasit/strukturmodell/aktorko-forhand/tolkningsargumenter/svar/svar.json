@@ -1,0 +1,182 @@
+[
+ {
+  "id": "n7",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Argumentene står. Relasjonen omtale_av regionalt helseforetak bæres ikke av hjemmelen og strider mot den; den er eget steg og skrives ikke av godkjenningen, så den rettes ikke her, men meldes til Johann. Den utdaterte hjemmelmerknaden skrives om, fordi den lagres i begrunnelsen.",
+  "kilder": [
+   "docs/profil/03 §5–6",
+   "docs/33 §4.6",
+   "runde1/utfordringer.json"
+  ]
+ },
+ {
+  "id": "n13",
+  "svar": "aksepter",
+  "tekst": "Aksepteres: tekstfunn er riktigere enn normaliseringen jeg foreslo (kalibrering n144/n150). Kunnskapsstatusen endres ikke stille; den foreslås for Johann. Til han avgjør, står fortolkning med ordlyd i fila, så forslaget kan godkjennes. Merknaden «ikke relevant: …» filtreres ikke bort og skrives om.",
+  "kilder": [
+   "docs/profil/03 §5–6",
+   "docs/33 §4.6",
+   "runde1/utfordringer.json"
+  ]
+ },
+ {
+  "id": "n17",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Merknaden skrives om.",
+  "kilder": [
+   "docs/profil/03 §5–6",
+   "docs/33 §4.6",
+   "runde1/utfordringer.json"
+  ]
+ },
+ {
+  "id": "n24",
+  "svar": "aksepter",
+  "tekst": "Aksepteres; definisjonen er kontrollert i basen. Å flytte hjemmelen til § 1 første ledd nr. 1 med tekstfunn er en endring av hjemmel og kunnskapsstatus og foreslås for Johann. Til da står § 2 første ledd med fortolkning, ordlyd og kontekst og system (som juristen selv angir), og den gale merknaden skrives om.",
+  "kilder": [
+   "docs/profil/03 §5–6",
+   "docs/33 §4.6",
+   "runde1/utfordringer.json"
+  ]
+ },
+ {
+  "id": "n31",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Henvisningen i medlemsregelen (fjerde → femte ledd) gjelder relasjonen, som er eget steg; den meldes til Johann og rettes ikke her. Begrunnelsen for argumentene nevner det.",
+  "kilder": [
+   "docs/profil/03 §5–6",
+   "docs/33 §4.6",
+   "runde1/utfordringer.json"
+  ]
+ },
+ {
+  "id": "n36",
+  "svar": "aksepter",
+  "tekst": "Som n24.",
+  "kilder": [
+   "docs/profil/03 §5–6",
+   "docs/33 §4.6",
+   "runde1/utfordringer.json"
+  ]
+ },
+ {
+  "id": "n42",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Merknaden skrives om.",
+  "kilder": [
+   "docs/profil/03 §5–6",
+   "docs/33 §4.6",
+   "runde1/utfordringer.json"
+  ]
+ },
+ {
+  "id": "n57",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Normalisering foreslås for Johann; til da står fortolkning med ordlyd. Merknaden «mangler» skrives om.",
+  "kilder": [
+   "docs/profil/03 §5–6",
+   "docs/33 §4.6",
+   "runde1/utfordringer.json"
+  ]
+ },
+ {
+  "id": "n61",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Relasjonen ledes_av direktoratet er en slutning uten støtte i korpus; den er eget steg og meldes til Johann.",
+  "kilder": [
+   "docs/profil/03 §5–6",
+   "docs/33 §4.6",
+   "runde1/utfordringer.json"
+  ]
+ },
+ {
+  "id": "n98",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Merknaden skrives om.",
+  "kilder": [
+   "docs/profil/03 §5–6",
+   "docs/33 §4.6",
+   "runde1/utfordringer.json"
+  ]
+ },
+ {
+  "id": "n100",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Merknaden skrives om.",
+  "kilder": [
+   "docs/profil/03 §5–6",
+   "docs/33 §4.6",
+   "runde1/utfordringer.json"
+  ]
+ },
+ {
+  "id": "n141",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Merknaden skrives om.",
+  "kilder": [
+   "docs/profil/03 §5–6",
+   "docs/33 §4.6",
+   "runde1/utfordringer.json"
+  ]
+ },
+ {
+  "id": "n151",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. «mangler:» tas ut av merknaden; resten står.",
+  "kilder": [
+   "docs/profil/03 §5–6",
+   "docs/33 §4.6",
+   "runde1/utfordringer.json"
+  ]
+ },
+ {
+  "id": "n168",
+  "svar": "aksepter",
+  "tekst": "Aksepteres: bare ordlyd. Merknaden skrives om.",
+  "kilder": [
+   "docs/profil/03 §5–6",
+   "docs/33 §4.6",
+   "runde1/utfordringer.json"
+  ]
+ },
+ {
+  "id": "n180",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Normalisering foreslås for Johann; til da står fortolkning med ordlyd og kontekst og system (juristens reserve). Merknaden skrives om.",
+  "kilder": [
+   "docs/profil/03 §5–6",
+   "docs/33 §4.6",
+   "runde1/utfordringer.json"
+  ]
+ },
+ {
+  "id": "n181",
+  "svar": "aksepter",
+  "tekst": "Som n180.",
+  "kilder": [
+   "docs/profil/03 §5–6",
+   "docs/33 §4.6",
+   "runde1/utfordringer.json"
+  ]
+ },
+ {
+  "id": "n190",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Merknaden skrives om.",
+  "kilder": [
+   "docs/profil/03 §5–6",
+   "docs/33 §4.6",
+   "runde1/utfordringer.json"
+  ]
+ },
+ {
+  "id": "n192",
+  "svar": "aksepter",
+  "tekst": "Som n24. Relasjonen rolle_for kommune skal være rolle_innehas_av kommune (som n24/n36); den er eget steg og meldes til Johann.",
+  "kilder": [
+   "docs/profil/03 §5–6",
+   "docs/33 §4.6",
+   "runde1/utfordringer.json"
+  ]
+ }
+]

@@ -1,0 +1,1647 @@
+[
+ {
+  "id": "n2",
+  "navn": "barnehagen",
+  "type": "klasse",
+  "undertype": null,
+  "ny_node": "barnehage",
+  "relasjoner": [
+   {
+    "relasjon": "medlemsregel",
+    "til": null,
+    "merknad": "godkjente barnehager etter bhl. § 14 a, kriteriene i § 6 første ledd"
+   }
+  ],
+  "hjemmel": {
+   "rettskildeId": "cc249ccf-642c-46e5-b600-ad5e6536d85f",
+   "rettskilde": "Lov om barnehager (barnehageloven)",
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§6/ledd-1",
+   "sitat": "Virksomheter som har ansvar for barn under opplæringspliktig alder, plikter å søke godkjenning av barnehagedriften etter § 14 a når:",
+   "kunnskapsstatus": "fortolkning"
+  },
+  "rettskilde_for_bestemmelsen": "Lov om barnehager (barnehageloven)",
+  "hjemmel_merknad": "medlemsregel: virksomheter med godkjenningsplikt etter § 6 og godkjenning etter § 14 a; ingen bestemmelse oppretter klassen",
+  "klassifiseringens_begrunnelse": "«barnehagen» brukes distributivt om enhver barnehage (generisk omtale av klassen), aldri om én navngitt virksomhet. Ikke en aktør. Rammeplan- og merknadsforekomstene (4 av 21) er ikke hjemmel.",
+  "tidligere_juristrunde": {
+   "dom": "holder",
+   "innvending": null,
+   "modellerer_svar": null
+  },
+  "bestemmelsen_i_basen": [
+   {
+    "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§6/ledd-1",
+    "tekst": "Virksomheter som har ansvar for barn under opplæringspliktig alder, plikter å søke godkjenning av barnehagedriften etter § 14 a når:"
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§6/ledd-1/punkt-1",
+    "tekst": "virksomheten er regelmessig og ett eller flere barn har en ukentlig oppholdstid på mer enn 20 timer, og"
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§6/ledd-1/punkt-2",
+    "tekst": "antall barn som er til stede samtidig, er ti eller flere når barna er tre år eller eldre, eventuelt fem eller flere når barna er under tre år, og"
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§6/ledd-1/punkt-3",
+    "tekst": "virksomheten utføres mot godtgjøring."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§6/ledd-2",
+    "tekst": "Virksomheter etter første ledd må være godkjent etter § 14 a før barnehagedriften settes i gang."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§6/ledd-3",
+    "tekst": "Barnehagen skal søke om godkjenning av endringer som går utover rammene som er satt for barnehagens godkjenning etter §§ 14 eller 14 a."
+   }
+  ],
+  "foreslatt": {
+   "kunnskapsstatus": "fortolkning",
+   "tolkningsargumenter": [
+    "ordlyd",
+    "kontekst_system"
+   ]
+  }
+ },
+ {
+  "id": "n3",
+  "navn": "barnehageeier",
+  "type": "rolle",
+  "undertype": null,
+  "ny_node": "barnehageeier",
+  "relasjoner": [
+   {
+    "relasjon": "rolle_for",
+    "til": {
+     "ny_node": "barnehage"
+    },
+    "merknad": "eieren av den enkelte barnehagen"
+   },
+   {
+    "relasjon": "rolle_innehas_av",
+    "til": {
+     "id": "eb25cd79-007e-404d-9cd5-c85800b65272",
+     "navn": "kommune"
+    },
+    "merknad": "kommunale barnehager, bhl. § 7 første ledd"
+   },
+   {
+    "relasjon": "rolle_innehas_av",
+    "til": {
+     "ny_node": "privat barnehage"
+    },
+    "merknad": "rettssubjektet som driver en privat barnehage, bhl. § 7 andre ledd og § 7a første ledd [slutning: den private barnehagen er selv rettssubjektet, med unntakene i § 7a tredje ledd]"
+   }
+  ],
+  "hjemmel": {
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§7",
+   "kunnskapsstatus": "fortolkning"
+  },
+  "rettskilde_for_bestemmelsen": "Lov om barnehager (barnehageloven)",
+  "hjemmel_merknad": "bhl. § 7 første og andre ledd fordeler ansvaret mellom kommunen (kommunale barnehager) og rettssubjektet som driver en privat barnehage; ordet «barnehageeier» står i § 11 første ledd",
+  "klassifiseringens_begrunnelse": "En rolle et rettssubjekt har overfor en barnehage, ikke en aktør. Rammeplanen sier selv «jf. barnehageloven § 7 første ledd».",
+  "tidligere_juristrunde": {
+   "dom": "innvending",
+   "innvending": "Rollen er riktig, men innehaverne er ufullstendige og hjemmelen for smal. § 7 første ledd gjelder bare kommunale barnehager. For private barnehager legger § 7 andre ledd ansvaret på rettssubjektet som driver barnehagen (ved styret, det bestemmende organet eller den fysiske personen), og etter § 7a første ledd er det som hovedregel barnehagen selv. Med bare «rolle_innehas_av kommune» blir forekomstene i tilskudds- og foreldrebetalingsforskriftene, som gjelder private barnehager, knyttet til kommunen. Hjemmelen bør være hele § 7 («Ansvaret for barnehagen»), fortsatt fortolkning, fordi ordet «barnehageeier» ikke står i loven.",
+   "modellerer_svar": "aksepter"
+  },
+  "bestemmelsen_i_basen": [
+   {
+    "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§7/ledd-1",
+    "tekst": "Kommunen har ansvaret for at kommunale barnehager drives i samsvar med loven."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§7/ledd-2",
+    "tekst": "Styret for et rettssubjekt som driver en privat barnehage, har ansvaret for at barnehagen drives i samsvar med loven. Dersom barnehagens organisasjonsform innebærer at det ikke er krav om å ha et styre, tilligger ansvaret det bestemmende organ som gjelder for barnehagens organisasjonsform. For barnehager som drives som enkeltpersonforetak, er det den fysiske personen som innehar enkeltpersonforetaket, som er ansvarlig."
+   }
+  ],
+  "foreslatt": {
+   "kunnskapsstatus": "fortolkning",
+   "tolkningsargumenter": [
+    "ordlyd",
+    "kontekst_system"
+   ]
+  }
+ },
+ {
+  "id": "n4",
+  "navn": "private barnehager",
+  "type": "klasse",
+  "undertype": null,
+  "ny_node": "privat barnehage",
+  "relasjoner": [
+   {
+    "relasjon": "underklasse_av",
+    "til": {
+     "ny_node": "barnehage"
+    },
+    "merknad": ""
+   }
+  ],
+  "hjemmel": {
+   "rettskildeId": "cc249ccf-642c-46e5-b600-ad5e6536d85f",
+   "rettskilde": "Lov om barnehager (barnehageloven)",
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§7a/ledd-1",
+   "sitat": "Hver private barnehage skal være et selvstendig rettssubjekt.",
+   "kunnskapsstatus": "fortolkning"
+  },
+  "rettskilde_for_bestemmelsen": "Lov om barnehager (barnehageloven)",
+  "hjemmel_merknad": "medlemsregel: barnehage som ikke eies av kommunen (bhl. § 7 første og andre ledd); § 7 a første ledd: hver private barnehage er et selvstendig rettssubjekt",
+  "klassifiseringens_begrunnelse": "Flertallsform uten artikkel om en avgrenset mengde barnehager. Underklasse av barnehage.",
+  "tidligere_juristrunde": {
+   "dom": "holder",
+   "innvending": null,
+   "modellerer_svar": null
+  },
+  "bestemmelsen_i_basen": [
+   {
+    "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§7a/ledd-1",
+    "tekst": "Hver private barnehage skal være et selvstendig rettssubjekt."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§7a/ledd-2",
+    "tekst": "Kommunale og private barnehager skal være registrert med eget organisasjonsnummer i Enhetsregisteret."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§7a/ledd-3",
+    "tekst": "Første ledd gjelder ikke for åpne barnehager og ikke for eiere som alene, sammen med nærstående eller selskap i samme konsern eier"
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§7a/ledd-3/punkt-1",
+    "tekst": "ordinære barnehager med til sammen færre enn tretti barn, eller"
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§7a/ledd-3/punkt-2",
+    "tekst": "familiebarnehager med til sammen færre enn ti barn."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§7a/ledd-4",
+    "tekst": "Departementet kan gi forskrift om unntak fra kravet i første ledd i særlige tilfeller."
+   }
+  ],
+  "foreslatt": {
+   "kunnskapsstatus": "fortolkning",
+   "tolkningsargumenter": [
+    "ordlyd",
+    "kontekst_system"
+   ]
+  }
+ },
+ {
+  "id": "n7",
+  "navn": "spesialisthelsetjenesten",
+  "type": "klasse",
+  "undertype": null,
+  "ny_node": "virksomheter som yter spesialisthelsetjenester",
+  "relasjoner": [
+   {
+    "relasjon": "medlemsregel",
+    "til": null,
+    "merknad": "virksomheter som tilbyr eller yter spesialisthelsetjenester, staten (RHF/HF) og private, shl. § 1-2 første ledd"
+   },
+   {
+    "relasjon": "omtale_av",
+    "til": {
+     "ny_node": "regionalt helseforetak"
+    },
+    "merknad": "[slutning] RHF har sørge-for-ansvaret (§ 2-1 a), men er ikke eneste tjenesteyter"
+   }
+  ],
+  "hjemmel": {
+   "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§1-2/ledd-1",
+   "kunnskapsstatus": "fortolkning"
+  },
+  "rettskilde_for_bestemmelsen": "Lov om spesialisthelsetjenesten m.m. (spesialisthelsetjenesteloven)",
+  "hjemmel_merknad": "det regionale helseforetaket skal sørge for spesialisthelsetjeneste; hvem som yter den, er en slutning",
+  "klassifiseringens_begrunnelse": "Et tjenestenivå, ikke en virksomhet. I hol. kap. 9 betyr det de som yter spesialisthelsetjenester i saken. Kan også leses som generisk omtale av klassen helseforetak.",
+  "tidligere_juristrunde": {
+   "dom": "innvending",
+   "innvending": "«Spesialisthelsetjenesten» i hotl. §§ 5-11, 9-7, 9-9 og 9-13 er tjenestesektoren som pliktsubjekt (RHF, HF og private som yter spesialisthelsetjenester), ikke en rolle som bare de regionale helseforetakene har. Shl. § 2-1 a første ledd er RHF-enes sørge-for-ansvar, ikke en bestemmelse om hvem som yter tjenesten, og koblingen til RHF er en slutning som ikke er merket. Fasiten har ordet som annet:tjenestesektor (helse-og-omsorgstjenesteloven a47) og klassen «virksomheter som yter spesialisthelsetjenester» (spesialisthelsetjenesteloven a52). Shl. § 1-2 første ledd («spesialisthelsetjenester som tilbys eller ytes i riket av staten og private») er bedre grunnlag.",
+   "modellerer_svar": "aksepter"
+  },
+  "bestemmelsen_i_basen": [
+   {
+    "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§1-2/ledd-1",
+    "tekst": "Loven gjelder for spesialisthelsetjenester som tilbys eller ytes i riket av staten og private, når ikke annet følger av de enkelte bestemmelser i loven."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§1-2/ledd-2",
+    "tekst": "Departementet kan ved forskrift eller i det enkelte tilfelle bestemme hva som er spesialisthelsetjeneste."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§1-2/ledd-3",
+    "tekst": "Kongen gir forskrifter om lovens anvendelse på Svalbard og Jan Mayen, og kan fastsette særlige regler under hensyn til de stedlige forhold. Kongen kan bestemme om og i hvilken utstrekning bestemmelser som er gitt i denne lov skal gjelde på norske skip i utenriksfart, i norske sivile luftfartøyer i internasjonal trafikk, og på installasjoner og fartøy i arbeid på norsk kontinentalsokkel."
+   }
+  ],
+  "foreslatt": {
+   "kunnskapsstatus": "fortolkning",
+   "tolkningsargumenter": [
+    "ordlyd",
+    "kontekst_system"
+   ]
+  }
+ },
+ {
+  "id": "n13",
+  "navn": "medlemmer",
+  "type": "rolle",
+  "undertype": null,
+  "ny_node": "medlem av forliksrådet",
+  "relasjoner": [
+   {
+    "relasjon": "rolle_for",
+    "til": {
+     "ny_node": "forliksråd"
+    },
+    "merknad": "dl. § 27 andre ledd; forekomstene i FOR-2025-07-02-1462 § 3 skilles ut som «medlem av NOKUTs klagenemnd» med hjemmel § 3 andre ledd"
+   }
+  ],
+  "hjemmel": {
+   "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§27/ledd-2",
+   "kunnskapsstatus": "fortolkning"
+  },
+  "rettskilde_for_bestemmelsen": "Lov om domstolene (domstolloven)",
+  "hjemmel_merknad": "ikke relevant: vervet er en rolle i det enkelte organet",
+  "klassifiseringens_begrunnelse": "Medlemmer av et organ er personer med verv, ikke aktører. Grupperingen slår sammen to organer (NOKUTs klagenemnd og forliksrådet). PILOT.",
+  "tidligere_juristrunde": {
+   "dom": "innvending",
+   "innvending": "Én generisk rolle «medlem (av organ)» for to ulike organer (forliksrådet og NOKUTs klagenemnd) slår sammen to roller; modellereren har selv flagget grupperingen. Fasitpraksis gjør medlemmene til en rolle i det enkelte organet (#309 nr. 21: «medlemmer av Sametinget») eller til objektet i en G har_medlemmer-kant (FORMAT.md, #352). Hjemmelen mangler heller ikke: «Forliksrådet skal ha tre medlemmer» (dl. § 27 andre ledd) og «Klagenemnda skal ha seks medlemmer» (FOR-2025-07-02-1462 § 3 andre ledd) oppretter vervene. At køregelen ikke foreslår «skal ha» uten artikkel (juristrunde-440), hindrer ikke at et menneske registrerer det med fortolkning. Forekomstene bør skilles ut per organ.",
+   "modellerer_svar": "aksepter"
+  },
+  "bestemmelsen_i_basen": [
+   {
+    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§27/ledd-1",
+    "tekst": "I hver kommune skal det være et forliksråd."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§27/ledd-2",
+    "tekst": "Forliksrådet skal ha tre medlemmer og like mange varamedlemmer. Blant medlemmene og blant varamedlemmene skal det være både kvinner og menn. Varamedlemmene tilkalles i den rekkefølge oppnevnelsen viser."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§27/ledd-3",
+    "tekst": "Kommunestyret velger et av medlemmene til formann. Har denne forfall, trer den av de andre som er nevnt først i oppnevnelsen og som kan gjøre tjeneste, i dennes sted."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§27/ledd-4",
+    "tekst": "Med samtykke fra departementet kan kommunestyret fastsette at forliksrådet skal ha to eller flere avdelinger. Hver avdeling velges etter annet og tredje ledd. Den ene formannen velges som leder for domstolen. Den andre formannen, eller de andre formennene i den rekkefølge kommunen har fastsatt, er lederens stedfortreder som leder for domstolen."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§27/ledd-5",
+    "tekst": "Arbeids-, skyss- og kostgodtgjørelse til medlemmene og varamedlemmene fastsettes i samsvar med forskrift gitt av Kongen. For bestemte kommuner kan departementet fastsette at formannen og i tilfelle også de øvrige medlemmene skal ha et midlertidig tilsettingsforhold etter tjenestemannsloven."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§27/ledd-6",
+    "tekst": "Namsfogden er sekretariat for forliksrådene i sitt distrikt. Kongen kan ved forskrift gi regler om forholdet mellom forliksrådet og sekretariatet."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§27/ledd-7",
+    "tekst": "Kommuner som har samme sekretariat for forliksrådet og dessuten ligger i samme domssogn, kan med tilslutning av minst 2/3 av hver av kommunestyrenes medlemmer beslutte å ha felles forliksråd dersom kommunene samtidig er enige om hvor mange medlemmer og varamedlemmer hver kommune skal velge, og om hvordan det skal sikres at det blant både medlemmene og varamedlemmene er både kvinner og menn. Felles forliksråd kan opprettes uavhengig av funksjonsperioden etter § 57."
+   }
+  ],
+  "foreslatt": {
+   "kunnskapsstatus": "normalisering",
+   "tolkningsargumenter": [
+    "ordlyd"
+   ]
+  }
+ },
+ {
+  "id": "n17",
+  "navn": "åpne barnehager",
+  "type": "klasse",
+  "undertype": null,
+  "ny_node": "åpen barnehage",
+  "relasjoner": [
+   {
+    "relasjon": "underklasse_av",
+    "til": {
+     "ny_node": "barnehage"
+    },
+    "merknad": ""
+   }
+  ],
+  "hjemmel": {
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§14/ledd-1",
+   "kunnskapsstatus": "fortolkning"
+  },
+  "rettskilde_for_bestemmelsen": "Lov om barnehager (barnehageloven)",
+  "hjemmel_merknad": "mangler: ingen definisjon i lovteksten er kontrollert (2 av 3 forekomster er merknader)",
+  "klassifiseringens_begrunnelse": "Barnehageform, underklasse av barnehage.",
+  "tidligere_juristrunde": {
+   "dom": "innvending",
+   "innvending": "«Mangler» er for strengt. Barnehageloven § 14 første ledd nevner «åpen barnehage» som barnehageform ved siden av ordinær barnehage og familiebarnehage, og § 7a tredje ledd har en særregel for åpne barnehager. Det er ingen definisjon, men loven forutsetter klassen, og medlemsregelen (barnehager godkjent som åpen barnehage) har kilde. Etter Johanns regel 2026-11-05 skal hullet da ikke vises. Status fortolkning.",
+   "modellerer_svar": "aksepter"
+  },
+  "bestemmelsen_i_basen": [
+   {
+    "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§14/ledd-1",
+    "tekst": "Kommunen kan godkjenne søknader om etablering av private barnehager og søknader om endringer i etableringsgodkjenningen. Kommunen skal legge vekt på behovet for nye barnehageplasser og barnehagestrukturen i kommunen. I tillegg kan kommunen legge vekt på om barnehagen er ordinær, familiebarnehage eller åpen barnehage, om barnehagen har et særskilt pedagogisk tilbud, om barnehagen er ideell, og søkerens seriøsitet og egnethet. Med ideelle barnehager menes barnehager som ikke har erverv til formål, og som reinvesterer overskudd i barnehagedrift."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§14/ledd-2",
+    "tekst": "Kommunen kan ved etableringsgodkjenningen stille vilkår som har saklig sammenheng med godkjenningen, og som ikke er uforholdsmessig tyngende for barnehagen."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§14/ledd-3",
+    "tekst": "En etableringsgodkjenning faller bort dersom barnehagedriften ikke er startet opp i løpet av fem år etter at godkjenningen ble gitt, eller barnehagedriften legges ned."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§14/ledd-4",
+    "tekst": "Departementet kan gi forskrift om godkjenning og drift av familiebarnehager."
+   }
+  ],
+  "foreslatt": {
+   "kunnskapsstatus": "fortolkning",
+   "tolkningsargumenter": [
+    "ordlyd",
+    "kontekst_system"
+   ]
+  }
+ },
+ {
+  "id": "n24",
+  "navn": "bostedskommune",
+  "type": "rolle",
+  "undertype": null,
+  "ny_node": "bostedskommune",
+  "relasjoner": [
+   {
+    "relasjon": "rolle_innehas_av",
+    "til": {
+     "id": "eb25cd79-007e-404d-9cd5-c85800b65272",
+     "navn": "kommune"
+    },
+    "merknad": "overfor barnet (privat part, ingen node)"
+   }
+  ],
+  "hjemmel": {
+   "rettskildeId": "4345e0ee-98a4-411e-aa38-7c1201a6a1f3",
+   "rettskilde": "Forskrift om ansvar for spesialpedagogisk hjelp for barn under opplæringspliktig alder",
+   "eid": "https://lovdata.no/eli/forskrift/2017/06/22/1050/nor/§2/ledd-1",
+   "sitat": "For barn under opplæringspliktig alder som får spesialpedagogisk hjelp utenfor bostedskommunen, betaler bostedskommunen for utgiftene til spesialpedagogisk hjelp etter avtale med vertskommunen.",
+   "kunnskapsstatus": "fortolkning"
+  },
+  "rettskilde_for_bestemmelsen": "Forskrift om ansvar for spesialpedagogisk hjelp for barn under opplæringspliktig alder",
+  "hjemmel_merknad": "forskriften bruker rollen uten å definere den",
+  "klassifiseringens_begrunnelse": "Johanns avgjørelse 2026-11-05: en rolle en kommune har overfor noen. PILOT.",
+  "tidligere_juristrunde": {
+   "dom": "innvending",
+   "innvending": "Rolle er riktig etter Johanns avgjørelse 2026-11-05, men relasjonstypen er snudd. Kommunen er innehaveren av rollen; rollen er «for» barnet. I n3 bruker modellereren «rolle_innehas_av» for innehaveren og «rolle_for» for det rollen gjelder, og her står kommunen som «rolle_for». Barnet er privat part og får ingen node, så relasjonen skal være rolle_innehas_av kommune, og «overfor barnet» står i merknaden.",
+   "modellerer_svar": "aksepter"
+  },
+  "bestemmelsen_i_basen": [
+   {
+    "eid": "https://lovdata.no/eli/forskrift/2017/06/22/1050/nor/§2/ledd-1",
+    "tekst": "For barn under opplæringspliktig alder som får spesialpedagogisk hjelp utenfor bostedskommunen, betaler bostedskommunen for utgiftene til spesialpedagogisk hjelp etter avtale med vertskommunen."
+   },
+   {
+    "eid": "https://lovdata.no/eli/forskrift/2017/06/22/1050/nor/§2/ledd-2",
+    "tekst": "Bostedskommunen skal fastsette omfanget av den spesialpedagogiske hjelpen etter en sakkyndig vurdering fra vertskommunen. Bostedskommunen fatter vedtak om spesialpedagogisk hjelp."
+   }
+  ],
+  "foreslatt": {
+   "kunnskapsstatus": "fortolkning",
+   "tolkningsargumenter": [
+    "ordlyd",
+    "kontekst_system"
+   ]
+  }
+ },
+ {
+  "id": "n31",
+  "navn": "institusjonen",
+  "type": "klasse",
+  "undertype": null,
+  "ny_node": "institusjon utpekt av regionalt helseforetak",
+  "relasjoner": [
+   {
+    "relasjon": "medlemsregel",
+    "til": null,
+    "merknad": "institusjoner utpekt av RHF etter shl. § 2-1 a fjerde ledd (hotl. §§ 10-2 til 10-4); forekomsten i FOR-2017-06-22-1050 § 5 skilles ut som barnevernsinstitusjon (bvl. § 16-1 tredje ledd)"
+   }
+  ],
+  "hjemmel": {
+   "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§10-4/ledd-1",
+   "kunnskapsstatus": "fortolkning"
+  },
+  "rettskilde_for_bestemmelsen": "Lov om kommunale helse- og omsorgstjenester m.m. (helse- og omsorgstjenesteloven)",
+  "hjemmel_merknad": "ikke relevant",
+  "klassifiseringens_begrunnelse": "Henvisning til en institusjon som er nevnt før (barnevernsinstitusjon / rusinstitusjon). To referenter i samme navn.",
+  "tidligere_juristrunde": {
+   "dom": "innvending",
+   "innvending": "Ikke_aktør er feil for minst én forekomst. I hotl. § 10-4 første ledd har institusjonen kompetanse («kan institusjonen sette som vilkår at den rusmiddelavhengige kan holdes tilbake»), altså tvangsmyndighet. Fasiten har den som egen node, «institusjon utpekt av regionalt helseforetak» (helse-og-omsorgstjenesteloven a48, med kompetanse i § 10-4). I FOR-2017-06-22-1050 § 5 første ledd er det barnevernsinstitusjonen, med en plikt («skal institusjonen sørge for nødvendig lokale»). Barnevernsloven § 16-1 tredje ledd sier at barnevernsinstitusjonene er statlig barnevernsmyndighet på lokalt nivå. Begge er klasser, med ulike referenter, og bør skilles ut.",
+   "modellerer_svar": "aksepter"
+  },
+  "bestemmelsen_i_basen": [
+   {
+    "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§10-4/ledd-1",
+    "tekst": "Når en rusmiddelavhengig på grunnlag av eget samtykke blir tatt inn i en institusjon utpekt av regionalt helseforetak, jf. spesialisthelsetjenesteloven § 2-1a fjerde ledd, kan institusjonen sette som vilkår at den rusmiddelavhengige kan holdes tilbake i opptil tre uker regnet fra inntaket."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§10-4/ledd-2",
+    "tekst": "Ved opphold i en institusjon med sikte på behandling eller opplæring i minst tre måneder kan det også settes som vilkår at den rusmiddelavhengige kan holdes tilbake i opptil tre uker etter at samtykket uttrykkelig er trukket tilbake. Tilbakehold kan bare skje opptil tre ganger for hvert opphold. Dersom den rusmiddelavhengige rømmer, men blir brakt tilbake innen tre uker, regnes utgangspunktet for tilbakeholdsfristen fra det tidspunkt den rusmiddelavhengige er brakt tilbake til institusjonen."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§10-4/ledd-3",
+    "tekst": "Samtykket skal være skriftlig og skal gis til institusjonsledelsen senest når oppholdet begynner. Slikt samtykke kan også gis ved direkte overgang fra opphold med hjemmel i §§ 10-2 og 10-3. Før den rusmiddelavhengige gir sitt samtykke, skal han eller hun gjøres kjent med eventuelle vilkår som nevnt i første og andre ledd."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§10-4/ledd-4",
+    "tekst": "Et barn over 12 år med rusproblemer kan tas inn i institusjon på grunnlag av samtykke fra barnet selv og de som har foreldreansvaret. Har barnet fylt 16 år, er barnets samtykke tilstrekkelig."
+   }
+  ],
+  "foreslatt": {
+   "kunnskapsstatus": "fortolkning",
+   "tolkningsargumenter": [
+    "ordlyd",
+    "kontekst_system"
+   ]
+  }
+ },
+ {
+  "id": "n33",
+  "navn": "Klagenemnda",
+  "type": "aktør",
+  "undertype": "organ",
+  "ny_node": "NOKUTs klagenemnd",
+  "relasjoner": [
+   {
+    "relasjon": "kortform_for",
+    "til": {
+     "ny_node": "NOKUTs klagenemnd"
+    },
+    "merknad": "bare i FOR-2025-07-02-1462 kap. 2"
+   },
+   {
+    "relasjon": "klageinstans_for",
+    "til": {
+     "ny_node": "NOKUT"
+    },
+    "merknad": "§ 2 første ledd"
+   }
+  ],
+  "hjemmel": {
+   "rettskildeId": "1edbc1f9-f16f-4be1-ace0-0a185cc7174e",
+   "rettskilde": "Forskrift om enkelte klagenemnder på Kunnskapsdepartementets område",
+   "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§1/ledd-1/punkt-1",
+   "sitat": "NOKUTs klagenemnd",
+   "kunnskapsstatus": "fortolkning"
+  },
+  "rettskilde_for_bestemmelsen": "Forskrift om enkelte klagenemnder på Kunnskapsdepartementets område",
+  "hjemmel_merknad": "navnet står i § 1 første ledd nr. 1 (kap. 2 heter «NOKUTs klagenemnd»); lovhjemmelen er universitets- og høyskoleloven § 14-2 første ledd («Departementet kan opprette nasjonale klagenemnder»)",
+  "klassifiseringens_begrunnelse": "«Klagenemnda» i §§ 2–3 er kortform for NOKUTs klagenemnd (kap. 2). Opprett aktøren med det fulle navnet, og bind kortformen til kapitlet: forskriften har tre klagenemnder. PILOT.",
+  "tidligere_juristrunde": {
+   "dom": "holder",
+   "innvending": null,
+   "modellerer_svar": null
+  },
+  "bestemmelsen_i_basen": [
+   {
+    "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§1/ledd-1",
+    "tekst": "Forskriften gjelder følgende klagenemnder på Kunnskapsdepartementets område:"
+   },
+   {
+    "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§1/ledd-1/punkt-1",
+    "tekst": "NOKUTs klagenemnd"
+   },
+   {
+    "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§1/ledd-1/punkt-2",
+    "tekst": "Klagenemnd for godkjenning av utenlandsk utdanning og yrkesgodkjenning"
+   },
+   {
+    "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§1/ledd-1/punkt-3",
+    "tekst": "Lånekassens klagenemnd."
+   },
+   {
+    "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§1/ledd-2",
+    "tekst": "Forskriften gir regler om klagenemndenes oppgaver, organisering og saksbehandling."
+   }
+  ],
+  "foreslatt": {
+   "kunnskapsstatus": "fortolkning",
+   "tolkningsargumenter": [
+    "ordlyd",
+    "kontekst_system"
+   ]
+  }
+ },
+ {
+  "id": "n36",
+  "navn": "omsorgskommune",
+  "type": "rolle",
+  "undertype": null,
+  "ny_node": "omsorgskommune",
+  "relasjoner": [
+   {
+    "relasjon": "rolle_innehas_av",
+    "til": {
+     "id": "eb25cd79-007e-404d-9cd5-c85800b65272",
+     "navn": "kommune"
+    },
+    "merknad": "overfor barnet i fosterhjem (privat part, ingen node)"
+   }
+  ],
+  "hjemmel": {
+   "rettskildeId": "4345e0ee-98a4-411e-aa38-7c1201a6a1f3",
+   "rettskilde": "Forskrift om ansvar for spesialpedagogisk hjelp for barn under opplæringspliktig alder",
+   "eid": "https://lovdata.no/eli/forskrift/2017/06/22/1050/nor/§3/ledd-1",
+   "sitat": "For barn under opplæringspliktig alder, som barneverntjenesten eller fylkesnemnda plasserer i fosterhjem utenfor kommunen, er det omsorgskommunen som har det økonomiske ansvaret for den spesialpedagogiske hjelpen.",
+   "kunnskapsstatus": "fortolkning"
+  },
+  "rettskilde_for_bestemmelsen": "Forskrift om ansvar for spesialpedagogisk hjelp for barn under opplæringspliktig alder",
+  "hjemmel_merknad": "forskriften bruker rollen uten å definere den",
+  "klassifiseringens_begrunnelse": "Johanns avgjørelse: rolle en kommune har overfor noen. PILOT.",
+  "tidligere_juristrunde": {
+   "dom": "innvending",
+   "innvending": "Rolle er riktig (Johanns avgjørelse 2026-11-05), men relasjonen er snudd på samme måte som i n24: kommunen er innehaveren, ikke det rollen er «for».",
+   "modellerer_svar": "aksepter"
+  },
+  "bestemmelsen_i_basen": [
+   {
+    "eid": "https://lovdata.no/eli/forskrift/2017/06/22/1050/nor/§3/ledd-1",
+    "tekst": "For barn under opplæringspliktig alder, som barneverntjenesten eller fylkesnemnda plasserer i fosterhjem utenfor kommunen, er det omsorgskommunen som har det økonomiske ansvaret for den spesialpedagogiske hjelpen."
+   },
+   {
+    "eid": "https://lovdata.no/eli/forskrift/2017/06/22/1050/nor/§3/ledd-2",
+    "tekst": "Omsorgskommunen skal fastsette omfanget av den spesialpedagogiske hjelpen etter en sakkyndig vurdering fra vertskommunen. Det økonomiske ansvaret følger av det fastsatte omfanget. Omsorgskommunen fatter vedtak om spesialpedagogisk hjelp."
+   },
+   {
+    "eid": "https://lovdata.no/eli/forskrift/2017/06/22/1050/nor/§3/ledd-3",
+    "tekst": "Første og andre ledd gjelder tilsvarende for barn under opplæringspliktig alder, som barnevernstjenesten eller fylkesnemnda plasserer i institusjoner som ikke er nevnt i kapittel 2."
+   }
+  ],
+  "foreslatt": {
+   "kunnskapsstatus": "fortolkning",
+   "tolkningsargumenter": [
+    "ordlyd",
+    "kontekst_system"
+   ]
+  }
+ },
+ {
+  "id": "n42",
+  "navn": "samiske barnehager",
+  "type": "klasse",
+  "undertype": null,
+  "ny_node": "samisk barnehage",
+  "relasjoner": [
+   {
+    "relasjon": "underklasse_av",
+    "til": {
+     "ny_node": "barnehage"
+    },
+    "merknad": ""
+   },
+   {
+    "relasjon": "medlemsregel",
+    "til": null,
+    "merknad": "barnehager som har vedtektsfestet formålet om samisk språk og kultur, rammeplanen kap. 3 (samiske barnehager) første ledd"
+   }
+  ],
+  "hjemmel": {
+   "eid": "kap-3/rom-samiske-barnehager/ledd-1",
+   "kunnskapsstatus": "fortolkning"
+  },
+  "rettskilde_for_bestemmelsen": "Forskrift om rammeplan for barnehagens innhold og oppgaver",
+  "hjemmel_merknad": "mangler: bare rammeplanen (bhl. § 2 bygger på formålet); ingen definisjon kontrollert",
+  "klassifiseringens_begrunnelse": "Barnehager med samisk formål. Underklasse, ikke aktør.",
+  "tidligere_juristrunde": {
+   "dom": "innvending",
+   "innvending": "«Mangler» er for strengt. Rammeplanen kap. 3 (samiske barnehager, første ledd) gir en medlemsregel med kilde: «Barnehageeieren skal vedtektsfeste at barnehagen har som formål å styrke barnas identitet i et barnehagemiljø med samisk språk og samisk kultur.» Etter Johanns regel 2026-11-05 er medlemsregel med kilde nok, og hullet skal ikke vises. Rammeplanen er forskrift; kapittel 3 er ikke merknad.",
+   "modellerer_svar": "aksepter"
+  },
+  "bestemmelsen_i_basen": [
+   {
+    "eid": "kap-3/rom-samiske-barnehager/ledd-1",
+    "tekst": "Samiske barnehager skal fremme barnas samiskspråklige kompetanse, styrke barnas samiske identitet og videreføre samiske verdier, samisk kultur og tradisjonskunnskap. I samiske barnehager er samisk hovedspråk. Barnehageeieren skal vedtektsfeste at barnehagen har som formål å styrke barnas identitet i et barnehagemiljø med samisk språk og samisk kultur. Barnehagetilbudet skal være en integrert del av det samiske samfunnet. Det er en forutsetning at personalet behersker samisk språk og har kunnskap om samisk kultur."
+   },
+   {
+    "eid": "kap-3/rom-samiske-barnehager/ledd-2",
+    "tekst": "Samiske barnehager skal bidra til å bevare og videreutvikle den samiske kulturarven og synliggjøre samisk språk, kultur, levemåter og verdier i vår tid. Barnehagen skal bidra til at barna kan bli kjent med mangfoldet i egen og andres kultur, og at barna kan utvikle respekt og fellesskapsfølelse for hele det samiske mangfoldet."
+   },
+   {
+    "eid": "kap-3/rom-samiske-barnehager/ledd-3",
+    "tekst": "Samiske barnehager skal ta i bruk tradisjonelle lærings- og arbeidsmetoder, på barnas premisser i vår tid. Barnehagen skal gi barna mulighet til aktiv deltakelse i tradisjonelle aktiviteter der personalet gir veiledning og slik hjelper barna til å bli selvstendige. Barnehagen skal bygge på en samisk forståelse av naturen og bidra til at barna kan leve i harmoni med naturen, nyttiggjøre seg og høste av naturen og utvikle respekt for naturfenomener. Samisk historie og kulturytringer som duodji, joik og fortellinger skal inngå som en del av barnehagens innhold, tilpasset barnas alder og utviklingsnivå."
+   },
+   {
+    "eid": "kap-3/rom-samiske-barnehager/ledd-4",
+    "tekst": "Rammeplanens føringer for samiske barnehager gjelder tilsvarende for samiske avdelinger i andre barnehager."
+   },
+   {
+    "eid": "kap-3/rom-samiske-barnehager/ledd-5",
+    "tekst": "Kommunen har ansvar for at barnehagetilbudet til samiske barn i samiske distrikt bygger på samisk språk og kultur."
+   }
+  ],
+  "foreslatt": {
+   "kunnskapsstatus": "fortolkning",
+   "tolkningsargumenter": [
+    "ordlyd",
+    "kontekst_system"
+   ]
+  }
+ },
+ {
+  "id": "n57",
+  "navn": "avdelingsledere",
+  "type": "rolle",
+  "undertype": null,
+  "ny_node": "avdelingsleder (domstol)",
+  "relasjoner": [
+   {
+    "relasjon": "rolle_for",
+    "til": {
+     "ny_node": "tingrett"
+    },
+    "merknad": "dl. § 19 fjerde ledd"
+   }
+  ],
+  "hjemmel": {
+   "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§19/ledd-4",
+   "kunnskapsstatus": "fortolkning"
+  },
+  "rettskilde_for_bestemmelsen": "Lov om domstolene (domstolloven)",
+  "hjemmel_merknad": "mangler",
+  "klassifiseringens_begrunnelse": "Stilling i domstolen (dommer som leder en avdeling).",
+  "tidligere_juristrunde": {
+   "dom": "innvending",
+   "innvending": "Rollen holder (fasiten domstolloven avdleder), men hjemmelen står i samme ledd: «I så fall kan det utnevnes en dommer som leder for hver avdeling» (dl. § 19 fjerde ledd andre punktum). Det er en valgfri stilling (L14), og hjemmelregelen i køen foreslår ikke utnevning. Men et menneske kan registrere den med fortolkning, slik juristrunde-440 gjorde for Innstillingsrådet. «Mangler» er derfor feil. Ledd fire gjelder tingrettene; lagmannsrettene har tilsvarende regel i § 11 fjerde ledd («kan det utnevnes en lagmann som leder for hver avdeling»), så rollen kan også være rolle_for lagmannsrett.",
+   "modellerer_svar": "aksepter"
+  },
+  "bestemmelsen_i_basen": [
+   {
+    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§19/ledd-1",
+    "tekst": "Tingrettene skal ha en sorenskriver som leder og så mange tingrettsdommere som til enhver tid er bestemt. Det kan også utnevnes en nestleder. Har lederen og nestlederen forfall, skal den eldste av de andre dommerne gjøre tjeneste, så lenge ingen annen er oppnevnt."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§19/ledd-2",
+    "tekst": "Til å ta sete i retten i en eller flere bestemte saker kan domstolens leder tilkalle dommere som er villige til å gjøre tjeneste fra tingretter i samme eller et annet lagdømme. Domstolens leder kan ellers be lagmannsretten om å foreta tilkalling av slike dommere innen lagdømmet."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§19/ledd-3",
+    "tekst": "Har tingretten flere dommere, fordeler domstolens leder forretningene mellom dem."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§19/ledd-4",
+    "tekst": "Hvor saksmengden gjør det påkrevet, kan tingrettene etter bestemmelse av domstoladministrasjonen deles i avdelinger. I så fall kan det utnevnes en dommer som leder for hver avdeling. Domstolens leder fordeler sakene mellom avdelingene og treffer bestemmelse om dommernes tjenestegjøring. Avdelingslederen fordeler sakene mellom dommerne i avdelingene. Første ledd annet og tredje punktum gjelder tilsvarende for avdelingene. Domstolens leder kan bemyndige avdelingsledere til å utføre de oppgaver som etter andre lovbestemmelser er tillagt denne."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§19/ledd-5",
+    "tekst": "Saker skal fordeles slik at det er tilfeldig hvilken dommer som får den til behandling. Utgangspunktet om tilfeldig saksfordeling kan fravikes dersom saklige grunner tilsier det, herunder for å sikre en rimelig arbeidsfordeling mellom dommerne, eller dersom det er behov for særskilt kompetanse eller erfaring i den enkelte sak. Omfordeling av en sak skal begrunnes skriftlig dersom dommeren som er tildelt saken, motsetter seg omfordelingen."
+   }
+  ],
+  "foreslatt": {
+   "kunnskapsstatus": "normalisering",
+   "tolkningsargumenter": [
+    "ordlyd"
+   ]
+  }
+ },
+ {
+  "id": "n61",
+  "navn": "barne-, ungdoms- og familieetaten",
+  "type": "aktør",
+  "undertype": "organ",
+  "ny_node": "Barne-, ungdoms- og familieetaten",
+  "relasjoner": [
+   {
+    "relasjon": "ledes_av",
+    "til": {
+     "id": "aaf4157f-99d1-42f3-9e6c-d53e553db090",
+     "navn": "BARNE-, UNGDOMS- OG FAMILIEDIREKTORATET",
+     "tabell": "virksomheter",
+     "kategori": "virksomhet"
+    },
+    "merknad": "etatens sentrale nivå; barnevernsloven § 16-1 andre ledd [slutning: sentralt nivå = direktoratet]"
+   }
+  ],
+  "hjemmel": {
+   "rettskildeId": "9f4ab024-42b6-4552-98b6-06b4d7a391db",
+   "rettskilde": "Lov om barnevern (barnevernsloven)",
+   "eid": "https://lovdata.no/eli/lov/2021/06/18/97/nor/§16-1/ledd-2",
+   "sitat": "Barne-, ungdoms- og familieetaten er inndelt i sentralt, regionalt og lokalt nivå. Etatens sentrale nivå leder etatens virksomhet.",
+   "kunnskapsstatus": "fortolkning"
+  },
+  "rettskilde_for_bestemmelsen": "Lov om barnevern (barnevernsloven)",
+  "hjemmel_merknad": "§ 16-1 forutsetter etaten og deler den i nivåer; ingen bestemmelse oppretter den",
+  "klassifiseringens_begrunnelse": "Etaten er et eget statlig organ; direktoratet (finnes i basen) er sentralt nivå. Om etaten skal være egen aktør eller navneform for direktoratet, må kontrolleres.",
+  "tidligere_juristrunde": {
+   "dom": "holder",
+   "innvending": null,
+   "modellerer_svar": null
+  },
+  "bestemmelsen_i_basen": [
+   {
+    "eid": "https://lovdata.no/eli/lov/2021/06/18/97/nor/§16-1/ledd-1",
+    "tekst": "De statlige barnevernsmyndighetene består av departementet, barne-, ungdoms- og familieetaten og statsforvalterne. De statlige barnevernsmyndighetene ledes av departementet."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/2021/06/18/97/nor/§16-1/ledd-2",
+    "tekst": "Barne-, ungdoms- og familieetaten er inndelt i sentralt, regionalt og lokalt nivå. Etatens sentrale nivå leder etatens virksomhet."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/2021/06/18/97/nor/§16-1/ledd-3",
+    "tekst": "Barnevernsinstitusjonene er statlig barnevernsmyndighet på lokalt nivå."
+   }
+  ],
+  "foreslatt": {
+   "kunnskapsstatus": "fortolkning",
+   "tolkningsargumenter": [
+    "ordlyd",
+    "kontekst_system"
+   ]
+  }
+ },
+ {
+  "id": "n98",
+  "navn": "familievernkontor",
+  "type": "klasse",
+  "undertype": null,
+  "ny_node": "familievernkontor",
+  "relasjoner": [],
+  "hjemmel": {
+   "eid": "https://lovdata.no/eli/lov/1997/06/19/62/nor/§2/ledd-1",
+   "kunnskapsstatus": "fortolkning"
+  },
+  "rettskilde_for_bestemmelsen": "Lov om familievernkontorer",
+  "hjemmel_merknad": "familievernkontorloven § 1 forutsetter kontorene",
+  "klassifiseringens_begrunnelse": "Ubestemt form om et hvilket som helst familievernkontor. Klasse, ikke aktør.",
+  "tidligere_juristrunde": {
+   "dom": "innvending",
+   "innvending": "Typen klasse holder. Men § 1 første ledd beskriver familievernets formål og oppgaver, og avgrenser ikke hvilke kontorer som hører til. Medlemsregelen står i § 2 første ledd: «Familievernkontorene drives av den statlige regionale familievernmyndigheten eller den som statlig regional familievernmyndighet inngår avtale med … De kontorer det inngås slik avtale med, faller inn under denne loven.» Etter Johanns regel 2 (hjemmel eller medlemsregel med kilde) bør § 2 første ledd være hjemmelen, med status fortolkning. En relasjon til driftsansvarlig myndighet mangler også. At «statlig regional familievernmyndighet» er Bufetat, er en [slutning] og står ikke i loven.",
+   "modellerer_svar": "aksepter"
+  },
+  "bestemmelsen_i_basen": [
+   {
+    "eid": "https://lovdata.no/eli/lov/1997/06/19/62/nor/§2/ledd-1",
+    "tekst": "Familievernkontorene drives av den statlige regionale familievernmyndigheten eller den som statlig regional familievernmyndighet inngår avtale med om drift av familievernkontor. De kontorer det inngås slik avtale med, faller inn under denne loven."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/1997/06/19/62/nor/§2/ledd-2",
+    "tekst": "Statlig regional familievernmyndighet skal sørge for at familieverntjenesten finnes i regionen, og på forsvarlig måte planlegge, dimensjonere og organisere tjenesten."
+   }
+  ],
+  "foreslatt": {
+   "kunnskapsstatus": "fortolkning",
+   "tolkningsargumenter": [
+    "ordlyd",
+    "kontekst_system"
+   ]
+  }
+ },
+ {
+  "id": "n100",
+  "navn": "Felles klagenemnd",
+  "type": "aktør",
+  "undertype": "organ",
+  "ny_node": "Felles klagenemnd",
+  "relasjoner": [
+   {
+    "relasjon": "opprettet_av",
+    "til": {
+     "id": "61b9a4f8-b938-4a97-903e-b993b0134fc8",
+     "navn": "Kunnskapsdepartementet",
+     "tabell": "virksomheter",
+     "kategori": "virksomhet"
+    },
+    "merknad": "[slutning] uhl. § 14-2 første ledd gir adgangen; at Felles klagenemnd er opprettet etter den, bygger på Noroff-forskriften § 4-5 og UiB-forskriftene § 17-2"
+   }
+  ],
+  "hjemmel": {
+   "eid": "https://lovdata.no/eli/lov/2024/03/08/9/nor/§14-2/ledd-1",
+   "kunnskapsstatus": "fortolkning"
+  },
+  "rettskilde_for_bestemmelsen": "Lov om universiteter og høyskoler (universitets- og høyskoleloven)",
+  "hjemmel_merknad": "mangler: forskriften forutsetter nemnda; institusjonens klagenemnd i universitets- og høyskoleloven er ikke kontrollert",
+  "klassifiseringens_begrunnelse": "Navngitt organ ved NTNU. Navnet er ikke unikt i landet, så det trenger referanse til institusjonen.",
+  "tidligere_juristrunde": {
+   "dom": "innvending",
+   "innvending": "Feil referent og en styringslinje som ikke finnes. «Felles klagenemnd» er den nasjonale klagenemnda som Kunnskapsdepartementet oppnevner, ikke et organ i NTNU. Det sier korpuset selv. UiB-forskriftene (FOR-2025-02-13-282 og -283 § 17-2 andre ledd) har «den nasjonale Felles klagenemnd», og Noroff-forskriften (FOR-2024-10-11-3715 § 4-5 tredje ledd) har «Felles Klagenemnd oppnevnt av Kunnskapsdepartementet». UiS- og Oslo Nye Høyskole-forskriftene viser til samme nemnd. Lovgrunnlaget er uhl. § 14-2 første ledd: «Departementet kan opprette nasjonale klagenemnder som skal behandle klager på enkeltvedtak …» Status er fortolkning, fordi bestemmelsen er en adgang og ikke navngir nemnda. Relasjonen organ_i NTNU gjør en nasjonal nemnd til et organ under institusjonen den overprøver, og må ut. Advarsel for grupperingen: «felles klagenemnd» betyr noe annet i FOR-2020-02-13-688 § 2-9, nemlig felles klagenemnd for Skrivekunstakademiet og Norsk barnebokinstitutt. Slike forekomster må ikke slås inn hit.",
+   "modellerer_svar": "aksepter"
+  },
+  "bestemmelsen_i_basen": [
+   {
+    "eid": "https://lovdata.no/eli/lov/2024/03/08/9/nor/§14-2/ledd-1",
+    "tekst": "Departementet kan opprette nasjonale klagenemnder som skal behandle klager på enkeltvedtak og andre avgjørelser på bestemte områder."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/2024/03/08/9/nor/§14-2/ledd-2",
+    "tekst": "Departementet kan gi forskrift om klagenemnder og om saksbehandlingen i nemndene."
+   }
+  ],
+  "foreslatt": {
+   "kunnskapsstatus": "fortolkning",
+   "tolkningsargumenter": [
+    "ordlyd",
+    "kontekst_system"
+   ]
+  }
+ },
+ {
+  "id": "n102",
+  "navn": "Folketrygden",
+  "type": "aktør",
+  "undertype": "ordning",
+  "ny_node": "Folketrygden",
+  "relasjoner": [
+   {
+    "relasjon": "forvaltes_av",
+    "til": {
+     "id": "bbabbed0-d4d4-4f02-a9b7-69ad0aab4c2c",
+     "navn": "HELSEDIREKTORATET",
+     "tabell": "virksomheter",
+     "kategori": "virksomhet"
+    },
+    "merknad": "ftrl. § 21-11 a første ledd, avgrenset til kapittel 5 (tekstfunn)"
+   },
+   {
+    "relasjon": "forvaltes_av",
+    "til": {
+     "id": "b3bdec90-3c3a-4f8a-8f3c-519e47e93054",
+     "navn": "ARBEIDS- OG VELFERDSETATEN",
+     "tabell": "virksomheter",
+     "kategori": "virksomhet"
+    },
+    "merknad": "Nav-loven § 4 andre ledd, folketrygdloven unntatt kapittel 5 (tekstfunn)"
+   }
+  ],
+  "hjemmel": {
+   "rettskildeId": "026d259f-77c2-4969-98d1-7bf6bd05ae98",
+   "rettskilde": "Lov om folketrygd (folketrygdloven)",
+   "eid": "https://lovdata.no/eli/lov/1997/02/28/19/nor/§1-1/ledd-1",
+   "sitat": "Folketrygdens formål er å gi økonomisk trygghet ved å sikre inntekt og kompensere for særlige utgifter ved arbeidsløshet, svangerskap og fødsel, aleneomsorg for barn, sykdom og skade, uførhet, alderdom og dødsfall.",
+   "kunnskapsstatus": "fortolkning"
+  },
+  "rettskilde_for_bestemmelsen": "Lov om folketrygd (folketrygdloven)",
+  "hjemmel_merknad": "folketrygdloven § 1-1 forutsetter trygden; docs/33 §4.1 nevner Folketrygden som eksempel på ordning",
+  "klassifiseringens_begrunnelse": "Ikke-aktør med funksjon i loven: nodetypen ordning (aktørtype ordning, ordningstype trygdeordning, docs/33 §4.5). «Folketrygden yter stønad».",
+  "tidligere_juristrunde": {
+   "dom": "innvending",
+   "innvending": "Typen ordning holder, og ftrl. § 1-1 som hjemmel med status fortolkning kan stå. Men relasjonene mangler, og de står i korpuset. (1) Nav-loven § 4 andre ledd: «Etaten skal forvalte arbeidsmarkedsloven, folketrygdloven, med unntak av kapittel 5 …» Det gir R forvaltes_av Arbeids- og velferdsetaten, avgrenset til folketrygdloven unntatt kapittel 5, som tekstfunn. (2) Ftrl. § 21-11 a første ledd gir R forvaltes_av Helsedirektoratet for kapittel 5 (docs/33 §4.5). Forekomsten i hol. § 11-5 gjelder helsetjenester, altså kapittel 5. Merk at docs/33 §4.5 sier at det er et «synlig hull» for de andre kapitlene. Nav-loven § 4 andre ledd fyller det hullet.",
+   "modellerer_svar": "aksepter"
+  },
+  "bestemmelsen_i_basen": [
+   {
+    "eid": "https://lovdata.no/eli/lov/1997/02/28/19/nor/§1-1/ledd-1",
+    "tekst": "Folketrygdens formål er å gi økonomisk trygghet ved å sikre inntekt og kompensere for særlige utgifter ved arbeidsløshet, svangerskap og fødsel, aleneomsorg for barn, sykdom og skade, uførhet, alderdom og dødsfall."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/1997/02/28/19/nor/§1-1/ledd-2",
+    "tekst": "Folketrygden skal bidra til utjevning av inntekt og levekår over den enkeltes livsløp og mellom grupper av personer."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/1997/02/28/19/nor/§1-1/ledd-3",
+    "tekst": "Folketrygden skal bidra til hjelp til selvhjelp med sikte på at den enkelte skal kunne forsørge seg selv og klare seg selv best mulig til daglig."
+   }
+  ],
+  "foreslatt": {
+   "kunnskapsstatus": "fortolkning",
+   "tolkningsargumenter": [
+    "ordlyd",
+    "kontekst_system"
+   ]
+  }
+ },
+ {
+  "id": "n116",
+  "navn": "Høyesteretts ankeutvalg",
+  "type": "aktør",
+  "undertype": "organ",
+  "ny_node": "Høyesteretts ankeutvalg",
+  "relasjoner": [
+   {
+    "relasjon": "organ_i",
+    "til": {
+     "id": "da59aa06-9f66-4b6e-a4cc-a9c0ca066929",
+     "navn": "NORGES HØYESTERETT",
+     "tabell": "virksomheter",
+     "kategori": "virksomhet"
+    },
+    "merknad": "Høyesterett satt med tre dommere (dl. § 5 første ledd, G settes_med); kompetansen står i tvl. §§ 30-1 til 30-3"
+   }
+  ],
+  "hjemmel": {
+   "rettskildeId": "7ddc517c-4a70-47e1-ae5a-f25dcbc47118",
+   "rettskilde": "Lov om domstolene (domstolloven)",
+   "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§5/ledd-1",
+   "sitat": "I saker som etter lov skal avgjøres av Høyesteretts ankeutvalg, settes Høyesterett med tre dommere. Det kan bestemmes at slike saker skal avgjøres i avdeling med fem dommere.",
+   "kunnskapsstatus": "fortolkning"
+  },
+  "rettskilde_for_bestemmelsen": "Lov om domstolene (domstolloven)",
+  "hjemmel_merknad": "§ 5 første ledd forutsetter ankeutvalget og sier hvordan det settes",
+  "klassifiseringens_begrunnelse": "En avdeling av Høyesterett med egen kompetanse. Om det er en organisatorisk enhet eller bare en sammensetning av retten, må vurderes.",
+  "tidligere_juristrunde": {
+   "dom": "innvending",
+   "innvending": "Feil undertype. Organisatorisk enhet er etter docs/33 §4.1 en «intern enhet uten selvstendig myndighet». Ankeutvalget har selvstendig avgjørelsesmyndighet etter loven: tvl. § 30-1 andre ledd («Anker over kjennelser og beslutninger avgjøres av Høyesteretts ankeutvalg»), § 30-2 sjuende ledd og § 30-3 andre ledd. Dl. § 5 første ledd sier at det er Høyesterett satt med tre dommere. Det er en sammensetning (lærdom L15, G settes_med), ikke en fast enhet med egne medlemmer. Modellér det som organ med organ_i Høyesterett og merknaden om sammensetningen. Fortolkning holder som status.",
+   "modellerer_svar": "aksepter"
+  },
+  "bestemmelsen_i_basen": [
+   {
+    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§5/ledd-1",
+    "tekst": "I saker som etter lov skal avgjøres av Høyesteretts ankeutvalg, settes Høyesterett med tre dommere. Det kan bestemmes at slike saker skal avgjøres i avdeling med fem dommere."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§5/ledd-2",
+    "tekst": "I andre saker enn etter første ledd første punktum settes Høyesterett med fem dommere."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§5/ledd-3",
+    "tekst": "I særlig tidkrevende saker kan det bestemmes at ytterligere en eller to dommere følger forhandlingene og deltar i avgjørelsen i tilfelle forfall."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§5/ledd-4",
+    "tekst": "I saker etter første og annet ledd som er av særlig viktighet, kan det bestemmes at saken, eller rettsspørsmål i den, skal avgjøres av Høyesterett i storkammer, satt med 11 dommere. Ved vurderingen skal det blant annet legges vekt på om det oppstår spørsmål om å sette til side en rettsoppfatning Høyesterett har lagt til grunn i en annen sak, eller om saken reiser spørsmål om konflikt mellom lover, provisoriske anordninger eller stortingsbeslutninger og Grunnloven eller bestemmelser Norge er bundet av i internasjonalt samarbeid. I helt særlige tilfeller kan det bestemmes at saken, eller rettsspørsmål i saken, skal avgjøres av Høyesterett i plenum, som da består av alle Høyesteretts dommere som ikke er ugilde eller har forfall."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§5/ledd-5",
+    "tekst": "Får noen av rettens medlemmer forfall i saker etter fjerde ledd, kan retten avgjøre saken så lenge det er minst fem dommere tilbake. Er det ved avgjørelsen et like antall dommere, fratrer yngste dommer."
+   }
+  ],
+  "foreslatt": {
+   "kunnskapsstatus": "fortolkning",
+   "tolkningsargumenter": [
+    "ordlyd",
+    "kontekst_system"
+   ]
+  }
+ },
+ {
+  "id": "n118",
+  "navn": "Innstillingsrådet",
+  "type": "aktør",
+  "undertype": "organ",
+  "ny_node": "Innstillingsrådet for dommere",
+  "relasjoner": [],
+  "hjemmel": {
+   "rettskildeId": "7ddc517c-4a70-47e1-ae5a-f25dcbc47118",
+   "rettskilde": "Lov om domstolene (domstolloven)",
+   "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§55a/ledd-1",
+   "sitat": "Innstillingsrådet for dommere skal avgi innstilling i forbindelse med dommerutnevnelse og foreta enkelte konstitusjoner etter nærmere bestemmelser i §§ 55 e og 55 f. Innstillingsrådet skal bestå av tre dommere fra Høyesterett, lagmannsrettene eller tingrettene, en advokat, en jurist ansatt i det offentlige og to medlemmer som ikke er jurister. Når Innstillingsrådet behandler saker som gjelder utnevnelse eller konstitusjon av jordskiftelagdommere og jordskiftedommere, deltar en jordskiftelagdommer eller en jordskiftedommer og en jordskiftekandidat i stedet for henholdsvis en dommer og juristen ansatt i det offentlige. Kongen oppnevner medlemmene av Innstillingsrådet med personlige varamedlemmer, og fastsetter hvilket medlem som skal være leder for Innstillingsrådet.",
+   "kunnskapsstatus": "fortolkning"
+  },
+  "rettskilde_for_bestemmelsen": "Lov om domstolene (domstolloven)",
+  "hjemmel_merknad": "juristrunde-440 h15: saksbehandleren registrerer § 55 a første ledd med status fortolkning",
+  "klassifiseringens_begrunnelse": "Navngitt organ. «Innstillingsrådet» er kortform; registrer det fulle navnet som gjeldende.",
+  "tidligere_juristrunde": {
+   "dom": "holder",
+   "innvending": null,
+   "modellerer_svar": null
+  },
+  "bestemmelsen_i_basen": [
+   {
+    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§55a/ledd-1",
+    "tekst": "Innstillingsrådet for dommere skal avgi innstilling i forbindelse med dommerutnevnelse og foreta enkelte konstitusjoner etter nærmere bestemmelser i §§ 55 e og 55 f. Innstillingsrådet skal bestå av tre dommere fra Høyesterett, lagmannsrettene eller tingrettene, en advokat, en jurist ansatt i det offentlige og to medlemmer som ikke er jurister. Når Innstillingsrådet behandler saker som gjelder utnevnelse eller konstitusjon av jordskiftelagdommere og jordskiftedommere, deltar en jordskiftelagdommer eller en jordskiftedommer og en jordskiftekandidat i stedet for henholdsvis en dommer og juristen ansatt i det offentlige. Kongen oppnevner medlemmene av Innstillingsrådet med personlige varamedlemmer, og fastsetter hvilket medlem som skal være leder for Innstillingsrådet."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§55a/ledd-2",
+    "tekst": "Oppnevningen skal skje for en periode på fire år med adgang til gjenoppnevning for én periode."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§55a/ledd-3",
+    "tekst": "Oppnevningen kan trekkes tilbake dersom et medlem ikke er i stand til eller villig til å utføre vervet på en forsvarlig måte."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§55a/ledd-4",
+    "tekst": "Direktøren for domstoladministrasjonen eller den direktøren bemyndiger, har møterett i Innstillingsrådet."
+   }
+  ],
+  "foreslatt": {
+   "kunnskapsstatus": "fortolkning",
+   "tolkningsargumenter": [
+    "ordlyd"
+   ]
+  }
+ },
+ {
+  "id": "n120",
+  "navn": "kommunale barnehager",
+  "type": "klasse",
+  "undertype": null,
+  "ny_node": "kommunal barnehage",
+  "relasjoner": [
+   {
+    "relasjon": "underklasse_av",
+    "til": {
+     "ny_node": "barnehage"
+    },
+    "merknad": ""
+   },
+   {
+    "relasjon": "ansvarlig",
+    "til": {
+     "id": "eb25cd79-007e-404d-9cd5-c85800b65272",
+     "navn": "kommune",
+     "tabell": "begreper",
+     "kategori": "klasse"
+    },
+    "merknad": "bhl. § 7 første ledd: «Kommunen har ansvaret for at kommunale barnehager drives i samsvar med loven» (tekstfunn); [slutning] ikke eget rettssubjekt, jf. § 7a første ledd"
+   }
+  ],
+  "hjemmel": {
+   "rettskildeId": "cc249ccf-642c-46e5-b600-ad5e6536d85f",
+   "rettskilde": "Lov om barnehager (barnehageloven)",
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§7/ledd-1",
+   "sitat": "Kommunen har ansvaret for at kommunale barnehager drives i samsvar med loven.",
+   "kunnskapsstatus": "fortolkning"
+  },
+  "rettskilde_for_bestemmelsen": "Lov om barnehager (barnehageloven)",
+  "hjemmel_merknad": "«Kommunen har ansvaret for at kommunale barnehager …»",
+  "klassifiseringens_begrunnelse": "Underklasse av barnehage.",
+  "tidligere_juristrunde": {
+   "dom": "innvending",
+   "innvending": "Typen klasse og underklasse_av barnehage holder. Relasjonen eies_av kommune er en slutning som ikke er merket, og merknaden «bhl. § 7 første ledd» gir et inntrykk av at den står der. Det gjør den ikke. Leddet sier «Kommunen har ansvaret for at kommunale barnehager drives i samsvar med loven». Det er ansvar, ikke eierskap. Eierskap forutsetter at barnehagen er et eget rettssubjekt. Kravet om eget rettssubjekt i § 7a første ledd gjelder bare private barnehager, så en kommunal barnehage er en del av kommunen. Erstatt eies_av med ansvarsrelasjonen fra teksten (tekstfunn).",
+   "modellerer_svar": "aksepter"
+  },
+  "bestemmelsen_i_basen": [
+   {
+    "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§7/ledd-1",
+    "tekst": "Kommunen har ansvaret for at kommunale barnehager drives i samsvar med loven."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§7/ledd-2",
+    "tekst": "Styret for et rettssubjekt som driver en privat barnehage, har ansvaret for at barnehagen drives i samsvar med loven. Dersom barnehagens organisasjonsform innebærer at det ikke er krav om å ha et styre, tilligger ansvaret det bestemmende organ som gjelder for barnehagens organisasjonsform. For barnehager som drives som enkeltpersonforetak, er det den fysiske personen som innehar enkeltpersonforetaket, som er ansvarlig."
+   }
+  ],
+  "foreslatt": {
+   "kunnskapsstatus": "fortolkning",
+   "tolkningsargumenter": [
+    "ordlyd",
+    "kontekst_system"
+   ]
+  }
+ },
+ {
+  "id": "n127",
+  "navn": "Kommunens klageorgan",
+  "type": "rolle",
+  "undertype": null,
+  "ny_node": "klageinstans (kommunal)",
+  "relasjoner": [
+   {
+    "relasjon": "rolle_for",
+    "til": {
+     "id": "eb25cd79-007e-404d-9cd5-c85800b65272",
+     "navn": "kommune",
+     "tabell": "begreper",
+     "kategori": "klasse"
+    },
+    "merknad": "kommunestyret, formannskapet eller en særskilt klagenemnd etter kommunestyrets bestemmelse"
+   }
+  ],
+  "hjemmel": {
+   "rettskildeId": "62cbf5b8-9c51-482c-b5dc-b40a8869991b",
+   "rettskilde": "Lov om behandlingsmåten i forvaltningssaker (forvaltningsloven)",
+   "eid": "https://lovdata.no/eli/lov/1967/02/10/nor/§28/ledd-2",
+   "sitat": "For enkeltvedtak som er truffet av forvaltningsorgan opprettet i medhold av lov om kommuner og fylkeskommuner, er klageinstansen kommunestyret eller fylkestinget, eller etter disses bestemmelse, formannskapet eller fylkesutvalget eller en eller flere særskilte klagenemnder oppnevnt av kommunestyret eller fylkestinget. For enkeltvedtak som er truffet av egne rettssubjekter som har fått overført myndighet fra kommunen eller fylkeskommunen, er klageinstansen én eller flere særskilte klagenemnder som er oppnevnt av det øverste organet i rettssubjektet. Departementet er likevel klageinstans når vedtak er truffet av kommunestyret eller fylkestinget eller av det øverste organet i et eget rettssubjekt som har fått overført myndighet fra kommunen eller fylkeskommunen. Vedkommende statlige organ er klageinstans når vedtak er truffet i henhold til myndighet delegert fra et statlig forvaltningsorgan.",
+   "kunnskapsstatus": "fortolkning"
+  },
+  "rettskilde_for_bestemmelsen": "Lov om behandlingsmåten i forvaltningssaker (forvaltningsloven)",
+  "hjemmel_merknad": "forvaltningsloven § 28 andre ledd: kommunestyret eller organet det bestemmer",
+  "klassifiseringens_begrunnelse": "Ikke et eget organ: rollen som klageinstans, og den innehas av det kommunale organet kommunestyret peker ut. PILOT.",
+  "tidligere_juristrunde": {
+   "dom": "holder",
+   "innvending": null,
+   "modellerer_svar": null
+  },
+  "bestemmelsen_i_basen": [
+   {
+    "eid": "https://lovdata.no/eli/lov/1967/02/10/nor/§28/ledd-1",
+    "tekst": "Enkeltvedtak kan påklages av en part eller annen med rettslig klageinteresse i saken til det forvaltningsorgan (klageinstansen) som er nærmest overordnet det forvaltningsorgan som har truffet vedtaket (underinstansen)."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/1967/02/10/nor/§28/ledd-2",
+    "tekst": "For enkeltvedtak som er truffet av forvaltningsorgan opprettet i medhold av lov om kommuner og fylkeskommuner, er klageinstansen kommunestyret eller fylkestinget, eller etter disses bestemmelse, formannskapet eller fylkesutvalget eller en eller flere særskilte klagenemnder oppnevnt av kommunestyret eller fylkestinget. For enkeltvedtak som er truffet av egne rettssubjekter som har fått overført myndighet fra kommunen eller fylkeskommunen, er klageinstansen én eller flere særskilte klagenemnder som er oppnevnt av det øverste organet i rettssubjektet. Departementet er likevel klageinstans når vedtak er truffet av kommunestyret eller fylkestinget eller av det øverste organet i et eget rettssubjekt som har fått overført myndighet fra kommunen eller fylkeskommunen. Vedkommende statlige organ er klageinstans når vedtak er truffet i henhold til myndighet delegert fra et statlig forvaltningsorgan."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/1967/02/10/nor/§28/ledd-3",
+    "tekst": "Med mindre Kongen bestemmer annerledes, kan klageinstansens vedtak i klagesak ikke påklages. Klageinstansens vedtak om å avvise klagen kan likevel påklages, unntatt:"
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/1967/02/10/nor/§28/ledd-3/punkt-1",
+    "tekst": "når også underinstansen traff vedtak om å avvise klagen,"
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/1967/02/10/nor/§28/ledd-3/punkt-2",
+    "tekst": "når underinstansen har prøvd avvisningsspørsmålet og kommet til at vilkårene for realitetsbehandling er til stede,"
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/1967/02/10/nor/§28/ledd-3/punkt-3",
+    "tekst": "når Kongen vil være klageinstans,"
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/1967/02/10/nor/§28/ledd-3/punkt-4",
+    "tekst": "når klagen er avvist av en uavhengig klagenemnd."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/1967/02/10/nor/§28/ledd-3/avslutning",
+    "tekst": "Er det klagerett over et vedtak om å avvise en klage som er truffet av et kommunalt eller fylkeskommunalt organ som klageinstans, går klagen til statsforvalteren."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/1967/02/10/nor/§28/ledd-4",
+    "tekst": "For særskilte saksområder kan Kongen fastsette klageregler som utfyller eller avviker fra reglene i dette kapittel. Forskrift som begrenser klageretten eller som ellers vesentlig endrer reglene til skade for partsinteresser, kan bare gis når tungtveiende grunner taler for det."
+   }
+  ],
+  "foreslatt": {
+   "kunnskapsstatus": "fortolkning",
+   "tolkningsargumenter": [
+    "ordlyd",
+    "kontekst_system"
+   ]
+  }
+ },
+ {
+  "id": "n141",
+  "navn": "kompetent myndighet",
+  "type": "rolle",
+  "undertype": null,
+  "ny_node": "kompetent myndighet (annen stat)",
+  "relasjoner": [],
+  "hjemmel": {
+   "eid": "https://lovdata.no/eli/forskrift/2008/09/12/1071/nor/§8/ledd-1",
+   "kunnskapsstatus": "fortolkning"
+  },
+  "rettskilde_for_bestemmelsen": "Forskrift om godkjenning av yrkeskvalifikasjoner for styrer og pedagogisk leder i barnehage fra annen stat",
+  "hjemmel_merknad": "mangler",
+  "klassifiseringens_begrunnelse": "Myndigheten i en annen stat som har utstedt kvalifikasjonen. Rolle i saken, ikke en aktør i korpuset.",
+  "tidligere_juristrunde": {
+   "dom": "innvending",
+   "innvending": "Rollen holder, men «mangler» er feil. Medlemsregelen står i samme ledd: «kompetent myndighet i en stat utpekt i samsvar med lov, forskrift eller administrasjonsbestemmelse i vedkommende stat». Etter Johanns regel 2 skal hullet da ikke vises. Hjemmelen er § 8 første ledd med status fortolkning, og selve utpekingen er en kilde utenfor korpus (fremmed rett). Yrkeskvalifikasjonsloven § 3 nr. 3 og 4 har en parallell («myndighet utpekt i henhold til lover eller forskrifter i vedkommende medlemsstat»). Rollen ligger utenfor norsk forvaltning, og den bør behandles på samme måte som n107 når stat-notatet er klart.",
+   "modellerer_svar": "aksepter"
+  },
+  "bestemmelsen_i_basen": [
+   {
+    "eid": "https://lovdata.no/eli/forskrift/2008/09/12/1071/nor/§8/ledd-1",
+    "tekst": "For å få godkjenning etter forskriften, må søkeren dokumentere yrkeskvalifikasjoner med tilsvarende nivå som det som følger av barnehageloven § 24 andre ledd og § 25 første ledd. Beviset skal være utstedt av kompetent myndighet i en stat utpekt i samsvar med lov, forskrift eller administrasjonsbestemmelse i vedkommende stat."
+   },
+   {
+    "eid": "https://lovdata.no/eli/forskrift/2008/09/12/1071/nor/§8/ledd-2",
+    "tekst": "Det kan også gis godkjenning etter gjensidig avtale med fremmed stat."
+   }
+  ],
+  "foreslatt": {
+   "kunnskapsstatus": "fortolkning",
+   "tolkningsargumenter": [
+    "ordlyd",
+    "kontekst_system"
+   ]
+  }
+ },
+ {
+  "id": "n146",
+  "navn": "Lånekassens klagenemnd",
+  "type": "aktør",
+  "undertype": "organ",
+  "ny_node": "Lånekassens klagenemnd",
+  "relasjoner": [
+   {
+    "relasjon": "klageinstans_for",
+    "til": {
+     "id": "c169972e-9ce3-403f-b86f-55586f5636f5",
+     "navn": "STATENS LÅNEKASSE FOR UTDANNING",
+     "tabell": "virksomheter",
+     "kategori": "virksomhet"
+    },
+    "merknad": "utdanningsstøtteloven § 18 første ledd"
+   }
+  ],
+  "hjemmel": {
+   "rettskildeId": "04821b16-c254-4616-ae7f-ef3e8632da6a",
+   "rettskilde": "Lov om utdanningsstøtte (utdanningsstøtteloven)",
+   "eid": "https://lovdata.no/eli/lov/2005/06/03/37/nor/§18/ledd-1",
+   "sitat": "Departementet oppnevner en klagenemnd som er klageinstans for enkeltvedtak etter denne loven, herunder vedtak om tildeling av utdanningsstøtte, forrentning og tilbakebetaling. Departementet kan gi forskrift om klagenemnda og om saksbehandlingen i nemnda.",
+   "kunnskapsstatus": "fortolkning"
+  },
+  "rettskilde_for_bestemmelsen": "Lov om utdanningsstøtte (utdanningsstøtteloven)",
+  "hjemmel_merknad": "«Departementet oppnevner en klagenemnd som er klageinstans …»; navnet står i FOR-2025-07-02-1462 § 1 første ledd nr. 3 og § 10",
+  "klassifiseringens_begrunnelse": "Navngitt organ. «X-ens Y» betyr her ikke organ i Lånekassen: nemnda er klageinstans for Lånekassen.",
+  "tidligere_juristrunde": {
+   "dom": "holder",
+   "innvending": null,
+   "modellerer_svar": null
+  },
+  "bestemmelsen_i_basen": [
+   {
+    "eid": "https://lovdata.no/eli/lov/2005/06/03/37/nor/§18/ledd-1",
+    "tekst": "Departementet oppnevner en klagenemnd som er klageinstans for enkeltvedtak etter denne loven, herunder vedtak om tildeling av utdanningsstøtte, forrentning og tilbakebetaling. Departementet kan gi forskrift om klagenemnda og om saksbehandlingen i nemnda."
+   }
+  ],
+  "foreslatt": {
+   "kunnskapsstatus": "fortolkning",
+   "tolkningsargumenter": [
+    "ordlyd",
+    "kontekst_system"
+   ]
+  }
+ },
+ {
+  "id": "n151",
+  "navn": "NOKUT",
+  "type": "aktør",
+  "undertype": "organ",
+  "ny_node": "NOKUT",
+  "relasjoner": [],
+  "hjemmel": {
+   "eid": "https://lovdata.no/eli/lov/2024/03/08/9/nor/§16-1/ledd-1",
+   "kunnskapsstatus": "fortolkning"
+  },
+  "rettskilde_for_bestemmelsen": "Lov om universiteter og høyskoler (universitets- og høyskoleloven)",
+  "hjemmel_merknad": "mangler: universitets- og høyskoleloven § 16-1 og fagskoleloven § 4 b forutsetter NOKUT («Nasjonalt organ for kvalitet i utdanningen (NOKUT)»), men oppretter det ikke",
+  "klassifiseringens_begrunnelse": "Navngitt statlig organ, ikke i basen. Gjeldende navneform bør være det fulle navnet med forkortelsen, slik loven skriver det.",
+  "tidligere_juristrunde": {
+   "dom": "innvending",
+   "innvending": "Aktøren holder, og den finnes ikke i basen (SELECT på «kvalitet i utdanning» og «nokut»). Men «mangler» er for strengt. Uhl. § 16-1 første ledd navngir organet med fullt navn og kortform («Nasjonalt organ for kvalitet i utdanningen (NOKUT)»). Kapittel 16 gir det oppgaver og faglig uavhengighet (§ 16-2), og § 16-4 gir det et styre. Fagskoleloven § 4 b har det samme. Ingen bestemmelse oppretter NOKUT uttrykkelig, så status blir fortolkning. Etter docs/33 §5.8 er lovens fulle navn primært, og «NOKUT» er kortform. Godkjenningen kan bare bruke skrivemåten i forekomsten, så det fulle navnet må legges til som navneform etterpå.",
+   "modellerer_svar": "aksepter"
+  },
+  "bestemmelsen_i_basen": [
+   {
+    "eid": "https://lovdata.no/eli/lov/2024/03/08/9/nor/§16-1/ledd-1",
+    "tekst": "Formålet med virksomheten til Nasjonalt organ for kvalitet i utdanningen (NOKUT) etter denne loven er å bidra til at samfunnet kan ha tillit til kvaliteten i norsk høyere utdanning. I tillegg skal virksomheten stimulere til kvalitetsutvikling som sikrer et høyt internasjonalt nivå i utdanningstilbudene."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/2024/03/08/9/nor/§16-1/ledd-2",
+    "tekst": "Departementet kan gi forskrift om saksbehandlingen i NOKUT."
+   }
+  ],
+  "foreslatt": {
+   "kunnskapsstatus": "fortolkning",
+   "tolkningsargumenter": [
+    "ordlyd",
+    "kontekst_system"
+   ]
+  }
+ },
+ {
+  "id": "n168",
+  "navn": "Rettsvitner",
+  "type": "rolle",
+  "undertype": null,
+  "ny_node": "rettsvitne",
+  "relasjoner": [
+   {
+    "relasjon": "rolle_for",
+    "til": {
+     "tekst": "retten / den som styrer forretningen"
+    },
+    "merknad": "dl. § 101 første ledd"
+   }
+  ],
+  "hjemmel": {
+   "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§101/ledd-1",
+   "kunnskapsstatus": "fortolkning"
+  },
+  "rettskilde_for_bestemmelsen": "Lov om domstolene (domstolloven)",
+  "hjemmel_merknad": "mangler",
+  "klassifiseringens_begrunnelse": "Personer oppnevnt til et verv.",
+  "tidligere_juristrunde": {
+   "dom": "innvending",
+   "innvending": "Rollen holder, men «mangler» er for strengt, og rollen er ikke avgrenset (docs/33 §4.1: en rolle er «alltid avgrenset»). Dl. § 101 første ledd sier hvordan rollen oppstår («Rettsvitner oppnevnes av retten eller av den tjenestemann som skal styre forretningen»). Andre ledd gir medlemsregelen (borgerplikt for den som står i manntallet for kommunale valg i domssognet). Hjemmelen er § 101 første ledd med status fortolkning. Oppnevning forutsetter rollen, så regelen ville ikke gitt forslag, men et menneske kan registrere den. Rollen innehas av privatpersoner. Strukturverdien ligger i oppnevningskompetansen til retten.",
+   "modellerer_svar": "aksepter"
+  },
+  "bestemmelsen_i_basen": [
+   {
+    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§101/ledd-1",
+    "tekst": "Rettsvitner oppnevnes av retten eller av den tjenestemann som skal styre forretningen."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§101/ledd-2",
+    "tekst": "Enhver som er oppført i det seneste manntall for kommunale valg i domssognet, plikter å gjøre tjeneste som rettsvitne, herunder vitne ved tvangsforretning og registreringsforretning, med mindre vedkommende vil være utelukket etter § 110 eller har gyldig fravær. §§ 71 og 74 gjelder tilsvarende, likevel slik at dommerfullmektiger og ansatte uten dømmende myndighet kan være rettsvitner. Den som har flyttet fra domssognet, kan kreve seg fritatt."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§101/ledd-3",
+    "tekst": "Dersom det trengs særlig kyndighet, kan retten beslutte å oppnevne sakkyndige rettsvitner."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§101/ledd-4",
+    "tekst": "Så vidt mulig bør rettsvitnene gis minst tre dagers varsel. Trenger saken hurtig behandling bør rettsvitnene så vidt mulig få en dags varsel."
+   }
+  ],
+  "foreslatt": {
+   "kunnskapsstatus": "fortolkning",
+   "tolkningsargumenter": [
+    "ordlyd",
+    "kontekst_system"
+   ]
+  }
+ },
+ {
+  "id": "n180",
+  "navn": "student- og elevrepresentantene",
+  "type": "rolle",
+  "undertype": null,
+  "ny_node": "student- og elevrepresentant",
+  "relasjoner": [
+   {
+    "relasjon": "rolle_for",
+    "til": {
+     "ny_node": "Lånekassens klagenemnd"
+    },
+    "merknad": "FOR-2025-07-02-1462 § 11"
+   }
+  ],
+  "hjemmel": {
+   "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§11/ledd-2/punkt-2",
+   "kunnskapsstatus": "fortolkning"
+  },
+  "rettskilde_for_bestemmelsen": "Forskrift om enkelte klagenemnder på Kunnskapsdepartementets område",
+  "hjemmel_merknad": "mangler",
+  "klassifiseringens_begrunnelse": "Verv i nemnda.",
+  "tidligere_juristrunde": {
+   "dom": "innvending",
+   "innvending": "Rollen og relasjonen til Lånekassens klagenemnd (kap. 4) holder, men «mangler» er feil. § 11 andre ledd nr. 2 oppretter plassen: «Ett medlem, med personlig varamedlem, som skal representere elever og studenter.» Teksten bruker ikke ordet «student- og elevrepresentant» der, så status er fortolkning. Merk at § 11 tredje ledd bruker flertall om én plass. Det er en ordlyd fra forskriften, ikke en feil i kortet.",
+   "modellerer_svar": "aksepter"
+  },
+  "bestemmelsen_i_basen": [
+   {
+    "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§11/ledd-1",
+    "tekst": "Klagenemnda oppnevnes av departementet."
+   },
+   {
+    "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§11/ledd-2",
+    "tekst": "Klagenemnda skal ha tre medlemmer og skal være sammensatt slik:"
+   },
+   {
+    "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§11/ledd-2/punkt-1",
+    "tekst": "En leder og en nestleder som skal være jurister, jf. advokatloven § 67. Nestleder er vara for leder, og skal ha personlig varamedlem. Departementet utpeker leder og nestleder."
+   },
+   {
+    "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§11/ledd-2/punkt-2",
+    "tekst": "Ett medlem, med personlig varamedlem, som skal representere elever og studenter. Medlemmet skal oppnevnes i samsvar med forslag fra representative elev- eller studentorganisasjoner."
+   },
+   {
+    "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§11/ledd-3",
+    "tekst": "Medlemmene oppnevnes for inntil fire år, med unntak av student- og elevrepresentantene som oppnevnes for inntil to år. Medlemmene kan gjenoppnevnes én gang. Personer som har vært varamedlemmer kan oppnevnes i to perioder som fast medlem."
+   },
+   {
+    "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§11/ledd-4",
+    "tekst": "Kravene i likestillings- og diskrimineringsloven § 28 første ledd skal oppfylles for studentrepresentantene og de øvrige medlemmene hver for seg."
+   }
+  ],
+  "foreslatt": {
+   "kunnskapsstatus": "fortolkning",
+   "tolkningsargumenter": [
+    "ordlyd",
+    "kontekst_system"
+   ]
+  }
+ },
+ {
+  "id": "n181",
+  "navn": "studentrepresentantene",
+  "type": "rolle",
+  "undertype": null,
+  "ny_node": "studentrepresentant",
+  "relasjoner": [
+   {
+    "relasjon": "rolle_for",
+    "til": {
+     "ny_node": "NOKUTs klagenemnd"
+    },
+    "merknad": "FOR-2025-07-02-1462 § 3"
+   }
+  ],
+  "hjemmel": {
+   "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§3/ledd-2/punkt-4",
+   "kunnskapsstatus": "fortolkning"
+  },
+  "rettskilde_for_bestemmelsen": "Forskrift om enkelte klagenemnder på Kunnskapsdepartementets område",
+  "hjemmel_merknad": "mangler",
+  "klassifiseringens_begrunnelse": "Verv i nemnda.",
+  "tidligere_juristrunde": {
+   "dom": "innvending",
+   "innvending": "Rollen og relasjonen til NOKUTs klagenemnd (kap. 2) holder, men «mangler» er feil. § 3 andre ledd nr. 4 oppretter plassene: «To medlemmer med personlige varamedlemmer som representerer studenter i høyere utdanning og i høyere yrkesfaglig utdanning.» Status er fortolkning, fordi ordet «studentrepresentant» står i § 3 tredje og fjerde ledd og § 4 første ledd, men ikke i punktet som oppretter plassene.",
+   "modellerer_svar": "aksepter"
+  },
+  "bestemmelsen_i_basen": [
+   {
+    "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§3/ledd-1",
+    "tekst": "Klagenemnda oppnevnes av departementet."
+   },
+   {
+    "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§3/ledd-2",
+    "tekst": "Klagenemnda skal ha seks medlemmer og være sammensatt slik:"
+   },
+   {
+    "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§3/ledd-2/punkt-1",
+    "tekst": "En leder og en nestleder som skal være jurister, jf. advokatloven § 67. Leder skal ikke være ansatt eller medlem av styret ved institusjon som går inn under henholdsvis fagskoleloven eller lov om universiteter og høyskoler. Departementet utpeker leder og nestleder. Nestleder er vara for leder."
+   },
+   {
+    "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§3/ledd-2/punkt-2",
+    "tekst": "Ett medlem med personlig varamedlem som har bakgrunn fra universitet eller høyskole."
+   },
+   {
+    "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§3/ledd-2/punkt-3",
+    "tekst": "Ett medlem med personlig varamedlem som har bakgrunn fra høyere yrkesfaglig utdanningsinstitusjon."
+   },
+   {
+    "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§3/ledd-2/punkt-4",
+    "tekst": "To medlemmer med personlige varamedlemmer som representerer studenter i høyere utdanning og i høyere yrkesfaglig utdanning. Medlemmene skal oppnevnes i samsvar med forslag fra representative elev- eller studentorganisasjoner."
+   },
+   {
+    "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§3/ledd-3",
+    "tekst": "Medlemmene oppnevnes for inntil fire år, med unntak av studentrepresentantene som oppnevnes for inntil to år. Medlemmene kan gjenoppnevnes én gang. Personer som har vært varamedlemmer kan oppnevnes i to perioder som fast medlem."
+   },
+   {
+    "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§3/ledd-4",
+    "tekst": "Kravene i likestillings- og diskrimineringsloven § 28 første ledd skal oppfylles for studentrepresentantene og de øvrige medlemmene hver for seg."
+   }
+  ],
+  "foreslatt": {
+   "kunnskapsstatus": "fortolkning",
+   "tolkningsargumenter": [
+    "ordlyd",
+    "kontekst_system"
+   ]
+  }
+ },
+ {
+  "id": "n187",
+  "navn": "særskilt organ",
+  "type": "klasse",
+  "undertype": null,
+  "ny_node": "særskilt organ (granskingsorgan etter dl. § 43 andre ledd)",
+  "relasjoner": [
+   {
+    "relasjon": "medlemsregel",
+    "til": null,
+    "merknad": "oppnevnt av Kongen, Stortinget, et departement eller en statsforvalter for å granske faktiske forhold (dl. § 43 andre ledd)"
+   }
+  ],
+  "hjemmel": {
+   "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§43/ledd-2",
+   "kunnskapsstatus": "fortolkning"
+  },
+  "rettskilde_for_bestemmelsen": "Lov om domstolene (domstolloven)",
+  "hjemmel_merknad": "ikke relevant",
+  "klassifiseringens_begrunnelse": "Ubestemt krets («et annet særskilt organ som er oppnevnt …»). Vilkår, regellaget.",
+  "tidligere_juristrunde": {
+   "dom": "innvending",
+   "innvending": "Ikke-aktør er feil. Navnet er subjekt for en kompetanse («kan kreve bevisopptak ved domstolene etter § 44»), og kompetanse er struktur. Leddet gir medlemsregelen selv: et særskilt organ «som er oppnevnt av Kongen, Stortinget eller et departement eller en statsforvalter for å granske faktiske forhold med sikte på å avdekke lovbrudd eller kritikkverdige forhold». Det er en intensjonal klasse med medlemsregel og kilde (Johanns regel 2). Granskingskommisjon og kontrollutvalg i samme setning er eksempler på medlemmer.",
+   "modellerer_svar": "aksepter"
+  },
+  "bestemmelsen_i_basen": [
+   {
+    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§43/ledd-1",
+    "tekst": "Enhver domstol, som skal avgjøre en sak, har ret til selv at opta de nødvendige bevis, hvis ikke andet er bestemt. I andre saker end straffesaker foregaar bevisoptagelsen efter reglerne i tvisteloven."
+   },
+   {
+    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§43/ledd-2",
+    "tekst": "En granskingskommisjon, et kontrollutvalg eller et annet særskilt organ som er oppnevnt av Kongen, Stortinget eller et departement eller en statsforvalter for å granske faktiske forhold med sikte på å avdekke lovbrudd eller kritikkverdige forhold, kan kreve bevisopptak ved domstolene etter § 44. Videre kan et forvaltningsorgan som ledd i forberedelsen av eller kontrollen med enkeltvedtak kreve slikt bevisopptak. Også i de her nevnte tilfelle gjelder reglene om bevisopptak i sivile tvister når ikke annet er bestemt ved lov."
+   }
+  ],
+  "foreslatt": {
+   "kunnskapsstatus": "fortolkning",
+   "tolkningsargumenter": [
+    "ordlyd"
+   ]
+  }
+ },
+ {
+  "id": "n190",
+  "navn": "Trollheimen",
+  "type": "område",
+  "undertype": "annet",
+  "ny_node": "Trollheimen og omegn",
+  "relasjoner": [
+   {
+    "relasjon": "bestar_av",
+    "til": {
+     "ny_node": "Meldal (kommune, utgått)"
+    },
+    "merknad": "Trollheimenloven § 1 første ledd"
+   },
+   {
+    "relasjon": "bestar_av",
+    "til": {
+     "id": "e1c180b5-7690-457f-b2b3-6a11924923d5",
+     "navn": "Midtre Gauldal",
+     "tabell": "begreper",
+     "kategori": "omrade"
+    },
+    "merknad": "Trollheimenloven § 1 første ledd"
+   },
+   {
+    "relasjon": "bestar_av",
+    "til": {
+     "id": "95ab8adf-8c31-41fb-af64-8b68e3c3c0c4",
+     "navn": "Oppdal",
+     "tabell": "begreper",
+     "kategori": "omrade"
+    },
+    "merknad": "Trollheimenloven § 1 første ledd"
+   },
+   {
+    "relasjon": "bestar_av",
+    "til": {
+     "id": "63566b24-31e1-4499-adc3-c24ddf9e7da1",
+     "navn": "Rennebu",
+     "tabell": "begreper",
+     "kategori": "omrade"
+    },
+    "merknad": "Trollheimenloven § 1 første ledd"
+   },
+   {
+    "relasjon": "bestar_av",
+    "til": {
+     "id": "513efd19-b0d6-4109-b9cd-3945d0cfd48d",
+     "navn": "Rindal",
+     "tabell": "begreper",
+     "kategori": "omrade"
+    },
+    "merknad": "Trollheimenloven § 1 første ledd"
+   },
+   {
+    "relasjon": "bestar_av",
+    "til": {
+     "id": "7cdcd1ea-0e35-4c85-b6ae-3cef048d67bd",
+     "navn": "Sunndal",
+     "tabell": "begreper",
+     "kategori": "omrade"
+    },
+    "merknad": "Trollheimenloven § 1 første ledd"
+   },
+   {
+    "relasjon": "bestar_av",
+    "til": {
+     "id": "ff49832c-e201-45da-a606-0d18eeca63ad",
+     "navn": "Surnadal",
+     "tabell": "begreper",
+     "kategori": "omrade"
+    },
+    "merknad": "Trollheimenloven § 1 første ledd"
+   }
+  ],
+  "hjemmel": {
+   "eid": "https://lovdata.no/eli/lov/1984/12/21/101/nor/§1/ledd-1",
+   "kunnskapsstatus": "fortolkning"
+  },
+  "rettskilde_for_bestemmelsen": "Lov om reindrift i kommunene Meldal, Midtre Gauldal, Oppdal, Rennebu, Rindal, Sunndal og Surnadal [Trollheimenloven]",
+  "hjemmel_merknad": "mangler",
+  "klassifiseringens_begrunnelse": "Geografisk område uten kode (reindriftsloven § 2 andre ledd). Ikke en aktør.",
+  "tidligere_juristrunde": {
+   "dom": "innvending",
+   "innvending": "Typen område holder, men «mangler» er feil, og relasjonene mangler. Trollheimenloven (LOV-1984-12-21-101) er lastet. § 1 og § 3 første ledd avgrenser området til «kommunene Meldal, Midtre Gauldal, Oppdal, Rennebu, Rindal, Sunndal og Surnadal», og § 4 kaller det «området som omfattes av denne lov». Reindriftsloven § 2 andre ledd navngir det «Trollheimen og omegn» og viser til den loven. Hjemmelen er Trollheimenloven § 1 første ledd, fortolkning, og området består av de sju kommuneområdene (Meldal er utgått, se n147). Navnet i loven er «Trollheimen og omegn». Tekstformen «Trollheimen» er avkortet, og det bør godkjennes med skrivemåten «Trollheimen og omegn», som står i leddet.",
+   "modellerer_svar": "aksepter"
+  },
+  "bestemmelsen_i_basen": [
+   {
+    "eid": "https://lovdata.no/eli/lov/1984/12/21/101/nor/§1/ledd-1",
+    "tekst": "Formålet med denne lov er å sikre fortsatt samisk reindrift i kommunene Meldal, Midtre Gauldal, Oppdal, Rennebu, Rindal, Sunndal og Surnadal."
+   }
+  ],
+  "foreslatt": {
+   "kunnskapsstatus": "fortolkning",
+   "tolkningsargumenter": [
+    "ordlyd",
+    "kontekst_system"
+   ]
+  }
+ },
+ {
+  "id": "n192",
+  "navn": "vertskommune",
+  "type": "rolle",
+  "undertype": null,
+  "ny_node": "vertskommune",
+  "relasjoner": [
+   {
+    "relasjon": "rolle_for",
+    "til": {
+     "id": "eb25cd79-007e-404d-9cd5-c85800b65272",
+     "navn": "kommune",
+     "tabell": "begreper",
+     "kategori": "klasse"
+    },
+    "merknad": "kommunen der hjelpen gis"
+   }
+  ],
+  "hjemmel": {
+   "rettskildeId": "4345e0ee-98a4-411e-aa38-7c1201a6a1f3",
+   "rettskilde": "Forskrift om ansvar for spesialpedagogisk hjelp for barn under opplæringspliktig alder",
+   "eid": "https://lovdata.no/eli/forskrift/2017/06/22/1050/nor/§2/ledd-1",
+   "sitat": "For barn under opplæringspliktig alder som får spesialpedagogisk hjelp utenfor bostedskommunen, betaler bostedskommunen for utgiftene til spesialpedagogisk hjelp etter avtale med vertskommunen.",
+   "kunnskapsstatus": "fortolkning"
+  },
+  "rettskilde_for_bestemmelsen": "Forskrift om ansvar for spesialpedagogisk hjelp for barn under opplæringspliktig alder",
+  "hjemmel_merknad": "-",
+  "klassifiseringens_begrunnelse": "Rolle en kommune har overfor barnet.",
+  "tidligere_juristrunde": {
+   "dom": "holder",
+   "innvending": null,
+   "modellerer_svar": null
+  },
+  "bestemmelsen_i_basen": [
+   {
+    "eid": "https://lovdata.no/eli/forskrift/2017/06/22/1050/nor/§2/ledd-1",
+    "tekst": "For barn under opplæringspliktig alder som får spesialpedagogisk hjelp utenfor bostedskommunen, betaler bostedskommunen for utgiftene til spesialpedagogisk hjelp etter avtale med vertskommunen."
+   },
+   {
+    "eid": "https://lovdata.no/eli/forskrift/2017/06/22/1050/nor/§2/ledd-2",
+    "tekst": "Bostedskommunen skal fastsette omfanget av den spesialpedagogiske hjelpen etter en sakkyndig vurdering fra vertskommunen. Bostedskommunen fatter vedtak om spesialpedagogisk hjelp."
+   }
+  ],
+  "foreslatt": {
+   "kunnskapsstatus": "fortolkning",
+   "tolkningsargumenter": [
+    "ordlyd",
+    "kontekst_system"
+   ]
+  }
+ }
+]

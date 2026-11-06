@@ -1512,7 +1512,10 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
   skjemaets egen knapp. Godkjenning: type, navn, hjemmel og begrunnelsen. [ENDRET, Johanns avgjørelser 2026-11-05] Godkjenningsnivået
   («Hvor sikkert er det?») fylles aldri ut. Navnet kan være forslagets grunnform: den står som eget valg «‹navn›» (forhåndsklassifiseringen) med
   beskrivelse, og overskriften er da «Navnet». Hjemmelen kan være forhåndsklassifiseringens (eget valg med kunnskapsstatusen). Er den
-  fortolkning, står «Tolkningsargumenter» som `Checkbox` i `Fieldset` (§51) uten forhåndsvalg, og knappen er av til ett er valgt. Koble: aktør,
+  fortolkning, står «Tolkningsargumenter» som `Checkbox` med `readOnly` i `Fieldset` (§51): filas argumenter er krysset av, med
+  `Fieldset.Description` «Fra forhåndsklassifiseringen (KI-agent og juristrunde). De følger hjemmelen og kan ikke endres her.» og
+  tolkningsbegrunnelsen som `Metatekst` under. [ENDRET, 2026-11-06] De var før et fritt valg uten forhåndsvalg; nå er de data i fila, og API-et
+  godtar ingen andre (docs/33 §5.16.2). Har fila ingen argumenter for en fortolkning, er knappen av med «Velg en annen hjemmel». Koble: aktør,
   skrivemåte og grunn (bare når relasjonen sier den). Ikke en aktør: begrunnelsen. Generisk omtale: tørrkjøringen; «Lagre» er eget klikk. Ta med: bekreftes i
   kortet med teksten om hva som skjer. Navn som venter på modellvalg har ingen knapp, bare `Metatekst` «Venter på #463».
 - **Filtrene** under de andre: `Select` «Forslag: type» og «Forslag: sikkerhet» med antall, og `Chip.Checkbox` «Bare aktører med høy
@@ -1526,3 +1529,7 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
   headless Edge via CDP fordi Browser-panelet ikke tegnet): «bostedskommune» godkjent med forskriftens § 2 første ledd (fortolkning, ordlyd),
   Utdanningsdirektoratet med «hjemmel mangler», «den kommunen» lagret som generisk omtale. «foreldrerådet» fylt ut med grunnformen
   «foreldreråd» og regelens forslag (ikke lagret). «fylkeskommunens» viser «Klassifisering kan være utdatert».
+- **Kaldsjekket 2026-11-06 med tolkningsargumentene** (PR #471) i kopien `regelide_tolk` (web 5373 mot API 5487, headless Edge, kopien slettet
+  etterpå): «bostedskommune» godkjent med legaldefinisjonen § 1 første ledd nr. 1 (tekstfunn, ingen argumenter vist), «kommunale barnehager»
+  godkjent som «kommunal barnehage» med bhl. § 7 første ledd (fortolkning; ordlyd og kontekst og system låst og lagret, tolkningsbegrunnelsen i
+  begrepets begrunnelse). Knappen var av til godkjenningsnivået var valgt.

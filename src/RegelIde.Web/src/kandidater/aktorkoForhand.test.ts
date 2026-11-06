@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { AktorkoDetalj, AktorkoForhandsklassifisering } from '../api/types';
-import { godkjenningMangler, tilForesporsel } from './aktorkoGodkjenning';
+import { forhandTolkningsargumenter, godkjenningMangler, tilForesporsel } from './aktorkoGodkjenning';
 import {
   erBareSikreAktorer, godkjenningFraForslag, handlingstekst, juristlinje, koblingFraForslag, passerForhandsfilter, relasjonstekst, skrivemateFor,
 } from './aktorkoForhand';
@@ -19,27 +19,42 @@ const rolle: AktorkoForhandsklassifisering = {
   nr: 24, type: 'rolle', typeforslag: 'rolle', undertype: null, nyNode: 'bostedskommune', handling: 'godkjenn', sikkerhet: 'hoy',
   begrunnelse: 'En rolle en kommune har overfor noen.', relasjoner: [],
   hjemmel: { rettskildeId: 'f1050', rettskilde: 'Forskrift om spesialpedagogisk hjelp', eid, bestemmelse: '§ 2 første ledd', sitat: '…',
-    sitatKilde: 'klassifiseringen', kunnskapsstatus: 'fortolkning', erRegelensForslag: false, kanLagres: true },
+    sitatKilde: 'klassifiseringen', kunnskapsstatus: 'fortolkning', erRegelensForslag: false, kanLagres: true,
+    tolkningsargumenter: ['ordlyd', 'kontekst_system'], tolkningsbegrunnelse: 'Ordlyd: … Kontekst og system: …' },
   hjemmelStatus: 'fortolkning', hjemmelMerknad: null, juristdom: 'innvending', juristAlvor: 'lav', juristInnvending: 'snudd', modellererSvar: 'aksepter',
   replikk: null, rettetEtterJuristen: true, venterPaModellvalg: false, pilot: true, utdatert: null, kobling: null, taMedINokkel: null, taMedINavn: null,
   egneSteg: [], kilde: 'klassifisering.json, n24',
 };
 
 describe('forhåndsklassifiseringen i aktørkøen (#440)', () => {
-  it('«Godta forslaget» fyller godkjenningen med forhåndsklassifiseringens hjemmel, uten godkjenningsnivå og tolkningsargumenter', () => {
+  it('«Godta forslaget» fyller godkjenningen med forhåndsklassifiseringens hjemmel og argumenter, uten godkjenningsnivå', () => {
     const { utkast, merknader } = godkjenningFraForslag(rolle, detalj);
     // Johanns avgjørelse 2026-11-05: godkjenningsnivået står tomt.
-    expect(utkast).toMatchObject({ type: 'rolle', navn: 'bostedskommune', hjemmel: 'forhand', gjelder: null, godkjenning: null, tolkningsargumenter: [] });
+    expect(utkast).toMatchObject({ type: 'rolle', navn: 'bostedskommune', hjemmel: 'forhand', gjelder: null, godkjenning: null });
     expect(utkast.begrunnelse).toContain('Forhåndsklassifisering (#440');
-    expect(merknader).toEqual(['Hjemmelen er fortolkning. Velg tolkningsargumentene; forhåndsklassifiseringen har dem ikke.', 'Velg hvor sikkert det er. Det fylles ikke ut.']);
+    // [ENDRET, 2026-11-06] Argumentene står i fila, så det er ingen merknad om dem.
+    expect(merknader).toEqual(['Velg hvor sikkert det er. Det fylles ikke ut.']);
     const medF = { ...detalj, forhandsklassifisering: rolle };
-    expect(godkjenningMangler({ ...utkast, godkjenning: 'faglig_vurdert' }, medF)).toBe('Velg minst ett tolkningsargument: hjemmelen er fortolkning.');
-    const klar = { ...utkast, godkjenning: 'godkjent' as const, tolkningsargumenter: ['ordlyd' as const] };
+    expect(forhandTolkningsargumenter(medF)).toEqual(['ordlyd', 'kontekst_system']);
+    expect(godkjenningMangler(utkast, medF)).toBe('Velg hvor sikkert det er.');
+    const klar = { ...utkast, godkjenning: 'godkjent' as const };
     expect(godkjenningMangler(klar, medF)).toBeNull();
+    // Argumentene sendes som fila har dem; skjemaet har ingen fri inndata for dem.
     expect(tilForesporsel(klar, medF)).toMatchObject({
       type: 'rolle', hjemmel: 'forhandsklassifisering', hjemmelRettskildeId: 'f1050', hjemmelEid: eid, gjelderILovkildeId: null, gjelderFast: null,
-      tolkningsargumenter: ['ordlyd'], godkjenning: 'godkjent',
+      tolkningsargumenter: ['ordlyd', 'kontekst_system'], godkjenning: 'godkjent',
     });
+    // Med en annen hjemmel enn filas sendes ingen argumenter.
+    expect(tilForesporsel({ ...klar, type: 'aktor', hjemmel: 'mangler' }, medF)?.tolkningsargumenter).toBeNull();
+  });
+
+  it('fortolkning uten argumenter i fila kan ikke lagres med filas hjemmel', () => {
+    const f = { ...rolle, hjemmel: { ...rolle.hjemmel!, tolkningsargumenter: null } };
+    const { utkast, merknader } = godkjenningFraForslag(f, detalj);
+    expect(merknader[0]).toContain('ingen tolkningsargumenter');
+    const medF = { ...detalj, forhandsklassifisering: f };
+    expect(godkjenningMangler({ ...utkast, godkjenning: 'godkjent' }, medF)).toBe('Forhåndsklassifiseringen har ingen tolkningsargumenter for hjemmelen. Velg en annen hjemmel.');
+    expect(tilForesporsel({ ...utkast, godkjenning: 'godkjent' }, medF)).toBeNull();
   });
 
   it('en hjemmel som ikke står i korpus gir «hjemmel mangler» med merknad', () => {
