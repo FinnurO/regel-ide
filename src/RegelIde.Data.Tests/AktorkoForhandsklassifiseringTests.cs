@@ -51,10 +51,11 @@ public class AktorkoForhandsklassifiseringTests
     [Fact]
     public void Hver_hjemmel_med_fortolkning_har_tolkningsargumenter_fra_den_lukkede_lista_og_ingen_andre_har_det()
     {
-        // [Ny, Johanns oppdrag 2026-11-06] Juristrunden i aktorko-forhand/tolkningsargumenter/: 29 av de 62 som skal godkjennes, har
-        // fortolkning (n108 fylkesnemnda er en kobling og bruker ikke hjemmelen). Argumentene står i fila; godkjenningen godtar bare dem.
+        // [Ny, Johanns oppdrag 2026-11-06] Juristrunden i aktorko-forhand/tolkningsargumenter/: 29 av de 62 som skal godkjennes, hadde
+        // fortolkning. Johann ga sju av dem sterkere status (tekstfunn n13, n24, n36, n192; normalisering n57, n180, n181), så 22 står igjen
+        // (n108 fylkesnemnda er en kobling og bruker ikke hjemmelen). Argumentene står i fila; godkjenningen godtar bare dem.
         var fortolkning = Forhandsklassifisering.Alle.Where(p => p.Hjemmel?.Kunnskapsstatus == Strukturkanter.Fortolkning).ToList();
-        Assert.Equal(29, fortolkning.Count(p => Forhandsklassifisering.Handling(p) == Forhandshandling.Godkjenn));
+        Assert.Equal(22, fortolkning.Count(p => Forhandsklassifisering.Handling(p) == Forhandshandling.Godkjenn));
         Assert.All(fortolkning.Where(p => Forhandsklassifisering.Handling(p) == Forhandshandling.Godkjenn), p =>
         {
             Assert.NotEmpty(p.Hjemmel!.Tolkningsargumenter!);
@@ -71,10 +72,25 @@ public class AktorkoForhandsklassifiseringTests
     [Fact]
     public void Visningen_har_filas_tolkningsargumenter()
     {
-        var p = Post("bostedskommune");
+        var p = Post("barnehageeier");
         var v = Forhandsklassifisering.Visning(p, Gruppe(p), [], TomtOppslag);
         Assert.Equal(["ordlyd", "kontekst_system"], v.Hjemmel!.Tolkningsargumenter);
-        Assert.Contains("§ 1 første ledd nr. 1", v.Hjemmel.Tolkningsbegrunnelse);
+        Assert.Contains("§ 11 første ledd", v.Hjemmel.Tolkningsbegrunnelse);
+    }
+
+    [Fact]
+    public void Bostedskommune_vertskommune_og_omsorgskommune_har_legaldefinisjonen_som_tekstfunn()
+    {
+        // [Ny, Johanns avgjørelse 2026-11-06] FOR-2017-06-22-1050 § 1 første ledd nr. 1–3 definerer rollene; ingen tolkningsargumenter.
+        foreach (var (nokkel, punkt) in new[] { ("bostedskommune", 1), ("vertskommune", 2), ("omsorgskommune", 3) })
+        {
+            var h = Post(nokkel).Hjemmel!;
+            Assert.Equal(($"https://lovdata.no/eli/forskrift/2017/06/22/1050/nor/§1/ledd-1/punkt-{punkt}", Strukturkanter.Tekstfunn),
+                (h.Eid, h.Kunnskapsstatus));
+            Assert.StartsWith(nokkel + ": den kommunen", h.Sitat);
+            Assert.Null(h.Tolkningsargumenter);
+        }
+        Assert.Equal("rolle_innehas_av", Post("vertskommune").Relasjoner.Single().Relasjon);
     }
 
     [Fact]

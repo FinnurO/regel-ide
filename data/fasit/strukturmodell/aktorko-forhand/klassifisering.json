@@ -520,13 +520,6 @@
      "relasjon": "medlemsregel",
      "til": null,
      "merknad": "virksomheter som tilbyr eller yter spesialisthelsetjenester, staten (RHF/HF) og private, shl. § 1-2 første ledd"
-    },
-    {
-     "relasjon": "omtale_av",
-     "til": {
-      "ny_node": "regionalt helseforetak"
-     },
-     "merknad": "[slutning] RHF har sørge-for-ansvaret (§ 2-1 a), men er ikke eneste tjenesteyter"
     }
    ],
    "hjemmel": {
@@ -896,11 +889,7 @@
    ],
    "hjemmel": {
     "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§27/ledd-2",
-    "kunnskapsstatus": "fortolkning",
-    "tolkningsargumenter": [
-     "ordlyd"
-    ],
-    "tolkningsbegrunnelse": "Ordlyd: dl. § 27 andre ledd «Forliksrådet skal ha tre medlemmer» oppretter vervet.",
+    "kunnskapsstatus": "tekstfunn",
     "kilde": "juristrunde (sitat i utfordringer.json)"
    },
    "hjemmel_merknad": "vervet er en rolle i det enkelte organet (forliksrådet)",
@@ -911,7 +900,7 @@
    ],
    "grupperingen_slaar_sammen_ulike_referenter": true,
    "venter_pa_modellvalg": false,
-   "hjemmel_status": "fortolkning",
+   "hjemmel_status": "tekstfunn",
    "jurist_runde1": "innvending",
    "jurist_alvor": "middels",
    "jurist_innvending": "Én generisk rolle «medlem (av organ)» for to ulike organer (forliksrådet og NOKUTs klagenemnd) slår sammen to roller; modellereren har selv flagget grupperingen. Fasitpraksis gjør medlemmene til en rolle i det enkelte organet (#309 nr. 21: «medlemmer av Sametinget») eller til objektet i en G har_medlemmer-kant (FORMAT.md, #352). Hjemmelen mangler heller ikke: «Forliksrådet skal ha tre medlemmer» (dl. § 27 andre ledd) og «Klagenemnda skal ha seks medlemmer» (FOR-2025-07-02-1462 § 3 andre ledd) oppretter vervene. At køregelen ikke foreslår «skal ha» uten artikkel (juristrunde-440), hindrer ikke at et menneske registrerer det med fortolkning. Forekomstene bør skilles ut per organ.",
@@ -1491,16 +1480,11 @@
    "hjemmel": {
     "rettskildeId": "4345e0ee-98a4-411e-aa38-7c1201a6a1f3",
     "rettskilde": "Forskrift om ansvar for spesialpedagogisk hjelp for barn under opplæringspliktig alder",
-    "eid": "https://lovdata.no/eli/forskrift/2017/06/22/1050/nor/§2/ledd-1",
-    "sitat": "For barn under opplæringspliktig alder som får spesialpedagogisk hjelp utenfor bostedskommunen, betaler bostedskommunen for utgiftene til spesialpedagogisk hjelp etter avtale med vertskommunen.",
-    "kunnskapsstatus": "fortolkning",
-    "tolkningsargumenter": [
-     "ordlyd",
-     "kontekst_system"
-    ],
-    "tolkningsbegrunnelse": "Ordlyd: § 2 første ledd legger betalingsansvaret på bostedskommunen. Kontekst og system: forskriften definerer bostedskommune i § 1 første ledd nr. 1 («den kommunen hvor barnet er folkeregistrert»), og §§ 2–3 skiller bostedskommune, vertskommune og omsorgskommune."
+    "eid": "https://lovdata.no/eli/forskrift/2017/06/22/1050/nor/§1/ledd-1/punkt-1",
+    "sitat": "bostedskommune: den kommunen hvor barnet er folkeregistrert",
+    "kunnskapsstatus": "tekstfunn"
    },
-   "hjemmel_merknad": "definisjonen står i § 1 første ledd nr. 1 («den kommunen hvor barnet er folkeregistrert»)",
+   "hjemmel_merknad": "legaldefinisjon i § 1 første ledd nr. 1",
    "sikkerhet": "hoy",
    "begrunnelse": "Johanns avgjørelse 2026-11-05: en rolle en kommune har overfor noen. PILOT.",
    "monstre": [
@@ -1508,7 +1492,7 @@
    ],
    "grupperingen_slaar_sammen_ulike_referenter": false,
    "venter_pa_modellvalg": false,
-   "hjemmel_status": "fortolkning",
+   "hjemmel_status": "tekstfunn",
    "jurist_runde1": "innvending",
    "jurist_alvor": "lav",
    "jurist_innvending": "Rolle er riktig etter Johanns avgjørelse 2026-11-05, men relasjonstypen er snudd. Kommunen er innehaveren av rollen; rollen er «for» barnet. I n3 bruker modellereren «rolle_innehas_av» for innehaveren og «rolle_for» for det rollen gjelder, og her står kommunen som «rolle_for». Barnet er privat part og får ingen node, så relasjonen skal være rolle_innehas_av kommune, og «overfor barnet» står i merknaden.",
@@ -1834,7 +1818,7 @@
     {
      "relasjon": "medlemsregel",
      "til": null,
-     "merknad": "institusjoner utpekt av RHF etter shl. § 2-1 a fjerde ledd (hotl. §§ 10-2 til 10-4); forekomsten i FOR-2017-06-22-1050 § 5 skilles ut som barnevernsinstitusjon (bvl. § 16-1 tredje ledd)"
+     "merknad": "institusjoner utpekt av RHF etter shl. § 2-1 a femte ledd (hotl. §§ 10-2 til 10-4); forekomsten i FOR-2017-06-22-1050 § 5 skilles ut som barnevernsinstitusjon (bvl. § 16-1 tredje ledd) [hotl. §§ 10-3 og 10-4 viser fortsatt til fjerde ledd; § 10-2 viser til femte ledd]"
     }
    ],
    "hjemmel": {
@@ -2129,16 +2113,11 @@
    "hjemmel": {
     "rettskildeId": "4345e0ee-98a4-411e-aa38-7c1201a6a1f3",
     "rettskilde": "Forskrift om ansvar for spesialpedagogisk hjelp for barn under opplæringspliktig alder",
-    "eid": "https://lovdata.no/eli/forskrift/2017/06/22/1050/nor/§3/ledd-1",
-    "sitat": "For barn under opplæringspliktig alder, som barneverntjenesten eller fylkesnemnda plasserer i fosterhjem utenfor kommunen, er det omsorgskommunen som har det økonomiske ansvaret for den spesialpedagogiske hjelpen.",
-    "kunnskapsstatus": "fortolkning",
-    "tolkningsargumenter": [
-     "ordlyd",
-     "kontekst_system"
-    ],
-    "tolkningsbegrunnelse": "Ordlyd: § 3 første ledd legger det økonomiske ansvaret på omsorgskommunen. Kontekst og system: forskriften definerer omsorgskommune i § 1 første ledd nr. 3, og §§ 2–3 skiller rollene."
+    "eid": "https://lovdata.no/eli/forskrift/2017/06/22/1050/nor/§1/ledd-1/punkt-3",
+    "sitat": "omsorgskommune: den kommunen som har det økonomiske ansvaret etter barnevernloven, jf. barnevernloven § 9-1.",
+    "kunnskapsstatus": "tekstfunn"
    },
-   "hjemmel_merknad": "definisjonen står i § 1 første ledd nr. 3 («den kommunen som har det økonomiske ansvaret etter barnevernloven»)",
+   "hjemmel_merknad": "legaldefinisjon i § 1 første ledd nr. 3",
    "sikkerhet": "hoy",
    "begrunnelse": "Johanns avgjørelse: rolle en kommune har overfor noen. PILOT.",
    "monstre": [
@@ -2146,7 +2125,7 @@
    ],
    "grupperingen_slaar_sammen_ulike_referenter": false,
    "venter_pa_modellvalg": false,
-   "hjemmel_status": "fortolkning",
+   "hjemmel_status": "tekstfunn",
    "jurist_runde1": "innvending",
    "jurist_alvor": "lav",
    "jurist_innvending": "Rolle er riktig (Johanns avgjørelse 2026-11-05), men relasjonen er snudd på samme måte som i n24: kommunen er innehaveren, ikke det rollen er «for».",
@@ -3147,14 +3126,10 @@
    ],
    "hjemmel": {
     "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§19/ledd-4",
-    "kunnskapsstatus": "fortolkning",
-    "tolkningsargumenter": [
-     "ordlyd"
-    ],
-    "tolkningsbegrunnelse": "Ordlyd: dl. § 19 fjerde ledd «kan det utnevnes en dommer som leder for hver avdeling»; samme ledd kaller dem «avdelingsledere».",
+    "kunnskapsstatus": "normalisering",
     "kilde": "juristrunde (sitat i utfordringer.json)"
    },
-   "hjemmel_merknad": "§ 19 fjerde ledd: «kan det utnevnes en dommer som leder for hver avdeling»; ordet «avdelingsledere» står i samme ledd",
+   "hjemmel_merknad": "normalisering: § 19 fjerde ledd: «kan det utnevnes en dommer som leder for hver avdeling»; ordet «avdelingsledere» står i samme ledd",
    "sikkerhet": "hoy",
    "begrunnelse": "Stilling i domstolen (dommer som leder en avdeling).",
    "monstre": [
@@ -3162,7 +3137,7 @@
    ],
    "grupperingen_slaar_sammen_ulike_referenter": false,
    "venter_pa_modellvalg": false,
-   "hjemmel_status": "fortolkning",
+   "hjemmel_status": "normalisering",
    "jurist_runde1": "innvending",
    "jurist_alvor": "lav",
    "jurist_innvending": "Rollen holder (fasiten domstolloven avdleder), men hjemmelen står i samme ledd: «I så fall kan det utnevnes en dommer som leder for hver avdeling» (dl. § 19 fjerde ledd andre punktum). Det er en valgfri stilling (L14), og hjemmelregelen i køen foreslår ikke utnevning. Men et menneske kan registrere den med fortolkning, slik juristrunde-440 gjorde for Innstillingsrådet. «Mangler» er derfor feil. Ledd fire gjelder tingrettene; lagmannsrettene har tilsvarende regel i § 11 fjerde ledd («kan det utnevnes en lagmann som leder for hver avdeling»), så rollen kan også være rolle_for lagmannsrett.",
@@ -3338,18 +3313,7 @@
    "type": "aktør",
    "undertype": "organ",
    "ny_node": "Barne-, ungdoms- og familieetaten",
-   "relasjoner": [
-    {
-     "relasjon": "ledes_av",
-     "til": {
-      "id": "aaf4157f-99d1-42f3-9e6c-d53e553db090",
-      "navn": "BARNE-, UNGDOMS- OG FAMILIEDIREKTORATET",
-      "tabell": "virksomheter",
-      "kategori": "virksomhet"
-     },
-     "merknad": "etatens sentrale nivå; barnevernsloven § 16-1 andre ledd [slutning: sentralt nivå = direktoratet]"
-    }
-   ],
+   "relasjoner": [],
    "hjemmel": {
     "rettskildeId": "9f4ab024-42b6-4552-98b6-06b4d7a391db",
     "rettskilde": "Lov om barnevern (barnevernsloven)",
@@ -3364,7 +3328,7 @@
    },
    "hjemmel_merknad": "§ 16-1 forutsetter etaten og deler den i nivåer; ingen bestemmelse oppretter den",
    "sikkerhet": "middels",
-   "begrunnelse": "Etaten er et eget statlig organ; direktoratet (finnes i basen) er sentralt nivå. Om etaten skal være egen aktør eller navneform for direktoratet, må kontrolleres.",
+   "begrunnelse": "Etaten er et eget statlig organ; direktoratet (finnes i basen) er sentralt nivå. Om etaten skal være egen aktør eller navneform for direktoratet, må kontrolleres. Relasjonen ledes_av Barne-, ungdoms- og familiedirektoratet er fjernet (Johanns avgjørelse 2026-11-06): at direktoratet er etatens sentrale nivå, står ikke i korpus.",
    "monstre": [
     "M0_egennavn"
    ],
@@ -9384,15 +9348,10 @@
    ],
    "hjemmel": {
     "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§11/ledd-2/punkt-2",
-    "kunnskapsstatus": "fortolkning",
-    "tolkningsargumenter": [
-     "ordlyd",
-     "kontekst_system"
-    ],
-    "tolkningsbegrunnelse": "Ordlyd: § 11 andre ledd nr. 2 oppretter plassen, og tredje ledd kaller den «student- og elevrepresentantene». Kontekst og system: «Klagenemnda» i § 11 er Lånekassens klagenemnd (kap. 4, § 10).",
+    "kunnskapsstatus": "normalisering",
     "kilde": "juristrunde (sitat i utfordringer.json)"
    },
-   "hjemmel_merknad": "§ 11 andre ledd nr. 2 oppretter plassen; tredje ledd kaller den «student- og elevrepresentantene»",
+   "hjemmel_merknad": "normalisering: § 11 andre ledd nr. 2 oppretter plassen; tredje ledd kaller den «student- og elevrepresentantene»",
    "sikkerhet": "hoy",
    "begrunnelse": "Verv i nemnda.",
    "monstre": [
@@ -9400,7 +9359,7 @@
    ],
    "grupperingen_slaar_sammen_ulike_referenter": false,
    "venter_pa_modellvalg": false,
-   "hjemmel_status": "fortolkning",
+   "hjemmel_status": "normalisering",
    "jurist_runde1": "innvending",
    "jurist_alvor": "lav",
    "jurist_innvending": "Rollen og relasjonen til Lånekassens klagenemnd (kap. 4) holder, men «mangler» er feil. § 11 andre ledd nr. 2 oppretter plassen: «Ett medlem, med personlig varamedlem, som skal representere elever og studenter.» Teksten bruker ikke ordet «student- og elevrepresentant» der, så status er fortolkning. Merk at § 11 tredje ledd bruker flertall om én plass. Det er en ordlyd fra forskriften, ikke en feil i kortet.",
@@ -9442,15 +9401,10 @@
    ],
    "hjemmel": {
     "eid": "https://lovdata.no/eli/forskrift/2025/07/02/1462/nor/§3/ledd-2/punkt-4",
-    "kunnskapsstatus": "fortolkning",
-    "tolkningsargumenter": [
-     "ordlyd",
-     "kontekst_system"
-    ],
-    "tolkningsbegrunnelse": "Ordlyd: § 3 andre ledd nr. 4 oppretter plassene, og tredje og fjerde ledd kaller dem «studentrepresentantene». Kontekst og system: «Klagenemnda» i § 3 er NOKUTs klagenemnd (kap. 2, § 1 første ledd nr. 1).",
+    "kunnskapsstatus": "normalisering",
     "kilde": "juristrunde (sitat i utfordringer.json)"
    },
-   "hjemmel_merknad": "§ 3 andre ledd nr. 4 oppretter plassene; tredje ledd kaller dem «studentrepresentantene»",
+   "hjemmel_merknad": "normalisering: § 3 andre ledd nr. 4 oppretter plassene; tredje ledd kaller dem «studentrepresentantene»",
    "sikkerhet": "hoy",
    "begrunnelse": "Verv i nemnda.",
    "monstre": [
@@ -9458,7 +9412,7 @@
    ],
    "grupperingen_slaar_sammen_ulike_referenter": false,
    "venter_pa_modellvalg": false,
-   "hjemmel_status": "fortolkning",
+   "hjemmel_status": "normalisering",
    "jurist_runde1": "innvending",
    "jurist_alvor": "lav",
    "jurist_innvending": "Rollen og relasjonen til NOKUTs klagenemnd (kap. 2) holder, men «mangler» er feil. § 3 andre ledd nr. 4 oppretter plassene: «To medlemmer med personlige varamedlemmer som representerer studenter i høyere utdanning og i høyere yrkesfaglig utdanning.» Status er fortolkning, fordi ordet «studentrepresentant» står i § 3 tredje og fjerde ledd og § 4 første ledd, men ikke i punktet som oppretter plassene.",
@@ -10146,29 +10100,24 @@
    "ny_node": "vertskommune",
    "relasjoner": [
     {
-     "relasjon": "rolle_for",
+     "relasjon": "rolle_innehas_av",
      "til": {
       "id": "eb25cd79-007e-404d-9cd5-c85800b65272",
       "navn": "kommune",
       "tabell": "begreper",
       "kategori": "klasse"
      },
-     "merknad": "kommunen der hjelpen gis"
+     "merknad": "kommunen der hjelpen gis, overfor barnet (privat part, ingen node)"
     }
    ],
    "hjemmel": {
     "rettskildeId": "4345e0ee-98a4-411e-aa38-7c1201a6a1f3",
     "rettskilde": "Forskrift om ansvar for spesialpedagogisk hjelp for barn under opplæringspliktig alder",
-    "eid": "https://lovdata.no/eli/forskrift/2017/06/22/1050/nor/§2/ledd-1",
-    "sitat": "For barn under opplæringspliktig alder som får spesialpedagogisk hjelp utenfor bostedskommunen, betaler bostedskommunen for utgiftene til spesialpedagogisk hjelp etter avtale med vertskommunen.",
-    "kunnskapsstatus": "fortolkning",
-    "tolkningsargumenter": [
-     "ordlyd",
-     "kontekst_system"
-    ],
-    "tolkningsbegrunnelse": "Ordlyd: § 2 første ledd: betaling etter avtale med vertskommunen. Kontekst og system: forskriften definerer vertskommune i § 1 første ledd nr. 2, og §§ 2–3 skiller rollene."
+    "eid": "https://lovdata.no/eli/forskrift/2017/06/22/1050/nor/§1/ledd-1/punkt-2",
+    "sitat": "vertskommune: den kommunen som gir barnet spesialpedagogisk hjelp",
+    "kunnskapsstatus": "tekstfunn"
    },
-   "hjemmel_merknad": "definisjonen står i § 1 første ledd nr. 2 («den kommunen som gir barnet spesialpedagogisk hjelp»)",
+   "hjemmel_merknad": "legaldefinisjon i § 1 første ledd nr. 2",
    "sikkerhet": "hoy",
    "begrunnelse": "Rolle en kommune har overfor barnet.",
    "monstre": [
@@ -10176,7 +10125,7 @@
    ],
    "grupperingen_slaar_sammen_ulike_referenter": false,
    "venter_pa_modellvalg": false,
-   "hjemmel_status": "fortolkning",
+   "hjemmel_status": "tekstfunn",
    "jurist_runde1": "holder",
    "jurist_alvor": null,
    "jurist_innvending": null,

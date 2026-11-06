@@ -1978,10 +1978,12 @@ er utvidet, så forslaget kan lagres uten å miste hjemmelen, men aldri fritt:
   (`aktorko-forhand/tolkningsargumenter/`: `inndata.json`, `runde1/`, `svar/`, `runde2/`, `endelig.json`), uten uenighet igjen. «Godta forslaget»
   og valget av filas hjemmel tar dem med; skjemaet viser dem låst. `/godkjenn` krever nøyaktig filas argumenter (som mengde) og lagrer filas
   liste; tolkningsbegrunnelsen står i begrunnelsen. Fila uten argumenter for en fortolkning kan ikke lagres med filas hjemmel. Kunnskapsstatusen
-  er ikke endret: juristrunden foreslår sterkere status for sju (tekstfunn for n13, og for n24, n36 og n192 med definisjonen i
-  FOR-2017-06-22-1050 § 1 første ledd som hjemmel; normalisering for n57, n180 og n181). Det venter på Johann; til da lagres de som fortolkning,
-  som aldri sier mer enn teksten. 16 hjemmelmerknader som sa «mangler» eller var utdaterte, er skrevet om i samme runde, fordi merknaden
-  lagres i begrunnelsen.
+  er ikke endret stille: juristrunden foreslo sterkere status for sju, og Johann godkjente dem 2026-11-06. n13 er tekstfunn; n24, n36 og n192
+  er tekstfunn med legaldefinisjonen i FOR-2017-06-22-1050 § 1 første ledd nr. 1–3 som hjemmel (eId og ordrett sitat kontrollert i basen);
+  n57, n180 og n181 er normalisering, med normaliseringsregelen i hjemmelmerknaden. De sju har ingen tolkningsargumenter (godkjenningen
+  avviser argumenter uten fortolkning), så 22 hjemler med fortolkning har argumenter. Samtidig er fire relasjoner rettet: n7 uten omtale_av
+  regionalt helseforetak, n31 med shl. § 2-1 a femte ledd, n61 uten ledes_av direktoratet (ingen kilde i korpus), n192 med rolle_innehas_av
+  kommune. 16 hjemmelmerknader som sa «mangler» eller var utdaterte, er skrevet om i samme runde, fordi merknaden lagres i begrunnelsen.
 - **Navnet** kan være filas navn for nøkkelen (grunnformen «foreldreråd», eller «NOKUTs klagenemnd»), også når det ikke står i teksten.
   Forekomstene tagges mot det. Et annet navn som ikke står i teksten, avvises som før.
 - **En aktør beholder hjemmelen** når kunnskapsstatusen er normalisering eller fortolkning, selv om bestemmelsen ikke viser navnet ordrett
