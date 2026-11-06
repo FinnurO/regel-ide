@@ -146,7 +146,7 @@ export function Godkjenningsskjema({ detalj, onFerdig, forslag }: {
       </Fieldset>
 
       <Fieldset data-size="sm" style={{ marginBottom: '0.6rem' }}>
-        <Fieldset.Legend>Navnet, slik det står i teksten</Fieldset.Legend>
+        <Fieldset.Legend>{forhandNavn ? 'Navnet' : 'Navnet, slik det står i teksten'}</Fieldset.Legend>
         {skrivemater(detalj).map((s) => (
           <Radio key={s} name={`aktorko-navn-${n}`} value={s} label={`«${s}»`} checked={u.navn === s} onChange={() => sett({ navn: s })} />
         ))}

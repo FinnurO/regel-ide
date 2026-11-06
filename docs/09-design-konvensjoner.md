@@ -1504,13 +1504,16 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
   medlemsregel, begrunnelse, juristens vurdering) og «Må gjøres i eget steg» som `Metatekst`-liste.
   - Relasjoner: lenke til aktøren (`/virksomheter/:id`) eller begrepet (`/begreper/:id`) når id-en finnes i basen; ny node som «navn» med
     `neutral` «Ny node». Hver relasjon har `neutral` «Eget steg» (grunnen i `title`) eller «Skrives av koblingen».
-  - Hjemmel: lenke til rettskilden, bestemmelsen, `KunnskapsstatusTag`, `neutral` «Regelens forslag» / «Ikke regelens forslag», og sitatet
+  - Hjemmel: lenke til rettskilden, bestemmelsen, `KunnskapsstatusTag`, `neutral` «Regelens forslag» / «Kan lagres» / «Står ikke i korpus», og sitatet
     som `Metatekst` med aksentkant (som hjemmelforslaget i §50). Har fila ikke sitatet, står bestemmelsens tekst i basen med «(teksten i
     basen; klassifiseringen har ikke sitatet)». Uten hjemmel: «Mangler» eller «Ikke relevant», med merknaden.
 - **«Godta forslaget»** (`secondary`) skriver aldri. Den fyller ut skjemaet handlingen hører til, åpner det og ruller dit, og en `info`-`Alert`
   «Fylt ut fra forhåndsklassifiseringen … Ingenting er lagret ennå» står ved skjemaet med det som ikke kunne fylles ut. Mennesket trykker på
-  skjemaets egen knapp. Godkjenning: type, skrivemåte, hjemmel, hvor den gjelder, «faglig vurdert» og begrunnelsen. Koble: aktør, skrivemåte
-  og grunn (når forslaget sier den). Ikke en aktør: begrunnelsen. Generisk omtale: tørrkjøringen; «Lagre» er eget klikk. Ta med: bekreftes i
+  skjemaets egen knapp. Godkjenning: type, navn, hjemmel og begrunnelsen. [ENDRET, Johanns avgjørelser 2026-11-05] Godkjenningsnivået
+  («Hvor sikkert er det?») fylles aldri ut. Navnet kan være forslagets grunnform: den står som eget valg «‹navn›» (forhåndsklassifiseringen) med
+  beskrivelse, og overskriften er da «Navnet». Hjemmelen kan være forhåndsklassifiseringens (eget valg med kunnskapsstatusen). Er den
+  fortolkning, står «Tolkningsargumenter» som `Checkbox` i `Fieldset` (§51) uten forhåndsvalg, og knappen er av til ett er valgt. Koble: aktør,
+  skrivemåte og grunn (bare når relasjonen sier den). Ikke en aktør: begrunnelsen. Generisk omtale: tørrkjøringen; «Lagre» er eget klikk. Ta med: bekreftes i
   kortet med teksten om hva som skjer. Navn som venter på modellvalg har ingen knapp, bare `Metatekst` «Venter på #463».
 - **Filtrene** under de andre: `Select` «Forslag: type» og «Forslag: sikkerhet» med antall, og `Chip.Checkbox` «Bare aktører med høy
   sikkerhet N» (første bruk), som setter de to til aktør og høy. Ingressen sier hvor mange navn som er forhåndsklassifisert og hvor mange som
@@ -1519,3 +1522,7 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
   (aktør) og «bostedskommune» (rolle) godkjent, «den kommunen» tagget som generisk omtale, alle via «Godta forslaget» og skjemaets knapp.
   KD (koble) og fylkeskommunen (venter) kontrollert uten lagring. Funnet: merknaden «Fylt ut» sto øverst i «Andre handlinger», langt fra
   tørrkjøringen; den står nå ved avsnittet den gjelder.
+- **Kaldsjekket på nytt 2026-11-06** etter Johanns avgjørelser og flettingen av #467, i kopien `regelide_forhand2` (web 5373 mot API 5487; i en
+  headless Edge via CDP fordi Browser-panelet ikke tegnet): «bostedskommune» godkjent med forskriftens § 2 første ledd (fortolkning, ordlyd),
+  Utdanningsdirektoratet med «hjemmel mangler», «den kommunen» lagret som generisk omtale. «foreldrerådet» fylt ut med grunnformen
+  «foreldreråd» og regelens forslag (ikke lagret). «fylkeskommunens» viser «Klassifisering kan være utdatert».
