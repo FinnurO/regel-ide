@@ -1,6 +1,8 @@
-# Grunnlagsnotat: regel-ide mot standardene (LKIF Core, UFO-L, LegalRuleML, ELI, Akoma Ntoso)
+# Grunnlagsnotat: regel-ide mot standardene (LKIF Core, UFO-L, LegalRuleML, ELI, Akoma Ntoso) og standardlandskapet (LOMO, SEMIC, regellaget, Norden)
 
 Skrevet 2026-10-09 mot FinnurO/regel-ide master `f066c98`. Repoet er ikke endret. Notatet skal gjøre det mulig å vurdere materialet Johann sender om standarder, punkt for punkt, mot det vi faktisk har.
+
+[ENDRET, #473, 2026-11-12] §7 er en egen, bred gjennomgang av standardlandskapet: LOMO, SEMIC-vokabularene (CPOV, CPSV-AP, Core Location, Core Person og Business, CCCEV), ELI-ontologien og ELI-DL, FLINT/eFLINT, ODRL, LegalRuleML-oppfølgingen, nyere forskning og norske og nordiske initiativer. Den har egne kortnøkler (§7, «Nye kortnøkler») og en egen verifiseringslogg til slutt. Kildene som skal sjekkes ved hver profilversjon, står i [08-standardlandskap-sjekkliste.md](08-standardlandskap-sjekkliste.md).
 
 **Om kildegrunnlaget for standardene (les dette først).** Alle repo-referanser er lest direkte. Standardbegrepene er kontrollert mot primærkildene 2026-10-09 (se «Verifiseringslogg» til slutt). Merkingen betyr:
 - **(v) [kilde]** er slått opp i primærkilden. Kortnøkkelen i klammen viser til listen under.
@@ -188,6 +190,270 @@ Forklaring av samsvarskolonnen: **lik** · **delvis** · **mangler hos dem** (vi
 6. **Kompetanselæren:** skal tredelingen i personell, materiell og prosessuell kompetanse inn som egen akse på K-typene?
 7. **Rettskildefaktorer og vekt:** skal standarden ha en typet liste over faktorer med vekt (utvidet KL-RETTSKILDEVEKT), eller holder bevisrekkefølgen til klassifisering?
 8. **Navn:** skal en norsk standard bruke de engelske standardnavnene (power, duty, figure) eller norske navn med mapping? Det avgjør hvordan K, P og «ordning» presenteres utad.
+
+---
+
+## 7. Standardlandskapet: LOMO, SEMIC, ELI-ontologien, regellaget og Norden (sak #473)
+
+[Ny, #473, 2026-11-12] Johann 2026-11-06: «hvorfor kom ikke LOMO opp da vi jobbet med norsk profil og bruk av standarder?» Årsaken er at §1–§6 ble skrevet for å vurdere de fem standardene Johann sendte. Det ble ikke gjort en egen bred gjennomgang av landskapet. Denne delen er den gjennomgangen. Kildene som skal sjekkes ved hver profilversjon, står i [08-standardlandskap-sjekkliste.md](08-standardlandskap-sjekkliste.md).
+
+**Metode.**
+- Primærkildene er hentet 2026-11-06 og 2026-11-12: spesifikasjonssidene, ontologifilene (Turtle eller RDF/XML), de offisielle repoene (lest via API) og API-ene til Lovdata, Brreg, SSB og Felles datakatalog. Hver kilde står i den utvidede verifiseringsloggen til slutt.
+- Merkingen er den samme som i resten av notatet: (v) betyr slått opp i primærkilden, (ikke verifisert) betyr at kilden ikke kunne nås eller ikke sier noe.
+- Koblingene bruker typene i grunnlagsdokumentet §5.7: **nært beslektet**, **snevrere** (vårt begrep er snevrere enn deres), **bredere** (vårt begrep er bredere) og **ingen match**. Ingen kobling er «lik». Krysstabellen i §3 bruker en eldre skala (delvis, mangler hos dem, mangler hos oss) og er ikke skrevet om.
+- Alle koblingene i tabellene under har vært gjennom en juristrunde i to runder (CLAUDE.md §23). Utfallet står i §7.7, og alle kortene, innvendingene, svarene og replikkene ligger i [juristrunde-473-koblinger.json](juristrunde-473-koblinger.json).
+
+**Nye kortnøkler:**
+- **[LOMO]** Legal Obligation Metadata Ontology 1.1.0, spesifikasjon: https://drpm.pages.code.europa.eu/lomo/1.1.0/ (1.0.0: https://drpm.pages.code.europa.eu/lomo/1.0.0/). Ontologifil, vokabularer og SHACL lest fra **[LOMO-repo]** https://code.europa.eu/drpm/lomo, tagg `v1.1.0`: `ontologies/lomo-ontology.ttl`, `deontic-modality.ttl`, `temporal-function.ttl`, `result-category.ttl`, `digital-dimensions.ttl`, `shapes/lomo-shapes.ttl`, `CHANGELOG`, `LICENSE`
+- **[IE-LOMO]** Interoperable Europe, nyhet 2026-11-04: https://interoperable-europe.ec.europa.eu/interoperable-europe/news/legal-obligation-metadata-ontology-lomo-jurix-20226
+- **[JURIX26]** JURIX 2026, Toulouse 8.–10. desember: https://www.irit.fr/jurix2026/program/
+- **[CPOV]** Core Public Organisation Vocabulary 2.1.2: https://semiceu.github.io/CPOV/releases/2.1.2/ (med `voc/core-public-organisation-ap.ttl`)
+- **[CPSV-AP]** Core Public Service Vocabulary Application Profile 3.2.0: https://semiceu.github.io/CPSV-AP/releases/3.2.0/ (med `rdf/cpsv-ap.ttl`)
+- **[CLV]** Core Location Vocabulary 2.1.1: https://semiceu.github.io/Core-Location-Vocabulary/releases/2.1.1/
+- **[CPV]** Core Person Vocabulary 2.1.2: https://semiceu.github.io/Core-Person-Vocabulary/releases/2.1.2/ · **[CBV]** Core Business Vocabulary 2.3.0: https://semiceu.github.io/Core-Business-Vocabulary/releases/2.3.0/
+- **[CCCEV]** Core Criterion and Core Evidence Vocabulary 2.2.0: https://semiceu.github.io/CCCEV/releases/2.2.0/
+- **[ELI]** som før, men nå kontrollert at http://data.europa.eu/eli/ontology fortsatt leverer `owl:versionInfo "1.5"`. **[ELI-DL]** ELI Draft Legislation Ontology: http://data.europa.eu/eli/eli-draft-legislation-ontology (Turtle). **[ELI-reg-NO]** https://eur-lex.europa.eu/eli-register/norway.html
+- **[eFLINT]** van Binsbergen, Liu, van Doesburg, van Engers, «eFLINT: A Domain-Specific Language for Executable Norm Specifications», GPCE 2020, https://doi.org/10.1145/3425898.3426958 (PDF: https://publications.tno.nl/publication/34639016/S2Rnu7/binsbergen-2020-eflint.pdf), og van Binsbergen mfl., arXiv 2511.12276. **[FLINT-ont]** https://gitlab.com/normativesystems/knowledge-modeling/flint-ontology (`flint.ttl`)
+- **[ODRL-M]** ODRL Information Model 2.2, W3C Recommendation 15.02.2018: https://www.w3.org/TR/odrl-model/ · **[ODRL-V]** https://www.w3.org/TR/odrl-vocab/ · **[ODRL-WS]** W3C-workshoprapport «Future of ODRL» (juli 2026): https://www.w3.org/2026/ODRLWS/report.html
+- **[LRML-RO]** Palmirani, «A LegalRuleML specialisation for reporting obligations» (mai 2024): https://interoperable-europe.ec.europa.eu/sites/default/files/news/2024-07/A%20LegalRuleML%20specialisation.pdf
+- **[CPSV-AP-NO]** https://data.norge.no/specification/cpsv-ap-no · **[SKOS-AP-NO]** https://data.norge.no/specification/skos-ap-no-begrep · **[DCAT-AP-NO]** https://data.norge.no/specification/dcat-ap-no
+- **[Lovdata-API]** https://api.lovdata.no/publicData og XML-dokumentasjonen https://api.lovdata.no/xmldocs
+
+### 7.1 LOMO (Legal Obligation Metadata Ontology)
+
+**Hva det er.** En ontologi fra Europakommisjonen for å beskrive tolkningen av regler i rettskilder: plikter, tillatelser, forbud, rettigheter, definisjoner og virkeområde. Hver regel knyttes til kilden med ELI. Formålet er å vise «who must do what, under which conditions, by when» [IE-LOMO].
+
+**Status (v), kontrollert 2026-11-12:**
+- Versjon **1.1.0**, utgitt 2026-10-21. 1.0.0 kom 2026-07-10 og var den første versjonen som ble erklært stabil [LOMO-repo, CHANGELOG].
+- Namespace `http://data.europa.eu/leg/lomo#`, `owl:versionIRI` `http://data.europa.eu/leg/lomo/ontology/1.1.0`, `dcterms:creator` European Commission [LOMO-repo].
+- **Lisens: CC BY 4.0** (`dcterms:license` og fila `LICENSE`). Lisensen ble byttet fra EUPL 1.2 til CC BY 4.0 2026-07-16 etter ønske fra EU Vocabularies [LOMO-repo, CHANGELOG].
+- Repoet er offentlig og ble opprettet 2025-12-02. Prosjektet het tidligere LRMO (eksempeldata bruker fortsatt `data.europa.eu/lrmo/`).
+- **Artikkelen** «Legal Obligation Metadata Ontology: a representation of legal rules with a practitioner perspective» (Nardin, Audrito, Abrard, Jacquet) er akseptert til JURIX 2026 (nr. 48 på listen over aksepterte artikler) [JURIX26]. Den publiseres med konferanseboka innen utgangen av 2026 [IE-LOMO].
+- **Merking: foreløpig.** Ontologien er publisert, men artikkelen er ikke det. Koblingene under bygger på ontologifila og spesifikasjonen, ikke på artikkelen.
+- **(korrigert) Premisset i #473** var at ontologifil, namespace og lisens ikke er publisert. Det stemmer ikke: kunngjøringen [IE-LOMO] lenker ikke til dem, men spesifikasjonen og repoet var offentlige da kunngjøringen kom (1.1.0 er fra 2026-10-21).
+
+**Begrepene (v) [LOMO]:**
+
+| Term | Hva det er |
+|---|---|
+| `LegalRule` | Tolkningen av en regel (ikke ordlyden). Skal ha minst én `establishedIn` til en ELI-ressurs |
+| `PrescriptiveRule` (`SubstantiveRule`, `ImplementationAndOversightRule`) | Regel som påbyr, tillater eller forbyr. `hasDeonticModality` er påkrevd. `ImplementationAndOversightRule` gjelder myndigheters plikter til å gjennomføre, føre tilsyn og håndheve |
+| `ConstitutiveRule` (`InstitutionalRule`, `ScopeRule`, `Definition`) | Regel som skaper institusjonelle fakta. `InstitutionalRule` oppretter organer, gir status, fastsetter sammensetning og «attribute powers or competences». Spesifikasjonen sier at «X may [institutional action]» er institusjonell kapasitet, ikke en tillatelse til atferd |
+| `Action`, `ActionResult`, `ActionResultType` | Handlingen regelen foreskriver (`produces`), og resultatet (rapport, sertifikat) |
+| `Agent`, `AgentType`, `AgentRole` | Et bestemt rettssubjekt, en kategori (f.eks. «Member States»), og deltakelsen i en handling (`forAgent`, `withRole`). Rollen kan bare være ADDRESSER, ADDRESSEE eller BENEF fra OP-tabellen «role», låst med `owl:oneOf` og SHACL |
+| `TemporalSpecification` | Tid knyttet med `atTime`. Funksjonen (`hasFunction`) er Deadline, Validity, Starting Point eller Trigger. Verdier: `instant`, `duration`, `frequency` (xsd:duration mellom gjentakelser), `repetitions` og `temporalLabel`, pluss Allen-relasjonene `before`, `after`, `starts`, `finishes`, `overlaps`, `in` |
+| `specifies`, `derogatesFrom`, `relatesTo` | Forholdet mellom regler: presisering uten konflikt, avvik med deontisk konflikt, og generell kobling |
+| `hasRequirementType`, `hasCategory`, `involvesProcess` | Klassifisering etter OP-tabellene «administrative obligation» og «law implementation and oversight», og etter digitale dimensjoner |
+
+Plikthaveren har ingen egen rolle. Den som utfører handlingen, er ADDRESSER: endringsloggen sier at rollen «bearer» ble erstattet med «addresser» (v) [LOMO-repo, CHANGELOG].
+
+**Koblinger (etter juristrunden):**
+
+| Vårt begrep | LOMO | Kobling | Merknad |
+|---|---|---|---|
+| P plikt overfor motpart, modalitet skal | `PrescriptiveRule` med Obligation, `produces` `Action` med `AgentRole` | snevrere | P er den aktørnære projeksjonen av plikter i forvaltningen (seks typer). LOMO dekker alle foreskrivende regler |
+| P-modaliteten kan (adgang) | Permission | nært beslektet | Ikke kompetanse (#353 pkt. 1) |
+| P-modaliteten bør | – | ingen match | Skjemaet har fire verdier, og SHACL krever en av dem |
+| P med negativ polaritet (forbud) | Prohibition | nært beslektet | |
+| Fra-noden på P (pliktsubjektet) | `AgentRole` med ADDRESSER | nært beslektet | Bare når regelen er Obligation, Prohibition eller Permission (P kan). Under Right kan ADDRESSER være rettighetshaveren |
+| Til-noden på P (motparten), også betalingsmottakeren | `AgentRole` med ADDRESSEE | nært beslektet | BENEF svarer til «begunstiget», som docs/33 §4.5 pkt. 3 holder atskilt fra mottakeren. Mottakeren skal ikke eksporteres som BENEF |
+| K kompetanse | `InstitutionalRule` | snevrere | Koblingen gjelder **regelen** som hjemler K-kanten. LOMO har ingen `Action` eller `AgentRole` på konstitutive regler, så fra og til har ingen motpart: LOMO kan ikke si hvem som har kompetanse overfor hvem |
+| F oppgave med modalitet skal | `PrescriptiveRule` med Obligation, uten ADDRESSEE | nært beslektet | |
+| F oppgave uten modalitet (attributiv, ressortfordeling) | `InstitutionalRule` | nært beslektet | En ressortfordeling «tildeler ansvar, den pålegger ingen plikt» (docs/33 §5.9). En F uten modalitet skal aldri eksporteres som Obligation |
+| klasse | `AgentType` | nært beslektet | |
+| Hjemmel-eId | `establishedIn` | nært beslektet | `establishedIn` peker på ELI og kan ikke uttrykke kilde utenfor korpus |
+| Avgrensning | – | ingen match | `legalText` er ordrett tekst og svarer til sitatet eller tekst-taggen, ikke til avgrensningen |
+| Unntak (node med `gjelder_regel` og betingelse) | `derogatesFrom` | bredere | `derogatesFrom` krever en egen regel med deontisk konflikt. Vårt unntak er også en «med mindre»-betingelse inne i én regel |
+| `gyldig_fra`/`gyldig_til` på kanten (og #437) | `TemporalSpecification` med Validity | nært beslektet | |
+| Frist | `TemporalSpecification` med Deadline | ingen match | **Mangler hos oss** |
+| Frekvens og gjentakelse | `frequency`, `repetitions` | ingen match | **Mangler hos oss** |
+
+**Funnet som betyr mest.** LOMO dekker nettopp det vi mangler i P: frist, startpunkt, utløsende hendelse, frekvens og antall gjentakelser, og forventet resultat. #437 gjelder bare gyldighet (Validity), ikke frist og frekvens. Omvendt har LOMO ikke det strukturlaget vårt bygger på: kompetanse som kant mellom aktører, oppgave atskilt fra plikt, polaritet som skiller ugyldig fra ulovlig, områder, kunnskapsstatus og avgrensning. LOMO skiller selv kompetanse fra tillatelse, og det støtter skillet i #353 pkt. 1.
+
+### 7.2 SEMIC Core Vocabularies
+
+**Status (v), kontrollert 2026-11-06 og 2026-11-12.** Alle har namespace `http://data.europa.eu/m8g/` for nye termer og gjenbruker W3C ORG, `locn:`, `dct:` og `eli:`. CPOV er ikke slått sammen med de andre. Hvert vokabular har eget repo og egen versjon.
+
+| Vokabular | Versjon og dato | Status | Lisens |
+|---|---|---|---|
+| CPOV | 2.1.2, 2026-05-12 | SEMIC Recommendation | CC BY 4.0. Spesifikasjonssiden sier i tillegg «published under "CC0"» i lisensavsnittet. Den er altså selvmotsigende |
+| CPSV-AP | 3.2.0, 2024-05-06 | SEMIC Recommendation | CC BY 4.0 |
+| Core Location | 2.1.1, 2026-05-12 | SEMIC Candidate Recommendation | CC BY 4.0 |
+| Core Person / Core Business | 2.1.2 / 2.3.0, 2026-05-12 | SEMIC Recommendation | CC BY 4.0 |
+| CCCEV | 2.2.0, 2026-05-12 | SEMIC Candidate Recommendation | CC BY 4.0 |
+
+Interoperable Europe-sidene viser fortsatt eldre versjoner (CPOV 2.1.1, CCCEV 2.1.0). Spesifikasjonene på semiceu.github.io er derfor kilden.
+
+**CPOV (v) [CPOV].** Beskriver offentlige organisasjoner: `cv:PublicOrganisation` («defined as being part of the public sector by a legal framework at any level»), `org:OrganizationalUnit`, `org:subOrganizationOf`, `org:memberOf`, `dct:spatial` («the Administrative Region(s) that it covers»), `org:purpose` («remit» eller «responsibility», helst COFOG), `org:classification` og `org:ChangeEvent` med `cv:hasFormalFramework` (regelverket som utløste endringen) og `prov:startedAtTime`. Vokabularet har ingen begreper for kompetanse eller plikt, og folkevalgte organer er uttrykkelig utenfor.
+
+| Vårt begrep | CPOV | Kobling | Merknad |
+|---|---|---|---|
+| rettssubjekt (offentlig) | `cv:PublicOrganisation` | snevrere | PublicOrganisation krever ikke rettssubjektivitet og omfatter også departementer og direktorater, som er organer for staten. At rettssubjektet bærer plikter og ansvar, går tapt ved eksport |
+| organ | `cv:PublicOrganisation` med `org:subOrganizationOf` til rettssubjektet | nært beslektet | Mengdene overlapper. Folkevalgte organer (kommunestyret, Stortinget) har ingen motpart i CPOV og skal ikke eksporteres uten en merknad om det |
+| organisatorisk_enhet | `org:OrganizationalUnit` (`org:unitOf`) | nært beslektet | |
+| R etterfolger og organiseringskildene (docs/33 §5.9) | `org:ChangeEvent`, `org:resultedFrom`/`changedBy`, `cv:hasFormalFramework`; `xhv:prev`/`next` | nært beslektet | Den beste eksportformen for departementenes livsløp: hendelsen har både tid og hjemmel |
+| A har_ansvarsomrade | `dct:spatial` | nært beslektet | CPOV har ingen hjemmel eller avgrensning på koblingen |
+| F oppgave | `org:purpose` | nært beslektet | purpose er organisasjonens eksistensgrunn og svarer i beste fall til summen av en aktørs hovedoppgaver. Hjemmel og modalitet går tapt |
+| M medlem_av (aktør → klasse) | `org:classification` | nært beslektet | Ikke `org:memberOf`, som gjelder medlemskap i en annen organisasjon |
+| K og P | – | ingen match | |
+
+**CPSV-AP (v) [CPSV-AP].** Beskriver offentlige tjenester. Det eneste som ligner myndighet, er `cv:hasCompetentAuthority` (påkrevd): organisasjonen som er ansvarlig for å levere tjenesten, også når tjenesten er satt bort. Hjemmel er `cv:hasLegalResource` → `eli:LegalResource`, og `cpsv:Rule` med `cpsv:implements`. Vilkår hentes fra CCCEV (`cv:Requirement`). Tid: `cv:processingTime` (estimert behandlingstid, xsd:duration) og `cv:frequency`. CPSV-AP har ingen egenskap for lovbestemte frister.
+
+| Vårt begrep | CPSV-AP | Kobling | Merknad |
+|---|---|---|---|
+| F sorge_for | `cv:hasCompetentAuthority` | nært beslektet | Ansvar for at tjenesten ytes, også når den er satt bort |
+| F forvaltning | `cv:hasCompetentAuthority` | ingen match | Et departement som forvalter en lov, er ikke ansvarlig myndighet for tjenesten |
+| K vedtak | `cv:hasCompetentAuthority` | ingen match | Kan være premiss for å utlede ansvarlig myndighet, men er ikke det samme |
+| Hjemmel-eId | `cv:hasLegalResource` | snevrere | Vår hjemmel er på bestemmelse, ledd eller punkt |
+| (mangler) lovbestemt saksbehandlingsfrist | `cv:processingTime` | ingen match | Estimert tid er ikke en frist |
+| vilkår (regellaget, docs/01 §6) | `cv:Requirement` / `cv:Criterion` (CCCEV) | ikke vurdert i juristrunden | Hører til regellaget |
+
+**Core Location, Core Person og Core Business (v) [CLV; CPV; CBV].** Core Location har `cv:AdminUnit` («organized in a hierarchy», med kode og nivå), men ingen egenskap til overordnet enhet og ingen klasse for jurisdiksjon. Core Person har `dct:Jurisdiction` («the limits or territory within which authority may be exercised»), men bare som verdi for statsborgerskap. Core Business har `a4g:PowerOfAttorney` (fullmakt).
+
+| Vårt begrep | Term | Kobling | Merknad |
+|---|---|---|---|
+| omrade og O bestar_av | `cv:AdminUnit` | bredere | Våre områder omfatter også lagsogn, lagdømmer, tettsteder og helseregioner, og O har sammensetning, som AdminUnit mangler |
+| A har_jurisdiksjon (kanten) | `dct:Jurisdiction` | ingen match | dct:Jurisdiction er en klasse for et territorium, mens vår er en relasjon. Det styrker likevel anbefalingen i §5 om å vurdere å gi koden et annet navn |
+| R representerer | `a4g:PowerOfAttorney` | ingen match | Privatrettslig fullmakt |
+
+**CCCEV (v) [CCCEV].** `cv:Requirement`, `cv:Criterion`, `cv:InformationConcept`, `cv:Evidence` og `cv:EvidenceType`, med `cv:isDerivedFrom` → `cv:ReferenceFramework` (regelverket kravet bygger på) og `cv:validityPeriod`. Det er regellaget: vilkår og bevis, ikke aktører.
+
+### 7.3 ELI-ontologien (utover URI-malen), ELI-DL og ELI i Norge
+
+**Status (v), kontrollert 2026-11-12.** Gjeldende versjon er fortsatt **1.5** (http://data.europa.eu/eli/ontology). Det finnes ingen 1.6. OWL-fila som lenkes fra op.europa.eu/en/web/eu-vocabularies/eli, er **1.4** (januar 2022), og Interoperable Europe viser bare 1.3. Bruk namespace-adressen. Lisens og utgivelsesdato for 1.5 er ikke oppgitt i noen av kildene (ikke verifisert).
+
+**Koblinger (v) [ELI]:**
+
+| Vårt begrep | ELI | Kobling | Merknad |
+|---|---|---|---|
+| K normgivning (kompetansen) | `eli:based_on` / `basis_for` | ingen match | `based_on` er en relasjon mellom verk. Den viser at kompetansen er brukt, ikke hvem som har den |
+| Dokumentrelasjonen forskrift → hjemmelsbestemmelse («gitt i medhold av») | `eli:based_on` | nært beslektet | **Ikke bygget hos oss** (§4 «Trinnhøyde og delegert normgivning»). Kan bli premiss for K normgivning |
+| K normgivning | `eli:passed_by` | ingen match | Den som vedtok akten, ikke kompetansen |
+| F forvaltning (departementet som forvalter en lov) | `eli:responsibility_of_agent` | snevrere | ELI: «some kind of responsibility for the legislation», typisk departementet som utarbeidet den, eller kontaktpunktet etter publisering |
+| A har_ansvarsomrade | `eli:relevant_for` (overegenskap til `jurisdiction`) | ingen match | Gjelder rettsressursen, ikke aktøren |
+| (mangler) anvendelsesdato på kildenivå | `eli:date_applicability` | ingen match | **Mangler hos oss**, sammen med `in_force` (se §2) |
+
+ELI 1.5 har ingen begreper for plikt, frist eller hvem en regel gjelder for (søkt i hele fila).
+
+**ELI-DL (v) [ELI-DL].** Utvidelse for lovforslag og lovgivningsprosesser, versjon V3.0 hos Publikasjonskontoret. Den har `Activity`, `Participation`, `ParticipationRole`, `had_responsible_organization`, `was_submitted_by`, `had_legal_basis` og `transposition_deadline`. Den beskriver hvem som deltar i prosessen som lager reglene, ikke kompetanse eller plikter som reglene gir: **ingen match** for K og P. Status er uklar: Interoperable Europe viser både «Under development» og «Archived» (ikke verifisert).
+
+**ELI i Norge (v):**
+- Lovdatas ELI er fortsatt merket «BETA» (kontrollert 2026-11-12, uendret siden 2026-10-09) [Lovdata-ELI].
+- EUR-Lex-registeret oppgir «Pillar 3» for Norge, og at metadata er innebygd som RDFa [ELI-reg-NO]. RDFa på en ELI-side hos Lovdata (`lovdata.no/eli/lov/2005/05/20/28/no`) har bare `type_document`, `title`, `title_short`, `id_local`, `date_document`, `date_publication`, `first_date_entry_in_force`, `is_realized_by` og `publisher`. Den har ikke `based_on`, `passed_by` eller `responsibility_of`.
+- Lovdatas åpne XML-data har derimot feltene `ministry` (ansvarlig departement), `basedOn` (hjemmel), `dateInForce` og `dateInForceEnd` [Lovdata-API]. Det er kilden for #437 (gyldighet fra kilden) og for en framtidig dokumentrelasjon forskrift → hjemmel. Lisensen for de gjeldende lovene og forskriftene er ikke oppgitt på api.lovdata.no (ikke verifisert). Felles datakatalog oppgir NLOD 2.0 for Norsk Lovtidend avd. I.
+
+### 7.4 Regellaget og forskningen
+
+**FLINT og eFLINT (v) [eFLINT; FLINT-ont].** Rammebasert språk for eksplisitte tolkninger av rettskilder. eFLINT er den kjørbare varianten (Haskell-implementasjon 4.1.0.1, BSD-3-Clause). FLINT-ontologien 1.0.0 (TNO, 2025-12-03, Apache 2.0) har `Act`, `Fact`, `Duty`, `Agent`, `hasActor`, `hasRecipient`, `creates`, `terminates` og `hasSource`/`hasTextFragment` (lenke til teksten).
+
+| Vårt begrep | eFLINT | Kobling | Merknad |
+|---|---|---|---|
+| K kompetanse | Act-type (actor, recipient, holds when, creates, terminates) | snevrere | Aktør og mottaker står i et power-liability-forhold. Alle handlinger er act frames, også rene oppfyllelseshandlinger |
+| P plikt overfor motpart | Duty-type (holder, claimant, violated when) | nært beslektet | En Duty har alltid en claimant. Eksporter bare som Duty når kravsrett = etablert (docs/34), aldri P uten motpart |
+| K med negativ polaritet | Precondition som ikke er oppfylt, eller Invariant | ingen match | |
+
+En frist uttrykkes i eFLINT som et «violated when»-vilkår på et faktum som en ekstern hendelse oppretter (GPCE 2020 §4). Språket har ingen egen tidstype og ingen frekvens.
+
+**ODRL 2.2 (v) [ODRL-M; ODRL-V].** W3C-anbefaling fra 2018 for bruksvilkår: `Permission`, `Prohibition`, `Duty`, `assigner`, `assignee`, partsfunksjoner (`informedParty`, `compensatedParty` m.fl.) og begrensninger på tid og gjentakelse (`dateTime`, `delayPeriod`, `elapsedTime`, `timeInterval`, `count`). En `duty` fra en Permission er «a pre-condition» for tillatelsen [ODRL-M §2.6.1, §2.6.5]. Bare `obligation` på policynivå er en selvstendig plikt.
+
+| Vårt begrep | ODRL | Kobling | Merknad |
+|---|---|---|---|
+| P informasjon og betaling | `odrl:obligation` (Duty) med assignee og `informedParty`/`compensatedParty` | nært beslektet | Ikke `duty` på en Permission. Tidsbegrensningene er det beste vokabularet for frist og frekvens vi har funnet, men vi har ikke frist og frekvens selv |
+| K kompetanse | `assigner` / Permission | ingen match | |
+
+En W3C-workshop i juli 2026 anbefalte en ODRL 3.0-arbeidsgruppe og nevnte LegalRuleML, LOMO og Akoma Ntoso som kandidater for integrasjon [ODRL-WS]. Om charteret er vedtatt, er ikke verifisert.
+
+**LegalRuleML.** Ingen ny versjon etter OASIS Standard 1.0 (2021), og ingen offisiell OWL-ontologi (v) (https://www.oasis-open.org/committees/legalruleml/). Det nærmeste er [LRML-RO], en spesialisering for rapporteringsplikter (Bologna, 2024). Den kobler regler til Akoma Ntoso og ELI og bruker Governatoris plikttyper (vedlikeholds- og oppnåelsesplikt m.fl.), men frister og frekvens står der som vanlige vilkår i regelen, ikke som egne elementer.
+
+**Forskning (v, landingsside eller PDF åpnet):**
+- Griffo mfl., Data & Knowledge Engineering 2023 (UFO-L, allerede [UFO-L 2023]): power–subjection og disability–immunity.
+- Dong og Roy, «Dynamic Logic of Legal Competences», Journal of Logic, Language and Information 2021, https://doi.org/10.1007/s10849-021-09340-z: skiller det å *kunne* rettslig (K) fra det å ha *lov* til.
+- Kharraz, Leucker og Schneider, «Timed Dyadic Deontic Logic», JURIX 2021, https://doi.org/10.3233/FAIA210336, og Chircop, Pace og Schneider, JURIX 2022, https://doi.org/10.3233/FAIA220460: normer med frister i kontinuerlig tid.
+- Ingen JURIX- eller ICAIL-artikkel fra 2022–2025 om ontologier for kompetanse i offentlig forvaltning ble funnet.
+- JURIX 2026 [JURIX26] har, ved siden av LOMO, artikler om å vurdere språk for Rules as Code (Ali, Sileno, van Engers), «Conditional Authority in Legal CBR» (Di Florio, Dong, Rotolo) og KI-uttrekk av EUs rapporteringskrav (Lecat, Corazza, Palmirani). De er ikke publisert ennå.
+
+**Catala og OECD «Cracking the Code» (v).** Catala (1.3.0, Apache 2.0) beregner beløp etter lovregler og har ingen aktører, kompetanse eller plikter. OECD-rapporten (2020) er en innføring i Rules as Code uten datamodell. Ingen av dem er relevante for strukturlaget.
+
+### 7.5 Norge og Norden
+
+**Digdir og Felles datakatalog (v), kontrollert 2026-11-12:**
+- **CPSV-AP-NO 1.2.0** (gjeldende, 2026-05-05, CC BY 4.0) [CPSV-AP-NO] bygger på CPSV-AP 3.2 og CCCEV 2.1. `cv:hasCompetentAuthority` («har kompetent organ») er påkrevd. `cv:hasLegalResource` peker på Lovdatas ELI. Roller hentes fra vokabularet `data.norge.no/vocabulary/role-type` (tjenesteyter, tjenesteprodusent, tjenestemottaker m.fl.). Status i referansekatalogen er ikke funnet (ikke verifisert).
+- **Ingen norsk profil for organisasjoner** (ingen CPOV-AP-NO). Felles datakatalogs organisasjonskatalog bruker `rov:RegisteredOrganization`, `org:subOrganizationOf`, `rov:orgType` og `br:orgPath` (f.eks. `/STAT/932384469/991825827`).
+- **SKOS-AP-NO-Begrep 2.0.15** (gjeldende, CC BY 4.0, anbefalt i referansekatalogen) [SKOS-AP-NO]: en definisjon har `dct:source` (kan være en lovbestemmelse, eksempel med Lovdata-ELI) og `skosno:relationshipWithSource` med verdiene sitat fra kilde, basert på kilde og egendefinert.
+- **DCAT-AP-NO 3.0.7** [DCAT-AP-NO]: `dcatap:applicableLegislation` → `eli:LegalResource`, «For referanse til Lovdata bør ELI-URI brukes».
+- **Veilederen for digitaliseringsvennlig regelverk** (Digdir) gir anbefalinger, men har ingen datamodell for aktører eller kompetanse.
+
+| Vårt begrep | Norsk spesifikasjon | Kobling | Merknad |
+|---|---|---|---|
+| kunnskapsstatus for en definisjon (tekstfunn, normalisering, fortolkning) | `skosno:relationshipWithSource` | nært beslektet | Tekstfunn ↔ sitat fra kilde. Normalisering og fortolkning ↔ basert på kilde. Egendefinert har ingen motpart, fordi vi krever hjemmel eller kilde utenfor korpus. Avledet, uavklart, omstridt og foreldet har ingen motpart hos dem |
+
+Koblingene til CPSV-AP i §7.2 gjelder også CPSV-AP-NO.
+
+**Registre (v).** Enhetsregisteret har organisasjonsformene (ORGL, STAT, KOMM, FYLK m.fl.) og `overordnetEnhet` under NLOD. SSB KLASS har kommune- og fylkesinndelingen med `validFrom`/`validTo` under CC BY 4.0. Begge brukes allerede: Enhetsregisteret i virksomhetskatalogen (docs/20) og KLASS i områderegisteret (`src/RegelIde.Data/Seed/fornye-omraderegister.py`). De gir gyldighetsperiode for områder og organisasjoner, men ingen hjemmel.
+
+**Norden:**
+- **Danmark (v):** «Digitaliseringsklar lovgivning» (digst.dk) er en obligatorisk vurdering med sju prinsipper, uten datamodell. «OIO Specifikation af model for Organisation» 2.0 har Organisation, OrgEnhed, ForretningsFunktion og Opgave (KLE). «Anvendelsesprofil for organisationer» bygger på W3C ORG og CPOV, men er et utkast fra 2018. Gjeldende status er ikke verifisert.
+- **Sverige (v):** SCBs myndighetsregister (449 statlige myndigheter). Domstolsverkets rapport fra 2025 sier at åpne data, ELI og ECLI må utredes videre.
+- **Finland (v):** Finlex har åpne data med Akoma Ntoso og ELI-alias under CC BY 4.0. Suomi.fi-tjenestekatalogen har `roleType` (Responsible, Producer), områder med kommunekode og en lenke til lovgivning per tjeneste. At den bygger på CPSV-AP, er ikke verifisert.
+
+Ingen av de norske eller nordiske initiativene modellerer kompetanse som en kant knyttet til en bestemt bestemmelse.
+
+### 7.6 Hva de har som vi mangler, og omvendt
+
+| De har, vi mangler | Hvor | Hva det berører hos oss |
+|---|---|---|
+| **Frist** for å oppfylle en plikt, startpunkt og utløsende hendelse | LOMO `TemporalSpecification` (Deadline, Starting Point, Trigger); ODRL-begrensninger; eFLINT «violated when» | P og F. Ikke dekket av #437, som gjelder gyldighet |
+| **Frekvens** og antall gjentakelser | LOMO `frequency`, `repetitions`; ODRL `timeInterval`, `count` | P informasjon (rapporter), F (oversikt) |
+| Gyldighet for regelen og anvendelsesdato | LOMO Validity; ELI `in_force`, `date_applicability`; Lovdata `dateInForce`/`dateInForceEnd` | #437 |
+| Forventet resultat av en handling (rapport, sertifikat) | LOMO `ActionResult`; CPSV-AP `cv:Output` | P (objekt er fritekst i dag) |
+| Rekkefølge mellom handlinger | LOMO `hasNext`/`hasPrevious` | Saksgang, som bevisst er utenfor strukturlaget (docs/33 §4.4) |
+| Presisering uten konflikt (særregel) | LOMO `specifies` | Kollisjonsprinsipper (§4 «Mangler») |
+| Endringshendelse for organisasjoner, med hjemmel | CPOV `org:ChangeEvent` med `cv:hasFormalFramework` | R etterfolger har dette i dag som kanter, ikke som hendelse |
+| Dokumentrelasjonen forskrift → hjemmel | ELI `based_on`; Lovdata `basedOn` | Ikke bygget (§4) |
+| Ansvarlig myndighet for en tjeneste | CPSV-AP / CPSV-AP-NO | Tjenester er utenfor modellen |
+
+| Vi har, de mangler | Kommentar |
+|---|---|
+| Kompetanse som kant mellom aktører, med motpart, familie og delegeringsadgang | LOMO har kompetanse bare som regeltype uten aktør. CPOV og CPSV-AP har ingen kompetanse. eFLINT har act frames, men skiller ikke kompetanse fra andre handlinger |
+| Oppgave (F) atskilt fra plikt (P), og plikt atskilt fra kravsrett | LOMO legger begge under Obligation eller InstitutionalRule. eFLINT Duty har alltid en kravshaver |
+| Negativ polaritet som skiller ugyldig (disability) fra ulovlig (forbud) | Bare UFO-L (§3) |
+| «bør» som egen modalitet | Ingen |
+| Områder med type, kode, sammensetning (O) og ansvarsområde (A) med hjemmel | CPOV har `dct:spatial` uten hjemmel. Core Location har ingen sammensetning |
+| Klasser lest distributivt, og medlemskap med hjemmel | LOMO `AgentType` uten medlemskap |
+| Kunnskapsstatus (åtte verdier) og skillet mellom tekstfunn og slutning | SKOS-AP-NO har tre verdier, og bare for definisjoner |
+| Avgrensning per paragraf, og hjemmel på eId for hvert utsagn | Ingen |
+| `ordning` som ikke-aktør | Ingen |
+| Skjønn | Ingen |
+
+### 7.7 Juristrunden (CLAUDE.md §23)
+
+Kortene er koblingene i §7.1–§7.5 slik de var før runden. Alle dokumentene ligger i [juristrunde-473-koblinger.json](juristrunde-473-koblinger.json).
+
+- **Runde 1:** 38 kort. 22 holder og 16 innvendinger (1 høy, 9 middels, 6 lav). Ingen kontroller og ingen prinsipielle.
+- **Svar:** modellereren aksepterte 14 og svarte delvis på 2 (C2 og E3).
+- **Runde 2:** juristen godtok begge og presiserte én akseptert retting (L5 skal også gjelde Permission). **Ingen uenighet går til Johann.**
+
+Det runden endret:
+- **Oppgave forvekslet med plikt (høy):** F uten modalitet er ikke en Obligation. F deles etter modalitet ved eksport (§7.1).
+- **Kompetanse forvekslet med resultat:** `eli:based_on` viser at kompetansen er brukt, ikke hvem som har den (§7.3).
+- **Plikt og kravsrett:** eFLINT Duty har alltid en kravshaver, så P eksporteres bare som Duty når kravsrett er etablert (§7.4).
+- **LOMO-rollene:** ADDRESSER er den som utfører handlingen, og betalingsmottakeren er ADDRESSEE, ikke BENEF (§7.1).
+- **Nivå og delingslinjer:** rettssubjekt er snevrere enn PublicOrganisation, organ er nært beslektet, og `org:purpose` er bare nært beslektet med F (§7.2).
+- **ODRL:** bare `obligation` er en selvstendig plikt (verifisert mot [ODRL-M] etter runde 1).
+- Juristen tok feil i runde 1 om at «typically the ministry» ikke står i ELI. Den står der. Koblingstypen ble likevel «snevrere» (E3).
+
+Det runden ikke kontrollerte: den norske definisjonsteksten i CPSV-AP-NO (data.norge.no svarte 406 til juristens verktøy) og eFLINT-semantikken i F3.
+
+### 7.8 Hva som bør påvirke modellen
+
+Dette er forslag. Ingen av dem er besluttet, og ingenting er bygget i #473.
+
+1. **Frist og frekvens på P og F.** LOMO viser en etablert form: en tidsspesifikasjon med funksjon (frist, gyldighet, startpunkt, utløsende hendelse) og verdi (tidspunkt, varighet, frekvens, antall gjentakelser, navngitt hendelse). #437 dekker bare gyldighet. Frist og frekvens er en ny evne og bør være en egen sak eller en utvidelse av #437. Det må avgjøres om det hører til strukturlaget (P-kanten) eller regellaget (rettsfølgen).
+2. **Aktører: ingen modellendring, men en eksportmapping til CPOV.** Rettssubjekt, organ og organisatorisk enhet har gode motparter i CPOV og W3C ORG. Departementenes livsløp (docs/33 §5.9) passer `org:ChangeEvent` med hjemmel. Folkevalgte organer må merkes ved eksport.
+3. **Plikter: eksportmapping til LOMO.** P kan eksporteres som `PrescriptiveRule` med `Action` og `AgentRole`. «bør» har ingen plass, og K og F mister aktørene. Det er et argument for å beholde vår kantmodell og bruke LOMO som eksportformat for regellaget.
+4. **`har_jurisdiksjon`.** Navnet brukes i tre betydninger (§5). Core Person bruker «jurisdiction» om territoriet, ikke om relasjonen. Det styrker anbefalingen om et annet navn.
+5. **Kunnskapsstatus for begreper.** Kan eksporteres til SKOS-AP-NO-Begrep med verditabellen i §7.5, når begrepene publiseres i Begrepskatalogen.
+6. **Dokumentrelasjonen forskrift → hjemmel.** Lovdatas XML har `basedOn` og `ministry`. Det er en kilde for K normgivning og F forvaltning som ikke er tatt i bruk (ikke målt i #473).
 
 ---
 
