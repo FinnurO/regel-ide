@@ -178,10 +178,11 @@
             <tr><th scope="row">01 Profilspesifikasjon</th><td>Definisjoner, krav og status</td><td>Ikke skrevet</td></tr>
             <tr><th scope="row">02 Begrepsmanual</th><td>Definisjon, eksempel, moteksempel og grense per begrep</td><td>Ikke skrevet</td></tr>
             <tr><th scope="row"><a href="https://github.com/FinnurO/regel-ide/blob/HEAD/docs/profil/03-metodenotat.md" target="_blank" rel="noopener">03 Metodenotat</a></th><td>Rettslig metode og status for modellutsagn</td><td>Arbeidsutkast</td></tr>
-            <tr><th scope="row"><a href="https://github.com/FinnurO/regel-ide/blob/HEAD/docs/profil/04-mappingnotat.md" target="_blank" rel="noopener">04 Mappingnotat</a></th><td>DigRett mot ELI, Akoma Ntoso, LKIF Core, UFO-L og LegalRuleML</td><td>Arbeidsutkast, verifisert mot primærkildene 9. oktober 2026</td></tr>
+            <tr><th scope="row"><a href="https://github.com/FinnurO/regel-ide/blob/HEAD/docs/profil/04-mappingnotat.md" target="_blank" rel="noopener">04 Mappingnotat</a></th><td>DigRett mot ELI, Akoma Ntoso, LKIF Core, UFO-L og LegalRuleML, og fra november 2026 mot LOMO, EUs felles vokabularer, eFLINT, ODRL og norske spesifikasjoner</td><td>Arbeidsutkast, verifisert mot primærkildene 9. oktober og 12. november 2026</td></tr>
             <tr><th scope="row">05 Plan for testkorpus</th><td>Låst utvalg med uavhengig menneskelig annotering</td><td>Ikke skrevet</td></tr>
             <tr><th scope="row">06 Beslutningslogg</th><td>Når nye typer legges til, og hvorfor</td><td>Ikke skrevet</td></tr>
             <tr><th scope="row"><a href="https://github.com/FinnurO/regel-ide/blob/HEAD/docs/profil/07-pilot-barnehageloven.md" target="_blank" rel="noopener">07 Pilot: barnehageloven</a></th><td>Første aktive bruk utenfor de fem testlovene: tre lastinger, juristrunder og hva som stoppet utsagnene. Se <a href="../pilot-barnehageloven/">pilotsiden</a></td><td>Referat 28. oktober 2026, med tillegg 29. og 30. oktober. Gjennomgangen gjenstår</td></tr>
+            <tr><th scope="row"><a href="https://github.com/FinnurO/regel-ide/blob/HEAD/docs/profil/08-standardlandskap-sjekkliste.md" target="_blank" rel="noopener">08 Sjekkliste for standardlandskapet</a></th><td>Kildene som sjekkes før hver ny versjon av profilforslaget, med dato for siste sjekk</td><td>Første gjennomgang 12. november 2026</td></tr>
           </tbody>
         </table>
       </div>
@@ -211,7 +212,7 @@
             <tr><th scope="row">Ikke alt kan gjøres maskinkjørbart: funksjonskrav, skjønn, behov for kontekst</th><td>Profilen skiller analysen fra regelkjøring, har skjønn som eget tema, og tvinger ikke frem en klassifisering.</td></tr>
             <tr><th scope="row">Finne uklarheter, overlapp og motstrid i regelverket</th><td>Forslagene utfordres av en juristagent før et menneske avgjør. Motstrid løses ikke ut fra rekkefølge alene.</td></tr>
             <tr><th scope="row">Transparente, forklarbare og sporbare resultater</th><td>Et avledet svar viser grunnlaget sitt. Eksempel: «Agder lagmannsrett er ankeinstans for Agder tingrett», regnet ut fra forskriften om rettskretser og lagdømmer.</td></tr>
-            <tr><th scope="row">Hvilke formater og standarder løsningen bør støtte</th><td>ELI og Akoma Ntoso for kildene, LegalRuleML for regellaget, UFO-L for myndighet, SHACL og PROV-O for kontroll og opphav. Se <a href="#standardene">standardene</a>.</td></tr>
+            <tr><th scope="row">Hvilke formater og standarder løsningen bør støtte</th><td>ELI og Akoma Ntoso for kildene, LegalRuleML og LOMO for regellaget, UFO-L for myndighet, EUs vokabularer (CPOV og CPSV-AP) for organisasjoner og tjenester, SHACL og PROV-O for kontroll og opphav. Se <a href="#standardene">standardene</a>.</td></tr>
           </tbody>
         </table>
       </div>
@@ -223,18 +224,23 @@
   </section>
 
   <!-- ===================== 2. Standardene ===================== -->
+  <!-- [ENDRET, #473, 2026-11-12] Bred gjennomgang av standardlandskapet. Kilde: docs/profil/04-mappingnotat.md §7
+       (koblingene er kontrollert mot primærkildene og har vært gjennom juristrunde i to runder) og sjekklisten
+       docs/profil/08-standardlandskap-sjekkliste.md. Overskriften var «Fem internasjonale modeller, hver til sitt»;
+       tallet er tatt bort fordi gjennomgangen la til flere. LOMO er merket foreløpig fordi artikkelen ikke er
+       publisert. Ontologien er publisert (1.1.0, CC BY 4.0). -->
   <section class="section" id="standardene">
     <div class="wrap">
       <div class="section-head">
         <span class="kicker">Hva vi bygger på</span>
-        <h2>Fem internasjonale modeller, hver til sitt</h2>
-        <p>Forslaget finner ikke opp maskinlesbar rett på nytt. Det bruker etablerte internasjonale standarder og modeller der de passer, og sier tydelig hvor de ikke passer. Hver kobling er kontrollert mot primærkildene.</p>
+        <h2>Internasjonale modeller og norske spesifikasjoner, hver til sitt</h2>
+        <p>Forslaget finner ikke opp maskinlesbar rett på nytt. Det bruker etablerte internasjonale standarder og modeller der de passer, og sier tydelig hvor de ikke passer. Hver kobling er kontrollert mot primærkildene. I november 2026 ble hele landskapet gått gjennom, ikke bare standardene arbeidet startet med. Da kom blant annet LOMO og EUs felles vokabularer for offentlige organisasjoner og tjenester med.</p>
       </div>
       <div class="nytt-kort-grid">
         <div class="nytt-kort">
           <h3>ELI: hvilken lov og hvilken versjon</h3>
           <p>European Legislation Identifier gir hver rettskilde en fast adresse, for eksempel <code>lovdata.no/eli/lov/1989/06/02/27</code>. Det er grunnmuren for å peke på kilden.</p>
-          <p>Lovdatas ELI er merket «beta». Malen har plass til versjonsdato og til nivåer under loven, men nivået har foreløpig ingen funksjon.</p>
+          <p>Lovdatas ELI er fortsatt merket «beta». Selve ELI-ontologien (versjon 1.5) beskriver rettsaktene: hvem som vedtok dem, hvem som har ansvaret for dem, og hvilken lov en forskrift er gitt i medhold av. Den sier ingenting om hvem som har myndighet eller plikter etter loven.</p>
         </div>
         <div class="nytt-kort">
           <h3>Akoma Ntoso: hvordan teksten er bygget opp</h3>
@@ -243,18 +249,33 @@
         </div>
         <div class="nytt-kort">
           <h3>UFO-L: nærmeste modell for myndighet</h3>
-          <p>UFO-L bygger på Hohfelds rettslige posisjoner. Myndighet (<em>power</em>) hos én part svarer til at den andre er underlagt den (<em>subjection</em>). Det er den eneste av modellene som har kompetanse som eget begrep.</p>
+          <p>UFO-L bygger på Hohfelds rettslige posisjoner. Myndighet (<em>power</em>) hos én part svarer til at den andre er underlagt den (<em>subjection</em>). Den har kompetanse som eget begrep mellom to parter, med et eget motstykke hos den andre parten.</p>
           <p>«Kan ikke» er mangel på myndighet (<em>disability</em>). Hos motparten heter det immunitet, altså uavhengighet. En handling utenfor myndigheten er <strong>ugyldig</strong>, ikke ulovlig. Et forbud («skal ikke») er noe annet: bruddet er <strong>ulovlig</strong> og kan sanksjoneres.</p>
         </div>
         <div class="nytt-kort">
-          <h3>LegalRuleML: regellaget</h3>
-          <p>En OASIS-standard for å skrive regler: vilkår, plikt, tillatelse og forbud. Den er mest relevant for neste lag, der vilkår og unntak skal med.</p>
-          <p>Felle: <code>Authority</code> i LegalRuleML betyr den som har gitt eller håndhever en norm. Det er opplysninger om normens opphav, ikke myndighet. LegalRuleML har ikke noe eget element for kompetanse.</p>
+          <h3>LOMO: plikter med frister <span class="pill" data-tone="warning">Foreløpig</span></h3>
+          <p>Legal Obligation Metadata Ontology er Europakommisjonens nye ontologi for hvem som skal gjøre hva, på hvilke vilkår og innen når. Versjon 1.1.0 er publisert under en åpen lisens. Artikkelen som beskriver den, legges fram på JURIX-konferansen i desember 2026 og er ikke publisert ennå. Derfor er vurderingen foreløpig.</p>
+          <p>LOMO har det vi mangler: frist, startpunkt, utløsende hendelse og hvor ofte noe skal gjøres. Den har ikke det vi bygger på: myndighet som en forbindelse mellom to aktører. LOMO kan si at en regel gir myndighet, men ikke hvem som har den overfor hvem.</p>
+        </div>
+        <div class="nytt-kort">
+          <h3>EUs felles vokabularer: organisasjoner og tjenester</h3>
+          <p>SEMIC-vokabularene beskriver offentlige organisasjoner (CPOV), offentlige tjenester (CPSV-AP) og steder (Core Location). De passer godt for aktørene: rettssubjekt, organ, enhet og endringer som sammenslåinger, med regelverket som utløste dem.</p>
+          <p>De har ikke kompetanse eller plikter. Det nærmeste er «ansvarlig myndighet» for en tjeneste. Det betyr ansvar for at tjenesten ytes, ikke myndighet til å avgjøre.</p>
+        </div>
+        <div class="nytt-kort">
+          <h3>LegalRuleML, eFLINT og ODRL: regellaget</h3>
+          <p>LegalRuleML er OASIS-standarden for regler: vilkår, plikt, tillatelse og forbud. Det har ikke kommet noen ny versjon siden 2021. eFLINT beskriver handlinger og plikter mellom parter og kan kjøres. ODRL er W3C-standarden for bruksvilkår og har det beste språket for tid og gjentakelse.</p>
+          <p>Feller: <code>Authority</code> i LegalRuleML betyr den som har gitt eller håndhever en norm, ikke myndighet. En plikt i eFLINT gir alltid motparten et krav, og det følger ikke av en plikt hos oss.</p>
         </div>
         <div class="nytt-kort">
           <h3>LKIF Core: generelle begreper</h3>
           <p>En samling ontologier med generelle begreper som aktør, organisasjon, rolle, handling, tid, sted og rettskilde. Den brukes som referanse, ikke som ferdig norsk modell.</p>
           <p>LKIF Core har ingen klasse for kompetanse. Nærmest er klassen for uttrykk som gir noen makt.</p>
+        </div>
+        <div class="nytt-kort">
+          <h3>Norske spesifikasjoner</h3>
+          <p>Digdirs spesifikasjon for tjenestebeskrivelser (CPSV-AP-NO) bygger på EUs vokabular og peker på Lovdatas ELI. Spesifikasjonen for begrepsbeskrivelser sier om en definisjon er et sitat fra kilden, basert på kilden eller egendefinert. Det ligner statusen DigRett gir hvert utsagn.</p>
+          <p>Det finnes ingen norsk spesifikasjon for organisasjoner, og ingen norsk eller nordisk modell for myndighet knyttet til en bestemt paragraf.</p>
         </div>
         <div class="nytt-kort">
           <h3>Tekniske byggesteiner</h3>
@@ -264,20 +285,25 @@
 
       <div class="prose struktur-etter-tabell">
         <h3>Nær, men aldri lik</h3>
-        <p>Et norsk begrep blir aldri erklært å være det samme som et internasjonalt. Koblingen sier om begrepene er <strong>nært beslektet</strong>, om det norske er <strong>snevrere</strong> eller <strong>bredere</strong>, eller at det ikke finnes noe som passer. Koblingene er informative i første versjon.</p>
+        <p>Et norsk begrep blir aldri erklært å være det samme som et internasjonalt. Koblingen sier om begrepene er <strong>nært beslektet</strong>, om det norske er <strong>snevrere</strong> eller <strong>bredere</strong>, eller at det ikke finnes noe som passer. Koblingene er informative i første versjon. Før de ble publisert, ble de nye koblingene angrepet av en juristagent i to runder. Én ting runden endret: en oppgave uten «skal» kan ikke behandles som en plikt.</p>
       </div>
       <div class="table-scroll">
         <table class="ds-table struktur-tabell">
           <thead>
-            <tr><th scope="col">Begrep i DigRett</th><th scope="col">Nærmeste internasjonale begrep</th><th scope="col">Vurdering i grunnlaget</th></tr>
+            <tr><th scope="col">Begrep i DigRett</th><th scope="col">Nærmeste internasjonale begrep</th><th scope="col">Vurdering</th></tr>
           </thead>
           <tbody>
-            <tr><th scope="row">Kompetanse</th><td>UFO-L: power, med subjection hos motparten</td><td>Delvis. Ikke bruk LegalRuleML <code>Authority</code></td></tr>
+            <tr><th scope="row">Kompetanse</th><td>UFO-L: power, med subjection hos motparten. LOMO: regel som gir myndighet</td><td>Delvis mot UFO-L. Snevrere enn LOMO-regelen, som ikke sier hvem som har myndigheten. Ikke bruk LegalRuleML <code>Authority</code></td></tr>
             <tr><th scope="row">«Kan ikke» (negativ kompetanse)</th><td>UFO-L: disability, med immunity hos motparten</td><td>Delvis. Skilles fra forbud ved eksport</td></tr>
-            <tr><th scope="row">Plikt overfor en motpart</th><td>UFO-L: duty</td><td>Nært beslektet. Ikke et krav for motparten uten videre</td></tr>
-            <tr><th scope="row">Oppgave eller funksjon (kategori F)</th><td>LKIF Core: Function</td><td>Nært beslektet. Ingen motpart i UFO-L eller LegalRuleML</td></tr>
+            <tr><th scope="row">Plikt overfor en motpart</th><td>UFO-L: duty. LOMO: regel med plikt, handling og roller</td><td>Nært beslektet med UFO-L. Snevrere enn LOMO. Ikke et krav for motparten uten videre</td></tr>
+            <tr><th scope="row">Oppgave eller funksjon (kategori F)</th><td>LKIF Core: Function. LOMO: plikt eller institusjonell regel</td><td>Nært beslektet. En oppgave med «skal» svarer til en plikt uten motpart, en oppgave uten «skal» til en institusjonell regel</td></tr>
+            <tr><th scope="row">Rettssubjekt, organ og enhet</th><td>CPOV: Public Organisation og Organizational Unit</td><td>Rettssubjekt er snevrere. Organ og enhet er nært beslektet. Folkevalgte organer er utenfor CPOV</td></tr>
+            <tr><th scope="row">Frist og frekvens</th><td>LOMO: frist, frekvens og antall gjentakelser. ODRL: tidsbegrensninger</td><td>Mangler i DigRett. Gyldighet i tid er meldt som egen sak (<a href="https://github.com/FinnurO/regel-ide/issues/437" target="_blank" rel="noopener">#437</a>), men frist og frekvens er ikke med i den</td></tr>
           </tbody>
         </table>
+      </div>
+      <div class="prose struktur-etter-tabell">
+        <p>Hele gjennomgangen, med alle koblingene, juristrunden og det som ikke kunne kontrolleres, står i <a href="https://github.com/FinnurO/regel-ide/blob/HEAD/docs/profil/04-mappingnotat.md" target="_blank" rel="noopener">mappingnotatet</a> §7. <a href="https://github.com/FinnurO/regel-ide/blob/HEAD/docs/profil/08-standardlandskap-sjekkliste.md" target="_blank" rel="noopener">Sjekklisten</a> sier hvilke kilder som skal sjekkes på nytt før hver ny versjon av profilforslaget, så nye standarder ikke blir oversett igjen.</p>
       </div>
     </div>
   </section>

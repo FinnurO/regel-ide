@@ -1,0 +1,1165 @@
+{
+ "sak": "#473",
+ "dato": "2026-11-12",
+ "beskrivelse": "Juristrunde (CLAUDE.md §23) på koblingene i docs/profil/04-mappingnotat.md §7. Runde 1: utfordringer. Svar: modellereren. Runde 2: replikk.",
+ "inndata": {
+  "om": "Koblinger fra regel-ide-modellen (docs/33 §4, docs/profil/02) til standarder i landskapsgjennomgangen #473. Koblingstyper (grunnlagsdokumentet §5.7): naert_beslektet | snevrere (vårt begrep er snevrere enn deres) | bredere (vårt er bredere) | ingen_match. Aldri «lik». Definisjonene for deres termer er parafrasert fra primærkilden i feltet kilde.",
+  "kort": [
+   {
+    "id": "L1",
+    "vart": "P plikt overfor motpart, modalitet skal (docs/33 §4.5): aktørnær projeksjon av en plikt, fra = pliktsubjekt, til = motpart (valgfri), hjemmel-eId",
+    "standard": "LOMO 1.1.0",
+    "deres": "lomo:PrescriptiveRule med hasDeonticModality Obligation, produces lomo:Action, Action hasAgentRole (forAgent + withRole)",
+    "deres_def": "Regel som påbyr, tillater eller forbyr handlinger. Obligation: påbyr handling eller å frembringe en tilstand som parten er bundet til; brudd er en krenkelse",
+    "foreslatt": "snevrere",
+    "kilde": "https://drpm.pages.code.europa.eu/lomo/1.1.0/ og ontologies/deontic-modality.ttl (code.europa.eu/drpm/lomo, tag v1.1.0)"
+   },
+   {
+    "id": "L2",
+    "vart": "P-modaliteten «kan» (adgang, ikke kompetanse; #353 pkt. 1)",
+    "standard": "LOMO 1.1.0",
+    "deres": "Permission (deontic-modality)",
+    "deres_def": "Gir en part adgang til å handle, uten plikt eller forbud om det samme",
+    "foreslatt": "naert_beslektet",
+    "kilde": "deontic-modality.ttl v1.1.0"
+   },
+   {
+    "id": "L3",
+    "vart": "P-modaliteten «bør»",
+    "standard": "LOMO 1.1.0",
+    "deres": "DeonticModalityScheme (Obligation, Permission, Prohibition, Right); SHACL krever verdier fra skjemaet",
+    "deres_def": "Fire verdier, ingen svakere anbefaling",
+    "foreslatt": "ingen_match",
+    "kilde": "deontic-modality.ttl; shapes/lomo-shapes.ttl v1.1.0"
+   },
+   {
+    "id": "L4",
+    "vart": "P med polaritet negativ («skal ikke»), forbud: brudd er ulovlig",
+    "standard": "LOMO 1.1.0",
+    "deres": "Prohibition",
+    "deres_def": "Forbyr handling eller tilstand; plikt til å la være, brudd er krenkelse",
+    "foreslatt": "naert_beslektet",
+    "kilde": "deontic-modality.ttl v1.1.0"
+   },
+   {
+    "id": "L5",
+    "vart": "Fra-noden på P (pliktsubjektet)",
+    "standard": "LOMO 1.1.0",
+    "deres": "AgentRole med withRole ADDRESSER (eneste tillatte roller: ADDRESSER, ADDRESSEE, BENEF)",
+    "deres_def": "ADDRESSER: den som sender en henvendelse eller kommunikasjon",
+    "foreslatt": "bredere",
+    "kilde": "lomo-ontology.ttl :AgentRole (owl:oneOf), spesifikasjonen «Controlled Vocabularies»"
+   },
+   {
+    "id": "L6",
+    "vart": "Til-noden på P (motparten), f.eks. informasjonsplikt eller konsultasjonsplikt overfor B",
+    "standard": "LOMO 1.1.0",
+    "deres": "AgentRole med withRole ADDRESSEE",
+    "deres_def": "Den noe er rettet til",
+    "foreslatt": "naert_beslektet",
+    "kilde": "som L5"
+   },
+   {
+    "id": "L7",
+    "vart": "Til-noden på P betaling (betalingsmottaker, bare når teksten sier hvem utgiften er sin)",
+    "standard": "LOMO 1.1.0",
+    "deres": "AgentRole med withRole BENEF",
+    "deres_def": "Den som drar nytte av en handling",
+    "foreslatt": "ingen_match",
+    "kilde": "som L5"
+   },
+   {
+    "id": "L8",
+    "vart": "K kompetanse (A kan X, eventuelt overfor B; familier beslutning, oppnevning, styring, normgivning, kontroll, vedtak, sanksjon …) som kant med aktør og motpart",
+    "standard": "LOMO 1.1.0",
+    "deres": "lomo:InstitutionalRule (underklasse av ConstitutiveRule); ingen AgentRole/Action på konstitutive regler",
+    "deres_def": "Konstitutiv regel som oppretter institusjoner, gir status, «attribute powers or competences» eller fastsetter sammensetning. «X may [institutional action]» er institusjonell kapasitet, ikke tillatelse",
+    "foreslatt": "snevrere",
+    "kilde": "lomo-ontology.ttl :InstitutionalRule, :ConstitutiveRule v1.1.0"
+   },
+   {
+    "id": "L9",
+    "vart": "F oppgave/funksjon (skal sørge for, samordne, føre oversikt …; uten motpart; gir aldri K eller P; docs/profil/02 §F)",
+    "standard": "LOMO 1.1.0",
+    "deres": "PrescriptiveRule med Obligation (Obligation omfatter å «bring about a state of affairs»); ImplementationAndOversightRule for myndigheters plikter til å etablere tilsyn og håndheving",
+    "deres_def": "Se L1; ImplementationAndOversightRule: rammeverk for å gjennomføre, overvåke og håndheve",
+    "foreslatt": "snevrere",
+    "kilde": "lomo-ontology.ttl :ImplementationAndOversightRule v1.1.0"
+   },
+   {
+    "id": "L10",
+    "vart": "klasse («kommunene», «forvaltningsorgan»), lest distributivt",
+    "standard": "LOMO 1.1.0",
+    "deres": "lomo:AgentType",
+    "deres_def": "Kategori av rettssubjekter, f.eks. Member States, importører",
+    "foreslatt": "naert_beslektet",
+    "kilde": "lomo-ontology.ttl :AgentType"
+   },
+   {
+    "id": "L11",
+    "vart": "Hjemmel: hjemmel_eid (hvor det står) + avgrensning (hva kanten gjelder for)",
+    "standard": "LOMO 1.1.0",
+    "deres": "lomo:establishedIn (til ELI-ressurs, kan gjentas) + lomo:legalText (ordrett tekst)",
+    "deres_def": "Kobler en regel til rettskilden(e) som etablerer den",
+    "foreslatt": "naert_beslektet",
+    "kilde": "lomo-ontology.ttl :establishedIn, :legalText"
+   },
+   {
+    "id": "L12",
+    "vart": "Unntak (egen node, gjelder_regel + betingelse; docs/01)",
+    "standard": "LOMO 1.1.0",
+    "deres": "lomo:derogatesFrom (regel til regel ved deontisk konflikt)",
+    "deres_def": "En regel som avviker fra en annen gjennom deontisk konflikt",
+    "foreslatt": "naert_beslektet",
+    "kilde": "lomo-ontology.ttl :derogatesFrom"
+   },
+   {
+    "id": "L13",
+    "vart": "gyldig_fra/gyldig_til på kanten (og #437: arve gyldighet fra tidsavgrenset kilde)",
+    "standard": "LOMO 1.1.0",
+    "deres": "lomo:atTime til TemporalSpecification med hasFunction Validity",
+    "deres_def": "Perioden et krav er virksomt",
+    "foreslatt": "naert_beslektet",
+    "kilde": "temporal-function.ttl v1.1.0"
+   },
+   {
+    "id": "L14",
+    "vart": "(mangler hos oss) frist for å oppfylle en plikt, f.eks. «innen 1. mars», «uten ugrunnet opphold»",
+    "standard": "LOMO 1.1.0",
+    "deres": "TemporalSpecification med hasFunction Deadline, instant/duration/temporalLabel",
+    "deres_def": "Seneste tidspunkt en handling må være fullført",
+    "foreslatt": "ingen_match",
+    "kilde": "temporal-function.ttl; lomo-ontology.ttl :instant, :duration"
+   },
+   {
+    "id": "L15",
+    "vart": "(mangler hos oss) frekvens, f.eks. «hvert år», «hvert fjerde år»",
+    "standard": "LOMO 1.1.0",
+    "deres": "lomo:frequency (xsd:duration) og lomo:repetitions",
+    "deres_def": "Tid mellom gjentakelser; fast antall gjentakelser",
+    "foreslatt": "ingen_match",
+    "kilde": "lomo-ontology.ttl :frequency, :repetitions"
+   },
+   {
+    "id": "C1",
+    "vart": "rettssubjekt (offentlig: staten, en kommune, et RHF)",
+    "standard": "CPOV 2.1.2",
+    "deres": "cv:PublicOrganisation (underklasse av org:Organization)",
+    "deres_def": "Organisasjon som er del av offentlig sektor etter et rettslig rammeverk på et hvilket som helst nivå",
+    "foreslatt": "naert_beslektet",
+    "kilde": "https://semiceu.github.io/CPOV/releases/2.1.2/"
+   },
+   {
+    "id": "C2",
+    "vart": "organ og organisatorisk_enhet, med G del_av/har_organ til rettssubjektet",
+    "standard": "CPOV 2.1.2 (W3C ORG)",
+    "deres": "org:OrganizationalUnit med org:unitOf/org:hasUnit; org:subOrganizationOf",
+    "deres_def": "Enhet som bare finnes innenfor organisasjonen den hører til",
+    "foreslatt": "naert_beslektet",
+    "kilde": "CPOV 2.1.2 §Organizational Unit"
+   },
+   {
+    "id": "C3",
+    "vart": "R etterfolger og organiseringskildene (departementenes livsløp, docs/33 §5.9), med hjemmel",
+    "standard": "CPOV 2.1.2",
+    "deres": "org:ChangeEvent med org:originalOrganization/resultingOrganization, org:resultedFrom/changedBy, cv:hasFormalFramework, prov:startedAtTime; xhv:prev/next",
+    "deres_def": "Større endring (sammenslåing o.l.) der resultatet får ny identitet; formelt rammeverk = regelverket som utløste endringen",
+    "foreslatt": "naert_beslektet",
+    "kilde": "CPOV 2.1.2 §Change Event"
+   },
+   {
+    "id": "C4",
+    "vart": "A har_ansvarsomrade (aktør til område, med hjemmel og avgrensning)",
+    "standard": "CPOV 2.1.2",
+    "deres": "dct:spatial på PublicOrganisation",
+    "deres_def": "Kobler en organisasjon til de administrative regionene den dekker",
+    "foreslatt": "naert_beslektet",
+    "kilde": "CPOV 2.1.2 §Public Organisation, spatial"
+   },
+   {
+    "id": "C5",
+    "vart": "F oppgave/funksjon (per bestemmelse, med hjemmel)",
+    "standard": "CPOV 2.1.2 (W3C ORG)",
+    "deres": "org:purpose",
+    "deres_def": "Grunnen til at organisasjonen finnes; kan også leses som «remit» eller «responsibility», helst COFOG-kode",
+    "foreslatt": "snevrere",
+    "kilde": "CPOV 2.1.2 §Public Organisation, purpose"
+   },
+   {
+    "id": "C6",
+    "vart": "M medlem_av (aktør til klasse, f.eks. Karasjok i språkforvaltningskommuner)",
+    "standard": "CPOV 2.1.2",
+    "deres": "org:classification (og ikke org:memberOf)",
+    "deres_def": "classification: kategorisering av organisasjonen. memberOf: medlem av en annen organisasjon uten å være underorganisasjon",
+    "foreslatt": "naert_beslektet",
+    "kilde": "CPOV 2.1.2"
+   },
+   {
+    "id": "C7",
+    "vart": "K (kompetanse) og P (plikt)",
+    "standard": "CPOV 2.1.2",
+    "deres": "(ingen klasse eller egenskap)",
+    "deres_def": "Vokabularet kan lenke til lovgivning og «jurisdictional coverage», men beskriver dem ikke",
+    "foreslatt": "ingen_match",
+    "kilde": "CPOV 2.1.2 introduksjon"
+   },
+   {
+    "id": "S1",
+    "vart": "K vedtak (kompetanse til å treffe enkeltvedtak i en sakstype) og F forvaltning/sorge_for",
+    "standard": "CPSV-AP 3.2.0 / CPSV-AP-NO 1.2.0",
+    "deres": "cv:hasCompetentAuthority (PublicService til PublicOrganisation, påkrevd)",
+    "deres_def": "Organisasjonen som er ansvarlig for å levere tjenesten, også når den er satt bort; merknaden viser til tjenestedirektivets definisjon (tilsyns- eller reguleringsrolle)",
+    "foreslatt": "ingen_match for K; naert_beslektet for F sorge_for",
+    "kilde": "https://semiceu.github.io/CPSV-AP/releases/3.2.0/ ; https://data.norge.no/specification/cpsv-ap-no"
+   },
+   {
+    "id": "S2",
+    "vart": "Hjemmel (eId på bestemmelse, ledd eller punkt)",
+    "standard": "CPSV-AP 3.2.0 / CPSV-AP-NO 1.2.0",
+    "deres": "cv:hasLegalResource til eli:LegalResource (Lovdata-ELI i den norske profilen)",
+    "deres_def": "Regelverket tjenesten er knyttet til eller har sitt rettslige grunnlag i",
+    "foreslatt": "snevrere",
+    "kilde": "som S1"
+   },
+   {
+    "id": "S3",
+    "vart": "(mangler hos oss) lovbestemt saksbehandlingsfrist",
+    "standard": "CPSV-AP 3.2.0",
+    "deres": "cv:processingTime (xsd:duration)",
+    "deres_def": "Estimert tid for å utføre tjenesten",
+    "foreslatt": "ingen_match",
+    "kilde": "CPSV-AP 3.2.0 rdf/cpsv-ap.ttl"
+   },
+   {
+    "id": "S4",
+    "vart": "omrade (fylke, kommune, tettsted, lagsogn, lagdømme, helseregion …) og O bestar_av",
+    "standard": "Core Location 2.1.1",
+    "deres": "cv:AdminUnit (code, level) – ingen egenskap til overordnet enhet; ingen Jurisdiction-klasse",
+    "deres_def": "Administrativ enhet organisert i et hierarki",
+    "foreslatt": "bredere",
+    "kilde": "https://semiceu.github.io/Core-Location-Vocabulary/releases/2.1.1/"
+   },
+   {
+    "id": "S5",
+    "vart": "A har_jurisdiksjon (aktør til område)",
+    "standard": "Core Person 2.1.2",
+    "deres": "dct:Jurisdiction",
+    "deres_def": "Grensene eller territoriet der myndighet kan utøves (brukes i vokabularet bare som verdi for statsborgerskap)",
+    "foreslatt": "naert_beslektet",
+    "kilde": "https://semiceu.github.io/Core-Person-Vocabulary/releases/2.1.2/"
+   },
+   {
+    "id": "S6",
+    "vart": "R representerer",
+    "standard": "Core Business 2.3.0",
+    "deres": "a4g:PowerOfAttorney (cv:authorises, cv:scopeOfAttorney)",
+    "deres_def": "Fullmakt til å handle på vegne av en virksomhet",
+    "foreslatt": "ingen_match",
+    "kilde": "https://semiceu.github.io/Core-Business-Vocabulary/releases/2.3.0/"
+   },
+   {
+    "id": "E1",
+    "vart": "K normgivning med normform forskrift, og hjemmelen («gitt i medhold av»)",
+    "standard": "ELI 1.5",
+    "deres": "eli:based_on / eli:basis_for",
+    "deres_def": "Verk som er hjemlet i et annet, typisk grunnlov, traktat eller fullmaktslov",
+    "foreslatt": "naert_beslektet",
+    "kilde": "http://data.europa.eu/eli/ontology (versionInfo 1.5)"
+   },
+   {
+    "id": "E2",
+    "vart": "K normgivning (kompetansen til å gi forskriften)",
+    "standard": "ELI 1.5",
+    "deres": "eli:passed_by (til eli:Agent)",
+    "deres_def": "Den som vedtok rettsakten, «legal author»",
+    "foreslatt": "ingen_match",
+    "kilde": "som E1"
+   },
+   {
+    "id": "E3",
+    "vart": "F forvaltning (departementet som forvalter en lov)",
+    "standard": "ELI 1.5",
+    "deres": "eli:responsibility_of_agent",
+    "deres_def": "Aktør med ansvar for regelverket, typisk ansvarlig departement",
+    "foreslatt": "naert_beslektet",
+    "kilde": "som E1"
+   },
+   {
+    "id": "E4",
+    "vart": "A har_ansvarsomrade",
+    "standard": "ELI 1.5",
+    "deres": "eli:relevant_for (overegenskap til eli:jurisdiction) til AdministrativeArea",
+    "deres_def": "Sted eller område knyttet til rettsressursen; dekker jurisdiksjon, suverenitet og anvendelse",
+    "foreslatt": "ingen_match",
+    "kilde": "som E1"
+   },
+   {
+    "id": "F1",
+    "vart": "K kompetanse",
+    "standard": "eFLINT (GPCE 2020; arXiv 2511.12276) / FLINT-ontologien 1.0.0",
+    "deres": "Act-type/act frame (actor, recipient, holds when, creates, terminates)",
+    "deres_def": "Når handlingen er mulig, står aktør og mottaker i et power-liability-forhold; alle handlinger er act frames, også rene oppfyllelseshandlinger",
+    "foreslatt": "snevrere",
+    "kilde": "https://publications.tno.nl/publication/34639016/S2Rnu7/binsbergen-2020-eflint.pdf ; gitlab.com/normativesystems/knowledge-modeling/flint-ontology"
+   },
+   {
+    "id": "F2",
+    "vart": "P plikt overfor motpart (ikke kravsrett uten videre; kravsrett er egen status, docs/34)",
+    "standard": "eFLINT",
+    "deres": "Duty-type (holder, claimant, violated when)",
+    "deres_def": "En plikt som gjelder, setter holder og claimant i et duty-claim-forhold",
+    "foreslatt": "bredere",
+    "kilde": "som F1"
+   },
+   {
+    "id": "F3",
+    "vart": "K med polaritet negativ («kan ikke»; disability, handling ugyldig)",
+    "standard": "eFLINT",
+    "deres": "Precondition (holds when) som ikke er oppfylt, eller Invariant",
+    "deres_def": "Handlingen er ikke mulig når vilkåret ikke holder",
+    "foreslatt": "ingen_match",
+    "kilde": "som F1"
+   },
+   {
+    "id": "O1",
+    "vart": "P informasjon/betaling med frist eller frekvens",
+    "standard": "ODRL 2.2",
+    "deres": "odrl:Duty med assignee og partsfunksjon (informedParty, compensatedParty) og Constraint med dateTime, delayPeriod, elapsedTime, timeInterval, count",
+    "deres_def": "Duty: krav om å utføre en avtalt handling; begrensningene uttrykker tid og gjentakelse",
+    "foreslatt": "naert_beslektet",
+    "kilde": "https://www.w3.org/TR/odrl-model/ ; https://www.w3.org/TR/odrl-vocab/"
+   },
+   {
+    "id": "O2",
+    "vart": "K kompetanse",
+    "standard": "ODRL 2.2",
+    "deres": "assigner (den som utsteder regelen) / Permission",
+    "deres_def": "assigner utsteder policyen; Permission er adgang til å bruke en ressurs",
+    "foreslatt": "ingen_match",
+    "kilde": "som O1"
+   },
+   {
+    "id": "N1",
+    "vart": "kunnskapsstatus tekstfunn / normalisering / fortolkning (docs/33 §4.6), for en definisjon",
+    "standard": "SKOS-AP-NO-Begrep 2.0.15",
+    "deres": "skosno:relationshipWithSource: sitat fra kilde / basert på kilde / egendefinert, med dct:source til lovbestemmelsen",
+    "deres_def": "Hvordan definisjonen forholder seg til kilden",
+    "foreslatt": "bredere",
+    "kilde": "https://data.norge.no/specification/skos-ap-no-begrep ; https://data.norge.no/vocabulary/relationship-with-source-type"
+   }
+  ]
+ },
+ "runde1_utfordringer": [
+  {
+   "id": "L1",
+   "dom": "holder",
+   "alvor": null,
+   "innvending": "Holder. P (skal) er en delmengde av Obligation + Action + AgentRole: vi har seks typer og offentlige aktører, LOMO alle plikter. Merk at koblingen bare går én vei: LOMO-Obligation omfatter også «shall ensure that» (resultatplikt), som hos oss ofte er F sørge_for, ikke P. LOMO-obligasjoner kan derfor ikke importeres som P uten klassifisering. Obligation sier ikke noe om kravsrett, så docs/34 §6.2 brytes ikke.",
+   "retting": null,
+   "kilder": [
+    {
+     "ref": "deontic-modality-1.1.0.ttl :Obligation (definition, scopeNote «Ensuring/guarantee formulations»)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "lomo-ontology-1.1.0.ttl :PrescriptiveRule, :Action",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/34-arkitekturvurdering-norsk-profil.md §6.2",
+     "funksjon": "forutsatt_kilde"
+    }
+   ]
+  },
+  {
+   "id": "L2",
+   "dom": "holder",
+   "alvor": null,
+   "innvending": "Holder. Permission er en adgang uten plikt eller forbud. Retten skiller den uttrykkelig fra makt («X may [institutional action]» er konstitutiv kapasitet). Plikter som bare følger med adgangen, gjør den heller ikke til Right, for eksempel mottakerens plikt til å svare. Det stemmer med P konsultasjon (kan) etter #355, der EFTA-domstolens svarplikt ikke gjør relasjonen til kravsrett.",
+   "retting": null,
+   "kilder": [
+    {
+     "ref": "deontic-modality-1.1.0.ttl :Permission scopeNote («Duties that merely accompany a faculty …»; «Permissions vs. powers»)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/33-strukturmodell-aktor-omrade-kompetanse.md §4.3 #355 pkt. 9",
+     "funksjon": "forutsatt_kilde"
+    }
+   ]
+  },
+  {
+   "id": "L3",
+   "dom": "holder",
+   "alvor": null,
+   "innvending": "Holder. SHACL har sh:in (Obligation, Permission, Prohibition, Right) på hasDeonticModality, så «bør» kan ikke uttrykkes. [slutning] En «bør»-regel kan ved eksport verken være PrescriptiveRule (krever en av de fire verdiene) eller ConstitutiveRule (forbyr modalitet). Den må utelates eller merkes som norsk utvidelse.",
+   "retting": null,
+   "kilder": [
+    {
+     "ref": "shapes-1.1.0.ttl shapes:PrescriptiveRuleShape",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "deontic-modality-1.1.0.ttl :DeonticModalityScheme",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  },
+  {
+   "id": "L4",
+   "dom": "holder",
+   "alvor": null,
+   "innvending": "Holder for «skal ikke». Prohibition er en plikt til å la være, og brudd er en krenkelse. Det svarer til «ulovlig» i UFO-L-skillet (mappingnotatet §5). Avgrensning: P med negativ polaritet og modalitet kan («forliksrådene kan ikke be om rådgivende uttalelse», #355) kan være manglende kompetanse (ugyldig) og ikke forbud. Den er ikke dekket av kortet og skal ikke eksporteres som Prohibition uten egen vurdering.",
+   "retting": null,
+   "kilder": [
+    {
+     "ref": "deontic-modality-1.1.0.ttl :Prohibition",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/profil/04-mappingnotat.md §5 (polaritet)",
+     "funksjon": "forutsatt_kilde"
+    },
+    {
+     "ref": "docs/33-strukturmodell-aktor-omrade-kompetanse.md §4.3 #355 pkt. 9",
+     "funksjon": "forutsatt_kilde"
+    }
+   ]
+  },
+  {
+   "id": "L5",
+   "dom": "innvending",
+   "alvor": "middels",
+   "innvending": "Kortet leser ADDRESSER etter AT-tabellens ordlyd («sender av en henvendelse»), men LOMO bruker rollen om den som UTFØRER handlingen, uansett handlingstype. Action-merknaden: «identifying who performs it». Eksempelet «Commission publishes the annual report» har bare ADDRESSER. Endringsloggen sier at «bearer» ble erstattet med «addresser». Vårt pliktsubjekt er derfor ikke bredere. Pliktstatusen ligger ikke i rollen, men i regelens hasDeonticModality. Under Right kan ADDRESSER være rettighetshaveren, for eksempel den som ber om noe. Koblingen gjelder derfor bare når regelen er Obligation eller Prohibition (og Permission for P med modalitet kan).",
+   "retting": {
+    "foreslatt": "naert_beslektet"
+   },
+   "kilder": [
+    {
+     "ref": "lomo-ontology-1.1.0.ttl :Action scopeNote, :hasAgentRole usageExample 2",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "lomo/CHANGELOG-1.1.0 / lomo.txt l. 1941 («Replaced agent role term \"bearer\" with \"addresser\"»)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "lomo-ontology-1.1.0.ttl :withRole scopeNote (AT-definisjonen)",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  },
+  {
+   "id": "L6",
+   "dom": "holder",
+   "alvor": null,
+   "innvending": "Holder. ADDRESSEE er den handlingen er rettet mot, og rollen sier ingenting om kravsrett. Det er i tråd med docs/34 §6.2. Merknad: ved samarbeid er motparten medaktør og ikke mottaker. For samarbeid mellom medlemmer av samme klasse (én kant fra klassen til seg selv) blir ADDRESSEE = ADDRESSER, så eksporten må håndtere det.",
+   "retting": null,
+   "kilder": [
+    {
+     "ref": "lomo-ontology-1.1.0.ttl :withRole scopeNote",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/34-arkitekturvurdering-norsk-profil.md §6.2",
+     "funksjon": "forutsatt_kilde"
+    },
+    {
+     "ref": "docs/33-strukturmodell-aktor-omrade-kompetanse.md §4.5 pkt. 6",
+     "funksjon": "forutsatt_kilde"
+    }
+   ]
+  },
+  {
+   "id": "L7",
+   "dom": "innvending",
+   "alvor": "middels",
+   "innvending": "Det er riktig at BENEF ikke er betalingsmottakeren, men «ingen_match» er feil konklusjon for begrepet vårt. Betalingsmottakeren er den betalingen er rettet mot, altså ADDRESSEE (se L6), og det er nært beslektet. BENEF svarer heller til vår «begunstiget», som docs/33 §4.5 pkt. 3 holder atskilt fra betalingsmottakeren og legger i avgrensningen eller regellaget. Eksempel: Spesialisthelsetjenesteloven § 5-2 første ledd, der det behandlende RHF-et får betalt og pasienten nyter godt av behandlingen. Kartlegges mottakeren til BENEF, blander eksporten sammen de to rollene som modellen bevisst skiller.",
+   "retting": {
+    "foreslatt": "naert_beslektet"
+   },
+   "kilder": [
+    {
+     "ref": "docs/33-strukturmodell-aktor-omrade-kompetanse.md §4.5 pkt. 3 og juristgjennomgangen 2026-10-09",
+     "funksjon": "forutsatt_kilde"
+    },
+    {
+     "ref": "lomo-ontology-1.1.0.ttl :withRole scopeNote (ADDRESSEE, BENEF)",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  },
+  {
+   "id": "L8",
+   "dom": "innvending",
+   "alvor": "lav",
+   "innvending": "«Snevrere» holder på regelnivå. InstitutionalRule omfatter også opprettelse, status, sammensetning og rettsvirkning, mens vår K bare er tildeling av makt. Men K er en aktørnær KANT (fra, til og motpart), og LOMO har ingen AgentRole eller Action på konstitutive regler (SHACL: produces maxCount 0). Det koblingen sier, er at hjemmelregelen for K-kanten er en InstitutionalRule. Fra og til har ingen LOMO-motpart. Det bør stå i koblingen, ellers leses den som om LOMO kan uttrykke hvem som har kompetanse overfor hvem. Positivt: LOMO skiller selv kompetanse fra tillatelse («institutional capacity, not behavioural permission»). Norsk «kan» i en K-tekst gir både kompetanse og skjønn, og LOMO ville segmentert skjønnsdelen som Permission. Den har ingen motpart hos oss (mappingnotatet: skjønn i «kan» mangler).",
+   "retting": null,
+   "kilder": [
+    {
+     "ref": "lomo-ontology-1.1.0.ttl :InstitutionalRule scopeNote",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "shapes-1.1.0.ttl shapes:ConstitutiveRuleShape",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "deontic-modality-1.1.0.ttl :Permission scopeNote («Power attribution …»)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/profil/04-mappingnotat.md §4 «Mangler»",
+     "funksjon": "forutsatt_kilde"
+    }
+   ]
+  },
+  {
+   "id": "L9",
+   "dom": "innvending",
+   "alvor": "hoy",
+   "innvending": "Her forveksles oppgave med plikt. «Snevrere» betyr at hver F er en Obligation, det vil si en plikt der det å ikke oppfylle den er en krenkelse. Det stemmer ikke for den attributive F-en med modalitet null («har ansvaret for», «forvaltningsansvaret for», «hører under»). Det gjelder også ressortfordelingen: 503 F forvaltning, der docs/33 §5.9 sier at «en ressortfordeling tildeler ansvar, den pålegger ingen plikt». LOMO legger selv oppgavelister og rolle under InstitutionalRule (konstitutiv). Eksempler: Interoperable Europe Act art. 15 («lists the Board's tasks and competences») og eIDAS art. 17(3) («The role of the supervisory body shall be the following»). Bare F med modalitet skal er nær Obligation, og da uten ADDRESSEE. ImplementationAndOversightRule gjelder medlemsstatenes plikt til å etablere tilsyn og håndheving, ikke et organs egen oppgave. Riktig: nært beslektet, delt etter modalitet. F(skal) → Obligation uten adressat. F(null) → InstitutionalRule. Aldri «snevrere».",
+   "retting": {
+    "foreslatt": "naert_beslektet"
+   },
+   "kilder": [
+    {
+     "ref": "lomo-ontology-1.1.0.ttl :InstitutionalRule (skos:example Interoperable Europe Act art. 15, eIDAS art. 17(3))",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "lomo-ontology-1.1.0.ttl :ImplementationAndOversightRule scopeNote",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/33-strukturmodell-aktor-omrade-kompetanse.md §5.9 (F forvaltning, «Modalitet er ikke satt»)",
+     "funksjon": "forutsatt_kilde"
+    },
+    {
+     "ref": "docs/profil/02-begrepsmanual.md §F «Felt» (modalitet null ved attributiv form)",
+     "funksjon": "forutsatt_kilde"
+    }
+   ]
+  },
+  {
+   "id": "L10",
+   "dom": "holder",
+   "alvor": null,
+   "innvending": "Holder. AgentType er en kategori av rettssubjekter som hver for seg kan bære regelen («any Member State may bear this obligation»), altså distributiv lesing. Merknad: vår klasse kan være ekstensjonal med hjemlet medlemskap (M). AgentType har ingen medlemskapsrelasjon, så M-kantene har ingen LOMO-motpart.",
+   "retting": null,
+   "kilder": [
+    {
+     "ref": "lomo-ontology-1.1.0.ttl :AgentType, :AgentOrType",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/33-strukturmodell-aktor-omrade-kompetanse.md §4.1–4.2",
+     "funksjon": "forutsatt_kilde"
+    }
+   ]
+  },
+  {
+   "id": "L11",
+   "dom": "innvending",
+   "alvor": "lav",
+   "innvending": "Kortet slår sammen to par som ikke svarer til hverandre. hjemmel_eid ↔ establishedIn er nært beslektet. Men avgrensningen (hva kanten gjelder for) har ingen motpart. legalText er ordrett tekst og svarer til sitatet eller tekst-taggen vår, ikke til avgrensningen. Mappingnotatet §3 sier selv at skillet mellom hjemmelssted og avgrensning ikke finnes hos dem. Rekkevidden til establishedIn er dessuten ELI eller cdm-fragment. Kilde utenfor korpus (kgl.res., vedtekter, instruks) kan derfor ikke uttrykkes. Del kortet.",
+   "retting": {
+    "foreslatt": "naert_beslektet (bare hjemmel_eid ↔ establishedIn); avgrensning ↔ legalText: ingen_match"
+   },
+   "kilder": [
+    {
+     "ref": "lomo-ontology-1.1.0.ttl :establishedIn (rdfs:range ELI LegalResource ∪ cdm:fragment_resource_legal), :legalText",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/profil/04-mappingnotat.md §3 rad «Hjemmel (eId)»",
+     "funksjon": "forutsatt_kilde"
+    },
+    {
+     "ref": "docs/33-strukturmodell-aktor-omrade-kompetanse.md §4.3 (KildeUtenforKorpus)",
+     "funksjon": "forutsatt_kilde"
+    }
+   ]
+  },
+  {
+   "id": "L12",
+   "dom": "innvending",
+   "alvor": "lav",
+   "innvending": "derogatesFrom krever to regler med reell deontisk konflikt, ellers brukes «specifies». Vårt unntak er en «med mindre»-betingelse inne i én regel (INV-3, INV-4, INV-6: «Regel X gjelder, med mindre …») og gjelder også vilkårsstyrte avgjørelsesregler uten deontisk modalitet. Bare de unntakene som er en egen, segmenterbar regel med motstridende kvalifikasjon, svarer til derogatesFrom, typisk som «blocking derogation». Vårt begrep er derfor bredere. Det er også en node og ikke en relasjon.",
+   "retting": {
+    "foreslatt": "bredere"
+   },
+   "kilder": [
+    {
+     "ref": "lomo-ontology-1.1.0.ttl :derogatesFrom (rdfs:comment, scopeNote «Unlike specifies …»)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/01-begrepsmodell §5 INV-3/4/6",
+     "funksjon": "forutsatt_kilde"
+    }
+   ]
+  },
+  {
+   "id": "L13",
+   "dom": "holder",
+   "alvor": null,
+   "innvending": "Holder. Validity («period during which a requirement is effective») via atTime, som har åpent domene. Merknad: vi har gyldighet på alle kanter, også konstitutiv struktur (G, A, R), mens definisjonen sier «requirement». Ved eksport av K-, R- og G-kanter bør det stå at gyldigheten gjelder forholdet og ikke en preskriptiv regel. Gyldigheten må holdes atskilt fra entitetsstatus og revisjon (grunnlagsdokumentet §2.5).",
+   "retting": null,
+   "kilder": [
+    {
+     "ref": "temporal-function-1.1.0.ttl :validity",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "lomo-ontology-1.1.0.ttl :atTime scopeNote",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/profil/00-grunnlagsdokument.md §2.5",
+     "funksjon": "forutsatt_kilde"
+    }
+   ]
+  },
+  {
+   "id": "L14",
+   "dom": "holder",
+   "alvor": null,
+   "innvending": "Holder. Presisering: frist mangler i STRUKTURLAGET med vilje. docs/33 §4.5 pkt. 2 og begrepsmanualen («F mot regellaget») legger tid og frister til rettsfølgen i regellaget. Hullet er derfor «planlagt lag, ikke bygget», ikke en utelatelse i modellen. Deadline knyttes i LOMO til Action, som tilsvarer rettsfølgen og ikke P-kanten.",
+   "retting": null,
+   "kilder": [
+    {
+     "ref": "temporal-function-1.1.0.ttl :deadline",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/33-strukturmodell-aktor-omrade-kompetanse.md §4.5 pkt. 2",
+     "funksjon": "forutsatt_kilde"
+    },
+    {
+     "ref": "docs/profil/02-begrepsmanual.md §F «F mot regellaget»",
+     "funksjon": "forutsatt_kilde"
+    }
+   ]
+  },
+  {
+   "id": "L15",
+   "dom": "holder",
+   "alvor": null,
+   "innvending": "Holder. Samme presisering som L14: frekvens hører til regellaget (rettsfølgen), ikke til P-kanten.",
+   "retting": null,
+   "kilder": [
+    {
+     "ref": "lomo-ontology-1.1.0.ttl :frequency, :repetitions",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/33-strukturmodell-aktor-omrade-kompetanse.md §4.5 pkt. 2",
+     "funksjon": "forutsatt_kilde"
+    }
+   ]
+  },
+  {
+   "id": "C1",
+   "dom": "innvending",
+   "alvor": "middels",
+   "innvending": "PublicOrganisation krever ikke rettssubjektivitet. Klassen omfatter departementer, direktorater, Stortinget og andre statlige organer, som i norsk rett er organer for rettssubjektet staten (docs/33 §4.1). Et offentlig rettssubjekt (staten, en kommune, et RHF) er alltid en PublicOrganisation, men ikke omvendt. Vårt begrep er derfor snevrere. Det har rettslig betydning: rettssubjektet bærer plikter, ansvar og avtaleparten (grunnlagsdokumentet §4.5), og den egenskapen går tapt ved eksport.",
+   "retting": {
+    "foreslatt": "snevrere"
+   },
+   "kilder": [
+    {
+     "ref": "CPOV 2.1.2 (lokal cpov.html) §Public Organisation (definisjon, PSI-direktivet)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/33-strukturmodell-aktor-omrade-kompetanse.md §4.1",
+     "funksjon": "forutsatt_kilde"
+    }
+   ]
+  },
+  {
+   "id": "C2",
+   "dom": "innvending",
+   "alvor": "middels",
+   "innvending": "Kortet slår sammen organ og organisatorisk_enhet. organisatorisk_enhet ↔ OrganizationalUnit («operational department», kan ikke eksistere uten forelderen) er nært beslektet. Organ i vår forstand er en kompetansebærende del av et rettssubjekt: Stortinget, Kongen i statsråd, kommunestyret, en klagenemnd. Det deler forvaltningen etter rettslige linjer og ikke etter driftsenheter. I CPOV vil slike organer typisk være PublicOrganisation med subOrganizationOf [slutning]. Folkevalgte organer er uttrykkelig utenfor CPOVs omfang («elected representatives … out of scope»). Samlet er vårt begrep bredere. Del kortet.",
+   "retting": {
+    "foreslatt": "bredere"
+   },
+   "kilder": [
+    {
+     "ref": "CPOV 2.1.2 (lokal cpov.html) introduksjon («elected representatives … out of scope»), §Organizational Unit",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/33-strukturmodell-aktor-omrade-kompetanse.md §4.1",
+     "funksjon": "forutsatt_kilde"
+    }
+   ]
+  },
+  {
+   "id": "C3",
+   "dom": "holder",
+   "alvor": null,
+   "innvending": "Holder. Merknad: CPOVs prev/next omfatter også navnebytte («renaming, splitting or merging»). Hos oss er et navnebytte samme aktør, og da finnes ingen R etterfolger (docs/33 §5.9, juristrunden M1). Eksporten må ikke lage prev/next ved navnebytte. hasFormalFramework er «prompted the change», mens hjemmelen vår er vedtaket som SELV gjennomfører endringen. Det er nært nok.",
+   "retting": null,
+   "kilder": [
+    {
+     "ref": "CPOV 2.1.2 (lokal cpov.html) §Change Event, prev/next, has formal framework",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/33-strukturmodell-aktor-omrade-kompetanse.md §5.9 (navnebytte, R etterfolger)",
+     "funksjon": "forutsatt_kilde"
+    }
+   ]
+  },
+  {
+   "id": "C4",
+   "dom": "holder",
+   "alvor": null,
+   "innvending": "Holder. dct:spatial er «the Administrative Region(s) that it covers». Merknad: A har hjemmel og avgrensning (kan gjelde bare én funksjon), og målet kan være et område som ikke er en ATU, for eksempel lagsogn eller helseregion. spatial er beskrivende og uten rettsgrunnlag.",
+   "retting": null,
+   "kilder": [
+    {
+     "ref": "CPOV 2.1.2 (lokal cpov.html) §Public Organisation, spatial",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/33-strukturmodell-aktor-omrade-kompetanse.md §4.1 (#312)",
+     "funksjon": "forutsatt_kilde"
+    }
+   ]
+  },
+  {
+   "id": "C5",
+   "dom": "innvending",
+   "alvor": "middels",
+   "innvending": "Dette forveksler dokumentnivå med aktørnivå. org:purpose er organisasjonens eksistensgrunn, gitt som kode (helst COFOG), på organisasjonsnivå. F er en enkelt oppgave per bestemmelse, med hjemmel og modalitet, og kan ligge på en rolle eller klasse. En F som «fortegnelse over meddommere føres av kommunen» (domstolloven u171) er ikke kommunens eksistensgrunn. Altså er ikke hver F en purpose, og «snevrere» stemmer ikke. Riktig: nært beslektet, der purpose i beste fall svarer til et AGGREGAT av en aktørs hovedoppgaver. Hjemmelen og modaliteten går tapt.",
+   "retting": {
+    "foreslatt": "naert_beslektet"
+   },
+   "kilder": [
+    {
+     "ref": "CPOV 2.1.2 (lokal cpov.html) §Public Organisation, purpose",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/profil/02-begrepsmanual.md §F (definisjon, positive eksempler)",
+     "funksjon": "forutsatt_kilde"
+    }
+   ]
+  },
+  {
+   "id": "C6",
+   "dom": "holder",
+   "alvor": null,
+   "innvending": "Holder, og det er riktig å velge classification framfor memberOf (memberOf er medlemskap i en annen organisasjon, f.eks. EFSA). Merknad: M med hjemmel har rettsvirkning («det som gjelder klassen, gjelder medlemmet», docs/33 §4.2). classification er bare en kodetilordning. M fra klasse eller område har ingen motpart, for classification ligger bare på organisasjon.",
+   "retting": null,
+   "kilder": [
+    {
+     "ref": "CPOV 2.1.2 (lokal cpov.html) §Public Organisation, classification / member of",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/33-strukturmodell-aktor-omrade-kompetanse.md §4.2",
+     "funksjon": "forutsatt_kilde"
+    }
+   ]
+  },
+  {
+   "id": "C7",
+   "dom": "holder",
+   "alvor": null,
+   "innvending": "Holder. CPOV beskriver bare organisasjonen og lenker høyst til regelverk og «jurisdictional coverage».",
+   "retting": null,
+   "kilder": [
+    {
+     "ref": "CPOV 2.1.2 (lokal cpov.html) introduksjon",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  },
+  {
+   "id": "S1",
+   "dom": "innvending",
+   "alvor": "lav",
+   "innvending": "Kortet har to koblingstyper i ett felt, og «F forvaltning» står i vårt begrep uten å være vurdert. (1) F sørge_for ↔ hasCompetentAuthority er nært beslektet: «ultimately responsible for managing and providing», også når tjenesten er satt bort. (2) F forvaltning er ingen_match: at et departement forvalter en lov, gjør det ikke til ansvarlig myndighet for tjenesten. (3) K vedtak er ingen_match som begrep. Merknaden i CPSV viser likevel til tjenestedirektivets «supervisory or regulatory role», og for tillatelsestjenester er vedtaksorganet i praksis ansvarlig myndighet. K vedtak kan være premiss for en avledet kobling, men ikke likestilles med den. Den norske definisjonen i CPSV-AP-NO er ikke kontrollert (data.norge.no svarte 406).",
+   "retting": {
+    "foreslatt": "naert_beslektet (F sørge_for); ingen_match (K vedtak, F forvaltning) — del kortet"
+   },
+   "kilder": [
+    {
+     "ref": "CPSV-AP 3.2.0 (lokal cpsv.ttl) cv:hasCompetentAuthority (comment, scopeNote)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "https://data.norge.no/specification/cpsv-ap-no",
+     "funksjon": "ikke_funnet"
+    }
+   ]
+  },
+  {
+   "id": "S2",
+   "dom": "holder",
+   "alvor": null,
+   "innvending": "Holder. Hjemmelen vår er bare rettsgrunnlag og ned på punktnivå. hasLegalResource gjelder også regelverk tjenesten «relates» eller «operates» etter, og ligger på tjenestenivå. Merk forskjellen i nivå: tjeneste mot kant.",
+   "retting": null,
+   "kilder": [
+    {
+     "ref": "CPSV-AP 3.2.0 (lokal cpsv.ttl) cv:hasLegalResource",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  },
+  {
+   "id": "S3",
+   "dom": "holder",
+   "alvor": null,
+   "innvending": "Holder, og her er rettsvirkningen ulik. En lovbestemt frist er normativ: et brudd er en saksbehandlingsfeil. processingTime er et anslag («estimated»). En lovfrist må ikke eksporteres som processingTime.",
+   "retting": null,
+   "kilder": [
+    {
+     "ref": "CPSV-AP 3.2.0 (lokal cpsv.ttl) cv:processingTime",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  },
+  {
+   "id": "S4",
+   "dom": "holder",
+   "alvor": null,
+   "innvending": "Holder. Områdene våre omfatter enheter som ikke er administrative (lagsogn, lagdømme, helseregion, tettsted, forvaltningsområdet for samiske språk), og O bestar_av har ingen motpart (ingen egenskap for overordnet enhet). Lest mot primærkilden ved kortets parafrase, ikke åpnet separat.",
+   "retting": null,
+   "kilder": [
+    {
+     "ref": "Core Location 2.1.1 cv:AdminUnit (etter kortets parafrase)",
+     "funksjon": "forutsatt_kilde"
+    }
+   ]
+  },
+  {
+   "id": "S5",
+   "dom": "innvending",
+   "alvor": "middels",
+   "innvending": "Koblingen ser lik ut, men gjelder noe annet. dct:Jurisdiction er en KLASSE for et territorium. Vår har_jurisdiksjon er en RELASJON fra aktør til område. Det nærmeste hos dem er område-noden (målet for kanten), ikke kanten. Core Person bruker dessuten Jurisdiction bare som verdi for statsborgerskap. Mappingnotatet §5 advarer mot å bruke ordet «jurisdiksjon» om A («samme ord, tre betydninger»). Kanten har ingen motpart. Eventuelt område ↔ dct:Jurisdiction er en egen kobling.",
+   "retting": {
+    "foreslatt": "ingen_match"
+   },
+   "kilder": [
+    {
+     "ref": "docs/profil/04-mappingnotat.md §5 rad «A har_ansvarsomrade»",
+     "funksjon": "forutsatt_kilde"
+    },
+    {
+     "ref": "Core Person 2.1.2 (etter kortets parafrase)",
+     "funksjon": "forutsatt_kilde"
+    }
+   ]
+  },
+  {
+   "id": "S6",
+   "dom": "holder",
+   "alvor": null,
+   "innvending": "Holder. R representerer er lovbestemt representasjon (domstolloven § 37: departementet «paa det offentliges vegne» → staten). PowerOfAttorney er fullmakt fra hovedmannen i virksomhetsdomenet, så rettsgrunnlaget er ulikt (lov mot privat disposisjon). [slutning] Virkningen ligner (handlinger binder hovedmannen), men grunnlaget avgjør.",
+   "retting": null,
+   "kilder": [
+    {
+     "ref": "docs/33-strukturmodell-aktor-omrade-kompetanse.md §4.3 #355 pkt. 5",
+     "funksjon": "forutsatt_kilde"
+    },
+    {
+     "ref": "Core Business 2.3.0 (etter kortets parafrase)",
+     "funksjon": "forutsatt_kilde"
+    }
+   ]
+  },
+  {
+   "id": "E1",
+   "dom": "innvending",
+   "alvor": "middels",
+   "innvending": "Dette forveksler kompetanse med resultat (grunnlagsdokumentet §2.3). eli:based_on er en relasjon mellom VERK: forskriften er «empowered by» hjemmelsloven. Den registrerer at kompetansen ER BRUKT og sier ikke hvem som har den. K normgivning er kompetansen (aktør → normform). Riktig: K-kanten har ingen motpart. based_on svarer til en dokumentrelasjon forskrift → hjemmelsbestemmelse som ikke er bygget (mappingnotatet §4 «Mangler: trinnhøyde og delegert normgivning»). Den kan bli premiss for K normgivning. Bare målet for based_on og hjemmel_eid på K-kanten er nært beslektet.",
+   "retting": {
+    "foreslatt": "ingen_match"
+   },
+   "kilder": [
+    {
+     "ref": "ELI-ontologien (eli.owl via publications.europa.eu, hentet 2026-11-12) eli:based_on («Indicates that this work is empowered by another one …»)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/profil/00-grunnlagsdokument.md §2.3",
+     "funksjon": "forutsatt_kilde"
+    },
+    {
+     "ref": "docs/profil/04-mappingnotat.md §4 «Mangler»",
+     "funksjon": "forutsatt_kilde"
+    }
+   ]
+  },
+  {
+   "id": "E2",
+   "dom": "holder",
+   "alvor": null,
+   "innvending": "Holder. passed_by er den som faktisk vedtok («originally passed or made the law»). Det er utøvelse og ikke kompetanse, og ved delegering kan det være delegaten. passed_by kan brukes som premiss, ikke som mapping.",
+   "retting": null,
+   "kilder": [
+    {
+     "ref": "ELI-ontologien (eli.owl via publications.europa.eu, hentet 2026-11-12) eli:passed_by",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  },
+  {
+   "id": "E3",
+   "dom": "innvending",
+   "alvor": "lav",
+   "innvending": "Primærkilden har «some kind of responsibility for the legislation». «typisk ansvarlig departement» står ikke i rdfs:comment (ikke funnet). Egenskapen er altså videre enn forvaltningsansvaret. F forvaltning med en lov som objekt (ressortfordeling, objekt_eli) er snevrere. F forvaltning av et fond eller apparat har ingen motpart.",
+   "retting": {
+    "foreslatt": "snevrere"
+   },
+   "kilder": [
+    {
+     "ref": "ELI-ontologien (eli.owl via publications.europa.eu, hentet 2026-11-12) eli:responsibility_of_agent",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/profil/02-begrepsmanual.md §F «Ressortfordeling»",
+     "funksjon": "forutsatt_kilde"
+    }
+   ]
+  },
+  {
+   "id": "E4",
+   "dom": "holder",
+   "alvor": null,
+   "innvending": "Holder. relevant_for («a place or an area associated with the resource») gjelder dokumentet, ikke aktøren. Det er dokumentnivå mot aktørnivå, og derfor ingen_match.",
+   "retting": null,
+   "kilder": [
+    {
+     "ref": "ELI-ontologien (eli.owl via publications.europa.eu, hentet 2026-11-12) eli:relevant_for, eli:jurisdiction",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  },
+  {
+   "id": "F1",
+   "dom": "holder",
+   "alvor": null,
+   "innvending": "Holder. Merknad: eFLINT gjør alle handlinger til en power-liability-relasjon, også rene oppfyllelseshandlinger som betaling, som hos oss er P. eFLINTs maktbegrep er derfor tynnere og videre enn offentligrettslig kompetanse (grunnlagsdokumentet §2.2). Recipient svarer til motparten vår. create- og terminate-virkningene hører til regellaget.",
+   "retting": null,
+   "kilder": [
+    {
+     "ref": "eFLINT GPCE 2020 (etter kortets parafrase)",
+     "funksjon": "forutsatt_kilde"
+    },
+    {
+     "ref": "docs/profil/00-grunnlagsdokument.md §2.2",
+     "funksjon": "forutsatt_kilde"
+    }
+   ]
+  },
+  {
+   "id": "F2",
+   "dom": "innvending",
+   "alvor": "middels",
+   "innvending": "«Bredere» betyr at hver eFLINT-Duty er en P. Det stemmer ikke: Duty omfatter alle plikter, også privates, mens P bare har seks typer. P med modalitet kan eller bør er heller ingen plikt. Mengdene overlapper uten at den ene inneholder den andre, så riktig type er nært beslektet. Viktigere er det at Duty ALLTID setter en claimant i et duty-claim-forhold. En P(skal) med motpart kan derfor bare eksporteres som Duty når kravsrett = etablert (docs/34 §6.2), og P uten motpart aldri. Ellers sluttes kravsrett fra plikt.",
+   "retting": {
+    "foreslatt": "naert_beslektet"
+   },
+   "kilder": [
+    {
+     "ref": "docs/34-arkitekturvurdering-norsk-profil.md §6.2",
+     "funksjon": "forutsatt_kilde"
+    },
+    {
+     "ref": "docs/profil/00-grunnlagsdokument.md §2.6",
+     "funksjon": "forutsatt_kilde"
+    },
+    {
+     "ref": "eFLINT GPCE 2020 (etter kortets parafrase)",
+     "funksjon": "forutsatt_kilde"
+    }
+   ]
+  },
+  {
+   "id": "F3",
+   "dom": "holder",
+   "alvor": null,
+   "innvending": "Holder, og det er et sterkere grunnlag enn kortet gir. [slutning, kontroller mot GPCE 2020] I eFLINT rapporteres en handling som utføres når den ikke er aktivert, som et brudd. Da skilles ikke ugyldig (manglende kompetanse) fra ulovlig (forbud), og det skillet bærer den negative K-en vår (mappingnotatet §5).",
+   "retting": null,
+   "kilder": [
+    {
+     "ref": "docs/profil/04-mappingnotat.md §5 (polaritet)",
+     "funksjon": "forutsatt_kilde"
+    },
+    {
+     "ref": "https://publications.tno.nl/publication/34639016/S2Rnu7/binsbergen-2020-eflint.pdf",
+     "funksjon": "forutsatt_kilde"
+    }
+   ]
+  },
+  {
+   "id": "O1",
+   "dom": "innvending",
+   "alvor": "middels",
+   "innvending": "Rettsvirkningen er ulik. I ODRL 2.2 er en Duty knyttet til en Permission (egenskapen duty) en FORUTSETNING for tillatelsen: oppfylles den ikke, gjelder ikke tillatelsen, og det er ikke noe brudd. Bare odrl:obligation på policy-nivå er en selvstendig plikt [slutning ut fra ODRL-modellen §2.6, ikke åpnet i denne runden]. Koblingen må begrenses til obligation. Frist og frekvens har vi ikke i strukturlaget (L14, L15), så den delen av kortet kobler noe vi mangler. informedParty og compensatedParty svarer greit til til-noden for informasjon og betaling og sier ingenting om kravsrett.",
+   "retting": null,
+   "kilder": [
+    {
+     "ref": "https://www.w3.org/TR/odrl-model/ §2.6 (Duty, obligation)",
+     "funksjon": "forutsatt_kilde"
+    },
+    {
+     "ref": "docs/33-strukturmodell-aktor-omrade-kompetanse.md §4.5 pkt. 2",
+     "funksjon": "forutsatt_kilde"
+    }
+   ]
+  },
+  {
+   "id": "O2",
+   "dom": "holder",
+   "alvor": null,
+   "innvending": "Holder. assigner er den som UTSTEDER en policy (utøvelse av en disposisjon), og Permission er bruksadgang til en ressurs. Ingen av dem er kompetanse.",
+   "retting": null,
+   "kilder": [
+    {
+     "ref": "https://www.w3.org/TR/odrl-model/",
+     "funksjon": "forutsatt_kilde"
+    }
+   ]
+  },
+  {
+   "id": "N1",
+   "dom": "innvending",
+   "alvor": "lav",
+   "innvending": "Aksene er forskjellige. relationshipWithSource sier hvordan DEFINISJONSTEKSTEN forholder seg til kilden. Kunnskapsstatus er det epistemiske grunnlaget for utsagnet. Verdiene svarer bare delvis: tekstfunn ↔ sitat fra kilde, normalisering og fortolkning ↔ basert på kilde. «Egendefinert» har ingen motpart, for vi krever hjemmel eller kilde utenfor korpus. avledet, uavklart, omstridt og foreldet har ingen motpart hos dem. Ingen av mengdene inneholder den andre, så «bredere» stemmer ikke.",
+   "retting": {
+    "foreslatt": "naert_beslektet"
+   },
+   "kilder": [
+    {
+     "ref": "docs/33-strukturmodell-aktor-omrade-kompetanse.md §4.6 (kunnskapsstatus og CHECK-ene)",
+     "funksjon": "forutsatt_kilde"
+    },
+    {
+     "ref": "https://data.norge.no/vocabulary/relationship-with-source-type",
+     "funksjon": "forutsatt_kilde"
+    }
+   ]
+  }
+ ],
+ "svar": {
+  "om": "Modellererens svar på runde 1 (#473). aksepter = rettingen tas inn slik juristen foreslo. delvis/avvis = juristen gir replikk i runde 2.",
+  "svar": [
+   {
+    "id": "L5",
+    "svar": "aksepter",
+    "tekst": "nært beslektet, bare når regelen har Obligation eller Prohibition. Verifisert: CHANGELOG-1.1.0 linje 574 «Replaced agent role term \"bearer\" with \"addresser\"»."
+   },
+   {
+    "id": "L7",
+    "svar": "aksepter",
+    "tekst": "Betalingsmottaker ↔ ADDRESSEE nært beslektet; BENEF ↔ «begunstiget» (avgrensning/regellag), ikke betalingsmottakeren."
+   },
+   {
+    "id": "L8",
+    "svar": "aksepter",
+    "tekst": "Snevrere står, med tilføyelsen at koblingen gjelder hjemmelsregelen, og at fra/til ikke har noen LOMO-motpart (produces maxCount 0 på konstitutive regler)."
+   },
+   {
+    "id": "L9",
+    "svar": "aksepter",
+    "tekst": "Deles etter modalitet: F(skal) ↔ PrescriptiveRule[Obligation] uten ADDRESSEE nært beslektet; F(modalitet null, attributiv, ressortfordeling) ↔ InstitutionalRule nært beslektet. Ingen F eksporteres som Obligation uten modalitet skal."
+   },
+   {
+    "id": "L11",
+    "svar": "aksepter",
+    "tekst": "Deles: hjemmel_eid ↔ establishedIn nært beslektet; avgrensning ingen match; legalText ↔ sitat/tekst-tagg. Kilde utenfor korpus kan ikke uttrykkes med establishedIn."
+   },
+   {
+    "id": "L12",
+    "svar": "aksepter",
+    "tekst": "bredere."
+   },
+   {
+    "id": "C1",
+    "svar": "aksepter",
+    "tekst": "snevrere."
+   },
+   {
+    "id": "C2",
+    "svar": "delvis",
+    "tekst": "Kortet deles som foreslått, men koblingstypen for organ blir nært beslektet, ikke bredere. organisatorisk_enhet ↔ org:OrganizationalUnit: nært beslektet (ikke omstridt). organ ↔ cv:PublicOrganisation med org:subOrganizationOf til rettssubjektet: mengdene overlapper uten at den ene inneholder den andre. PublicOrganisation omfatter også rettssubjektene (C1), mens vårt organ omfatter folkevalgte organer som CPOV holder utenfor. Det er samme mønster som juristen selv brukte i F2 og N1: overlapp gir nært beslektet, ikke bredere."
+   },
+   {
+    "id": "C5",
+    "svar": "aksepter",
+    "tekst": "nært beslektet; purpose svarer i beste fall til et aggregat av en aktørs hovedoppgaver."
+   },
+   {
+    "id": "S1",
+    "svar": "aksepter",
+    "tekst": "Deles: F sorge_for ↔ hasCompetentAuthority nært beslektet; F forvaltning ingen match; K vedtak ingen match (kan være premiss)."
+   },
+   {
+    "id": "S5",
+    "svar": "aksepter",
+    "tekst": "ingen match for kanten. Ordbruken støtter likevel mappingnotatets §5-anbefaling om å vurdere å gi koden har_jurisdiksjon et annet navn."
+   },
+   {
+    "id": "E1",
+    "svar": "aksepter",
+    "tekst": "K normgivning ↔ based_on: ingen match. Dokumentrelasjonen forskrift → hjemmelsbestemmelse (ikke bygget) ↔ based_on: nært beslektet."
+   },
+   {
+    "id": "E3",
+    "svar": "delvis",
+    "tekst": "Snevrere aksepteres, men begrunnelsen må rettes: «typically the ministry» står i rdfs:comment. Ordrett i ELI 1.5 (eli:responsibility_of og responsibility_of_agent): «some kind of responsibility for the legislation. Typically the ministry who is/was in charge of elaborating the legislation, or the adressee for potential questions about the legislation once it is published». Snevrere holder fordi ELI-egenskapen også dekker utarbeidelse og kontaktpunkt, ikke bare forvaltning etter ressortfordelingen."
+   },
+   {
+    "id": "F2",
+    "svar": "aksepter",
+    "tekst": "nært beslektet; eksport til Duty bare når kravsrett = etablert, aldri P uten motpart."
+   },
+   {
+    "id": "O1",
+    "svar": "aksepter",
+    "tekst": "Verifisert mot ODRL 2.2 Information Model §2.6.1 og §2.6.5: duty fra Permission er «a pre-condition», og obligation på policy-nivå er den selvstendige plikten. Koblingen begrenses til odrl:obligation (nært beslektet for P informasjon/betaling); frist og frekvens står som noe vi mangler."
+   },
+   {
+    "id": "N1",
+    "svar": "aksepter",
+    "tekst": "nært beslektet, med verditabellen tekstfunn ↔ sitat fra kilde, normalisering/fortolkning ↔ basert på kilde; egendefinert og avledet/uavklart/omstridt/foreldet uten motpart."
+   }
+  ]
+ },
+ "runde2_replikk": [
+  {
+   "id": "C2",
+   "replikk": "godtar",
+   "tekst": "Godtatt. Argumentet er mitt eget fra F2 og N1. Når organet kobles til PublicOrganisation med subOrganizationOf (og ikke til OrganizationalUnit), overlapper mengdene uten at den ene inneholder den andre. Rettssubjektene ligger i PublicOrganisation, og de folkevalgte organene ligger utenfor CPOV. Nært beslektet er da riktig type. Én presisering i selve koblingsteksten: folkevalgte organer (kommunestyret, Stortinget) har ingen CPOV-motpart, fordi CPOV holder «elected representatives» utenfor omfanget. Eksporten skal ikke tvinge dem inn som PublicOrganisation uten en merknad.",
+   "kilder": [
+    {
+     "ref": "CPOV 2.1.2 introduksjon («Public organizations involve elected representatives but these descriptions are out of scope»)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "CPOV 2.1.2 §Organization, sub organization of",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  },
+  {
+   "id": "E3",
+   "replikk": "godtar",
+   "tekst": "Godtatt, og innvendingen min om begrunnelsen var feil. Kontrollert på nytt mot eli.owl med owl:versionInfo 1.5. rdfs:comment for responsibility_of_agent inneholder «Typically the ministry who is/was in charge of elaborating the legislation, or the adressee for potential questions about the legislation once it is published». I runde 1 leste jeg en avkortet gjengivelse. Typen snevrere står, med modellererens begrunnelse: egenskapen dekker også utarbeidelse og kontaktpunkt, ikke bare forvaltningsansvaret etter ressortfordelingen. F forvaltning med fond eller apparat som objekt har fortsatt ingen motpart.",
+   "kilder": [
+    {
+     "ref": "ELI-ontologien 1.5 (eli.owl, publications.europa.eu cellar 917d16b5-…/DOC_1), eli:responsibility_of_agent rdfs:comment",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  }
+ ]
+}
