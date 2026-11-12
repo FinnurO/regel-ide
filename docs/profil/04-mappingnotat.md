@@ -509,3 +509,56 @@ Oppsummert: **11 verifisert, 1 korrigert, 4 finnes ikke, 1 delvis** («anti-rigi
 3. *AKN eId og uttrykk:* står seg og er skjerpet. `/nor` uten `@` betyr «gjeldende versjon» etter AKN-NC, og er heller ikke gyldig Lovdata-ELI. AKN har selv dobbel nøkkel (`eId`/`wId`), og vår stabile eId svarer til `wId`. `wrapup` er bekreftet. Et ledd med liste må ha `intro`, ikke `content`.
 4. *Norske utvidelser:* står seg (ordning, skjønnsmomenter, tekstfunn vs. slutning, avgrensning per paragraf). «Bør» er fortsatt en utvidelse, men kan eksporteres via LegalRuleML `@iri`/`appliesModality`. «Kilde utenfor korpus» er justert fra «mangler hos dem» til «delvis», fordi LegalRuleML har `LegalReference`.
 5. *Hull i rettslig metode:* står seg. Ny fvl. lovfester delegering (§§ 22–24) og flytter vedtaksdefinisjonene til § 7. Når loven trer i kraft, må `fvl_kategori` og #335 (delegeringsadgang) få tidsangivelse.
+
+---
+
+## Utvidet verifiseringslogg (2026-11-06 og 2026-11-12, #473)
+
+**Metode.** Spesifikasjonssidene er hentet og lest. Ontologiene er lastet ned og søkt i: LOMO 1.1.0 (`lomo-ontology.ttl`, vokabularene og SHACL fra code.europa.eu, tagg `v1.1.0`), CPOV- og CPSV-AP-TTL, ELI 1.5 (RDF/XML fra namespace-adressen), ELI-DL (Turtle) og FLINT-ontologien (`flint.ttl`). Repoene for SEMIC og LOMO er lest via API (GitHub og GitLab på code.europa.eu). data.norge.no og EUR-Lex svarte ikke til vanlig nettlesing og er hentet med curl og i nettleseren. Søk i ontologifilene er gjort med tekstsøk, og et søk som ikke gir treff, er rapportert som «finnes ikke i filen», ikke som at begrepet ikke finnes noe sted.
+
+**Kildene, med resultat:**
+
+| Kilde | Hentet | Resultat |
+|---|---|---|
+| [IE-LOMO] | 2026-11-12 | (v) Kunngjøring 2026-11-04. Forfattere, JURIX-aksept og elementene (handling, aktører og roller, tid og frister, resultat, rettskilde). Lenker ikke til ontologien |
+| [LOMO], 1.0.0 og 1.1.0 | 2026-11-12 | (v) Utgitt 2026-07-10 og 2026-10-21. Namespace, versjons-IRI, alle klasser og egenskaper i §7.1 |
+| [LOMO-repo] | 2026-11-12 | (v) Offentlig, opprettet 2025-12-02, taggene v0.6.6–v1.1.0. `LICENSE` er CC BY 4.0. CHANGELOG: lisensbyttet fra EUPL (2026-07-16) og «bearer» → «addresser» |
+| [JURIX26] | 2026-11-06 | (v) 79 aksepterte artikler, LOMO er nr. 48. Programmet er «coming soon» |
+| LOMO-artikkelen | – | Ikke publisert. Innholdet er **ikke verifisert** |
+| [CPOV] 2.1.2 med TTL | 2026-11-06–12 | (v) Begrepene i §7.2. Lisensavsnittet sier både «CC0» og «CC-BY 4.0» (selvmotsigende i kilden) |
+| [CPSV-AP] 3.2.0 med TTL og SHACL | 2026-11-06–12 | (v) `hasCompetentAuthority` (kommentaren kontrollert i TTL), `hasLegalResource`, `processingTime` |
+| [CLV] 2.1.1, [CPV] 2.1.2, [CBV] 2.3.0, [CCCEV] 2.2.0 | 2026-11-06–12 | (v) Versjoner, status og begrepene i §7.2. Interoperable Europe viser eldre versjoner og to ulike datoer for Core Location 2.1.1 |
+| SEMIC «Consolidated Core Vocabularies» 2.2.0 | 2026-11-06 | (v) Bare en ordliste for m8g-navnerommet (2024-05-06). Ingen sammenslått utgivelse |
+| [ELI] 1.5 | 2026-11-12 | (v) Fortsatt `owl:versionInfo "1.5"`. Ingen 1.6. Begrepene i §7.3. Ingen begreper for plikt, frist eller adressat (tekstsøk i hele fila) |
+| ELI på op.europa.eu | 2026-11-12 | (v) Lenket OWL-fil er 1.4, versjonsnotatet er 1.4 (januar 2022). Avvik fra namespace-adressen |
+| ELI-lisens og utgivelsesdato for 1.5 | – | **Ikke verifisert**: ikke oppgitt i noen av kildene |
+| [ELI-DL] | 2026-11-12 | (v) V3.0 og klassene i §7.3. Status er motstridende på Interoperable Europe (**ikke verifisert**). Fila har to feil: range `"eil:Work"` og en henvisning til `eli:ensures_execution_of`, som ikke finnes i ELI 1.5 |
+| [ELI-reg-NO] | 2026-11-12 | (v) Pillar 3, RDFa, «beta» siden september 2016. Malen i registeret har `{jurisdiction}`, mens Lovdatas egen mal ikke har det |
+| [Lovdata-ELI] | 2026-11-12 | (v) Fortsatt «BETA». RDFa på `lovdata.no/eli/lov/2005/05/20/28/no` kontrollert |
+| [Lovdata-API] | 2026-11-12 | (v) Åpne data uten nøkkel, oppdatert daglig. XML-feltene `ministry`, `basedOn`, `dateInForce`, `dateInForceEnd`. Lisens for gjeldende lover og forskrifter er **ikke verifisert** |
+| [eFLINT] GPCE 2020 (PDF) og arXiv 2511.12276 | 2026-11-06–12 | (v) Act-type, Duty-type, «violated when», frister som vilkår |
+| [FLINT-ont] 1.0.0 | 2026-11-12 | (v) `flint.ttl`, Apache 2.0, 2025-12-03 |
+| FLINT 2016 og 2019, FLINT-ontologiartikkelen (SEMANTiCS 2023) | – | **Ikke verifisert** (sidene var utilgjengelige) |
+| [ODRL-M], [ODRL-V] | 2026-11-12 | (v) Duty, obligation, partsfunksjoner og tidsbegrensninger. «pre-condition» kontrollert i §2.6.1 og §2.6.5 etter runde 1 |
+| [ODRL-WS] og charterutkastet for ODRL 3.0 | 2026-11-06 | (v) Anbefalingen om ODRL 3.0 og omtalen av LOMO. Om charteret er vedtatt: **ikke verifisert** |
+| OASIS LegalRuleML TC | 2026-11-06 | (v) Bare 1.0 (2021), ingen OWL-ontologi |
+| [LRML-RO] | 2026-11-06 | (v) Spesialiseringen for rapporteringsplikter |
+| Dong og Roy 2021; Kharraz mfl. 2021; Chircop mfl. 2022 | 2026-11-06 | (v) Landingsside eller arXiv åpnet |
+| Governatori og Rotolo, ICAIL 2023; Robaldo mfl., AI&Law 2023 | – | Bare metadata fra Crossref, forlagssiden blokkert: **ikke verifisert**, derfor ikke brukt |
+| Catala 1.3.0, OECD «Cracking the Code» | 2026-11-06 | (v) Ingen aktører eller kompetanse |
+| [CPSV-AP-NO] 1.2.0, [SKOS-AP-NO] 2.0.15, [DCAT-AP-NO] 3.0.7, ModellDCAT-AP-NO 1.4.0 | 2026-11-12 | (v) Versjoner, status, lisens og egenskapene i §7.5. Status for CPSV-AP-NO i referansekatalogen: **ikke verifisert** |
+| `data.norge.no/vocabulary/relationship-with-source-type` og `role-type` | 2026-11-12 | (v) Verdiene i §7.5 |
+| Felles datakatalogs organisasjonskatalog | 2026-11-12 | (v) `orgPath`, `subOrganizationOf`, `orgType` |
+| Enhetsregisteret, SSB KLASS 131 og 104 | 2026-11-12 | (v) Organisasjonsformer og lisens (NLOD); kodelister med gyldighet og lisens (CC BY 4.0) |
+| Digdirs veileder for digitaliseringsvennlig regelverk | 2026-11-12 | (v) Anbefalinger, ingen datamodell |
+| Danmark: digst.dk og arkitektur.digst.dk | 2026-11-12 | (v) Prinsippene og OIO-organisasjonsmodellen. Status for «Anvendelsesprofil for organisationer» og «Basisprofil for organisation» (2025): **ikke verifisert** |
+| Sverige: SCB myndighetsregistret, Domstolsverkets rapport 2025 | 2026-11-12 | (v) |
+| Finland: Finlex åpne data, Suomi.fi-tjenestekatalogen (API) | 2026-11-12 | (v) Felter kontrollert i API-et. At katalogen bygger på CPSV-AP, og lisensen: **ikke verifisert** |
+| W3C ORG (`org:reportsTo`, `org:headOf` m.fl.) | – | Ontologien selv er ikke åpnet: **ikke verifisert**. Bare de ORG-termene CPOV og Core Business gjenbruker, er brukt i §7.2 |
+
+**Korrigert under gjennomgangen:**
+- Premisset i #473 om at LOMO-ontologien ikke er publisert, er feil (§7.1).
+- I juristrunden ble det påstått at «typically the ministry» ikke står i ELI. Det står der (E3, §7.7).
+- ODRL: en `duty` på en Permission er en forutsetning, ikke en selvstendig plikt. Koblingen er begrenset til `obligation` (O1, §7.4).
+
+**Oppsummert:** 35 kilder eller kildegrupper i tabellen. 30 er åpnet og kontrollert (v), 5 kunne ikke åpnes eller er ikke publisert, og 11 rader har minst ett punkt som er ikke verifisert. 3 påstander er korrigert.

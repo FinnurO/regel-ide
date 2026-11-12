@@ -15,10 +15,11 @@ Denne mappen holder **profilen**, altså det teknologinøytrale begrepsapparatet
 | 01 | Profilspesifikasjon: definisjoner, krav, status | Ikke skrevet | Ja, når den publiseres |
 | 02 | [Begrepsmanual](02-begrepsmanual.md): definisjon, eksempel, moteksempel og grense per begrep, fra fasitkontrollen. Påbegynt i #368 med F oppgave/funksjon | Arbeidsutkast | Ja, sammen med 01 |
 | 03 | [Metodenotat](03-metodenotat.md): rettslig metode og status for modellutsagn | Arbeidsutkast | Nei. Grunnlag for 01 |
-| 04 | [Mappingnotat](04-mappingnotat.md): regel-ide mot ELI/AKN, LKIF Core, UFO-L, LegalRuleML (verifisert mot primærkildene 2026-10-09) | Arbeidsutkast | Nei. Informativt (§5.7) |
+| 04 | [Mappingnotat](04-mappingnotat.md): regel-ide mot ELI/AKN, LKIF Core, UFO-L, LegalRuleML (verifisert mot primærkildene 2026-10-09). [ENDRET, #473] §7: standardlandskapet (LOMO, SEMIC-vokabularene, ELI-ontologien og ELI-DL, FLINT/eFLINT, ODRL, forskning, Norden), med koblingstabeller, juristrunde ([juristrunde-473-koblinger.json](juristrunde-473-koblinger.json)) og utvidet verifiseringslogg (2026-11-12) | Arbeidsutkast | Nei. Informativt (§5.7) |
 | 05 | Plan for testkorpus: låst utvalg, uavhengig menneskelig annotering | Ikke skrevet | – |
 | 06 | Beslutningslogg for typevekst (§18): samlet fra beslutningene i sakene | Ikke skrevet | – |
 | 07 | [Pilot: barnehageloven](07-pilot-barnehageloven.md): konvertering, juristrunde og sammenligning med BU-kartleggingen (#375), med lærdommer for profilen | REFERAT 2026-10-28, før Johanns gjennomgang. §8 tillegg 2026-10-29 (ny lasting etter #418). §9 tillegg 2026-10-30 (tredje lasting etter #420 og #419) | Nei. Erfaringsgrunnlag |
+| 08 | [Sjekkliste for standardlandskapet](08-standardlandskap-sjekkliste.md): kilder og steder som sjekkes for hver profilversjon, med dato for siste sjekk (#473) | Arbeidsliste, oppdateres ved hver profilversjon | Nei |
 
 Implementasjonens svar på profilen: [../34-arkitekturvurdering-norsk-profil.md](../34-arkitekturvurdering-norsk-profil.md).
 
