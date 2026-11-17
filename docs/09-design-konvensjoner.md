@@ -1539,6 +1539,12 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
 - **Etter godkjenningen** står relasjonene under kvitteringen i et eget `Card` («Relasjoner fra forhåndsklassifiseringen»), lest på nytt, så
   knappene virker uten at køen leses på nytt. Navn som er godkjent tidligere, står i en lukket `Details` under køen, «Relasjoner for navn som er
   opprettet (N)», som hentes først når den åpnes. «Må gjøres i eget steg» lister ikke lenger relasjonene.
+- **Kaldsjekket 2026-11-17** i kopien `regelide_relasjoner` (web 5373 mot API 5387, Browser-panelet, kopien slettet etterpå): «bostedskommune»
+  viste «Innehas av kommune» med knappen av og «Opprett navnet først.»; etter godkjenningen (via «Godta forslaget», faglig vurdert) sto knappen under
+  kvitteringen, bekreftelsen viste I innehar, kommune → bostedskommune, forskriften § 1 første ledd nr. 1, tekstfunn og «Forslag (manuelt
+  foreslått)», og «Bekreft» skrev kanten (`manuelt_foreslatt`, `manuell`). Raden ble «Finnes som forslag», en ny POST ga 409, og navnet sto i
+  «Relasjoner for navn som er opprettet» etter ny lesing. Før noe ble skrevet: 57 av 189 relasjoner «Opprett navnet først», 7 «Skrives av
+  koblingen», 125 «Kan ikke skrives».
 - **Kaldsjekket 2026-11-05** i kopien `regelide_forhand` (web 5373 mot API 5487; 5387 var opptatt av en annen agent): Utdanningsdirektoratet
   (aktør) og «bostedskommune» (rolle) godkjent, «den kommunen» tagget som generisk omtale, alle via «Godta forslaget» og skjemaets knapp.
   KD (koble) og fylkeskommunen (venter) kontrollert uten lagring. Funnet: merknaden «Fylt ut» sto øverst i «Andre handlinger», langt fra
