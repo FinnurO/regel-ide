@@ -176,7 +176,8 @@ public class GeneriskFylkeskommunenTests(EmbeddedPostgresFixture fixture) : IAsy
         await using var db = fixture.NyDbContext();
         await KommunelovenAsync(db);
         var klasse = await KlasseAsync(db);
-        var fylke = $"Testfylke{Kort()}";
+        // Bare bokstaver: navneregelen krever et ord av bokstaver foran «fylkeskommune» (sifre i en Guid ville ikke vært et navn).
+        var fylke = "Testfylke" + new string(Kort().Select(c => (char)('a' + Convert.ToInt32(c.ToString(), 16))).ToArray());
         var fk = new Virksomhet { Id = Guid.NewGuid(), Navn = $"{fylke.ToUpperInvariant()} FYLKESKOMMUNE", Forvaltningsniva = "fylkeskommune" };
         db.Virksomheter.Add(fk);
         await db.SaveChangesAsync();
