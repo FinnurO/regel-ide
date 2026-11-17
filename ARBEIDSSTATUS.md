@@ -47,6 +47,12 @@ dokumentasjon (primaer|sekundaer), begge påkrevd uten hjemmel og NULL med.
 |---|---|---|---|
 | #442 klassene fylkeskommune og departement, «minst hjemmel eller medlemsregel», arkivering av «kommunene» | `klasser-fylkeskommune-departement` | **PR åpen, venter på Johann (§19). Ikke flettet.** Migrasjonen `KlasserFylkeskommuneOgDepartement` (bare CHECK) og skrivingen (`POST /api/klasser/fylkeskommune-departement?skriv=true`) er IKKE kjørt mot delt `regelide`; hovedøkta kjører dem etter fletting. Tørrkjøringstallene mot delt base (bare SELECT): 2 klasser, 14 territoriekanter, 7 medlemskanter, 1 arkivering | `KlasseoppsettTjenesteTests` og de berørte Data-testene lokalt, Api-suiten lokalt (DI), tsc -b. Kopien `regelide_klasser`: skrevet to ganger (idempotent), 14 og 16 medlemmer, kaldsjekk i nettleseren (5387 + 5473), kopien slettet |
 
+## Norge, staten og departementene #463 (sak 2 av 3, startet 2026-11-17)
+
+| Sak | Gren | Status | Verifisert hvordan |
+|---|---|---|---|
+| #463 Norge (rike), staten med ordsperre, departementene del av staten | `norge-staten` | **PR åpen, venter på Johann (§19). Ikke flettet.** Migrasjonen `NorgeRike` (bare CHECK) og skrivingen (`POST /api/norge-staten?skriv=true`) er IKKE kjørt mot delt `regelide`; hovedøkta kjører dem etter fletting (etter #442-skrivingen, som alt er kjørt). Tørrkjøringstallene mot delt base (bare SELECT): 1 område, 16 O-kanter, staten med navneform og aktørtype, 16 G-kanter | `NorgeStatenTjenesteTests`, `OrdsperreTests` og de berørte Data-testene lokalt, Api-suiten lokalt (DI), tsc -b. Kopien `regelide_norge`: skrevet to ganger (idempotent), ordsperren målt (582 av 2 511 sperret), kaldsjekk i nettleseren (5487 + 5473), kopien slettet |
+
 ## Aktørkøen #440 (startet 2026-10-31)
 
 | PR | Gren | Status | Verifisert hvordan |

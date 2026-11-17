@@ -1491,6 +1491,14 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
 - **Kaldsjekket 2026-11-05** i kopien `regelide_klasser` (API 5387; web på 5473 med proxy, fordi 5373 var i bruk av en annen agent): klassene
   fylkeskommune og departement (Grunndata og Relasjoner), Agder fylkeskommune og Utenriksdepartementet. Skjermbildene står i PR-en.
 
+## 55. Områdetypen «Rike» (issue #463, 2026-11-17)
+
+- `OMRADETYPE_VISNING` (`begrep/Omraderegister.tsx`) har `rike: 'Rike'`, med flertall «riker» og entall «rike» i relasjonsoverskriftene. Ingen ny
+  komponent: Norge vises som et område på begrepssiden, med «Består av andre områder» (Svalbard) og «Består av fylker» (docs/09 §47).
+- Staten vises på aktørsiden som andre aktører (§52). Ordsperren har ingen egen visning; målingen er `GET /api/ordsperre/maling?term=staten`.
+- **Kaldsjekket 2026-11-17** i kopien `regelide_norge` (API 5487; web 5473 med vite-proxy, fordi CORS bare tillater 5173/5373): Norge (fanene
+  Område og Grunndata), staten (Oversikt og Etter kategori) og Finansdepartementet (M-kanten og G del_av side om side). Kopien er slettet.
+
 ## 54. Forhåndsklassifiseringen i aktørkøen (#440, Johanns avgjørelse 2026-11-05)
 
 - **Kilden** er `data/fasit/strukturmodell/aktorko-forhand/klassifisering.json` (PR #462), innebygd i API-et og knyttet til navnet med
