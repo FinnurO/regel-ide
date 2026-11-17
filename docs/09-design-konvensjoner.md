@@ -1523,7 +1523,7 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
   sikkerhet N» (første bruk), som setter de to til aktør og høy. Ingressen sier hvor mange navn som er forhåndsklassifisert og hvor mange som
   kan være utdatert.
 - **[Ny, #469, Johanns klarsignal 2026-11-17] Relasjonene som strukturkanter** (`kandidater/ForhandRelasjoner.tsx`, regler i
-  `kandidater/forhandRelasjoner.ts` med vitest; modellen i docs/33 §5.16.3). Raden «Relasjoner» i kortet har en `Metatekst` med tallene («2 kan
+  `kandidater/forhandRelasjonsregler.ts` med vitest; modellen i docs/33 §5.16.3). Raden «Relasjoner» i kortet har en `Metatekst` med tallene («2 kan
   skrives, 1 kan ikke skrives») og én linje per relasjon: relasjonen i klart språk, motparten (lenke når den finnes, ellers «navn» med grunnen
   som `Metatekst`), kategori og type som `neutral`-merke («I innehar»), og så ett av disse:
   - **«Skriv relasjonen …»** (`secondary`). Første klikk viser hva som skrives i en kompakt nøkkel/verdi-tabell med aksentkant (som sitatet i

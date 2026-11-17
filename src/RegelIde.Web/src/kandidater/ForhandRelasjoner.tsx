@@ -7,7 +7,7 @@ import { Metatekst } from '../entitet/Metatekst';
 import { KunnskapsstatusTag } from '../strukturkant/Utsagnsstatus';
 import { TOLKNINGSARGUMENTER } from './utsagnsgrunnlag';
 import { relasjonstekst } from './aktorkoForhand';
-import { SKRIVES_SOM_TEKST, avTekst, kantmerke, knappetilstand, nodelenke, storForbokstav, tellingstekst } from './forhandRelasjoner';
+import { SKRIVES_SOM_TEKST, avTekst, kantmerke, knappetilstand, nodelenke, storForbokstav, tellingstekst } from './forhandRelasjonsregler';
 
 /**
  * [Ny, issue #469, Johanns klarsignal 2026-11-17] Forhåndsklassifiseringens relasjoner, én linje og én knapp per relasjon (docs/09 §54).

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { ForhandRelasjonsforslag, RelasjonNode } from '../api/types';
-import { avTekst, kantmerke, knappetilstand, nodelenke, telling, tellingstekst } from './forhandRelasjoner';
+import { avTekst, kantmerke, knappetilstand, nodelenke, telling, tellingstekst } from './forhandRelasjonsregler';
 
 const node = (navn: string, erNavnet: boolean, id: string | null = null): RelasjonNode =>
   ({ id, type: id ? 'begrep' : null, navn, art: 'klasse', erNavnet, merknad: null });
