@@ -1502,8 +1502,9 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
   (som «Kilde endret – vurder på nytt» i §49).
 - **Detaljen** har kortet øverst: overskrift med type, undertype og ny node, merkene, en nøkkel/verdi-tabell (relasjoner, hjemmel eller
   medlemsregel, begrunnelse, juristens vurdering) og «Må gjøres i eget steg» som `Metatekst`-liste.
-  - Relasjoner: lenke til aktøren (`/virksomheter/:id`) eller begrepet (`/begreper/:id`) når id-en finnes i basen; ny node som «navn» med
-    `neutral` «Ny node». Hver relasjon har `neutral` «Eget steg» (grunnen i `title`) eller «Skrives av koblingen».
+  - Relasjoner: ~~lenke til aktøren (`/virksomheter/:id`) eller begrepet (`/begreper/:id`) når id-en finnes i basen; ny node som «navn» med
+    `neutral` «Ny node». Hver relasjon har `neutral` «Eget steg» (grunnen i `title`) eller «Skrives av koblingen».~~ [ENDRET, #469] Én linje og
+    én knapp per relasjon, se under.
   - Hjemmel: lenke til rettskilden, bestemmelsen, `KunnskapsstatusTag`, `neutral` «Regelens forslag» / «Kan lagres» / «Står ikke i korpus», og sitatet
     som `Metatekst` med aksentkant (som hjemmelforslaget i §50). Har fila ikke sitatet, står bestemmelsens tekst i basen med «(teksten i
     basen; klassifiseringen har ikke sitatet)». Uten hjemmel: «Mangler» eller «Ikke relevant», med merknaden.
@@ -1521,6 +1522,23 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
 - **Filtrene** under de andre: `Select` «Forslag: type» og «Forslag: sikkerhet» med antall, og `Chip.Checkbox` «Bare aktører med høy
   sikkerhet N» (første bruk), som setter de to til aktør og høy. Ingressen sier hvor mange navn som er forhåndsklassifisert og hvor mange som
   kan være utdatert.
+- **[Ny, #469, Johanns klarsignal 2026-11-17] Relasjonene som strukturkanter** (`kandidater/ForhandRelasjoner.tsx`, regler i
+  `kandidater/forhandRelasjoner.ts` med vitest; modellen i docs/33 §5.16.3). Raden «Relasjoner» i kortet har en `Metatekst` med tallene («2 kan
+  skrives, 1 kan ikke skrives») og én linje per relasjon: relasjonen i klart språk, motparten (lenke når den finnes, ellers «navn» med grunnen
+  som `Metatekst`), kategori og type som `neutral`-merke («I innehar»), og så ett av disse:
+  - **«Skriv relasjonen …»** (`secondary`). Første klikk viser hva som skrives i en kompakt nøkkel/verdi-tabell med aksentkant (som sitatet i
+    hjemmelkortet): utsagnet, fra, til, kategori, type, hjemmel (lenke, bestemmelse, sitatet og «Navnets hjemmel i forhåndsklassifiseringen; fila
+    har ikke egen hjemmel per relasjon»), kunnskapsstatus (`KunnskapsstatusTag`, med tolkningsargumentene), merknaden i fila, og status `info`
+    «Forslag (manuelt foreslått), ikke godkjent». Så «Bekreft: skriv som forslag» (primær) og «Avbryt». To klikk, som §32. Ingen felt kan endres.
+  - **Knappen er av** med `Metatekst` under: «Opprett navnet først.» (låst tekst, #469), «Opprett «barnehage» først.», eller forutsetningen
+    («Sett aktørtypen «ordning» på «Folketrygden» først»).
+  - **Kanten finnes:** `info` «Finnes som forslag» / «Finnes, faglig vurdert», `success` «Finnes, godkjent», med utsagnet som `Metatekst`. Avvist:
+    `danger` «Avvist» med «Avvist av X: begrunnelse. Den skrives ikke på nytt.» Fargene følger §35.
+  - **Ingen knapp:** `Metatekst` «Kan ikke skrives: ‹grunn›» (ingen kategori, tvetydig, slutning, tekst som mål …). Koblingens relasjon har
+    `neutral` «Skrives av koblingen» som før.
+- **Etter godkjenningen** står relasjonene under kvitteringen i et eget `Card` («Relasjoner fra forhåndsklassifiseringen»), lest på nytt, så
+  knappene virker uten at køen leses på nytt. Navn som er godkjent tidligere, står i en lukket `Details` under køen, «Relasjoner for navn som er
+  opprettet (N)», som hentes først når den åpnes. «Må gjøres i eget steg» lister ikke lenger relasjonene.
 - **Kaldsjekket 2026-11-05** i kopien `regelide_forhand` (web 5373 mot API 5487; 5387 var opptatt av en annen agent): Utdanningsdirektoratet
   (aktør) og «bostedskommune» (rolle) godkjent, «den kommunen» tagget som generisk omtale, alle via «Godta forslaget» og skjemaets knapp.
   KD (koble) og fylkeskommunen (venter) kontrollert uten lagring. Funnet: merknaden «Fylt ut» sto øverst i «Andre handlinger», langt fra
