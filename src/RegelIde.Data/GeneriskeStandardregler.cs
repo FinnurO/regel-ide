@@ -276,7 +276,8 @@ public sealed class GeneriskStandardregelTjeneste(RegelIdeDbContext db)
     /// [Ny, issue #470] En navngitt fylkeskommune i teksten: ett eller to ord med stor forbokstav foran «fylkeskommune» eller «fylkeskommuner»
     /// («Troms fylkeskommune», «Troms og Finnmark fylkeskommune», «Nordland og Finnmark fylkeskommuner»), eller «fylkeskommunen i» foran et
     /// slikt ord. Målt i delt base 2026-11-17 (gjeldende primærkilder med «fylkeskommunen»): 13 kilder med treff, og tre av dem var ord som
-    /// innleder en setning («Den fylkeskommune hvor løyvesøker har …», «Enhver fylkeskommune plikter …», «Med fylkeskommune … menes …»). De
+    /// innleder en setning («Den fylkeskommune hvor løyvesøker har …», «Enhver fylkeskommune plikter …», «Med fylkeskommune … menes …»), og
+    /// i hele korpuset ett til («Flere fylkeskommuner»). De
     /// står i <see cref="IkkeNavn"/>, en lukket liste over ord som ikke er navn. Et ord som ikke er på listen og ikke er et navn, gir hull, ikke
     /// et gjettet svar (CLAUDE.md §8). <c>Flertall</c> er true for «… fylkeskommuner» (to eller flere er navngitt).
     /// </summary>
@@ -309,7 +310,7 @@ public sealed class GeneriskStandardregelTjeneste(RegelIdeDbContext db)
         "Den", "Denne", "Dei", "Det", "Ein", "Eit", "En", "Én", "Ei", "Enhver", "Einkvar", "Hver", "Kvar", "Annen", "Anna", "Annan", "Samme",
         "Same", "Vedkommende", "Vedkomande", "Berørt", "Berørte", "Aktuell", "Aktuelle", "Med", "Ved", "Ny", "Nye", "Gjeldende", "Hvilken",
         "Kva", "Eller", "Og", "Som", "Til", "Fra", "Frå", "For", "Av", "I", "At", "Om", "Hos", "Mot", "Under", "Etter", "Begge", "Alle", "Hele",
-        "Heile", "Rett", "Rette", "Ansvarlig", "Ansvarleg", "Nærmeste",
+        "Heile", "Rett", "Rette", "Ansvarlig", "Ansvarleg", "Nærmeste", "Flere", "Fleire", "Andre", "Øvrige",
     };
 
     /// <summary>[Ny, issue #470] De navngitte fylkeskommunene i rettskildens gjeldende noder, med eId-en der de står. Databasen filtrerer på
