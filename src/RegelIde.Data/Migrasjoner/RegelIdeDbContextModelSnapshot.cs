@@ -478,7 +478,7 @@ namespace RegelIde.Data.Migrasjoner
 
                             t.HasCheckConstraint("ck_begreper_omradekode", "omradekode IS NULL OR omradetype IS NOT NULL");
 
-                            t.HasCheckConstraint("ck_begreper_omradetype", "omradetype IS NULL OR (begrepskategori = 'omrade' AND omradetype IN ('fylke', 'kommune', 'tettsted', 'lagsogn', 'lagdomme', 'helseregion', 'annet'))");
+                            t.HasCheckConstraint("ck_begreper_omradetype", "omradetype IS NULL OR (begrepskategori = 'omrade' AND omradetype IN ('fylke', 'kommune', 'tettsted', 'lagsogn', 'lagdomme', 'helseregion', 'annet', 'rike'))");
                         });
                 });
 

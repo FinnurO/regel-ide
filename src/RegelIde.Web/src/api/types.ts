@@ -1729,7 +1729,8 @@ export interface KlassegrunnlagDto {
 }
 
 /** [Ny, issue #312] Speilet av `Omradetyper.Alle` (CHECK ck_begreper_omradetype). */
-export type Omradetype = 'fylke' | 'kommune' | 'tettsted' | 'lagsogn' | 'lagdomme' | 'helseregion' | 'annet';
+/** [ENDRET, #463] + 'rike' (Norge, Grl. § 1). */
+export type Omradetype = 'fylke' | 'kommune' | 'tettsted' | 'lagsogn' | 'lagdomme' | 'helseregion' | 'annet' | 'rike';
 
 export interface OmradeVisningDto {
   id: string;

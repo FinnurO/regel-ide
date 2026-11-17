@@ -1,4 +1,4 @@
-namespace RegelIde.Data;
+﻿namespace RegelIde.Data;
 
 /// <summary>
 /// [Ny, issue #312 «Strukturmodell 7: områderegister», 2026-10-08, docs/33 §4.1] Det lukkede vokabularet for
@@ -38,7 +38,13 @@ public static class Omradetyper
     /// vedtekter er det eneste i dag.</summary>
     public const string Annet = "annet";
 
-    public static readonly string[] Alle = [Fylke, Kommune, Tettsted, Lagsogn, Lagdomme, Helseregion, Annet];
+    /// <summary>[Ny, issue #463, Johanns avgjørelse 2026-11-05 (modell B)] Riket: Norge, hjemlet i Grunnloven § 1 («Kongeriket Norge er et
+    /// fritt, selvstendig, udelelig og uavhendelig rike»). Fylkene og Svalbard er deler av det (<c>O bestar_av</c>). Ingen kode. Det finnes
+    /// bare ett, og det skrives av <see cref="NorgeStatenTjeneste"/> med den faste id-en <see cref="NorgeStatenTjeneste.NorgeId"/>.
+    /// Andre stater (Finland, Sverige i aktørkøen) er ikke avgjort og har ikke denne typen.</summary>
+    public const string Rike = "rike";
+
+    public static readonly string[] Alle = [Fylke, Kommune, Tettsted, Lagsogn, Lagdomme, Helseregion, Annet, Rike];
 
     public static bool ErGyldig(string? verdi) => verdi is not null && Alle.Contains(verdi);
 
@@ -52,6 +58,7 @@ public static class Omradetyper
         Lagdomme => "lagdømme",
         Helseregion => "helseregion",
         Annet => "annet område",
+        Rike => "rike",
         null => "område",
         _ => omradetype,
     };
