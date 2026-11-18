@@ -103,6 +103,8 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
     public DbSet<FunnEntitet> Funn => Set<FunnEntitet>();
     public DbSet<FunnKoblingEntitet> FunnKoblinger => Set<FunnKoblingEntitet>();
     public DbSet<FunnVurderingspunktEntitet> FunnVurderingspunkter => Set<FunnVurderingspunktEntitet>();
+    // [Ny, issue #472 PR 1] Statusen per hjemmelsrad, avledet av maskinregelen — se Hjemmelsstatus og HjemmelsstatusEntitet.
+    public DbSet<HjemmelsstatusEntitet> Hjemmelsstatuser => Set<HjemmelsstatusEntitet>();
     public DbSet<NettsideStiEntitet> NettsideStier => Set<NettsideStiEntitet>();
     public DbSet<NettsideLenkeEntitet> NettsideLenker => Set<NettsideLenkeEntitet>();
     public DbSet<BegrepEntitet> Begreper => Set<BegrepEntitet>();
@@ -2329,6 +2331,87 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.Tekst).HasColumnName("tekst");
             e.Property(x => x.Sikkerhet).HasColumnName("sikkerhet");
             e.HasIndex(x => x.FunnId).HasDatabaseName("ix_funn_vurderingspunkter_funn");
+        });
+
+        // [Ny, issue #472 PR 1, Johanns avgjørelser 2026-11-18] Statusen per hjemmelsrad. Avledet: én rad per rad i rettskilde_hjemler, skrevet på
+        // nytt av maskinregelen (HjemmelsstatusRegel). Importtabellen røres ikke. CHECK-ene speiler vokabularene i Hjemmelsstatus og sier hvilke
+        // felt hver status krever: en oppheving har alltid bevistrinn og sitat, en videreføring alltid sitat og form, en utløpt videreføring en
+        // frist, og et erstattet kompetanseledd det som erstatter det.
+        b.Entity<HjemmelsstatusEntitet>(e =>
+        {
+            e.ToTable("hjemmelsstatus", t =>
+            {
+                t.HasCheckConstraint("ck_hjemmelsstatus_rolle", "rolle IS NULL OR rolle IN ('materiell', 'kompetanseledd', 'overgangsgrunnlag', 'gjenstand')");
+                t.HasCheckConstraint("ck_hjemmelsstatus_status",
+                    "status IN ('aktiv', 'opphevet', 'opphevet_bestemmelse', 'viderefort', 'videreforing_utlopt', 'erstattet', 'gjenstandslos', 'ukjent')");
+                t.HasCheckConstraint("ck_hjemmelsstatus_bevistrinn", "bevistrinn IS NULL OR bevistrinn IN ('E1', 'E1u', 'E2', 'EN_LTI')");
+                t.HasCheckConstraint("ck_hjemmelsstatus_oppheving",
+                    "status NOT IN ('opphevet', 'viderefort', 'videreforing_utlopt', 'erstattet', 'gjenstandslos') "
+                    + "OR (bevistrinn IS NOT NULL AND opphevet_av_sitat IS NOT NULL AND opphevet_av_eid IS NOT NULL)");
+                t.HasCheckConstraint("ck_hjemmelsstatus_bevis_sitat", "bevistrinn IS NULL OR opphevet_av_sitat IS NOT NULL");
+                t.HasCheckConstraint("ck_hjemmelsstatus_videreforing",
+                    "status NOT IN ('viderefort', 'videreforing_utlopt') OR (videreforing_sitat IS NOT NULL AND videreforing_form IS NOT NULL)");
+                t.HasCheckConstraint("ck_hjemmelsstatus_utlopt", "status <> 'videreforing_utlopt' OR videreforing_tidsfrist IS NOT NULL");
+                t.HasCheckConstraint("ck_hjemmelsstatus_erstattet", "status <> 'erstattet' OR erstattet_av_rettskilde_id IS NOT NULL");
+                t.HasCheckConstraint("ck_hjemmelsstatus_form", "videreforing_form IS NULL OR videreforing_form IN ('V1', 'V2', 'V2a', 'V3', 'V4')");
+                t.HasCheckConstraint("ck_hjemmelsstatus_dekning",
+                    "videreforing_dekning IS NULL OR videreforing_dekning IN ('dekket', 'dokumenttype_ikke_nevnt', 'avgrensning_ikke_kontrollert')");
+                t.HasCheckConstraint("ck_hjemmelsstatus_kunnskapsstatus",
+                    "kunnskapsstatus IN ('tekstfunn', 'normalisering', 'fortolkning', 'avledet', 'eksternt_dokumentert', 'uavklart', 'omstridt')");
+                // Et sitat fra den kunngjorte teksten har ingen node i korpuset.
+                t.HasCheckConstraint("ck_hjemmelsstatus_kunngjort", "NOT opphevet_fra_kunngjort OR opphevet_av_node_id IS NULL");
+            });
+            e.HasKey(x => x.Id).HasName("hjemmelsstatus_pkey");
+            e.Property(x => x.RettskildeHjemmelId).HasColumnName("rettskilde_hjemmel_id");
+            e.Property(x => x.RettskildeId).HasColumnName("rettskilde_id");
+            e.Property(x => x.HjemmelEid).HasColumnName("hjemmel_eid");
+            e.Property(x => x.HjemmelEli).HasColumnName("hjemmel_eli");
+            e.Property(x => x.MalRettskildeId).HasColumnName("mal_rettskilde_id");
+            e.Property(x => x.Rolle).HasColumnName("rolle");
+            e.Property(x => x.RolleRegel).HasColumnName("rolle_regel");
+            e.Property(x => x.Status).HasColumnName("status");
+            e.Property(x => x.Bevistrinn).HasColumnName("bevistrinn");
+            e.Property(x => x.UkjentGrunn).HasColumnName("ukjent_grunn");
+            e.Property(x => x.FulgtEli).HasColumnName("fulgt_eli");
+            e.Property(x => x.OpphevetAvRettskildeId).HasColumnName("opphevet_av_rettskilde_id");
+            e.Property(x => x.OpphevetAvNodeId).HasColumnName("opphevet_av_node_id");
+            e.Property(x => x.OpphevetAvEid).HasColumnName("opphevet_av_eid");
+            e.Property(x => x.OpphevetAvSitat).HasColumnName("opphevet_av_sitat");
+            e.Property(x => x.OpphevetDato).HasColumnName("opphevet_dato");
+            e.Property(x => x.OpphevetFraKunngjort).HasColumnName("opphevet_fra_kunngjort");
+            e.Property(x => x.VidereforingRettskildeId).HasColumnName("videreforing_rettskilde_id");
+            e.Property(x => x.VidereforingNodeId).HasColumnName("videreforing_node_id");
+            e.Property(x => x.VidereforingEid).HasColumnName("videreforing_eid");
+            e.Property(x => x.VidereforingSitat).HasColumnName("videreforing_sitat");
+            e.Property(x => x.VidereforingForm).HasColumnName("videreforing_form");
+            e.Property(x => x.VidereforingForbehold).HasColumnName("videreforing_forbehold");
+            e.Property(x => x.VidereforingTidsfrist).HasColumnName("videreforing_tidsfrist");
+            e.Property(x => x.VidereforingDekning).HasColumnName("videreforing_dekning");
+            e.Property(x => x.VidereforingFraKunngjort).HasColumnName("videreforing_fra_kunngjort");
+            e.Property(x => x.ErstattetAvRettskildeId).HasColumnName("erstattet_av_rettskilde_id");
+            e.Property(x => x.ErstattetAvNodeId).HasColumnName("erstattet_av_node_id");
+            e.Property(x => x.ErstattetAvEid).HasColumnName("erstattet_av_eid");
+            e.Property(x => x.Premissmangel).HasColumnName("premissmangel");
+            e.Property(x => x.Kunnskapsstatus).HasColumnName("kunnskapsstatus");
+            e.Property(x => x.Regel).HasColumnName("regel");
+            e.Property(x => x.Regelversjon).HasColumnName("regelversjon");
+            e.Property(x => x.BeregnetAv).HasColumnName("beregnet_av");
+            e.Property(x => x.BeregnetTidspunkt).HasColumnName("beregnet_tidspunkt");
+            // Raden følger hjemmelsraden og forskriften (cascade). Kildene den peker på kan forsvinne ved en resynk; da blir pekeren NULL, og
+            // eId-en og sitatet står igjen.
+            e.HasOne<RettskildeHjemmelEntitet>().WithMany().HasForeignKey(x => x.RettskildeHjemmelId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<RettskildeEntitet>().WithMany().HasForeignKey(x => x.RettskildeId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<RettskildeEntitet>().WithMany().HasForeignKey(x => x.MalRettskildeId).OnDelete(DeleteBehavior.SetNull);
+            e.HasOne<RettskildeEntitet>().WithMany().HasForeignKey(x => x.OpphevetAvRettskildeId).OnDelete(DeleteBehavior.SetNull);
+            e.HasOne<RettskildeNodeEntitet>().WithMany().HasForeignKey(x => x.OpphevetAvNodeId).OnDelete(DeleteBehavior.SetNull);
+            e.HasOne<RettskildeEntitet>().WithMany().HasForeignKey(x => x.VidereforingRettskildeId).OnDelete(DeleteBehavior.SetNull);
+            e.HasOne<RettskildeNodeEntitet>().WithMany().HasForeignKey(x => x.VidereforingNodeId).OnDelete(DeleteBehavior.SetNull);
+            e.HasOne<RettskildeEntitet>().WithMany().HasForeignKey(x => x.ErstattetAvRettskildeId).OnDelete(DeleteBehavior.SetNull);
+            e.HasOne<RettskildeNodeEntitet>().WithMany().HasForeignKey(x => x.ErstattetAvNodeId).OnDelete(DeleteBehavior.SetNull);
+            e.HasIndex(x => x.RettskildeHjemmelId).IsUnique().HasDatabaseName("ux_hjemmelsstatus_rettskilde_hjemmel");
+            e.HasIndex(x => x.RettskildeId).HasDatabaseName("ix_hjemmelsstatus_rettskilde");
+            e.HasIndex(x => x.MalRettskildeId).HasDatabaseName("ix_hjemmelsstatus_mal_rettskilde");
+            e.HasIndex(x => x.Status).HasDatabaseName("ix_hjemmelsstatus_status");
         });
     }
 }

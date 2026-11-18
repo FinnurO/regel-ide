@@ -69,8 +69,9 @@ public static class Opphevingskontroll
 
     private static string DatoRegex(DateOnly d) => $@"\b{d.Day}\.\s*{Maaneder[d.Month - 1]}\s+{d.Year}\b";
 
-    /// <summary>Juristens setningsdeling i r8_verifiser.py.</summary>
-    private static string[] Setninger(string tekst) => Regex.Split(tekst, @"(?<![\d])(?<=[.;])\s+(?=[A-ZÆØÅ])");
+    /// <summary>Juristens setningsdeling i r8_verifiser.py. [ENDRET, #472 PR 1] <c>internal</c> slik at <see cref="Hjemmelstekstlesing"/> deler
+    /// den; uendret.</summary>
+    internal static string[] Setninger(string tekst) => Regex.Split(tekst, @"(?<![\d])(?<=[.;])\s+(?=[A-ZÆØÅ])");
 
     /// <summary>Setningen som opphever HELE dokumentet med datoen og nummeret, eller null. Se klassekommentaren for den delvise
     /// opphevingen.</summary>
@@ -102,16 +103,22 @@ public static class Opphevingskontroll
     /// delegering av myndighet etter lov … § 2 tredje ledd») leses ikke: den inneholder paragrafer og ledd i nesten alle de 44 hele
     /// opphevingene juristen kontrollerte, og kan ikke skilles fra en avgrensning uten å gjette.
     /// </para></summary>
-    public static bool Delvis(string setning, string datoRegex, string nr)
+    public static bool Delvis(string setning, string datoRegex, string nr) =>
+        DelvisMal(setning, datoRegex, datoRegex + @".{0,15}?nr\.?\s*" + nr + @"\b");
+
+    /// <summary>[Ny, #472 PR 1] Samme kontroll som <see cref="Delvis"/>, med målmønsteret gitt utenfra. <see cref="Hjemmelstekstlesing"/>
+    /// trenger det for lover uten nummer («lov 15. juli 1925»), der målet er datoen som IKKE følges av «nr.». For et mål med nummer er
+    /// mønsteret det samme som før (<c>\b</c> mellom et siffer og et mellomrom slår alltid til), så R8 og R9 får samme svar.</summary>
+    internal static bool DelvisMal(string setning, string datoRegex, string malRegex)
     {
         if (Regex.IsMatch(setning, @"(?<!\w)(kapit+el|§+|del|punkt|ledd|vedlegg|[IVX]+)(?!\w)\s*[\w.-]*\s+(i|av)\s+(\S+\s+){0,3}?" + datoRegex)
             || Regex.IsMatch(setning, @"\boppheves\s+(kapit+el|§|punkt|pkt\.?|del|ledd|nr\.|vedlegg|[IVX]+)(?!\w)")
-            || Regex.IsMatch(setning, datoRegex + @".{0,15}?nr\.?\s*" + nr + @"\s+(kapit+el|§|del|punkt|pkt\.?|vedlegg)(?!\w)")
+            || Regex.IsMatch(setning, malRegex + @"\s+(kapit+el|§|del|punkt|pkt\.?|vedlegg)(?!\w)")
             || Regex.IsMatch(setning, @"\bfor\s+så\s+vidt\b", RegexOptions.IgnoreCase))
         {
             return true;
         }
-        var mal = Regex.Match(setning, datoRegex + @".{0,15}?nr\.?\s*" + nr + @"\b");
+        var mal = Regex.Match(setning, malRegex);
         if (!mal.Success) return true; // ikke målet: ingen hel oppheving av det
         var etter = setning[(mal.Index + mal.Length)..];
         if (!EtterMalet.IsMatch(etter)) return true;
@@ -140,14 +147,18 @@ public static class Opphevingskontroll
     /// [ENDRET, #429 PR 4, Johanns avgjørelse 2026-11-04 (1b)] Godtar også «med hjemmel i» og «(skal) fortsatt gjelde»: ekomloven 2024
     /// § 18-2 første ledd, «Enkeltvedtak og forskrift med hjemmel i lov 4. juli 2003 nr. 83 … skal fortsatt gjelde» (M05 i måling 3), ble
     /// ikke vist.</summary>
-    public static string? Videreforingssetning(string? tekst, DateOnly dato, string nr)
+    public static string? Videreforingssetning(string? tekst, DateOnly dato, string nr) =>
+        VidereforingssetningMal(tekst, DatoRegex(dato) + @".{0,15}?nr\.?\s*" + nr + @"\b");
+
+    /// <summary>[Ny, #472 PR 1] <see cref="Videreforingssetning"/> med målmønsteret gitt utenfra (også lov uten nummer). Delt med
+    /// <see cref="Hjemmelstekstlesing"/> som videreføringsformen V1. Samme svar som før for et mål med nummer.</summary>
+    internal static string? VidereforingssetningMal(string? tekst, string malRegex)
     {
-        var datoRx = DatoRegex(dato);
         foreach (var s in Setninger(UtgattAktorRegler.Normaliser(tekst)))
         {
             if (Regex.IsMatch(s, @"\b(i\s+medh[oa]ld\s+av|med\s+hjemmel\s+i)\b")
                 && Regex.IsMatch(s, @"\b(gjelder|gjeld|skal\s+gjelde|(skal\s+)?fortsatt\s+gjelde)\b")
-                && Regex.IsMatch(s, datoRx + @".{0,15}?nr\.?\s*" + nr + @"\b"))
+                && Regex.IsMatch(s, malRegex))
             {
                 return s.Trim();
             }
