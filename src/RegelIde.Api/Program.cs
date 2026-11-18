@@ -4875,7 +4875,8 @@ app.MapGet("/api/navneformer/generiske/standardregler", () => Results.Ok(Generis
     .WithOpenApi()
     .WithName("HentGeneriskeStandardregler")
     .WithSummary("Issue #394 AK 1 — standardreglene for generiske navneformer («departementet» → ansvarlig departement etter " +
-        "ressortfordelingen, Lovdata som sekundær kilde; «statsforvalteren» → klassen statsforvalter; «kommunen» → klassen kommune).");
+        "ressortfordelingen, Lovdata som sekundær kilde; «statsforvalteren» → klassen statsforvalter; «kommunen» → klassen kommune; " +
+        "«fylkeskommunen» → klassen fylkeskommune, #470), med hjemlene (eId og ordlyd) for klasseregler.");
 
 // [Ny, issue #394 AK 1/3/5] Oppslaget med kilden og premissene: binding (godkjent eller faglig vurdert) foran regel. ?bareRegel=true gir
 // regelen alene (kaldsjekken: gir regelen samme svar som Johanns binding?).
@@ -4918,6 +4919,28 @@ app.MapGet("/api/navneformer/generiske/standardregel-dekning", async (string ter
     .WithName("StandardregelDekning")
     .WithSummary("Issue #394 — for hver gjeldende primærrettskilde der termen står som eget ord: hva standardregelen gir (ressortfordeling, " +
         "Lovdata som sekundær kilde, fast referent, ikke løst, flertydig), med eksempler. Regelen alene, uten bindinger.");
+
+// [Ny, issue #470] Den generiske navneformen «fylkeskommunen» som forslag, og bindingsforslag der én paragraf navngir én fylkeskommune.
+// Tørrkjøring er standard (samme arbeid i en transaksjon som rulles tilbake). Idempotent. Kjøres av hovedøkta etter fletting. Tjenesten lages
+// her, ikke i DI-oppsettet, så oppstarten er urørt (CLAUDE.md §4).
+app.MapPost("/api/navneformer/generiske/fylkeskommunen", async (bool? skriv, HttpRequest request, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            return Results.Ok(await new FylkeskommunenOppsettTjeneste(db).KjorAsync(skriv ?? false, bruker.Navn, ct));
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Results.Conflict(new { feil = ex.Message });
+        }
+    })
+    .WithOpenApi()
+    .WithName("GeneriskFylkeskommunen")
+    .WithSummary("Issue #470 — den generiske navneformen «fylkeskommunen» (standardregelen «Klassen fylkeskommune», kl. § 2-1 første ledd og " +
+        "§ 3-1) som forslag, bindingsforslag der én paragraf navngir nøyaktig én fylkeskommune, og listen over kilder som må bindes manuelt. " +
+        "?skriv=true skriver; uten er det en tørrkjøring.");
 
 navneformBindinger.MapGet("/", async (Guid? navneformId, Guid? rettskildeId, bool? visAvviste, bool? hjemmelEndret, GeneriskNavneformTjeneste generiske,
         CancellationToken ct) => Results.Ok(await generiske.HentBindingerAsync(navneformId, rettskildeId, visAvviste ?? false, ct,

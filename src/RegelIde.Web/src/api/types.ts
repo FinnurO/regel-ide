@@ -2766,6 +2766,8 @@ export interface GeneriskTaggOppslag {
 /** [Ny, issue #394 AK 1] En standardregel for en generisk navneform. */
 export interface GeneriskStandardregel {
   term: string; regelkode: string; navn: string; forklaring: string; grunnlag: string; kunnskapsstatus: Kunnskapsstatus;
+  /** [Ny, issue #470] Bestemmelsene i korpus grunnlaget bygger på (tom for «departementet»). Vises ikke ennå. */
+  hjemler?: { eid: string; henvisning: string; sitat: string }[];
 }
 /** [Ny, issue #394 AK 1] Ett premiss et standardregelsvar bygger på. */
 export interface StandardregelPremiss {

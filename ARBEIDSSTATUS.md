@@ -53,6 +53,12 @@ dokumentasjon (primaer|sekundaer), begge påkrevd uten hjemmel og NULL med.
 |---|---|---|---|
 | #463 Norge (rike), staten med ordsperre, departementene del av staten | `norge-staten` | **PR åpen, venter på Johann (§19). Ikke flettet.** Migrasjonen `NorgeRike` (bare CHECK) og skrivingen (`POST /api/norge-staten?skriv=true`) er IKKE kjørt mot delt `regelide`; hovedøkta kjører dem etter fletting (etter #442-skrivingen, som alt er kjørt). Tørrkjøringstallene mot delt base (bare SELECT): 1 område, 16 O-kanter, staten med navneform og aktørtype, 16 G-kanter | `NorgeStatenTjenesteTests`, `OrdsperreTests` og de berørte Data-testene lokalt, Api-suiten lokalt (DI), tsc -b. Kopien `regelide_norge`: skrevet to ganger (idempotent), ordsperren målt (582 av 2 511 sperret), kaldsjekk i nettleseren (5487 + 5473), kopien slettet |
 
+## Standardregel for «fylkeskommunen» #470 (startet 2026-11-17)
+
+| Sak | Gren | Status | Verifisert hvordan |
+|---|---|---|---|
+| #470 generisk navneform «fylkeskommunen» med standardregelen «Klassen fylkeskommune», sperrer, Oslo-merknad, bindingsforslag per paragraf (docs/33 §5.7) | `standardregel-fylkeskommunen` | **PR åpen, venter på Johann (§19). Ikke flettet.** Ingen migrasjon. Skrivingen (`POST /api/navneformer/generiske/fylkeskommunen?skriv=true`) er IKKE kjørt mot delt `regelide`; hovedøkta kjører den etter fletting. Delt base bare lest (`maling-470-fylkeskommunen.sql`): 189 kilder, 175 klassen, 14 hull | `GeneriskFylkeskommunenTests` + `GeneriskStandardregelTests` lokalt (port 15471). Kopien `regelide_fkregel`: dekning via API = SQL, tørrkjøring skrev ingenting, skrevet to ganger (idempotent), aktørkøen målt før/etter, nettleser på 5587/5373 (aktørkøen), kopien slettet |
+
 ## Aktørkøen #440 (startet 2026-10-31)
 
 | PR | Gren | Status | Verifisert hvordan |
