@@ -100,6 +100,7 @@ builder.Services.AddScoped<UtgattAktorFunnregel>(); // [Ny, #429 PR 2] maskinreg
 builder.Services.AddScoped<AktorkoTjeneste>();
 builder.Services.AddScoped<AktorsideTjeneste>(); // [Ny, issue #441] den samlede aktørsiden (lesing + «Godkjenn hjemmelen»)
 builder.Services.AddScoped<AktorkoSkrivTjeneste>(); // [Ny, issue #440 PR 2] skrivingen i aktørkøen, én transaksjon per handling
+builder.Services.AddScoped<AktorkoRelasjonTjeneste>(); // [Ny, issue #469] forhåndsklassifiseringens relasjoner som strukturkanter, én knapp per relasjon
 builder.Services.AddScoped<BegrepsoppdagelseSveipTjeneste>();
 builder.Services.AddScoped<VilkarregisterTjeneste>();
 builder.Services.AddScoped<RegelnoderegisterTjeneste>();

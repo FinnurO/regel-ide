@@ -93,7 +93,32 @@ public sealed record ForhandKoforslag(
 public sealed record ForhandRelasjonFil(
     [property: JsonPropertyName("relasjon")] string Relasjon,
     [property: JsonPropertyName("til")] JsonElement? Til,
-    [property: JsonPropertyName("merknad")] string? Merknad);
+    [property: JsonPropertyName("merknad")] string? Merknad,
+    [property: JsonPropertyName("hjemmel")] ForhandRelasjonshjemmelFil? Hjemmel = null);
+
+/// <summary>
+/// [Ny, issue #469, Johanns avgjørelse 2026-11-17] Hjemmelen for SELVE relasjonen, satt i juristrunden i
+/// <c>aktorko-forhand/relasjonshjemler/</c>. Navnets hjemmel arves ikke: den står her bare når juristrunden har bekreftet at den bærer
+/// relasjonen (<see cref="Kilde"/> = <c>navnets</c>). Knappen skriver ingenting for en relasjon uten dette feltet.
+/// </summary>
+/// <param name="Kilde"><c>navnets</c> (navnets hjemmel, bekreftet) eller <c>egen</c> (en annen bestemmelse bærer relasjonen).</param>
+/// <param name="Modalitet">Bare for T skal_ha: <c>skal</c>, <c>kan</c> eller <c>ordlyden_avgjor_ikke</c>. T skrives bare ved <c>skal</c>.</param>
+/// <param name="Skrives">False når juristrunden fant at relasjonen ikke skal skrives som denne kanten; <see cref="SkrivesIkkeGrunn"/> sier hvorfor.</param>
+/// <param name="Avgrensning">Kantens avgrensningstekst fra juristrunden («folketrygdloven kapittel 5 (stønad ved helsetjenester)»), eller null.</param>
+public sealed record ForhandRelasjonshjemmelFil(
+    [property: JsonPropertyName("eid")] string Eid,
+    [property: JsonPropertyName("rettskildeId")] Guid? RettskildeId,
+    [property: JsonPropertyName("rettskilde")] string? Rettskilde,
+    [property: JsonPropertyName("sitat")] string Sitat,
+    [property: JsonPropertyName("kunnskapsstatus")] string Kunnskapsstatus,
+    [property: JsonPropertyName("tolkningsargumenter")] List<string>? Tolkningsargumenter,
+    [property: JsonPropertyName("tolkningsbegrunnelse")] string? Tolkningsbegrunnelse,
+    [property: JsonPropertyName("kilde")] string Kilde,
+    [property: JsonPropertyName("modalitet")] string? Modalitet,
+    [property: JsonPropertyName("skrives")] bool Skrives,
+    [property: JsonPropertyName("skrives_ikke_grunn")] string? SkrivesIkkeGrunn,
+    [property: JsonPropertyName("avgrensning")] string? Avgrensning,
+    [property: JsonPropertyName("juristrunde")] string? Juristrunde);
 
 public sealed record ForhandHjemmelFil(
     [property: JsonPropertyName("rettskildeId")] Guid? RettskildeId,
@@ -108,7 +133,14 @@ public sealed record ForhandHjemmelFil(
 public sealed record ForhandFil(
     [property: JsonPropertyName("generert")] string Generert,
     [property: JsonPropertyName("antall")] int Antall,
-    [property: JsonPropertyName("navn")] List<ForhandPost> Navn);
+    [property: JsonPropertyName("navn")] List<ForhandPost> Navn,
+    [property: JsonPropertyName("tilleggsnoder")] List<ForhandTilleggsnode>? Tilleggsnoder = null);
+
+/// <summary>[Ny, issue #469] En node fila foreslår uten at den er et navn i køen («lagmannsrett», «forvaltningsorgan»). Brukt her bare for typen,
+/// så en relasjon til den kan slås opp uten å gjette om den er en klasse, en rolle eller et område.</summary>
+public sealed record ForhandTilleggsnode(
+    [property: JsonPropertyName("ny_node")] string NyNode,
+    [property: JsonPropertyName("type")] string Type);
 
 // ------------------------------------------------------------------------------------------------ Det API-et viser
 
@@ -183,6 +215,9 @@ public static class Forhandsklassifisering
 
     /// <summary>Alle postene, i fila sin rekkefølge.</summary>
     public static IReadOnlyList<ForhandPost> Alle => Fil.Value.Navn;
+
+    /// <summary>[Ny, issue #469] Tilleggsnodene i fila (noder som ikke er navn i køen).</summary>
+    public static IReadOnlyList<ForhandTilleggsnode> Tilleggsnoder => Fil.Value.Tilleggsnoder ?? [];
 
     /// <summary>Datoen fila ble laget.</summary>
     public static string Generert => Fil.Value.Generert;
@@ -298,10 +333,9 @@ public static class Forhandsklassifisering
             var skrives = kobling is not null && ReferenceEquals(r, kobling);
             return new ForhandRelasjon(r.Relasjon, til, r.Merknad, skrives, skrives ? null : EgetSteg(r, til, handling));
         }).ToList();
-        foreach (var r in relasjoner.Where(r => r.EgetSteg is not null && r.Relasjon != "venter"))
-        {
-            egneSteg.Add($"{Relasjonstekst(r.Relasjon)} {r.Til?.Navn ?? r.Merknad ?? ""}".Trim() + $": {r.EgetSteg}");
-        }
+        // [FJERNET, issue #469, Johanns klarsignal 2026-11-17] Relasjonene sto her som «eget steg». Nå har hver relasjon sin egen linje i kortet
+        // med én knapp, eller med grunnen til at den ikke kan skrives (AktorkoRelasjonTjeneste, GET /api/aktorko/forhand/{nr}/relasjoner).
+        // Å liste dem her også ville sagt det samme to ganger.
 
         ForhandHjemmel? hjemmel = null;
         if (p.Hjemmel is { } h)
@@ -382,6 +416,6 @@ public static class Forhandsklassifisering
         return Felt(t, "tekst") is { } tekst ? new ForhandNode(null, tekst, null, null, false, false) : null;
     }
 
-    private static string? Felt(JsonElement? e, string navn) =>
+    internal static string? Felt(JsonElement? e, string navn) =>
         e is { ValueKind: JsonValueKind.Object } o && o.TryGetProperty(navn, out var v) && v.ValueKind == JsonValueKind.String ? v.GetString() : null;
 }

@@ -17,6 +17,7 @@ import {
   AndreHandlinger, GeneriskOmtale, Godkjenningsskjema, Kvittering, type ForslagTilAndre, type ForslagTilGodkjenning,
 } from '../kandidater/AktorkoHandlinger';
 import { ForhandKort, ForhandRadmerker } from '../kandidater/AktorkoForhandKort';
+import { ForhandRelasjonsliste, OpprettedeNavnsRelasjoner } from '../kandidater/ForhandRelasjoner';
 import {
   FORHANDSTYPE_TEKST, SIKKERHET_TEKST, erBareSikreAktorer, forhandBegrunnelse, godkjenningFraForslag, koblingFraForslag, passerForhandsfilter,
   type Sikkerhetsfilter, type Typefilter,
@@ -256,7 +257,21 @@ function Navnedetalj({ nokkel, kvittering, onBehandlet, onGrupperingEndret }: {
     }
   }
 
-  if (kvittering) return <Kvittering k={kvittering} />;
+  // [ENDRET, issue #469] Etter godkjenningen står relasjonene under kvitteringen: navnet er opprettet, og knappene virker nå.
+  if (kvittering) {
+    const f = detalj?.forhandsklassifisering;
+    return (
+      <>
+        <Kvittering k={kvittering} />
+        {f && f.relasjoner.length > 0 && kvittering.handling === 'godkjent' && (
+          <Card style={{ padding: '0.75rem', marginTop: '0.75rem' }} data-color="neutral">
+            <Heading level={4} data-size="2xs" style={{ marginBottom: '0.3rem' }}>Relasjoner fra forhåndsklassifiseringen</Heading>
+            <ForhandRelasjonsliste nr={f.nr} oppdater={kvittering} />
+          </Card>
+        )}
+      </>
+    );
+  }
   if (feil && !detalj) return <Alert data-color="danger" data-size="sm">{feil}</Alert>;
   if (!detalj) return <Spinner aria-label="Laster navnet …" data-size="sm" />;
 
@@ -572,6 +587,8 @@ export default function AktorKo() {
         )}
       </Card>
       <Pagineringskontroll {...paginering} />
+      {/* [Ny, issue #469] Navn som er godkjent er ute av køen, men relasjonene deres kan fortsatt skrives. */}
+      <OpprettedeNavnsRelasjoner />
     </>
   );
 }

@@ -1,0 +1,245 @@
+[
+ {
+  "id": "n3.r2",
+  "svar": "aksepter",
+  "tekst": "Aksepteres som rettet.",
+  "kilder": [
+   "docs/33 §4.3, §5.16.3",
+   "runde1/utfordringer.json"
+  ]
+ },
+ {
+  "id": "n15.r3",
+  "svar": "aksepter",
+  "tekst": "Aksepteres. Kanten skrives ikke (skrives: false); den hører til en utskilt rolle for forskriften om helse og miljø i barnehager og skoler, som ikke finnes ennå. Merknaden i fila sier det samme.",
+  "kilder": [
+   "docs/33 §4.3, §5.16.3",
+   "runde1/utfordringer.json"
+  ]
+ },
+ {
+  "id": "n33.r2",
+  "svar": "aksepter",
+  "tekst": "Aksepteres som rettet.",
+  "kilder": [
+   "docs/33 §4.3, §5.16.3",
+   "runde1/utfordringer.json"
+  ]
+ },
+ {
+  "id": "n101.r1",
+  "svar": "aksepter",
+  "tekst": "Aksepteres som rettet.",
+  "kilder": [
+   "docs/33 §4.3, §5.16.3",
+   "runde1/utfordringer.json"
+  ]
+ },
+ {
+  "id": "n102.r1",
+  "svar": "delvis",
+  "tekst": "Hjemmelen, sitatet og tekstfunn aksepteres. Avgrensningen aksepteres også, men ikke at kanten venter: fila får et eget felt «avgrensning» per relasjon («folketrygdloven kapittel 5»), og knappen skriver det som kantens avgrensningstekst (StrukturkantEntitet.AvgrensningTekst, docs/33 §4.3). Teksten kommer fra fila, kontrollert mot den, ikke fra brukeren. Da sier kanten det fasiten u303 sier.",
+  "kilder": [
+   "docs/33 §4.3, §5.16.3",
+   "runde1/utfordringer.json"
+  ]
+ },
+ {
+  "id": "n102.r2",
+  "svar": "delvis",
+  "tekst": "Som n102.r1: avgrensningen «folketrygdloven unntatt kapittel 5» legges i fila og skrives som kantens avgrensningstekst. Hjemmel og tekstfunn aksepteres.",
+  "kilder": [
+   "docs/33 §4.3, §5.16.3",
+   "runde1/utfordringer.json"
+  ]
+ },
+ {
+  "id": "n116.r1",
+  "svar": "aksepter",
+  "tekst": "Aksepteres: dl. § 4 første ledd, normalisering. Typen står som G har_organ («er organ for»), som er mappingen for «organ i» mellom to aktører; fasiten u14 har G del_av. Begge er G, og juristen gjør ikke typen til en innvending. Forskjellen meldes til Johann som et punkt, ikke som uenighet.",
+  "kilder": [
+   "docs/33 §4.3, §5.16.3",
+   "runde1/utfordringer.json"
+  ]
+ },
+ {
+  "id": "n129.r1",
+  "svar": "aksepter",
+  "tekst": "Aksepteres som rettet.",
+  "kilder": [
+   "docs/33 §4.3, §5.16.3",
+   "runde1/utfordringer.json"
+  ]
+ },
+ {
+  "id": "n139.r1",
+  "svar": "aksepter",
+  "tekst": "Aksepteres: fortolkning med ordlyd og kontekst_system. Modaliteten skal står (konstitutiv «er», jf. § 5-1 første ledd). Om en konstitutiv «er» teller som pliktuttrykk, legges fram for Johann som spørsmål; vi er enige om lesningen.",
+  "kilder": [
+   "docs/33 §4.3, §5.16.3",
+   "runde1/utfordringer.json"
+  ]
+ },
+ {
+  "id": "n144.r1",
+  "svar": "aksepter",
+  "tekst": "Aksepteres som rettet.",
+  "kilder": [
+   "docs/33 §4.3, §5.16.3",
+   "runde1/utfordringer.json"
+  ]
+ },
+ {
+  "id": "n150.r1",
+  "svar": "aksepter",
+  "tekst": "Aksepteres som rettet.",
+  "kilder": [
+   "docs/33 §4.3, §5.16.3",
+   "runde1/utfordringer.json"
+  ]
+ },
+ {
+  "id": "n156.r1",
+  "svar": "aksepter",
+  "tekst": "Aksepteres som rettet.",
+  "kilder": [
+   "docs/33 §4.3, §5.16.3",
+   "runde1/utfordringer.json"
+  ]
+ },
+ {
+  "id": "n188.r1",
+  "svar": "aksepter",
+  "tekst": "Aksepteres som rettet.",
+  "kilder": [
+   "docs/33 §4.3, §5.16.3",
+   "runde1/utfordringer.json"
+  ]
+ },
+ {
+  "id": "n188.r2",
+  "svar": "aksepter",
+  "tekst": "Aksepteres som rettet.",
+  "kilder": [
+   "docs/33 §4.3, §5.16.3",
+   "runde1/utfordringer.json"
+  ]
+ },
+ {
+  "id": "n188.r3",
+  "svar": "aksepter",
+  "tekst": "Aksepteres som rettet.",
+  "kilder": [
+   "docs/33 §4.3, §5.16.3",
+   "runde1/utfordringer.json"
+  ]
+ },
+ {
+  "id": "n188.r4",
+  "svar": "aksepter",
+  "tekst": "Aksepteres som rettet.",
+  "kilder": [
+   "docs/33 §4.3, §5.16.3",
+   "runde1/utfordringer.json"
+  ]
+ },
+ {
+  "id": "n188.r5",
+  "svar": "aksepter",
+  "tekst": "Aksepteres som rettet.",
+  "kilder": [
+   "docs/33 §4.3, §5.16.3",
+   "runde1/utfordringer.json"
+  ]
+ },
+ {
+  "id": "n188.r6",
+  "svar": "aksepter",
+  "tekst": "Aksepteres som rettet.",
+  "kilder": [
+   "docs/33 §4.3, §5.16.3",
+   "runde1/utfordringer.json"
+  ]
+ },
+ {
+  "id": "n188.r7",
+  "svar": "aksepter",
+  "tekst": "Aksepteres som rettet.",
+  "kilder": [
+   "docs/33 §4.3, §5.16.3",
+   "runde1/utfordringer.json"
+  ]
+ },
+ {
+  "id": "n188.r8",
+  "svar": "aksepter",
+  "tekst": "Aksepteres som rettet.",
+  "kilder": [
+   "docs/33 §4.3, §5.16.3",
+   "runde1/utfordringer.json"
+  ]
+ },
+ {
+  "id": "n190.r1",
+  "svar": "aksepter",
+  "tekst": "Aksepteres som rettet.",
+  "kilder": [
+   "docs/33 §4.3, §5.16.3",
+   "runde1/utfordringer.json"
+  ]
+ },
+ {
+  "id": "n190.r2",
+  "svar": "aksepter",
+  "tekst": "Aksepteres som rettet.",
+  "kilder": [
+   "docs/33 §4.3, §5.16.3",
+   "runde1/utfordringer.json"
+  ]
+ },
+ {
+  "id": "n190.r3",
+  "svar": "aksepter",
+  "tekst": "Aksepteres som rettet.",
+  "kilder": [
+   "docs/33 §4.3, §5.16.3",
+   "runde1/utfordringer.json"
+  ]
+ },
+ {
+  "id": "n190.r4",
+  "svar": "aksepter",
+  "tekst": "Aksepteres som rettet.",
+  "kilder": [
+   "docs/33 §4.3, §5.16.3",
+   "runde1/utfordringer.json"
+  ]
+ },
+ {
+  "id": "n190.r5",
+  "svar": "aksepter",
+  "tekst": "Aksepteres som rettet.",
+  "kilder": [
+   "docs/33 §4.3, §5.16.3",
+   "runde1/utfordringer.json"
+  ]
+ },
+ {
+  "id": "n190.r6",
+  "svar": "aksepter",
+  "tekst": "Aksepteres som rettet.",
+  "kilder": [
+   "docs/33 §4.3, §5.16.3",
+   "runde1/utfordringer.json"
+  ]
+ },
+ {
+  "id": "n190.r7",
+  "svar": "aksepter",
+  "tekst": "Aksepteres som rettet.",
+  "kilder": [
+   "docs/33 §4.3, §5.16.3",
+   "runde1/utfordringer.json"
+  ]
+ }
+]
