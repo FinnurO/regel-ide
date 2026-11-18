@@ -3068,6 +3068,32 @@ export interface AktorkoForhandsklassifisering {
   venterPaModellvalg: boolean; pilot: boolean; utdatert: string | null; kobling: ForhandKobling | null; taMedINokkel: string | null;
   taMedINavn: string | null; egneSteg: string[]; kilde: string;
 }
+/** [Ny, issue #469] Hva knappen for en relasjon gjør. Speilet av `Relasjonsstatus` i `AktorkoRelasjoner.cs`. */
+export type Relasjonsstatus =
+  | 'kan_skrives' | 'opprett_navnet_forst' | 'opprett_motparten_forst' | 'mangler_forutsetning' | 'finnes' | 'avvist' | 'kan_ikke_skrives'
+  | 'skrives_av_koblingen';
+/** [Ny, #469] En ende av kanten. `id` er null når noden ikke finnes ennå; `merknad` sier hvorfor. */
+export interface RelasjonNode {
+  id: string | null; type: 'virksomhet' | 'begrep' | null; navn: string; art: string | null; erNavnet: boolean; merknad: string | null;
+}
+export interface RelasjonHjemmel {
+  rettskildeId: string; rettskilde: string; eid: string; bestemmelse: string | null; sitat: string | null;
+  /** [Ny, #469, Johanns avgjørelse 2026-11-17] `navnets` (bekreftet for relasjonen i juristrunden) eller `egen`. */
+  kilde: 'navnets' | 'egen' | null;
+  /** Kantens avgrensningstekst fra fila («folketrygdloven kapittel 5 (stønad ved helsetjenester)»), eller null. */
+  avgrensning: string | null;
+}
+/** [Ny, #469] Én relasjon i forhåndsklassifiseringen: det knappen skriver, eller hvorfor den er av eller borte. */
+export interface ForhandRelasjonsforslag {
+  nr: number; indeks: number; relasjon: string; relasjonstekst: string; merknad: string | null; status: Relasjonsstatus; grunn: string | null;
+  kategori: string | null; kategoritekst: string | null; typekode: string | null; utsagn: string | null;
+  fra: RelasjonNode | null; til: RelasjonNode | null; hjemmel: RelasjonHjemmel | null; kunnskapsstatus: string | null;
+  tolkningsargumenter: Tolkningsargument[] | null; tolkningsbegrunnelse: string | null; skrivesSom: string;
+  kantId: string | null; kantStatus: string | null; kantSistEndretAv: string | null; kantAvvisningBegrunnelse: string | null;
+}
+export interface ForhandRelasjoner {
+  nr: number; navn: string; type: Forhandstype; nyNode: string | null; navnetsNode: RelasjonNode | null; relasjoner: ForhandRelasjonsforslag[];
+}
 export interface AktorkoListe { ventende: number; antallNavn: number; medFlereForekomster: number; navn: AktorkoRad[] }
 export interface AktorkoGenitivforslag { fraNokkel: string; fraVariant: string; tilNokkel: string; etterledd: string; forekomster: number }
 export interface AktorkoForekomst {

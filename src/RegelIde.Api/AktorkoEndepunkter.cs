@@ -27,6 +27,45 @@ public static class AktorkoEndepunkter
             .WithSummary("Issue #440 — alle ventende navnekandidater fordelt på rutene (generisk, kjent_aktor, kjent_begrep, boyningsform, aktorko) "
                          + "med forekomster, rettskilder og de hyppigste ordene per rute. Summen er antall ventende; ingen kandidat står i to ruter.");
 
+        // [Ny, issue #469, Johanns klarsignal 2026-11-17] Forhåndsklassifiseringens relasjoner som strukturkanter. Nøkkelen er nummeret i fila, ikke
+        // navnet i køen: etter godkjenningen er navnet ute av køen, men relasjonene skal fortsatt kunne skrives.
+        aktorko.MapGet("/forhand/relasjoner", async (bool? bareOpprettede, AktorkoRelasjonTjeneste tjeneste, CancellationToken ct) =>
+                Results.Ok(await tjeneste.AlleAsync(bareOpprettede ?? false, ct)))
+            .WithName("HentForhandRelasjoner")
+            .WithSummary("Issue #469 — relasjonene i forhåndsklassifiseringen for alle navn, med hva knappen skriver (kategori, type, fra, til, hjemmel, "
+                         + "kunnskapsstatus, status manuelt_foreslatt) eller hvorfor den er av eller borte. bareOpprettede=true: bare navnene som er "
+                         + "opprettet. Skriver ingenting.");
+
+        aktorko.MapGet("/forhand/{nr:int}/relasjoner", async (int nr, AktorkoRelasjonTjeneste tjeneste, CancellationToken ct) =>
+                await tjeneste.ForNrAsync(nr, ct) is { } r ? Results.Ok(r) : Results.NotFound(new { feil = $"n{nr} står ikke i forhåndsklassifiseringen." }))
+            .WithName("HentForhandRelasjonerForNavn")
+            .WithSummary("Issue #469 — relasjonene for ett navn i forhåndsklassifiseringen (nummeret i klassifisering.json).");
+
+        aktorko.MapPost("/forhand/{nr:int}/relasjoner/{indeks:int}", async (int nr, int indeks, ForhandRelasjonSkriv body, HttpRequest request,
+                RegelIdeDbContext db, AktorkoRelasjonTjeneste tjeneste, CancellationToken ct) =>
+            {
+                var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+                if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+                try
+                {
+                    return await tjeneste.SkrivAsync(nr, indeks, body, bruker.Navn, ct) is { } f
+                        ? Results.Ok(f)
+                        : Results.NotFound(new { feil = $"Relasjon {indeks + 1} for n{nr} står ikke i forhåndsklassifiseringen." });
+                }
+                catch (AktorkoKonfliktException ex)
+                {
+                    return Results.Conflict(new { feil = ex.Message });
+                }
+                catch (ArgumentException ex)
+                {
+                    return Results.BadRequest(new { feil = ex.Message });
+                }
+            })
+            .WithName("SkrivForhandRelasjon")
+            .WithSummary("Issue #469 — skriver én relasjon fra forhåndsklassifiseringen som strukturkant med status manuelt_foreslatt, gjennom "
+                         + "StrukturkantTjeneste.OpprettAsync. Alt kommer fra fila og basen; forespørselen har bare nodene brukeren så (fraId, tilId), "
+                         + "og er de andre nå, avvises den (409). En kant som finnes eller er avvist, skrives ikke på nytt (409).");
+
         aktorko.MapGet("/{nokkel}", async (string nokkel, AktorkoTjeneste tjeneste, CancellationToken ct) =>
                 await tjeneste.DetaljAsync(nokkel, ct) is { } detalj
                     ? Results.Ok(detalj)

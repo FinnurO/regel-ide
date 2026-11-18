@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { Link as RouterLink } from 'react-router';
 import { Alert, Button, Card, Heading, Link, Paragraph, Table, Tag } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
-import type { AktorkoDetalj, AktorkoForhandKort, AktorkoForhandsklassifisering, ForhandNode, ForhandRelasjon, Kunnskapsstatus } from '../api/types';
+import type { AktorkoDetalj, AktorkoForhandKort, AktorkoForhandsklassifisering, Kunnskapsstatus } from '../api/types';
 import { Metatekst } from '../entitet/Metatekst';
 import { KunnskapsstatusTag } from '../strukturkant/Utsagnsstatus';
-import { FORHAND_MERKE, FORHANDSTYPE_TEKST, MODELLVALG_SAK, SIKKERHET_TEKST, handlingstekst, juristlinje, relasjonstekst } from './aktorkoForhand';
+import { FORHAND_MERKE, FORHANDSTYPE_TEKST, MODELLVALG_SAK, SIKKERHET_TEKST, handlingstekst, juristlinje } from './aktorkoForhand';
+import { ForhandRelasjonsliste } from './ForhandRelasjoner';
 
 /**
  * [Ny, issue #440, Johanns avgjørelse 2026-11-05] Forhåndsklassifiseringen for ett navn i aktørkøen (docs/09 §54): forslaget (type, relasjoner
@@ -45,32 +46,8 @@ export function ForhandRadmerker({ f }: { f: AktorkoForhandKort }) {
   );
 }
 
-function Nodelenke({ n }: { n: ForhandNode }) {
-  if (n.ny) {
-    return <>«{n.navn}» <Tag data-size="sm" data-color="neutral" title="Noden finnes ikke i basen ennå.">Ny node</Tag></>;
-  }
-  if (n.id && n.finnes) {
-    const til = n.art === 'virksomhet' ? `/virksomheter/${n.id}` : `/begreper/${n.id}`;
-    return <Link asChild><RouterLink to={til}>{n.navn}</RouterLink></Link>;
-  }
-  if (n.id) return <>{n.navn} <Metatekst as="span">(finnes ikke i basen nå)</Metatekst></>;
-  return <>«{n.navn}»</>;
-}
-
-function Relasjonslinje({ r }: { r: ForhandRelasjon }) {
-  return (
-    <li style={{ marginBottom: '0.25rem' }}>
-      <span>{relasjonstekst(r.relasjon)}</span>{' '}
-      {r.til ? <Nodelenke n={r.til} /> : null}{' '}
-      {r.skrivesAvHandlingen ? (
-        <Tag data-size="sm" data-color="neutral" title="Koblingen gjør navnet til navneform på aktøren.">Skrives av koblingen</Tag>
-      ) : (
-        <Tag data-size="sm" data-color="neutral" title={r.egetSteg ?? undefined}>Eget steg</Tag>
-      )}
-      {r.merknad && <Metatekst>{r.merknad}</Metatekst>}
-    </li>
-  );
-}
+// [FJERNET, issue #469] `Nodelenke` og `Relasjonslinje` (relasjonen med merket «Eget steg»). Hver relasjon har nå sin egen linje med én knapp,
+// eller grunnen til at den ikke kan skrives, i `ForhandRelasjonsliste` (ForhandRelasjoner.tsx).
 
 function Hjemmelcelle({ f }: { f: AktorkoForhandsklassifisering }) {
   const h = f.hjemmel;
@@ -153,9 +130,8 @@ export function ForhandKort({ f, detalj, onGodta, onGrupperingEndret }: {
           <Table.Row>
             <Table.HeaderCell style={{ width: '11rem', verticalAlign: 'top' }}>Relasjoner</Table.HeaderCell>
             <Table.Cell>
-              {f.relasjoner.length === 0 ? <Metatekst as="span">Ingen</Metatekst> : (
-                <ul style={{ margin: 0, paddingLeft: '1.1rem' }}>{f.relasjoner.map((r, i) => <Relasjonslinje key={i} r={r} />)}</ul>
-              )}
+              {/* [ENDRET, issue #469] Én linje og én knapp per relasjon. Før godkjenningen er knappene av («Opprett navnet først»). */}
+              {f.relasjoner.length === 0 ? <Metatekst as="span">Ingen</Metatekst> : <ForhandRelasjonsliste nr={f.nr} />}
             </Table.Cell>
           </Table.Row>
           <Table.Row>

@@ -2046,8 +2046,9 @@ er utvidet, så forslaget kan lagres uten å miste hjemmelen, men aldri fritt:
   og tolkningsargumenter uten fortolkning avvises).
 
 **Eget steg** (`AktorkoForhandsklassifisering.EgneSteg`, vist i kortet): alt handlingen ikke skriver:
-- alle relasjoner unntatt den koblingen skriver (Johann: egen sak for strukturkantene). Medlemsregler registreres på klassen. Omtale av en
-  node registreres som navneformbinding (§5.7). En relasjon til en ny node krever at noden opprettes først;
+- ~~alle relasjoner unntatt den koblingen skriver (Johann: egen sak for strukturkantene). Medlemsregler registreres på klassen. Omtale av en
+  node registreres som navneformbinding (§5.7). En relasjon til en ny node krever at noden opprettes først;~~ [ENDRET, #469] Relasjonene står
+  ikke lenger her. Hver relasjon har sin egen linje i kortet, med én knapp eller grunnen til at den ikke kan skrives (§5.16.3);
 - en hjemmel som ikke står entydig i korpus;
 - aktørtypen (organ, rettssubjekt, ordning).
 
@@ -2078,6 +2079,124 @@ Kaldsjekken 2026-11-06 godkjente:
 - Utdanningsdirektoratet som aktør, med «hjemmel mangler».
 
 Den tagget også «den kommunen» som generisk omtale (2 av 2). Alt gikk gjennom «Godta forslaget» og skjemaets knapp.
+
+#### 5.16.3 Relasjonene som strukturkanter (#469, Johanns klarsignal 2026-11-17)
+
+**Hvorfor.** Forhåndsklassifiseringen foreslår 189 relasjoner for de 193 navnene (rolle for, innehas av, medlem av, underklasse av, organ i
+…). Køen kunne ikke skrive dem. Avgjort i #469: de skrives som **strukturkanter** med hjemmel og godkjenning, én knapp per relasjon, kontrollert
+mot den innebygde fila, og alltid som forslag. Spørsmålene det flytter er S1 og S6 (docs/32 §3): hvilken rolle innehas av hvem, hvilket organ
+hører til hvilken klasse, og hva som gjelder for medlemmene.
+
+**Mappingen** (`ForhandRelasjonsmapping.Kartlegg`, ren funksjon med tester). En relasjon skrives bare når koden, hva navnet er (filas type) og
+hva motparten er (basen når den har id, ellers fila) gir ÉN kategori og ÉN type i §4.3. Tallene er relasjonene i fila.
+
+| Relasjon i fila | Navnet → motparten | Kant | Retning | Antall |
+|---|---|---|---|---:|
+| `rolle_innehas_av` | rolle → aktør eller klasse | I `innehar` | motparten → rollen | 8 |
+| `rolle_for` | rolle → klasse, når hjemmelen sier «skal» | T `skal_ha` (hvert medlem har rollen) | klassen → rollen | 14 (9 med «skal», 2 er slutninger) |
+| `rolle_for` | rolle → én aktør (rollen er rolle for bare den) | G `del_av` (stillingen, #355 punkt 7) | rollen → aktøren | 5 |
+| `rolle_for` | rolle → aktør, når rollen er rolle for flere | ingen: tvetydig | | 2 |
+| `rolle_for` | rolle → tekst, eller en ny node uten type i fila | ingen | | 2 |
+| `organ_i` | klasse → klasse, når hjemmelen sier «skal» | T `skal_ha` («hver kommune skal ha et kommunestyre») | klassen → organet | 5 |
+| `rolle_for`, `organ_i` | til en klasse, når hjemmelen sier «kan» eller ordlyden ikke avgjør det | ingen: «kan, ikke skal» / «ordlyden avgjør ikke» | | 3 |
+| `organ_i` | aktør → aktør | G `har_organ` (er organ for) | organet → aktøren | 2 |
+| `underklasse_av` | klasse → klasse | M `medlem_av` (klasse i klasse, #418) | navnet → klassen | 7 |
+| `medlem` | klasse → aktør | M `medlem_av` | aktøren → klassen | 4 |
+| `bestar_av` | område → område | O `bestar_av` | navnet → delen | 15 |
+| `inngar_i` | område → område | O `bestar_av` | det større → navnet | 2 |
+| `har_ansvarsomrade` | aktør → område | A `har_ansvarsomrade` | | 2 av 4 |
+| `klageinstans_for` | aktør → aktør | K `klage` med motpart (#341) | | 2 |
+| `forvaltes_av` | ordning → aktør | R `forvaltes_av` (krever aktørtypen ordning) | | 2 |
+| `opprettet_av` | aktør → aktør | R `oppretter` | den som opprettet → navnet | 1 |
+| `administrativt_underlagt`, `eies_av`, `sekretariat` | aktør → aktør | R `administrativt_underordnet`, `eies_av`, `sekretariat_for` | | 0 av 4 |
+| `samme_som`, `utgatt_navn`, `kortform_for` | | ingen: navneform, ikke kant (koblingen skriver de to første) | | 9 |
+| `omtale_av`, `generisk_omtale` | | ingen: binding av en generisk omtale (§5.7) | | 82 |
+| `medlemsregel` | | ingen: lukket vokabular på klassen (#384, #442) | | 7 |
+| `personkrets_i`, `fores_av`, `fores_for` | ikke aktør | ingen: navnet får ingen node | | 5 |
+| `kan_bestemmes_av`, `ansvarlig`, `organ_for`, `underlagt` | | ingen: tvetydig (typen eller målnoden står ikke i fila) | | 4 |
+| `venter` | | ingen: venter på #463 | | 3 |
+
+En kode med feil nodeart får ingen kategori, og grunnen sier hva kanten krever: forliksråd (klasse) med «ansvarsområde» kommune (klasse),
+helseforetak (klasse) som «eies av». R-kodene i fila har tekst som mål («departementet», «namsfogden») eller en klasse som navn. En relasjon
+tolkes aldri ut av merknaden.
+
+**Hva som må være på plass før knappen virker** (`AktorkoRelasjonTjeneste`):
+- **Navnets node finnes.** Aktør: en gjeldende navneform med navnet i fila (§5.8: lovens navn, ikke registernavnet). Klasse, rolle, område: et
+  gjeldende begrep med kategorien og termen. Flere lovspesifikke begreper med samme term snevres inn til det i hjemmelens rettskilde; ellers er
+  det tvetydig. Finnes den ikke, er knappen av: «Opprett navnet først».
+- **Motparten finnes**: id-en i fila, eller navnet til en ny node slått opp på samme måte, med typen fra posten som har den som navn eller fra
+  tilleggsnodene. En ny node uten type i fila («jordskifterett») slås ikke opp. Finnes den ikke: «Opprett «X» først».
+- ~~**Hjemmelen** er navnets hjemmel i fila (fila har ikke egen hjemmel per relasjon) …~~ [ENDRET, Johanns avgjørelse 2026-11-17] **Hjemmelen er
+  relasjonens egen**, i feltet `hjemmel` på relasjonen i fila (se «Hjemmel per relasjon» under). Uten det feltet er det ingen knapp: navnets
+  hjemmel arves ikke. Rettskilden løses med samme regel som visningen (filas rettskilde, den ene med eId-en, eller den ene der navnet står), og
+  **sitatet må stå ordrett i bestemmelsen i basen** (mellomrom normalisert); ellers er det ingen knapp («teksten kan være endret siden
+  juristrunden»). En merknadsnode er aldri hjemmel (#419). Kunnskapsstatusen, tolkningsargumentene, tolkningsbegrunnelsen og avgrensningsteksten
+  er relasjonens i fila.
+- **[Ny, Johanns avgjørelse 2026-11-17] T `skal_ha` bare ved «skal».** «Rolle for» eller «organ i» en klasse skrives som T bare når hjemmelen sier
+  «skal», eller et tilsvarende pliktuttrykk, for at hvert medlem skal ha rollen eller organet (`modalitet` = `skal` i fila). Ved «kan» står
+  «kan, ikke skal: hjemmelen sier «…»», og når ordlyden ikke avgjør det, «ordlyden avgjør ikke …». Ingen knapp i noen av dem.
+- **En relasjon merket «[slutning]» i fila skrives ikke.** Den bygger ikke på navnets hjemmel alene, og en avledet kant krever premisser fila
+  ikke har (11 relasjoner, blant dem medlemmene i regionalt helseforetak).
+- **R `forvaltes_av`** krever at navnet har aktørtypen ordning (#353). Godkjenningen oppretter aktøren uten type, så knappen er av til typen er
+  satt på aktørsiden.
+- Noderegelen i §4.3 kontrolleres mot det nodene er i basen, før knappen vises.
+
+**Skrivingen** (`POST /api/aktorko/forhand/{nr}/relasjoner/{indeks}`) regner ut forslaget på nytt og skriver gjennom
+`StrukturkantTjeneste.OpprettAsync` med status `manuelt_foreslatt` og oppdagelseskilde `manuell`: et menneske har sett og bekreftet kanten.
+`fasit:` ville gitt merket «Fra fasiten» (#387), og forhåndsklassifiseringen er ikke fasit. Opphavet (fil, nummer, relasjon), sitatet, merknaden
+og tolkningsbegrunnelsen står i begrunnelsen. Forespørselen har bare nodene brukeren så; er de andre nå, avvises den (409).
+
+**Idempotens.** En kant med samme kategori, type, fra og til (uansett hjemmel) vises som «Finnes som forslag», «Finnes, faglig vurdert» eller
+«Finnes, godkjent» og skrives ikke på nytt. En avvist kant vises som avvist, med hvem og hvorfor, og skrives heller ikke på nytt (409). Det er
+strengere enn `OpprettAsync`, som lar et menneske registrere et avvist utsagn på nytt; her er det samme forslag fra samme fil.
+
+**Nøkkelen er nummeret i fila**, ikke navnet i køen. Etter godkjenningen er navnet ute av køen. Relasjonene står da under kvitteringen, og
+under køen i «Relasjoner for navn som er opprettet» (`GET /api/aktorko/forhand/relasjoner?bareOpprettede=true`).
+
+**Tall fra fila** (189 relasjoner): ~~57 kan skrives~~ [ENDRET, 2026-11-18, etter juristrunden og T-regelen] **53** kan skrives med én knapp når
+nodene finnes; to av dem (Folketrygden) krever i tillegg aktørtypen ordning. 136 kan ikke skrives: 110 er ikke strukturkanter eller er tvetydige
+etter koden, 11 er slutninger, 4 har tekst som mål, 3 har feil nodeart, 2 er roller hos flere organer, 1 mangler hjemmel, 1 har en motpart uten
+type i fila, 3 er T uten «skal» (barnehageeier, avdelingsleder i tingrett, lagmann) og 1 skal ikke skrives etter juristrunden (kommunen som
+tilsynsmyndighet). Målt i kopien `regelide_relasjoner2` 2026-11-18 (53 «Opprett navnet først», 7 «Skrives av koblingen», 129 «Kan ikke skrives»), se docs/09 §54.
+
+**Hjemmel per relasjon** (Johanns avgjørelse 2026-11-17, juristrunde etter CLAUDE.md §23 i `aktorko-forhand/relasjonshjemler/`: `inndata.json`,
+`runde1/`, `svar/`, `runde2/`, `endelig.json`). Modellereren foreslo hjemmel, ordrett sitat (kontrollert i basen), kunnskapsstatus og modalitet for
+hver av de 57; juristen vurderte i to runder. Runde 1: 30 holder og 27 innvendinger (24 lave, 3 middels). Modellereren aksepterte 25 og svarte
+delvis på 2 (Folketrygden). Runde 2: juristen presiserte den ene og godtok den andre. Ingen uenighet står igjen. Resultatet står i `hjemmel` på
+relasjonen i `klassifisering.json` (`kilde` = `navnets` når juristrunden bekreftet navnets hjemmel, ellers `egen`): 39 navnets og 18 egne.
+Endringene fra navnets hjemmel:
+
+| Relasjon | Navnets hjemmel | Relasjonens hjemmel | Merknad |
+|---|---|---|---|
+| kommune innehar barnehageeier (n3) | bhl. § 7, fortolkning | bhl. § 11 første ledd, tekstfunn («som barnehageeier») | |
+| kommune innehar tilsynsmyndighet (n15) | helsetilsynsloven § 3 første ledd | FOR-2023-03-28-449 § 20 første ledd | skrives ikke: hører til en utskilt rolle |
+| NOKUTs klagenemnd, K klage overfor NOKUT (n33) | FOR-2025-07-02-1462 § 1 første ledd nr. 1 | § 2 første ledd, normalisering | |
+| tingrett, lagmannsrett, forliksråd skal ha dommer (n86) | dl. § 52 første ledd | dl. § 19, § 10 og § 27 andre ledd, fortolkning med § 52 | ikke § 55 (utnevning) |
+| felles samarbeidsutvalg medlem av samarbeidsutvalg (n101) | bhl. § 5 første ledd, tekstfunn | samme ledd, tredje punktum, fortolkning | |
+| Folketrygden forvaltes av Helsedirektoratet (n102) | ftrl. § 1-1 første ledd | ftrl. § 21-11 a første ledd, tekstfunn | avgrensning «folketrygdloven kapittel 5 (stønad ved helsetjenester)» |
+| Folketrygden forvaltes av Arbeids- og velferdsetaten (n102) | ftrl. § 1-1 første ledd | Nav-loven § 4 andre ledd, tekstfunn | avgrensning «folketrygdloven unntatt kapittel 5 (stønad ved helsetjenester)» |
+| Høyesteretts ankeutvalg organ for Høyesterett (n116) | dl. § 5 første ledd | dl. § 4 første ledd, normalisering | fasiten u14 har G del_av, knappen G har_organ |
+| kommune skal ha kommunestyre (n139) | kl. § 5-3 første ledd, tekstfunn | samme ledd, fortolkning | konstitutiv «er» lest som pliktuttrykk |
+| leder og nestleder del av NOKUTs klagenemnd (n144, n150) | § 3 andre ledd | § 3 andre ledd nr. 1, normalisering | |
+| Trollheimen og omegn består av kommunene (n190 ×7) | Trollheimenloven § 1 første ledd | reindriftsloven § 2 andre ledd, fortolkning | § 1 er formålsbestemmelsen |
+
+I tillegg fikk 10 relasjoner en annen kunnskapsstatus med samme eId: 8 ble tekstfunn fordi «skal ha» eller formen står ordrett (bl.a.
+foreldreråd, samarbeidsutvalg, kommunelege, førstelagmann og barnevernstjeneste), og 2 ble fortolkning (felles samarbeidsutvalg, kommunestyret), og 10 fikk et smalere sitat (tiltakssonen: definisjonen i siste punktum; pedagogisk
+leder: hele normen). Merknaden i fila leses fortsatt ikke maskinelt; hjemmelen per relasjon er det som skrives.
+
+**Åpent spørsmål til Johann (ikke uenighet):** teller en konstitutiv «er» som pliktuttrykk for T `skal_ha`? Det gjelder kommuneloven § 5-3 første
+ledd (kommunestyret, n139) og fvl. § 28 andre ledd (kommunens klageinstans, n127). Modellereren og juristen leser begge som «skal», med status
+fortolkning. Leses regelen bokstavelig, blir det ingen kant for dem (51 i stedet for 53).
+
+**Det som ikke skrives, og hva som mangler:**
+- **Medlemsregler** (7): `begreper.medlemskapsregel` er et lukket vokabular av utregnede regler (kommune via områderegisteret, fylkeskommune,
+  departement). Fila har regelen som tekst («godkjente barnehager etter bhl. § 14 a»). Det finnes ingen skrivevei for en intensjonal regel som
+  tekst. Det krever et nytt felt eller en ny regeltype.
+- **Bindingen av en generisk omtale** (82): skriveveien finnes (`GeneriskNavneformTjeneste.OpprettBindingAsync`, én-skjermen i §5.10). Men en
+  binding gjelder per rettskilde og spenn, og fila har verken rettskilde, spenn, hjemmel eller kunnskapsstatus for den. Én-skjermen fyller inn
+  grunnlaget («Fortolkning, sammenhengen i loven»). En knapp her måtte gjort det samme uten at fila sier det, og det er fri inndata.
+- **Aktørtypen** settes fortsatt på aktørsiden.
+- **Tilleggsnodene** (barnekoordinator, Longyearbyen arealplanområde) er ikke navn i køen og har ingen knapp.
 
 ### 5.17 Den samlede aktørsiden: hjemmel for aktøren og de andre rettskildene (#441, bygget 2026-11-05)
 

@@ -1502,8 +1502,9 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
   (som «Kilde endret – vurder på nytt» i §49).
 - **Detaljen** har kortet øverst: overskrift med type, undertype og ny node, merkene, en nøkkel/verdi-tabell (relasjoner, hjemmel eller
   medlemsregel, begrunnelse, juristens vurdering) og «Må gjøres i eget steg» som `Metatekst`-liste.
-  - Relasjoner: lenke til aktøren (`/virksomheter/:id`) eller begrepet (`/begreper/:id`) når id-en finnes i basen; ny node som «navn» med
-    `neutral` «Ny node». Hver relasjon har `neutral` «Eget steg» (grunnen i `title`) eller «Skrives av koblingen».
+  - Relasjoner: ~~lenke til aktøren (`/virksomheter/:id`) eller begrepet (`/begreper/:id`) når id-en finnes i basen; ny node som «navn» med
+    `neutral` «Ny node». Hver relasjon har `neutral` «Eget steg» (grunnen i `title`) eller «Skrives av koblingen».~~ [ENDRET, #469] Én linje og
+    én knapp per relasjon, se under.
   - Hjemmel: lenke til rettskilden, bestemmelsen, `KunnskapsstatusTag`, `neutral` «Regelens forslag» / «Kan lagres» / «Står ikke i korpus», og sitatet
     som `Metatekst` med aksentkant (som hjemmelforslaget i §50). Har fila ikke sitatet, står bestemmelsens tekst i basen med «(teksten i
     basen; klassifiseringen har ikke sitatet)». Uten hjemmel: «Mangler» eller «Ikke relevant», med merknaden.
@@ -1521,6 +1522,39 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
 - **Filtrene** under de andre: `Select` «Forslag: type» og «Forslag: sikkerhet» med antall, og `Chip.Checkbox` «Bare aktører med høy
   sikkerhet N» (første bruk), som setter de to til aktør og høy. Ingressen sier hvor mange navn som er forhåndsklassifisert og hvor mange som
   kan være utdatert.
+- **[Ny, #469, Johanns klarsignal 2026-11-17] Relasjonene som strukturkanter** (`kandidater/ForhandRelasjoner.tsx`, regler i
+  `kandidater/forhandRelasjonsregler.ts` med vitest; modellen i docs/33 §5.16.3). Raden «Relasjoner» i kortet har en `Metatekst` med tallene («2 kan
+  skrives, 1 kan ikke skrives») og én linje per relasjon: relasjonen i klart språk, motparten (lenke når den finnes, ellers «navn» med grunnen
+  som `Metatekst`), kategori og type som `neutral`-merke («I innehar»), og så ett av disse:
+  - **«Skriv relasjonen …»** (`secondary`). Første klikk viser hva som skrives i en kompakt nøkkel/verdi-tabell med aksentkant (som sitatet i
+    hjemmelkortet): utsagnet, fra, til, kategori, type, hjemmel (lenke, bestemmelse, sitatet og «Navnets hjemmel i forhåndsklassifiseringen; fila
+    har ikke egen hjemmel per relasjon»), kunnskapsstatus (`KunnskapsstatusTag`, med tolkningsargumentene), merknaden i fila, og status `info`
+    «Forslag (manuelt foreslått), ikke godkjent». Så «Bekreft: skriv som forslag» (primær) og «Avbryt». To klikk, som §32. Ingen felt kan endres.
+  - **Knappen er av** med `Metatekst` under: «Opprett navnet først.» (låst tekst, #469), «Opprett «barnehage» først.», eller forutsetningen
+    («Sett aktørtypen «ordning» på «Folketrygden» først»).
+  - **Kanten finnes:** `info` «Finnes som forslag» / «Finnes, faglig vurdert», `success` «Finnes, godkjent», med utsagnet som `Metatekst`. Avvist:
+    `danger` «Avvist» med «Avvist av X: begrunnelse. Den skrives ikke på nytt.» Fargene følger §35.
+  - **Ingen knapp:** `Metatekst` «Kan ikke skrives: ‹grunn›» (ingen kategori, tvetydig, slutning, tekst som mål …). Koblingens relasjon har
+    `neutral` «Skrives av koblingen» som før.
+- **Etter godkjenningen** står relasjonene under kvitteringen i et eget `Card` («Relasjoner fra forhåndsklassifiseringen»), lest på nytt, så
+  knappene virker uten at køen leses på nytt. Navn som er godkjent tidligere, står i en lukket `Details` under køen, «Relasjoner for navn som er
+  opprettet (N)», som hentes først når den åpnes. «Må gjøres i eget steg» lister ikke lenger relasjonene.
+- **Kaldsjekket 2026-11-17** i kopien `regelide_relasjoner` (web 5373 mot API 5387, Browser-panelet, kopien slettet etterpå): «bostedskommune»
+  viste «Innehas av kommune» med knappen av og «Opprett navnet først.»; etter godkjenningen (via «Godta forslaget», faglig vurdert) sto knappen under
+  kvitteringen, bekreftelsen viste I innehar, kommune → bostedskommune, forskriften § 1 første ledd nr. 1, tekstfunn og «Forslag (manuelt
+  foreslått)», og «Bekreft» skrev kanten (`manuelt_foreslatt`, `manuell`). Raden ble «Finnes som forslag», en ny POST ga 409, og navnet sto i
+  «Relasjoner for navn som er opprettet» etter ny lesing. Før noe ble skrevet: 57 av 189 relasjoner «Opprett navnet først», 7 «Skrives av
+  koblingen», 125 «Kan ikke skrives».
+- **[ENDRET, Johanns avgjørelse 2026-11-17] Hjemmel per relasjon og T bare ved «skal».** Bekreftelsen viser under hjemmelen om den er «Relasjonens
+  egen hjemmel, satt i juristrunden» eller «Navnets hjemmel, bekreftet for relasjonen i juristrunden» (`hjemmelkilde` i
+  `forhandRelasjonsregler.ts`), og en rad «Avgrensning» når fila har en. Teksten «Viser merknaden til en annen bestemmelse enn hjemmelen, avbryt …»
+  er tatt ut: hjemmelen er nå relasjonens. En T-relasjon uten «skal» har ingen knapp og `Metatekst` «Kan ikke skrives: kan, ikke skal: hjemmelen
+  sier «…»» eller «… ordlyden avgjør ikke om hvert medlem skal ha den: «…»».
+- **Kaldsjekket 2026-11-18** i kopien `regelide_relasjoner2` (web 5373 mot API 5387, kopien slettet etterpå): før noe ble skrevet, 53 av 189
+  «Opprett navnet først», 7 «Skrives av koblingen», 129 «Kan ikke skrives». «avdelingsledere» viste «Kan ikke skrives: kan, ikke skal: hjemmelen sier
+  «kan det utnevnes en dommer som leder for hver avdeling»». «barnehageeier» ble godkjent via «Godta forslaget»; under kvitteringen sto «Rolle for
+  barnehage» med «ordlyden avgjør ikke», og «Innehas av kommune» med bekreftelsen bhl. § 11 første ledd, «Relasjonens egen hjemmel», tekstfunn.
+  «Bekreft» skrev kanten (`I innehar`, `manuelt_foreslatt`, hjemmel-eId § 11 første ledd), og raden ble «Finnes som forslag».
 - **Kaldsjekket 2026-11-05** i kopien `regelide_forhand` (web 5373 mot API 5487; 5387 var opptatt av en annen agent): Utdanningsdirektoratet
   (aktør) og «bostedskommune» (rolle) godkjent, «den kommunen» tagget som generisk omtale, alle via «Godta forslaget» og skjemaets knapp.
   KD (koble) og fylkeskommunen (venter) kontrollert uten lagring. Funnet: merknaden «Fylt ut» sto øverst i «Andre handlinger», langt fra
