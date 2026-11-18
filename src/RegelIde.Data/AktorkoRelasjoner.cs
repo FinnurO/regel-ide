@@ -299,7 +299,7 @@ public sealed class AktorkoRelasjonTjeneste(RegelIdeDbContext db, StrukturkantTj
         var r = p.Relasjoner[indeks];
         var h = f.Hjemmel!;
         var begrunnelse = $"Relasjon fra forhåndsklassifiseringen ({Forhandsklassifisering.Kilde}, n{nr}, relasjon {indeks + 1}: "
-                          + $"«{relasjoner.Navn}» {f.Relasjonstekst} «{f.Til!.Navn}»{(f.Til.ErNavnet ? $" / «{f.Fra.Navn}»" : "")}; KI-agent og juristrunde, "
+                          + $"«{relasjoner.Navn}» {f.Relasjonstekst} «{(f.Til!.ErNavnet ? f.Fra.Navn : f.Til.Navn)}»; KI-agent og juristrunde, "
                           + $"#440/#469). Hjemmelen er {(h.Kilde == "egen" ? "relasjonens egen" : "navnets, bekreftet for relasjonen")} i juristrunden "
                           + $"(aktorko-forhand/relasjonshjemler){(h.Sitat is { } s ? $": «{s}»" : "")}."
                           + (string.IsNullOrWhiteSpace(r.Merknad) ? "" : $" Merknad i fila: {r.Merknad}.")

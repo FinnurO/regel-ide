@@ -2157,7 +2157,7 @@ under køen i «Relasjoner for navn som er opprettet» (`GET /api/aktorko/forhan
 nodene finnes; to av dem (Folketrygden) krever i tillegg aktørtypen ordning. 136 kan ikke skrives: 110 er ikke strukturkanter eller er tvetydige
 etter koden, 11 er slutninger, 4 har tekst som mål, 3 har feil nodeart, 2 er roller hos flere organer, 1 mangler hjemmel, 1 har en motpart uten
 type i fila, 3 er T uten «skal» (barnehageeier, avdelingsleder i tingrett, lagmann) og 1 skal ikke skrives etter juristrunden (kommunen som
-tilsynsmyndighet). Målt mot kopien `regelide_relasjoner2` 2026-11-18, se docs/09 §54.
+tilsynsmyndighet). Målt i kopien `regelide_relasjoner2` 2026-11-18 (53 «Opprett navnet først», 7 «Skrives av koblingen», 129 «Kan ikke skrives»), se docs/09 §54.
 
 **Hjemmel per relasjon** (Johanns avgjørelse 2026-11-17, juristrunde etter CLAUDE.md §23 i `aktorko-forhand/relasjonshjemler/`: `inndata.json`,
 `runde1/`, `svar/`, `runde2/`, `endelig.json`). Modellereren foreslo hjemmel, ordrett sitat (kontrollert i basen), kunnskapsstatus og modalitet for

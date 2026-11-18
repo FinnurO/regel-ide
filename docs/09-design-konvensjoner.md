@@ -1545,6 +1545,16 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
   foreslått)», og «Bekreft» skrev kanten (`manuelt_foreslatt`, `manuell`). Raden ble «Finnes som forslag», en ny POST ga 409, og navnet sto i
   «Relasjoner for navn som er opprettet» etter ny lesing. Før noe ble skrevet: 57 av 189 relasjoner «Opprett navnet først», 7 «Skrives av
   koblingen», 125 «Kan ikke skrives».
+- **[ENDRET, Johanns avgjørelse 2026-11-17] Hjemmel per relasjon og T bare ved «skal».** Bekreftelsen viser under hjemmelen om den er «Relasjonens
+  egen hjemmel, satt i juristrunden» eller «Navnets hjemmel, bekreftet for relasjonen i juristrunden» (`hjemmelkilde` i
+  `forhandRelasjonsregler.ts`), og en rad «Avgrensning» når fila har en. Teksten «Viser merknaden til en annen bestemmelse enn hjemmelen, avbryt …»
+  er tatt ut: hjemmelen er nå relasjonens. En T-relasjon uten «skal» har ingen knapp og `Metatekst` «Kan ikke skrives: kan, ikke skal: hjemmelen
+  sier «…»» eller «… ordlyden avgjør ikke om hvert medlem skal ha den: «…»».
+- **Kaldsjekket 2026-11-18** i kopien `regelide_relasjoner2` (web 5373 mot API 5387, kopien slettet etterpå): før noe ble skrevet, 53 av 189
+  «Opprett navnet først», 7 «Skrives av koblingen», 129 «Kan ikke skrives». «avdelingsledere» viste «Kan ikke skrives: kan, ikke skal: hjemmelen sier
+  «kan det utnevnes en dommer som leder for hver avdeling»». «barnehageeier» ble godkjent via «Godta forslaget»; under kvitteringen sto «Rolle for
+  barnehage» med «ordlyden avgjør ikke», og «Innehas av kommune» med bekreftelsen bhl. § 11 første ledd, «Relasjonens egen hjemmel», tekstfunn.
+  «Bekreft» skrev kanten (`I innehar`, `manuelt_foreslatt`, hjemmel-eId § 11 første ledd), og raden ble «Finnes som forslag».
 - **Kaldsjekket 2026-11-05** i kopien `regelide_forhand` (web 5373 mot API 5487; 5387 var opptatt av en annen agent): Utdanningsdirektoratet
   (aktør) og «bostedskommune» (rolle) godkjent, «den kommunen» tagget som generisk omtale, alle via «Godta forslaget» og skjemaets knapp.
   KD (koble) og fylkeskommunen (venter) kontrollert uten lagring. Funnet: merknaden «Fylt ut» sto øverst i «Andre handlinger», langt fra
