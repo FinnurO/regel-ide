@@ -260,6 +260,7 @@ hver lov. Den er én generisk navneform for hele korpuset (docs/33 §5.7). Hva d
 | «departementet» | Ansvarlig departement | En **ressortkant** (F forvaltning med lovens ELI, #395) for hele loven på datoen, godkjent eller faglig vurdert — primær kilde. Ellers Lovdatas felt «Ansvarlig departement» — **sekundær kilde**; bruker feltet et utgått navn, fører navnehistorikken det til aktøren — **sekundær kilde, utgått navn** | Ingen kilde; flere departementer; navnet finnes verken i katalogen eller historikken; navnet tilhører bare et nedlagt departement; navnet er brukt av flere departementer over tid |
 | «statsforvalteren» | Klassen statsforvalter | Klassen | Kilden definerer ordet, navngir et embete («Statsforvalteren i Nordland»), er et virksomhetsdokument, eller gjelder Svalbard, Jan Mayen eller Longyearbyen |
 | «kommunen» | Klassen kommune | Klassen (kommuneloven § 2-1 første ledd) | Som over, unntatt navngitt embete |
+| «fylkeskommunen» (#470) | Klassen fylkeskommune | Klassen (kommuneloven § 2-1 første ledd; medlemmene etter § 3-1 første ledd andre punktum og fjerde ledd, Oslo unntatt) | Kilden definerer ordet, navngir en bestemt fylkeskommune («Troms fylkeskommune»), er et virksomhetsdokument, eller gjelder Svalbard. Gir aldri Oslo; der Oslo kommune har fylkeskommunens oppgaver, står det i en merknad (#464) |
 
 ### Eksempler og grenser
 
@@ -277,7 +278,8 @@ hver lov. Den er én generisk navneform for hele korpuset (docs/33 §5.7). Hva d
   bindes manuelt.
 - **Forskrifter:** ressortvedtakene fordeler lover. For en forskrift er Lovdatas felt eneste kilde; departementet for hjemmelsloven brukes ikke
   (en forskrift kan ha flere hjemmelslover).
-- **Klassen, ikke én:** «kommunen» og «statsforvalteren» sier hva slags aktør det er. Hvilken kommune eller statsforvalter i en sak er #314.
+- **Klassen, ikke én:** «kommunen», «fylkeskommunen» og «statsforvalteren» sier hva slags aktør det er. Hvilken kommune, fylkeskommune
+  eller statsforvalter i en sak er #314: den som har ansvar for området saken gjelder, eller den som er part.
 - **Kjent pris (juristrunden på #394):** sperrene gjelder hele kilden. Vergemålsforskriften er sperret for «statsforvalteren» fordi én
   paragraf (§ 35, Svalbard) navngir et embete. Der binder et menneske resten. Ordformene «statsforvaltaren», «fylkesmannen» og «kommuna»
   har ingen regel.

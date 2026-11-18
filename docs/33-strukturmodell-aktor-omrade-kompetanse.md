@@ -1181,6 +1181,55 @@ håndhever. `rettskilde_id` på bindingen er versjonen den ble registrert og vur
 - **Den lovspesifikke klassen «kommunene»** i reindriftsloven (§ 2 annet ledd) beholdes. Den henviser til den felles klassen med
   `M medlem_av` «kommune», lagt inn som forslag (`manuelt_foreslatt`, tekstfunn) av `OmraderegisterSeed` steg 6.
 
+**[Ny, issue #470, Johanns ja 2026-11-17] «fylkeskommunen»** er den fjerde generiske navneformen, med standardregelen «Klassen fylkeskommune»
+(regelkode `klasse_fylkeskommune`, `GeneriskStandardregelTjeneste`). Mønsteret og rettskildegrunnlaget er det samme som for «kommunen».
+Spørsmålet den flytter er S1/S6: hva betyr «fylkeskommunen» i rettskilde X, og hvilke kilder peker ut én bestemt?
+- **Referenten er klassen fylkeskommune fra §5.18** (finnes på medlemsregelen `omraderegister_fylkeskommune`). Hjemlene står på regelen med eId
+  og ordlyd (`GeneriskStandardregel.Hjemler`, også i `GET /api/navneformer/generiske/standardregler`): kommuneloven § 2-1 første ledd («Norge
+  er inndelt i kommuner og fylkeskommuner med en egen folkevalgt ledelse.»), § 3-1 første ledd andre punktum («Hvert fylke unntatt Oslo utgjør
+  en fylkeskommune.») og § 3-1 fjerde ledd («Fylkeskommunen skal ha samme navn som fylket.»). Grl. § 49 andre ledd er forankring og står bare i
+  grunnlagsteksten. «kommunen» har fått den første hjemmelen på samme måte; regelen er ellers uendret.
+- **Hvilken fylkeskommune i en sak** avgjøres av saken: den som har ansvar for fylket saken hører til (territoriekanten etter § 3-1 første
+  ledd), eller den som er part. Det er #314, ikke regelen. Regelen gjetter ikke ut fra teksten.
+- **Sperrene** er de fra §5.10, med to endringer for dette ordet: (a) «kilden definerer ordet» tillater opptil 60 tegn mellom ordet og
+  «menes» (forskrift om regionale kulturfond § 3: «Med fylkeskommune i denne forskriften menes også Longyearbyen lokalstyre»). For «kommunen»
+  ville den samme utvidelsen gitt 1 → 4 kilder; den er ikke gjort, fordi det endrer tall Johann har godtatt. (b) **kilden navngir en bestemt
+  fylkeskommune**: ett eller to ord med stor forbokstav foran «fylkeskommune(r)» («Troms fylkeskommune», «Troms og Finnmark fylkeskommune»),
+  eller «fylkeskommunen i X». Ord som innleder en setning («Den fylkeskommune hvor …», «Enhver fylkeskommune», «Flere fylkeskommuner») står i
+  en lukket liste (`GeneriskStandardregelTjeneste.IkkeNavn`). Som for «statsforvalteren» gjelder sperren hele kilden.
+- **Oslo** er aldri svaret. Klassen har ikke Oslo som medlem. Der kilden legger fylkeskommunens oppgaver også til Oslo kommune (opplæringslova
+  § 28-2 sjette ledd, «fylkeskommunen, i Oslo kommunen»), er ordet fortsatt klassen, og svaret får en merknad som peker på #464. Det gir ikke hull.
+- **Merknader ellers:** at klassen er et forslag (den er `manuelt_foreslatt` fra #442), og for en eldre versjon at medlemmene er dagens.
+- **Bindinger:** der teksten peker ut én fylkeskommune, brukes den vanlige bindingen (over). Skrivingen foreslår bindingen bare der **én
+  paragraf** navngir nøyaktig én fylkeskommune i entall, også bruker «fylkeskommunen», og navnet etter navneregelen («X fylkeskommune») treffer
+  nøyaktig én levende aktør med forvaltningsnivå fylkeskommune. Spennet er paragrafen, hjemmelen er leddet, kunnskapsstatusen er
+  `fortolkning`, og status er `maskinelt_foreslatt`, så forslaget brukes ikke før noen har vurdert det. Hele kilden bindes ikke automatisk:
+  opplæringsforskrifta § 4-10 navngir Finnmark fylkeskommune («Inntaksnemnda i Finnmark fylkeskommune …»), mens ordet i de 170 andre nodene
+  er klassen.
+- **Skrivingen** (`FylkeskommunenOppsettTjeneste`, `POST /api/navneformer/generiske/fylkeskommunen[?skriv=true]`) følger mønsteret fra
+  §5.18: tørrkjøring er standard, idempotent (`finnes`), og et avvist forslag foreslås ikke på nytt (`avvist`). Navneformen skrives med
+  grunn `generisk`, uten aktør, som forslag (`manuelt_foreslatt`). Den kontrollerer først at klassen finnes og at de tre leddene står i
+  korpuset med ordlyden over. Ellers skrives ingenting. Rapporten lister også kildene som må bindes manuelt (`BindManuelt`). Hovedøkta
+  kjører den etter fletting.
+
+**Målt 2026-11-17.** Den delte basen ble bare lest (`data/fasit/strukturmodell/maling-470-fylkeskommunen.sql`, READ ONLY). Kopien
+`regelide_fkregel` ble målt gjennom API-et, med samme tall:
+
+| Utfall | Kilder | Noder med ordet | Forekomster |
+|---|---|---|---|
+| Klassen fylkeskommune (standardregel) | 175 | 920 | 1 077 |
+| – av dem med Oslo-merknad | 6 | | |
+| Hull: kilden navngir en fylkeskommune | 10 | 267 (170 i opplæringsforskrifta) | 337 |
+| Hull: kilden definerer ordet (kulturfond) | 1 | 15 | 16 |
+| Hull: Svalbard | 3 | 4 | 4 |
+| Sum (gjeldende primærkilder med ordet) | 189 | 1 206 | 1 434 |
+
+I kopien ga tørrkjøringen og første skriving 1 navneform (`opprettet`) og 1 bindingsforslag: forskrift om midler til satsing på bærekraftig
+matproduksjon i nord § 9 → Troms fylkeskommune. Andre skriving ga bare `finnes`. Aktørkøen i kopien endret seg slik:
+- generisk ord 387 → 421 forekomster (3 → 4 ord; «fylkeskommunen» 34)
+- bøyningsform 170 → 137 («fylkeskommunene» er nå en bøyning av det generiske ordet, ikke av klassen; «fylkeskommunens» kom til)
+- aktørkøen 294 → 293 forekomster og 203 → 202 ord («fylkeskommunens», 1 forekomst, er ute)
+
 ### 5.8 Aktøridentitet: lovens navn er primært, registeret er attributt (#385, bygget 2026-10-16/23)
 
 Johann 2026-10-16: «Strengt tatt så er orgnummer og orgnavnet i Brreg kun attributter.» Aktørens identitet og primærnavn kommer fra
@@ -1413,7 +1462,8 @@ regelens premisser; `bareRegel=true` ser bort fra bindingene. Taggoppslaget (`/a
 kilde, bindingens status og regelsvaret. Lasteren behandler `regel` som `kjent` (forslagene er uansett forslag). Virksomhetens «brukt i»
 teller bare bindinger.
 
-**Standardreglene** (`GeneriskStandardregelTjeneste`, kode, ikke data — tre regler, bestemt av Johann; liste:
+**Standardreglene** (`GeneriskStandardregelTjeneste`, kode, ikke data — tre regler, bestemt av Johann, [ENDRET, #470] og «fylkeskommunen» →
+klassen fylkeskommune som den fjerde, se §5.7; liste:
 `GET /api/navneformer/generiske/standardregler`). Kunnskapsstatus `avledet`, med premissene:
 - **«departementet» → ansvarlig departement.** [LÅST, Johanns kommentar på #394 2026-10-23] Ressortfordelingen fra §5.9 er grunnlaget:
   F forvaltning med `objekt_eli` = rettskildens ELI, for HELE loven (`DepartementLivslopTjeneste.ErHeleLoven`), gyldig på datoen,
@@ -2242,7 +2292,7 @@ skrivingen to ganger): tørrkjøring og første skriving 2 klasser, 14 territori
 0 hull; departement 16 medlemmer, 0 hull; andre skriving bare `finnes`. Aktørkøen i kopien etterpå: kjent klasse 75 → 127 («departement» 32,
 «fylkeskommune» 20), bøyningsform 123 → 170 («fylkeskommunen» 34, «fylkeskommuner» 26, «fylkeskommunene» 13, «departementene» 6), aktørkøen
 393 → 294 forekomster. «fylkeskommunen» rutes som bøyningsform av klassen og arver ingen standardregel (§5.16 regel 4); en fjerde standardregel
-er Johanns valg (§5.10).
+er Johanns valg (§5.10). [ENDRET, #470] Johann sa ja 2026-11-17: «fylkeskommunen» er nå en generisk navneform med standardregel (§5.7).
 
 ### 5.6 Konvertering av eksisterende data
 

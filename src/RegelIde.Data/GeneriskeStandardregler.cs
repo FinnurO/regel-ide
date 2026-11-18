@@ -14,7 +14,16 @@ namespace RegelIde.Data;
 /// <param name="Forklaring">Hva regelen gjør, med et eksempel — samme ord som profilsiden (avledet slutning, premiss, grunnlag).</param>
 /// <param name="Grunnlag">Det rettslige grunnlaget regelen bygger på, i klart språk.</param>
 /// <param name="Kunnskapsstatus">Kunnskapsstatusen et svar fra regelen får: alltid <c>avledet</c> (en slutning fra premissene).</param>
-public sealed record GeneriskStandardregel(string Term, string Regelkode, string Navn, string Forklaring, string Grunnlag, string Kunnskapsstatus);
+public sealed record GeneriskStandardregel(string Term, string Regelkode, string Navn, string Forklaring, string Grunnlag, string Kunnskapsstatus)
+{
+    /// <summary>[Ny, issue #470] Bestemmelsene i korpus grunnlaget bygger på, med eId og ordlyd. Tom for «departementet», der grunnlaget er
+    /// ressortvedtakene (premissene i hvert svar). Sitatene kontrolleres mot korpuset før «fylkeskommunen» skrives
+    /// (<see cref="FylkeskommunenOppsettTjeneste"/>).</summary>
+    public IReadOnlyList<StandardregelHjemmel> Hjemler { get; init; } = [];
+}
+
+/// <summary>[Ny, issue #470] Én bestemmelse en standardregel bygger på: verksnivå-eId, henvisningen i klart språk og ordlyden.</summary>
+public sealed record StandardregelHjemmel(string Eid, string Henvisning, string Sitat);
 
 /// <summary>Hvordan et standardregelsvar ble funnet.</summary>
 public static class StandardregelRute
@@ -26,7 +35,7 @@ public static class StandardregelRute
     /// <summary>[Ny, Johanns beslutning på PR #398 2026-10-26] Lovdatas felt bruker et UTGÅTT navn, og navnehistorikken fra
     /// organiseringsvedtakene (#395) fører det til nøyaktig ett levende departement. Sekundær kilde, utgått navn.</summary>
     public const string LovdataUtgattNavn = "lovdata_utgatt_navn";
-    /// <summary>En fast referent (en klasse): «kommunen» → klassen kommune.</summary>
+    /// <summary>En fast referent (en klasse): «kommunen» → klassen kommune, «fylkeskommunen» → klassen fylkeskommune.</summary>
     public const string FastReferent = "fast_referent";
 }
 
@@ -108,6 +117,15 @@ public sealed record StandardregelDekningRad(Guid RettskildeId, string Tittel, s
 /// juristrunden på PR-en (CLAUDE.md §23).
 /// </para>
 /// <para>
+/// [Ny, issue #470, Johanns ja 2026-11-17] <b>«fylkeskommunen»</b> har fast referent klassen fylkeskommune (#442: kommuneloven § 2-1 første ledd,
+/// medlemmene etter § 3-1 første ledd andre punktum og fjerde ledd, Oslo unntatt). Hvilken fylkeskommune det er i en sak, avgjøres av saken: den
+/// som har ansvar for fylket saken hører til (territoriekanten), eller den som er part. Det er #314, ikke regelen. Regelen gjetter ikke ut fra
+/// teksten: navngir kilden en bestemt fylkeskommune («Troms fylkeskommune», «fylkeskommunen i Nordland»), gir den hull, og ordet bindes med den
+/// vanlige bindingen (<see cref="FylkeskommunenOppsettTjeneste"/> foreslår bindingen der samme paragraf navngir nøyaktig én). Regelen gir aldri
+/// Oslo: klassen har ikke Oslo som medlem, og der kilden legger fylkeskommunens oppgaver til Oslo kommune, står det i en merknad (Oslo kommune i
+/// fylkeskommunens sted er #464).
+/// </para>
+/// <para>
 /// Svarene lagres ikke (samme prinsipp som de avledede svarene i #345): de regnes ut ved oppslag, så en ressortkant som godkjennes i
 /// forslagskøen, slår igjennom straks.
 /// </para>
@@ -117,9 +135,14 @@ public sealed class GeneriskStandardregelTjeneste(RegelIdeDbContext db)
     public const string AnsvarligDepartement = "ansvarlig_departement";
     public const string KlasseStatsforvalter = "klasse_statsforvalter";
     public const string KlasseKommune = "klasse_kommune";
+    public const string KlasseFylkeskommune = "klasse_fylkeskommune";
 
     /// <summary>Klassen «statsforvalter» finnes på termen (fast term, unik indeks <c>ux_begreper_nodebegrep_fast_term</c>).</summary>
     public const string StatsforvalterKlasseTerm = "statsforvalter";
+
+    /// <summary>[Ny, issue #470] Deklarert før <see cref="Alle"/>, fordi statiske felt initialiseres i tekstrekkefølge. Kommuneloven § 2-1 første ledd, hjemmelen for klassene kommune og fylkeskommune.</summary>
+    private static readonly StandardregelHjemmel Inndeling = new(Klasseregler.KommunelovenInndelingEid, "kommuneloven § 2-1 første ledd",
+        "Norge er inndelt i kommuner og fylkeskommuner med en egen folkevalgt ledelse.");
 
     public static readonly IReadOnlyList<GeneriskStandardregel> Alle =
     [
@@ -138,7 +161,25 @@ public sealed class GeneriskStandardregelTjeneste(RegelIdeDbContext db)
             "«kommunen» betyr en kommune — klassen, ikke én bestemt. Hvilken kommune det er i en sak, avgjøres av saken. Eksempel: "
             + "«kommunen skal sørge for» gjelder hver kommune; medlemmene er utledet av områderegisteret.",
             "Klassen kommune (kommuneloven § 2-1 første ledd).",
-            Strukturkanter.Avledet),
+            Strukturkanter.Avledet) { Hjemler = [Inndeling] },
+        // [Ny, issue #470, Johanns ja 2026-11-17] Samme mønster og samme rettskildegrunnlag som «kommunen». Grl. § 49 andre ledd er forankring,
+        // ikke hjemmel (#442, juristrunden N7/N8), og står derfor bare i grunnlagsteksten.
+        new("fylkeskommunen", KlasseFylkeskommune, "Klassen fylkeskommune",
+            "«fylkeskommunen» betyr en fylkeskommune — klassen, ikke én bestemt. Hvilken fylkeskommune det er i en sak, avgjøres av saken: den som "
+            + "har ansvar for fylket saken hører til, eller den som er part. Eksempel: «fylkeskommunen skal sørge for» gjelder hver fylkeskommune. "
+            + "Navngir kilden en bestemt fylkeskommune, gir regelen ikke svar, og ordet bindes. Oslo er ikke medlem av klassen.",
+            "Klassen fylkeskommune (kommuneloven § 2-1 første ledd). Medlemmene: hvert fylke unntatt Oslo utgjør en fylkeskommune med samme navn "
+            + "som fylket (§ 3-1 første ledd andre punktum og fjerde ledd). Grunnloven § 49 andre ledd er forankring, ikke hjemmel.",
+            Strukturkanter.Avledet)
+        {
+            Hjemler =
+            [
+                Inndeling,
+                new(Klasseregler.KommunelovenFylkeskommuneEid, "kommuneloven § 3-1 første ledd andre punktum",
+                    "Hvert fylke unntatt Oslo utgjør en fylkeskommune."),
+                new(Klasseregler.KommunelovenNavneregelEid, "kommuneloven § 3-1 fjerde ledd", "Fylkeskommunen skal ha samme navn som fylket."),
+            ],
+        },
     ];
 
     public static GeneriskStandardregel? For(string term) =>
@@ -161,6 +202,8 @@ public sealed class GeneriskStandardregelTjeneste(RegelIdeDbContext db)
             AnsvarligDepartement => await DepartementAsync(regel, rettskildeId, dato, ct),
             KlasseKommune => await FastKlasseAsync(regel, await db.Begreper.FirstOrDefaultAsync(
                 b => b.Medlemskapsregel == Klasseregler.OmraderegisterKommune && b.Entitetsstatus == "gjeldende", ct), rettskildeId, dato, ct),
+            KlasseFylkeskommune => await FastKlasseAsync(regel, await db.Begreper.FirstOrDefaultAsync(
+                b => b.Medlemskapsregel == Klasseregler.OmraderegisterFylkeskommune && b.Entitetsstatus == "gjeldende", ct), rettskildeId, dato, ct),
             KlasseStatsforvalter => await FastKlasseAsync(regel, await db.Begreper.FirstOrDefaultAsync(
                 b => b.Begrepskategori == Nodetyper.Klasse && b.Term == StatsforvalterKlasseTerm && b.LovkildeId == null
                      && b.Omradetype == null && b.Entitetsstatus == "gjeldende", ct), rettskildeId, dato, ct),
@@ -187,8 +230,12 @@ public sealed class GeneriskStandardregelTjeneste(RegelIdeDbContext db)
     {
         var rk = await db.Rettskilder.Where(x => x.Id == rettskildeId).Select(x => new { x.Tittel, x.Kortnavn, x.VirksomhetId }).FirstOrDefaultAsync(ct);
         if (rk is null) return "Fant ikke rettskilden.";
-        var stamme = r.Regelkode == KlasseKommune ? "kommun" : "statsforvalt";
-        var definisjon = $@"\m(med|ved)\s+«?{stamme}[a-zæøå]*»?\s+(menes|meinast|forstås)";
+        var stamme = r.Regelkode switch { KlasseKommune => "kommun", KlasseFylkeskommune => "fylkeskommun", _ => "statsforvalt" };
+        // [ENDRET, issue #470] For «fylkeskommunen» tillates noen ord mellom ordet og «menes»: forskrift om regionale kulturfond § 3 andre ledd
+        // sier «Med fylkeskommune i denne forskriften menes også Longyearbyen lokalstyre» (målt i delt base 2026-11-17: 0 → 1 kilde). For
+        // «kommunen» ville samme utvidelse gitt 1 → 4 kilder; det endrer en regel Johann har godtatt tallene for (#394), og er ikke gjort her.
+        var mellom = r.Regelkode == KlasseFylkeskommune ? @"(?:[^.;:]{0,60}?\s)?" : "";
+        var definisjon = $@"\m(med|ved)\s+«?{stamme}[a-zæøå]*»?\s+{mellom}(menes|meinast|forstås)";
         if (await db.RettskildeNoder.AnyAsync(n => n.RettskildeId == rettskildeId && n.Entitetsstatus == "gjeldende" && n.Tekst != null
                 && Regex.IsMatch(n.Tekst, definisjon, RegexOptions.IgnoreCase), ct))
         {
@@ -206,6 +253,12 @@ public sealed class GeneriskStandardregelTjeneste(RegelIdeDbContext db)
                 return $"Kilden navngir et bestemt embete ({string.Join(", ", navn)}). «{r.Term}» kan vise tilbake til det — bind manuelt.";
             }
         }
+        if (r.Regelkode == KlasseFylkeskommune && (await NavngitteFylkeskommunerAsync(rettskildeId, ct)) is { Count: > 0 } fylkeskommuner)
+        {
+            var navnene = fylkeskommuner.Select(f => f.Navn).Distinct().ToList();
+            return $"Kilden navngir en bestemt fylkeskommune ({string.Join(", ", navnene.Take(3))}{(navnene.Count > 3 ? " …" : "")}). "
+                + $"«{r.Term}» kan vise til den — bind manuelt.";
+        }
         if (rk.VirksomhetId is { } eier)
         {
             var navn = await db.Virksomheter.Where(v => v.Id == eier).Select(v => v.Navn).FirstOrDefaultAsync(ct);
@@ -217,6 +270,58 @@ public sealed class GeneriskStandardregelTjeneste(RegelIdeDbContext db)
             return "Kilden gjelder Svalbard, Jan Mayen eller Longyearbyen, som ikke er inndelt i kommuner og fylker — bind manuelt.";
         }
         return null;
+    }
+
+    /// <summary>
+    /// [Ny, issue #470] En navngitt fylkeskommune i teksten: ett eller to ord med stor forbokstav foran «fylkeskommune» eller «fylkeskommuner»
+    /// («Troms fylkeskommune», «Troms og Finnmark fylkeskommune», «Nordland og Finnmark fylkeskommuner»), eller «fylkeskommunen i» foran et
+    /// slikt ord. Målt i delt base 2026-11-17 (gjeldende primærkilder med «fylkeskommunen»): 13 kilder med treff, og tre av dem var ord som
+    /// innleder en setning («Den fylkeskommune hvor løyvesøker har …», «Enhver fylkeskommune plikter …», «Med fylkeskommune … menes …»), og
+    /// i hele korpuset ett til («Flere fylkeskommuner»). De
+    /// står i <see cref="IkkeNavn"/>, en lukket liste over ord som ikke er navn. Et ord som ikke er på listen og ikke er et navn, gir hull, ikke
+    /// et gjettet svar (CLAUDE.md §8). <c>Flertall</c> er true for «… fylkeskommuner» (to eller flere er navngitt).
+    /// </summary>
+    public static IReadOnlyList<(string Navn, string Ledd, bool Flertall)> NavngitteFylkeskommuner(string tekst)
+    {
+        var svar = new List<(string, string, bool)>();
+        foreach (Match m in NavngittFylkeskommune.Matches(tekst))
+        {
+            var ledd = m.Groups["ledd"].Value;
+            if (!ledd.Contains(" og ", StringComparison.Ordinal) && IkkeNavn.Contains(ledd)) continue;
+            svar.Add((m.Value, ledd, m.Groups["fl"].Success));
+        }
+        foreach (Match m in FylkeskommunenI.Matches(tekst))
+        {
+            svar.Add((m.Value, m.Groups["ledd"].Value, false));
+        }
+        return svar;
+    }
+
+    private static readonly Regex NavngittFylkeskommune = new(
+        @"(?<![\p{L}\-])(?<ledd>(?:[A-ZÆØÅ][\p{L}\-]+ og )?[A-ZÆØÅ][\p{L}\-]+) fylkeskommune(?<fl>r)?(?![\p{L}])", RegexOptions.Compiled);
+
+    private static readonly Regex FylkeskommunenI = new(
+        @"(?<![\p{L}])[Ff]ylkeskommunen i (?<ledd>(?:[A-ZÆØÅ][\p{L}\-]+ og )?[A-ZÆØÅ][\p{L}\-]+)", RegexOptions.Compiled);
+
+    /// <summary>[Ny, issue #470] Ord med stor forbokstav som står foran «fylkeskommune» uten å være et navn (setningsinnledning, determinativ).
+    /// Lukket liste; et nytt slikt ord gir hull til det legges til her.</summary>
+    public static readonly IReadOnlySet<string> IkkeNavn = new HashSet<string>(StringComparer.Ordinal)
+    {
+        "Den", "Denne", "Dei", "Det", "Ein", "Eit", "En", "Én", "Ei", "Enhver", "Einkvar", "Hver", "Kvar", "Annen", "Anna", "Annan", "Samme",
+        "Same", "Vedkommende", "Vedkomande", "Berørt", "Berørte", "Aktuell", "Aktuelle", "Med", "Ved", "Ny", "Nye", "Gjeldende", "Hvilken",
+        "Kva", "Eller", "Og", "Som", "Til", "Fra", "Frå", "For", "Av", "I", "At", "Om", "Hos", "Mot", "Under", "Etter", "Begge", "Alle", "Hele",
+        "Heile", "Rett", "Rette", "Ansvarlig", "Ansvarleg", "Nærmeste", "Flere", "Fleire", "Andre", "Øvrige",
+    };
+
+    /// <summary>[Ny, issue #470] De navngitte fylkeskommunene i rettskildens gjeldende noder, med eId-en der de står. Databasen filtrerer på
+    /// ordet; navneregelen kjøres her (.NET-regex, ikke Postgres).</summary>
+    public async Task<IReadOnlyList<(string Navn, string Ledd, bool Flertall, string Eid)>> NavngitteFylkeskommunerAsync(Guid rettskildeId,
+        CancellationToken ct = default)
+    {
+        var noder = await db.RettskildeNoder.Where(n => n.RettskildeId == rettskildeId && n.Entitetsstatus == "gjeldende" && n.Tekst != null
+                && (n.Tekst.Contains("fylkeskommune") || n.Tekst.Contains("Fylkeskommunen i")))
+            .OrderBy(n => n.Sorteringsrekkefolge).Select(n => new { n.Eid, Tekst = n.Tekst! }).ToListAsync(ct);
+        return noder.SelectMany(n => NavngitteFylkeskommuner(n.Tekst).Select(f => (f.Navn, f.Ledd, f.Flertall, n.Eid))).ToList();
     }
 
     private async Task<StandardregelSvar> FastKlasseAsync(GeneriskStandardregel r, BegrepEntitet? klasse, Guid rettskildeId, DateOnly? dato,
@@ -239,18 +344,60 @@ public sealed class GeneriskStandardregelTjeneste(RegelIdeDbContext db)
         // «ikke vurdert», ikke som godkjent (docs/33 §5.8), og hjemmelen til en klasse uten vurdert kunnskapsstatus vises som «hjemmel ikke
         // vurdert» — klassen statsforvalter har i dag reindriftsloven § 62 fjerde ledd, som ikke er grunnlaget for klassen.
         var vurdert = klasse.Kunnskapsstatus is not null;
+        var merknader = new List<string>();
+        // [Ny, juristrunden på #394] En slutning er ikke sterkere enn det svakeste premisset (profilsiden).
+        if (klasse.Kunnskapsstatus is null)
+        {
+            merknader.Add($"Klassen «{klasse.Term}» har ingen vurdert kunnskapsstatus"
+                + (klasse.LovreferanseEid is null ? " og ingen hjemmel." : $" (hjemmel: {klasse.LovreferanseEid}).") + " Svaret er ikke sterkere enn det.");
+        }
+        // [Ny, issue #470] Klassen fylkeskommune er skrevet som forslag (#442). Svaret brukes (som for de andre klassene), men det sies.
+        if (klasse.Godkjenning is Strukturkanter.MaskineltForeslatt or Strukturkanter.ManueltForeslatt)
+        {
+            merknader.Add($"Klassen «{klasse.Term}» er et forslag som ikke er vurdert ennå.");
+        }
+        if (r.Regelkode == KlasseFylkeskommune)
+        {
+            merknader.AddRange(await FylkeskommuneMerknaderAsync(rettskildeId, ct));
+        }
         var premiss = new StandardregelPremiss("klasse",
             $"Klassen «{klasse.Term}»" + (klasse.LovreferanseEid is null ? " (uten hjemmel i korpus)" : vurdert ? "" : " (hjemmel ikke vurdert)"),
             Status: klasse.Godkjenning, Kunnskapsstatus: klasse.Kunnskapsstatus, HjemmelRettskildeId: vurdert ? hjemmelId : null,
             HjemmelEid: vurdert ? klasse.LovreferanseEid : null);
         return new StandardregelSvar(r.Term, r.Regelkode, r.Navn, StandardregelUtfall.Lost, StandardregelRute.FastReferent,
             Kantnode.Begrep(klasse.Id), new KantnodeVisning("begrep", klasse.Id, klasse.Term, klasse.Begrepskategori), r.Kunnskapsstatus,
-            "primaer", d, null, null, $"«{r.Term}» betyr klassen {klasse.Term} (standardregel).", [premiss],
-            // [Ny, juristrunden på #394] En slutning er ikke sterkere enn det svakeste premisset (profilsiden).
-            klasse.Kunnskapsstatus is null
-                ? [$"Klassen «{klasse.Term}» har ingen vurdert kunnskapsstatus" + (klasse.LovreferanseEid is null ? " og ingen hjemmel." : $" (hjemmel: {klasse.LovreferanseEid}).")
-                   + " Svaret er ikke sterkere enn det."]
-                : []);
+            "primaer", d, null, null, $"«{r.Term}» betyr klassen {klasse.Term} (standardregel).", [premiss], merknader);
+    }
+
+    /// <summary>
+    /// [Ny, issue #470] Det en leser må vite om et svar for «fylkeskommunen»:
+    /// <list type="bullet">
+    /// <item><b>Oslo.</b> Klassen har ikke Oslo som medlem (kommuneloven § 3-1 første ledd: «Hvert fylke unntatt Oslo utgjør en fylkeskommune»).
+    /// Der kilden legger fylkeskommunens oppgaver også til Oslo kommune («i Oslo kommunen», opplæringslova § 28-2), er ordet fortsatt klassen,
+    /// og Oslo kommune er en egen adressat etter den bestemmelsen. Det står som merknad, ikke som hull, og Oslo legges ikke til (#464).</item>
+    /// <item><b>Eldre versjon.</b> Medlemmene er utledet av dagens inndeling. Da versjonen gjaldt, kan inndelingen ha vært en annen (fylkene ble
+    /// slått sammen i 2020 og delt igjen i 2024).</item>
+    /// </list>
+    /// </summary>
+    private async Task<List<string>> FylkeskommuneMerknaderAsync(Guid rettskildeId, CancellationToken ct)
+    {
+        var merknader = new List<string>();
+        var oslo = await db.RettskildeNoder.Where(n => n.RettskildeId == rettskildeId && n.Entitetsstatus == "gjeldende" && n.Tekst != null
+                && n.Tekst.Contains("Oslo kommune") && n.Tekst.ToLower().Contains("fylkeskommun"))
+            .OrderBy(n => n.Sorteringsrekkefolge).Select(n => n.Eid).Take(3).ToListAsync(ct);
+        if (oslo.Count > 0)
+        {
+            merknader.Add($"Kilden legger fylkeskommunens oppgaver også til Oslo kommune ({string.Join(", ", oslo)}). Klassen fylkeskommune har ikke "
+                + "Oslo som medlem (kommuneloven § 3-1 første ledd: «Hvert fylke unntatt Oslo utgjør en fylkeskommune.»). Oslo kommune i "
+                + "fylkeskommunens sted er ikke modellert ennå (#464).");
+        }
+        var status = await db.Rettskilder.Where(x => x.Id == rettskildeId).Select(x => x.Entitetsstatus).FirstOrDefaultAsync(ct);
+        if (status is not null && status != "gjeldende")
+        {
+            merknader.Add("Eldre versjon: klassens medlemmer er utledet av dagens inndeling. Da versjonen gjaldt, kan fylkene og fylkeskommunene ha "
+                + "vært andre.");
+        }
+        return merknader;
     }
 
     private async Task<StandardregelSvar> DepartementAsync(GeneriskStandardregel r, Guid rettskildeId, DateOnly? dato, CancellationToken ct)
@@ -511,6 +658,7 @@ public sealed class GeneriskStandardregelTjeneste(RegelIdeDbContext db)
                     : s.Forklaring.Contains("brukt av flere departementer over tid", StringComparison.Ordinal) ? "navnet_brukt_av_flere_identiteter"
                     : s.Forklaring.Contains("flere departementer", StringComparison.Ordinal) ? "flere_departementer"
                     : s.Forklaring.StartsWith("Kilden definerer", StringComparison.Ordinal) ? "kilden_definerer_ordet"
+                    : s.Forklaring.StartsWith("Kilden navngir en bestemt fylkeskommune", StringComparison.Ordinal) ? "kilden_navngir_fylkeskommune"
                     : s.Forklaring.StartsWith("Kilden navngir", StringComparison.Ordinal) ? "kilden_navngir_embete"
                     : s.Forklaring.Contains("virksomhetsdokument", StringComparison.Ordinal) ? "virksomhetsdokument"
                     : s.Forklaring.Contains("Svalbard", StringComparison.Ordinal) ? "svalbard_jan_mayen_longyearbyen" : "annet";

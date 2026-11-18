@@ -47,6 +47,12 @@ dokumentasjon (primaer|sekundaer), begge påkrevd uten hjemmel og NULL med.
 |---|---|---|---|
 | #442 klassene fylkeskommune og departement, «minst hjemmel eller medlemsregel», arkivering av «kommunene» | `klasser-fylkeskommune-departement` | **PR åpen, venter på Johann (§19). Ikke flettet.** Migrasjonen `KlasserFylkeskommuneOgDepartement` (bare CHECK) og skrivingen (`POST /api/klasser/fylkeskommune-departement?skriv=true`) er IKKE kjørt mot delt `regelide`; hovedøkta kjører dem etter fletting. Tørrkjøringstallene mot delt base (bare SELECT): 2 klasser, 14 territoriekanter, 7 medlemskanter, 1 arkivering | `KlasseoppsettTjenesteTests` og de berørte Data-testene lokalt, Api-suiten lokalt (DI), tsc -b. Kopien `regelide_klasser`: skrevet to ganger (idempotent), 14 og 16 medlemmer, kaldsjekk i nettleseren (5387 + 5473), kopien slettet |
 
+## Standardregel for «fylkeskommunen» #470 (startet 2026-11-17)
+
+| Sak | Gren | Status | Verifisert hvordan |
+|---|---|---|---|
+| #470 generisk navneform «fylkeskommunen» med standardregelen «Klassen fylkeskommune», sperrer, Oslo-merknad, bindingsforslag per paragraf (docs/33 §5.7) | `standardregel-fylkeskommunen` | **PR åpen, venter på Johann (§19). Ikke flettet.** Ingen migrasjon. Skrivingen (`POST /api/navneformer/generiske/fylkeskommunen?skriv=true`) er IKKE kjørt mot delt `regelide`; hovedøkta kjører den etter fletting. Delt base bare lest (`maling-470-fylkeskommunen.sql`): 189 kilder, 175 klassen, 14 hull | `GeneriskFylkeskommunenTests` + `GeneriskStandardregelTests` lokalt (port 15471). Kopien `regelide_fkregel`: dekning via API = SQL, tørrkjøring skrev ingenting, skrevet to ganger (idempotent), aktørkøen målt før/etter, nettleser på 5587/5373 (aktørkøen), kopien slettet |
+
 ## Aktørkøen #440 (startet 2026-10-31)
 
 | PR | Gren | Status | Verifisert hvordan |
