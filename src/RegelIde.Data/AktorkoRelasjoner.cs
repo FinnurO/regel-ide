@@ -36,6 +36,14 @@ public static class Relasjonsstatus
     public const string SkrivesAvKoblingen = "skrives_av_koblingen";
 }
 
+/// <summary>[Ny, #469, Johanns avgjørelse 2026-11-17] Modaliteten juristrunden har lest i hjemmelen for en T skal_ha-relasjon.</summary>
+public static class Modalitet
+{
+    public const string Skal = "skal";
+    public const string Kan = "kan";
+    public const string OrdlydenAvgjorIkke = "ordlyden_avgjor_ikke";
+}
+
 /// <summary>[Ny, #469] Kategori, typekode og retning for en relasjon, eller grunnen til at den ikke kan skrives.</summary>
 /// <param name="NavnetErFra">Navnet er fra-noden. False når kanten går motsatt vei av relasjonen i fila (I innehar, T skal_ha, M medlem_av fra
 /// et medlem, O bestar_av fra det større området, R oppretter).</param>
@@ -205,8 +213,11 @@ public static class ForhandRelasjonsmapping
 /// <param name="Merknad">Hvorfor noden ikke er funnet, når den ikke er det.</param>
 public sealed record RelasjonNode(Guid? Id, string? Type, string Navn, string? Art, bool ErNavnet, string? Merknad = null);
 
-/// <summary>Hjemmelen kanten får: navnets hjemmel i fila, løst til bestemmelsen i korpus.</summary>
-public sealed record RelasjonHjemmel(Guid RettskildeId, string Rettskilde, string Eid, string? Bestemmelse, string? Sitat);
+/// <summary>Hjemmelen kanten får: relasjonens egen hjemmel i fila (juristrunden, #469), løst til bestemmelsen i korpus.</summary>
+/// <param name="Kilde"><c>navnets</c> (navnets hjemmel, bekreftet i juristrunden) eller <c>egen</c>.</param>
+/// <param name="Avgrensning">Avgrensningsteksten kanten får, fra fila.</param>
+public sealed record RelasjonHjemmel(Guid RettskildeId, string Rettskilde, string Eid, string? Bestemmelse, string? Sitat, string? Kilde = null,
+    string? Avgrensning = null);
 
 /// <summary>
 /// [Ny, #469] Én relasjon i forhåndsklassifiseringen og hva knappen gjør med den. Alt som skrives, står her: fra, til, kategori, type, hjemmel,
@@ -289,14 +300,15 @@ public sealed class AktorkoRelasjonTjeneste(RegelIdeDbContext db, StrukturkantTj
         var h = f.Hjemmel!;
         var begrunnelse = $"Relasjon fra forhåndsklassifiseringen ({Forhandsklassifisering.Kilde}, n{nr}, relasjon {indeks + 1}: "
                           + $"«{relasjoner.Navn}» {f.Relasjonstekst} «{f.Til!.Navn}»{(f.Til.ErNavnet ? $" / «{f.Fra.Navn}»" : "")}; KI-agent og juristrunde, "
-                          + $"#440/#469). Hjemmelen er navnets hjemmel i fila{(h.Sitat is { } s ? $": «{s}»" : "")}."
+                          + $"#440/#469). Hjemmelen er {(h.Kilde == "egen" ? "relasjonens egen" : "navnets, bekreftet for relasjonen")} i juristrunden "
+                          + $"(aktorko-forhand/relasjonshjemler){(h.Sitat is { } s ? $": «{s}»" : "")}."
                           + (string.IsNullOrWhiteSpace(r.Merknad) ? "" : $" Merknad i fila: {r.Merknad}.")
                           + (f.Tolkningsargumenter is not null && f.Tolkningsbegrunnelse is { } tb ? $" Tolkningsargumenter: {tb}" : "");
         var ny = new NyStrukturkant(
             f.Kategori!, f.Typekode!, Ende(f.Fra), Ende(f.Til),
             HjemmelRettskildeId: h.RettskildeId, HjemmelEid: h.Eid,
             Status: Strukturkanter.ManueltForeslatt, OppdagelsesKilde: Oppdagelseskilde,
-            Kunnskapsstatus: f.Kunnskapsstatus, Begrunnelse: begrunnelse, Tolkningsargumenter: f.Tolkningsargumenter);
+            Kunnskapsstatus: f.Kunnskapsstatus, Begrunnelse: begrunnelse, Tolkningsargumenter: f.Tolkningsargumenter, AvgrensningTekst: h.Avgrensning);
         var opprettet = await kanter.OpprettAsync(ny, bruker, ct);
         return f with
         {
@@ -343,10 +355,21 @@ public sealed class AktorkoRelasjonTjeneste(RegelIdeDbContext db, StrukturkantTj
         var aktortyper = await db.Virksomheter.Where(v => ider.Contains(v.Id)).Select(v => new { v.Id, v.Aktortype }).ToDictionaryAsync(v => v.Id, v => v.Aktortype, ct);
         foreach (var n in navneformer) aktortyper[n.Id] = n.Aktortype;
 
-        // 3. Hjemlene: bestemmelsene filas eId-er står i, og rettskildene der navnet står (for en eId som står i flere rettskilder).
-        var eids = poster.Select(p => p.Hjemmel?.Eid).Where(e => e is not null).Select(e => e!).Distinct().ToList();
+        // 3. Hjemlene: bestemmelsene filas eId-er står i (navnets og [Ny, #469] relasjonenes), og rettskildene der navnet står (for en eId som
+        //    står i flere rettskilder).
+        var eids = poster.Select(p => p.Hjemmel?.Eid).Concat(poster.SelectMany(p => p.Relasjoner).Select(r => r.Hjemmel?.Eid))
+            .Where(e => e is not null).Select(e => e!).Distinct().ToList();
         var noder = await db.RettskildeNoder.Where(n => eids.Contains(n.Eid) && n.Entitetsstatus == "gjeldende")
             .Select(n => new { n.RettskildeId, n.Eid, n.Tekst, n.ErMerknad }).ToListAsync(ct);
+        // En paragraf uten egen tekst: sitatet kontrolleres mot leddene under den, i rekkefølge.
+        var underTekst = new Dictionary<(Guid, string), string>();
+        foreach (var t in noder.Where(n => n.Tekst is null))
+        {
+            var under = t.Eid + "/";
+            var deler = await db.RettskildeNoder.Where(n => n.RettskildeId == t.RettskildeId && n.Eid.StartsWith(under) && n.Entitetsstatus == "gjeldende")
+                .OrderBy(n => n.Sorteringsrekkefolge).Select(n => n.Tekst).ToListAsync(ct);
+            underTekst[(t.RettskildeId, t.Eid)] = string.Join(" ", deler.Where(d => d is not null));
+        }
         var ord = poster.SelectMany(p => p.Varianter.Select(v => v.Normalisert)).Distinct().ToList();
         var navnetsKilder = (await db.Navnekandidater.Where(k => ord.Contains(k.ForeslattTekst.ToLower()))
                 .Select(k => new { Tekst = k.ForeslattTekst.ToLower(), k.RettskildeId }).Distinct().ToListAsync(ct))
@@ -355,24 +378,34 @@ public sealed class AktorkoRelasjonTjeneste(RegelIdeDbContext db, StrukturkantTj
         var titler = await db.Rettskilder.Where(r => rettskildeIder.Contains(r.Id)).Select(r => new { r.Id, Tittel = r.Kortnavn ?? r.Tittel })
             .ToDictionaryAsync(r => r.Id, r => r.Tittel, ct);
 
-        (RelasjonHjemmel? Hjemmel, string? Feil) Hjemmel(ForhandPost p)
+        (RelasjonHjemmel? Hjemmel, string? Feil) Hjemmel(ForhandPost p) => p.Hjemmel is { } h
+            ? Los(p, h.Eid, h.RettskildeId, h.Sitat, null, null)
+            : (null, "fila har ingen hjemmel for navnet, og kanten krever hjemmel");
+
+        // Bestemmelsen en eId fra fila står i. Samme regel som AktorkoTjeneste.ForhandBestemmelseAsync: filas rettskilde, den ene med eId-en,
+        // eller den ene der navnet står. [Ny, #469] Med et sitat fra fila (relasjonens hjemmel) må sitatet stå ordrett i bestemmelsen i basen.
+        (RelasjonHjemmel? Hjemmel, string? Feil) Los(ForhandPost p, string eid, Guid? filensRettskilde, string? sitat, string? kilde, string? avgrensning,
+            bool kontrollerSitat = false)
         {
-            if (p.Hjemmel is not { } h) return (null, "fila har ingen hjemmel for navnet, og kanten krever hjemmel");
-            var treff = noder.Where(n => n.Eid == h.Eid).ToList();
+            var treff = noder.Where(n => n.Eid == eid).ToList();
             var kilder = treff.Select(t => t.RettskildeId).Distinct().ToList();
             var navnets = kilder.Where(k => p.Varianter.Any(v => navnetsKilder[v.Normalisert].Contains(k))).ToList();
-            // Samme regel som AktorkoTjeneste.ForhandBestemmelseAsync: filas rettskilde, den ene med eId-en, eller den ene der navnet står.
-            Guid? valgt = h.RettskildeId is { } fra && kilder.Contains(fra) ? fra : kilder.Count == 1 ? kilder[0] : navnets.Count == 1 ? navnets[0] : null;
+            Guid? valgt = filensRettskilde is { } fra && kilder.Contains(fra) ? fra : kilder.Count == 1 ? kilder[0] : navnets.Count == 1 ? navnets[0] : null;
             if (valgt is not { } rid)
             {
                 return (null, kilder.Count == 0
-                    ? $"hjemmelen ({h.Eid}) står ikke i korpus, og fila har ingen kilde utenfor korpus"
+                    ? $"hjemmelen ({eid}) står ikke i korpus, og fila har ingen kilde utenfor korpus"
                     : $"hjemmelens eId står i {kilder.Count} rettskilder, og fila sier ikke hvilken; den gjettes ikke");
             }
             var node = treff.First(t => t.RettskildeId == rid);
             if (node.ErMerknad) return (null, "hjemmelen er en merknad eller veiledning, som aldri er hjemmel (#419)");
-            return (new RelasjonHjemmel(rid, titler.GetValueOrDefault(rid, rid.ToString()), h.Eid, AktorkoTjeneste.Bestemmelse(h.Eid),
-                string.IsNullOrWhiteSpace(h.Sitat) ? node.Tekst : h.Sitat), null);
+            var tekst = node.Tekst ?? underTekst.GetValueOrDefault((rid, eid));
+            if (kontrollerSitat && (tekst is null || !Normaliser(tekst).Contains(Normaliser(sitat ?? ""), StringComparison.Ordinal)))
+            {
+                return (null, $"sitatet i fila står ikke ordrett i {AktorkoTjeneste.Bestemmelse(eid) ?? eid} i basen; teksten kan være endret siden juristrunden");
+            }
+            return (new RelasjonHjemmel(rid, titler.GetValueOrDefault(rid, rid.ToString()), eid, AktorkoTjeneste.Bestemmelse(eid),
+                string.IsNullOrWhiteSpace(sitat) ? tekst : sitat, kilde, avgrensning), null);
         }
 
         // En node med navn: nøyaktig én. Flere begreper med samme term (lovspesifikke) snevres inn til det i hjemmelens rettskilde.
@@ -480,16 +513,31 @@ public sealed class AktorkoRelasjonTjeneste(RegelIdeDbContext db, StrukturkantTj
                     return Uten(Relasjonsstatus.KanIkkeSkrives, "relasjonen er merket som slutning i fila. Den bygger ikke på navnets hjemmel alene, og en "
                                                                  + "avledet kant krever premisser fila ikke har");
                 }
-                if (x.H.Hjemmel is not { } hjemmel) return Uten(Relasjonsstatus.KanIkkeSkrives, x.H.Feil!);
-                var ks = p.Hjemmel!.Kunnskapsstatus;
+                // [ENDRET, Johanns avgjørelse 2026-11-17] Relasjonens egen hjemmel fra juristrunden. Navnets hjemmel arves ikke.
+                if (r.Hjemmel is not { } rh)
+                {
+                    return Uten(Relasjonsstatus.KanIkkeSkrives, "fila har ingen hjemmel for selve relasjonen. Navnets hjemmel arves ikke; den brukes bare når "
+                                                                 + "juristrunden har bekreftet at den bærer relasjonen");
+                }
+                if (!rh.Skrives) return Uten(Relasjonsstatus.KanIkkeSkrives, $"juristrunden: {rh.SkrivesIkkeGrunn ?? "skal ikke skrives som denne kanten"}");
+                // [Ny, Johanns avgjørelse 2026-11-17] T skal_ha bare når hjemmelen sier «skal» (eller et tilsvarende pliktuttrykk).
+                if (m.Kategori == Strukturkanter.Klasseniva && rh.Modalitet != Modalitet.Skal)
+                {
+                    return Uten(Relasjonsstatus.KanIkkeSkrives, rh.Modalitet == Modalitet.Kan
+                        ? $"kan, ikke skal: hjemmelen sier «{rh.Sitat}», og T skal_ha krever at hvert medlem skal ha den"
+                        : $"ordlyden avgjør ikke om hvert medlem skal ha den: «{rh.Sitat}»");
+                }
+                var (hjemmel, hjemmelfeil) = Los(p, rh.Eid, rh.RettskildeId, rh.Sitat, rh.Kilde, rh.Avgrensning, kontrollerSitat: true);
+                if (hjemmel is null) return Uten(Relasjonsstatus.KanIkkeSkrives, hjemmelfeil!);
+                var ks = rh.Kunnskapsstatus;
                 if (ks is not (Strukturkanter.Tekstfunn or Strukturkanter.Normalisering or Strukturkanter.Fortolkning))
                 {
-                    return Uten(Relasjonsstatus.KanIkkeSkrives, $"hjemmelens kunnskapsstatus i fila («{ks ?? "ingen"}») kan ikke brukes for en kant med hjemmel i korpus");
+                    return Uten(Relasjonsstatus.KanIkkeSkrives, $"relasjonens kunnskapsstatus i fila («{ks}») kan ikke brukes for en kant med hjemmel i korpus");
                 }
-                var argumenter = ks == Strukturkanter.Fortolkning ? p.Hjemmel.Tolkningsargumenter : null;
-                if (ks == Strukturkanter.Fortolkning && argumenter is not { Count: > 0 })
+                var argumenter = ks == Strukturkanter.Fortolkning ? rh.Tolkningsargumenter : null;
+                if (ks == Strukturkanter.Fortolkning && (argumenter is not { Count: > 0 } || string.IsNullOrWhiteSpace(rh.Tolkningsbegrunnelse)))
                 {
-                    return Uten(Relasjonsstatus.KanIkkeSkrives, "hjemmelen er fortolkning, men fila har ingen tolkningsargumenter for den; de velges ikke fritt");
+                    return Uten(Relasjonsstatus.KanIkkeSkrives, "hjemmelen er fortolkning, men fila har ikke tolkningsargumenter og begrunnelse for den; de velges ikke fritt");
                 }
 
                 var navnet = x.Navnet!;
@@ -497,7 +545,7 @@ public sealed class AktorkoRelasjonTjeneste(RegelIdeDbContext db, StrukturkantTj
                 var regel = Strukturkanter.Noderegler[m.Kategori!];
                 var forslag = new ForhandRelasjonsforslag(p.Nr, i, r.Relasjon, tekst, Nullhvis(r.Merknad), Relasjonsstatus.KanSkrives, null,
                     m.Kategori, Strukturkanter.Visningsnavn(m.Kategori!), m.Typekode, Utsagn(m.Kategori!, m.Typekode!, fra.Navn, til.Navn),
-                    fra, til, hjemmel, ks, argumenter, argumenter is null ? null : p.Hjemmel.Tolkningsbegrunnelse, Strukturkanter.ManueltForeslatt);
+                    fra, til, hjemmel, ks, argumenter, argumenter is null ? null : rh.Tolkningsbegrunnelse, Strukturkanter.ManueltForeslatt);
 
                 if (navnet.Id is null)
                 {
@@ -550,6 +598,8 @@ public sealed class AktorkoRelasjonTjeneste(RegelIdeDbContext db, StrukturkantTj
     }
 
     private static string? Nullhvis(string? s) => string.IsNullOrWhiteSpace(s) ? null : s;
+
+    private static string Normaliser(string s) => System.Text.RegularExpressions.Regex.Replace(s, @"\s+", " ").Trim();
 
     /// <summary>Kanten som setning, med typekonfigurasjonens fra-mal: «kommune innehar rollen bostedskommune». K: «… har klagekompetanse overfor …».</summary>
     public static string Utsagn(string kategori, string typekode, string fra, string til)

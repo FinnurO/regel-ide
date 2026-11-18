@@ -1,0 +1,1177 @@
+[
+ {
+  "id": "n3.r1",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Modaliteten holder. Bhl. § 7 fordeler ansvaret for barnehagen, men ingen bestemmelse sier at hver barnehage «skal ha» en eier, så kanten skrives ikke. [slutning] Selv med et pliktuttrykk ville T vært en dårlig form her: for en privat barnehage er barnehagen selv rettssubjektet (§ 7a første ledd), så eierskapet er en rolle barnehagen innehar, ikke en rolle den har.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "bhl. § 7 første og andre ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "bhl. § 7a første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n3.r2",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "§ 7 første ledd sier at kommunen har ansvaret for kommunale barnehager. At den ansvarlige er «barnehageeier», er en tolkning. Bhl. § 11 første ledd sier det uttrykkelig: kommunen har oppgaver «som barnehageeier». Det er bestemmelsen som bærer I innehar kommune → barnehageeier, og statusen blir tekstfunn. § 7 første ledd gir avgrensningen (kommunen er eier av de kommunale barnehagene). Formatet har ikke et avgrensningsfelt, så den må stå i merknaden.",
+  "retting": {
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/64/nor/§11/ledd-1",
+   "rettskildeId": "cc249ccf-642c-46e5-b600-ad5e6536d85f",
+   "sitat": "Kommunen skal organisere oppgavene den har som barnehagemyndighet adskilt fra oppgavene den har som barnehageeier",
+   "kunnskapsstatus": "tekstfunn",
+   "tolkningsargumenter": null,
+   "kilde": "egen"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "bhl. § 11 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "bhl. § 7 første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n4.r1",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "§ 7a første ledd omtaler «private barnehage» som barnehage. Fortolkning med ordlyd og kontekst_system holder.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "bhl. § 7a første ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n8.r1",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "«skal hver barnehage ha et foreldreråd» står ordrett. Tekstfunn og skal holder.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "bhl. § 4 første ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n11.r1",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "«Hver barnehage skal ha en styrer» står ordrett. Felles styrerressurs etter andre ledd endrer ikke at hver barnehage skal ha en styrer.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2017-06-22-1049 § 4 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FOR-2017-06-22-1049 § 4 andre ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n13.r1",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "«Forliksrådet skal ha tre medlemmer» bærer både rollen og modaliteten. Tekstfunn holder.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "dl. § 27 andre ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n15.r1",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "«Tilsynsmyndighetene består av Statens helsetilsyn ...» er tekstfunn for innehavet.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "helsetilsynsloven § 3 første ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n15.r2",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Samme ledd. «statsforvalteren» lest distributivt om klassen holder.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "helsetilsynsloven § 3 første ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n15.r3",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Hjemmelen og sitatet holder for at kommunen er tilsynsmyndighet etter FOR-2023-03-28-449 (§ 20 første ledd, jf. § 19 første ledd «Kommunen fører tilsyn»). Men merknaden sier at forekomsten skilles ut, og kanten går likevel til samme rolle som r1 og r2. I innehar har ingen avgrensning. Da blir kommunen innehaver av «tilsynsmyndigheten» også i hol. §§ 5-9 og 12-3, og det var nettopp det første juristrunde ville hindre. Relasjonen hører til den utskilte rollen (tilsynsmyndighet etter forskriften om helse og miljø i barnehager og skoler). Alternativet er å skrive den med avgrensning til forskriften, men det feltet har ikke formatet.",
+  "retting": {
+   "skrives": false
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2023-03-28-449 § 20 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FOR-2023-03-28-449 § 19 første ledd",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "hol. § 12-3 andre ledd og § 5-9 første ledd (forekomstene i grupperingen)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n17.r1",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "For selve underklasserelasjonen er tekstfunn forsvarlig. § 14 første ledd sier at «barnehagen» kan være «åpen barnehage». At navnets egen hjemmel er fortolkning, gjelder klassens avgrensning, ikke relasjonen.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "bhl. § 14 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "bhl. § 7a tredje ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n23.r1",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "«I hver kommune skal det være en barnevernstjeneste» er et pliktuttrykk for hver kommune. Tekstfunn og skal holder.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "bvl. § 15-3 første ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n24.r1",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Legaldefinisjonen er tekstfunn. Lest distributivt er hver kommune bostedskommune for barn som er folkeregistrert der.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2017-06-22-1050 § 1 første ledd nr. 1",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n33.r2",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "§ 2 første ledd bærer klagekompetansen, og eId og sitat holder. Men «Klagenemnda» er en kortform. At den er NOKUTs klagenemnd, følger av plasseringen i kapittel 2 og oppregningen i § 1 første ledd nr. 1, og kapittelnodene har ingen overskrift i basen. Det er normalisering, ikke tekstfunn. Kompetansen er dessuten avgrenset til de tre vedtakstypene i nr. 1–3. Uten avgrensning sier kanten at nemnda er klageinstans for alle vedtak NOKUT treffer. Formatet har ikke feltet, så avgrensningen må stå i merknaden.",
+  "retting": {
+   "kunnskapsstatus": "normalisering"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2025-07-02-1462 § 2 første ledd nr. 1–3",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FOR-2025-07-02-1462 § 1 første ledd nr. 1",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n36.r1",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Legaldefinisjonen er tekstfunn, som n24.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2017-06-22-1050 § 1 første ledd nr. 3",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n38.r1",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Forskriftens egen definisjon, «En familiebarnehage er en barnehageform», bærer relasjonen uttrykkelig og er bedre enn bhl. §§ 14–15, som merknaden viser til. Tekstfunn holder.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2005-12-16-1555 § 1 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "bhl. § 15 andre ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n41.r1",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Ordrett i § 4 første ledd. Tekstfunn og skal holder.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "bhl. § 4 første ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n42.r1",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Rammeplanen (forskrift) omtaler «samiske barnehager» som barnehager med særlige krav. Fortolkning holder. Kapittel 3 er forskriftstekst, ikke merknad.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "rammeplanen kap. 3 (samiske barnehager) første ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n57.r1",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "«kan det utnevnes en dommer som leder for hver avdeling» gir kan, og avdelingene er selv valgfrie («kan ... deles i avdelinger»). Ingen kant.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "dl. § 19 fjerde ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n86.r2",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Riktig å ikke arve § 52 og riktig å ikke bruke § 55 første ledd fra merknaden: § 55 gjelder utnevningen, ikke at domstolen skal ha dommere. § 19 første ledd bærer «skal» (sorenskriver og tingrettsdommere), og § 52 første ledd gjør dem til dommere. Fortolkning med ordlyd og kontekst_system er riktig.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "dl. § 19 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "dl. § 52 første ledd",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "dl. § 55 første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n86.r3",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Samme vurdering som r2. Det er § 10 første ledd som bærer «skal» (førstelagmann, lagmenn og lagdommere), sammen med § 52 første ledd.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "dl. § 10 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "dl. § 52 første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n86.r5",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "§ 27 andre ledd bærer «skal», og § 52 første ledd annet punktum («Som dommere regnes også medlemmer av forliksrådet») bærer identiteten. Fortolkning er riktig. Merk at § 52 bare gjelder «i denne lov».",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "dl. § 27 andre ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "dl. § 52 første ledd annet punktum",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n101.r1",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Teksten sier ikke at et felles samarbeidsutvalg er et samarbeidsutvalg etter § 4. Den sier at det skal settes sammen etter § 4 tredje ledd, med et avvik (foreldre og ansatte fra både barnehagen og skolen). Medlemskapet i klassen er derfor en tolkning: ordlyden (tredje punktum kaller det «Samarbeidsutvalget») og systemet (henvisningen til § 4). Sitatet bør snevres inn til tredje punktum, som er det som bærer relasjonen.",
+  "retting": {
+   "sitat": "Samarbeidsutvalget skal også i slike tilfeller settes sammen etter § 4 tredje ledd",
+   "kunnskapsstatus": "fortolkning",
+   "tolkningsargumenter": [
+    "ordlyd",
+    "kontekst_system"
+   ]
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "bhl. § 5 første ledd tredje punktum",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "bhl. § 4 tredje ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n102.r1",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Hjemmelen (ftrl. § 21-11 a første ledd) og tekstfunn holder, og fasiten har samme rad (spesialisthelsetjenesteloven u303). Men Helsedirektoratet forvalter bare kapittel 5. Fasiten og docs/33 §4.5 har avgrensningen «folketrygdloven kapittel 5» på kanten. Knappen setter ingen avgrensning (AktorkoRelasjoner.cs), så kanten blir «Folketrygden forvaltes av Helsedirektoratet» uten forbehold. Sammen med r2 får ordningen da to forvaltere av det hele. Kanten bør skrives med avgrensningen, og ellers vente til knappen kan sette den. Inndataene har heller ikke et avgrensningsfelt, så dette er en mangel i formatet.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "ftrl. § 21-11 a første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "docs/33 §4.5",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "fasit spesialisthelsetjenesteloven u303",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n102.r2",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Nav-loven § 4 andre ledd holder, og tekstfunn holder («Etaten» viser til Arbeids- og velferdsetaten i første ledd). Kanten mangler avgrensningen «folketrygdloven unntatt kapittel 5». Uten den sier den at Nav forvalter hele folketrygden, også stønad ved helsetjenester, som ftrl. § 21-11 a legger til Helsedirektoratet. Samme mangel i formatet og samme løsning som r1.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Nav-loven § 4 andre ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "Nav-loven § 4 første ledd",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "ftrl. § 21-11 a første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n110.r1",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "«Lagmannsrettene skal ha en førstelagmann som leder» står ordrett. Tekstfunn og skal holder.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "dl. § 10 første ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n116.r1",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "§ 5 første ledd forutsetter ankeutvalget og regulerer hvordan det settes. Det er § 4 første ledd som gjør utvalget til en del av Høyesterett: «kan Høyesterett nedsette ett eller flere utvalg, som betegnes som Høyesteretts ankeutvalg». Fasiten bruker samme bestemmelse (domstolloven u14). Statusen blir normalisering: et utvalg som Høyesterett nedsetter, knyttes til organtilhørigheten. To merknader: fasiten u14 har typen del_av, ikke har_organ, men begge er G, så kategorien er den samme. Og «ett eller flere utvalg» betyr at navnet kan dekke flere utvalg.",
+  "retting": {
+   "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§4/ledd-1",
+   "sitat": "kan Høyesterett nedsette ett eller flere utvalg, som betegnes som Høyesteretts ankeutvalg",
+   "kunnskapsstatus": "normalisering",
+   "tolkningsargumenter": null,
+   "kilde": "egen"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "dl. § 4 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "dl. § 5 første ledd",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "fasit domstolloven u14",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n120.r1",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "§ 7 første ledd omtaler «kommunale barnehager» som barnehager. Fortolkning holder.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "bhl. § 7 første ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n122.r1",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "«Kommunen skal ha en eller flere kommuneleger» står ordrett. Tekstfunn og skal holder.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "hol. § 5-5 første ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n127.r1",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Fvl. § 28 andre ledd sier ikke «skal ha». Den utpeker klageinstansen direkte («er klageinstansen kommunestyret ...»). Denne konstitutive «er» gjør rollen lovbestemt for hver kommune, ikke valgfri, og etter min vurdering er det et tilsvarende uttrykk. Fortolkning er riktig status, fordi modaliteten er lest ut av teksten og ikke sitert. Se det tverrgående spørsmålet i sammendraget.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "fvl. § 28 andre ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n129.r1",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Hjemmelen og tekstfunn holder. Sitatet er hele leddet, med tilskuddsregelen og tabellen, og det stemmer bare med basen når linjeskiftene i tabellen gjøres om til mellomrom. Relasjonen bæres av siste punktum, og det står ordrett.",
+  "retting": {
+   "sitat": "Med kommuner i tiltakssonen i Finnmark og Nord-Troms menes alle kommuner i Finnmark samt sju kommuner i Nord-Troms (Kåfjord, Skjervøy, Nordreisa, Kvænangen, Karlsøy, Lyngen og Storfjord)."
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2015-10-09-1166 § 3 sjuende ledd siste punktum",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n139.r1",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "§ 5-3 første ledd sier at kommunestyret «er det øverste organet», ikke at hver kommune «skal» ha et. Modaliteten skal holder etter min vurdering. Setningen er konstitutiv og forutsetter at hver kommune har et kommunestyre, og § 5-1 første ledd sier at folkevalgte organer «skal opprettes etter bestemmelsene i denne loven», med kommunestyre i andre ledd bokstav a. Men det er en lesning av «er» som pliktuttrykk, ikke ordet «skal», så statusen er fortolkning. Ingen enkelt node i kommuneloven sier «hver kommune skal ha et kommunestyre».",
+  "retting": {
+   "kunnskapsstatus": "fortolkning",
+   "tolkningsargumenter": [
+    "ordlyd",
+    "kontekst_system"
+   ]
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "kommuneloven § 5-3 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "kommuneloven § 5-1 første og andre ledd bokstav a",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n143.r1",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "ordlyden_avgjor_ikke holder. «skal ha ... så mange lagmenn ... som til enhver tid er bestemt» sier ikke at det skal være minst én lagmann, og lagmann som avdelingsleder er valgfritt (§ 11 fjerde ledd: «kan»). Ingen kant. Fasiten (u25) har leddet som G har_medlemmer, og det stemmer med dette.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "dl. § 10 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "dl. § 11 fjerde ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n144.r1",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Rollen og relasjonen holder, og punkt 1 er riktig node. Men punktet nevner ikke nemnda. Organet følger av innledningen i andre ledd («Klagenemnda skal ha seks medlemmer og være sammensatt slik:») og av kortformen «Klagenemnda», som bindes til NOKUTs klagenemnd via kapittel 2. Det er normalisering, ikke tekstfunn, slik n181 har for samme ledd.",
+  "retting": {
+   "kunnskapsstatus": "normalisering"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2025-07-02-1462 § 3 andre ledd nr. 1",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FOR-2025-07-02-1462 § 3 andre ledd (innledningen)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n146.r1",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "§ 18 første ledd bærer klageinstansfunksjonen på lovnivå. Motparten Lånekassen står ikke i teksten, så fortolkning er riktig. FOR-2025-07-02-1462 § 10 første ledd navngir nemnda («Lånekassens klagenemnd skal behandle klager på enkeltvedtak etter lov om utdanningsstøtte …») og kan nevnes som tilleggskilde.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "utdanningsstøtteloven § 18 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FOR-2025-07-02-1462 § 10 første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n150.r1",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Samme vurdering som n144. Nemnda følger av innledningen i § 3 andre ledd og kortformen «Klagenemnda» (kapittel 2), så statusen er normalisering, ikke tekstfunn.",
+  "retting": {
+   "kunnskapsstatus": "normalisering"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2025-07-02-1462 § 3 andre ledd nr. 1",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FOR-2025-07-02-1462 § 3 andre ledd (innledningen)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n156.r1",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Sitatet er kuttet midt i normen. Hele punktumet viser at kravet er en bemanningsnorm per antall barn, ikke et krav om minst én pedagogisk leder uansett. Modaliteten skal holder likevel. [slutning] Hver barnehage med barn utløser minst én stilling, jf. «Ett barn til utløser krav om en ny fulltidsstilling».",
+  "retting": {
+   "sitat": "Barnehagen skal ha minst én pedagogisk leder per syv barn under tre år og én pedagogisk leder per 14 barn over tre år."
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2017-06-22-1049 § 1 andre ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n157.r1",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "«Kommunen og fylkeskommunen skal ha ei pedagogisk-psykologisk teneste» er et pliktuttrykk. Normalisering holder (nynorsk «teneste»).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "opplæringslova § 11-13 første ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n180.r1",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "§ 11 andre ledd nr. 2 oppretter plassen, og ordet står i tredje ledd. Normalisering holder. Kapittel 4 og § 10 binder «Klagenemnda» til Lånekassens klagenemnd.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2025-07-02-1462 § 11 andre ledd nr. 2",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FOR-2025-07-02-1462 § 10 første ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n181.r1",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "§ 3 andre ledd nr. 4 oppretter plassene. Normalisering holder.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2025-07-02-1462 § 3 andre ledd nr. 4",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n184.r1",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "§ 33 første ledd holder, og normalisering er riktig for G. Merk at fasiten domstolloven u79 klassifiserer samme sitat som R ledes_av (Domstoladministrasjonen → styret). De to kantene utelukker ikke hverandre.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "dl. § 33 første ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "fasit domstolloven u79",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n186.r1",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "«På Svalbard skal det være en sysselmester» bærer ansvarsområdet. Normalisering holder.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "svalbardloven § 5 første ledd",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n188.r1",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Motparten holder: «alle kommuner i Finnmark» gir fylkesområdet Finnmark (56). Sitatet har samme feil som n129: hele leddet med tabellen, og det stemmer med basen bare når linjeskift gjøres om til mellomrom. Siste punktum bærer relasjonen.",
+  "retting": {
+   "sitat": "Med kommuner i tiltakssonen i Finnmark og Nord-Troms menes alle kommuner i Finnmark samt sju kommuner i Nord-Troms (Kåfjord, Skjervøy, Nordreisa, Kvænangen, Karlsøy, Lyngen og Storfjord)."
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2015-10-09-1166 § 3 sjuende ledd siste punktum",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n188.r2",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Motparten holder (kommunekode 55xx i Troms, kontrollert i begreper). Sitatet har samme feil som n129: hele leddet med tabellen, og det stemmer med basen bare når linjeskift gjøres om til mellomrom. Siste punktum bærer relasjonen og står ordrett.",
+  "retting": {
+   "sitat": "Med kommuner i tiltakssonen i Finnmark og Nord-Troms menes alle kommuner i Finnmark samt sju kommuner i Nord-Troms (Kåfjord, Skjervøy, Nordreisa, Kvænangen, Karlsøy, Lyngen og Storfjord)."
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2015-10-09-1166 § 3 sjuende ledd siste punktum",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n188.r3",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Motparten holder (kommunekode 55xx i Troms, kontrollert i begreper). Sitatet har samme feil som n129: hele leddet med tabellen, og det stemmer med basen bare når linjeskift gjøres om til mellomrom. Siste punktum bærer relasjonen og står ordrett.",
+  "retting": {
+   "sitat": "Med kommuner i tiltakssonen i Finnmark og Nord-Troms menes alle kommuner i Finnmark samt sju kommuner i Nord-Troms (Kåfjord, Skjervøy, Nordreisa, Kvænangen, Karlsøy, Lyngen og Storfjord)."
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2015-10-09-1166 § 3 sjuende ledd siste punktum",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n188.r4",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Motparten holder (kommunekode 55xx i Troms, kontrollert i begreper). Sitatet har samme feil som n129: hele leddet med tabellen, og det stemmer med basen bare når linjeskift gjøres om til mellomrom. Siste punktum bærer relasjonen og står ordrett.",
+  "retting": {
+   "sitat": "Med kommuner i tiltakssonen i Finnmark og Nord-Troms menes alle kommuner i Finnmark samt sju kommuner i Nord-Troms (Kåfjord, Skjervøy, Nordreisa, Kvænangen, Karlsøy, Lyngen og Storfjord)."
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2015-10-09-1166 § 3 sjuende ledd siste punktum",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n188.r5",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Motparten holder (kommunekode 55xx i Troms, kontrollert i begreper). Sitatet har samme feil som n129: hele leddet med tabellen, og det stemmer med basen bare når linjeskift gjøres om til mellomrom. Siste punktum bærer relasjonen og står ordrett.",
+  "retting": {
+   "sitat": "Med kommuner i tiltakssonen i Finnmark og Nord-Troms menes alle kommuner i Finnmark samt sju kommuner i Nord-Troms (Kåfjord, Skjervøy, Nordreisa, Kvænangen, Karlsøy, Lyngen og Storfjord)."
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2015-10-09-1166 § 3 sjuende ledd siste punktum",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n188.r6",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Motparten holder (kommunekode 55xx i Troms, kontrollert i begreper). Sitatet har samme feil som n129: hele leddet med tabellen, og det stemmer med basen bare når linjeskift gjøres om til mellomrom. Siste punktum bærer relasjonen og står ordrett.",
+  "retting": {
+   "sitat": "Med kommuner i tiltakssonen i Finnmark og Nord-Troms menes alle kommuner i Finnmark samt sju kommuner i Nord-Troms (Kåfjord, Skjervøy, Nordreisa, Kvænangen, Karlsøy, Lyngen og Storfjord)."
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2015-10-09-1166 § 3 sjuende ledd siste punktum",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n188.r7",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Motparten holder (kommunekode 55xx i Troms, kontrollert i begreper). Sitatet har samme feil som n129: hele leddet med tabellen, og det stemmer med basen bare når linjeskift gjøres om til mellomrom. Siste punktum bærer relasjonen og står ordrett.",
+  "retting": {
+   "sitat": "Med kommuner i tiltakssonen i Finnmark og Nord-Troms menes alle kommuner i Finnmark samt sju kommuner i Nord-Troms (Kåfjord, Skjervøy, Nordreisa, Kvænangen, Karlsøy, Lyngen og Storfjord)."
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2015-10-09-1166 § 3 sjuende ledd siste punktum",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n188.r8",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Motparten holder (kommunekode 55xx i Troms, kontrollert i begreper). Sitatet har samme feil som n129: hele leddet med tabellen, og det stemmer med basen bare når linjeskift gjøres om til mellomrom. Siste punktum bærer relasjonen og står ordrett.",
+  "retting": {
+   "sitat": "Med kommuner i tiltakssonen i Finnmark og Nord-Troms menes alle kommuner i Finnmark samt sju kommuner i Nord-Troms (Kåfjord, Skjervøy, Nordreisa, Kvænangen, Karlsøy, Lyngen og Storfjord)."
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2015-10-09-1166 § 3 sjuende ledd siste punktum",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "n190.r1",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Trollheimenloven § 1 er en formålsbestemmelse og nevner ikke området. Reindriftsloven § 2 andre ledd er den eneste bestemmelsen som har både navnet «Trollheimen og omegn» og oppregningen av kommunene (via tittelen på loven den viser til). Det er den som bærer «området består av kommunen». Status forblir fortolkning (ordlyd, og kontekst_system: Trollheimenloven § 2 første ledd «de kommunene loven omfatter» og § 4 «området som omfattes av denne lov»).",
+  "retting": {
+   "eid": "https://lovdata.no/eli/lov/2007/06/15/40/nor/§2/ledd-2",
+   "rettskildeId": "3b41ffba-bb50-4d73-b866-3c381d841f7a",
+   "rettskilde": "Reindriftsloven",
+   "sitat": "For reindrift i Trollheimen og omegn gjelder reglene i lov 21. desember 1984 nr. 101 om reindrift i kommunene Meldal, Midtre Gauldal, Oppdal, Rennebu, Rindal, Sunndal og Surnadal.",
+   "kunnskapsstatus": "fortolkning",
+   "tolkningsargumenter": [
+    "ordlyd",
+    "kontekst_system"
+   ],
+   "kilde": "egen"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "reindriftsloven § 2 andre ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "Trollheimenloven § 1 første ledd, § 2 første ledd og § 4",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n190.r2",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Trollheimenloven § 1 er en formålsbestemmelse og nevner ikke området. Reindriftsloven § 2 andre ledd er den eneste bestemmelsen som har både navnet «Trollheimen og omegn» og oppregningen av kommunene (via tittelen på loven den viser til). Det er den som bærer «området består av kommunen». Status forblir fortolkning (ordlyd, og kontekst_system: Trollheimenloven § 2 første ledd «de kommunene loven omfatter» og § 4 «området som omfattes av denne lov»).",
+  "retting": {
+   "eid": "https://lovdata.no/eli/lov/2007/06/15/40/nor/§2/ledd-2",
+   "rettskildeId": "3b41ffba-bb50-4d73-b866-3c381d841f7a",
+   "rettskilde": "Reindriftsloven",
+   "sitat": "For reindrift i Trollheimen og omegn gjelder reglene i lov 21. desember 1984 nr. 101 om reindrift i kommunene Meldal, Midtre Gauldal, Oppdal, Rennebu, Rindal, Sunndal og Surnadal.",
+   "kunnskapsstatus": "fortolkning",
+   "tolkningsargumenter": [
+    "ordlyd",
+    "kontekst_system"
+   ],
+   "kilde": "egen"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "reindriftsloven § 2 andre ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "Trollheimenloven § 1 første ledd, § 2 første ledd og § 4",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n190.r3",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Trollheimenloven § 1 er en formålsbestemmelse og nevner ikke området. Reindriftsloven § 2 andre ledd er den eneste bestemmelsen som har både navnet «Trollheimen og omegn» og oppregningen av kommunene (via tittelen på loven den viser til). Det er den som bærer «området består av kommunen». Status forblir fortolkning (ordlyd, og kontekst_system: Trollheimenloven § 2 første ledd «de kommunene loven omfatter» og § 4 «området som omfattes av denne lov»).",
+  "retting": {
+   "eid": "https://lovdata.no/eli/lov/2007/06/15/40/nor/§2/ledd-2",
+   "rettskildeId": "3b41ffba-bb50-4d73-b866-3c381d841f7a",
+   "rettskilde": "Reindriftsloven",
+   "sitat": "For reindrift i Trollheimen og omegn gjelder reglene i lov 21. desember 1984 nr. 101 om reindrift i kommunene Meldal, Midtre Gauldal, Oppdal, Rennebu, Rindal, Sunndal og Surnadal.",
+   "kunnskapsstatus": "fortolkning",
+   "tolkningsargumenter": [
+    "ordlyd",
+    "kontekst_system"
+   ],
+   "kilde": "egen"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "reindriftsloven § 2 andre ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "Trollheimenloven § 1 første ledd, § 2 første ledd og § 4",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n190.r4",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Trollheimenloven § 1 er en formålsbestemmelse og nevner ikke området. Reindriftsloven § 2 andre ledd er den eneste bestemmelsen som har både navnet «Trollheimen og omegn» og oppregningen av kommunene (via tittelen på loven den viser til). Det er den som bærer «området består av kommunen». Status forblir fortolkning (ordlyd, og kontekst_system: Trollheimenloven § 2 første ledd «de kommunene loven omfatter» og § 4 «området som omfattes av denne lov»).",
+  "retting": {
+   "eid": "https://lovdata.no/eli/lov/2007/06/15/40/nor/§2/ledd-2",
+   "rettskildeId": "3b41ffba-bb50-4d73-b866-3c381d841f7a",
+   "rettskilde": "Reindriftsloven",
+   "sitat": "For reindrift i Trollheimen og omegn gjelder reglene i lov 21. desember 1984 nr. 101 om reindrift i kommunene Meldal, Midtre Gauldal, Oppdal, Rennebu, Rindal, Sunndal og Surnadal.",
+   "kunnskapsstatus": "fortolkning",
+   "tolkningsargumenter": [
+    "ordlyd",
+    "kontekst_system"
+   ],
+   "kilde": "egen"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "reindriftsloven § 2 andre ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "Trollheimenloven § 1 første ledd, § 2 første ledd og § 4",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n190.r5",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Trollheimenloven § 1 er en formålsbestemmelse og nevner ikke området. Reindriftsloven § 2 andre ledd er den eneste bestemmelsen som har både navnet «Trollheimen og omegn» og oppregningen av kommunene (via tittelen på loven den viser til). Det er den som bærer «området består av kommunen». Status forblir fortolkning (ordlyd, og kontekst_system: Trollheimenloven § 2 første ledd «de kommunene loven omfatter» og § 4 «området som omfattes av denne lov»).",
+  "retting": {
+   "eid": "https://lovdata.no/eli/lov/2007/06/15/40/nor/§2/ledd-2",
+   "rettskildeId": "3b41ffba-bb50-4d73-b866-3c381d841f7a",
+   "rettskilde": "Reindriftsloven",
+   "sitat": "For reindrift i Trollheimen og omegn gjelder reglene i lov 21. desember 1984 nr. 101 om reindrift i kommunene Meldal, Midtre Gauldal, Oppdal, Rennebu, Rindal, Sunndal og Surnadal.",
+   "kunnskapsstatus": "fortolkning",
+   "tolkningsargumenter": [
+    "ordlyd",
+    "kontekst_system"
+   ],
+   "kilde": "egen"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "reindriftsloven § 2 andre ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "Trollheimenloven § 1 første ledd, § 2 første ledd og § 4",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n190.r6",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Trollheimenloven § 1 er en formålsbestemmelse og nevner ikke området. Reindriftsloven § 2 andre ledd er den eneste bestemmelsen som har både navnet «Trollheimen og omegn» og oppregningen av kommunene (via tittelen på loven den viser til). Det er den som bærer «området består av kommunen». Status forblir fortolkning (ordlyd, og kontekst_system: Trollheimenloven § 2 første ledd «de kommunene loven omfatter» og § 4 «området som omfattes av denne lov»).",
+  "retting": {
+   "eid": "https://lovdata.no/eli/lov/2007/06/15/40/nor/§2/ledd-2",
+   "rettskildeId": "3b41ffba-bb50-4d73-b866-3c381d841f7a",
+   "rettskilde": "Reindriftsloven",
+   "sitat": "For reindrift i Trollheimen og omegn gjelder reglene i lov 21. desember 1984 nr. 101 om reindrift i kommunene Meldal, Midtre Gauldal, Oppdal, Rennebu, Rindal, Sunndal og Surnadal.",
+   "kunnskapsstatus": "fortolkning",
+   "tolkningsargumenter": [
+    "ordlyd",
+    "kontekst_system"
+   ],
+   "kilde": "egen"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "reindriftsloven § 2 andre ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "Trollheimenloven § 1 første ledd, § 2 første ledd og § 4",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n190.r7",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Trollheimenloven § 1 er en formålsbestemmelse og nevner ikke området. Reindriftsloven § 2 andre ledd er den eneste bestemmelsen som har både navnet «Trollheimen og omegn» og oppregningen av kommunene (via tittelen på loven den viser til). Det er den som bærer «området består av kommunen». Status forblir fortolkning (ordlyd, og kontekst_system: Trollheimenloven § 2 første ledd «de kommunene loven omfatter» og § 4 «området som omfattes av denne lov»).",
+  "retting": {
+   "eid": "https://lovdata.no/eli/lov/2007/06/15/40/nor/§2/ledd-2",
+   "rettskildeId": "3b41ffba-bb50-4d73-b866-3c381d841f7a",
+   "rettskilde": "Reindriftsloven",
+   "sitat": "For reindrift i Trollheimen og omegn gjelder reglene i lov 21. desember 1984 nr. 101 om reindrift i kommunene Meldal, Midtre Gauldal, Oppdal, Rennebu, Rindal, Sunndal og Surnadal.",
+   "kunnskapsstatus": "fortolkning",
+   "tolkningsargumenter": [
+    "ordlyd",
+    "kontekst_system"
+   ],
+   "kilde": "egen"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "reindriftsloven § 2 andre ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "Trollheimenloven § 1 første ledd, § 2 første ledd og § 4",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "n192.r1",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Legaldefinisjonen er tekstfunn, som n24.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "FOR-2017-06-22-1050 § 1 første ledd nr. 2",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ }
+]

@@ -69,6 +69,16 @@ export function nodelenke(n: Pick<RelasjonNode, 'id' | 'type'> | null): string |
   return n.type === 'virksomhet' ? `/virksomheter/${n.id}` : `/begreper/${n.id}`;
 }
 
+/**
+ * [Ny, #469, Johanns avgjørelse 2026-11-17] Hvor hjemmelen kommer fra: relasjonens egen (juristrunden fant en annen bestemmelse enn navnets), eller
+ * navnets, bekreftet for relasjonen. Navnets hjemmel arves aldri uten juristrundens bekreftelse; uten hjemmel per relasjon er det ingen knapp.
+ */
+export function hjemmelkilde(kilde: 'navnets' | 'egen' | null): string {
+  return kilde === 'egen'
+    ? 'Relasjonens egen hjemmel, satt i juristrunden (aktorko-forhand/relasjonshjemler).'
+    : 'Navnets hjemmel, bekreftet for relasjonen i juristrunden (aktorko-forhand/relasjonshjemler).';
+}
+
 /** Statusen kanten skrives med, i klart språk. Alltid forslag (#469). */
 export const SKRIVES_SOM_TEKST = 'Forslag (manuelt foreslått), ikke godkjent';
 

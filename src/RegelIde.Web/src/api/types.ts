@@ -3076,7 +3076,13 @@ export type Relasjonsstatus =
 export interface RelasjonNode {
   id: string | null; type: 'virksomhet' | 'begrep' | null; navn: string; art: string | null; erNavnet: boolean; merknad: string | null;
 }
-export interface RelasjonHjemmel { rettskildeId: string; rettskilde: string; eid: string; bestemmelse: string | null; sitat: string | null }
+export interface RelasjonHjemmel {
+  rettskildeId: string; rettskilde: string; eid: string; bestemmelse: string | null; sitat: string | null;
+  /** [Ny, #469, Johanns avgjørelse 2026-11-17] `navnets` (bekreftet for relasjonen i juristrunden) eller `egen`. */
+  kilde: 'navnets' | 'egen' | null;
+  /** Kantens avgrensningstekst fra fila («folketrygdloven kapittel 5 (stønad ved helsetjenester)»), eller null. */
+  avgrensning: string | null;
+}
 /** [Ny, #469] Én relasjon i forhåndsklassifiseringen: det knappen skriver, eller hvorfor den er av eller borte. */
 export interface ForhandRelasjonsforslag {
   nr: number; indeks: number; relasjon: string; relasjonstekst: string; merknad: string | null; status: Relasjonsstatus; grunn: string | null;

@@ -124,7 +124,7 @@ public class AktorkoRelasjonerTests
         db.RettskildeNoder.Add(new RettskildeNodeEntitet
         {
             Id = Guid.NewGuid(), RettskildeId = id, Eid = p.Hjemmel!.Eid, KildeId = "h", NodeType = "punkt",
-            Tekst = "bostedskommune: kommunen der barnet er folkeregistrert", Sorteringsrekkefolge = 0,
+            Tekst = p.Relasjoner[0].Hjemmel!.Sitat, Sorteringsrekkefolge = 0,
         });
         db.Navnekandidater.Add(new NavnekandidatEntitet
         {
@@ -190,6 +190,43 @@ public class AktorkoRelasjonerTests
         Assert.Equal((Relasjonsstatus.Avvist, "ikke riktig"), (avvist.Status, avvist.KantAvvisningBegrunnelse));
         await Assert.ThrowsAsync<AktorkoKonfliktException>(() => tjeneste.SkrivAsync(24, 0, new ForhandRelasjonSkriv(f.Fra.Id, f.Til.Id), "test"));
         Assert.Equal(1, await db.Strukturkanter.IgnoreQueryFilters().CountAsync(k => k.TilBegrepId == rolle.Id));
+    }
+
+    // ------------------------------------------------------------------------------------------------ Hjemmel per relasjon (Johann 2026-11-17)
+
+    [Fact]
+    public void Hver_relasjon_som_kan_skrives_har_egen_hjemmel_fra_juristrunden()
+    {
+        // 57 relasjoner har kategori og alt fila må gi; hver har nå feltet «hjemmel» fra juristrunden (aktorko-forhand/relasjonshjemler).
+        var med = Forhandsklassifisering.Alle.SelectMany(p => p.Relasjoner).Where(r => r.Hjemmel is not null).ToList();
+        Assert.Equal(57, med.Count);
+        Assert.All(med, r => Assert.False(string.IsNullOrWhiteSpace(r.Hjemmel!.Sitat)));
+        Assert.All(med.Where(r => r.Hjemmel!.Kunnskapsstatus == Strukturkanter.Fortolkning),
+            r => Assert.True(r.Hjemmel!.Tolkningsargumenter is { Count: > 0 } && !string.IsNullOrWhiteSpace(r.Hjemmel.Tolkningsbegrunnelse)));
+        // Hjemmelen arves ikke fra navnet når en annen bestemmelse bærer relasjonen: Folketrygden forvaltes av Helsedirektoratet etter
+        // ftrl. § 21-11 a, ikke formålsparagrafen § 1-1, og med avgrensningen til kapittel 5.
+        var hdir = Post(102).Relasjoner[0].Hjemmel!;
+        Assert.Equal(("egen", "https://lovdata.no/eli/lov/1997/02/28/19/nor/§21-11a/ledd-1"), (hdir.Kilde, hdir.Eid));
+        Assert.Equal("folketrygdloven kapittel 5 (stønad ved helsetjenester)", hdir.Avgrensning);
+        // Kommunen som tilsynsmyndighet hører til en utskilt rolle: juristrunden sier at den ikke skal skrives.
+        Assert.False(Post(15).Relasjoner[2].Hjemmel!.Skrives);
+    }
+
+    [Fact]
+    public async Task T_skrives_bare_ved_skal_avdelingsledere_er_kan()
+    {
+        // n57: «kan det utnevnes en dommer som leder for hver avdeling» (dl. § 19 fjerde ledd). Ingen knapp, uansett hva basen har.
+        Assert.Equal(Modalitet.Kan, Post(57).Relasjoner[0].Hjemmel!.Modalitet);
+        await using var db = _fixture.NyDbContext();
+        var tjeneste = new AktorkoRelasjonTjeneste(db, new StrukturkantTjeneste(db));
+        var f = (await tjeneste.ForNrAsync(57))!.Relasjoner.Single();
+        Assert.Equal(Relasjonsstatus.KanIkkeSkrives, f.Status);
+        Assert.StartsWith("kan, ikke skal", f.Grunn);
+        // n143 lagmenn: «så mange … som til enhver tid er bestemt» avgjør ikke at hver lagmannsrett har lagmenn.
+        var lagmann = (await tjeneste.ForNrAsync(143))!.Relasjoner.Single();
+        Assert.StartsWith("ordlyden avgjør ikke", lagmann.Grunn);
+        // n15.r3: juristrunden.
+        Assert.StartsWith("juristrunden:", (await tjeneste.ForNrAsync(15))!.Relasjoner[2].Grunn);
     }
 
     [Fact]

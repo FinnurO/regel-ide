@@ -1,0 +1,22 @@
+[
+ {
+  "id": "n102.r1",
+  "replikk": "presiserer",
+  "tekst": "Jeg godtar løsningen. Innvendingen i runde 1 var «skriv med avgrensningen, ellers vent», og et eget avgrensningsfelt i fila som skrives til AvgrensningTekst oppfyller det. Presiseringen gjelder ordlyden. Teksten bør være nøyaktig den samme som i fasiten u303: «folketrygdloven kapittel 5 (stønad ved helsetjenester)», og ikke bare «folketrygdloven kapittel 5». Grunnen er idempotensen. Køknappen sammenligner bare kategori, type, fra og til (docs/33 §5.16.3), men StrukturkantTjeneste.OpprettAsync har avgrensningen i nøkkelen (docs/33 §4.3). Hvis køen skriver kanten først og fasiten lastes senere (#387), blir det da to kanter for samme forhold, som bare skiller seg i avgrensningsteksten. Parentesen er en beskrivelse, ikke et sitat. Kapitteloverskriften står ikke i basen, men innholdet bekreftes av ftrl. § 5-1 første ledd («stønad etter dette kapitlet … utgifter til helsetjenester»). Kjernen, «kapittel 5», står ordrett i hjemmelen.",
+  "kilder": [
+   {"ref": "ftrl. § 21-11 a første ledd", "funksjon": "direkte_hjemmel"},
+   {"ref": "ftrl. § 5-1 første ledd", "funksjon": "forutsatt_kilde"},
+   {"ref": "fasit spesialisthelsetjenesteloven u303 (avgrensning)", "funksjon": "forutsatt_kilde"},
+   {"ref": "docs/33 §4.3 (idempotens i strukturkanter) og §5.16.3 (idempotens i køen)", "funksjon": "forutsatt_kilde"}
+  ]
+ },
+ {
+  "id": "n102.r2",
+  "replikk": "godtar",
+  "tekst": "Jeg godtar løsningen og teksten «folketrygdloven unntatt kapittel 5». Den svarer til hjemmelens «folketrygdloven, med unntak av kapittel 5» (Nav-loven § 4 andre ledd) og er det motsatte av r1, så de to kantene dekker hele loven uten overlapp. Her finnes ingen fasitrad å treffe. Bruker r1 parentesen fra u303, bør r2 gjerne få den samme, «folketrygdloven unntatt kapittel 5 (stønad ved helsetjenester)», så paret leses som komplementært. Det er en anbefaling, ikke et krav. Jeg ville ikke lagt til flere unntak, for eksempel trygdeavgiften, som andre organer har oppgaver med. Avgrensningen skal gjengi det hjemmelen sier, ikke en fullstendig oversikt over hvem som gjør hva.",
+  "kilder": [
+   {"ref": "Nav-loven § 4 andre ledd", "funksjon": "direkte_hjemmel"},
+   {"ref": "ftrl. § 21-11 a første ledd", "funksjon": "forutsatt_kilde"}
+  ]
+ }
+]

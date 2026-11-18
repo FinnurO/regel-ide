@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { ForhandRelasjonsforslag, RelasjonNode } from '../api/types';
-import { avTekst, kantmerke, knappetilstand, nodelenke, telling, tellingstekst } from './forhandRelasjonsregler';
+import { avTekst, hjemmelkilde, kantmerke, knappetilstand, nodelenke, telling, tellingstekst } from './forhandRelasjonsregler';
 
 const node = (navn: string, erNavnet: boolean, id: string | null = null): RelasjonNode =>
   ({ id, type: id ? 'begrep' : null, navn, art: 'klasse', erNavnet, merknad: null });
@@ -45,6 +45,11 @@ describe('knappen per relasjon (#469)', () => {
       forslag({ status: 'skrives_av_koblingen' })];
     expect(telling(r)).toEqual({ skriv: 1, av: 1, finnes: 1, ingen: 2 });
     expect(tellingstekst(r)).toBe('1 kan skrives, 1 venter på at en node opprettes, 1 finnes eller er avvist, 2 kan ikke skrives');
+  });
+
+  it('sier om hjemmelen er relasjonens egen eller navnets, bekreftet i juristrunden', () => {
+    expect(hjemmelkilde('egen')).toMatch(/^Relasjonens egen hjemmel/);
+    expect(hjemmelkilde('navnets')).toMatch(/^Navnets hjemmel, bekreftet/);
   });
 
   it('lenker til aktøren eller begrepet, og ikke til en node som ikke finnes', () => {

@@ -7,7 +7,7 @@ import { Metatekst } from '../entitet/Metatekst';
 import { KunnskapsstatusTag } from '../strukturkant/Utsagnsstatus';
 import { TOLKNINGSARGUMENTER } from './utsagnsgrunnlag';
 import { relasjonstekst } from './aktorkoForhand';
-import { SKRIVES_SOM_TEKST, avTekst, kantmerke, knappetilstand, nodelenke, storForbokstav, tellingstekst } from './forhandRelasjonsregler';
+import { SKRIVES_SOM_TEKST, avTekst, hjemmelkilde, kantmerke, knappetilstand, nodelenke, storForbokstav, tellingstekst } from './forhandRelasjonsregler';
 
 /**
  * [Ny, issue #469, Johanns klarsignal 2026-11-17] Forhåndsklassifiseringens relasjoner, én linje og én knapp per relasjon (docs/09 §54).
@@ -48,11 +48,17 @@ function Bekreftelse({ f, onBekreft, onAvbryt, sender }: { f: ForhandRelasjonsfo
                   <Link asChild><RouterLink to={`/rettskilder/${f.hjemmel.rettskildeId}`}>{f.hjemmel.rettskilde}</RouterLink></Link>{' '}
                   <span title={f.hjemmel.eid}>{f.hjemmel.bestemmelse ?? f.hjemmel.eid}</span>
                   {f.hjemmel.sitat && <Metatekst>«{f.hjemmel.sitat}»</Metatekst>}
-                  <Metatekst>Navnets hjemmel i forhåndsklassifiseringen; fila har ikke egen hjemmel per relasjon.</Metatekst>
+                  <Metatekst>{hjemmelkilde(f.hjemmel.kilde)}</Metatekst>
                 </>
               )}
             </Table.Cell>
           </Table.Row>
+          {f.hjemmel?.avgrensning && (
+            <Table.Row>
+              <Table.HeaderCell>Avgrensning</Table.HeaderCell>
+              <Table.Cell>{f.hjemmel.avgrensning}</Table.Cell>
+            </Table.Row>
+          )}
           <Table.Row>
             <Table.HeaderCell style={{ verticalAlign: 'top' }}>Kunnskapsstatus</Table.HeaderCell>
             <Table.Cell>
@@ -65,7 +71,7 @@ function Bekreftelse({ f, onBekreft, onAvbryt, sender }: { f: ForhandRelasjonsfo
               <Table.HeaderCell style={{ verticalAlign: 'top' }}>Merknad i fila</Table.HeaderCell>
               <Table.Cell>
                 {f.merknad}
-                <Metatekst>Lagres i begrunnelsen. Viser merknaden til en annen bestemmelse enn hjemmelen, avbryt og registrer kanten på aktørsiden.</Metatekst>
+                <Metatekst>Lagres i begrunnelsen.</Metatekst>
               </Table.Cell>
             </Table.Row>
           )}

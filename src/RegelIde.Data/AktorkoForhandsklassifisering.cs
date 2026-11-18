@@ -93,7 +93,32 @@ public sealed record ForhandKoforslag(
 public sealed record ForhandRelasjonFil(
     [property: JsonPropertyName("relasjon")] string Relasjon,
     [property: JsonPropertyName("til")] JsonElement? Til,
-    [property: JsonPropertyName("merknad")] string? Merknad);
+    [property: JsonPropertyName("merknad")] string? Merknad,
+    [property: JsonPropertyName("hjemmel")] ForhandRelasjonshjemmelFil? Hjemmel = null);
+
+/// <summary>
+/// [Ny, issue #469, Johanns avgjørelse 2026-11-17] Hjemmelen for SELVE relasjonen, satt i juristrunden i
+/// <c>aktorko-forhand/relasjonshjemler/</c>. Navnets hjemmel arves ikke: den står her bare når juristrunden har bekreftet at den bærer
+/// relasjonen (<see cref="Kilde"/> = <c>navnets</c>). Knappen skriver ingenting for en relasjon uten dette feltet.
+/// </summary>
+/// <param name="Kilde"><c>navnets</c> (navnets hjemmel, bekreftet) eller <c>egen</c> (en annen bestemmelse bærer relasjonen).</param>
+/// <param name="Modalitet">Bare for T skal_ha: <c>skal</c>, <c>kan</c> eller <c>ordlyden_avgjor_ikke</c>. T skrives bare ved <c>skal</c>.</param>
+/// <param name="Skrives">False når juristrunden fant at relasjonen ikke skal skrives som denne kanten; <see cref="SkrivesIkkeGrunn"/> sier hvorfor.</param>
+/// <param name="Avgrensning">Kantens avgrensningstekst fra juristrunden («folketrygdloven kapittel 5 (stønad ved helsetjenester)»), eller null.</param>
+public sealed record ForhandRelasjonshjemmelFil(
+    [property: JsonPropertyName("eid")] string Eid,
+    [property: JsonPropertyName("rettskildeId")] Guid? RettskildeId,
+    [property: JsonPropertyName("rettskilde")] string? Rettskilde,
+    [property: JsonPropertyName("sitat")] string Sitat,
+    [property: JsonPropertyName("kunnskapsstatus")] string Kunnskapsstatus,
+    [property: JsonPropertyName("tolkningsargumenter")] List<string>? Tolkningsargumenter,
+    [property: JsonPropertyName("tolkningsbegrunnelse")] string? Tolkningsbegrunnelse,
+    [property: JsonPropertyName("kilde")] string Kilde,
+    [property: JsonPropertyName("modalitet")] string? Modalitet,
+    [property: JsonPropertyName("skrives")] bool Skrives,
+    [property: JsonPropertyName("skrives_ikke_grunn")] string? SkrivesIkkeGrunn,
+    [property: JsonPropertyName("avgrensning")] string? Avgrensning,
+    [property: JsonPropertyName("juristrunde")] string? Juristrunde);
 
 public sealed record ForhandHjemmelFil(
     [property: JsonPropertyName("rettskildeId")] Guid? RettskildeId,
