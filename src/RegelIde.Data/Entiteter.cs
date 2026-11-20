@@ -1963,7 +1963,7 @@ public static class Forekomstlesninger
     /// <summary>Ikke en aktør: nettstedet (regjeringen.no), en avtaletittel eller en navnedel («Regjeringens sikkerhetsutvalg»).</summary>
     public const string IkkeAktor = "ikke_aktor";
     /// <summary>Rollen statsråd: «medlem av regjeringen» (også i oppramsing) og «regjeringens medlemmer». [ENDRET, Johanns avgjørelse 2026-11-20
-    /// på PR #489] Referenten er rollebegrepet «statsråd» (G del_av statsrådet), ikke organet.</summary>
+    /// på PR #489] Referenten er rollebegrepet «statsråd» (statsrådet G har_medlemmer rollen), ikke organet.</summary>
     public const string RolleStatsrad = "rolle_statsrad";
     /// <summary>Funksjonen, styret av riket («føre/forestå/ivareta regjeringen»). Ingen aktør.</summary>
     public const string Funksjon = "funksjon";

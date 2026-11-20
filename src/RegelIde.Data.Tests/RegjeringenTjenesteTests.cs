@@ -133,8 +133,11 @@ public class RegjeringenTjenesteTests(EmbeddedPostgresFixture fixture) : IAsyncL
         var rolle = await les.Begreper.SingleAsync(b => b.Id == RegjeringenTjeneste.StatsradRolleId);
         Assert.Equal(Nodetyper.Rolle, rolle.Begrepskategori);
         Assert.Equal(RegjeringenTjeneste.Grl15Eid, rolle.LovreferanseEid);
-        var delAv = await les.Strukturkanter.SingleAsync(k => k.FraBegrepId == RegjeringenTjeneste.StatsradRolleId && k.Typekode == "del_av");
-        Assert.Equal(RegjeringenTjeneste.StatsradetId, delAv.TilVirksomhetId);
+        // [Juristmålingen j3] Statsrådet har medlemmer i rollen statsråd (G har_medlemmer med rolle som til-node, Grl. § 12 første ledd).
+        var medlemmer = await les.Strukturkanter.SingleAsync(k => k.FraVirksomhetId == RegjeringenTjeneste.StatsradetId && k.Typekode == "har_medlemmer");
+        Assert.Equal(RegjeringenTjeneste.StatsradRolleId, medlemmer.TilBegrepId);
+        Assert.Equal(RegjeringenTjeneste.Grl12Eid, medlemmer.HjemmelEid);
+        Assert.Equal(RegjeringenTjeneste.HarMedlemmerObjekt, medlemmer.Objekt);
         Assert.False(await les.Begreper.AnyAsync(b => b.VirksomhetReferanseId != null && b.Term.ToLower() == "regjeringen" && b.Entitetsstatus == "gjeldende"));
         var aktortype = await les.AktortypeUtsagn.SingleAsync(a => a.VirksomhetId == RegjeringenTjeneste.StatsradetId);
         Assert.Equal("organ", aktortype.Aktortype);
@@ -160,6 +163,11 @@ public class RegjeringenTjenesteTests(EmbeddedPostgresFixture fixture) : IAsyncL
         Assert.Equal("finnes", r2.Statsradet.Utfall);
         Assert.All(r2.Forekomster.Where(f => f.RettskildeId == kilde), f => Assert.Equal("finnes", f.Binding));
         Assert.Equal(3, await les.NavneformBindinger.CountAsync(b => b.RettskildeId == kilde));
+
+        // [Juristmålingen j3] Bare har_medlemmer kan ha en rolle som til-node på G; har_organ til en rolle avvises fortsatt.
+        await Assert.ThrowsAsync<ArgumentException>(() => new StrukturkantTjeneste(db).OpprettAsync(new NyStrukturkant(Strukturkanter.Organtilhorighet,
+            "har_organ", Kantnode.Virksomhet(RegjeringenTjeneste.StatsradetId), Kantnode.Begrep(RegjeringenTjeneste.StatsradRolleId),
+            HjemmelRettskildeId: kilde, HjemmelEid: eider[0], Status: Strukturkanter.ManueltForeslatt), "test"));
 
         // En slutning kan ikke godkjennes som den er.
         var generiske = new GeneriskNavneformTjeneste(db);

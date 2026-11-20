@@ -1,0 +1,68 @@
+[
+ {
+  "id": "j1",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Grl. § 12 første ledd er bestemmelsen som skaper organet: «Kongen velger selv et råd av stemmeberettigede norske borgere. Dette råd skal bestå av en statsminister og i det minste syv andre medlemmer.» Hjemmelens art er derfor oppretting, ikke navnevedtak. Navnet «statsrådet» står ikke i første ledd. Det står i annet ledd («statsrådets medlemmer», «sete i statsrådet»), tredje ledd og § 15 første ledd. At «et råd» i første ledd er statsrådet, følger av sammenhengen i samme paragraf. Fortolkning er derfor riktig status, og det er ærligere enn tekstfunn med § 15, som bare forutsetter organet. Begrunnelsen viser riktig til §§ 28 og 30 for beslutningsformen: § 30 annet ledd sier at kongen fatter beslutningen etter å ha hørt dem som har sete i statsrådet.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {"ref": "Grl. § 12 første, annet og tredje ledd (gjeldende versjon i korpuset)", "funksjon": "direkte_hjemmel"},
+   {"ref": "Grl. § 15 første ledd, § 28 og § 30 annet ledd", "funksjon": "forutsatt_kilde"},
+   {"ref": "docs/33 §5.16 (begreper.hjemmel_art: oppretting/navnevedtak) og §5.17 hjemmelregel 2", "funksjon": "forutsatt_kilde"}
+  ]
+ },
+ {
+  "id": "j2",
+  "dom": "kontroller",
+  "gjelder": "utenfor_raden",
+  "alvor": null,
+  "innvending": "Selve rollebegrepet holder: Grl. § 15 første ledd bruker «statsråd» om medlemmet («Enhver som er medlem av statsrådet … mistillit til vedkommende statsråd alene»), så navnet er et tekstfunn. «vedkommende statsråd» viser tilbake til «enhver som er medlem», og det støtter at definisjonen tar med statsministeren (§ 12 første ledd: «en statsminister og … syv andre medlemmer»). At begrepet gjelder hele korpuset, følger samme praksis som klassene i #442 og klassen kommune. Det som må kontrolleres, er at termen «statsråd» ikke brukes til termbasert tagging. Den bare formen er i korpuset nesten alltid organet eller beslutningsformen, ikke rollen. Det er 364 forekomster av «statsråd» i ubestemt form i gjeldende noder, og 254 av dem har «i» rett foran («Kongen i statsråd», «i statsråd»). Det samme leddet som er hjemmelen, bruker også ordet om organet («det samlede statsråd»). Forekomstene må bindes til rollen bare gjennom regel 4 eller av et menneske, aldri ved at termen gjenkjennes. Ellers trengs en ordsperre som for «staten» (#463). Jeg har ikke kontrollert om noe sveip tagger rollebegreper på term.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {"ref": "Grl. § 15 første ledd og § 12 første ledd", "funksjon": "direkte_hjemmel"},
+   {"ref": "Korpuset: forekomster av «statsråd» (ubestemt) i gjeldende noder, 364 i alt og 254 med «i» foran (SELECT 2026-11-20)", "funksjon": "forutsatt_kilde"},
+   {"ref": "src/RegelIde.Data/RegjeringenTjeneste.cs StatsradRolleAsync og StatsradRolleDefinisjon", "funksjon": "forutsatt_kilde"}
+  ]
+ },
+ {
+  "id": "j3",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Feil type. Forholdet mellom et organ og medlemsrollen er G har_medlemmer (organets faste medlemmer), ikke del_av. Grl. § 12 første ledd («Dette råd skal bestå av en statsminister og i det minste syv andre medlemmer») har samme form som domstolloven § 3 første ledd («Retten skal ha en justitiarius og nitten andre dommere»). I fasiten er den G har_medlemmer fra Høyesterett til rollen dommer, med antallet i objekt (domstolloven u11; likeså u19, u25 og u39). Mønsteret i docs/33 §4.3 punkt 7 gjelder en STILLING knyttet til organet, som Høyesteretts direktør, administrasjonssjefen, og det er ikke et medlem. Statsrådene er medlemmene, slik dommerne er det. Modellereren skriver selv i RolleDelAvBegrunnelse at ordlyden sier «medlem av», og at del_av bare er modellens form. Jeg er enig i at I innehar (aktør/klasse til rolle, for personen) og T skal_ha (bare klassenivå) ikke passer. Rettingen: kategori G, typekode har_medlemmer, fra = statsrådet (organet), til = rollen statsråd, objekt «en statsminister og minst syv andre medlemmer», hjemmel Grl. § 12 første ledd. Kunnskapsstatusen er fortolkning, fordi «Dette råd» = statsrådet er en premiss fra sammenhengen (j1) og rollenavnet kommer fra § 15. Formatet har ikke feltene fra, til og objekt i retting, så de står her. Typen er konfigurert og aktiv (relasjonstype_konfigurasjon), men ingen kant av typen er lastet i den delte basen. Kontroller derfor at kanttjenesten godtar G med til = et rollebegrep. Visningsmalen «har medlemmer fra {0}» / «har medlemmer i {0}» bør også leses mot denne retningen.",
+  "retting": {
+   "kategori": "G",
+   "typekode": "har_medlemmer",
+   "hjemmel_eid": "https://lovdata.no/eli/lov/1814/05/17/nor/§12/ledd-1",
+   "kunnskapsstatus": "fortolkning"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": "bygget",
+  "kilder": [
+   {"ref": "Grl. § 12 første ledd", "funksjon": "direkte_hjemmel"},
+   {"ref": "data/fasit/strukturmodell/domstolloven.json u11 (§ 3 første ledd), u19, u25, u39: G har_medlemmer organ → rolle", "funksjon": "forutsatt_kilde"},
+   {"ref": "docs/33 §4.3 tabellen (G: har_medlemmer = organets faste medlemmer) og punkt 7 (stillingen del_av)", "funksjon": "forutsatt_kilde"},
+   {"ref": "data/fasit/strukturmodell/FORMAT.md: har_medlemmer = organets FASTE medlemmer (antall, hvem oppnevner)", "funksjon": "forutsatt_kilde"},
+   {"ref": "Delt base: relasjonstype_konfigurasjon har_medlemmer (aktiv, G); 0 strukturkanter av typen", "funksjon": "forutsatt_kilde"}
+  ]
+ },
+ {
+  "id": "j4",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. «medlem av regjeringen» og «regjeringens medlemmer» betegner rollen, ikke kollegiet. At referenten er rollebegrepet og ikke organet, er derfor mer presist enn i runde 1. Hjemmelen § 15 første ledd og kunnskapsstatusen fortolkning er de samme som i a/ (m12–m15), og begrunnelsen viser riktig til §§ 62, 72 og 82. Det eneste som må følge med: begrunnelsen i regel 4 sier «rollebegrepet, G del_av statsrådet». Det må endres til G har_medlemmer hvis j3 rettes.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {"ref": "Grl. § 15 første ledd, § 62 annet ledd, § 72 tredje ledd nr. 1 og 3, § 82 første ledd", "funksjon": "direkte_hjemmel"},
+   {"ref": "src/RegelIde.Data/RegjeringenTjeneste.cs, ForekomstbindingAsync, grenen RolleStatsrad", "funksjon": "forutsatt_kilde"}
+  ]
+ }
+]

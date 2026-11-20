@@ -222,6 +222,16 @@ public static class Strukturkanter
         string FraBeskrivelse, bool FraVirksomhet, string[] FraBegrep,
         string TilBeskrivelse, bool TilVirksomhet, string[] TilBegrep, bool TilValgfri);
 
+    /// <summary>
+    /// [Ny, issue #486, juristmålingen j3 2026-11-20] Begrepstypene til-noden kan ha for én TYPE, når typen tillater mer enn kategorien.
+    /// Bare G <c>har_medlemmer</c>: organets faste medlemmer er en ROLLE («Retten skal ha en justitiarius og nitten andre dommere»,
+    /// domstolloven § 3 første ledd, fasiten u11; «Dette råd skal bestå av en statsminister og i det minste syv andre medlemmer», Grl. § 12
+    /// første ledd). Før #486 godtok skriveveien bare en aktør som til-node på G, så fasitens <c>har_medlemmer</c> → rolle kunne ikke lastes.
+    /// De andre G-typene er uendret (til = rettssubjekt).
+    /// </summary>
+    public static string[] TilBegrep(string kategori, string? typekode) =>
+        (kategori, typekode) == (Organtilhorighet, "har_medlemmer") ? [.. Noderegler[kategori].TilBegrep, Nodetyper.Rolle] : Noderegler[kategori].TilBegrep;
+
     public static readonly IReadOnlyDictionary<string, Noderegel> Noderegler = new Dictionary<string, Noderegel>
     {
         [Relasjon] = new("aktør", true, [], "aktør", true, [], false),

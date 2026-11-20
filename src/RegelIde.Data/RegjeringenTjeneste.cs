@@ -45,9 +45,13 @@ public sealed record RegjeringenRapport(
 /// (fortolkning: rådet er et kollegium); <c>G har_organ</c> statsrådet → staten (fortolkning, samme hjemmel), som departementene i #463.
 /// «regjeringen» blir IKKE navneform for statsrådet eller Kongen i statsråd.</item>
 /// <item><b>Rollen statsråd</b> [Ny, Johanns avgjørelse 2026-11-20 på PR #489]: et rollebegrep «statsråd» (fast id <see cref="StatsradRolleId"/>,
-/// for hele korpuset), hjemlet i Grl. § 15 første ledd («… mistillit til vedkommende statsråd alene …»), og <c>G del_av</c> rollen → statsrådet
-/// («er del av statsrådet»), slik en stilling knyttes til organet sitt (docs/33 §4.3 punkt 7: «Høyesteretts direktør» del_av Høyesterett).
-/// Forekomster som leses som rollen («medlem av regjeringen»), peker på rollebegrepet, ikke på statsrådet.</item>
+/// for hele korpuset), hjemlet i Grl. § 15 første ledd («… mistillit til vedkommende statsråd alene …»), og [ENDRET, juristmålingen j3]
+/// <c>G har_medlemmer</c> statsrådet → rollen statsråd («har medlemmer i statsråd»), objekt «en statsminister og minst syv andre medlemmer»,
+/// hjemmel Grl. § 12 første ledd, samme form som domstolloven § 3 første ledd i fasiten (u11: Høyesterett har_medlemmer dommer). Først bygget
+/// som G del_av rollen → statsrådet; juristen: del_av (docs/33 §4.3 punkt 7) gjelder en stilling ved organet, ikke medlemmene.
+/// Forekomster som leses som rollen («medlem av regjeringen»), peker på rollebegrepet, ikke på statsrådet. Rollebegrepet bindes bare via
+/// regel 4 eller av et menneske: «statsråd» i ubestemt form betyr nesten alltid organet eller beslutningsformen («Kongen i statsråd»,
+/// juristmålingen j2).</item>
 /// <item><b>«regjeringen»</b> blir en generisk navneform (grunn <c>generisk</c>, ingen aktør, som «departementet»), slik at hver forekomst kan
 /// tagges. Den er ikke en navneform FOR noen aktør; betydningen står per forekomst.</item>
 /// <item><b>Hver forekomst</b> tagges (eier: rettskildens ansvarlige departement, som i <see cref="AktoridentitetTjeneste"/>) og får en
@@ -104,10 +108,13 @@ public sealed class RegjeringenTjeneste(RegelIdeDbContext db, StrukturkantTjenes
         + "Stortinget har fattet beslutning om mistillit til " + Grl15RolleSitat + " …». § 12 første ledd sier at rådet består av en statsminister og "
         + "minst syv andre medlemmer. Johanns avgjørelse 2026-11-20 på PR #489: rollen er et eget rollebegrep, med statsrådet som organ (#486).";
 
-    public const string RolleDelAvBegrunnelse =
-        "En statsråd er medlem av statsrådet: «" + Grl15Sitat + "» og «vedkommende statsråd» (Grunnloven § 15 første ledd), og rådet består av "
-        + "statsministeren og de andre medlemmene (§ 12 første ledd). Rollen knyttes til organet med G del_av, som en stilling til organet sitt "
-        + "(docs/33 §4.3 punkt 7). Ordlyden sier medlem av; at det uttrykkes som del_av, er modellens form (fortolkning). #486, PR #489.";
+    public const string HarMedlemmerObjekt = "en statsminister og minst syv andre medlemmer";
+
+    public const string HarMedlemmerBegrunnelse =
+        "Grunnloven § 12 første ledd: «" + Grl12Sitat + " Dette råd skal bestå av en statsminister og i det minste syv andre medlemmer.» Medlemmene "
+        + "er rollen statsråd («vedkommende statsråd», § 15 første ledd). Samme form som domstolloven § 3 første ledd («Retten skal ha en justitiarius "
+        + "og nitten andre dommere»), som fasiten har som G har_medlemmer fra Høyesterett til rollen dommer (u11). At medlemmene i § 12 er rollen "
+        + "statsråd, følger av sammenhengen med § 15 (fortolkning). Juristmålingen j3, #486, PR #489.";
 
     public const string StatsradetAktortypeBegrunnelse =
         "Grunnloven § 12 første ledd: «" + Grl12Sitat + " Dette råd skal bestå av en statsminister og i det minste syv andre medlemmer.» "
@@ -156,15 +163,15 @@ public sealed class RegjeringenTjeneste(RegelIdeDbContext db, StrukturkantTjenes
             navneform = await StatsradetNavneformAsync(grl12, bruker, ct);
             aktortype = await StatsradetAktortypeAsync(grl12, bruker, ct);
             harOrgan = await HarOrganAsync(grl12, bruker, ct);
-            rolleDelAv = rolleFinnes ? await RolleDelAvAsync(grl15, bruker, ct)
-                : new("G del_av statsråd → statsrådet", "ikke_kjort", null, "Rollen statsråd ble ikke skrevet.");
+            rolleDelAv = rolleFinnes ? await HarMedlemmerAsync(grl12, bruker, ct)
+                : new("G har_medlemmer statsrådet → statsråd", "ikke_kjort", null, "Rollen statsråd ble ikke skrevet.");
         }
         else
         {
             navneform = new("navneform «statsrådet»", "ikke_kjort", null, "Statsrådet ble ikke skrevet.");
             aktortype = new("aktørtype organ", "ikke_kjort", null, "Statsrådet ble ikke skrevet.");
             harOrgan = new("G har_organ statsrådet → staten", "ikke_kjort", null, "Statsrådet ble ikke skrevet.");
-            rolleDelAv = new("G del_av statsråd → statsrådet", "ikke_kjort", null, "Statsrådet ble ikke skrevet.");
+            rolleDelAv = new("G har_medlemmer statsrådet → statsråd", "ikke_kjort", null, "Statsrådet ble ikke skrevet.");
         }
 
         var kongen = await KongenIStatsradAsync(ct);
@@ -363,21 +370,23 @@ public sealed class RegjeringenTjeneste(RegelIdeDbContext db, StrukturkantTjenes
         return new(hva, "opprettet", b.Id, null);
     }
 
-    /// <summary>[Ny, PR #489] <c>G del_av</c> rollen statsråd → statsrådet («er del av statsrådet»), fortolkning med Grl. § 15 første ledd.</summary>
-    private async Task<RegjeringenLedd> RolleDelAvAsync(Hjemmel grl15, string bruker, CancellationToken ct)
+    /// <summary>[Ny, PR #489, juristmålingen j3] <c>G har_medlemmer</c> statsrådet → rollen statsråd, objekt «en statsminister og minst syv andre
+    /// medlemmer», fortolkning med Grl. § 12 første ledd.</summary>
+    private async Task<RegjeringenLedd> HarMedlemmerAsync(Hjemmel grl12, string bruker, CancellationToken ct)
     {
-        const string hva = "G del_av statsråd → statsrådet";
+        const string hva = "G har_medlemmer statsrådet → statsråd";
         var tidligere = await kanttjeneste.GjeldendeInklAvviste
-            .Where(k => k.Kategori == Strukturkanter.Organtilhorighet && k.Typekode == "del_av" && k.FraBegrepId == StatsradRolleId
-                        && k.TilVirksomhetId == StatsradetId)
+            .Where(k => k.Kategori == Strukturkanter.Organtilhorighet && k.Typekode == "har_medlemmer" && k.FraVirksomhetId == StatsradetId
+                        && k.TilBegrepId == StatsradRolleId)
             .OrderBy(k => k.Status == Strukturkanter.Avvist ? 1 : 0).FirstOrDefaultAsync(ct);
         if (tidligere is not null) return new(hva, tidligere.Status == Strukturkanter.Avvist ? "avvist" : "finnes", tidligere.Id, null);
-        var o = await kanttjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Organtilhorighet, "del_av",
-            Kantnode.Begrep(StatsradRolleId), Kantnode.Virksomhet(StatsradetId),
-            HjemmelRettskildeId: grl15.RettskildeId, HjemmelEid: Grl15Eid,
+        var o = await kanttjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Organtilhorighet, "har_medlemmer",
+            Kantnode.Virksomhet(StatsradetId), Kantnode.Begrep(StatsradRolleId),
+            Objekt: HarMedlemmerObjekt,
+            HjemmelRettskildeId: grl12.RettskildeId, HjemmelEid: Grl12Eid,
             Status: Strukturkanter.ManueltForeslatt, OppdagelsesKilde: Oppdagelseskilde,
-            Kunnskapsstatus: Strukturkanter.Fortolkning, Tolkningsargumenter: ["ordlyd", "kontekst_system"], Begrunnelse: RolleDelAvBegrunnelse,
-            Kommentar: "Rollen statsråd hører til statsrådet (#486, PR #489)."), bruker, ct);
+            Kunnskapsstatus: Strukturkanter.Fortolkning, Tolkningsargumenter: ["ordlyd", "kontekst_system"], Begrunnelse: HarMedlemmerBegrunnelse,
+            Kommentar: "Statsrådet har medlemmer i rollen statsråd (#486, PR #489)."), bruker, ct);
         return new(hva, o.VarNy ? "opprettet" : "finnes", o.Kant.Id, null);
     }
 
@@ -490,7 +499,7 @@ public sealed class RegjeringenTjeneste(RegelIdeDbContext db, StrukturkantTjenes
                 if (statsradRolle is not { } rid) return ("ingen_referent", null);
                 ny = new(navneformId, f.RettskildeId, Kantnode.Begrep(rid), HjemmelRettskildeId: grl15.RettskildeId, HjemmelEid: Grl15Eid,
                     Kunnskapsstatus: Strukturkanter.Fortolkning, Tolkningsargumenter: ["ordlyd", "kontekst_system"],
-                    Begrunnelse: $"Rollen statsråd (rollebegrepet, G del_av statsrådet): «{treff!.Grunnlag}» er medlemmene av statsrådet, samme krets som «medlem av statsrådet» i Grunnloven § 15 "
+                    Begrunnelse: $"Rollen statsråd (rollebegrepet; statsrådet har medlemmer i rollen, G har_medlemmer): «{treff!.Grunnlag}» er medlemmene av statsrådet, samme krets som «medlem av statsrådet» i Grunnloven § 15 "
                                  + $"første ledd og «medlemmer av regjeringen» i § 72 tredje ledd nr. 1, som § 72 holder fra statssekretærer og politiske rådgivere (nr. 3); "
                                  + $"jf. «Statsrådets medlemmer» i § 62 annet ledd og «medlem av statsrådet» i § 82 første ledd. Uttrykket er rollen "
                                  + $"statsråd. Regel 4 (#486). {sitat}");
