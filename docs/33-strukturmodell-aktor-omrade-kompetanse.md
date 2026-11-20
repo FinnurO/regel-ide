@@ -241,7 +241,7 @@ Alle strukturutsagn lagres som én kanttype med kategori + konfigurerbar typekod
 | **M** medlemskap | aktør/klasse/område → klasse | medlem_av |
 | **O** områdesammensetning | område → område | bestar_av |
 | **A** ansvarsområde | aktør → område | har_ansvarsomrade, har_jurisdiksjon, har_sete_i, valgkrets_for |
-| **G** organtilhørighet | organ/enhet/rolle → rettssubjekt | har_organ, del_av ([#355] også fra en stilling: «Høyesteretts direktør» del_av Høyesterett), har_medlemmer (organets faste medlemmer), [Ny, #352] settes_med (sammensetningen i den enkelte sak — saksavhengig), [Ny, #353] tilhorer (ordning → rettssubjekt, bare når hjemlet) |
+| **G** organtilhørighet | organ/enhet/rolle → rettssubjekt ([ENDRET, #486] `har_medlemmer` også → rolle) | har_organ, del_av ([#355] også fra en stilling: «Høyesteretts direktør» del_av Høyesterett), har_medlemmer (organets faste medlemmer; til kan være rollen medlemmene har, som fasiten domstolloven u11 og statsrådet → statsråd), [Ny, #352] settes_med (sammensetningen i den enkelte sak — saksavhengig), [Ny, #353] tilhorer (ordning → rettssubjekt, bare når hjemlet) |
 | **I** rolleinnehav | aktør/klasse ([ENDRET, #418]: klasse lest distributivt) → rolle | innehar (= dagens `Myndighetstildeling` når målet er en rolle) |
 | **T** klassenivå | klasse → rolle/organ-type | skal_ha (distributivt: hvert medlem av klassen har …) |
 
@@ -2423,9 +2423,22 @@ pkt. 3.4.4), så valget mellom statsrådet og Kongen i statsråd var falskt. Joh
 
 | Utsagn | Hjemmel (eId og ordlyd kontrollert i korpus) | Kunnskapsstatus | Godkjenning |
 |---|---|---|---|
-| Aktøren **statsrådet** (uten orgnr) med gjeldende navneform «statsrådet» | Grl. § 15 første ledd: «Enhver som er medlem av statsrådet …» | tekstfunn | `manuelt_foreslatt` |
-| Aktørtypen organ | Grl. § 12 første ledd: «Kongen velger selv et råd av stemmeberettigede norske borgere.» | fortolkning (ordlyd, kontekst og system) | `manuelt_foreslatt` |
+| Aktøren **statsrådet** (uten orgnr) med gjeldende navneform «statsrådet», `hjemmel_art = oppretting` | Grl. § 12 første ledd: «Kongen velger selv et råd av stemmeberettigede norske borgere.» | fortolkning (ordlyd, kontekst og system): navnet står i § 12 annet ledd og § 15, ikke i første ledd | `manuelt_foreslatt` |
+| Aktørtypen organ | Grl. § 12 første ledd | fortolkning (ordlyd, kontekst og system) | `manuelt_foreslatt` |
 | Statsrådet `G har_organ` staten («er organ for staten») | Grl. § 12 første ledd | fortolkning | `manuelt_foreslatt` |
+| **Rollebegrepet «statsråd»** (fast id, for hele korpuset) | Grl. § 15 første ledd: «… mistillit til vedkommende statsråd alene …» | tekstfunn | `manuelt_foreslatt` |
+| Statsrådet `G har_medlemmer` rollen statsråd, objekt «en statsminister og minst syv andre medlemmer» | Grl. § 12 første ledd | fortolkning | `manuelt_foreslatt` |
+
+[ENDRET, Johanns avgjørelser 2026-11-20 på PR #489] (1) Navneformen hadde først Grl. § 15 første ledd som tekstfunn, og aktørsiden viste «Hjemmel for
+aktøren mangler». Med § 12 første ledd og `hjemmel_art = oppretting` gir hjemmelregelen i §5.17 (regel 2) hjemmelen. § 15 står i begrunnelsen.
+(2) Rollen statsråd er et eget rollebegrep, og forekomstene med lesningen `rolle_statsrad` peker på det, ikke på organet. Rollen knyttes til organet
+med `G har_medlemmer` (juristmålingen j3: samme form som domstolloven § 3 første ledd, fasiten u11 «Høyesterett har_medlemmer dommer»; først bygget
+som `G del_av` rollen → statsrådet, men `del_av` i §4.3 punkt 7 gjelder en stilling ved organet, ikke medlemmene). Skriveveien godtok ikke en rolle
+som til-node på G; nå gjør den det **bare for `har_medlemmer`** (`Strukturkanter.TilBegrep`). `har_organ` og `del_av` til en rolle avvises som før.
+Det betyr også at fasitens `har_medlemmer` → rolle (domstolloven u11, u19, u25, u39) nå kan lastes; før ble de avvist av valideringen.
+Rollebegrepet bindes bare via regel 4 eller av et menneske: «statsråd» i ubestemt form betyr nesten alltid organet eller beslutningsformen (254 av
+364 forekomster har «i» foran, juristmålingen j2). Lasteren og aktørkøen slår opp et helt aktørnavn mot termen, så bare en aktørfrase som er
+nøyaktig «statsråd», treffer rollen; om ordet trenger en ordsperre som «staten», er ikke avgjort.
 
 «regjeringen» er IKKE navneform for statsrådet eller Kongen i statsråd. Ordet blir en **generisk navneform** (grunn `generisk`, ingen aktør, som
 «departementet»), slik at hver forekomst kan tagges. Grl. § 32 første ledd kontrolleres også (hjemmelen for «Regjeringens res.»).
@@ -2447,7 +2460,7 @@ Bare vurderte forekomstbindinger (godkjent eller faglig vurdert) teller, som for
 før. Ny status `ikke_aktor`: en vurdert tagg sier at ordet her ikke er en aktør; lasteren gir årsaken `aktor_ikke_aktor` og ingen kobling.
 
 **Lesningen** (`navneform_bindinger.lesning`, lukket liste `Forekomstlesninger`): `fremmed_stat`, `generisk_konvensjonsstat`, `ikke_aktor`,
-`funksjon` og `slutning` har ingen referent (CHECK `ck_navneform_bindinger_referent_en`); `rolle_statsrad` har statsrådet og
+`funksjon` og `slutning` har ingen referent (CHECK `ck_navneform_bindinger_referent_en`); `rolle_statsrad` har rollebegrepet «statsråd» og
 `regjeringens_resolusjon` Kongen i statsråd som referent. En `slutning` kan ikke godkjennes som den er (CHECK og tjenesten): et menneske avviser
 den og registrerer forekomsten med referenten.
 
@@ -2487,8 +2500,9 @@ READ ONLY). Kopien `regelide_regjeringen` (pg_dump av delt base) gav gjennom API
 | slutning | 170 | |
 | **sum** | **268** (239 noder, 97 rettskilder) | |
 
-- **Tagget:** 254. 14 forekomster i to kilder («Endr. i instruks for/om håndtering av bygge- og leiesaker») har ingen ansvarlig departement i
-  katalogen som kan eie taggen, og får verken tagg eller forekomstbinding. 0 kollisjoner med andre tagger.
+- **Tagget:** 254. 14 forekomster i to kilder («Endr. i instruks for håndtering av bygge- og leiesaker» 6, «Endr. i instruks om håndtering av
+  bygge- og leiesaker» 8) har ingen ansvarlig departement i katalogen som kan eie taggen, og får verken tagg eller forekomstbinding. [Johanns
+  avgjørelse 2026-11-20 på PR #489] De blir stående utagget og vises som hull i rapporten; ingen eier gjettes. 0 kollisjoner med andre tagger.
 - **Flertydig hvis regeltaggene godkjennes og slutningene ikke** (vilkår 2): 5 forekomster i 4 noder (EØS-transportforskriften art. 11 nr. 3,
   miljøvernkonvensjonen art. 11, avgraderingsreglementet § 2 annet ledd (2), samfunnssikkerhetsinstruksen kap. VIII). Noder med ulike svar: 8
   (de 4 og 4 avtaletitler der den norske parten er avtaletittel og den andre fremmed stat). 25 noder har mer enn én forekomst.
@@ -2506,9 +2520,18 @@ Runde 1: 19 holder, 1 innvending (m1, lav: kunnskapsstatusen for «den syriske r
 begge aksepteres (m1: rekkefølgen i regel 1; m12–m15: rollebegrunnelsen med Grl. §§ 62, 72 og 82). Runde 2: juristen godtar begge. Ingen uenighet
 igjen.
 
-**Ikke avgjort (Johann):** hvem plikten ligger hos når «regjeringen skal legge fram for Stortinget» (slutning til da); om rollen statsråd skal få et
-eget rollebegrep i stedet for referenten statsrådet; og at aktørsiden for statsrådet viser «Hjemmel for aktøren mangler» fordi navneformen har § 15
-som hjemmel, ikke § 12 første ledd med `hjemmel_art` oppretting (§5.17).
+**Juristmålingen etter Johanns avgjørelser** (`maling-486/b/`, j1–j4): j1 (navneformen med § 12 første ledd, oppretting, fortolkning) og j4
+(forekomstene peker på rollebegrepet) holder; j2 (rollebegrepet, § 15 tekstfunn) holder, med merknaden om ubestemt «statsråd» over; j3 (middels):
+`G har_medlemmer` fra statsrådet til rollen, ikke `del_av`. Modellereren aksepterte alle (`b/svar.json`). Ingen uenighet igjen.
+
+**Kaldsjekket på nytt 2026-11-20** i en ny kopi `regelide_regjeringen` (API 5687, web 5373): samme fordeling (98 regeltagger, 170 slutninger, 14
+utagget), tørrkjøring = første skriving, andre skriving bare `finnes`, andre navneformer uendret og aktørkøen 189 → 188 som før. Aktørsiden for
+statsrådet viser hjemmelen Grl. § 12 første ledd («Navneform med hjemmel for aktøren», fortolkning, oppretting) og «har medlemmer fra statsråd»;
+Grl. § 72 tredje ledd nr. 1 lenker til rollebegrepet «statsråd». Kopien er slettet.
+
+**Avgjort av Johann 2026-11-20 (PR #489):** hjemmelen § 12 første ledd som oppretting; rollebegrepet «statsråd»; de 14 forekomstene uten eier
+står utagget som hull; plikten i «legge fram for Stortinget» er fortsatt slutning. **Ikke avgjort:** hvem plikten ligger hos (slutning til da), og
+om «statsråd» trenger en ordsperre.
 
 ### 5.20 Hjemmelsstatus: statusen per hjemmel og maskinregelen (#472 PR 1, bygget 2026-11-20)
 

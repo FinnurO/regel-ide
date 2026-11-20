@@ -1616,3 +1616,6 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
 - **Kaldsjekket 2026-11-20** i kopien `regelide_regjeringen` (API 5687, web 5373): statsrådet fra aktørlisten (forslag til navneform og
   aktørtype, «er organ for staten»), Grl. § 72 tredje ledd nr. 1 («Forekomst: rollen statsråd» → statsrådet) og Grl. § 82 første ledd
   («Forekomst: slutning» → ikke avklart). Kopien er slettet.
+- **Kaldsjekket på nytt 2026-11-20** etter Johanns avgjørelser på PR #489, i en ny kopi (samme porter): hjemmelkortet for statsrådet viser Grl. § 12
+  første ledd (fortolkning, oppretting), «Organtilhørighet» har «har medlemmer fra statsråd» (lenke til rollebegrepet), og Grl. § 72 tredje ledd
+  nr. 1 viser «Forekomst: rollen statsråd» → statsråd (rollebegrepet). Ingen ny komponent. Kopien er slettet.
