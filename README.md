@@ -51,6 +51,11 @@ fylkeskommunene via territoriekanten til sitt område (fylkeskommunen med hjemme
 Norge er et område av typen rike (Grl. § 1, #463), og fylkene og Svalbard er deler av det. Staten er en egen aktør (rettssubjekt), og
 departementene er organer for den (avledet av medlemskapet i klassen departement). Navneformen «staten» har en ordsperre: «den anmodede
 staten», «staten der …», «EØS-staten» og konvensjonstekst betyr ikke den norske staten og tagges ikke.
+Statsrådet er et eget organ ved siden av Kongen i statsråd (opprettet ved Grl. § 12 første ledd, #486), med rollen statsråd som medlemmer.
+«regjeringen» er ikke navneform for noen av dem:
+hver forekomst tagges for seg etter ordlydsregler (fremmed stat, generisk konvensjonsstat, ikke aktør, rollen statsråd, funksjonen,
+«Regjeringens res.»), og resten er slutninger et menneske avgjør. En tagg per forekomst har samme status som en binding og går foran
+bindingen for noden; er bare noen av forekomstene i noden tagget, er svaret «flertydig».
 En aktørs identitet (#385) er lovens navn — den gjeldende navneformen — og aktørtypen, begge modellutsagn med grunnlag og godkjenning;
 organisasjonsnummer og registernavn fra Enhetsregisteret er attributter. Navneformer foreslås fra lovteksten, og et navnetreff gir
 navneformen en kilde og en tagg på nøyaktig spenn.

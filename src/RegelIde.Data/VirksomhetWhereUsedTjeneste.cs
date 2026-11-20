@@ -131,7 +131,8 @@ public sealed class VirksomhetWhereUsedTjeneste(RegelIdeDbContext db)
                 foreach (var x in tagger)
                 {
                     // [ENDRET, issue #394 AK 3] Faglig vurderte bindinger brukes også. Svar fra standardregelen er ikke bindinger og telles ikke her.
-                    var o = await generiske.LosOppAsync(b.NavneformId, x.Tagg.RettskildeId, x.Tagg.NodeEid, ct, brukRegel: false);
+                    // [ENDRET, issue #486] Per tagg: en tagg per forekomst går foran nodens binding.
+                    var o = await generiske.LosOppAsync(b.NavneformId, x.Tagg.RettskildeId, x.Tagg.NodeEid, ct, brukRegel: false, taggId: x.Tagg.Id);
                     if (o.Status != GeneriskOppslagstatus.Bundet || o.Binding?.Id != b.Id) continue;
                     ekstra.Add(new NavneformForekomst(b.NavneformId, x.Term, x.Navneformgrunn, x.Tagg.RettskildeId, x.Tittel, x.Tagg.NodeEid,
                         x.Tagg.QuoteExact, x.Tagg.StartOffset, x.Tagg.EndOffset));

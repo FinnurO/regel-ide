@@ -53,6 +53,12 @@ dokumentasjon (primaer|sekundaer), begge påkrevd uten hjemmel og NULL med.
 |---|---|---|---|
 | #463 Norge (rike), staten med ordsperre, departementene organer for staten (G har_organ), juristrunden om «regjeringen» | `norge-staten` | **PR åpen, venter på Johann (§19). Ikke flettet.** Migrasjonen `NorgeRike` (bare CHECK) og skrivingen (`POST /api/norge-staten?skriv=true`) er IKKE kjørt mot delt `regelide`; hovedøkta kjører dem etter fletting (etter #442-skrivingen, som alt er kjørt). Tørrkjøringstallene mot delt base (bare SELECT): 1 område, 16 O-kanter, staten med navneform og aktørtype, 16 G-kanter | `NorgeStatenTjenesteTests`, `OrdsperreTests` og de berørte Data-testene lokalt, Api-suiten lokalt (DI), tsc -b. Kopien `regelide_norge`: skrevet to ganger (idempotent), ordsperren målt (579 av 2 511 sperret etter Johanns avgjørelse om «hvis» 2026-11-18); ny kaldsjekk i `regelide_norge2` 2026-11-20, slettet, kaldsjekk i nettleseren (5487 + 5473), kopien slettet |
 
+## «regjeringen»: statsrådet og tagg per forekomst #486 (startet 2026-11-20)
+
+| Sak | Gren | Status | Verifisert hvordan |
+|---|---|---|---|
+| #486 statsrådet som organ, tagg per forekomst med samme status som en binding (juristens vilkår 1–3), ordlydsreglene, resten som slutning | `regjeringen` | **PR åpen, venter på Johann (§19). Ikke flettet.** Migrasjonen `ForekomstbindingOgLesning` (to kolonner og CHECK-er på `navneform_bindinger`) og skrivingen (`POST /api/regjeringen?skriv=true`) er IKKE kjørt mot delt `regelide`; hovedøkta kjører dem etter fletting. Delt base bare lest (samme 239 noder som kopien). Fordelingen: 98 regeltagger, 170 slutninger av 268; 14 uten tagg (ingen eier) | `RegjeringenOrdlydsreglerTests`, `RegjeringenTjenesteTests` og de berørte Data-testene (134) lokalt, Api-suiten lokalt (355, DI), tsc -b. Kopien `regelide_regjeringen`: skrevet to ganger (idempotent), andre navneformer målt før og etter (uendret, aktørkøen 189 → 188), juristmåling 2 runder (20 kort, ingen uenighet igjen), kaldsjekk i nettleseren (5687 + 5373), kopien slettet. Johanns avgjørelser 2026-11-20 bygget (hjemmel § 12 som oppretting, rollebegrepet «statsråd» med G har_medlemmer, 14 utagget som hull), juristrunde j1–j4 (j3 akseptert), ny kaldsjekk i ny kopi, slettet |
+
 ## Standardregel for «fylkeskommunen» #470 (startet 2026-11-17)
 
 | Sak | Gren | Status | Verifisert hvordan |

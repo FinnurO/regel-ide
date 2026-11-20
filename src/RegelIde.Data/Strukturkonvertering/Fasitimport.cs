@@ -266,6 +266,7 @@ public sealed partial class StrukturforslagTjeneste
                 {
                     Aktorstatus.Flertydig => Forslagsarsak.AktorFlertydig,
                     Aktorstatus.Generisk => Forslagsarsak.AktorGeneriskUtenBinding,
+                    Aktorstatus.IkkeAktor => Forslagsarsak.AktorIkkeAktor, // [Ny, #486]
                     _ => Forslagsarsak.AktorIkkeIKatalogen,
                 };
                 return new Fasitoppslag(null, arsak, status, null);

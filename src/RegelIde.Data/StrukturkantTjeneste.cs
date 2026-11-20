@@ -232,7 +232,10 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
         var fraNavn = await ValiderNodeAsync(ny.Fra, regel.FraVirksomhet, regel.FraBegrep, "fra", regel.FraBeskrivelse, ny.Kategori, ct);
         var tilNavn = ny.Til is null
             ? null
-            : await ValiderNodeAsync(ny.Til, regel.TilVirksomhet, regel.TilBegrep, "til", regel.TilBeskrivelse, ny.Kategori, ct);
+            // [ENDRET, issue #486] G har_medlemmer kan ha en rolle som til-node (Strukturkanter.TilBegrep).
+            : await ValiderNodeAsync(ny.Til, regel.TilVirksomhet, Strukturkanter.TilBegrep(ny.Kategori, ny.Typekode), "til",
+                (ny.Kategori, ny.Typekode) == (Strukturkanter.Organtilhorighet, "har_medlemmer") ? "rettssubjekt eller rolle" : regel.TilBeskrivelse,
+                ny.Kategori, ct);
         await ValiderOrdningsreglerAsync(ny, ct); // [Ny, issue #353]
 
         var objekt = string.IsNullOrWhiteSpace(ny.Objekt) ? null : ny.Objekt.Trim();

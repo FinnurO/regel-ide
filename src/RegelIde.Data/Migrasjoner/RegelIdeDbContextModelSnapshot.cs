@@ -2610,6 +2610,10 @@ namespace RegelIde.Data.Migrasjoner
                         .HasColumnType("text")
                         .HasColumnName("kunnskapsstatus");
 
+                    b.Property<string>("Lesning")
+                        .HasColumnType("text")
+                        .HasColumnName("lesning");
+
                     b.Property<Guid>("NavneformId")
                         .HasColumnType("uuid")
                         .HasColumnName("navneform_id");
@@ -2662,6 +2666,10 @@ namespace RegelIde.Data.Migrasjoner
                         .HasDefaultValue("manuelt_foreslatt")
                         .HasColumnName("status");
 
+                    b.Property<Guid?>("TekstTaggId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tekst_tagg_id");
+
                     b.Property<Guid?>("TilBegrepId")
                         .HasColumnType("uuid")
                         .HasColumnName("til_begrep_id");
@@ -2689,6 +2697,9 @@ namespace RegelIde.Data.Migrasjoner
                     b.HasIndex("RettskildeId")
                         .HasDatabaseName("ix_navneform_bindinger_rettskilde");
 
+                    b.HasIndex("TekstTaggId")
+                        .HasDatabaseName("ix_navneform_bindinger_tekst_tagg");
+
                     b.HasIndex("TilBegrepId")
                         .HasDatabaseName("ix_navneform_bindinger_til_begrep");
 
@@ -2705,6 +2716,8 @@ namespace RegelIde.Data.Migrasjoner
 
                             t.HasCheckConstraint("ck_navneform_bindinger_entitetsstatus", "entitetsstatus IN ('gjeldende', 'foreldet')");
 
+                            t.HasCheckConstraint("ck_navneform_bindinger_forekomst_spenn", "tekst_tagg_id IS NULL OR paragrafspenn_json = '[]'");
+
                             t.HasCheckConstraint("ck_navneform_bindinger_fortolkning", "kunnskapsstatus IS NULL OR kunnskapsstatus <> 'fortolkning' OR (begrunnelse IS NOT NULL AND cardinality(tolkningsargumenter) > 0)");
 
                             t.HasCheckConstraint("ck_navneform_bindinger_gyldighet", "gyldig_fra IS NULL OR gyldig_til IS NULL OR gyldig_fra <= gyldig_til");
@@ -2719,7 +2732,11 @@ namespace RegelIde.Data.Migrasjoner
 
                             t.HasCheckConstraint("ck_navneform_bindinger_kunnskapsstatus_grunnlag", "(kunnskapsstatus IS NULL OR kunnskapsstatus <> 'eksternt_dokumentert' OR kilde_utenfor_korpus_tekst IS NOT NULL) AND (kunnskapsstatus IS NULL OR kunnskapsstatus NOT IN ('tekstfunn', 'normalisering') OR (hjemmel_rettskilde_id IS NOT NULL AND hjemmel_eid IS NOT NULL)) AND (kunnskapsstatus IS NULL OR kunnskapsstatus <> 'foreldet' OR entitetsstatus = 'foreldet')");
 
-                            t.HasCheckConstraint("ck_navneform_bindinger_referent_en", "(til_virksomhet_id IS NULL) <> (til_begrep_id IS NULL)");
+                            t.HasCheckConstraint("ck_navneform_bindinger_lesning", "lesning IS NULL OR (tekst_tagg_id IS NOT NULL AND lesning IN ('fremmed_stat', 'generisk_konvensjonsstat', 'ikke_aktor', 'rolle_statsrad', 'funksjon', 'regjeringens_resolusjon', 'slutning'))");
+
+                            t.HasCheckConstraint("ck_navneform_bindinger_referent_en", "((til_virksomhet_id IS NULL) <> (til_begrep_id IS NULL)) OR (til_virksomhet_id IS NULL AND til_begrep_id IS NULL AND tekst_tagg_id IS NOT NULL AND lesning IN ('fremmed_stat', 'generisk_konvensjonsstat', 'ikke_aktor', 'funksjon', 'slutning'))");
+
+                            t.HasCheckConstraint("ck_navneform_bindinger_slutning_forslag", "lesning IS NULL OR lesning <> 'slutning' OR status IN ('maskinelt_foreslatt', 'manuelt_foreslatt', 'avvist')");
 
                             t.HasCheckConstraint("ck_navneform_bindinger_status", "status IN ('maskinelt_foreslatt', 'manuelt_foreslatt', 'faglig_vurdert', 'godkjent', 'avvist')");
 
@@ -5738,6 +5755,11 @@ namespace RegelIde.Data.Migrasjoner
                         .HasForeignKey("RettskildeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("RegelIde.Data.TekstTaggEntitet", null)
+                        .WithMany()
+                        .HasForeignKey("TekstTaggId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("RegelIde.Data.BegrepEntitet", null)
                         .WithMany()

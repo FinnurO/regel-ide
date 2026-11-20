@@ -1,0 +1,435 @@
+{
+ "issue": 486,
+ "beslutning": "Johann 2026-11-20: statsrådet er eget organ ved siden av Kongen i statsråd; «regjeringen» er ikke navneform for noen av dem; ordlydsreglene setter tagg per forekomst som forslag; resten er slutning (ikke målt her).",
+ "lesninger": {
+  "fremmed_stat": "annen stats regjering, ingen aktør",
+  "generisk_konvensjonsstat": "mal eller definisjon som gjelder alle statene, også Norge; ingen kant",
+  "ikke_aktor": "nettsted, avtaletittel eller navnedel",
+  "rolle_statsrad": "rollen medlem av statsrådet; referent statsrådet",
+  "funksjon": "styret av riket; ingen aktør",
+  "regjeringens_resolusjon": "vedtaksformen Kongen i statsråd (Grl. § 32, FastsattAvTolker)"
+ },
+ "utvalg": "Stratifisert per regel, seed 486: 20 av 98 regeltagger i kopien regelide_regjeringen av delt base (2026-11-20).",
+ "kort": [
+  {
+   "id": "m1",
+   "type": "forekomst",
+   "rettskilde": "Forskrift om restriktive tiltak mot Syria",
+   "kortnavn": "Forskrift om restriktive tiltak mot Syria",
+   "eli": "https://lovdata.no/eli/forskrift/2011/09/02/902/nor",
+   "eid": "https://lovdata.no/eli/forskrift/2011/09/02/902/nor/a27/ledd-1/punkt-2",
+   "forekomst": {
+    "start": 68,
+    "ord": "regjeringen",
+    "utdrag": "andre syriske personer, enheter eller organer, herunder den syriske regjeringen,"
+   },
+   "hele_leddet": "andre syriske personer, enheter eller organer, herunder den syriske regjeringen,",
+   "foreslatt": {
+    "lesning": "fremmed_stat",
+    "regel": "fremmed:sanksjonstittel",
+    "referent": null,
+    "kunnskapsstatus": "fortolkning",
+    "hjemmel_eid": "https://lovdata.no/eli/forskrift/2011/09/02/902/nor/a27/ledd-1/punkt-2"
+   }
+  },
+  {
+   "id": "m2",
+   "type": "forekomst",
+   "rettskilde": "Forskrift om gjennomføring av bilaterale trygdeavtaler",
+   "kortnavn": "Forskrift om gjennomføring av bilaterale trygdeavtaler",
+   "eli": "https://lovdata.no/eli/forskrift/2024/11/15/2778/nor",
+   "eid": "https://lovdata.no/eli/forskrift/2024/11/15/2778/nor/§1/ledd-1/punkt-27",
+   "forekomst": {
+    "start": 48,
+    "ord": "regjeringen",
+    "utdrag": "Avtale mellom regjeringen i Kongeriket Norge og regjeringen i Australia om trygd undertegnet i Canberra 2. desember 2005, ikrafttredelse 1. januar 2007"
+   },
+   "hele_leddet": "Avtale mellom regjeringen i Kongeriket Norge og regjeringen i Australia om trygd undertegnet i Canberra 2. desember 2005, ikrafttredelse 1. januar 2007",
+   "foreslatt": {
+    "lesning": "fremmed_stat",
+    "regel": "fremmed:regjeringen_i_stat",
+    "referent": null,
+    "kunnskapsstatus": "tekstfunn",
+    "hjemmel_eid": "https://lovdata.no/eli/forskrift/2024/11/15/2778/nor/§1/ledd-1/punkt-27"
+   }
+  },
+  {
+   "id": "m3",
+   "type": "forekomst",
+   "rettskilde": "Overenskomst mellom Norge og Storbritannia om gjensidig anerkjennelse og fullbyrdelse av dommer i sivile saker",
+   "kortnavn": "Sivildomsoverenskomst med Storbritannia",
+   "eli": "https://lovdata.no/eli/lov/1961/06/12/nor",
+   "eid": "https://lovdata.no/eli/lov/1961/06/12/nor/aX/punkt-1",
+   "forekomst": {
+    "start": 380,
+    "ord": "regjeringen",
+    "utdrag": "r som er nevnt i avsnitt 2. i denne artikkel, utvide denne overenskomsts område til hvilket som helst territorium for hvis internasjonale forbindelse regjeringen for Det Forente Kongerike er ansvarlig."
+   },
+   "hele_leddet": "Regjeringen for Det Forente Kongerike kan, ved underretning gitt ad diplomatisk veg, når som helst så lenge overenskomsten er i kraft i henhold til artikkel XI og forutsatt at det ved noteveksling er inngått en avtale om de punkter som er nevnt i avsnitt 2. i denne artikkel, utvide denne overenskomsts område til hvilket som helst territorium for hvis internasjonale forbindelse regjeringen for Det Forente Kongerike er ansvarlig.",
+   "foreslatt": {
+    "lesning": "fremmed_stat",
+    "regel": "fremmed:regjeringen_for",
+    "referent": null,
+    "kunnskapsstatus": "tekstfunn",
+    "hjemmel_eid": "https://lovdata.no/eli/lov/1961/06/12/nor/aX/punkt-1"
+   }
+  },
+  {
+   "id": "m4",
+   "type": "forekomst",
+   "rettskilde": "Forskrift om radiokommunikasjonsutstyr for norske skip og flyttbare innretninger",
+   "kortnavn": "Forskrift om radiokommunikasjonsutstyr for skip mv.",
+   "eli": "https://lovdata.no/eli/forskrift/2014/07/01/955/nor",
+   "eid": "kap-solas-74/rom-IV/rom-delA/rom-regel2/ledd-1/punkt-15",
+   "forekomst": {
+    "start": 180,
+    "ord": "regjeringen",
+    "utdrag": " et område innenfor radiotelefondekningen til minst én VHF-kystradiostasjon hvor kontinuerlig DSC-alarmering er tilgjengelig, og som kan defineres av regjeringen i en annen stat som er part i konvensjonen."
+   },
+   "hele_leddet": "«Radiodekningsområde A1» betyr et område innenfor radiotelefondekningen til minst én VHF-kystradiostasjon hvor kontinuerlig DSC-alarmering er tilgjengelig, og som kan defineres av regjeringen i en annen stat som er part i konvensjonen.",
+   "foreslatt": {
+    "lesning": "generisk_konvensjonsstat",
+    "regel": "generisk:konvensjonsstat",
+    "referent": null,
+    "kunnskapsstatus": "fortolkning",
+    "hjemmel_eid": "kap-solas-74/rom-IV/rom-delA/rom-regel2/ledd-1/punkt-15"
+   }
+  },
+  {
+   "id": "m5",
+   "type": "forekomst",
+   "rettskilde": "Forskrift om måling av skip og flyttbare innretninger",
+   "kortnavn": "Forskrift om måling av skip mv.",
+   "eli": "https://lovdata.no/eli/forskrift/2015/06/30/823/nor",
+   "eid": "https://lovdata.no/eli/forskrift/2015/06/30/823/nor/a12/punkt-3",
+   "forekomst": {
+    "start": 221,
+    "ord": "regjeringen",
+    "utdrag": "a de som er angitt i dets internasjonale målebrev (1969) på en sådan måte at det fører til en økning av dets bruttotonnasje eller nettotonnasje, skal regjeringen i den staten hvis flagg fartøyet fører, underrettes uten opphold."
+   },
+   "hele_leddet": "Hvis inspeksjonen skulle avsløre at fartøyets viktigste data avviker fra de som er angitt i dets internasjonale målebrev (1969) på en sådan måte at det fører til en økning av dets bruttotonnasje eller nettotonnasje, skal regjeringen i den staten hvis flagg fartøyet fører, underrettes uten opphold.",
+   "foreslatt": {
+    "lesning": "generisk_konvensjonsstat",
+    "regel": "generisk:konvensjonsstat",
+    "referent": null,
+    "kunnskapsstatus": "fortolkning",
+    "hjemmel_eid": "https://lovdata.no/eli/forskrift/2015/06/30/823/nor/a12/punkt-3"
+   }
+  },
+  {
+   "id": "m6",
+   "type": "forekomst",
+   "rettskilde": "Forskrift om passasjerskip i spesiell fart",
+   "kortnavn": "Forskrift om passasjerskip i spesiell fart",
+   "eli": "https://lovdata.no/eli/forskrift/1977/02/15/2/nor",
+   "eid": "kap-vedlegg-til-bilag-3-regler-for-romkrav-for-passasjerskip-i-spesiell-fart-1973/rom-delI/rom-regel5/punkt-3",
+   "forekomst": {
+    "start": 416,
+    "ord": "regjeringen",
+    "utdrag": " i henhold til disse regler. Et sertifikat som er utstedt på denne måte, må inneholde en erklæring som fastslår at det er utstedt etter anmodning fra regjeringen i det land som skipet er eller vil bli registrert i, og det skal ha den samme gyldighet og godtas på samme måte som et "
+   },
+   "hele_leddet": "En regjering som har vedtatt denne protokoll kan, etter anmodning fra en administrasjon som er en regjering som er deltaker i denne protokoll forlange at et skip blir besiktet, og hvis den finner at kravene i disse regler er oppfylt, utstede et sertifikat til skipet i henhold til disse regler. Et sertifikat som er utstedt på denne måte, må inneholde en erklæring som fastslår at det er utstedt etter anmodning fra regjeringen i det land som skipet er eller vil bli registrert i, og det skal ha den samme gyldighet og godtas på samme måte som et sertifikat utstedt i henhold til punkt 2) i denne regel.",
+   "foreslatt": {
+    "lesning": "generisk_konvensjonsstat",
+    "regel": "generisk:konvensjonsstat",
+    "referent": null,
+    "kunnskapsstatus": "fortolkning",
+    "hjemmel_eid": "kap-vedlegg-til-bilag-3-regler-for-romkrav-for-passasjerskip-i-spesiell-fart-1973/rom-delI/rom-regel5/punkt-3"
+   }
+  },
+  {
+   "id": "m7",
+   "type": "forekomst",
+   "rettskilde": "Lov om sjøfarten (sjøloven)",
+   "kortnavn": "Sjøloven – sjøl",
+   "eli": "https://lovdata.no/eli/lov/1994/06/24/39/nor",
+   "eid": "kap-sjøl1/rom-vedlegg2/ledd-3",
+   "forekomst": {
+    "start": 152,
+    "ord": "regjeringen",
+    "utdrag": "lgende tekst bør anvendes når en stat som er part i konvensjonen, benytter seg av artikkel 4a nr. 3: Dette sertifikatet er utstedt etter fullmakt fra regjeringen i ... ... .. ... ... ... ... ...... ... (statens offisielle betegnelse) av ... ... ... . . ... ... ... ... ... ... ... "
+   },
+   "hele_leddet": "Følgende tekst bør anvendes når en stat som er part i konvensjonen, benytter seg av artikkel 4a nr. 3: Dette sertifikatet er utstedt etter fullmakt fra regjeringen i ... ... .. ... ... ... ... ...... ... (statens offisielle betegnelse) av ... ... ... . . ... ... ... ... ... ... ... ... ... ... ... . . ... .. ... (institusjonens eller organisasjonens navn)\n. | den\n(Sted) | (Dato)\n(Underskriften og tittelen til den tjenestemannen som utsteder og påtegner)",
+   "foreslatt": {
+    "lesning": "generisk_konvensjonsstat",
+    "regel": "generisk:skjemamal",
+    "referent": null,
+    "kunnskapsstatus": "fortolkning",
+    "hjemmel_eid": "kap-sjøl1/rom-vedlegg2/ledd-3"
+   }
+  },
+  {
+   "id": "m8",
+   "type": "forekomst",
+   "rettskilde": "Instruks for Norsk senter for utvekslingssamarbeid (NOREC)",
+   "kortnavn": "Instruks for Norsk senter for utvekslingssamarbeid (NOREC)",
+   "eli": "https://lovdata.no/eli/forskrift/2018/08/10/1242/nor",
+   "eid": "https://lovdata.no/eli/forskrift/2018/08/10/1242/nor/§3/ledd-2",
+   "forekomst": {
+    "start": 77,
+    "ord": "regjeringen",
+    "utdrag": "Tildelingsbrev og årsrapport publiseres på Utenriksdepartementets nettsider (regjeringen.no) og sendes i kopi til Riksrevisjonen."
+   },
+   "hele_leddet": "Tildelingsbrev og årsrapport publiseres på Utenriksdepartementets nettsider (regjeringen.no) og sendes i kopi til Riksrevisjonen.",
+   "foreslatt": {
+    "lesning": "ikke_aktor",
+    "regel": "ikke_aktor:nettsted",
+    "referent": null,
+    "kunnskapsstatus": "tekstfunn",
+    "hjemmel_eid": "https://lovdata.no/eli/forskrift/2018/08/10/1242/nor/§3/ledd-2"
+   }
+  },
+  {
+   "id": "m9",
+   "type": "forekomst",
+   "rettskilde": "Forskrift om gjennomføring av bilaterale trygdeavtaler",
+   "kortnavn": "Forskrift om gjennomføring av bilaterale trygdeavtaler",
+   "eli": "https://lovdata.no/eli/forskrift/2024/11/15/2778/nor",
+   "eid": "https://lovdata.no/eli/forskrift/2024/11/15/2778/nor/§1/ledd-1/punkt-41",
+   "forekomst": {
+    "start": 66,
+    "ord": "regjeringen",
+    "utdrag": "Administrasjonsavtale for gjennomføring av avtale om trygd mellom regjeringen i Kongeriket Norge og regjeringen i Republikken Korea, undertegnet 3. mars 2024, ikrafttredelse 1. juni 2024."
+   },
+   "hele_leddet": "Administrasjonsavtale for gjennomføring av avtale om trygd mellom regjeringen i Kongeriket Norge og regjeringen i Republikken Korea, undertegnet 3. mars 2024, ikrafttredelse 1. juni 2024.",
+   "foreslatt": {
+    "lesning": "ikke_aktor",
+    "regel": "ikke_aktor:avtaletittel",
+    "referent": null,
+    "kunnskapsstatus": "tekstfunn",
+    "hjemmel_eid": "https://lovdata.no/eli/forskrift/2024/11/15/2778/nor/§1/ledd-1/punkt-41"
+   }
+  },
+  {
+   "id": "m10",
+   "type": "forekomst",
+   "rettskilde": "Instruks for departementenes arbeid med samfunnssikkerhet og beredskap, Justis- og beredskapsdepartementets samordningsrolle, tilsynsfunksjon og sentral krisehåndtering",
+   "kortnavn": "Instruks for dep.arbeid med samfunnssikkerhet mv.",
+   "eli": "https://lovdata.no/eli/forskrift/2012/06/15/535/nor",
+   "eid": "kap-VIII/ledd-1",
+   "forekomst": {
+    "start": 381,
+    "ord": "Regjeringens",
+    "utdrag": "om innføring av internkontroll og systemrettet tilsyn med det sivile beredskapsarbeidet i departementene, kgl.res. 16. september 1989 om instruks for Regjeringens presse- og informasjonstjeneste (RPI) og kgl.res. 21. april 1995 om nye nasjonale forutsetninger for den sivile beredsk"
+   },
+   "hele_leddet": "Instruksen iverksettes straks. Fra samme tidspunkt oppheves kgl.res. 16. april 1994 om Justisdepartementets samordningsfunksjon på beredskapssektoren og om rådet for sivilt beredskap, kgl.res. 3. november 2000 nr. 1093 om instruks om innføring av internkontroll og systemrettet tilsyn med det sivile beredskapsarbeidet i departementene, kgl.res. 16. september 1989 om instruks for Regjeringens presse- og informasjonstjeneste (RPI) og kgl.res. 21. april 1995 om nye nasjonale forutsetninger for den sivile beredskapsplanleggingen.",
+   "foreslatt": {
+    "lesning": "ikke_aktor",
+    "regel": "ikke_aktor:navn",
+    "referent": null,
+    "kunnskapsstatus": "tekstfunn",
+    "hjemmel_eid": "kap-VIII/ledd-1"
+   }
+  },
+  {
+   "id": "m11",
+   "type": "forekomst",
+   "rettskilde": "Res. om Noregs riksvåpen",
+   "kortnavn": "Res. om Noregs riksvåpen",
+   "eli": "https://lovdata.no/eli/forskrift/1937/03/19/3728/nor",
+   "eid": "kap-rettledning-for-bruk-av-riksvapnet-pa-statens-trykksaker/ledd-1/punkt-1",
+   "forekomst": {
+    "start": 672,
+    "ord": "Regjeringens",
+    "utdrag": "ode klisjéer. Slitte klisjéer skal byttes ut med nye. Klisjéer av riksvåpnet til statens trykksaker må ikke fremstilles av noen uten etter samråd med Regjeringens trykningskontor."
+   },
+   "hele_leddet": "Tegningene som følger er godkjent som vanlig type av riksvåpnet til bruk av statens trykksaker. Type I er en lett type som vil passe til de fleste trykksaker. Type II brukes der det typografiske utstyret virker noe tungt og kraftig, t.eks. ofte på omslag, type III er særlig til gulltrykk. Klisjéer i de størrelsene som er trykt på omstående side, får en utlånt hos Statens trykningskontor. Den minste klisjéen(e) skal bare brukes på trykksaker av lite format, t.eks. A6 og derunder. Trykking må alltid foregå på rene og gode klisjéer. Slitte klisjéer skal byttes ut med nye. Klisjéer av riksvåpnet til statens trykksaker må ikke fremstilles av noen uten etter samråd med Regjeringens trykningskontor.",
+   "foreslatt": {
+    "lesning": "ikke_aktor",
+    "regel": "ikke_aktor:navn",
+    "referent": null,
+    "kunnskapsstatus": "tekstfunn",
+    "hjemmel_eid": "kap-rettledning-for-bruk-av-riksvapnet-pa-statens-trykksaker/ledd-1/punkt-1"
+   }
+  },
+  {
+   "id": "m12",
+   "type": "forekomst",
+   "rettskilde": "Reglement for avgradering av dokumenter utstedt i Stortinget",
+   "kortnavn": "Reglement for avgradering av dokumenter utstedt i Stortinget",
+   "eli": "https://lovdata.no/eli/forskrift/2019/06/20/2325/nor",
+   "eid": "https://lovdata.no/eli/forskrift/2019/06/20/2325/nor/§2/ledd-2",
+   "forekomst": {
+    "start": 122,
+    "ord": "regjeringen",
+    "utdrag": "Når dokumenter utstedt i Stortinget bygger på et dokument oversendt fra regjeringen eller en redegjørelse av et medlem av regjeringen, skal det innhentes uttalelse om avgraderingsspørsmålet fra det aktuelle fagdepartementet, eventuelt Statsministerens k"
+   },
+   "hele_leddet": "Når dokumenter utstedt i Stortinget bygger på et dokument oversendt fra regjeringen eller en redegjørelse av et medlem av regjeringen, skal det innhentes uttalelse om avgraderingsspørsmålet fra det aktuelle fagdepartementet, eventuelt Statsministerens kontor. Tilsvarende gjelder dersom dokumenter utstedt i Stortinget bygger på et dokument oversendt fra eksternt organ, kommisjon eller utvalg for Stortinget, som igjen bygger på informasjon innhentet fra regjeringen.",
+   "foreslatt": {
+    "lesning": "rolle_statsrad",
+    "regel": "rolle:medlem_av",
+    "referent": "statsrådet (organ, nytt forslag)",
+    "kunnskapsstatus": "fortolkning",
+    "hjemmel_eid": "https://lovdata.no/eli/lov/1814/05/17/nor/§15/ledd-1"
+   }
+  },
+  {
+   "id": "m13",
+   "type": "forekomst",
+   "rettskilde": "Forskrift til utfylling og gjennomføring mv. av skatteloven av 26. mars 1999 nr. 14",
+   "kortnavn": "FSFIN Forskrift til skatteloven",
+   "eli": "https://lovdata.no/eli/forskrift/1999/11/19/1158/nor",
+   "eid": "https://lovdata.no/eli/forskrift/1999/11/19/1158/nor/§3-5-2/ledd-1",
+   "forekomst": {
+    "start": 31,
+    "ord": "Regjeringen",
+    "utdrag": "(1) Medlemmer av Stortinget og Regjeringen, statssekretærer og politiske rådgivere i departementene og ved Statsministerens kontor som er ansett som bosatt i Finn"
+   },
+   "hele_leddet": "(1) Medlemmer av Stortinget og Regjeringen, statssekretærer og politiske rådgivere i departementene og ved Statsministerens kontor som er ansett som bosatt i Finnmark eller Nord-Troms, kan frasi seg de skattemessige fordelene ved dette. Dette gjelder fordelen av et særskilt fradrag i alminnelig inntekt og lavere skattesats på alminnelig inntekt.",
+   "foreslatt": {
+    "lesning": "rolle_statsrad",
+    "regel": "rolle:medlem_av",
+    "referent": "statsrådet (organ, nytt forslag)",
+    "kunnskapsstatus": "fortolkning",
+    "hjemmel_eid": "https://lovdata.no/eli/lov/1814/05/17/nor/§15/ledd-1"
+   }
+  },
+  {
+   "id": "m14",
+   "type": "forekomst",
+   "rettskilde": "Lov om straff (straffeloven)",
+   "kortnavn": "Straffeloven – strl.",
+   "eli": "https://lovdata.no/eli/lov/2005/05/20/28/nor",
+   "eid": "https://lovdata.no/eli/lov/2005/05/20/28/nor/§112/ledd-1/punkt-3",
+   "forekomst": {
+    "start": 34,
+    "ord": "regjeringen",
+    "utdrag": "gjerningspersonen er et medlem av regjeringen, Stortinget eller Høyesterett eller tilhører landets øverste sivile eller militære ledelse,"
+   },
+   "hele_leddet": "gjerningspersonen er et medlem av regjeringen, Stortinget eller Høyesterett eller tilhører landets øverste sivile eller militære ledelse,",
+   "foreslatt": {
+    "lesning": "rolle_statsrad",
+    "regel": "rolle:medlem_av",
+    "referent": "statsrådet (organ, nytt forslag)",
+    "kunnskapsstatus": "fortolkning",
+    "hjemmel_eid": "https://lovdata.no/eli/lov/1814/05/17/nor/§15/ledd-1"
+   }
+  },
+  {
+   "id": "m15",
+   "type": "forekomst",
+   "rettskilde": "Instruks for departementenes arbeid med samfunnssikkerhet og beredskap, Justis- og beredskapsdepartementets samordningsrolle, tilsynsfunksjon og sentral krisehåndtering",
+   "kortnavn": "Instruks for dep.arbeid med samfunnssikkerhet mv.",
+   "eli": "https://lovdata.no/eli/forskrift/2012/06/15/535/nor",
+   "eid": "kap-VII/ledd-8/punkt-8",
+   "forekomst": {
+    "start": 67,
+    "ord": "regjeringens",
+    "utdrag": "sørge for at oppdatert informasjon om situasjonen distribueres til regjeringens medlemmer"
+   },
+   "hele_leddet": "sørge for at oppdatert informasjon om situasjonen distribueres til regjeringens medlemmer",
+   "foreslatt": {
+    "lesning": "rolle_statsrad",
+    "regel": "rolle:regjeringens_medlemmer",
+    "referent": "statsrådet (organ, nytt forslag)",
+    "kunnskapsstatus": "fortolkning",
+    "hjemmel_eid": "https://lovdata.no/eli/lov/1814/05/17/nor/§15/ledd-1"
+   }
+  },
+  {
+   "id": "m16",
+   "type": "forekomst",
+   "rettskilde": "Kongeriket Norges Grunnlov",
+   "kortnavn": "Grunnloven (bokmål) – Grl.",
+   "eli": "https://lovdata.no/eli/lov/1814/05/17/nor",
+   "eid": "https://lovdata.no/eli/lov/1814/05/17/nor/§44/ledd-1",
+   "forekomst": {
+    "start": 178,
+    "ord": "regjeringen",
+    "utdrag": "m i de tilfeller som er anført i § 41, forestår regjeringen, skal skriftlig avlegge følgende ed for Stortinget: «Jeg lover og sverger å ville forestå regjeringen i overensstemmelse med konstitusjonen og lovene, så sant hjelpe meg Gud den allmektige og allvitende!»"
+   },
+   "hele_leddet": "Den prins eller prinsesse som i de tilfeller som er anført i § 41, forestår regjeringen, skal skriftlig avlegge følgende ed for Stortinget: «Jeg lover og sverger å ville forestå regjeringen i overensstemmelse med konstitusjonen og lovene, så sant hjelpe meg Gud den allmektige og allvitende!»",
+   "foreslatt": {
+    "lesning": "funksjon",
+    "regel": "funksjon:styret_av_riket",
+    "referent": null,
+    "kunnskapsstatus": "fortolkning",
+    "hjemmel_eid": "https://lovdata.no/eli/lov/1814/05/17/nor/§44/ledd-1"
+   }
+  },
+  {
+   "id": "m17",
+   "type": "forekomst",
+   "rettskilde": "Kongeriket Norges Grunnlov",
+   "kortnavn": "Grunnloven (bokmål) – Grl.",
+   "eli": "https://lovdata.no/eli/lov/1814/05/17/nor",
+   "eid": "https://lovdata.no/eli/lov/1814/05/17/nor/§44/ledd-1",
+   "forekomst": {
+    "start": 76,
+    "ord": "regjeringen",
+    "utdrag": "Den prins eller prinsesse som i de tilfeller som er anført i § 41, forestår regjeringen, skal skriftlig avlegge følgende ed for Stortinget: «Jeg lover og sverger å ville forestå regjeringen i overensstemmels"
+   },
+   "hele_leddet": "Den prins eller prinsesse som i de tilfeller som er anført i § 41, forestår regjeringen, skal skriftlig avlegge følgende ed for Stortinget: «Jeg lover og sverger å ville forestå regjeringen i overensstemmelse med konstitusjonen og lovene, så sant hjelpe meg Gud den allmektige og allvitende!»",
+   "foreslatt": {
+    "lesning": "funksjon",
+    "regel": "funksjon:styret_av_riket",
+    "referent": null,
+    "kunnskapsstatus": "fortolkning",
+    "hjemmel_eid": "https://lovdata.no/eli/lov/1814/05/17/nor/§44/ledd-1"
+   }
+  },
+  {
+   "id": "m18",
+   "type": "forekomst",
+   "rettskilde": "Instruks om Forsvarets bistand til politiet.",
+   "kortnavn": "Instruks om Forsvarets bistand til politiet",
+   "eli": "https://lovdata.no/eli/forskrift/2003/02/28/220/nor",
+   "eid": "https://lovdata.no/eli/forskrift/2003/02/28/220/nor/§17/ledd-2/punkt-2",
+   "forekomst": {
+    "start": 0,
+    "ord": "Regjeringens",
+    "utdrag": "Regjeringens res. av 5. november 1999 nr. 1145 om Kystvakten (kystvaktinstruksen) § 9."
+   },
+   "hele_leddet": "Regjeringens res. av 5. november 1999 nr. 1145 om Kystvakten (kystvaktinstruksen) § 9.",
+   "foreslatt": {
+    "lesning": "regjeringens_resolusjon",
+    "regel": "resolusjon:grl_32",
+    "referent": "Kongen i statsråd",
+    "kunnskapsstatus": "fortolkning",
+    "hjemmel_eid": "https://lovdata.no/eli/lov/1814/05/17/nor/§32/ledd-1"
+   }
+  },
+  {
+   "id": "m19",
+   "type": "forekomst",
+   "rettskilde": "Forskrift om overføring av forvaltningsansvar for naturvernområder. Delegering av forvaltningsansvar til statsforvalteren.",
+   "kortnavn": "Forskrift om forvaltning av naturvernområder",
+   "eli": "https://lovdata.no/eli/forskrift/1983/07/26/1385/nor",
+   "eid": "kap-I/ledd-1",
+   "forekomst": {
+    "start": 131,
+    "ord": "regjeringens",
+    "utdrag": "Innen hvert fylke tillegges vedkommende statsforvalter forvaltningsansvar for fredninger som er opprettet ved kongelig resolusjon, regjeringens resolusjon, Kronprinsregentens resolusjon, ministerpresidentens beslutning eller departementsvedtak i medhold av lov om"
+   },
+   "hele_leddet": "Innen hvert fylke tillegges vedkommende statsforvalter forvaltningsansvar for fredninger som er opprettet ved kongelig resolusjon, regjeringens resolusjon, Kronprinsregentens resolusjon, ministerpresidentens beslutning eller departementsvedtak i medhold av lov om naturfredning av 25. juli 1910 nr. 3, lov om naturvern av 1. desember 1954 og lov om naturvern av 19. juni 1970 nr. 63 (med endringer).",
+   "foreslatt": {
+    "lesning": "regjeringens_resolusjon",
+    "regel": "resolusjon:grl_32",
+    "referent": "Kongen i statsråd",
+    "kunnskapsstatus": "fortolkning",
+    "hjemmel_eid": "https://lovdata.no/eli/lov/1814/05/17/nor/§32/ledd-1"
+   }
+  },
+  {
+   "id": "m20",
+   "type": "forekomst",
+   "rettskilde": "Delegering av myndighet til Kultur- og kirkedepartementet – produksjonstilskudd til dagsaviser.",
+   "kortnavn": "Delegering til KKD – pressestøtte",
+   "eli": "https://lovdata.no/eli/forskrift/1996/11/07/1016/nor",
+   "eid": "https://lovdata.no/eli/forskrift/1996/11/07/1016/nor/ledd-1",
+   "forekomst": {
+    "start": 37,
+    "ord": "Regjeringens",
+    "utdrag": "Adgangen til å fastsette endringer i Regjeringens resolusjon av 7. november 1996 nr. 1015 om produksjonstilskudd til dagsaviser delegeres til Kultur- og kirkedepartement"
+   },
+   "hele_leddet": "Adgangen til å fastsette endringer i Regjeringens resolusjon av 7. november 1996 nr. 1015 om produksjonstilskudd til dagsaviser delegeres til Kultur- og kirkedepartementet.",
+   "foreslatt": {
+    "lesning": "regjeringens_resolusjon",
+    "regel": "resolusjon:grl_32",
+    "referent": "Kongen i statsråd",
+    "kunnskapsstatus": "fortolkning",
+    "hjemmel_eid": "https://lovdata.no/eli/lov/1814/05/17/nor/§32/ledd-1"
+   }
+  }
+ ]
+}

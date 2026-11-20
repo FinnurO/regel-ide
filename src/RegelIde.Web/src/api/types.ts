@@ -2822,11 +2822,24 @@ export interface GeneriskNavneformOversikt {
 export interface GeneriskTaggOppslag {
   // [ENDRET, issue #384] + 'spenn_endret': en godkjent binding kunne ikke flyttes entydig til denne versjonen (ingen referent).
   // [ENDRET, issue #394] + 'regel': standardregelen ga referenten (ingen vurdert binding dekker forekomsten).
-  taggId: string; navneformId: string; status: 'bundet' | 'regel' | 'ubundet' | 'flertydig' | 'spenn_endret'; bindingId: string | null;
+  // [ENDRET, issue #486] + 'ikke_aktor': en vurdert tagg per forekomst sier at ordet ikke er en aktør her (lesningen sier hvorfor).
+  taggId: string; navneformId: string; status: 'bundet' | 'regel' | 'ubundet' | 'flertydig' | 'spenn_endret' | 'ikke_aktor'; bindingId: string | null;
   referent: StrukturnodeDto | null;
   /** [Ny, issue #394 AK 2] Termen, kilden (binding/regel), bindingens godkjenning og standardregelens svar. */
   term?: string; kilde?: 'binding' | 'regel' | null; bindingStatus?: Godkjenning | null; bindingKunnskapsstatus?: Kunnskapsstatus | null;
   regel?: StandardregelSvar | null;
+  /** [Ny, issue #486] Lesningen til den vurderte taggen per forekomst som avgjorde svaret, og om svaret kom fra en slik tagg. */
+  lesning?: Forekomstlesning | null; forekomst?: boolean;
+  /** [Ny, issue #486] Et forslag for denne forekomsten som ikke er vurdert ennå (ordlydsregel eller slutning). Brukes ikke i svaret. */
+  forekomstforslag?: Forekomstforslag | null;
+}
+/** [Ny, issue #486] Lesningene en tagg per forekomst kan ha (lukket liste, `Forekomstlesninger` i Data). */
+export type Forekomstlesning = 'fremmed_stat' | 'generisk_konvensjonsstat' | 'ikke_aktor' | 'rolle_statsrad' | 'funksjon'
+  | 'regjeringens_resolusjon' | 'slutning';
+/** [Ny, issue #486] Et forslag til hva én forekomst er. «slutning» har ingen referent. */
+export interface Forekomstforslag {
+  bindingId: string; lesning: Forekomstlesning | null; lesningTekst: string; referent: StrukturnodeDto | null; status: Godkjenning;
+  kunnskapsstatus: Kunnskapsstatus | null; begrunnelse: string | null; oppdagelsesKilde: string; kommentar: string | null;
 }
 /** [Ny, issue #394 AK 1] En standardregel for en generisk navneform. */
 export interface GeneriskStandardregel {

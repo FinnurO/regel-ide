@@ -61,6 +61,7 @@ builder.Services.AddScoped<AktoridentitetTjeneste>();
 builder.Services.AddScoped<OmgjoringTjeneste>(); // [Ny, issue #386]
 builder.Services.AddScoped<KlassemedlemskapTjeneste>(); // [Ny, issue #384] utledet medlemskap («kommune» fra områderegisteret)
 builder.Services.AddScoped<KlasseoppsettTjeneste>(); // [Ny, issue #442] klassene fylkeskommune og departement som forslag (skrives bare på kall)
+builder.Services.AddScoped<RegjeringenTjeneste>(); // [Ny, issue #486] Statsrådet og tagg per forekomst av «regjeringen», som forslag (skrives bare på kall)
 builder.Services.AddScoped<NorgeStatenTjeneste>(); // [Ny, issue #463] Norge (rike), staten og departementene som organer for staten, som forslag (skrives bare på kall)
 builder.Services.AddScoped<RegelIde.Data.Strukturkonvertering.KiStrukturkonverterer>();
 // [Ny, issue #312 «områderegister»] «Gitt kommune X → fylke, tingrett, lagdømme, statsforvalter, RHF» (AC5).
@@ -4331,6 +4332,31 @@ app.MapPost("/api/norge-staten", async (bool? skriv, HttpRequest request, RegelI
         "og G har_organ fra hvert departement til staten («er organ for staten», avledet, premiss = medlemskapet i klassen departement). Alt som forslag. ?skriv=true skriver; " +
         "uten er det en tørrkjøring.");
 
+// [Ny, issue #486] Statsrådet som organ og en tagg per forekomst av «regjeringen» etter ordlydsreglene (resten som slutning). Tørrkjøring er
+// standard (samme arbeid i en transaksjon som rulles tilbake), alt nytt er forslag, og en ny kjøring skriver ingenting. Krever staten fra #463
+// for G har_organ. Kjøres av hovedøkta etter fletting.
+app.MapPost("/api/regjeringen", async (bool? skriv, bool? medForekomster, HttpRequest request, RegelIdeDbContext db, RegjeringenTjeneste tjeneste,
+        CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var r = await tjeneste.KjorAsync(skriv ?? false, bruker.Navn, ct);
+            return Results.Ok(medForekomster == false ? r with { Forekomster = [] } : r);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Results.Conflict(new { feil = ex.Message });
+        }
+    })
+    .WithOpenApi()
+    .WithName("Regjeringen")
+    .WithSummary("Issue #486 — organet statsrådet (Grl. § 12 første ledd og § 15, G har_organ → staten), den generiske navneformen «regjeringen» og " +
+        "en tagg per forekomst med forekomstbinding etter ordlydsreglene (fremmed stat, generisk konvensjonsstat, ikke aktør, rollen statsråd, funksjonen, " +
+        "«Regjeringens res.» = Kongen i statsråd); resten som slutning uten referent. Alt som forslag. ?skriv=true skriver; uten er det en tørrkjøring. " +
+        "?medForekomster=false utelater lista per forekomst.");
+
 // [Ny, issue #463] Målingen av ordsperren over hele korpuset (bare lesing): forekomstene før og etter at bindestrek rett foran sluttet å være
 // ordgrense, og hvor mange hver grunn sperrer. Bare «staten» har en sperre i dag.
 app.MapGet("/api/ordsperre/maling", async (string? term, RegelIdeDbContext db, CancellationToken ct) =>
@@ -4887,7 +4913,7 @@ app.MapGet("/api/navneformer/generiske/standardregler", () => Results.Ok(Generis
 // [Ny, issue #394 AK 1/3/5] Oppslaget med kilden og premissene: binding (godkjent eller faglig vurdert) foran regel. ?bareRegel=true gir
 // regelen alene (kaldsjekken: gir regelen samme svar som Johanns binding?).
 app.MapGet("/api/navneformer/generiske/oppslag", async (Guid rettskildeId, Guid? navneformId, string? term, string? eid, DateOnly? dato,
-        bool? bareRegel, GeneriskNavneformTjeneste generiske, RegelIdeDbContext db, CancellationToken ct) =>
+        bool? bareRegel, Guid? taggId, GeneriskNavneformTjeneste generiske, RegelIdeDbContext db, CancellationToken ct) =>
     {
         var nf = navneformId is { } nid ? await db.Begreper.FirstOrDefaultAsync(b => b.Id == nid, ct)
             : term is not null ? await generiske.FinnAsync(term, ct) : null;
@@ -4897,11 +4923,13 @@ app.MapGet("/api/navneformer/generiske/oppslag", async (Guid rettskildeId, Guid?
         }
         try
         {
-            var o = await generiske.LosOppAsync(nf.Id, rettskildeId, eid, ct, dato, brukBindinger: bareRegel != true);
+            // [ENDRET, issue #486] ?taggId= slår opp én forekomst: en vurdert tagg per forekomst går foran nodens binding.
+            var o = await generiske.LosOppAsync(nf.Id, rettskildeId, eid, ct, dato, brukBindinger: bareRegel != true, taggId: taggId);
             var binding = o.Binding is null ? null : (await generiske.HentBindingerAsync(ider: [o.Binding.Id], visAvviste: true, ct: ct)).FirstOrDefault();
             KantnodeVisning? referent = o.Status == GeneriskOppslagstatus.Regel ? o.Regel?.ReferentVisning
                 : o.Status == GeneriskOppslagstatus.Bundet ? binding?.Referent : null;
-            return Results.Ok(new { navneformId = nf.Id, term = nf.Term, o.Status, o.Kilde, referent, binding, o.AntallForeslatteBindinger, regel = o.Regel });
+            return Results.Ok(new { navneformId = nf.Id, term = nf.Term, o.Status, o.Kilde, referent, binding, o.AntallForeslatteBindinger, regel = o.Regel,
+                lesning = o.Lesning, forekomst = o.Forekomst });
         }
         catch (ArgumentException ex)
         {

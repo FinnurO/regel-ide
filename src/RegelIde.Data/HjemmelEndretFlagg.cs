@@ -89,7 +89,13 @@ public static class HjemmelEndretFlagg
             else
             {
                 var spenn = JsonSerializer.Deserialize<List<ParagrafspennPar>>(b.ParagrafspennJson, JsonSerialiseringHjelper.Innstillinger) ?? [];
-                if (spenn.Count == 0)
+                if (b.TekstTaggId is { } tid)
+                {
+                    // [Ny, issue #486] En tagg per forekomst flagges når noden taggen sto i (slik den står i basen, før flyttingen), er endret.
+                    var taggEid = await db.TekstTagger.AsNoTracking().Where(t => t.Id == tid).Select(t => t.NodeEid).FirstOrDefaultAsync(ct);
+                    if (taggEid is not null && Endret(taggEid)) hvorfor = taggEid;
+                }
+                else if (spenn.Count == 0)
                 {
                     // [ENDRET, issue #390, Johanns tillegg 2026-10-23 fra #385] Før: enhver tekstendring i rettskilden flagget, og det ga for
                     // mye støy. Nå bare når en node med en TAGGET forekomst av navneformen er endret (eller borte) i den nye versjonen. Taggene

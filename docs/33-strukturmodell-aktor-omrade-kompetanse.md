@@ -241,7 +241,7 @@ Alle strukturutsagn lagres som én kanttype med kategori + konfigurerbar typekod
 | **M** medlemskap | aktør/klasse/område → klasse | medlem_av |
 | **O** områdesammensetning | område → område | bestar_av |
 | **A** ansvarsområde | aktør → område | har_ansvarsomrade, har_jurisdiksjon, har_sete_i, valgkrets_for |
-| **G** organtilhørighet | organ/enhet/rolle → rettssubjekt | har_organ, del_av ([#355] også fra en stilling: «Høyesteretts direktør» del_av Høyesterett), har_medlemmer (organets faste medlemmer), [Ny, #352] settes_med (sammensetningen i den enkelte sak — saksavhengig), [Ny, #353] tilhorer (ordning → rettssubjekt, bare når hjemlet) |
+| **G** organtilhørighet | organ/enhet/rolle → rettssubjekt ([ENDRET, #486] `har_medlemmer` også → rolle) | har_organ, del_av ([#355] også fra en stilling: «Høyesteretts direktør» del_av Høyesterett), har_medlemmer (organets faste medlemmer; til kan være rollen medlemmene har, som fasiten domstolloven u11 og statsrådet → statsråd), [Ny, #352] settes_med (sammensetningen i den enkelte sak — saksavhengig), [Ny, #353] tilhorer (ordning → rettssubjekt, bare når hjemlet) |
 | **I** rolleinnehav | aktør/klasse ([ENDRET, #418]: klasse lest distributivt) → rolle | innehar (= dagens `Myndighetstildeling` når målet er en rolle) |
 | **T** klassenivå | klasse → rolle/organ-type | skal_ha (distributivt: hvert medlem av klassen har …) |
 
@@ -2405,13 +2405,133 @@ rettingene og flettingen av #478 og #479: samme tall, 16 G `har_organ` (avledet)
 **Venter fortsatt** (forhåndsklassifiseringen er ikke endret): «regjeringen», «det offentlige», «fremmed stat», «myndighetsnivåene», Finland og
 Sverige. Saken avgjør dem ikke.
 
-**«regjeringen»: juristrunde (Johann 2026-11-18), ikke bygget.** `data/fasit/strukturmodell/regjeringen/` (sammendrag, inndata, to runder).
+**«regjeringen»: juristrunde (Johann 2026-11-18). [ENDRET, #486] Bygget i §5.19.1.** `data/fasit/strukturmodell/regjeringen/` (sammendrag, inndata, to runder).
 Utvalget er 50 av 268 forekomster i 97 rettskilder. Anbefalingen er verken A (statsrådet) eller B (Kongen i statsråd): ordet er kontekstavhengig
 (Grunnloven bruker det om styringen, statsrådskollegiet og medlemmene; Dok. 19 (2011–2012) pkt. 3.4.4). Statsrådet og Kongen i statsråd skal
 begge finnes som organer, og «regjeringen» blir ikke navneform for noen av dem. Ordlydsregler (fremmed, generisk konvensjonsstat, ikke aktør,
 rollen statsråd, funksjonen, «Regjeringens res.» = Kongen i statsråd etter Grl. § 32) setter tagger per forekomst; resten er forslag merket
 slutning. Bindingen gjelder noden som standard, med tre vilkår fra runde 2. Ingen uenighet igjen. Johann må velge hvem plikten ligger hos når
 «regjeringen skal legge fram for Stortinget» (kollegiet eller Kongen i statsråd).
+
+#### 5.19.1 «regjeringen»: statsrådet som organ og tagg per forekomst (#486, bygget 2026-11-20)
+
+**Hvorfor.** Utskilt fra #463 etter juristrunden i `data/fasit/strukturmodell/regjeringen/`. Spørsmålet saken flytter er S1: hva er «regjeringen» i
+denne setningen, og hvem er statsrådet? Grunnloven bruker ordet om styringen av riket, om statsrådskollegiet og om medlemmene (Dok. 19 (2011–2012)
+pkt. 3.4.4), så valget mellom statsrådet og Kongen i statsråd var falskt. Johann 2026-11-20: anbefalingen bygges.
+
+**Statsrådet** (`RegjeringenTjeneste`, fast id `StatsradetId`) er et eget organ ved siden av Kongen i statsråd, som finnes. Alt er forslag:
+
+| Utsagn | Hjemmel (eId og ordlyd kontrollert i korpus) | Kunnskapsstatus | Godkjenning |
+|---|---|---|---|
+| Aktøren **statsrådet** (uten orgnr) med gjeldende navneform «statsrådet», `hjemmel_art = oppretting` | Grl. § 12 første ledd: «Kongen velger selv et råd av stemmeberettigede norske borgere.» | fortolkning (ordlyd, kontekst og system): navnet står i § 12 annet ledd og § 15, ikke i første ledd | `manuelt_foreslatt` |
+| Aktørtypen organ | Grl. § 12 første ledd | fortolkning (ordlyd, kontekst og system) | `manuelt_foreslatt` |
+| Statsrådet `G har_organ` staten («er organ for staten») | Grl. § 12 første ledd | fortolkning | `manuelt_foreslatt` |
+| **Rollebegrepet «statsråd»** (fast id, for hele korpuset) | Grl. § 15 første ledd: «… mistillit til vedkommende statsråd alene …» | tekstfunn | `manuelt_foreslatt` |
+| Statsrådet `G har_medlemmer` rollen statsråd, objekt «en statsminister og minst syv andre medlemmer» | Grl. § 12 første ledd | fortolkning | `manuelt_foreslatt` |
+
+[ENDRET, Johanns avgjørelser 2026-11-20 på PR #489] (1) Navneformen hadde først Grl. § 15 første ledd som tekstfunn, og aktørsiden viste «Hjemmel for
+aktøren mangler». Med § 12 første ledd og `hjemmel_art = oppretting` gir hjemmelregelen i §5.17 (regel 2) hjemmelen. § 15 står i begrunnelsen.
+(2) Rollen statsråd er et eget rollebegrep, og forekomstene med lesningen `rolle_statsrad` peker på det, ikke på organet. Rollen knyttes til organet
+med `G har_medlemmer` (juristmålingen j3: samme form som domstolloven § 3 første ledd, fasiten u11 «Høyesterett har_medlemmer dommer»; først bygget
+som `G del_av` rollen → statsrådet, men `del_av` i §4.3 punkt 7 gjelder en stilling ved organet, ikke medlemmene). Skriveveien godtok ikke en rolle
+som til-node på G; nå gjør den det **bare for `har_medlemmer`** (`Strukturkanter.TilBegrep`). `har_organ` og `del_av` til en rolle avvises som før.
+Det betyr også at fasitens `har_medlemmer` → rolle (domstolloven u11, u19, u25, u39) nå kan lastes; før ble de avvist av valideringen.
+Rollebegrepet bindes bare via regel 4 eller av et menneske: «statsråd» i ubestemt form betyr nesten alltid organet eller beslutningsformen (254 av
+364 forekomster har «i» foran, juristmålingen j2). Lasteren og aktørkøen slår opp et helt aktørnavn mot termen, så bare en aktørfrase som er
+nøyaktig «statsråd», treffer rollen; om ordet trenger en ordsperre som «staten», er ikke avgjort.
+
+«regjeringen» er IKKE navneform for statsrådet eller Kongen i statsråd. Ordet blir en **generisk navneform** (grunn `generisk`, ingen aktør, som
+«departementet»), slik at hver forekomst kan tagges. Grl. § 32 første ledd kontrolleres også (hjemmelen for «Regjeringens res.»).
+
+**Tagg per forekomst** (migrasjonen `ForekomstbindingOgLesning`). Juristens tre vilkår fra runde 2 er bygget generelt i oppslaget, ikke bare for
+«regjeringen»:
+1. **En tagg for én forekomst har samme status som en binding.** `navneform_bindinger.tekst_tagg_id` peker på taggen, og bindingen er spennet for
+   den ene forekomsten, med godkjenning, gyldighet, hjemmel og kunnskapsstatus som andre bindinger. Den følger verket fordi taggen flyttes ved
+   resynk (quoteSelector, docs/05 §3.1); blir taggen ikke flyttet entydig, gjelder bindingen ikke i den nye versjonen og står i lista over
+   bindinger som ikke kan flyttes. Ingen ny bindingstype per tegnposisjon: spennet er en tagg som alt finnes. `paragrafspenn_json` er `[]`
+   (CHECK `ck_navneform_bindinger_forekomst_spenn`).
+2. **Taggen går foran nodens binding**, og **er bare noen av forekomstene i noden tagget, er svaret «flertydig»** (`LosOppAsync(…, taggId)`):
+   oppslaget for en forekomst uten vurdert tagg, og for noden som helhet, gir `flertydig` når en annen forekomst i noden har en vurdert tagg.
+   Har alle forekomstene vurderte tagger med samme svar, er det nodens svar; ulike svar gir `flertydig` for noden og hvert sitt svar per tagg.
+   Forekomstene i noden er taggene av navneformen i noden (en forekomst uten tagg kan ikke ses, som i §5.8).
+3. **Ordlydsreglene settes som tagger** (under).
+
+Bare vurderte forekomstbindinger (godkjent eller faglig vurdert) teller, som for bindinger. Finnes ingen i noden, er oppslaget nøyaktig det samme som
+før. Ny status `ikke_aktor`: en vurdert tagg sier at ordet her ikke er en aktør; lasteren gir årsaken `aktor_ikke_aktor` og ingen kobling.
+
+**Lesningen** (`navneform_bindinger.lesning`, lukket liste `Forekomstlesninger`): `fremmed_stat`, `generisk_konvensjonsstat`, `ikke_aktor`,
+`funksjon` og `slutning` har ingen referent (CHECK `ck_navneform_bindinger_referent_en`); `rolle_statsrad` har rollebegrepet «statsråd» og
+`regjeringens_resolusjon` Kongen i statsråd som referent. En `slutning` kan ikke godkjennes som den er (CHECK og tjenesten): et menneske avviser
+den og registrerer forekomsten med referenten.
+
+**Ordlydsreglene** (`RegjeringenOrdlydsregler`, kode, ikke data), prøvd i denne rekkefølgen; den første som slår til, gjelder:
+
+| Regel | Kode | Eksempel | Kunnskapsstatus, hjemmel |
+|---|---|---|---|
+| 1 Fremmed stat | `fremmed:regjeringen_i_stat`, `:nasjonalitet`, `:genitiv`, `:regjeringen_for`, til sist `:sanksjonstittel` | «regjeringen i Republikken Ungarn», «den syriske regjeringen», «Belarus' regjeringen», «Regjeringen for Det Forente Kongerike» | tekstfunn i noden; fortolkning for tittelregelen |
+| 2 Generisk konvensjonsstat | `generisk:konvensjonsstat`, `generisk:skjemamal` | «regjeringen i den staten hvis flagg …», «i en annen stat som er part», «den regjeringen som …», «regjeringen i ... (statens offisielle betegnelse)» | fortolkning i noden |
+| 3 Ikke aktør | `ikke_aktor:nettsted`, `:avtaletittel`, `:navn` | «regjeringen.no», «Avtale mellom regjeringen i Kongeriket Norge og …», «Regjeringens sikkerhetsutvalg» (lukket liste, ikke prefiks) | tekstfunn i noden |
+| 4 Rollen statsråd | `rolle:medlem_av`, `rolle:regjeringens_medlemmer` | «medlemmer av Stortinget og regjeringen», «medlemmer av Kongehuset, Stortinget, regjeringen, Høyesterett», «regjeringens ordinære medlemmer»; ikke «statsråder … i regjeringen» (r14) | fortolkning, Grl. § 15 første ledd (begrunnelsen: § 72 tredje ledd nr. 1 og 3, § 62 annet ledd, § 82 første ledd) |
+| 5 Funksjonen | `funksjon:styret_av_riket` | «føre/forestå/tiltre/ivareta/bestyre/anordne regjeringen» | fortolkning i noden (ordlyd, forarbeider: Dok. 19) |
+| 6 «Regjeringens res.» | `resolusjon:grl_32` | «Regjeringens res. av 5. november 1999», «opprettet ved regjeringens resolusjon» (`FastsattAvTolker.ErRegjeringensResolusjon`) | fortolkning, Grl. § 32 første ledd |
+
+Alt annet er `slutning`: kunnskapsstatus uavklart, ingen referent, begrunnelsen merket [slutning], og signalordene («legge fram for», «fremme sak
+for», «rapportere til» …) bare som opplysning i kommentaren. Det gjelder også «Regjeringen skal legge fram for Stortinget …»: hvem plikten ligger
+hos, er ikke avgjort (Johann 2026-11-20). [ENDRET etter juristmålingen m1] Ordlyden prøves før sanksjonstittelen, så «den syriske regjeringen» i
+en sanksjonsforskrift er tekstfunn; tittelregelen tar resten, også den russiske «regjeringens resolusjon» før regel 6.
+
+**Skrivingen** (`POST /api/regjeringen[?skriv=true][&medForekomster=false]`): tørrkjøring er standard, idempotent (statsrådet har fast id; en tagg
+og en forekomstbinding som finnes, skrives ikke på nytt; et avvist forslag foreslås ikke på nytt). Taggen eies av rettskildens ansvarlige
+departement, som i `AktoridentitetTjeneste` (`TaggForekomstAsync`, skilt ut fra `TaggSpennAsync`). Alle forekomstbindinger er
+`maskinelt_foreslatt` med oppdagelseskilde `monster:regjeringen-<lesning>`. Hovedøkta kjører migrasjonen og skrivingen etter fletting.
+
+**Målt 2026-11-20.** Den delte basen ble bare lest: nodene med ordet er de samme som i kopien (239 noder, samme md5 over rettskilde, eId og tekst,
+READ ONLY). Kopien `regelide_regjeringen` (pg_dump av delt base) gav gjennom API-et:
+
+| Lesning | Forekomster | Regler |
+|---|---|---|
+| fremmed stat | 21 | i stat 5, nasjonalitet 11, genitiv 2, «regjeringen for» 2, sanksjonstittel 1 |
+| generisk konvensjonsstat | 24 | konvensjonsstat 21, skjemamal 3 |
+| ikke aktør | 15 | nettsted 2, avtaletittel 4, navn 9 |
+| rollen statsråd | 25 | «medlem av» 20, «regjeringens medlemmer» 5 |
+| funksjonen | 8 | |
+| «Regjeringens res.» | 5 | |
+| **regler i alt** | **98** | |
+| slutning | 170 | |
+| **sum** | **268** (239 noder, 97 rettskilder) | |
+
+- **Tagget:** 254. 14 forekomster i to kilder («Endr. i instruks for håndtering av bygge- og leiesaker» 6, «Endr. i instruks om håndtering av
+  bygge- og leiesaker» 8) har ingen ansvarlig departement i katalogen som kan eie taggen, og får verken tagg eller forekomstbinding. [Johanns
+  avgjørelse 2026-11-20 på PR #489] De blir stående utagget og vises som hull i rapporten; ingen eier gjettes. 0 kollisjoner med andre tagger.
+- **Flertydig hvis regeltaggene godkjennes og slutningene ikke** (vilkår 2): 5 forekomster i 4 noder (EØS-transportforskriften art. 11 nr. 3,
+  miljøvernkonvensjonen art. 11, avgraderingsreglementet § 2 annet ledd (2), samfunnssikkerhetsinstruksen kap. VIII). Noder med ulike svar: 8
+  (de 4 og 4 avtaletitler der den norske parten er avtaletittel og den andre fremmed stat). 25 noder har mer enn én forekomst.
+- Tørrkjøringen og første skriving gav de samme tallene (statsrådet, navneformen, aktørtypen, G-kanten og «regjeringen» `opprettet`, 254 nye
+  forekomstbindinger); andre skriving gav bare `finnes`.
+
+**Andre navneformer, før og etter skrivingen i kopien:** standardregel-dekningen for «kommunen» (519 av 533), «departementet» (1 489 Lovdata, 34
+utgått navn, 13 ikke løst, 7 flertydige av 1 543), «statsforvalteren» (297 av 324) og «fylkeskommunen» (175 av 189) er identisk; ordsperren for
+«staten» (1 932 gjelder, 579 sperret) er identisk; de 3 eksisterende bindingene og oversikten for de fire generiske ordene er uendret. Aktørkøen gikk
+fra 189 til 188 navn: «regjeringen» (2 forekomster) rutes nå som generisk ord. Oppslaget for andre navneformer går samme vei som før, fordi ingen av
+dem har forekomstbindinger (testet i `RegjeringenTjenesteTests`, og hele Data- og Api-suiten for de berørte klassene er grønn).
+
+**Juristmålingen** (`data/fasit/strukturmodell/regjeringen/maling-486/`, CLAUDE.md §23): 20 av 98 regeltagger, stratifisert per regel (seed 486).
+Runde 1: 19 holder, 1 innvending (m1, lav: kunnskapsstatusen for «den syriske regjeringen» i en sanksjonsforskrift skulle vært tekstfunn). Svar:
+begge aksepteres (m1: rekkefølgen i regel 1; m12–m15: rollebegrunnelsen med Grl. §§ 62, 72 og 82). Runde 2: juristen godtar begge. Ingen uenighet
+igjen.
+
+**Juristmålingen etter Johanns avgjørelser** (`maling-486/b/`, j1–j4): j1 (navneformen med § 12 første ledd, oppretting, fortolkning) og j4
+(forekomstene peker på rollebegrepet) holder; j2 (rollebegrepet, § 15 tekstfunn) holder, med merknaden om ubestemt «statsråd» over; j3 (middels):
+`G har_medlemmer` fra statsrådet til rollen, ikke `del_av`. Modellereren aksepterte alle (`b/svar.json`). Ingen uenighet igjen.
+
+**Kaldsjekket på nytt 2026-11-20** i en ny kopi `regelide_regjeringen` (API 5687, web 5373): samme fordeling (98 regeltagger, 170 slutninger, 14
+utagget), tørrkjøring = første skriving, andre skriving bare `finnes`, andre navneformer uendret og aktørkøen 189 → 188 som før. Aktørsiden for
+statsrådet viser hjemmelen Grl. § 12 første ledd («Navneform med hjemmel for aktøren», fortolkning, oppretting) og «har medlemmer fra statsråd»;
+Grl. § 72 tredje ledd nr. 1 lenker til rollebegrepet «statsråd». Kopien er slettet.
+
+**Avgjort av Johann 2026-11-20 (PR #489):** hjemmelen § 12 første ledd som oppretting; rollebegrepet «statsråd»; de 14 forekomstene uten eier
+står utagget som hull; plikten i «legge fram for Stortinget» er fortsatt slutning. **Ikke avgjort:** hvem plikten ligger hos (slutning til da), og
+om «statsråd» trenger en ordsperre.
 
 ### 5.20 Hjemmelsstatus: statusen per hjemmel og maskinregelen (#472 PR 1, bygget 2026-11-20)
 

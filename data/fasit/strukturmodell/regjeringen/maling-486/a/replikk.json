@@ -1,0 +1,23 @@
+[
+ {
+  "id": "m1",
+  "replikk": "godtar",
+  "tekst": "Godtar. Ordlydsreglene i regel 1 prøves nå før sanksjonstittelen, og en forekomst med ordlydstreff får kunnskapsstatus tekstfunn (RegjeringenTjeneste, grenen FremmedStat). Kontrollert at endringen ikke flytter den russiske resolusjonen. I Sanksjonsforskrift Ukraina § 19m første ledd står det «… Den russiske føderasjons regjerings dekret nr. 1767 av 18. oktober 2021, endret ved regjeringens resolusjon nr. 380 av 27. mars 2024». Forekomsten «regjeringens» er genitiv, så regelen «regjeringen i X» og regelen «regjeringen for X» prøves ikke. Ordet foran er «ved», så verken «den <nasjonalitet>-ske» eller en stat i genitiv slår til. Tittelen (kortnavnet «Sanksjonsforskrift Ukraina …» og tittelen «Forskrift om restriktive tiltak …») fanger forekomsten som fremmed:sanksjonstittel før regel 6. «regjerings» i «føderasjons regjerings dekret» er ikke en forekomst etter Ordet-mønsteret. Testen Sanksjonsforskrifter_avgrenses_ved_tittel_og_den_russiske_resolusjonen_er_fremmed_ikke_Kongen_i_statsrad låser dette. Jeg har lest alle 14 forekomstene i gjeldende sanksjonsforskrifter i korpuset (Belarus, Syria, Ukraina, Libya og Iran). Alle er fortsatt fremmed stat; bare regelen og kunnskapsstatusen skifter, fra tittel til ordlyd: «Belarus' regjeringen» er genitiv, og «den syriske/belarusiske/russiske/libyske/iranske regjeringen(s)» er nasjonalitet. Bare § 19m faller til tittelregelen. Endringen påvirker ikke kilder som ikke er sanksjonsforskrifter, fordi tittelregelen bare slår til der.",
+  "kilder": [
+   {"ref": "src/RegelIde.Data/RegjeringenOrdlydsregler.cs, Vurder, regel 1 (ny rekkefølge) og regel 6", "funksjon": "direkte_hjemmel"},
+   {"ref": "src/RegelIde.Data/RegjeringenTjeneste.cs, FremmedStat-grenene (tekstfunn mot fortolkning ved sanksjonstittel)", "funksjon": "direkte_hjemmel"},
+   {"ref": "Sanksjonsforskrift Ukraina (FOR-2014-08-15-1076) § 19m første ledd, gjeldende tekst i korpuset", "funksjon": "direkte_hjemmel"},
+   {"ref": "Korpuset: alle forekomster av «regjeringen(s)» i gjeldende sanksjonsforskrifter (14, SELECT 2026-11-20)", "funksjon": "forutsatt_kilde"},
+   {"ref": "src/RegelIde.Data.Tests/RegjeringenOrdlydsreglerTests.cs, testen for den russiske resolusjonen og m1", "funksjon": "forutsatt_kilde"}
+  ]
+ },
+ {
+  "id": "m12",
+  "replikk": "godtar",
+  "tekst": "Godtar. Begrunnelsen for rolle-taggene (regel 4) viser nå til Grl. § 72 tredje ledd nr. 1, som holder medlemmene fra statssekretærer og politiske rådgivere (nr. 3), og til § 62 annet ledd og § 82 første ledd. I tillegg står § 15 første ledd, som fortsatt er hjemmelen. Sitatene stemmer med gjeldende Grunnlov i korpuset: «medlemmer av regjeringen» (§ 72 tredje ledd nr. 1), «Statsrådets medlemmer» (§ 62 annet ledd) og «Intet medlem av statsrådet» (§ 82 første ledd). Kunnskapsstatusen er fortsatt fortolkning, og det er riktig. Merknadene om m4 og m11 krevde ingen endring, slik modellereren skriver.",
+  "kilder": [
+   {"ref": "src/RegelIde.Data/RegjeringenTjeneste.cs, RolleStatsrad-grenen (begrunnelsen for regel 4)", "funksjon": "direkte_hjemmel"},
+   {"ref": "Grl. § 15 første ledd, § 62 annet ledd, § 72 tredje ledd nr. 1 og 3, § 82 første ledd (gjeldende versjon i korpuset)", "funksjon": "direkte_hjemmel"}
+  ]
+ }
+]

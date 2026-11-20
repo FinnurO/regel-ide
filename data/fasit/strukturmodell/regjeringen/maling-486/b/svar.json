@@ -1,0 +1,27 @@
+[
+ {
+  "id": "j2",
+  "svar": "aksepter",
+  "tekst": "Merknaden tas inn: rollebegrepet bindes bare via regel 4 (forekomstbinding) eller av et menneske; skrivingen tagger ikke «statsråd» på term. Lasteren og aktørkøen slår opp et helt aktørnavn mot begrepets term, så en aktørfrase som er nøyaktig «statsråd» vil treffe rollen; «Kongen i statsråd» er et eget navn og påvirkes ikke. Aktørkøen i kopien er uendret bortsett fra «regjeringen». Om «statsråd» trenger en ordsperre som «staten», står som et åpent punkt i docs/33 §5.19.1.",
+  "kilder": [
+   "src/RegelIde.Data/RegjeringenTjeneste.cs",
+   "docs/33 §5.19.1"
+  ]
+ },
+ {
+  "id": "j3",
+  "svar": "aksepter",
+  "tekst": "Rettet: G har_medlemmer fra statsrådet til rollen statsråd, objekt «en statsminister og minst syv andre medlemmer», hjemmel Grl. § 12 første ledd, fortolkning. Kanttjenesten godtok ikke en rolle som til-node på G; det er nå tillatt bare for typen har_medlemmer (Strukturkanter.TilBegrep), slik fasiten domstolloven u11 forutsetter. har_organ til en rolle avvises fortsatt (testet). Visningen: «statsrådet har medlemmer fra statsråd» / fra rollen «har medlemmer i statsrådet».",
+  "kilder": [
+   "src/RegelIde.Data/Strukturkanter.cs (TilBegrep)",
+   "src/RegelIde.Data/StrukturkantTjeneste.cs",
+   "RegjeringenTjenesteTests"
+  ]
+ },
+ {
+  "id": "j4",
+  "svar": "aksepter",
+  "tekst": "Begrunnelsen i regel 4 viser nå til G har_medlemmer.",
+  "kilder": []
+ }
+]
