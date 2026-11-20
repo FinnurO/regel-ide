@@ -625,29 +625,58 @@ public sealed class AktoridentitetTjeneste(RegelIdeDbContext db, TekstTaggTjenes
     /// <summary>Tagger nøyaktig spennet [start, slutt) mot navneformen, eller kobler en ubundet tagg på nøyaktig samme sted. Ingen tagg der
     /// en annen koblet tagg overlapper (dobbel markering), og ingen uten et ansvarlig departement som kan eie den.</summary>
     private async Task<Treffidentitet> TaggSpennAsync(
+        Guid rettskildeId, string eid, string tekst, int start, int slutt, Guid navneformId, string bruker, CancellationToken ct) =>
+        (await TaggForekomstAsync(rettskildeId, eid, tekst, start, slutt, navneformId, bruker, ct)).Utfall switch
+        {
+            TaggUtfall.Fantes => new(TaggerFantes: 1),
+            TaggUtfall.Kolliderer => new(TaggerKolliderer: 1),
+            TaggUtfall.UtenEier => new(TaggerUtenEier: 1),
+            _ => new(TaggerOpprettet: 1),
+        };
+
+    /// <summary>[Ny, issue #486] Utfallet av å tagge én forekomst (<see cref="TaggForekomstAsync"/>).</summary>
+    public static class TaggUtfall
+    {
+        public const string Opprettet = "opprettet";
+        public const string Fantes = "finnes";
+        public const string Kolliderer = "kolliderer";
+        public const string UtenEier = "uten_eier";
+    }
+
+    /// <summary>
+    /// [ENDRET, issue #486: skilt ut fra <see cref="TaggSpennAsync"/>, så taggens id kan brukes av en tagg per forekomst
+    /// (<see cref="NavneformBindingEntitet.TekstTaggId"/>)] Tagger nøyaktig spennet [start, slutt) mot navneformen, eller kobler en ubundet tagg på
+    /// nøyaktig samme sted. Samme regler som før: ingen tagg der en annen koblet tagg overlapper, og ingen uten et ansvarlig departement som kan eie
+    /// den (taggen er alltid en virksomhets arbeidsprodukt, <see cref="TekstTaggEntitet.VirksomhetId"/>). Gir taggens id når den finnes eller
+    /// ble opprettet.
+    /// </summary>
+    public async Task<(string Utfall, Guid? TaggId)> TaggForekomstAsync(
         Guid rettskildeId, string eid, string tekst, int start, int slutt, Guid navneformId, string bruker, CancellationToken ct)
     {
         var iNoden = await db.TekstTagger.Where(t => t.RettskildeId == rettskildeId && t.NodeEid == eid && t.Entitetsstatus == "gjeldende")
             .ToListAsync(ct);
-        if (iNoden.Any(t => t.StartOffset == start && t.EndOffset == slutt && t.RefId == navneformId)) return new(TaggerFantes: 1);
+        if (iNoden.FirstOrDefault(t => t.StartOffset == start && t.EndOffset == slutt && t.RefId == navneformId) is { } finnes)
+        {
+            return (TaggUtfall.Fantes, finnes.Id);
+        }
         var ubundet = iNoden.FirstOrDefault(t => t.StartOffset == start && t.EndOffset == slutt && t.RefId == null);
-        if (iNoden.Any(t => t.RefId != null && start < t.EndOffset && t.StartOffset < slutt)) return new(TaggerKolliderer: 1);
+        if (iNoden.Any(t => t.RefId != null && start < t.EndOffset && t.StartOffset < slutt)) return (TaggUtfall.Kolliderer, null);
         if (ubundet is not null)
         {
             ubundet.Kind = "virksomhet";
             ubundet.RefId = navneformId;
             db.Proveniens.Add(ProveniensHjelper.NyRad("tekst_tagg", ubundet.Id, ubundet.VirksomhetId, "endret", bruker));
             await db.SaveChangesAsync(ct);
-            return new(TaggerOpprettet: 1);
+            return (TaggUtfall.Opprettet, ubundet.Id);
         }
         var eier = await EierAsync(rettskildeId, ct);
-        if (eier is null) return new(TaggerUtenEier: 1);
+        if (eier is null) return (TaggUtfall.UtenEier, null);
         var tagg = await tekstTagger.OpprettAsync(rettskildeId, eier.Value, bruker, eid, start, slutt,
             tekst[Math.Max(0, start - Kontekstlengde)..start], tekst[start..slutt], tekst[slutt..Math.Min(tekst.Length, slutt + Kontekstlengde)],
             "virksomhet", ct);
-        if (tagg is null) return new(TaggerUtenEier: 1);
+        if (tagg is null) return (TaggUtfall.UtenEier, null);
         await tekstTagger.KobleTilEntitetAsync(tagg.Id, navneformId, bruker, ct);
-        return new(TaggerOpprettet: 1);
+        return (TaggUtfall.Opprettet, tagg.Id);
     }
 
     private readonly Dictionary<Guid, Guid?> _eiere = [];

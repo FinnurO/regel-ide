@@ -73,6 +73,21 @@ public static partial class FastsattAvTolker
     private static partial Regex KglResMønster();
 
     /// <summary>
+    /// [Ny, issue #486] «Regjeringens res.» eller «regjeringens resolusjon» i løpende tekst («opprettet ved regjeringens resolusjon 4. juli
+    /// 1991», «Regjeringens res. av 5. november 1999 nr. 1145»), lest fra ordet «regjeringens». Samme vedtaksform som den siste i
+    /// <see cref="KglResMønster"/>, og derfor samme organ: Kongen i statsråd («Alle fire er Kongen i statsråd»). Grl. § 32 sier hvorfor:
+    /// beslutninger regjeringen fatter under kongens fravær, «utferdiges i kongens navn». Den utskrevne formen står ikke i hjemmelslinjene,
+    /// men i normteksten (14 gjeldende forskrifter er fastsatt ved «Regjeringens res.», juristrunden 2026-11-18), og
+    /// <see cref="KglResMønster"/> er derfor ikke endret: det ville endret tolkningen av hjemmelslinjene uten at det er målt.
+    /// </summary>
+    [GeneratedRegex(@"^regjeringens\s+res(?:\.|olusjon(?![\p{L}]))", RegexOptions.IgnoreCase)]
+    private static partial Regex RegjeringensResolusjonMønster();
+
+    /// <summary>[Ny, issue #486] Om teksten (fra og med ordet «regjeringens») er vedtaksformen «Regjeringens res.»: Kongen i statsråd.</summary>
+    public static bool ErRegjeringensResolusjon(string tekstFraOrdet) =>
+        !string.IsNullOrEmpty(tekstFraOrdet) && RegjeringensResolusjonMønster().IsMatch(tekstFraOrdet);
+
+    /// <summary>
     /// Der organnavnet slutter. Alle formene er MÅLT i korpuset, ikke antatt: datoen («3. februar
     /// 2026»), hjemmelshalvdelen («med hjemmel i», «i medhold av»), og vanlig
     /// setningsinterpunksjon. Uten en terminator ville hele resten av hjemmelslinja blitt lest som
