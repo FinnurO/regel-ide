@@ -188,7 +188,7 @@ public static class Hjemmelstekstlesing
         + @"|beholder\s+sin\s+gyldighet|skal\s+gjelde\s+(inntil|til|frem|fram)";
     private const string Utelat = @"^\W*(\(\d+\)\s*)?(Det\s+samme|Tilsvarende|Bestemmelsene\s+i\s+(loven|lova)\s+her|Loven|Lova|Reglene\s+i|Kongen\s+kan|Første|Den\s+gjelder)";
     private const string Generisk =
-        @"(lov\w*\s+som\s+(oppheves|blir\s+opphevet|blir\s+oppheva|vert\s+oppheva)|bestemmelser\s+som\s+(oppheves|blir\s+opphevet)|reglar\s+som\s+blir\s+oppheva"
+        @"(lov\w*\s+som\s+(oppheves|blir\s+opphevet|blir\s+oppheva|vert\s+oppheva)|bestemmelser\s+som\s+(oppheves|blir\s+opphevet)|reglar\s+som\s+blir\s+oppheva|regler\s+som\s+(blir\s+opphevet|oppheves)"
         + @"|lovene\s+nevnt|lover\s+nevnt|lovene\s+som\s+er\s+nevnt|lover\s+som\s+er\s+nevnt|de\s+lover\s+som|tidligere\s+lov\w*\s+som\s+oppheves"
         + @"|noen\s+bestemmelse\s+som\s+oppheves|lovbestemmelser\s+som\s+(oppheves|blir))";
 
@@ -208,7 +208,10 @@ public static class Hjemmelstekstlesing
         return Setninger(Normaliser(tekst)).FirstOrDefault(s => Regex.IsMatch(s, rx) && ErVidereforing(s))?.Trim();
     }
 
-    /// <summary>V3: generisk form («forskrifter gitt med hjemmel i lov som oppheves …», «lovene nevnt i første ledd»).</summary>
+    /// <summary>V3: generisk form («forskrifter gitt med hjemmel i lov som oppheves …», «lovene nevnt i første ledd»). [ENDRET, #472 PR 1,
+    /// målt 2026-11-20] Også bokmålsformen «regler som blir opphevet» (fase 1 hadde bare nynorsk «reglar som blir oppheva»): uhl. 2024 § 17-3
+    /// «Forskrifter og enkeltvedtak som er fastsatt med hjemmel i regler som blir opphevet eller endret med denne loven, gjelder til departementet
+    /// fastsetter noe annet.» Uten den sto 465 hjemmelsrader til uhl. 2005 som opphevet uten videreføring.</summary>
     public static string? VidereforingV3(string? tekst) =>
         Setninger(Normaliser(tekst)).FirstOrDefault(s => Regex.IsMatch(s, Generisk, RegexOptions.IgnoreCase) && ErVidereforing(s))?.Trim();
 

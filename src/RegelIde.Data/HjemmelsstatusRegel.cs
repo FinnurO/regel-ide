@@ -36,7 +36,8 @@ public sealed class LovtidendKunngjortTekstkilde(LovdataBulkHenter henter) : IKu
             try
             {
                 var k = LovdataKonverterer.Konverter(html);
-                ut[eli] = k.Noder.Select(n => new KunngjortNode(n.Eid, n.ParentEid, n.Tekst, n.SorteringsRekkefolge)).ToList();
+                ut[eli] = k.Noder.Select(n => new KunngjortNode(n.Eid, n.ParentEid, n.Tekst, n.SorteringsRekkefolge))
+                    .Concat(Endringsblokker(html, eli)).ToList();
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
@@ -44,6 +45,35 @@ public sealed class LovtidendKunngjortTekstkilde(LovdataBulkHenter henter) : IKu
             }
         }
         return ut;
+    }
+
+    /// <summary>
+    /// [Ny, #472 PR 1, målt mot Lovtidend-arkivet 2026-11-20] Leddene i endringsblokkene (<c>article.document-change</c> /
+    /// <c>article.change</c>) i en kunngjort tekst. Parseren hopper bevisst over dem (<c>IkkeGjeldendeInnholdKlasser</c> i
+    /// <see cref="LovdataHtmlParser"/>): i den konsoliderte teksten er de ikke gjeldende rettskildetekst. Men i en kunngjort lov er det nettopp
+    /// der opphevingen står — uhl. 2024 § 17-2: «Samtidig oppheves lov 1. april 2005 nr. 15 om universiteter og høyskoler.» ligger i
+    /// <c>&lt;article class="change" data-repeal-part="lov/2005-04-01-15"&gt;</c>. Uten dette fant regelen ingen av de 465 radene for uhl. 2005.
+    /// Leddene festes til paragrafen de står i (<c>data-name</c> på nærmeste <c>legalArticle</c>), fordi endringsblokken ikke har en eId i
+    /// korpusets form. Parseren endres ikke: importen skal fortsatt hoppe over dem.
+    /// </summary>
+    public static IEnumerable<KunngjortNode> Endringsblokker(string html, string eli)
+    {
+        var dok = new HtmlAgilityPack.HtmlDocument();
+        dok.LoadHtml(html);
+        var ledd = dok.DocumentNode.SelectNodes("//article[contains(concat(' ', normalize-space(@class), ' '), ' change ') "
+            + "or contains(concat(' ', normalize-space(@class), ' '), ' document-change ')]//article[contains(@class, 'legalP')]");
+        if (ledd is null) yield break;
+        var sett = new HashSet<HtmlAgilityPack.HtmlNode>();
+        var i = 0;
+        foreach (var l in ledd)
+        {
+            if (!sett.Add(l)) continue;
+            var paragraf = l.Ancestors("article").FirstOrDefault(a => (a.GetAttributeValue("class", "") ?? "").Split(' ').Contains("legalArticle"));
+            var navn = paragraf?.GetAttributeValue("data-name", null);
+            var tekst = HtmlAgilityPack.HtmlEntity.DeEntitize(l.InnerText).Trim();
+            if (tekst.Length == 0) continue;
+            yield return new KunngjortNode(navn is null ? eli : $"{eli}/{navn}", null, tekst, 1_000_000 + i++);
+        }
     }
 }
 
