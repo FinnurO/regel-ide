@@ -66,11 +66,12 @@
 
   <div class="wrap">
     <div class="purpose-box">
-      <span class="purpose-box__label">Status per 27. oktober 2026</span>
+      <span class="purpose-box__label">Status per 20. november 2026</span>
       <div class="purpose-box__pills">
         <span class="pill" data-tone="warning">Forslag, ikke vedtatt</span><span class="pill" data-tone="success">Utvidelse 1–4 er bygget i DigRett</span><span class="pill" data-tone="warning">Kravsrett og eksport er ikke bygget</span>
       </div>
       <p>Grunnlaget er et forslag fra fagansvarlig Finnur Olafsson, revidert 9. oktober 2026. Dokumentene er arbeidsutkast. Ingen organisasjon har gitt profilen formell status, og den kalles derfor «forslag til norsk profil». DigRett (kildekoden heter regel-ide) er utprøvingsarena og kandidatreferanseimplementasjon. Det betyr at den prøver å følge forslaget, men ennå ikke er vist å gjøre det.</p>
+      <p><strong>Oppdatert 20. november 2026:</strong> standardene ble gått gjennom på nytt 12. november, og LOMO og EUs felles vokabularer er kommet med (<a href="#standardene">se under</a>). Eksporten er meldt som egen sak (<a href="https://github.com/FinnurO/regel-ide/issues/476" target="_blank" rel="noopener">#476</a>). DigRett leser nå også om en forskrifts hjemmel er opphevet og om forskriften er videreført (<a href="../strukturmodell/#hjemmelsstatus">hjemmelsstatus</a>).</p>
     </div>
     <ul class="nytt-innhold" aria-label="Innhold på siden">
       <li><a href="#hva-det-er">Hva forslaget er</a></li>
@@ -245,7 +246,7 @@
         <div class="nytt-kort">
           <h3>Akoma Ntoso: hvordan teksten er bygget opp</h3>
           <p>En OASIS-standard for dokumentstruktur: kapitler, paragrafer, ledd, lister og henvisninger. Den sier hvordan teksten er delt opp, men ingenting om hvem som har myndighet.</p>
-          <p>Eksempel: teksten etter en liste i et ledd er en egen del i Akoma Ntoso. DigRett retter nå importen sin etter det (<a href="https://github.com/FinnurO/regel-ide/issues/361" target="_blank" rel="noopener">#361</a>).</p>
+          <p>Eksempel: teksten etter en liste i et ledd er en egen del i Akoma Ntoso. DigRett har rettet importen sin etter det (<a href="https://github.com/FinnurO/regel-ide/issues/361" target="_blank" rel="noopener">#361</a>, oktober 2026).</p>
         </div>
         <div class="nytt-kort">
           <h3>UFO-L: nærmeste modell for myndighet</h3>
@@ -563,7 +564,7 @@
         <div class="nytt-kort">
           <h3>Senere: eksport som konformitetstest</h3>
           <p>DigRett skal kunne eksportere utsagnene som RDF, med opphav etter PROV-O. Valideringsreglene i SHACL blir normative i profilen. At DigRett består dem, er testen på om den følger profilen. Først når profilen er publisert og DigRett består testene, kan «kandidat» strykes.</p>
-          <p class="status">Etter punkt 1–3. Trengs før første release candidate.</p>
+          <p class="status">Etter punkt 1–3. Trengs før første release candidate. Meldt som <a href="https://github.com/FinnurO/regel-ide/issues/476" target="_blank" rel="noopener">#476</a> (CPOV for aktører og LOMO for plikter).</p>
         </div>
       </div>
       <div class="prose struktur-etter-tabell">
@@ -572,7 +573,7 @@
       <ul class="source-list struktur-lenker">
         <li><span class="dot" aria-hidden="true"></span><span><a href="https://github.com/FinnurO/regel-ide/blob/HEAD/docs/profil/README.md" target="_blank" rel="noopener">Profilmappen (docs/profil)</a><span class="desc">Oversikt over dokumentene, terminologien og rangordningen.</span></span></li>
         <li><span class="dot" aria-hidden="true"></span><span><a href="https://github.com/FinnurO/regel-ide/blob/HEAD/docs/profil/03-metodenotat.md" target="_blank" rel="noopener">Metodenotatet</a><span class="desc">Rettskildefaktorene, de åtte statusene, tolkning, motstrid, tid og skjønn.</span></span></li>
-        <li><span class="dot" aria-hidden="true"></span><span><a href="https://github.com/FinnurO/regel-ide/blob/HEAD/docs/profil/04-mappingnotat.md" target="_blank" rel="noopener">Mappingnotatet</a><span class="desc">Koblingene til ELI, Akoma Ntoso, UFO-L, LegalRuleML og LKIF Core, med kildehenvisninger.</span></span></li>
+        <li><span class="dot" aria-hidden="true"></span><span><a href="https://github.com/FinnurO/regel-ide/blob/HEAD/docs/profil/04-mappingnotat.md" target="_blank" rel="noopener">Mappingnotatet</a><span class="desc">Koblingene til ELI, Akoma Ntoso, UFO-L, LegalRuleML og LKIF Core, og fra november 2026 til LOMO, EUs felles vokabularer (CPOV, CPSV-AP), eFLINT, ODRL og norske spesifikasjoner, med kildehenvisninger.</span></span></li>
         <li><span class="dot" aria-hidden="true"></span><span><a href="https://github.com/FinnurO/regel-ide/blob/HEAD/docs/34-arkitekturvurdering-norsk-profil.md" target="_blank" rel="noopener">Arkitekturvurderingen (docs/34)</a><span class="desc">Hva som må endres i DigRett, og i hvilken rekkefølge.</span></span></li>
       </ul>
     </div>

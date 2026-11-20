@@ -429,6 +429,9 @@ table.ds-table caption{ text-align:left; font-size: var(--ds-body-sm-font-size);
 .nyhet-boks h2{ font-family: var(--site-font-display); font-size: var(--ds-heading-md-font-size); margin:0 0 var(--ds-size-3); text-wrap:balance; }
 .nyhet-boks p{ margin:0 0 var(--ds-size-3); }
 .nyhet-boks a{ font-weight:500; }
+/* [Ny, nettside-rettinger, 2026-11-20] «Siste nytt» på forsiden: datert liste, nyeste først. */
+.nyhet-liste{ margin:0 0 var(--ds-size-4); padding-left: var(--ds-size-5); }
+.nyhet-liste li{ margin-bottom: var(--ds-size-2); }
 @media (max-width: 640px){ .nyhet-boks{ padding: var(--ds-size-4); } }
 
 .nytt-innhold{ list-style:none; margin: var(--ds-size-5) 0 0; padding:0; display:flex; flex-wrap:wrap; gap: var(--ds-size-2); }
