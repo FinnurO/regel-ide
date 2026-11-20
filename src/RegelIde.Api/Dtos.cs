@@ -1976,14 +1976,16 @@ public sealed record NavneformBindingRequest(
     string? KildeUtenforKorpusTekst, string? KildeUtenforKorpusLenke, string? KildeUtenforKorpusType, string? KildeUtenforKorpusDokumentasjon,
     string? Kunnskapsstatus, string? Begrunnelse, List<string>? Tolkningsargumenter, string? Status, string? OppdagelsesKilde, string? Kommentar,
     DateOnly? GyldigFra = null, DateOnly? GyldigTil = null,
-    List<string>? KildeUtenforKorpusLenker = null) // [Ny, issue #385 AC8]
+    List<string>? KildeUtenforKorpusLenker = null, // [Ny, issue #385 AC8]
+    Guid? TekstTaggId = null, string? Lesning = null) // [Ny, issue #486] Tagg per forekomst
 {
     public RegelIde.Data.NyNavneformBinding TilNy(Guid navneformId, Guid rettskildeId) => new(
         navneformId, rettskildeId, new RegelIde.Data.Kantnode(TilVirksomhetId, TilBegrepId), Paragrafspenn,
         HjemmelRettskildeId, HjemmelEid, KildeUtenforKorpusTekst, KildeUtenforKorpusLenke, KildeUtenforKorpusType,
         KildeUtenforKorpusDokumentasjon, Kunnskapsstatus, Begrunnelse, Tolkningsargumenter,
         string.IsNullOrWhiteSpace(Status) ? RegelIde.Data.Strukturkanter.ManueltForeslatt : Status,
-        string.IsNullOrWhiteSpace(OppdagelsesKilde) ? "manuell" : OppdagelsesKilde, Kommentar, GyldigFra, GyldigTil, KildeUtenforKorpusLenker);
+        string.IsNullOrWhiteSpace(OppdagelsesKilde) ? "manuell" : OppdagelsesKilde, Kommentar, GyldigFra, GyldigTil, KildeUtenforKorpusLenker,
+        TekstTaggId, string.IsNullOrWhiteSpace(Lesning) ? null : Lesning);
 }
 
 /// <summary>[Ny, issue #378 A2] «Marker som generisk», valgfritt med binding for kandidatens rettskilde.</summary>
