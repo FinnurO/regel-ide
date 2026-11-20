@@ -2184,9 +2184,9 @@ I tillegg fikk 10 relasjoner en annen kunnskapsstatus med samme eId: 8 ble tekst
 foreldreråd, samarbeidsutvalg, kommunelege, førstelagmann og barnevernstjeneste), og 2 ble fortolkning (felles samarbeidsutvalg, kommunestyret), og 10 fikk et smalere sitat (tiltakssonen: definisjonen i siste punktum; pedagogisk
 leder: hele normen). Merknaden i fila leses fortsatt ikke maskinelt; hjemmelen per relasjon er det som skrives.
 
-**Åpent spørsmål til Johann (ikke uenighet):** teller en konstitutiv «er» som pliktuttrykk for T `skal_ha`? Det gjelder kommuneloven § 5-3 første
-ledd (kommunestyret, n139) og fvl. § 28 andre ledd (kommunens klageinstans, n127). Modellereren og juristen leser begge som «skal», med status
-fortolkning. Leses regelen bokstavelig, blir det ingen kant for dem (51 i stedet for 53).
+**Avgjort av Johann 2026-11-18:** en konstitutiv «er» teller som pliktuttrykk for T `skal_ha`, med status fortolkning. Det gjelder kommuneloven
+§ 5-3 første ledd (kommunestyret, n139) og fvl. § 28 andre ledd (kommunens klageinstans, n127). Modellereren og juristen leste begge som «skal».
+Det gir 53 kanter (ved bokstavelig lesning ville det blitt 51).
 
 **Det som ikke skrives, og hva som mangler:**
 - **Medlemsregler** (7): `begreper.medlemskapsregel` er et lukket vokabular av utregnede regler (kommune via områderegisteret, fylkeskommune,
