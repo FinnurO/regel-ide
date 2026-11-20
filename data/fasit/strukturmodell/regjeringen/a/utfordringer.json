@@ -1,0 +1,824 @@
+[
+ {
+  "id": "Q",
+  "dom": "prinsipiell",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Spørsmålet A eller B bygger på et falskt enten–eller. Grunnloven selv bruker «regjering(en)» i minst tre betydninger: (1) styring av riket / regentskap (§§ 9, 11, 13, 36, 40, 41, 43, 44: «føre», «tiltre», «forestå», «ivareta», «bestyre» regjeringen), (2) statsrådskollegiet (§§ 76 og 82), og (3) rollen («medlemmer av regjeringen», § 72 tredje ledd nr. 1, samme krets som «Statsrådets medlemmer» i § 62 annet ledd). § 25 tredje ledd («Regjeringen har ikke rett til å bruke militær makt») og § 32 («beslutninger som fattes av regjeringen under kongens fravær») passer ikke rent i noen av dem. Grunnlovsspråkutvalget sier dette uttrykkelig: ordet er flertydig, betydningen kan få vesentlig betydning for tolkningen, og det ble derfor beholdt uendret (Dok. 19 (2011–2012) pkt. 3.4.4). Det er derfor feil å gjøre «regjeringen» til navneform for statsrådet (A) som utgangspunkt. Begge organene finnes: statsrådet som eget organ (§ 12 første ledd, §§ 13, 15, 39–41) og Kongen i statsråd (§ 3, § 28, § 30). Ordet skal ikke være navneform for noen av dem. Det skal bindes per forekomst. Videre: binding «per rettskilde» er for grovt. Grunnloven, klimaloven (§ 7 første og annet ledd), miljøvernkonvensjonen art. 11 (r26) og trygdeavtaleforskriften (r42) har ulike lesninger i samme kilde, og r26/r42 har to ulike referenter i samme node. Bindingen må gjelde forekomsten (node + posisjon). Kilden Q selv bruker for A (fvl. § 85, r13), taler for at unntaket nettopp skal dekke Kongen i statsråd (se r13). [slutning] Forholdet mellom organene bør modelleres for seg: statsrådets medlemmer under ledelse av kongen utgjør Kongen i statsråd (Håndboka pkt. 3.8). Det er et G-spørsmål og ikke en navneform.",
+  "retting": {
+   "lesning": "kontekstavhengig (ny verdi: ingen standardlesning)",
+   "referent": "Ingen fast referent. Organene statsrådet (A) og Kongen i statsråd (B) finnes begge. «regjeringen» bindes per forekomst til A, B, rollen statsråd, funksjonen, «utøvende makt» eller «ikke aktør».",
+   "merknad": "Grl. bruker ordet i flere betydninger (Dok. 19 (2011–2012) pkt. 3.4.4). Bare ordlydsregler gir binding uten menneske. Resten foreslås med signalord og merkes [slutning], og et menneske bekrefter per forekomst, ikke per rettskilde."
+  },
+  "ny_rad": null,
+  "kilder": [
+   {
+    "ref": "Grunnloven (korpus, https://lovdata.no/eli/lov/1814/05/17/nor) §§ 9, 11, 12, 13, 15, 25, 32, 36, 40, 41, 43, 44, 62, 72, 76, 82",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "Dokument 19 (2011–2012) Grunnlovsspråkutvalget, pkt. 3.4.4 «Ordet regjering er flertydig slik det brukes i Grunnloven» – https://stortinget.no/no/Saker-og-publikasjoner/Publikasjoner/Dokumentserien/2011-2012/dok19-201112/3/",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "Dokument 19 (2011–2012) kap. 4, merknader til §§ 9, 11, 36, 40, 41, 43 (regjering = styring av riket/regentskap) – https://stortinget.no/no/Saker-og-publikasjoner/Publikasjoner/Dokumentserien/2011-2012/dok19-201112/4/",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "Statsministerens kontor, Håndbok for politisk ledelse (mai 2026), del I pkt. 3.5 (r-konferanser fatter ikke formelle vedtak), 3.7 og 3.8 (regjeringens medlemmer under ledelse av kongen = Kongen i statsråd) – https://www.regjeringen.no/contentassets/bf7a48eac08a42a5a8758969c5ec64f8/no/pdfs/handbok-for-politisk-ledelse-200526.pdf",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "NOU 2019: 5 Ny forvaltningslov, pkt. 5.1.1.1–5.1.1.2 (PDF-s. 93: «Regjeringen er et kollegialt organ», treffer vedtak «ved Kongen i statsråd») og pkt. 36.3.11 (PDF-s. 564: nemndreglene gjelder «ikke for regjeringen») – https://www.regjeringen.no/contentassets/8d681c58c7a94929954ca9538a2476a6/no/pdfs/nou201920190005000dddpdfs.pdf",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "Store norske leksikon, «regjering» (Berg/Broderstad) – https://snl.no/regjering",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "Store norske leksikon, «statsråd» (Thorsen): møtet, organet og medlemmet – https://snl.no/statsråd",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "Dokument 16 (2011–2012) er Menneskerettighetsutvalgets rapport og behandler ikke ordet «regjeringen»; språkrevisjonen 2014 bygger på Dokument 19 (2011–2012) – https://www.stortinget.no/global/pdf/dokumentserien/2011-2012/dok16-201112.pdf",
+    "funksjon": "ikke_funnet"
+   }
+  ]
+ },
+ {
+  "id": "R",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "hoy",
+  "innvending": "Rammen (ordlyd først, menneske for resten) er riktig, men reglene har feil som gir feil subjekt: (a) R4 fyrer på r43: «endret ved regjeringens resolusjon nr. 380 av 27. mars 2024» er russisk. Sanksjonsforskrifter fanges ikke av konvensjonssperren fra #480, som avgrenses ved overskrift. R2 må derfor prøves før R4, og sanksjonsforskrifter må sperres ved tittel («restriktive tiltak», «sanksjoner»). (b) R4 sier «ingen kobling uten et menneske». Men Grl. § 32 avgjør saken: beslutningene «utferdiges i kongens navn». FastsattAvTolker.cs behandler allerede «Regjeringens res.» som Kongen i statsråd («Alle fire er Kongen i statsråd»), og 14 gjeldende forskrifter i korpuset er fastsatt slik (1905–1999). Kompetansen er Kongen i statsråds, og det er statsrådet som handler. «Historisk» er misvisende: formen er gjeldende konstitusjonell ordning (§§ 13, 32, 41; Innst. 465 S (2025–2026)). (c) R2 sperrer «regjeringen i <stat>» uten unntak for Norge. «regjeringen i Kongeriket Norge» (r42) blir da «ikke det norske organet». (d) R3 med prefikset «Regjeringens …» treffer også «Regjeringens resolusjon» (r44, r45), «Regjeringens departementer» (r20) og «Regjeringens/Samferdselsdepartementets» (r46). Regelen må være en lukket navneliste. Avtaletitler («Avtale mellom regjeringen i …», r42) må med. (e) R1 dekker ikke sideordning: «medlemmer av Stortinget og regjeringen» (r15, r16) og «medlemmer av Kongehuset, Stortinget, regjeringen, Høyesterett» (r22, r23). Den må heller ikke fyre på «statsråder, statssekretærer eller politiske rådgivere i regjeringen» (r14). (f) Funksjonsregelen mangler: «føre/forestå/tiltre/ivareta/bestyre/anordne regjeringen» (6 forekomster, alle i Grunnloven) er ren ordlyd (Dok. 19 kap. 4). (g) Malene i konvensjonstekst («... regjering», «regjeringen i staten hvis flagg», «regjeringen i den førstnevnte staten») omfatter Norge. De er generiske og ikke «fremmed». (h) R5 binder per rettskilde. Det må være per forekomst (se Q). (i) Lesningslisten mangler «utøvende makt» (Grl. § 25 tredje ledd, skbl. § 4-8 annet ledd, r5) og «politisk ledelse / regjeringsapparatet» (r14).",
+  "retting": {
+   "regel": [
+    "0. Bindingen gjelder én forekomst (node + tegnposisjon), ikke rettskilden eller eId-en alene.",
+    "1. Fremmed (prøves først): «regjeringen i <stat>» (unntatt Norge/Kongeriket Norge), «den <adj.> regjeringen», «<stat>s regjering», og sanksjonsforskrifter avgrenset ved tittel → ikke det norske organet.",
+    "2. Generisk konvensjonsstat: maler og definisjoner («... regjering», «regjeringen i staten hvis flagg», «regjeringen i den førstnevnte staten», «regjeringen i ... (statens offisielle betegnelse)») → ingen kant. Merkes generisk (omfatter Norge), ikke fremmed.",
+    "3. Ikke aktør: «regjeringen.no», en lukket liste over navn («Regjeringens kriseinformasjonsenhet» …) og avtaletitler («Avtale mellom regjeringen i …») → ikke aktør. Ikke prefiksregel.",
+    "4. Rolle: «medlem(mer) av [X, Y og] regjeringen», «regjeringens medlemmer» → rollen medlem av statsrådet (tekstfunn; jf. Grl. § 62 annet ledd og § 72 tredje ledd). Fyrer ikke på «… i regjeringen» etter statssekretærer/politiske rådgivere.",
+    "5. Funksjon: «føre/forestå/tiltre/ivareta/bestyre/anordne regjeringen» → funksjonen styring av riket, ingen aktør (Dok. 19 (2011–2012) pkt. 3.4.4 og kap. 4).",
+    "6. «Regjeringens resolusjon» (etter regel 1): vedtaksform. Kompetansen er Kongen i statsråds (Grl. § 32), og statsrådet handler i kongens fravær (§§ 13, 41). Samme behandling som FastsattAvTolker. Ikke «historisk».",
+    "7. Resten: ingen standardlesning. Signalord gir et forslag merket [slutning] (maskinelt_foreslatt): «legge fram for / foreslå for Stortinget», budsjettproposisjon, traktatmyndighet → B; «fremme sak for», «rapportere til», «rådgi», «anmodning fra», «regjeringens politikk/handlingsplaner» → A; «avskåret fra forbindelse med regjeringen» → utøvende makt. Et menneske bekrefter per forekomst."
+   ],
+   "merknad": "Regel 1–6 er ordlyd eller Grunnloven og gjetter ikke. Regel 7 gir bare forslag. Lesningslisten utvides med «kontekstavhengig», «utøvende_makt», «generisk_konvensjonsstat» og «politisk_ledelse»."
+  },
+  "ny_rad": null,
+  "kilder": [
+   {
+    "ref": "Grunnloven (korpus, https://lovdata.no/eli/lov/1814/05/17/nor) §§ 13, 25, 32, 41, 62, 72",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "Dokument 19 (2011–2012) Grunnlovsspråkutvalget, pkt. 3.4.4 «Ordet regjering er flertydig slik det brukes i Grunnloven» – https://stortinget.no/no/Saker-og-publikasjoner/Publikasjoner/Dokumentserien/2011-2012/dok19-201112/3/",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "Dokument 19 (2011–2012) kap. 4, merknader til §§ 9, 11, 36, 40, 41, 43 (regjering = styring av riket/regentskap) – https://stortinget.no/no/Saker-og-publikasjoner/Publikasjoner/Dokumentserien/2011-2012/dok19-201112/4/",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "Innst. 465 S (2025–2026) til Dokument 12:16 (2023–2024), om Grl. § 41: statsrådet kan etter §§ 13, 40 og 41 treffe beslutning uten kongens medvirkning – https://stortinget.no/no/Saker-og-publikasjoner/Publikasjoner/Innstillinger/Stortinget/2025-2026/inns-202526-465s/?all=true",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "src/RegelIde.Kildekonvertering/FastsattAvTolker.cs: «Regjeringens res.» og «Kronprinsreg.res.» behandles som Kongen i statsråd («Alle fire er Kongen i statsråd»)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "Korpus: forskrift 2014/08/15/1076 § 19m (r43); 14 gjeldende rettskilder med fastsatt_av «Regjeringens res.»",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "Wikipedia (bokmål), «Kongelig resolusjon»: «regjeringens resolusjon» når verken kongen eller kronprinsen leder statsrådet (sekundærkilde) – https://no.wikipedia.org/wiki/Kongelig_resolusjon",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "r1",
+  "dom": "kontroller",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "B har støtte fordi budsjettproposisjoner godkjennes i statsråd. Men Grunnlovsspråkutvalget leser «regjeringen» i de parallelle bestemmelsene om forslag og saker for Stortinget (Grl. §§ 76, 82) som statsrådskollegiet (Dok. 19 pkt. 3.4.4). Plikten («Regjeringen skal foreslå») ligger da på kollegiet (A), og den oppfylles gjennom Kongen i statsråd (B). Hvem som er plikt-subjekt i en P-kant, er et modellvalg som må tas én gang for alle tilfellene der «regjeringen» skal legge fram noe for Stortinget (r1, r2, r10). Kontroller: skal P-kanten gå fra kollegiet eller fra beslutningsformen? B kan ikke settes som tekstfunn.",
+  "retting": null,
+  "ny_rad": null,
+  "kilder": [
+   {
+    "ref": "Grunnloven (korpus, https://lovdata.no/eli/lov/1814/05/17/nor) § 76, § 82",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "Dokument 19 (2011–2012) Grunnlovsspråkutvalget, pkt. 3.4.4 «Ordet regjering er flertydig slik det brukes i Grunnloven» – https://stortinget.no/no/Saker-og-publikasjoner/Publikasjoner/Dokumentserien/2011-2012/dok19-201112/3/",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "Statsministerens kontor, Håndbok for politisk ledelse (mai 2026), del I pkt. 3.5 (r-konferanser fatter ikke formelle vedtak), 3.7 og 3.8 (regjeringens medlemmer under ledelse av kongen = Kongen i statsråd) – https://www.regjeringen.no/contentassets/bf7a48eac08a42a5a8758969c5ec64f8/no/pdfs/handbok-for-politisk-ledelse-200526.pdf",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "r2",
+  "dom": "kontroller",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Samme spørsmål som r1. «legge fram for Stortinget oppdaterte klimamål» kan skje ved proposisjon eller melding (begge godkjennes i statsråd), men Dok. 19 pkt. 3.4.4 leser «regjeringen» i Grl. §§ 76 og 82 som statsrådskollegiet. Modellvalget i r1 avgjør.",
+  "retting": null,
+  "ny_rad": null,
+  "kilder": [
+   {
+    "ref": "Grunnloven (korpus, https://lovdata.no/eli/lov/1814/05/17/nor) § 76, § 82",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "Dokument 19 (2011–2012) Grunnlovsspråkutvalget, pkt. 3.4.4 «Ordet regjering er flertydig slik det brukes i Grunnloven» – https://stortinget.no/no/Saker-og-publikasjoner/Publikasjoner/Dokumentserien/2011-2012/dok19-201112/3/",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "r3",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": null,
+  "retting": null,
+  "ny_rad": null,
+  "kilder": []
+ },
+ {
+  "id": "r4",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Teksten sier bare hvem dommen sendes til, og at mottakeren skal sørge for fullbyrdelse. Den legger ikke en beslutningskompetanse til Kongen i statsråd. Fullbyrdelse av straff krever ikke en statsrådsbeslutning. Hvilket organ som handler, følger av andre regler. «Regjeringen» betyr her den utøvende makt som mottaker. B er en slutning som ikke er merket.",
+  "retting": {
+   "lesning": "uavklart",
+   "referent": "den utøvende makt (mottaker av domsavskriften)",
+   "merknad": "[slutning] Ingen kompetansekant. Hvem som iverksetter, avgjøres av reglene om fullbyrdelse, ikke av denne bestemmelsen."
+  },
+  "ny_rad": null,
+  "kilder": [
+   {
+    "ref": "Riksrettsrettergangsloven § 28 første ledd (korpus)",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "r5",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder som ingen binding. Merknad: betydningen kan avgjøres (den sentrale utøvende makt), men listen mangler verdien «utøvende makt», jf. Grl. § 25 tredje ledd. Bestemmelsen er et vilkår for Kongens fullmakt og gir ingen kant.",
+  "retting": null,
+  "ny_rad": null,
+  "kilder": [
+   {
+    "ref": "Skattebetalingsloven § 4-8 annet ledd (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "Grunnloven (korpus, https://lovdata.no/eli/lov/1814/05/17/nor) § 25 tredje ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "r6",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": null,
+  "retting": null,
+  "ny_rad": null,
+  "kilder": [
+   {
+    "ref": "Grunnloven (korpus, https://lovdata.no/eli/lov/1814/05/17/nor) § 62 annet ledd, § 72 tredje ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "r7",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Dette er en mal for forbehold ved ratifikasjon («... regjering» / «... regjeringen» med tomt felt for staten). Den gjelder enhver stat som tar forbeholdet, også Norge. Det er ikke en annen bestemt stats regjering. Utfallet (ingen norsk kant) er riktig, men «fremmed» er feil kategori. Lesningslisten mangler verdien «generisk konvensjonsstat».",
+  "retting": {
+   "referent": "regjeringen i en konvensjonsstat (mal, omfatter Norge)",
+   "merknad": "Forbeholdsmal i vedlegg II til Athen-konvensjonen 2002. Generisk, ingen kant."
+  },
+  "ny_rad": null,
+  "kilder": [
+   {
+    "ref": "Sjøloven, vedlegg II forbehold nr. 1.1–1.11 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "r8",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Som r4: mottaker av domsavskriften, ikke en kompetanse. B er en slutning som ikke er merket.",
+  "retting": {
+   "lesning": "uavklart",
+   "referent": "den utøvende makt (mottaker av domsavskriften)",
+   "merknad": "[slutning] Som r4."
+  },
+  "ny_rad": null,
+  "kilder": [
+   {
+    "ref": "Riksrettsrettergangsloven § 28 første ledd (korpus)",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "r9",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": null,
+  "retting": null,
+  "ny_rad": null,
+  "kilder": []
+ },
+ {
+  "id": "r10",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "§ 7 første ledd sier uttrykkelig «I budsjettproposisjonen … skal regjeringen redegjøre». Annet ledd sier «på egnet vis», og formen er altså bevisst åpen. Kongen i statsråd (B) er derfor ikke gitt av teksten. «i praksis i budsjettproposisjonen» er en slutning fra praksis. I tillegg kommer spørsmålet fra r1: er plikt-subjektet kollegiet eller beslutningsformen?",
+  "retting": {
+   "lesning": "uavklart",
+   "merknad": "[slutning] Redegjørelsesplikten ligger på regjeringen. Formen er åpen («på egnet vis»), jf. kontrasten til § 7 første ledd. Hvem som er subjekt (A eller B), følger av modellvalget i r1."
+  },
+  "ny_rad": null,
+  "kilder": [
+   {
+    "ref": "Klimaloven § 7 første og annet ledd (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "Dokument 19 (2011–2012) Grunnlovsspråkutvalget, pkt. 3.4.4 «Ordet regjering er flertydig slik det brukes i Grunnloven» – https://stortinget.no/no/Saker-og-publikasjoner/Publikasjoner/Dokumentserien/2011-2012/dok19-201112/3/",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "r11",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": null,
+  "retting": null,
+  "ny_rad": null,
+  "kilder": []
+ },
+ {
+  "id": "r12",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": null,
+  "retting": null,
+  "ny_rad": null,
+  "kilder": [
+   {
+    "ref": "Dokument 19 (2011–2012) Grunnlovsspråkutvalget, pkt. 3.4.4 «Ordet regjering er flertydig slik det brukes i Grunnloven» – https://stortinget.no/no/Saker-og-publikasjoner/Publikasjoner/Dokumentserien/2011-2012/dok19-201112/3/",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "Dokument 19 (2011–2012) kap. 4, merknader til §§ 9, 11, 36, 40, 41, 43 (regjering = styring av riket/regentskap) – https://stortinget.no/no/Saker-og-publikasjoner/Publikasjoner/Dokumentserien/2011-2012/dok19-201112/4/",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "r13",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "hoy",
+  "innvending": "Unntaket gjelder regelsettet for «kollegiale organer i statsforvaltningen som fatter enkeltvedtak». Det regjeringsorganet som fatter enkeltvedtak, er Kongen i statsråd (kgl.res.). Statsrådet alene gjør det bare i kongens fravær (Grl. §§ 13, 41). Utredningen skiller ikke mellom A og B: «Regjeringen er et kollegialt organ», og den «treffer rettslig bindende vedtak som kongelig resolusjon ved Kongen i statsråd» (NOU 2019: 5 pkt. 5.1.1). Unntaket ble foreslått for «regjeringen» (pkt. 36.3.11). Leses unntaket som bare statsrådet (A), blir Kongen i statsråd omfattet av nemndreglene i §§ 86–91 (fire års oppnevning osv.). Det strider mot Grl. § 12 og § 30 og gir motsatt rettslig resultat. Kortet kan derfor ikke brukes som støtte for A i Q.",
+  "retting": {
+   "lesning": "B",
+   "referent": "Kongen i statsråd, og statsrådet når det treffer beslutning i kongens fravær (Grl. §§ 13, 32, 41)",
+   "merknad": "Negativ kant (unntak). Unntaket må dekke det kollegiale beslutningsorganet i regjeringen i alle former. NOU 2019: 5 skiller ikke A og B."
+  },
+  "ny_rad": null,
+  "kilder": [
+   {
+    "ref": "Forvaltningsloven 2025 § 85 første ledd (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "NOU 2019: 5 Ny forvaltningslov, pkt. 5.1.1.1–5.1.1.2 (PDF-s. 93: «Regjeringen er et kollegialt organ», treffer vedtak «ved Kongen i statsråd») og pkt. 36.3.11 (PDF-s. 564: nemndreglene gjelder «ikke for regjeringen») – https://www.regjeringen.no/contentassets/8d681c58c7a94929954ca9538a2476a6/no/pdfs/nou201920190005000dddpdfs.pdf",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "Grunnloven (korpus, https://lovdata.no/eli/lov/1814/05/17/nor) §§ 12, 13, 30, 41",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "r14",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "«i regjeringen» står til alle tre leddene: statsråder, statssekretærer og politiske rådgivere. Statssekretærer og politiske rådgivere er ikke medlemmer av regjeringen. Grl. § 72 tredje ledd holder «medlemmer av regjeringen» (nr. 1) og «statssekretærer og politiske rådgivere ved statsrådets kontorer» (nr. 3) fra hverandre. Her betyr «regjeringen» den politiske ledelsen eller regjeringsapparatet. Håndboka bruker samme vide betydning om statssekretærer («så lenge de sitter i regjering», del I pkt. 2.3). A_medlem gjør statssekretærer og rådgivere til rollen statsråd. Rolle-regelen (R1) skal ikke fyre her. Lesningslisten mangler «politisk ledelse».",
+  "retting": {
+   "lesning": "A",
+   "referent": "regjeringen i vid forstand (politisk ledelse / statsrådets kontorer); rollene statsråd, statssekretær og politisk rådgiver er tre ulike roller",
+   "merknad": "Ikke «medlem av regjeringen». «i regjeringen» står til alle tre stillingstypene, jf. Grl. § 72 tredje ledd nr. 1 og 3."
+  },
+  "ny_rad": null,
+  "kilder": [
+   {
+    "ref": "Representantytelsesloven § 2 første ledd nr. 1 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "Grunnloven (korpus, https://lovdata.no/eli/lov/1814/05/17/nor) § 72 tredje ledd",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "Statsministerens kontor, Håndbok for politisk ledelse (mai 2026), del I pkt. 3.5 (r-konferanser fatter ikke formelle vedtak), 3.7 og 3.8 (regjeringens medlemmer under ledelse av kongen = Kongen i statsråd) – https://www.regjeringen.no/contentassets/bf7a48eac08a42a5a8758969c5ec64f8/no/pdfs/handbok-for-politisk-ledelse-200526.pdf",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "r15",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. R1 må dekke sideordningen «medlemmer av Stortinget og regjeringen» (se R).",
+  "retting": null,
+  "ny_rad": null,
+  "kilder": []
+ },
+ {
+  "id": "r16",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Samme sideordning som r15.",
+  "retting": null,
+  "ny_rad": null,
+  "kilder": []
+ },
+ {
+  "id": "r17",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": null,
+  "retting": null,
+  "ny_rad": null,
+  "kilder": []
+ },
+ {
+  "id": "r18",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Malen for sertifikat («utstedt etter fullmakt fra regjeringen i … (statens offisielle betegnelse)») brukes av enhver konvensjonsstat, også Norge. Det er generisk, ikke en bestemt fremmed stat. Utfallet (ingen kant) er riktig.",
+  "retting": {
+   "referent": "regjeringen i en konvensjonsstat (mal, omfatter Norge)",
+   "merknad": "Sertifikatmal (Athen-konvensjonen art. 4a nr. 3). Generisk, ingen kant."
+  },
+  "ny_rad": null,
+  "kilder": [
+   {
+    "ref": "Sjøloven vedlegg 2 tredje ledd (korpus)",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "r19",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": null,
+  "retting": null,
+  "ny_rad": null,
+  "kilder": []
+ },
+ {
+  "id": "r20",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Lesning A kan godtas. Men genitiven «Regjeringens departementer» uttrykker ledelse og tilhørighet, ikke at departementene er organer for statsrådet. Det må ikke avledes en G-kant departement → statsrådet. PR #480 legger departementene inn som del av staten, og Grl. § 12 annet ledd sier at kongen fordeler forretningene. Kortet må merkes slik at det ikke gir struktur.",
+  "retting": {
+   "merknad": "«Regjeringens departementer»: genitiv om ledelse, ikke organtilhørighet. Ingen G-kant. Departementene er del av staten (#480)."
+  },
+  "ny_rad": null,
+  "kilder": [
+   {
+    "ref": "Instruks for Regjeringen § 1 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "Grunnloven (korpus, https://lovdata.no/eli/lov/1814/05/17/nor) § 12 annet ledd",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "r21",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": null,
+  "retting": null,
+  "ny_rad": null,
+  "kilder": []
+ },
+ {
+  "id": "r22",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "«medlemmer av Kongehuset, Stortinget, regjeringen, Høyesterett»: «medlemmer av» står til hele oppregningen, og vernet gjelder personene, slik merknaden selv sier. Det er samme konstruksjon som i r15 og r16, som er satt til A_medlem. Kortet er inkonsistent med dem.",
+  "retting": {
+   "lesning": "A_medlem",
+   "referent": "statsråd (rolle)",
+   "merknad": "«medlemmer av … regjeringen» i sideordnet oppregning."
+  },
+  "ny_rad": null,
+  "kilder": [
+   {
+    "ref": "Politiloven § 17d første ledd nr. 4 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "r23",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Som r22.",
+  "retting": {
+   "lesning": "A_medlem",
+   "referent": "statsråd (rolle)",
+   "merknad": "Som r22."
+  },
+  "ny_rad": null,
+  "kilder": [
+   {
+    "ref": "Straffeprosessloven § 222d tredje ledd (korpus)",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "r24",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": null,
+  "retting": null,
+  "ny_rad": null,
+  "kilder": []
+ },
+ {
+  "id": "r25",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": null,
+  "retting": null,
+  "ny_rad": null,
+  "kilder": []
+ },
+ {
+  "id": "r26",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Utdraget har to forekomster i samme node med ulik funksjon. «avgjørelse av regjeringen … i virksomhetslandet» og «regjeringen i den førstnevnte staten» kan begge være Norge. Når Norge er virksomhetsland, er det norsk regjering som avgjør. «fremmed» er derfor feil. Det er generisk avtalestat. Kortet viser også at bindingen må gjelde forekomsten og ikke noden.",
+  "retting": {
+   "referent": "regjeringen i en avtalestat (generisk, omfatter Norge), begge forekomster",
+   "merknad": "Konvensjonstekst gjennomført i norsk lov. Gjelder hver avtalestat, også Norge. Ingen kant fra ordet alene."
+  },
+  "ny_rad": null,
+  "kilder": [
+   {
+    "ref": "Lov 9. april 1976 nr. 21, konvensjonen art. 11 første ledd (korpus)",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "r27",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": null,
+  "retting": null,
+  "ny_rad": null,
+  "kilder": []
+ },
+ {
+  "id": "r28",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder som vedtaksform. Merknad: «historisk» er misvisende (se R). Kompetansen bak fredningen er Kongen i statsråds, som i FastsattAvTolker.",
+  "retting": null,
+  "ny_rad": null,
+  "kilder": [
+   {
+    "ref": "Grunnloven (korpus, https://lovdata.no/eli/lov/1814/05/17/nor) §§ 13, 32, 41",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "src/RegelIde.Kildekonvertering/FastsattAvTolker.cs: «Regjeringens res.» og «Kronprinsreg.res.» behandles som Kongen i statsråd («Alle fire er Kongen i statsråd»)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "r29",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Innledning i vedlegg, ingen struktur.",
+  "retting": null,
+  "ny_rad": null,
+  "kilder": []
+ },
+ {
+  "id": "r30",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": null,
+  "retting": null,
+  "ny_rad": null,
+  "kilder": []
+ },
+ {
+  "id": "r31",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Merknad utenfor kortet: «Kongen» står her ved siden av «Kongehuset» og «Regjeringen» og betyr monarken. Det kolliderer med navneformen «Kongen» → Kongen i statsråd (#335) for denne forekomsten.",
+  "retting": null,
+  "ny_rad": null,
+  "kilder": []
+ },
+ {
+  "id": "r32",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": null,
+  "retting": null,
+  "ny_rad": null,
+  "kilder": []
+ },
+ {
+  "id": "r33",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": null,
+  "retting": null,
+  "ny_rad": null,
+  "kilder": []
+ },
+ {
+  "id": "r34",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": null,
+  "retting": null,
+  "ny_rad": null,
+  "kilder": []
+ },
+ {
+  "id": "r35",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Definisjonen av «Administrasjon» som «regjeringen i staten hvis flagg skipet har rett til å seile under» er generisk. For skip under norsk flagg er det Norges regjering. «fremmed» er derfor feil kategori. Utfallet (ingen kant fra ordet) er riktig.",
+  "retting": {
+   "referent": "flaggstatens regjering (generisk, omfatter Norge)",
+   "merknad": "Definisjon i Hongkong-konvensjonen art. 2. Generisk, ingen kant."
+  },
+  "ny_rad": null,
+  "kilder": [
+   {
+    "ref": "Forskrift 2018/12/06/1813, konvensjonen art. 2 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "r36",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": null,
+  "retting": null,
+  "ny_rad": null,
+  "kilder": []
+ },
+ {
+  "id": "r37",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Delegeringen er fastsatt ved kgl.res. (korpusets fastsatt_av), og traktatmyndighet hører under Kongen (Grl. § 26). Dette støtter B.",
+  "retting": null,
+  "ny_rad": null,
+  "kilder": [
+   {
+    "ref": "Grunnloven (korpus, https://lovdata.no/eli/lov/1814/05/17/nor) § 26",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "r38",
+  "dom": "kontroller",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "«til endelig avgjørelse» kan bety politisk avklaring i regjeringskonferanse (A). Den fatter ikke formelle vedtak (Håndboka del I pkt. 3.5). Det kan også bety en formell avgjørelse i statsråd (B), for eksempel om saken krever bindende vedtak overfor departementet. Forskriften er fastsatt ved kgl.res. Teksten avgjør ikke spørsmålet. Kontroller praksis og forarbeidene til forskriften.",
+  "retting": null,
+  "ny_rad": null,
+  "kilder": [
+   {
+    "ref": "Forskrift til lov om Oppgaveregisteret § 20 tredje ledd (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "Statsministerens kontor, Håndbok for politisk ledelse (mai 2026), del I pkt. 3.5 (r-konferanser fatter ikke formelle vedtak), 3.7 og 3.8 (regjeringens medlemmer under ledelse av kongen = Kongen i statsråd) – https://www.regjeringen.no/contentassets/bf7a48eac08a42a5a8758969c5ec64f8/no/pdfs/handbok-for-politisk-ledelse-200526.pdf",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "r39",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": null,
+  "retting": null,
+  "ny_rad": null,
+  "kilder": []
+ },
+ {
+  "id": "r40",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": null,
+  "retting": null,
+  "ny_rad": null,
+  "kilder": []
+ },
+ {
+  "id": "r41",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": null,
+  "retting": null,
+  "ny_rad": null,
+  "kilder": []
+ },
+ {
+  "id": "r42",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Ordlyden er tittelen på en avtale som listes opp i forskriften. Det er en navnedel som i r39, ikke en aktørforekomst. Noden har to forekomster: Norge og Ungarn. Påstanden om at avtaleparten for Norge «formelt [er] Kongen i statsråd», er en slutning som ikke er merket. Den er dessuten upresis: Parten folkerettslig er staten. «regjeringen i …» angir avtaleformen (regjeringsavtale), og kompetansen til å inngå avtalen følger av Grl. § 26 [slutning]. R2 ville i tillegg sperre «regjeringen i Kongeriket Norge» som ikke-norsk.",
+  "retting": {
+   "lesning": "ikke_aktor",
+   "referent": "del av avtaletittel (begge forekomster)",
+   "merknad": "Tittelen «Avtale mellom regjeringen i Kongeriket Norge og regjeringen i Republikken Ungarn …» er et dokumentnavn. Ingen kant."
+  },
+  "ny_rad": null,
+  "kilder": [
+   {
+    "ref": "Forskrift om gjennomføring av bilaterale trygdeavtaler § 1 nr. 16 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "Grunnloven (korpus, https://lovdata.no/eli/lov/1814/05/17/nor) § 26",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "r43",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Men R4 fyrer på denne forekomsten hvis ikke R2 prøves først og sanksjonsforskrifter sperres ved tittel (se R).",
+  "retting": null,
+  "ny_rad": null,
+  "kilder": []
+ },
+ {
+  "id": "r44",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Korpuset viser at delegeringen selv er fastsatt ved «Regjeringens res.» (fastsatt_av). Kompetansen er Kongen i statsråds (Grl. § 32), jf. FastsattAvTolker.",
+  "retting": null,
+  "ny_rad": null,
+  "kilder": [
+   {
+    "ref": "Grunnloven (korpus, https://lovdata.no/eli/lov/1814/05/17/nor) § 32",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "src/RegelIde.Kildekonvertering/FastsattAvTolker.cs: «Regjeringens res.» og «Kronprinsreg.res.» behandles som Kongen i statsråd («Alle fire er Kongen i statsråd»)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "Wikipedia (bokmål), «Kongelig resolusjon»: «regjeringens resolusjon» når verken kongen eller kronprinsen leder statsrådet (sekundærkilde) – https://no.wikipedia.org/wiki/Kongelig_resolusjon",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "r45",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Som r44.",
+  "retting": null,
+  "ny_rad": null,
+  "kilder": []
+ },
+ {
+  "id": "r46",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": null,
+  "retting": null,
+  "ny_rad": null,
+  "kilder": []
+ },
+ {
+  "id": "r47",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": null,
+  "retting": null,
+  "ny_rad": null,
+  "kilder": []
+ },
+ {
+  "id": "r48",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. «fremme sak for regjeringen» gjelder regjeringskonferanse (Håndboka del I pkt. 3.5). Det er en [slutning], men den er godt begrunnet.",
+  "retting": null,
+  "ny_rad": null,
+  "kilder": [
+   {
+    "ref": "Statsministerens kontor, Håndbok for politisk ledelse (mai 2026), del I pkt. 3.5 (r-konferanser fatter ikke formelle vedtak), 3.7 og 3.8 (regjeringens medlemmer under ledelse av kongen = Kongen i statsråd) – https://www.regjeringen.no/contentassets/bf7a48eac08a42a5a8758969c5ec64f8/no/pdfs/handbok-for-politisk-ledelse-200526.pdf",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "r49",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": null,
+  "retting": null,
+  "ny_rad": null,
+  "kilder": []
+ },
+ {
+  "id": "r50",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": null,
+  "retting": null,
+  "ny_rad": null,
+  "kilder": []
+ }
+]

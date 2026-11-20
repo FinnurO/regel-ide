@@ -28,6 +28,12 @@ public sealed record HjemmelsstatusDto(
 /// </summary>
 public static class HjemmelsstatusEndepunkter
 {
+    /// <summary>«LOV-1993-06-11-65» for en dokument-ELI når dokumentet bare er en referanse-stub (kaldsjekken 2026-11-20: den rå ELI-en sto i
+    /// tabellen). Ukjent form → ELI-en som den er.</summary>
+    public static string? EliReferanse(string? eli) => Hjemmelstekstlesing.Mal(eli) is { } m
+        ? $"{(m.Type == "lov" ? "LOV" : "FOR")}-{m.Aar:0000}-{m.Mnd:00}-{m.Dag:00}{(m.Nr.Length > 0 ? "-" + m.Nr : "")}"
+        : eli;
+
     public static void MapHjemmelsstatusEndepunkter(this WebApplication app)
     {
         app.MapPost("/api/hjemmelsstatus/maskinregel", async (bool? skriv, bool? lovtidend, bool? medRader, Guid? rettskildeId, HttpRequest request,
@@ -69,7 +75,7 @@ public static class HjemmelsstatusEndepunkter
                 {
                     var r = x.R;
                     return new HjemmelsstatusRadDto(
-                        r.RettskildeHjemmelId, r.HjemmelEid, r.HjemmelEli, r.MalRettskildeId, Referanse(r.MalRettskildeId) ?? r.HjemmelEli,
+                        r.RettskildeHjemmelId, r.HjemmelEid, r.HjemmelEli, r.MalRettskildeId, Referanse(r.MalRettskildeId) ?? EliReferanse(r.HjemmelEli),
                         r.MalRettskildeId is { } m && kilder.TryGetValue(m, out var mk) ? mk.Tittel : null,
                         r.HjemmelEid == r.HjemmelEli ? null : Hjemmelstekstlesing.Bestemmelsesetikett(r.HjemmelEid),
                         r.Rolle, r.RolleRegel, r.Status, x.P.Status, x.P.Teller, x.P.Arvet?.Status, x.P.Merknad, r.Bevistrinn, r.UkjentGrunn, r.FulgtEli,

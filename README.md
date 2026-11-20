@@ -7,7 +7,7 @@
 > relasjoner — alle strukturutsagn (relasjoner, medlemskap, rolleinnehav, kompetanse, områder,
 > organtilhørighet, klassenivå) i én typestyrt kanttabell med hjemmel eller kilde utenfor korpus,
 > avgrensning og polaritet (issue #311); begrepene med gruppefunksjon er typet som klasse/rolle/område,
-> virksomheter har en aktørtype, og organer som Stortinget og Kongen i statsråd er virksomheter (#310/#311), en aktørkø (`/aktorko`, #440) som viser hvert ukjent navn i lovteksten én gang, med forekomstene per rettskilde og et hjemmelforslag, og der én godkjenning oppretter aktøren (eller klassen, rollen eller området), navneformen med hjemmel eller «hjemmel mangler» og tagger for alle forekomstene i én transaksjon, en navnekandidat-veiviser som fanger opp alle disse ved sveip AV manuell
+> virksomheter har en aktørtype, og organer som Stortinget og Kongen i statsråd er virksomheter (#310/#311), en aktørkø (`/aktorko`, #440) som viser hvert ukjent navn i lovteksten én gang, med forekomstene per rettskilde og et hjemmelforslag, og der én godkjenning oppretter aktøren (eller klassen, rollen eller området), navneformen med hjemmel eller «hjemmel mangler» og tagger for alle forekomstene i én transaksjon, og der relasjonene i forhåndsklassifiseringen (rolle innehas av, organ i, underklasse av …) skrives som strukturkanter med én knapp per relasjon, alltid som forslag (#469), en navnekandidat-veiviser som fanger opp alle disse ved sveip AV manuell
 > tagging, og en familie KI-forslagstjenester (begrep/tjeneste/handling, alltid med et menneske i
 > godkjenn/avvis-loopen — se `docs/14-byggesteg5-teknisk-design.md`). Se
 > [`docs/00-endringslogg-v0.1.md`](docs/00-endringslogg-v0.1.md),
@@ -48,6 +48,9 @@ viser kompetansen kommunen har via klassen og rollen («lokal barnehagemyndighet
 Klassene kommune, fylkeskommune og departement (#442) har hver en medlemsregel, og medlemskapet regnes ut: de 357 kommunene og de 14
 fylkeskommunene via territoriekanten til sitt område (fylkeskommunen med hjemmel i kommuneloven § 3-1, ikke statsforvalteren og ikke Oslo), og de
 16 departementene via organiseringsvedtakene. En klasse skal ha minst hjemmel eller medlemsregel, og kan ha begge.
+Norge er et område av typen rike (Grl. § 1, #463), og fylkene og Svalbard er deler av det. Staten er en egen aktør (rettssubjekt), og
+departementene er organer for den (avledet av medlemskapet i klassen departement). Navneformen «staten» har en ordsperre: «den anmodede
+staten», «staten der …», «EØS-staten» og konvensjonstekst betyr ikke den norske staten og tagges ikke.
 En aktørs identitet (#385) er lovens navn — den gjeldende navneformen — og aktørtypen, begge modellutsagn med grunnlag og godkjenning;
 organisasjonsnummer og registernavn fra Enhetsregisteret er attributter. Navneformer foreslås fra lovteksten, og et navnetreff gir
 navneformen en kilde og en tagg på nøyaktig spenn.

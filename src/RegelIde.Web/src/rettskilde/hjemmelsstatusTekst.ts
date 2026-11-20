@@ -1,4 +1,4 @@
-// [Ny, issue #472 PR 1, Johanns avgjørelser 2026-11-18] Tekstene for hjemmelsstatusen på rettskildesiden (docs/09 §55). Ren modul uten React,
+// [Ny, issue #472 PR 1, Johanns avgjørelser 2026-11-18] Tekstene for hjemmelsstatusen på rettskildesiden (docs/09 §56). Ren modul uten React,
 // så reglene kan testes med vitest (docs/09 §17).
 
 /** Samlet status. Ordet for den som sier at hjemlene er borte, er Johanns: «Hjemmel opphevet, videreføring ikke funnet» (mulig bortfalt).

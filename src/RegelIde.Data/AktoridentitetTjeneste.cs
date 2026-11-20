@@ -1,4 +1,4 @@
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 
 namespace RegelIde.Data;
@@ -36,12 +36,13 @@ public sealed record NavneformforslagRapport(bool Skrevet, int AktorerUtenGjelde
 /// <summary>Tallene fra <see cref="AktoridentitetTjeneste.SikreTreffAsync"/>: hva et navnetreff ga av navneform, kilde, tagger og aktørtype.</summary>
 public sealed record Treffidentitet(
     int NavneformForslag = 0, int KilderSatt = 0, int TaggerOpprettet = 0, int TaggerFantes = 0, int TaggerUtenEier = 0,
-    int TaggerKolliderer = 0, int UlikSkrivemaate = 0, int AktortypeForslag = 0)
+    int TaggerKolliderer = 0, int UlikSkrivemaate = 0, int AktortypeForslag = 0, int Ordsperre = 0)
 {
+    // [ENDRET, issue #463] + Ordsperre: forekomster ordsperren stoppet (Ordsperrer), verken tagget eller brukt som kilde.
     public static Treffidentitet operator +(Treffidentitet a, Treffidentitet b) => new(
         a.NavneformForslag + b.NavneformForslag, a.KilderSatt + b.KilderSatt, a.TaggerOpprettet + b.TaggerOpprettet,
         a.TaggerFantes + b.TaggerFantes, a.TaggerUtenEier + b.TaggerUtenEier, a.TaggerKolliderer + b.TaggerKolliderer,
-        a.UlikSkrivemaate + b.UlikSkrivemaate, a.AktortypeForslag + b.AktortypeForslag);
+        a.UlikSkrivemaate + b.UlikSkrivemaate, a.AktortypeForslag + b.AktortypeForslag, a.Ordsperre + b.Ordsperre);
 }
 
 public sealed record EtterfyllingRapport(bool Skrevet, int KantTreff, int Aktorer, Treffidentitet Tall, IReadOnlyList<EtterfyllingRad> Rader);
@@ -159,8 +160,12 @@ public sealed class AktoridentitetTjeneste(RegelIdeDbContext db, TekstTaggTjenes
             .ToList();
     }
 
+    /// <summary>Hele ord: ingen bokstav eller siffer rett foran eller etter. [ENDRET, issue #463, 2026-11-17] Heller ikke <b>bindestrek rett
+    /// foran</b>: «EØS-staten» er siste ledd i et sammensatt ord, ikke ordet «staten», og «Nord-Norge» er ikke «Norge». Før regnet regexen
+    /// bindestrek som ordgrense. Målt 2026-11-17 i en kopi av den delte basen: 240 av 2 511 forekomster av «staten» hadde bindestrek rett
+    /// foran (docs/33 §5.19). Bindestrek rett ETTER er fortsatt ordgrense («Arbeids- og velferdsetaten» er to ord i teksten).</summary>
     private static Regex HeleOrd(string s, RegexOptions ekstra = RegexOptions.None) =>
-        new($@"(?<![\p{{L}}\p{{N}}]){Regex.Escape(s)}(?![\p{{L}}\p{{N}}])", RegexOptions.CultureInvariant | ekstra);
+        new($@"(?<![\p{{L}}\p{{N}}-]){Regex.Escape(s)}(?![\p{{L}}\p{{N}}])", RegexOptions.CultureInvariant | ekstra);
 
     /// <summary>Hjemmelen for forslaget: rettskilden med flest forekomster (en lov foran en forskrift ved likt antall), første forekomst.</summary>
     private static Forekomst VelgForekomst(IEnumerable<Forekomst> f) => f
@@ -514,6 +519,8 @@ public sealed class AktoridentitetTjeneste(RegelIdeDbContext db, TekstTaggTjenes
     /// En navneform uten kilde får kilden der den først står (<c>tekstfunn</c>: teksten står ordrett der). Med <paramref name="entitetstype"/>
     /// (konverteringens klassifisering) og ingen aktørtype på aktøren foreslås aktørtypen. Ingen spenn tagges der en annen koblet tagg
     /// overlapper; ingen tagg uten et ansvarlig departement som eier (samme degradering som veiviseren).
+    /// [ENDRET, issue #463] En forekomst ordsperren stopper (<see cref="Ordsperrer.Vurder"/>, bare «staten» i dag), telles som
+    /// <see cref="Treffidentitet.Ordsperre"/> og gjør ingenting annet.
     /// </summary>
     public async Task<Treffidentitet> SikreTreffAsync(
         Guid virksomhetId, Guid rettskildeId, IEnumerable<string> eids, string? entitetstype, string oppdagelsesKilde, string bruker,
@@ -524,7 +531,7 @@ public sealed class AktoridentitetTjeneste(RegelIdeDbContext db, TekstTaggTjenes
         var eidListe = eids.Distinct(StringComparer.Ordinal).ToList();
         var noder = await db.RettskildeNoder
             .Where(n => n.RettskildeId == rettskildeId && eidListe.Contains(n.Eid) && n.Entitetsstatus == "gjeldende" && !n.Opphevet && n.Tekst != null)
-            .Select(n => new { n.Eid, n.Tekst, n.Sorteringsrekkefolge }).ToListAsync(ct);
+            .Select(n => new { n.Id, n.Eid, n.Tekst, n.Sorteringsrekkefolge }).ToListAsync(ct);
         var navneformer = await db.Begreper.Where(b => b.Begrepskategori == "virksomhet" && b.VirksomhetReferanseId == virksomhetId
             && b.Entitetsstatus == "gjeldende").ToListAsync(ct);
         var avvisteTermer = (await db.Begreper.Where(b => b.Begrepskategori == "virksomhet" && b.VirksomhetReferanseId == virksomhetId
@@ -536,6 +543,9 @@ public sealed class AktoridentitetTjeneste(RegelIdeDbContext db, TekstTaggTjenes
         var kandidatformer = navneformer.Select(n => n.Term).Append(virksomhet.Navn)
             .Distinct(StringComparer.OrdinalIgnoreCase).OrderByDescending(s => s.Length).ToList();
         string? forsteKildeEid = null;
+        // [Ny, issue #463] Ordsperren («staten»): konvensjonstekst slås opp bare når en av formene har en sperre.
+        var konvensjon = kandidatformer.Any(Ordsperrer.HarSperre)
+            ? await Ordsperrer.KonvensjonsnoderAsync(db, noder.Select(n => n.Id).ToList(), ct) : [];
         foreach (var node in noder.OrderBy(n => n.Sorteringsrekkefolge))
         {
             var valgt = new List<(int Start, int Slutt)>();
@@ -545,6 +555,14 @@ public sealed class AktoridentitetTjeneste(RegelIdeDbContext db, TekstTaggTjenes
                 {
                     var (start, slutt) = (m.Index, m.Index + m.Length);
                     if (valgt.Any(v => start < v.Slutt && v.Start < slutt)) continue;
+                    // [Ny, issue #463] En forekomst ordsperren stopper («den anmodede staten», konvensjonstekst), betyr ikke aktøren: ingen tagg,
+                    // ingen kilde og ingen navneform. Spennet holdes av, så en kortere form ikke treffer inni det.
+                    if (Ordsperrer.Vurder(kform, node.Tekst!, start, slutt, konvensjon.Contains(node.Id)) is not null)
+                    {
+                        valgt.Add((start, slutt));
+                        tall += new Treffidentitet(Ordsperre: 1);
+                        continue;
+                    }
                     valgt.Add((start, slutt));
                     var nf = navneformer.FirstOrDefault(n => n.Term == m.Value);
                     if (nf is null)

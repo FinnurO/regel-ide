@@ -1740,7 +1740,7 @@ export default function RettskildeDetalj() {
 
       {fane === 'relasjoner' && (
         <>
-          {/* [Ny, issue #472 PR 1] Øverst i Relasjoner, over «Hjemmel»-gruppen: status og bevis per hjemmel (docs/09 §55). Bare når
+          {/* [Ny, issue #472 PR 1] Øverst i Relasjoner, over «Hjemmel»-gruppen: status og bevis per hjemmel (docs/09 §56). Bare når
               rettskilden har hjemler. */}
           {hjemler.length > 0 && <Hjemmelsstatus data={hjemmelsstatus} />}
           <KontekstPanel variant="full" grupper={kontekstGrupper} />

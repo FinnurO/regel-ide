@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
@@ -1443,10 +1443,11 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
                     + "('virksomhet', 'gruppe', 'klasse', 'rolle', 'omrade')");
                 // [Ny, issue #312 «områderegister», 2026-10-08] Områdetypen er lukket (Omradetyper.Alle) og finnes
                 // bare på områder; en kode krever en type (koden er bare unik innenfor typen).
+                // [ENDRET, issue #463, 2026-11-17] + 'rike' (Norge, Grl. § 1), migrasjonen NorgeRike.
                 t.HasCheckConstraint(
                     "ck_begreper_omradetype",
                     "omradetype IS NULL OR (begrepskategori = 'omrade' AND omradetype IN "
-                    + "('fylke', 'kommune', 'tettsted', 'lagsogn', 'lagdomme', 'helseregion', 'annet'))");
+                    + "('fylke', 'kommune', 'tettsted', 'lagsogn', 'lagdomme', 'helseregion', 'annet', 'rike'))");
                 t.HasCheckConstraint("ck_begreper_omradekode", "omradekode IS NULL OR omradetype IS NOT NULL");
                 // [Ny, navneformgrunn-runden, 2026-09-07] Samme lukkede-vokabular-mønster som
                 // ck_begreper_begrepskategori rett over. NULL er BEVISST gyldig: alle rader som fantes

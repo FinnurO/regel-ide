@@ -61,6 +61,7 @@ builder.Services.AddScoped<AktoridentitetTjeneste>();
 builder.Services.AddScoped<OmgjoringTjeneste>(); // [Ny, issue #386]
 builder.Services.AddScoped<KlassemedlemskapTjeneste>(); // [Ny, issue #384] utledet medlemskap («kommune» fra områderegisteret)
 builder.Services.AddScoped<KlasseoppsettTjeneste>(); // [Ny, issue #442] klassene fylkeskommune og departement som forslag (skrives bare på kall)
+builder.Services.AddScoped<NorgeStatenTjeneste>(); // [Ny, issue #463] Norge (rike), staten og departementene som organer for staten, som forslag (skrives bare på kall)
 builder.Services.AddScoped<RegelIde.Data.Strukturkonvertering.KiStrukturkonverterer>();
 // [Ny, issue #312 «områderegister»] «Gitt kommune X → fylke, tingrett, lagdømme, statsforvalter, RHF» (AC5).
 builder.Services.AddScoped<OmradeOppslagTjeneste>();
@@ -103,6 +104,7 @@ builder.Services.AddScoped<HjemmelsstatusRegel>();
 builder.Services.AddScoped<AktorkoTjeneste>();
 builder.Services.AddScoped<AktorsideTjeneste>(); // [Ny, issue #441] den samlede aktørsiden (lesing + «Godkjenn hjemmelen»)
 builder.Services.AddScoped<AktorkoSkrivTjeneste>(); // [Ny, issue #440 PR 2] skrivingen i aktørkøen, én transaksjon per handling
+builder.Services.AddScoped<AktorkoRelasjonTjeneste>(); // [Ny, issue #469] forhåndsklassifiseringens relasjoner som strukturkanter, én knapp per relasjon
 builder.Services.AddScoped<BegrepsoppdagelseSveipTjeneste>();
 builder.Services.AddScoped<VilkarregisterTjeneste>();
 builder.Services.AddScoped<RegelnoderegisterTjeneste>();
@@ -4305,6 +4307,39 @@ app.MapPost("/api/klasser/fylkeskommune-departement", async (bool? skriv, HttpRe
         "organiseringsvedtakene), 14 territoriekanter fylkeskommune → fylke (§ 3-1 første ledd, navneregelen i fjerde ledd), medlemskanter for " +
         "departementene uten oppretterkant (navnevedtaket eller kgl.res. utenfor korpus, fortolkning), og arkivering av klassen «kommunene». " +
         "Alt som forslag. ?skriv=true skriver; uten er det en tørrkjøring.");
+
+// [Ny, issue #463] Skrivingen for Norge og staten. Tørrkjøring er standard (samme arbeid i en transaksjon som rulles tilbake). Alt nytt er
+// forslag; en ny kjøring skriver ingenting (faste id-er). Krever klassen «departement» fra #442 for kantene departement → staten. Kjøres av
+// hovedøkta etter fletting.
+app.MapPost("/api/norge-staten", async (bool? skriv, HttpRequest request, RegelIdeDbContext db, NorgeStatenTjeneste tjeneste, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            return Results.Ok(await tjeneste.KjorAsync(skriv ?? false, bruker.Navn, ct));
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Results.Conflict(new { feil = ex.Message });
+        }
+    })
+    .WithOpenApi()
+    .WithName("NorgeOgStaten")
+    .WithSummary("Issue #463 — området Norge (rike, Grl. § 1 første ledd), Norge består av fylkene (kl. § 2-1 første ledd, fortolkning) og " +
+        "Svalbard (svalbardloven § 1), aktøren staten med navneformen «staten» (ordsperre) og aktørtypen rettssubjekt (fortolkning, tvl. § 2-1), " +
+        "og G har_organ fra hvert departement til staten («er organ for staten», avledet, premiss = medlemskapet i klassen departement). Alt som forslag. ?skriv=true skriver; " +
+        "uten er det en tørrkjøring.");
+
+// [Ny, issue #463] Målingen av ordsperren over hele korpuset (bare lesing): forekomstene før og etter at bindestrek rett foran sluttet å være
+// ordgrense, og hvor mange hver grunn sperrer. Bare «staten» har en sperre i dag.
+app.MapGet("/api/ordsperre/maling", async (string? term, RegelIdeDbContext db, CancellationToken ct) =>
+        Ordsperrer.HarSperre(term ?? Ordsperrer.Staten)
+            ? Results.Ok(await OrdsperreMaling.MalAsync(db, term ?? Ordsperrer.Staten, ct))
+            : Results.BadRequest(new { feil = $"«{term}» har ingen ordsperre. Bare «{Ordsperrer.Staten}» har det." }))
+    .WithOpenApi()
+    .WithName("OrdsperreMaling")
+    .WithSummary("Issue #463 — ordsperren for «staten» målt over korpuset: forekomster med gammel og ny ordgrense, sperret per grunn, og det som gjelder.");
 
 // [FJERNET, issue #311] VirksomhetRelasjon-endepunktene (GET/POST /api/virksomheter/{id}/relasjoner,
 // POST /api/virksomhet-relasjoner/{id}/godkjenn, DELETE /api/virksomhet-relasjoner/{id}). Relasjoner er

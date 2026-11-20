@@ -29,6 +29,7 @@ export const OMRADETYPE_VISNING: Record<Omradetype, string> = {
   lagdomme: 'Lagdømme',
   helseregion: 'Helseregion',
   annet: 'Annet område',
+  rike: 'Rike', // [Ny, #463] Norge (Grl. § 1)
 };
 
 /** Rubrikknavn slik de vises — samme rekkefølge som tjenesten gir dem. */
@@ -213,13 +214,13 @@ function KommunensPlikter({ kommunenummer }: { kommunenummer: string }) {
 /** [Ny, issue #390 AK 3] Flertallsform av en områdetype i overskriften «Består av …». */
 const OMRADETYPE_FLERTALL: Record<Omradetype, string> = {
   fylke: 'fylker', kommune: 'kommuner', tettsted: 'tettsteder', lagsogn: 'lagsogn', lagdomme: 'lagdømmer', helseregion: 'helseregioner',
-  annet: 'andre områder',
+  annet: 'andre områder', rike: 'riker',
 };
 
 /** [Ny, issue #390 AK 3] Entallsform i overskriften «Ligger i …». */
 const OMRADETYPE_ENTALL: Record<Omradetype, string> = {
   fylke: 'fylke', kommune: 'kommune', tettsted: 'tettsted', lagsogn: 'lagsogn', lagdomme: 'lagdømme', helseregion: 'helseregion',
-  annet: 'annet område',
+  annet: 'annet område', rike: 'rike',
 };
 
 /** [Ny, issue #390 AK 3] Én gruppe relasjoner med samme betydning sett fra området. */

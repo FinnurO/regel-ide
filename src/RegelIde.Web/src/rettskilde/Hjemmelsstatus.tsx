@@ -7,7 +7,7 @@ import { KunnskapsstatusTag } from '../strukturkant/Utsagnsstatus';
 import { BEVISTRINN, DEKNING, ROLLE, ROLLEREGEL, SAMLET_STATUS, STATUS, UKJENT_GRUNN, kildetekst, norskDato } from './hjemmelsstatusTekst';
 
 /**
- * [Ny, issue #472 PR 1, Johanns avgjørelser 2026-11-18] Hjemmelsstatusen på rettskildesiden (docs/09 §55): status, rolle og bevis per hjemmel,
+ * [Ny, issue #472 PR 1, Johanns avgjørelser 2026-11-18] Hjemmelsstatusen på rettskildesiden (docs/09 §56): status, rolle og bevis per hjemmel,
  * og den samlede statusen etter svakeste premiss. Den samlede statusen regnes ut av API-et og lagres ikke.
  * <p>
  * Fargerollene følger docs/09 §15/§35: statusene og rollene er klassifiseringer → `neutral`; kunnskapsstatus med sitt eget merke (uavklart er

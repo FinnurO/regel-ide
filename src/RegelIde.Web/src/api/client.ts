@@ -187,6 +187,7 @@ import type {
   FunnVurderingspunktInn,
   FunnKoblingInn,
   NyttFunnInn,
+  ForhandRelasjoner, ForhandRelasjonsforslag,
 } from './types';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5187';
@@ -881,6 +882,11 @@ export const api = {
     kall<AktorkoKvittering>(`/api/aktorko/${encodeURIComponent(nokkel)}/ta-med`, jsonPost({ variant })),
   aktorkoTilbakestillGruppering: (nokkel: string) =>
     kall<AktorkoKvittering>(`/api/aktorko/${encodeURIComponent(nokkel)}/tilbakestill-gruppering`, { method: 'POST' }),
+  // [Ny, issue #469] Forhåndsklassifiseringens relasjoner som strukturkanter (nøkkelen er nummeret i fila).
+  hentForhandRelasjoner: (nr: number) => kall<ForhandRelasjoner>(`/api/aktorko/forhand/${nr}/relasjoner`),
+  hentForhandRelasjonerOpprettede: () => kall<ForhandRelasjoner[]>('/api/aktorko/forhand/relasjoner?bareOpprettede=true'),
+  skrivForhandRelasjon: (nr: number, indeks: number, sett: { fraId: string | null; tilId: string | null }) =>
+    kall<ForhandRelasjonsforslag>(`/api/aktorko/forhand/${nr}/relasjoner/${indeks}`, jsonPost(sett)),
   aktorkoGeneriskOmtale: (ord: string, skriv: boolean) =>
     kall<GeneriskOmtaleRapport>('/api/aktorko/generisk-omtale', jsonPost({ ord, skriv })),
 
