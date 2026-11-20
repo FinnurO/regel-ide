@@ -115,6 +115,22 @@ Lesningslisten bør få fire nye verdier: «kontekstavhengig», «utøvende_makt
 - **Genitiv er ikke struktur** (r20). «Regjeringens departementer» skal ikke gi en G-kant fra departementene til statsrådet, når #480 legger departementene inn som del av staten.
 - **Utenfor kortene** (r31): forskriften om eiendomsskatt nevner «Kongen eller Kongehuset, Stortinget, domstolene, Regjeringen eller departementene». Der er «Kongen» monarken. Det kolliderer med navneformen «Kongen» → Kongen i statsråd (#335).
 
+## Runde 2
+
+Modellereren godtok 17 kort. Hun svarte «delvis» bare på Q: standardenheten for bindingen skal være noden (binding med spenn på én eId), og en forekomst som avviker, tagges for seg. Hun vil ikke bygge en ny bindingstype per tegnposisjon.
+
+Replikken min på Q er **presiserer** (`replikk.json`). Jeg godtar noden som standardenhet på tre vilkår:
+
+1. En tagg for én forekomst har samme status som en binding: godkjent og faglig vurdert, med gyldighet, og den følger verket (#384). Den går også foran nodens binding.
+2. En nodebinding dekker ikke stille forekomster som ikke er tagget. Er noen av flere forekomster i noden ikke tagget, gir oppslaget «flertydig».
+3. Ordlydsreglene virker per forekomst som tagger.
+
+Premisset om at bare r26 og r42 har to forekomster i samme node, og at ingen av dem gir kant, gjelder bare utvalget. I korpuset har 25 gjeldende noder minst to forekomster:
+- **Helsingforsavtalen art. 48 første ledd** har tre forekomster av «utpekt av regjeringen»: om Danmark, om Finland og om «hvert av de øvrige land», som omfatter Norge. Den siste gir den norske regjeringen kompetanse til å utpeke representanter til Nordisk råd, og det er en kant.
+- **Reglement for avgradering av dokumenter utstedt i Stortinget § 2 annet ledd** har både organet («oversendt fra regjeringen») og rollen («medlem av regjeringen») i samme ledd.
+
+Vilkåret modellereren selv satte for å bygge noe nytt, er dermed oppfylt. Forekomsttagger løser det likevel hvis vilkår 1–3 holder.
+
 ## Kilder
 
 - Grunnloven i korpuset (eli `https://lovdata.no/eli/lov/1814/05/17/nor`, gjeldende versjon), §§ 1, 3, 9, 11–15, 22, 25–32, 36, 39–44, 62, 72, 76 og 82.
