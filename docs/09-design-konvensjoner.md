@@ -1575,3 +1575,5 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
 - Staten vises på aktørsiden som andre aktører (§52). Ordsperren har ingen egen visning; målingen er `GET /api/ordsperre/maling?term=staten`.
 - **Kaldsjekket 2026-11-17** i kopien `regelide_norge` (API 5487; web 5473 med vite-proxy, fordi CORS bare tillater 5173/5373): Norge (fanene
   Område og Grunndata), staten (Oversikt og Etter kategori) og Finansdepartementet (M-kanten og G del_av side om side). Kopien er slettet.
+- **Kaldsjekket på nytt 2026-11-20** i `regelide_norge2` etter Johanns avgjørelser (G `har_organ`): staten viser «har organet …», et
+  departement «er organ for staten» ved siden av M-kanten. Kopien er slettet.
