@@ -95,6 +95,10 @@ builder.Services.AddScoped<KildefeilTjeneste>();
 // [Ny, issue #429] Funn til vurdering — se FunnTjeneste og FunnEndepunkter.
 builder.Services.AddScoped<FunnTjeneste>();
 builder.Services.AddScoped<UtgattAktorFunnregel>(); // [Ny, #429 PR 2] maskinregelen for utgåtte aktører, tørrkjøring som standard
+// [Ny, #472 PR 1] Hjemmelsstatus per hjemmel. Ingen oppstartsjobb: regelen kjøres bare fra endepunktet, tørrkjøring som standard. Den
+// kunngjorte teksten hentes fra Lovtidend-arkivet bare når endepunktet ber om det (?lovtidend, standard true).
+builder.Services.AddScoped<IKunngjortTekstkilde, LovtidendKunngjortTekstkilde>();
+builder.Services.AddScoped<HjemmelsstatusRegel>();
 // [Ny, issue #440] Aktørkøen (bare lesing i PR 1) — se AktorkoTjeneste og AktorkoEndepunkter.
 builder.Services.AddScoped<AktorkoTjeneste>();
 builder.Services.AddScoped<AktorsideTjeneste>(); // [Ny, issue #441] den samlede aktørsiden (lesing + «Godkjenn hjemmelen»)
@@ -1771,6 +1775,7 @@ kildefeil.MapPost("/{id:guid}/avvis", async (Guid id, AvvisKildefeilRequest body
 
 // [Ny, issue #429] Funn til vurdering — endepunktene står i FunnEndepunkter.cs.
 app.MapFunnEndepunkter();
+app.MapHjemmelsstatusEndepunkter(); // [Ny, issue #472 PR 1]
 // [Ny, issue #440] Aktørkøen — endepunktene står i AktorkoEndepunkter.cs.
 app.MapAktorkoEndepunkter();
 app.MapAktorsideEndepunkter(); // [Ny, issue #441]
