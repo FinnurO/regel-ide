@@ -1,6 +1,6 @@
 import { Tag } from '@digdir/designsystemet-react';
 import type { Forekomstforslag, Forekomstlesning, GeneriskTaggOppslag, Godkjenning, StandardregelSvar } from '../api/types';
-import { GodkjenningTag, KunnskapsstatusTag } from '../strukturkant/Utsagnsstatus';
+import { GodkjenningTag } from '../strukturkant/Utsagnsstatus';
 
 /**
  * [Ny, issue #394 AK 2] Hvor svaret på en generisk omtale kommer fra, som tekst: «binding, faglig vurdert», «standardregel:
@@ -41,13 +41,18 @@ export const FOREKOMSTLESNING_TEKST: Record<Forekomstlesning, string> = {
  */
 export function ForekomstforslagTagger({ forslag }: { forslag: Forekomstforslag }) {
   const slutning = forslag.lesning === 'slutning';
+  // Kort på raden (taggraden klipper med ellipse, `TagTekst`): lesningen og «Forslag». Hvor forslaget kommer fra, kunnskapsstatusen og
+  // begrunnelsen står i `title`, ikke som egne merker.
+  const kunnskap = forslag.kunnskapsstatus ? `Kunnskapsstatus: ${forslag.kunnskapsstatus}. ` : '';
   return (
     <>
       <Tag data-size="sm" data-color="neutral" title={forslag.kommentar ?? undefined}>
         {slutning ? 'Forekomst: slutning' : `Forekomst: ${forslag.lesningTekst}`}
       </Tag>
-      <GodkjenningTag status={forslag.status} oppdagelsesKilde={forslag.oppdagelsesKilde} />
-      <KunnskapsstatusTag status={forslag.kunnskapsstatus} />
+      <Tag data-size="sm" data-color="info"
+        title={`${forslag.status === 'maskinelt_foreslatt' ? `Maskinelt forslag (${forslag.oppdagelsesKilde})` : 'Forslag'}, ikke vurdert av et menneske — brukes ikke i svaret. ${kunnskap}${forslag.begrunnelse ?? ''}`}>
+        Forslag
+      </Tag>
     </>
   );
 }

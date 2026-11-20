@@ -790,6 +790,10 @@ export function TagTekst({
               // beholdes komplett.
               const iAktivtLag = t.kind === active;
               const lagNavn = kindById[t.kind]?.label ?? t.kind;
+              // [Ny, issue #486] En kjede med mellomledd (generisk omtale med kilde- og forslagsmerker) brytes over flere linjer i stedet for å
+              // klippes med ellipse: i kaldsjekken 2026-11-20 forsvant hovedleddet («→ statsrådet») bak «…» i et panel på ca. 700 px.
+              // Andre rader er uendret (én linje, ellipse). docs/09 §57.
+              const kjedeMedMellomledd = !!(t.ref && resolveRef?.(t.kind, t.ref, t.id)?.mellomledd);
               return (
               <div
                 key={t.id}
@@ -833,7 +837,9 @@ export function TagTekst({
                 <span
                   style={{
                     flex: 1, minWidth: 0, color: 'var(--ds-color-neutral-text-subtle)',
-                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                    ...(kjedeMedMellomledd
+                      ? { whiteSpace: 'normal', lineHeight: 1.9 }
+                      : { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }),
                   }}
                 >
                   {/* Sitatet er selv en klikkflate til markeringen i teksten — samme handling som

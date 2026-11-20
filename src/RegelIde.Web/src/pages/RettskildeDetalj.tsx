@@ -622,7 +622,7 @@ export default function RettskildeDetalj() {
         if (!o?.referent && o?.forekomstforslag) {
           const f = o.forekomstforslag;
           return {
-            label: f.referent ? `${f.referent.navn} (forslag)` : f.lesning === 'slutning' ? 'slutning, ikke avklart' : `${f.lesningTekst} (forslag)`,
+            label: f.referent ? f.referent.navn : f.lesning === 'slutning' ? 'ikke avklart' : 'ingen aktør',
             href: f.referent ? (f.referent.type === 'virksomhet' ? `/virksomheter/${f.referent.id}` : `/begreper/${f.referent.id}`) : null,
             mellomledd: <><NavneformgrunnTag grunn="generisk" /> <ForekomstforslagTagger forslag={f} /></>,
             mellomleddTekst: `${navneform.term} (generisk; ${forekomstforslagTekst(f)})`,

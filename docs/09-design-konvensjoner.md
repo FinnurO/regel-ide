@@ -1601,12 +1601,18 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
 
 - **Hvor:** kjeden for en tagg mot en generisk navneform i løpeteksten og taggraden på `RettskildeDetalj` (§42). Ingen ny side og ingen ny
   komponent utenfor `kandidater/GeneriskKilde.tsx`, som har fått `ForekomstforslagTagger`, `forekomstforslagTekst` og `FOREKOMSTLESNING_TEKST`.
-- **Forslag per forekomst som ikke er vurdert** (en ordlydsregel eller en slutning for «regjeringen»): hovedleddet er referenten med «(forslag)»
-  («statsrådet (forslag)», lenket til aktøren), lesningen med «(forslag)» uten lenke («fremmed stat (forslag)»), eller «slutning, ikke avklart» uten
-  lenke. Mellomleddet er «Generisk omtale» (`NavneformgrunnTag`) og merkene `Forekomst: <lesning>` (`neutral`, regelen i `title`),
-  godkjenningen (`GodkjenningTag`, §35: forslag → `info`) og kunnskapsstatusen (`KunnskapsstatusTag`, §35: uavklart → `warning`). Begrunnelsen står
-  i `title`. Forslaget brukes ikke i svaret; det står der så et menneske ser hva regelen sa.
+- **Forslag per forekomst som ikke er vurdert** (en ordlydsregel eller en slutning for «regjeringen»): hovedleddet er referenten (lenket til
+  aktøren, «statsrådet»), «ingen aktør» (fremmed stat, generisk konvensjonsstat, ikke aktør, funksjonen) eller «ikke avklart» (slutning), de to
+  siste uten lenke. Mellomleddet er «Generisk omtale» (`NavneformgrunnTag`), `Forekomst: <lesning>` (`neutral`, regelen i `title`) og `Forslag`
+  (`info`, som forslag i §35). Hvor forslaget kommer fra (`monster:regjeringen-…`), kunnskapsstatusen og begrunnelsen står i `title` på
+  «Forslag», ikke som egne merker: taggraden i `TagTekst` er én linje som klippes med ellipse, og med `GodkjenningTag` og `KunnskapsstatusTag`
+  i tillegg forsvant hovedleddet (sett i kaldsjekken 2026-11-20). Forslaget brukes ikke i svaret; det står der så et menneske ser hva regelen sa.
 - **En slutning sier «slutning» i klartekst** («Forekomst: slutning»), så den aldri ser ut som en regel (samme prinsipp som §35 for delegering).
 - **Vurdert tagg per forekomst** som sier at ordet ikke er en aktør (status `ikke_aktor`): hovedleddet er «ikke aktør her: <lesning>» uten lenke, med
   «Binding» og godkjenningen som i §42. En vurdert forekomst med referent (rollen statsråd, «Regjeringens res.») vises som en vanlig binding.
+- **Kjeden brytes over flere linjer når den har mellomledd** (`TagTekst`, raden i tagglisten): før ble raden klippet med ellipse, og hovedleddet
+  («→ statsrådet») forsvant i et panel på ca. 700 px (kaldsjekken 2026-11-20). Rader uten mellomledd er uendret (én linje, ellipse).
 - **Fargerollene er de låste fra §15/§35/§42.** Ingen nye farger.
+- **Kaldsjekket 2026-11-20** i kopien `regelide_regjeringen` (API 5687, web 5373): statsrådet fra aktørlisten (forslag til navneform og
+  aktørtype, «er organ for staten»), Grl. § 72 tredje ledd nr. 1 («Forekomst: rollen statsråd» → statsrådet) og Grl. § 82 første ledd
+  («Forekomst: slutning» → ikke avklart). Kopien er slettet.
