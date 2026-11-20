@@ -1923,10 +1923,73 @@ public sealed class NavneformBindingEntitet
     public string? Kommentar { get; set; }
     public string? AvvisningBegrunnelse { get; set; }
 
+    /// <summary>
+    /// [Ny, issue #486, juristens vilkår 1 fra runde 2 om «regjeringen», Johanns avgjørelse 2026-11-20] <b>Tagg per forekomst.</b> Satt når
+    /// bindingen gjelder ÉN forekomst: taggen (<see cref="TekstTaggEntitet"/>) er spennet. Bindingen har da samme status som en binding for
+    /// rettskilden eller paragrafen (godkjenning, gyldighet, hjemmel, kunnskapsstatus) og følger verket ved at taggen flyttes ved resynk
+    /// (<see cref="RettskildeImportTjeneste"/>). Den går foran bindingen for noden (<see cref="GeneriskNavneformTjeneste.LosOppAsync"/>).
+    /// <see cref="ParagrafspennJson"/> er <c>"[]"</c> for en slik binding: noden er taggens, og den kan flytte. Ingen ny bindingstype per
+    /// tegnposisjon (modellererens svar på Q i runde 1, godtatt av juristen): spennet er en tagg som alt finnes. NULL = binding for rettskilden
+    /// eller paragrafspennet, som før.
+    /// </summary>
+    public Guid? TekstTaggId { get; set; }
+
+    /// <summary>
+    /// [Ny, issue #486] Hva forekomsten er, når en ordlydsregel (eller et menneske) har lest den: <see cref="Forekomstlesninger"/>. Bare på
+    /// en forekomstbinding (<see cref="TekstTaggId"/>). Uten referent for <c>fremmed_stat</c>, <c>generisk_konvensjonsstat</c>,
+    /// <c>ikke_aktor</c>, <c>funksjon</c> og <c>slutning</c> (CHECK <c>ck_navneform_bindinger_referent_en</c>); med referent for
+    /// <c>rolle_statsrad</c> og <c>regjeringens_resolusjon</c>. NULL = en vanlig binding til referenten.
+    /// </summary>
+    public string? Lesning { get; set; }
+
     public required string OpprettetAv { get; set; }
     public DateTimeOffset OpprettetTidspunkt { get; set; }
     public string? SistEndretAv { get; set; }
     public DateTimeOffset? SistEndretTidspunkt { get; set; }
+}
+
+/// <summary>
+/// [Ny, issue #486] Lesningene en forekomstbinding (<see cref="NavneformBindingEntitet.Lesning"/>) kan ha. Lukket liste (kode, ikke data, som
+/// <see cref="Ordsperrer"/>): ordlydsreglene for «regjeringen» (<see cref="RegjeringenOrdlydsregler"/>) og juristrunden
+/// (<c>data/fasit/strukturmodell/regjeringen/</c>).
+/// </summary>
+public static class Forekomstlesninger
+{
+    /// <summary>Ordet står om en annen stats regjering («regjeringen i Republikken Ungarn», «den syriske regjeringen»). Ingen aktør.</summary>
+    public const string FremmedStat = "fremmed_stat";
+    /// <summary>Mal eller definisjon i konvensjonstekst som gjelder alle statene, også Norge («regjeringen i den staten hvis flagg …»). Ingen
+    /// kant, og ikke «fremmed» (juristens tverrgående funn).</summary>
+    public const string GeneriskKonvensjonsstat = "generisk_konvensjonsstat";
+    /// <summary>Ikke en aktør: nettstedet (regjeringen.no), en avtaletittel eller en navnedel («Regjeringens sikkerhetsutvalg»).</summary>
+    public const string IkkeAktor = "ikke_aktor";
+    /// <summary>Rollen statsråd: «medlem av regjeringen» (også i oppramsing) og «regjeringens medlemmer». Referenten er statsrådet; uttrykket
+    /// er rollen medlem av det.</summary>
+    public const string RolleStatsrad = "rolle_statsrad";
+    /// <summary>Funksjonen, styret av riket («føre/forestå/ivareta regjeringen»). Ingen aktør.</summary>
+    public const string Funksjon = "funksjon";
+    /// <summary>«Regjeringens res.»: vedtaksformen er Kongen i statsråd (Grl. § 32, <c>FastsattAvTolker</c>). Referenten er Kongen i statsråd.</summary>
+    public const string RegjeringensResolusjon = "regjeringens_resolusjon";
+    /// <summary>Ordlyden avgjør ikke. Forslaget er en slutning som et menneske må ta; det har ingen referent og kan ikke godkjennes som det
+    /// er (ingen gjetting, Johann 2026-11-20).</summary>
+    public const string Slutning = "slutning";
+
+    public static readonly string[] Alle = [FremmedStat, GeneriskKonvensjonsstat, IkkeAktor, RolleStatsrad, Funksjon, RegjeringensResolusjon, Slutning];
+
+    /// <summary>Lesningene som ikke har referent.</summary>
+    public static readonly string[] UtenReferent = [FremmedStat, GeneriskKonvensjonsstat, IkkeAktor, Funksjon, Slutning];
+
+    public static string Tekst(string? lesning) => lesning switch
+    {
+        FremmedStat => "fremmed stat",
+        GeneriskKonvensjonsstat => "generisk konvensjonsstat",
+        IkkeAktor => "ikke aktør",
+        RolleStatsrad => "rollen statsråd",
+        Funksjon => "funksjonen (styret av riket)",
+        RegjeringensResolusjon => "«Regjeringens res.» (Kongen i statsråd)",
+        Slutning => "slutning",
+        null => "",
+        _ => lesning,
+    };
 }
 
 /// <summary>

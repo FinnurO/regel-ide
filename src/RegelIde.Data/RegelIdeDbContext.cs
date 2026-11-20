@@ -452,7 +452,19 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
         {
             e.ToTable("navneform_bindinger", t =>
             {
-                t.HasCheckConstraint("ck_navneform_bindinger_referent_en", "(til_virksomhet_id IS NULL) <> (til_begrep_id IS NULL)");
+                // [ENDRET, issue #486] En forekomstbinding med en lesning uten referent (fremmed stat, ikke aktør, funksjon, slutning …) har ingen
+                // referent. Alle andre har nøyaktig én, som før.
+                t.HasCheckConstraint("ck_navneform_bindinger_referent_en",
+                    "((til_virksomhet_id IS NULL) <> (til_begrep_id IS NULL)) OR (til_virksomhet_id IS NULL AND til_begrep_id IS NULL "
+                    + "AND tekst_tagg_id IS NOT NULL AND lesning IN ('fremmed_stat', 'generisk_konvensjonsstat', 'ikke_aktor', 'funksjon', 'slutning'))");
+                // [Ny, issue #486] Lesningen er en lukket liste og står bare på en forekomstbinding. En slutning er alltid et forslag (eller avvist):
+                // den har ingen referent og kan ikke godkjennes som den er.
+                t.HasCheckConstraint("ck_navneform_bindinger_lesning",
+                    "lesning IS NULL OR (tekst_tagg_id IS NOT NULL AND lesning IN ('fremmed_stat', 'generisk_konvensjonsstat', 'ikke_aktor', "
+                    + "'rolle_statsrad', 'funksjon', 'regjeringens_resolusjon', 'slutning'))");
+                t.HasCheckConstraint("ck_navneform_bindinger_slutning_forslag",
+                    "lesning IS NULL OR lesning <> 'slutning' OR status IN ('maskinelt_foreslatt', 'manuelt_foreslatt', 'avvist')");
+                t.HasCheckConstraint("ck_navneform_bindinger_forekomst_spenn", "tekst_tagg_id IS NULL OR paragrafspenn_json = '[]'");
                 // [Ny, issue #378, Johanns beslutning 2026-10-16] Bindingens egen gyldighet.
                 t.HasCheckConstraint("ck_navneform_bindinger_gyldighet", "gyldig_fra IS NULL OR gyldig_til IS NULL OR gyldig_fra <= gyldig_til");
                 t.HasCheckConstraint("ck_navneform_bindinger_status",
@@ -526,6 +538,11 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
             e.Property(x => x.SistEndretAv).HasColumnName("sist_endret_av");
             e.Property(x => x.SistEndretTidspunkt).HasColumnName("sist_endret_tidspunkt");
+            e.Property(x => x.TekstTaggId).HasColumnName("tekst_tagg_id"); // [Ny, #486]
+            e.Property(x => x.Lesning).HasColumnName("lesning"); // [Ny, #486]
+            // [Ny, issue #486] Taggen er spennet for en forekomstbinding. CASCADE: uten taggen gjelder bindingen ingen forekomst.
+            e.HasOne<TekstTaggEntitet>().WithMany().HasForeignKey(x => x.TekstTaggId).OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(x => x.TekstTaggId).HasDatabaseName("ix_navneform_bindinger_tekst_tagg");
 
             // CASCADE fra navneformen, rettskilden og referenten: en binding uten noen av dem er ingen opplysning (samme valg som
             // strukturkanter). Hjemmelen: CASCADE som strukturkanter (ellers ville ck_navneform_bindinger_kilde brytes).

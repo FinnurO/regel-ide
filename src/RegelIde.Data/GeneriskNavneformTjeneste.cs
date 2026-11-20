@@ -17,7 +17,10 @@ public sealed record NyNavneformBinding(
     // [Ny, issue #378, Johanns beslutning 2026-10-16] Bindingens egen gyldighet. Null = åpen ende.
     DateOnly? GyldigFra = null, DateOnly? GyldigTil = null,
     // [Ny, issue #385 AC8] Én eller flere lenker til dokumentasjonen; den første lagres også i KildeUtenforKorpusLenke.
-    IReadOnlyList<string>? KildeUtenforKorpusLenker = null);
+    IReadOnlyList<string>? KildeUtenforKorpusLenker = null,
+    // [Ny, issue #486] Tagg per forekomst: taggen er spennet (Paragrafspenn må da være tomt), og lesningen sier hva forekomsten er
+    // (Forekomstlesninger). En lesning uten referent har Referent = Kantnode.Ingen.
+    Guid? TekstTaggId = null, string? Lesning = null);
 
 /// <summary>Utfallet av å slå opp en generisk omtale i én node.</summary>
 public static class GeneriskOppslagstatus
@@ -37,6 +40,9 @@ public static class GeneriskOppslagstatus
     /// <summary>[Ny, issue #394 AK 1] Ingen vurdert binding dekker noden, og standardregelen for termen gir referenten
     /// (<see cref="GeneriskOppslag.Regel"/> har kilde, rute og premisser). En manuell binding går alltid foran.</summary>
     public const string Regel = "regel";
+    /// <summary>[Ny, issue #486] En vurdert forekomstbinding sier at ordet her ikke er en aktør i modellen (fremmed stat, generisk
+    /// konvensjonsstat, ikke aktør, funksjon). <see cref="GeneriskOppslag.Lesning"/> sier hvilken; ingen referent, ingen kant.</summary>
+    public const string IkkeAktor = "ikke_aktor";
 }
 
 /// <summary>Resultatet av et oppslag: status, bindingen som vant (ved <c>bundet</c>) og referenten.</summary>
@@ -46,7 +52,12 @@ public sealed record GeneriskOppslag(string Status, NavneformBindingEntitet? Bin
     /// opplysning: «regelen alene ville gitt …»). Referenten kommer fra regelen bare ved status <c>regel</c>.</summary>
     public StandardregelSvar? Regel { get; init; }
     /// <summary>[Ny, issue #394 AK 1] Hvor svaret kommer fra: <c>binding</c>, <c>regel</c> eller null (ikke avklart).</summary>
-    public string? Kilde => Status == GeneriskOppslagstatus.Bundet ? "binding" : Status == GeneriskOppslagstatus.Regel ? "regel" : null;
+    public string? Kilde => Status is GeneriskOppslagstatus.Bundet or GeneriskOppslagstatus.IkkeAktor ? "binding"
+        : Status == GeneriskOppslagstatus.Regel ? "regel" : null;
+    /// <summary>[Ny, issue #486] Lesningen til forekomstbindingen som avgjorde svaret (<see cref="Forekomstlesninger"/>), eller null.</summary>
+    public string? Lesning { get; init; }
+    /// <summary>[Ny, issue #486] Svaret kommer fra en tagg per forekomst, ikke fra en binding for rettskilden eller paragrafen.</summary>
+    public bool Forekomst { get; init; }
 }
 
 /// <summary>Én binding slik den vises: referentens navn og type, rettskildens tittel.</summary>
@@ -71,6 +82,12 @@ public sealed record NavneformBindingVisning(
     public DateTimeOffset? HjemmelEndretTidspunkt { get; init; }
     /// <summary>[Ny, issue #385 AC8] Alle lenkene til dokumentasjonen.</summary>
     public IReadOnlyList<string>? KildeUtenforKorpusLenker { get; init; }
+    /// <summary>[Ny, issue #486] Taggen bindingen gjelder (tagg per forekomst), og forekomsten: noden og ordet slik det står.</summary>
+    public Guid? TekstTaggId { get; init; }
+    public string? ForekomstEid { get; init; }
+    public string? ForekomstTekst { get; init; }
+    /// <summary>[Ny, issue #486] <see cref="Forekomstlesninger"/>.</summary>
+    public string? Lesning { get; init; }
 }
 
 /// <summary>[Ny, issue #384] En binding som ikke kan flyttes entydig til den gjeldende versjonen av verket, og hvorfor.</summary>
@@ -99,7 +116,18 @@ public sealed record GeneriskTaggOppslag(Guid TaggId, Guid NavneformId, string S
     public string? BindingKunnskapsstatus { get; init; }
     /// <summary>[Ny, issue #394 AK 1] Standardregelens svar (kilde, rute, premisser), også når en binding vant.</summary>
     public StandardregelSvar? Regel { get; init; }
+    /// <summary>[Ny, issue #486] Lesningen til den vurderte forekomstbindingen som avgjorde svaret (<see cref="Forekomstlesninger"/>).</summary>
+    public string? Lesning { get; init; }
+    /// <summary>[Ny, issue #486] Svaret kommer fra en tagg per forekomst.</summary>
+    public bool Forekomst { get; init; }
+    /// <summary>[Ny, issue #486] Et forslag for denne forekomsten som ikke er vurdert ennå (ordlydsregel eller slutning). Brukes ikke i svaret.</summary>
+    public Forekomstforslag? Forekomstforslag { get; init; }
 }
+
+/// <summary>[Ny, issue #486] Et forslag til hva én forekomst er: lesningen (og teksten for den), referenten når lesningen har en, godkjenningen,
+/// kunnskapsstatusen og begrunnelsen. «slutning» har ingen referent.</summary>
+public sealed record Forekomstforslag(Guid BindingId, string? Lesning, string LesningTekst, KantnodeVisning? Referent, string Status,
+    string? Kunnskapsstatus, string? Begrunnelse, string OppdagelsesKilde, string? Kommentar);
 
 /// <summary>
 /// [Ny, issue #378 B4–B7, Johanns godkjenning 2026-10-15] Generiske navneformer og bindingen av dem per rettskilde
@@ -217,7 +245,44 @@ public sealed class GeneriskNavneformTjeneste(RegelIdeDbContext db)
         {
             throw new ArgumentException($"Fant ingen rettskilde med id '{ny.RettskildeId}'. Ingen gjettet fallback.");
         }
-        if (!ny.Referent.ErGyldig) throw new ArgumentException("Referenten må være nøyaktig én av virksomhet og begrep.");
+        // [Ny, issue #486] Tagg per forekomst: taggen må være en gjeldende tagg mot denne navneformen i rettskilden, og lesningen (om den
+        // er satt) står i den lukkede lista. En lesning uten referent har ingen referent; alle andre har nøyaktig én.
+        TekstTaggEntitet? forekomst = null;
+        if (ny.Lesning is not null && !Forekomstlesninger.Alle.Contains(ny.Lesning))
+        {
+            throw new ArgumentException($"Ukjent lesning '{ny.Lesning}'. Gyldige: {string.Join(", ", Forekomstlesninger.Alle)}.");
+        }
+        if (ny.TekstTaggId is { } taggId)
+        {
+            forekomst = await db.TekstTagger.FirstOrDefaultAsync(t => t.Id == taggId && t.Entitetsstatus == "gjeldende", ct)
+                ?? throw new ArgumentException($"Fant ingen gjeldende tagg med id '{taggId}'. Ingen gjettet fallback.");
+            if (forekomst.RefId != ny.NavneformId || forekomst.Kind != "virksomhet")
+            {
+                throw new ArgumentException("Taggen peker ikke på denne navneformen. En forekomstbinding gjelder en tagg av navneformen.");
+            }
+            if (forekomst.RettskildeId != ny.RettskildeId)
+            {
+                throw new ArgumentException("Taggen står ikke i denne rettskilde-versjonen. Bind mot versjonen taggen står i.");
+            }
+            if (ny.Paragrafspenn is { Count: > 0 })
+            {
+                throw new ArgumentException("En forekomstbinding har ikke paragrafspenn: taggen er spennet.");
+            }
+        }
+        else if (ny.Lesning is not null)
+        {
+            throw new ArgumentException("En lesning står bare på en forekomstbinding (tagg per forekomst).");
+        }
+        var utenReferent = ny.Lesning is not null && Forekomstlesninger.UtenReferent.Contains(ny.Lesning);
+        if (utenReferent && (ny.Referent.VirksomhetId is not null || ny.Referent.BegrepId is not null))
+        {
+            throw new ArgumentException($"Lesningen «{Forekomstlesninger.Tekst(ny.Lesning)}» har ingen referent.");
+        }
+        if (!utenReferent && !ny.Referent.ErGyldig) throw new ArgumentException("Referenten må være nøyaktig én av virksomhet og begrep.");
+        if (ny.Lesning == Forekomstlesninger.Slutning && VurderteStatuser.Contains(ny.Status))
+        {
+            throw new ArgumentException("En slutning er et forslag og kan ikke registreres som vurdert. Velg referenten, så er det en binding.");
+        }
         if (ny.Referent.VirksomhetId is { } vid && !await db.Virksomheter.AnyAsync(v => v.Id == vid, ct))
         {
             throw new ArgumentException($"Fant ingen virksomhet med id '{vid}'. Ingen gjettet fallback.");
@@ -341,8 +406,10 @@ public sealed class GeneriskNavneformTjeneste(RegelIdeDbContext db)
         var nyTil = ny.GyldigTil ?? DateOnly.MaxValue;
         // [ENDRET, issue #384] Virkeområdet er VERKET: en binding registrert mot forrige versjon gjelder også her.
         var verk = await VerkAsync(ny.RettskildeId, ct);
+        // [ENDRET, issue #486] En forekomstbinding har samme virkeområde som en annen for SAMME tagg; en binding for rettskilden eller
+        // paragrafen er et annet virkeområde enn en forekomst.
         var konflikt = await IVerket(verk).FirstOrDefaultAsync(b => b.NavneformId == ny.NavneformId
-            && b.ParagrafspennJson == spennJson && b.Entitetsstatus == "gjeldende" && b.Status != Strukturkanter.Avvist
+            && b.ParagrafspennJson == spennJson && b.TekstTaggId == ny.TekstTaggId && b.Entitetsstatus == "gjeldende" && b.Status != Strukturkanter.Avvist
             && (b.GyldigFra == null || b.GyldigFra <= nyTil) && (b.GyldigTil == null || b.GyldigTil >= nyFra), ct);
         if (konflikt is not null)
         {
@@ -376,6 +443,8 @@ public sealed class GeneriskNavneformTjeneste(RegelIdeDbContext db)
             Status = ny.Status,
             OppdagelsesKilde = string.IsNullOrWhiteSpace(ny.OppdagelsesKilde) ? "manuell" : ny.OppdagelsesKilde,
             Kommentar = string.IsNullOrWhiteSpace(ny.Kommentar) ? null : ny.Kommentar.Trim(),
+            TekstTaggId = ny.TekstTaggId,
+            Lesning = ny.Lesning,
             OpprettetAv = opprettetAv,
             OpprettetTidspunkt = DateTimeOffset.UtcNow,
         };
@@ -394,6 +463,12 @@ public sealed class GeneriskNavneformTjeneste(RegelIdeDbContext db)
         if (!Strukturkanter.Ventende.Contains(b.Status) && b.HjemmelEndretTidspunkt is null)
         {
             throw new ArgumentException($"Bindingen har status '{b.Status}' — bare forslag (eller en binding med «hjemmel endret») kan godkjennes.");
+        }
+        // [Ny, issue #486] En slutning har ingen referent. Den godkjennes ikke som den er: avvis den og registrer forekomsten med referenten.
+        if (b.Lesning == Forekomstlesninger.Slutning)
+        {
+            throw new ArgumentException("Forslaget er en slutning uten referent. Avvis det og registrer forekomsten med referenten (statsrådet, "
+                + "Kongen i statsråd eller noe annet). Ingen gjettet referent.");
         }
         b.Status = Strukturkanter.Godkjent;
         b.HjemmelEndretTidspunkt = null;
@@ -533,6 +608,14 @@ public sealed class GeneriskNavneformTjeneste(RegelIdeDbContext db)
     private async Task<string?> IkkeFlyttbarGrunnAsync(NavneformBindingEntitet b, Guid iVersjon, CancellationToken ct)
     {
         if (b.RettskildeId == iVersjon) return null;
+        // [Ny, issue #486] En forekomstbinding følger taggen: den flyttes av resynken (quoteSelector). Ble taggen ikke flyttet entydig, står
+        // den igjen på den gamle versjonen (KreverGjennomgang), og bindingen gjelder ikke her.
+        if (b.TekstTaggId is { } tid)
+        {
+            var tagg = await db.TekstTagger.Where(t => t.Id == tid).Select(t => new { t.RettskildeId }).FirstOrDefaultAsync(ct);
+            return tagg is not null && tagg.RettskildeId == iVersjon ? null
+                : "Taggen bindingen gjelder, ble ikke flyttet entydig til denne versjonen (forekomsten må tagges og bindes på nytt).";
+        }
         var spenn = LesSpenn(b.ParagrafspennJson);
         if (spenn.Count == 0) return null;
         var registrert = Dekningssett(await NodetreAsync(b.RettskildeId, ct), spenn);
@@ -568,19 +651,34 @@ public sealed class GeneriskNavneformTjeneste(RegelIdeDbContext db)
     /// <see cref="GeneriskOppslag.Regel"/> også når en binding vant, så visningen kan si hva regelen alene ville gitt.
     /// <paramref name="brukBindinger"/> = false gir regelen alene (kaldsjekken i AK 5); <paramref name="brukRegel"/> = false gir oppslaget
     /// slik det var før #394.
+    /// [ENDRET, issue #486] <paramref name="taggId"/>: oppslaget for én forekomst (tagg). En vurdert tagg per forekomst går foran nodens binding;
+    /// er bare noen av forekomstene i noden tagget, er svaret <see cref="GeneriskOppslagstatus.Flertydig"/> (juristens vilkår 1 og 2).
     /// </summary>
     public async Task<GeneriskOppslag> LosOppAsync(
         Guid navneformId, Guid rettskildeId, string? eid, CancellationToken ct = default, DateOnly? dato = null,
-        bool brukBindinger = true, bool brukRegel = true)
+        bool brukBindinger = true, bool brukRegel = true, Guid? taggId = null)
     {
         var d = dato ?? DateOnly.FromDateTime(DateTime.Today);
         var verk = await VerkAsync(rettskildeId, ct);
-        var bindinger = !brukBindinger ? [] : await IVerket(verk)
+        var alle = !brukBindinger ? [] : await IVerket(verk)
             .Where(b => b.NavneformId == navneformId && b.Entitetsstatus == "gjeldende"
                         && b.Status != Strukturkanter.Avvist
                         && (b.GyldigFra == null || b.GyldigFra <= d) && (b.GyldigTil == null || b.GyldigTil >= d))
             .ToListAsync(ct);
-        var foreslatte = bindinger.Count(b => !VurderteStatuser.Contains(b.Status));
+        // [Ny, issue #486] Forekomstbindingene (tagg per forekomst) skilles ut: de gjelder én tagg, ikke rettskilden eller paragrafen, og
+        // regnes aldri med i nodens binding (det tomme spennet ville ellers sett ut som hele rettskilden).
+        var bindinger = alle.Where(b => b.TekstTaggId is null).ToList();
+        var forekomstbindinger = alle.Where(b => b.TekstTaggId is not null).ToList();
+        List<Guid> taggerINoden = [];
+        if (forekomstbindinger.Count > 0 && eid is not null)
+        {
+            taggerINoden = await db.TekstTagger
+                .Where(t => t.RettskildeId == rettskildeId && t.NodeEid == eid && t.RefId == navneformId && t.Kind == "virksomhet"
+                            && t.Entitetsstatus == "gjeldende")
+                .Select(t => t.Id).ToListAsync(ct);
+        }
+        var iNoden = forekomstbindinger.Where(b => taggerINoden.Contains(b.TekstTaggId!.Value)).ToList();
+        var foreslatte = bindinger.Count(b => !VurderteStatuser.Contains(b.Status)) + iNoden.Count(b => !VurderteStatuser.Contains(b.Status));
         var vurderte = bindinger.Where(b => VurderteStatuser.Contains(b.Status)).ToList();
         StandardregelSvar? regel = null;
         if (brukRegel)
@@ -593,6 +691,35 @@ public sealed class GeneriskNavneformTjeneste(RegelIdeDbContext db)
             // Datoen sendes bare videre når kalleren oppga den; ellers regner regelen ut versjonens dato (eldre versjon → versjonens dato).
             regel = await _regler.LosAsync(term, rettskildeId, dato, ct);
         }
+
+        // [Ny, issue #486, juristens vilkår 1 og 2 fra runde 2 om «regjeringen», Johanns avgjørelse 2026-11-20] Tagg per forekomst går foran
+        // bindingen for noden, slik at «smaleste spenn vinner» gjelder ned til tegnspennet. Bare vurderte forekomstbindinger teller (samme
+        // status som en binding). Har noen av taggene i noden en vurdert forekomstbinding og andre ikke, gir oppslaget for en forekomst uten
+        // den — og for noden som helhet — «flertydig»: nodens binding dekker ikke stille forekomster som ikke er tagget. Finnes ingen vurdert
+        // forekomstbinding i noden, er oppslaget nøyaktig det samme som før #486 (andre navneformer har ingen forekomstbindinger).
+        var vurderteForekomst = iNoden.Where(b => VurderteStatuser.Contains(b.Status)).ToList();
+        if (vurderteForekomst.Count > 0)
+        {
+            var perTagg = vurderteForekomst.GroupBy(b => b.TekstTaggId!.Value).ToDictionary(g => g.Key, g => g.ToList());
+            GeneriskOppslag Flertydig() => new(GeneriskOppslagstatus.Flertydig, null, null, foreslatte) { Regel = regel, Forekomst = true };
+            GeneriskOppslag Fra(List<NavneformBindingEntitet> bs)
+            {
+                if (bs.Select(b => (b.TilVirksomhetId, b.TilBegrepId, b.Lesning)).Distinct().Count() > 1) return Flertydig();
+                var vinner = bs.OrderBy(b => b.Status == Strukturkanter.Godkjent ? 0 : 1).ThenBy(b => b.Id).First();
+                return vinner.TilVirksomhetId is null && vinner.TilBegrepId is null
+                    ? new GeneriskOppslag(GeneriskOppslagstatus.IkkeAktor, vinner, null, foreslatte)
+                    {
+                        Regel = regel, Lesning = vinner.Lesning, Forekomst = true,
+                    }
+                    : new GeneriskOppslag(GeneriskOppslagstatus.Bundet, vinner, new Kantnode(vinner.TilVirksomhetId, vinner.TilBegrepId), foreslatte)
+                    {
+                        Regel = regel, Lesning = vinner.Lesning, Forekomst = true,
+                    };
+            }
+            if (taggId is { } tid) return perTagg.TryGetValue(tid, out var egne) ? Fra(egne) : Flertydig();
+            return perTagg.Count < taggerINoden.Count ? Flertydig() : Fra(vurderteForekomst);
+        }
+
         GeneriskOppslag UtenBinding() => regel is { Utfall: StandardregelUtfall.Lost, Referent: { } rr }
             ? new GeneriskOppslag(GeneriskOppslagstatus.Regel, null, rr, foreslatte) { Regel = regel }
             : new GeneriskOppslag(GeneriskOppslagstatus.Ubundet, null, null, foreslatte) { Regel = regel };
@@ -633,8 +760,9 @@ public sealed class GeneriskNavneformTjeneste(RegelIdeDbContext db)
     /// </summary>
     public async Task<List<IkkeFlyttbarBinding>> IkkeFlyttbareAsync(CancellationToken ct = default)
     {
+        // [ENDRET, issue #486] + forekomstbindingene (tomt spenn, men taggen kan stå igjen på en gammel versjon).
         var kandidater = await db.NavneformBindinger
-            .Where(b => b.Entitetsstatus == "gjeldende" && b.Status != Strukturkanter.Avvist && b.ParagrafspennJson != "[]")
+            .Where(b => b.Entitetsstatus == "gjeldende" && b.Status != Strukturkanter.Avvist && (b.ParagrafspennJson != "[]" || b.TekstTaggId != null))
             .ToListAsync(ct);
         var ut = new List<IkkeFlyttbarBinding>();
         foreach (var b in kandidater)
@@ -664,9 +792,17 @@ public sealed class GeneriskNavneformTjeneste(RegelIdeDbContext db)
             .ToListAsync(ct);
         var ut = new List<GeneriskTaggOppslag>();
         var navn = new Dictionary<(Guid?, Guid?), KantnodeVisning?>();
+        // [Ny, issue #486] Forslaget per forekomst (en ordlydsregel eller «slutning») som ikke er vurdert ennå: vises ved taggen, men brukes ikke
+        // i oppslaget før et menneske har vurdert det. Det nyeste, ikke avviste forslaget per tagg.
+        var taggIder = tagger.Select(t => t.Id).ToList();
+        var forslagPerTagg = taggIder.Count == 0 ? [] : (await db.NavneformBindinger
+                .Where(b => b.TekstTaggId != null && taggIder.Contains(b.TekstTaggId.Value) && b.Entitetsstatus == "gjeldende"
+                            && b.Status != Strukturkanter.Avvist && !VurderteStatuser.Contains(b.Status))
+                .ToListAsync(ct))
+            .GroupBy(b => b.TekstTaggId!.Value).ToDictionary(g => g.Key, g => g.OrderByDescending(b => b.OpprettetTidspunkt).First());
         foreach (var t in tagger)
         {
-            var o = await LosOppAsync(t.NavneformId, rettskildeId, t.NodeEid, ct);
+            var o = await LosOppAsync(t.NavneformId, rettskildeId, t.NodeEid, ct, taggId: t.Id);
             KantnodeVisning? referent = null;
             if (o.Referent is { } r)
             {
@@ -677,12 +813,29 @@ public sealed class GeneriskNavneformTjeneste(RegelIdeDbContext db)
             {
                 Term = t.Term,
                 Kilde = o.Kilde,
-                BindingStatus = o.Status == GeneriskOppslagstatus.Bundet ? o.Binding?.Status : null,
-                BindingKunnskapsstatus = o.Status == GeneriskOppslagstatus.Bundet ? o.Binding?.Kunnskapsstatus : null,
+                BindingStatus = o.Status is GeneriskOppslagstatus.Bundet or GeneriskOppslagstatus.IkkeAktor ? o.Binding?.Status : null,
+                BindingKunnskapsstatus = o.Status is GeneriskOppslagstatus.Bundet or GeneriskOppslagstatus.IkkeAktor ? o.Binding?.Kunnskapsstatus : null,
                 Regel = o.Regel,
+                Lesning = o.Lesning,
+                Forekomst = o.Forekomst,
+                Forekomstforslag = forslagPerTagg.TryGetValue(t.Id, out var f) ? await ForekomstforslagAsync(f, navn, ct) : null,
             });
         }
         return ut;
+    }
+
+    /// <summary>[Ny, issue #486] Forslaget for én forekomst slik det vises ved taggen.</summary>
+    private async Task<Forekomstforslag> ForekomstforslagAsync(NavneformBindingEntitet b, Dictionary<(Guid?, Guid?), KantnodeVisning?> navn,
+        CancellationToken ct)
+    {
+        KantnodeVisning? referent = null;
+        if (b.TilVirksomhetId is not null || b.TilBegrepId is not null)
+        {
+            var nokkel = (b.TilVirksomhetId, b.TilBegrepId);
+            if (!navn.TryGetValue(nokkel, out referent)) navn[nokkel] = referent = await VisningAsync(new Kantnode(b.TilVirksomhetId, b.TilBegrepId), ct);
+        }
+        return new Forekomstforslag(b.Id, b.Lesning, Forekomstlesninger.Tekst(b.Lesning), referent, b.Status, b.Kunnskapsstatus, b.Begrunnelse,
+            b.OppdagelsesKilde, b.Kommentar);
     }
 
     private async Task<KantnodeVisning?> VisningAsync(Kantnode node, CancellationToken ct)
@@ -724,8 +877,11 @@ public sealed class GeneriskNavneformTjeneste(RegelIdeDbContext db)
         foreach (var x in rader)
         {
             var b = x.B;
-            var referent = await VisningAsync(new Kantnode(b.TilVirksomhetId, b.TilBegrepId), ct)
-                ?? new KantnodeVisning(b.TilVirksomhetId is null ? "begrep" : "virksomhet", b.TilVirksomhetId ?? b.TilBegrepId!.Value, "(ukjent)", null);
+            // [ENDRET, issue #486] En forekomstbinding uten referent (fremmed stat, slutning …) vises med lesningen som «referent», uten id.
+            var referent = b.TilVirksomhetId is null && b.TilBegrepId is null
+                ? new KantnodeVisning("lesning", Guid.Empty, Forekomstlesninger.Tekst(b.Lesning), b.Lesning)
+                : await VisningAsync(new Kantnode(b.TilVirksomhetId, b.TilBegrepId), ct)
+                  ?? new KantnodeVisning(b.TilVirksomhetId is null ? "begrep" : "virksomhet", b.TilVirksomhetId ?? b.TilBegrepId!.Value, "(ukjent)", null);
             var (gjeldende, _) = await GjeldendeVersjonAsync(new Rettskildeverk(b.RettskildeId, x.VirksomhetId, x.Eli, x.Versjon), ct);
             ut.Add(new NavneformBindingVisning(b.Id, b.NavneformId, x.Term, b.RettskildeId, x.Tittel, LesSpenn(b.ParagrafspennJson), referent,
                 b.HjemmelRettskildeId, b.HjemmelEid, b.KildeUtenforKorpusTekst, b.KildeUtenforKorpusLenke, b.KildeUtenforKorpusType,
@@ -738,6 +894,10 @@ public sealed class GeneriskNavneformTjeneste(RegelIdeDbContext db)
                 GjeldendeRettskildeId = gjeldende,
                 HjemmelEndretTidspunkt = b.HjemmelEndretTidspunkt,
                 KildeUtenforKorpusLenker = b.KildeUtenforKorpusLenker,
+                TekstTaggId = b.TekstTaggId,
+                Lesning = b.Lesning,
+                ForekomstEid = b.TekstTaggId is { } tid ? await db.TekstTagger.Where(t => t.Id == tid).Select(t => t.NodeEid).FirstOrDefaultAsync(ct) : null,
+                ForekomstTekst = b.TekstTaggId is { } tid2 ? await db.TekstTagger.Where(t => t.Id == tid2).Select(t => t.QuoteExact).FirstOrDefaultAsync(ct) : null,
             });
         }
         return ut;

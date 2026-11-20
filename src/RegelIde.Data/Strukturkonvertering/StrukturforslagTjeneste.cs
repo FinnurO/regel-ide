@@ -38,6 +38,9 @@ public static class Forslagsarsak
     /// <summary>[Ny, issue #463] Aktøren er kjent, men ordsperren stopper alle forekomstene i noden (<see cref="Ordsperrer"/>: «den anmodede
     /// staten», «staten der …», «EØS-staten», konvensjonstekst). Ingen kobling.</summary>
     public const string AktorOrdsperre = "aktor_ordsperre";
+    /// <summary>[Ny, issue #486] En vurdert tagg per forekomst sier at ordet her ikke er en aktør (fremmed stat, generisk konvensjonsstat, ikke
+    /// aktør, funksjon). Ingen kobling.</summary>
+    public const string AktorIkkeAktor = "aktor_ikke_aktor";
 
     public static string Tekst(string arsak) => arsak switch
     {
@@ -50,6 +53,7 @@ public static class Forslagsarsak
         AvvistAvValideringen => "Den felles skriveveien (StrukturkantTjeneste) avviste raden",
         HjemmelErMerknad => "Noden er merknad/veiledning i forskriftsteksten, ikke normtekst — aldri hjemmel (#419)",
         AktorOrdsperre => "Ordet betyr ikke aktøren her: ordsperren stopper alle forekomstene i noden («den anmodede staten», «staten der …», konvensjonstekst) (#463)",
+        AktorIkkeAktor => "En vurdert tagg per forekomst sier at ordet ikke er en aktør her (fremmed stat, generisk konvensjonsstat, ikke aktør, funksjon) (#486)",
         _ => arsak,
     };
 }
@@ -73,6 +77,10 @@ public static class Aktorstatus
     public const string Flertydig = "flertydig";
 
     public static readonly string[] Alle = [Kjent, NyNavneformForKjentAktor, NyAktor, Generisk, Flertydig];
+
+    /// <summary>[Ny, issue #486] Bare for én forekomst (<c>Aktorklassifiserer.ForekomstAsync</c>), aldri for en aktør i sveipet: en vurdert
+    /// tagg per forekomst sier at ordet ikke er en aktør her. Står derfor ikke i <see cref="Alle"/>.</summary>
+    public const string IkkeAktor = "ikke_aktor";
 }
 
 /// <summary>[Ny, issue #378 A1] Én aktør i aktørsveipet.</summary>
@@ -349,6 +357,7 @@ public sealed partial class StrukturforslagTjeneste(
                 Aktorstatus.Kjent => new Oppslag(node, null, k.Treff),
                 Aktorstatus.Flertydig => new Oppslag(null, Forslagsarsak.AktorFlertydig, k.Treff),
                 Aktorstatus.Generisk => new Oppslag(null, Forslagsarsak.AktorGeneriskUtenBinding, k.Treff),
+                Aktorstatus.IkkeAktor => new Oppslag(null, Forslagsarsak.AktorIkkeAktor, k.Treff), // [Ny, #486]
                 _ => new Oppslag(null, Forslagsarsak.AktorIkkeIKatalogen, k.Treff),
             };
         }
@@ -799,6 +808,8 @@ internal sealed class Aktorklassifiserer(
         }
         if (g.GeneriskNavneformId is not { } nid || g.Status != Aktorstatus.Generisk) return (g.Status, g.Node, g.Referent, 0);
         var o = await generiske.LosOppAsync(nid, rettskildeId, eid, ct);
+        // [Ny, issue #486] En vurdert tagg per forekomst sier at ordet ikke er en aktør her (fremmed stat, ikke aktør, funksjon …): ingen kobling.
+        if (o.Status == GeneriskOppslagstatus.IkkeAktor) return (Aktorstatus.IkkeAktor, null, null, o.AntallForeslatteBindinger);
         // [ENDRET, issue #394 AK 1] Også når standardregelen gir referenten («departementet» → ansvarlig departement): forslagene som lastes,
         // er uansett forslag, og regelens kilde (ressortfordeling eller Lovdata, sekundær) står i oppslaget.
         if (o.Status is GeneriskOppslagstatus.Bundet or GeneriskOppslagstatus.Regel)
