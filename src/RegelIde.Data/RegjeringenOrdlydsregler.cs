@@ -14,10 +14,10 @@ public sealed record RegjeringenTreff(string Lesning, string Regel, string Grunn
 /// navneform for statsrådet eller Kongen i statsråd. Hver regel leser ordlyden rundt én forekomst og setter en tagg per forekomst
 /// (<see cref="NavneformBindingEntitet.TekstTaggId"/>) som forslag. Reglene prøves i denne rekkefølgen, og den første som slår til, gjelder:
 /// <list type="number">
-/// <item><b>Fremmed stat</b> (prøves først): sanksjonsforskrifter avgrenset ved tittel; «regjeringen i X» der X er et navn som ikke er Norge
+/// <item><b>Fremmed stat</b> (prøves først): «regjeringen i X» der X er et navn som ikke er Norge
 /// («regjeringen i Republikken Ungarn», unntatt «regjeringen i Kongeriket Norge»); «regjeringen i tredjestaten»; «den <i>nasjonalitet</i>-ske
 /// regjeringen» (ikke «den norske»); en stats genitiv foran («Belarus' regjeringen»); «regjeringen for <i>Navn</i>» («Regjeringen for Det Forente
-/// Kongerike»).</item>
+/// Kongerike»); og til sist resten av en sanksjonsforskrift, avgrenset ved tittel (ordlyden går foran tittelen, juristmålingen m1).</item>
 /// <item><b>Generisk konvensjonsstat</b>: maler og definisjoner som gjelder alle statene, også Norge: «regjeringen i den staten hvis flagg …»,
 /// «i en annen stat», «i det land som …», «i hver av statene», «i medlemsstaten», «den regjeringen som …», og skjemamaler med tomrom («regjeringen
 /// i ... (statens offisielle betegnelse)»). Ingen kant, og ikke «fremmed» (juristens tverrgående funn r7/r18/r26/r35).</item>
@@ -56,7 +56,7 @@ public static class RegjeringenOrdlydsregler
     /// <summary>Regelkodene i den rekkefølgen de prøves.</summary>
     public static readonly string[] Regler =
     [
-        FremmedSanksjonstittel, FremmedRegjeringenIStat, FremmedNasjonalitet, FremmedGenitiv, FremmedFor, GeneriskStat, GeneriskMal,
+        FremmedRegjeringenIStat, FremmedNasjonalitet, FremmedGenitiv, FremmedFor, FremmedSanksjonstittel, GeneriskStat, GeneriskMal,
         IkkeAktorNettsted, IkkeAktorAvtaletittel, IkkeAktorNavn, RolleMedlemAv, RolleRegjeringensMedlemmer, FunksjonStyret, ResolusjonGrl32,
     ];
 
@@ -114,11 +114,9 @@ public static class RegjeringenOrdlydsregler
         var etter = tekst[slutt..];
         var genitiv = ord.EndsWith('s') || ord.EndsWith('S');
 
-        // 1. Fremmed stat.
-        if (titler.FirstOrDefault(t => t is not null && Sanksjonstittel.IsMatch(t.Trim())) is { } tittel)
-        {
-            return new(Forekomstlesninger.FremmedStat, FremmedSanksjonstittel, $"tittelen «{Avkort(tittel)}»");
-        }
+        // 1. Fremmed stat. [ENDRET, juristmålingen m1 2026-11-20] Ordlyden prøves før tittelen: «den syriske regjeringen» i en sanksjonsforskrift
+        // er et tekstfunn, ikke bare en slutning fra tittelen. Tittelregelen tar resten av sanksjonsforskriften, også den russiske «regjeringens
+        // resolusjon», før regel 6.
         if (!genitiv && IStatNavn.Match(etter) is { Success: true } m1) return new(Forekomstlesninger.FremmedStat, FremmedRegjeringenIStat, Utdrag(etter, 40));
         if (!genitiv && ITredjestat.IsMatch(etter)) return new(Forekomstlesninger.FremmedStat, FremmedRegjeringenIStat, Utdrag(etter, 30));
         if (NasjonalitetForan.Match(foran) is { Success: true } m2 && !string.Equals(m2.Groups[1].Value, "norske", StringComparison.Ordinal))
@@ -127,6 +125,10 @@ public static class RegjeringenOrdlydsregler
         }
         if (GenitivForan.Match(foran) is { Success: true } m3) return new(Forekomstlesninger.FremmedStat, FremmedGenitiv, $"{m3.Groups[1].Value} {ord}");
         if (!genitiv && ForNavn.IsMatch(etter)) return new(Forekomstlesninger.FremmedStat, FremmedFor, Utdrag(etter, 40));
+        if (titler.FirstOrDefault(t => t is not null && Sanksjonstittel.IsMatch(t.Trim())) is { } tittel)
+        {
+            return new(Forekomstlesninger.FremmedStat, FremmedSanksjonstittel, $"tittelen «{Avkort(tittel)}»");
+        }
 
         // 2. Generisk konvensjonsstat.
         if (!genitiv && GeneriskIStat.Match(etter) is { Success: true } g1) return new(Forekomstlesninger.GeneriskKonvensjonsstat, GeneriskStat, $"{ord}{g1.Value}");

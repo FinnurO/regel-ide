@@ -53,6 +53,15 @@ Ingen av de 20 taggene gir feil referent eller en kant som ikke finnes.
 
 Ingen.
 
+## Runde 2
+
+Modellereren aksepterte m1 og m12 (`svar.json`). Replikken min er **godtar** på begge (`replikk.json`):
+
+- **m1:** Ordlydsreglene for fremmed stat prøves nå før sanksjonstittelen. Jeg har kontrollert alle 14 forekomstene i gjeldende sanksjonsforskrifter i korpuset. Alle er fortsatt fremmed stat. 13 får nå en ordlydsregel og tekstfunn. Den russiske «regjeringens resolusjon» i Sanksjonsforskrift Ukraina § 19m treffer ingen ordlydsregel (genitiv, «ved» foran), og tittelregelen fanger den fortsatt før regel 6. Den blir altså ikke Kongen i statsråd.
+- **m12:** Begrunnelsen for regel 4 viser nå til Grl. § 72 tredje ledd, § 62 annet ledd og § 82 første ledd ved siden av hjemmelen § 15 første ledd. Sitatene stemmer med Grunnloven i korpuset.
+
+**Til Johann:** ingenting står igjen. Jurist og modellerer er enige om alle 20 kortene.
+
 ## Kilder
 
 - Korpuset (delt `regelide`, bare SELECT, 2026-11-20):

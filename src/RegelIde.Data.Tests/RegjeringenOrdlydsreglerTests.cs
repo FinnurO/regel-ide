@@ -82,6 +82,11 @@ public class RegjeringenOrdlydsreglerTests
         // Uten sanksjonstittel ville regel 6 slått til: rekkefølgen er det som skiller dem.
         var annen = RegjeringenOrdlydsregler.Vurder(tekst, m.Index, m.Index + m.Length, ["Testforskrift"]);
         Assert.Equal(Forekomstlesninger.RegjeringensResolusjon, annen!.Lesning);
+        // [Juristmålingen m1] Ordlyden går foran tittelen: «den syriske regjeringen» er et tekstfunn også i en sanksjonsforskrift.
+        const string syria = "andre syriske personer, enheter eller organer, herunder den syriske regjeringen,";
+        var s = RegjeringenOrdlydsregler.Ordet.Match(syria);
+        Assert.Equal(RegjeringenOrdlydsregler.FremmedNasjonalitet,
+            RegjeringenOrdlydsregler.Vurder(syria, s.Index, s.Index + s.Length, ["Forskrift om restriktive tiltak mot Syria"])!.Regel);
     }
 
     [Fact]

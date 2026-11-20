@@ -392,7 +392,9 @@ public sealed class RegjeringenTjeneste(RegelIdeDbContext db, StrukturkantTjenes
                 ny = new(navneformId, f.RettskildeId, Kantnode.Virksomhet(sid), HjemmelRettskildeId: grl15.RettskildeId, HjemmelEid: Grl15Eid,
                     Kunnskapsstatus: Strukturkanter.Fortolkning, Tolkningsargumenter: ["ordlyd", "kontekst_system"],
                     Begrunnelse: $"Rollen statsråd: «{treff!.Grunnlag}» er medlemmene av statsrådet, samme krets som «medlem av statsrådet» i Grunnloven § 15 "
-                                 + $"første ledd og «medlemmer av regjeringen» i § 72 tredje ledd. Ordet står for kollegiet; uttrykket er rollen. Regel 4 (#486). {sitat}");
+                                 + $"første ledd og «medlemmer av regjeringen» i § 72 tredje ledd nr. 1, som § 72 holder fra statssekretærer og politiske rådgivere (nr. 3); "
+                                 + $"jf. «Statsrådets medlemmer» i § 62 annet ledd og «medlem av statsrådet» i § 82 første ledd. Ordet står for kollegiet; "
+                                 + $"uttrykket er rollen. Regel 4 (#486). {sitat}");
                 break;
             case Forekomstlesninger.Funksjon:
                 ny = new(navneformId, f.RettskildeId, ingen, HjemmelRettskildeId: f.RettskildeId, HjemmelEid: f.Eid,
