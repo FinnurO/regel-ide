@@ -1,0 +1,260 @@
+[
+ {
+  "id": "m1",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Lesningen fremmed stat er riktig: art. 27 nr. 1 bokstav b gjelder krav fra «andre syriske personer, enheter eller organer, herunder den syriske regjeringen». Men kunnskapsstatusen er svakere enn ordlyden gir grunnlag for. Ordlyden selv sier «den syriske regjeringen», altså tekstfunn, på samme måte som «regjeringen i Australia» (m2) og «regjeringen for Det Forente Kongerike» (m3), som begge er satt til tekstfunn. Tittelregelen fyrer først og gir bare fortolkning (tittelen avgrenser kilden, ikke forekomsten). Utfallet (ingen kant) er det samme; rettingen gjelder grunnlaget. Om rekkefølgen mellom tittelregelen og nasjonalitetsregelen skal endres, er et regelspørsmål utenfor dette kortet; alternativt kan tittelregelen beholdes som regel og kunnskapsstatusen heves når ordlyden i forekomsten også treffer en fremmed-regel.",
+  "retting": {
+   "regel": "fremmed:nasjonalitet",
+   "kunnskapsstatus": "tekstfunn"
+  },
+  "ny_rad": null,
+  "kilder": [
+   {"ref": "Forskrift om restriktive tiltak mot Syria (FOR-2011-09-02-902) forordningen art. 27 nr. 1 bokstav b, gjeldende tekst i korpuset", "funksjon": "direkte_hjemmel"},
+   {"ref": "src/RegelIde.Data/RegjeringenOrdlydsregler.cs, regel 1 (rekkefølgen sanksjonstittel før nasjonalitet)", "funksjon": "forutsatt_kilde"}
+  ]
+ },
+ {
+  "id": "m2",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Forekomsten (start 48) er den andre i tittelen, «regjeringen i Australia», og ordlyden peker direkte på en annen stats regjering: tekstfunn. Den står riktignok i en avtaletittel, og den norske forekomsten i samme type tittel er satt til ikke aktør (m9), men begge lesningene gir ingen kant, og fremmed er prøvd først etter den vedtatte rekkefølgen.",
+  "retting": null,
+  "ny_rad": null,
+  "kilder": [
+   {"ref": "Forskrift om gjennomføring av bilaterale trygdeavtaler (FOR-2024-11-15-2778) § 1 første ledd nr. 27", "funksjon": "direkte_hjemmel"}
+  ]
+ },
+ {
+  "id": "m3",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. «regjeringen for Det Forente Kongerike» er Storbritannias regjering etter ordlyden (tekstfunn). Forekomsten er den andre i art. X nr. 1 og beskriver territoriene den britiske regjeringen svarer for; ingen norsk kant.",
+  "retting": null,
+  "ny_rad": null,
+  "kilder": [
+   {"ref": "Overenskomst mellom Norge og Storbritannia om gjensidig anerkjennelse og fullbyrdelse av dommer i sivile saker (1961) art. X nr. 1", "funksjon": "direkte_hjemmel"}
+  ]
+ },
+ {
+  "id": "m4",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder, men grunnlaget bør være klart: isolert sett peker den norske ordlyden «regjeringen i en annen stat som er part i konvensjonen» mot fremmed stat, fordi definisjonen ikke har noen handlende stat som «annen» kan vise til, og forskriften gjelder norske skip (§ 1). Den generiske lesningen (også Norge) bygger på at SOLAS kap. IV gjelder som forskrift (§ 2 første ledd) og at den autentiske teksten i regel IV/2.1.12 sier «as may be defined by a Contracting Government» [slutning: oversettelsen «annen stat» er trolig en oversettelsesvariant; kontrollert mot min kjennskap til den engelske teksten, ikke mot Lovdata]. Lest som fremmed ville radiodekningsområder Norge selv har definert falle utenfor definisjonen, og utstyrskravene for norske skip i norske farvann ville henge i luften. Kunnskapsstatus fortolkning er derfor riktig, og den må ikke heves til tekstfunn. Samme ordlyd står i nr. 16 (A2).",
+  "retting": null,
+  "ny_rad": null,
+  "kilder": [
+   {"ref": "Forskrift om radiokommunikasjonsutstyr for norske skip og flyttbare innretninger (FOR-2014-07-01-955) §§ 1 og 2 første ledd, SOLAS kap. IV regel 2 nr. 1.15 og 1.16 i korpuset", "funksjon": "direkte_hjemmel"},
+   {"ref": "SOLAS 1974 regel IV/2.1.12 (engelsk autentisk tekst, «a Contracting Government»)", "funksjon": "forutsatt_kilde"}
+  ]
+ },
+ {
+  "id": "m5",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Art. 12 nr. 3 er konvensjonstekst (1969-konvensjonen er tatt inn i forskriften), og «regjeringen i den staten hvis flagg fartøyet fører» er ordrett definisjonen av «Administrasjon» i art. 2 nr. 2. Det gjelder alle konvensjonsstatene. At Norge omfattes, støttes av forskriften § 1 (norske skip): når et norsk skip inspiseres i en fremmed havn, er det den norske regjeringen som skal underrettes. Pliktsubjektet er havnestaten, som ikke er bundet av norsk forskrift, så det gir ingen norsk kant. Fortolkning er riktig status.",
+  "retting": null,
+  "ny_rad": null,
+  "kilder": [
+   {"ref": "Forskrift om måling av skip og flyttbare innretninger (FOR-2015-06-30-823) § 1 og 1969-konvensjonen art. 2 nr. 2 og art. 12 nr. 1 og 3 i korpuset", "funksjon": "direkte_hjemmel"}
+  ]
+ },
+ {
+  "id": "m6",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Regel 5 nr. 3 i reglene til 1973-protokollen er en mal for sertifikat utstedt av en regjering på anmodning fra flaggstatens regjering («regjeringen i det land som skipet er eller vil bli registrert i»). Det gjelder alle deltakerstatene, også Norge som flaggstat. Ingen kant; fortolkning er riktig.",
+  "retting": null,
+  "ny_rad": null,
+  "kilder": [
+   {"ref": "Forskrift om passasjerskip i spesiell fart (FOR-1977-02-15-2), vedlegg til bilag 3, regel 5 nr. 2 og 3", "funksjon": "direkte_hjemmel"}
+  ]
+ },
+ {
+  "id": "m7",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Vedlegget er sertifikatmalen til Athen-konvensjonen 2002 art. 4a, og teksten sier selv at den brukes «når en stat som er part i konvensjonen» benytter art. 4a nr. 3, med tomrom for «(statens offisielle betegnelse)». Det er en skjemamal for alle statene, også Norge. At det er en mal, er tekstfunn; at Norge er omfattet, er en slutning, så fortolkning er forsvarlig.",
+  "retting": null,
+  "ny_rad": null,
+  "kilder": [
+   {"ref": "Sjøloven, vedlegg 2 til Athen-konvensjonen (sertifikat om forsikring), tredje ledd og forklarende merknader nr. 1", "funksjon": "direkte_hjemmel"}
+  ]
+ },
+ {
+  "id": "m8",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. «regjeringen.no» er et nettsted, ikke en aktør (tekstfunn). Aktøren i setningen er Utenriksdepartementet («Utenriksdepartementets nettsider»).",
+  "retting": null,
+  "ny_rad": null,
+  "kilder": [
+   {"ref": "Instruks for Norsk senter for utvekslingssamarbeid (NOREC) (FOR-2018-08-10-1242) § 3 annet ledd", "funksjon": "direkte_hjemmel"}
+  ]
+ },
+ {
+  "id": "m9",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Forekomsten (start 66) er «regjeringen i Kongeriket Norge» i tittelen til en administrasjonsavtale. Den er unntatt fra fremmed-regelen og er en avtaletittel, altså ingen aktør (som r42 i juristrunden for #463). Folkerettslig er parten staten, så det gis heller ingen kant til Kongen i statsråd.",
+  "retting": null,
+  "ny_rad": null,
+  "kilder": [
+   {"ref": "Forskrift om gjennomføring av bilaterale trygdeavtaler (FOR-2024-11-15-2778) § 1 første ledd nr. 41", "funksjon": "direkte_hjemmel"},
+   {"ref": "data/fasit/strukturmodell/regjeringen/a/sammendrag.md (r42)", "funksjon": "forutsatt_kilde"}
+  ]
+ },
+ {
+  "id": "m10",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. «Regjeringens presse- og informasjonstjeneste (RPI)» er et navn (stor forbokstav og forkortelse), og det står i tittelen på en opphevet kgl.res. Ordet er en navnedel og ikke en aktør (tekstfunn).",
+  "retting": null,
+  "ny_rad": null,
+  "kilder": [
+   {"ref": "Instruks for departementenes arbeid med samfunnssikkerhet og beredskap mv. (FOR-2012-06-15-535) kap. VIII første ledd", "funksjon": "direkte_hjemmel"}
+  ]
+ },
+ {
+  "id": "m11",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. «Regjeringens trykningskontor» er et navn i denne teksten: samme ledd skriver «statens trykksaker» med liten og «Statens trykningskontor» med stor forbokstav, så stor forbokstav markerer navn. Ordet er en navnedel. Merk at taggen gjelder ordet «Regjeringens», ikke kontoret: «etter samråd med Regjeringens trykningskontor» kan selv gi en aktør og en P-kant (konsultasjon) for trykningskontoret, og ikke-aktør-taggen må ikke sperre den. Genitiven gir heller ingen G-kant til regjeringen (r20 i #463).",
+  "retting": null,
+  "ny_rad": null,
+  "kilder": [
+   {"ref": "Res. om Noregs riksvåpen (FOR-1937-03-19-3728), rettledning for bruk av riksvåpnet på statens trykksaker, første ledd", "funksjon": "direkte_hjemmel"}
+  ]
+ },
+ {
+  "id": "m12",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Forekomsten (start 122) er den andre i leddet, «et medlem av regjeringen», som er rollen medlem av statsrådet. Den første («oversendt fra regjeringen») og den tredje («innhentet fra regjeringen») er ikke del av kortet og er slutninger, så noden er flertydig etter vilkår 2 fra #463. Hjemmelen Grl. § 15 første ledd («Enhver som er medlem av statsrådet») gir rollenavnet ordrett. Støtten for at «medlem av regjeringen» betyr nettopp dette, står i Grl. § 72 tredje ledd nr. 1 og 3 lest med § 62 annet ledd (og § 82 første ledd, der «Regjeringen» og «medlem av statsrådet» står side om side). Fortolkning er riktig status.",
+  "retting": null,
+  "ny_rad": null,
+  "kilder": [
+   {"ref": "Reglement for avgradering av dokumenter utstedt i Stortinget (FOR-2019-06-20-2325) § 2 annet ledd", "funksjon": "direkte_hjemmel"},
+   {"ref": "Grl. § 15 første ledd, § 62 annet ledd, § 72 tredje ledd nr. 1 og 3, § 82 første ledd", "funksjon": "forutsatt_kilde"}
+  ]
+ },
+ {
+  "id": "m13",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. «Medlemmer av Stortinget og Regjeringen, statssekretærer og politiske rådgivere i departementene og ved Statsministerens kontor» har samme oppbygning som Grl. § 62 annet ledd («Statsrådets medlemmer, statssekretærer og politiske rådgivere ved statsrådets kontorer»). Statssekretærene holdes utenfor medlemmene, slik Grl. § 72 tredje ledd gjør. Rollen medlem av statsrådet; fortolkning og Grl. § 15 første ledd er riktig.",
+  "retting": null,
+  "ny_rad": null,
+  "kilder": [
+   {"ref": "Forskrift til skatteloven (FOR-1999-11-19-1158) § 3-5-2 første ledd", "funksjon": "direkte_hjemmel"},
+   {"ref": "Grl. § 15 første ledd, § 62 annet ledd, § 72 tredje ledd", "funksjon": "forutsatt_kilde"}
+  ]
+ },
+ {
+  "id": "m14",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Strl. § 112 første ledd bokstav c («gjerningspersonen er et medlem av regjeringen, Stortinget eller Høyesterett») gjelder den enkelte statsråd, altså rollen medlem av statsrådet. Fortolkning og Grl. § 15 første ledd er riktig.",
+  "retting": null,
+  "ny_rad": null,
+  "kilder": [
+   {"ref": "Straffeloven § 112 første ledd bokstav c", "funksjon": "direkte_hjemmel"},
+   {"ref": "Grl. § 15 første ledd og § 72 tredje ledd nr. 1", "funksjon": "forutsatt_kilde"}
+  ]
+ },
+ {
+  "id": "m15",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Plikten er å sørge for at informasjon «distribueres til regjeringens medlemmer», altså til de enkelte statsrådene, ikke til et kollegium som treffer en beslutning. Rollen medlem av statsrådet; fortolkning og Grl. § 15 første ledd er riktig.",
+  "retting": null,
+  "ny_rad": null,
+  "kilder": [
+   {"ref": "Instruks for departementenes arbeid med samfunnssikkerhet og beredskap mv. (FOR-2012-06-15-535) kap. VII åttende ledd nr. 8", "funksjon": "direkte_hjemmel"},
+   {"ref": "Grl. § 12 annet ledd og § 15 første ledd", "funksjon": "forutsatt_kilde"}
+  ]
+ },
+ {
+  "id": "m16",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Forekomsten (start 178) er «forestå regjeringen» i eden. Det er det samme uttrykket som i Grl. § 41 («forestå regjeringen som kongemaktens midlertidige utøver»), og Grl. § 13 første ledd sidestiller «styret av riket» med å «føre regjeringen». Det er funksjonen, ikke en aktør. Hjemmelen er forekomstens egen eId; § 41 og § 13 første ledd er de bestemmelsene som bærer lesningen og kan tas med i begrunnelsen.",
+  "retting": null,
+  "ny_rad": null,
+  "kilder": [
+   {"ref": "Grl. § 44 første ledd", "funksjon": "direkte_hjemmel"},
+   {"ref": "Grl. § 13 første ledd og § 41", "funksjon": "forutsatt_kilde"},
+   {"ref": "Dokument 19 (2011–2012) pkt. 3.4.4 (via juristrunden for #463)", "funksjon": "forutsatt_kilde"}
+  ]
+ },
+ {
+  "id": "m17",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Forekomsten (start 76) er «forestår regjeringen» om prinsen eller prinsessen «i de tilfeller som er anført i § 41». Det er funksjonen som kongemaktens midlertidige utøver, ikke en aktør. De to forekomstene i noden (m16 og m17) har samme lesning, så noden er ikke flertydig.",
+  "retting": null,
+  "ny_rad": null,
+  "kilder": [
+   {"ref": "Grl. § 44 første ledd", "funksjon": "direkte_hjemmel"},
+   {"ref": "Grl. § 41", "funksjon": "forutsatt_kilde"}
+  ]
+ },
+ {
+  "id": "m18",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. «Regjeringens res. av 5. november 1999 nr. 1145» viser til kystvaktinstruksen, som etter korpuset er «Fastsatt ved Regjeringens res. 5. november 1999» (fastsatt_av = Regjeringens res.). Grl. § 32 sier at beslutninger som fattes av regjeringen under kongens fravær, «utferdiges i kongens navn». Vedtaksformen er altså Kongen i statsråd. At § 32 selv bruker ordet «regjeringen» om den som beslutter (statsrådet etter §§ 13 og 41), gjør referenten til en fortolkning, og det er riktig merket.",
+  "retting": null,
+  "ny_rad": null,
+  "kilder": [
+   {"ref": "Instruks om Forsvarets bistand til politiet (FOR-2003-02-28-220) § 17 annet ledd nr. 2", "funksjon": "direkte_hjemmel"},
+   {"ref": "Grl. § 32 første ledd, § 13 første ledd og § 41", "funksjon": "direkte_hjemmel"},
+   {"ref": "Korpuset: FOR-1999-11-05-1145, fastsatt_av «Regjeringens res.»", "funksjon": "forutsatt_kilde"}
+  ]
+ },
+ {
+  "id": "m19",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Oppramsingen «kongelig resolusjon, regjeringens resolusjon, Kronprinsregentens resolusjon, ministerpresidentens beslutning eller departementsvedtak» skiller mellom vedtaksformer, ikke mellom organer. Regjeringens resolusjon er formen for Kongen i statsråd når kongen er fraværende (Grl. § 32), og kronprinsregentens resolusjon er formen etter § 41. At «kongelig resolusjon» står for seg, taler ikke mot samme referent. Liten forbokstav endrer ikke lesningen.",
+  "retting": null,
+  "ny_rad": null,
+  "kilder": [
+   {"ref": "Forskrift om overføring av forvaltningsansvar for naturvernområder (FOR-1983-07-26-1385) kap. I første ledd", "funksjon": "direkte_hjemmel"},
+   {"ref": "Grl. § 32 første ledd og § 41", "funksjon": "direkte_hjemmel"}
+  ]
+ },
+ {
+  "id": "m20",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. «Regjeringens resolusjon av 7. november 1996 nr. 1015» er vedtaksformen Kongen i statsråd (Grl. § 32). Delegeringsvedtaket selv er etter korpuset «Fastsatt ved Regjeringens res. 7. november 1996», så det er Kongen i statsråd som delegerer endringsadgangen i sitt eget vedtak til departementet. FOR-1996-11-07-1015 ligger bare som utkast i korpuset; det svekker ikke lesningen av forekomsten.",
+  "retting": null,
+  "ny_rad": null,
+  "kilder": [
+   {"ref": "Delegering av myndighet til Kultur- og kirkedepartementet – produksjonstilskudd til dagsaviser (FOR-1996-11-07-1016) første ledd", "funksjon": "direkte_hjemmel"},
+   {"ref": "Grl. § 32 første ledd", "funksjon": "direkte_hjemmel"},
+   {"ref": "Korpuset: FOR-1996-11-07-1016, fastsatt_av «Regjeringens res.»", "funksjon": "forutsatt_kilde"}
+  ]
+ }
+]

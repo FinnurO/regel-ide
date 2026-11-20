@@ -1,6 +1,6 @@
 import { Tag } from '@digdir/designsystemet-react';
-import type { GeneriskTaggOppslag, Godkjenning, StandardregelSvar } from '../api/types';
-import { GodkjenningTag } from '../strukturkant/Utsagnsstatus';
+import type { Forekomstforslag, Forekomstlesning, GeneriskTaggOppslag, Godkjenning, StandardregelSvar } from '../api/types';
+import { GodkjenningTag, KunnskapsstatusTag } from '../strukturkant/Utsagnsstatus';
 
 /**
  * [Ny, issue #394 AK 2] Hvor svaret på en generisk omtale kommer fra, som tekst: «binding, faglig vurdert», «standardregel:
@@ -21,6 +21,41 @@ export function generiskKildeTekst(kilde: 'binding' | 'regel' | null | undefined
     return 'standardregel';
   }
   return 'ikke avklart';
+}
+
+/** [Ny, issue #486] Lesningene i klartekst (samme ord som `Forekomstlesninger.Tekst` i Data). */
+export const FOREKOMSTLESNING_TEKST: Record<Forekomstlesning, string> = {
+  fremmed_stat: 'fremmed stat',
+  generisk_konvensjonsstat: 'generisk konvensjonsstat',
+  ikke_aktor: 'ikke aktør',
+  rolle_statsrad: 'rollen statsråd',
+  funksjon: 'funksjonen (styret av riket)',
+  regjeringens_resolusjon: '«Regjeringens res.» (Kongen i statsråd)',
+  slutning: 'slutning',
+};
+
+/**
+ * [Ny, issue #486] Forslaget for én forekomst (tagg per forekomst), slik det står ved taggen før et menneske har vurdert det. Fargerollene følger
+ * docs/09 §57: «Forekomst» og lesningen er `neutral` (en klassifisering); godkjenningen og kunnskapsstatusen bruker de delte merkene (§35:
+ * forslag → `info`, uavklart → `warning`). En slutning sier «slutning» i klartekst, så den aldri ser ut som en regel (§35, delegering).
+ */
+export function ForekomstforslagTagger({ forslag }: { forslag: Forekomstforslag }) {
+  const slutning = forslag.lesning === 'slutning';
+  return (
+    <>
+      <Tag data-size="sm" data-color="neutral" title={forslag.kommentar ?? undefined}>
+        {slutning ? 'Forekomst: slutning' : `Forekomst: ${forslag.lesningTekst}`}
+      </Tag>
+      <GodkjenningTag status={forslag.status} oppdagelsesKilde={forslag.oppdagelsesKilde} />
+      <KunnskapsstatusTag status={forslag.kunnskapsstatus} />
+    </>
+  );
+}
+
+/** [Ny, issue #486] Teksten for forslaget i `title`-kjeden («forslag: rollen statsråd → statsrådet», «forslag: slutning, ikke avklart»). */
+export function forekomstforslagTekst(forslag: Forekomstforslag): string {
+  if (forslag.lesning === 'slutning') return 'forslag per forekomst: slutning, ikke avklart';
+  return `forslag per forekomst: ${forslag.lesningTekst}${forslag.referent ? ` → ${forslag.referent.navn}` : ''}`;
 }
 
 /**

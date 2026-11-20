@@ -25,7 +25,7 @@ import { KommentarRedigering } from '../handbok/KommentarRedigering';
 import { RettskildeVelger } from '../rettskilde/RettskildeVelger';
 import { useKonfigurasjon } from '../konfigurasjon/KonfigurasjonContext';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
-import { GeneriskKildeTagger, generiskKildeTekst } from '../kandidater/GeneriskKilde';
+import { FOREKOMSTLESNING_TEKST, ForekomstforslagTagger, GeneriskKildeTagger, forekomstforslagTekst, generiskKildeTekst } from '../kandidater/GeneriskKilde';
 import { utenforAktorkoenTekst } from '../kandidater/aktorkorute';
 import { NavneformgrunnTag } from '../virksomhet/Navneformgrunn';
 import { finnHovedledd } from '../virksomhet/navneformKjede';
@@ -609,6 +609,26 @@ export default function RettskildeDetalj() {
       if (navneform?.navneformgrunn === 'generisk') {
         const o = taggId ? generiskPerTagg.get(taggId) : undefined;
         const kildeTekst = generiskKildeTekst(o?.kilde, o?.bindingStatus, o?.regel);
+        // [Ny, issue #486] En vurdert tagg per forekomst sier at ordet ikke er en aktør her (fremmed stat, ikke aktør, funksjon …): lesningen er
+        // svaret, uten lenke. Et forslag per forekomst som ikke er vurdert, vises ved siden av «ikke avklart» med sine egne merker (docs/09 §57).
+        if (o?.status === 'ikke_aktor') {
+          return {
+            label: `ikke aktør her: ${o.lesning ? (FOREKOMSTLESNING_TEKST[o.lesning] ?? o.lesning) : 'ukjent lesning'}`,
+            href: null,
+            mellomledd: <><NavneformgrunnTag grunn="generisk" /> <GeneriskKildeTagger oppslag={o} /></>,
+            mellomleddTekst: `${navneform.term} (generisk; tagg per forekomst)`,
+          };
+        }
+        if (!o?.referent && o?.forekomstforslag) {
+          const f = o.forekomstforslag;
+          return {
+            label: f.referent ? `${f.referent.navn} (forslag)` : f.lesning === 'slutning' ? 'slutning, ikke avklart' : `${f.lesningTekst} (forslag)`,
+            href: f.referent ? (f.referent.type === 'virksomhet' ? `/virksomheter/${f.referent.id}` : `/begreper/${f.referent.id}`) : null,
+            mellomledd: <><NavneformgrunnTag grunn="generisk" /> <ForekomstforslagTagger forslag={f} /></>,
+            mellomleddTekst: `${navneform.term} (generisk; ${forekomstforslagTekst(f)})`,
+            titleTillegg: f.begrunnelse ?? undefined,
+          };
+        }
         if (!o?.referent) {
           return {
             label: o ? 'generisk omtale, ikke avklart' : 'generisk omtale (laster …)',
