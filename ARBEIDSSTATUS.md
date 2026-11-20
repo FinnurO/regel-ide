@@ -59,6 +59,12 @@ dokumentasjon (primaer|sekundaer), begge påkrevd uten hjemmel og NULL med.
 |---|---|---|---|
 | #470 generisk navneform «fylkeskommunen» med standardregelen «Klassen fylkeskommune», sperrer, Oslo-merknad, bindingsforslag per paragraf (docs/33 §5.7) | `standardregel-fylkeskommunen` | **PR åpen, venter på Johann (§19). Ikke flettet.** Ingen migrasjon. Skrivingen (`POST /api/navneformer/generiske/fylkeskommunen?skriv=true`) er IKKE kjørt mot delt `regelide`; hovedøkta kjører den etter fletting. Delt base bare lest (`maling-470-fylkeskommunen.sql`): 189 kilder, 175 klassen, 14 hull | `GeneriskFylkeskommunenTests` + `GeneriskStandardregelTests` lokalt (port 15471). Kopien `regelide_fkregel`: dekning via API = SQL, tørrkjøring skrev ingenting, skrevet to ganger (idempotent), aktørkøen målt før/etter, nettleser på 5587/5373 (aktørkøen), kopien slettet |
 
+## Hjemmelsstatus #472 (PR 1 av 3, startet 2026-11-18)
+
+| Sak | Gren | Status | Verifisert hvordan |
+|---|---|---|---|
+| #472 PR 1: tabellen `hjemmelsstatus`, maskinregelen (E-trinn, EN med Lovtidend, V1–V4, roller, tidsfrist, avgrensning, rekursjon) og visningen på rettskildesiden (docs/33 §5.20, docs/09 §56) | `hjemmelsstatus` | **PR åpen, venter på Johann (§19). Ikke flettet.** Migrasjonen `Hjemmelsstatus` (ny tabell) og skrivingen (`POST /api/hjemmelsstatus/maskinregel?skriv=true`) er IKKE kjørt mot delt `regelide`; hovedøkta kjører dem etter fletting. Funnene (PR 2) og rettingene i #429-koden (PR 3) gjenstår. Ingenting publiseres før #446 og juristens presisjonsmåling | `HjemmelsstatusTests` (AK 1–7 + EN med Lovtidend) og R8/R9-testene (Pr3/Pr4) lokalt, `HjemmelsstatusEndepunktTests`, tsc -b, vitest. Tørrkjørt mot delt base med `default_transaction_read_only=on` (tallene i docs/33 §5.20). Kaldsjekk i kopien `regelide_hjemmel` (skrevet to ganger, 0 endret; FOR-1993-12-17-1314 og FOR-1994-06-03-375 åpnet kaldt; kopien slettet) |
+
 ## Aktørkøen #440 (startet 2026-10-31)
 
 | PR | Gren | Status | Verifisert hvordan |

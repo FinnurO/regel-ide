@@ -1777,6 +1777,214 @@ namespace RegelIde.Data.Migrasjoner
                     b.ToTable("hendelser", (string)null);
                 });
 
+            modelBuilder.Entity("RegelIde.Data.HjemmelsstatusEntitet", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("BeregnetAv")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("beregnet_av");
+
+                    b.Property<DateTimeOffset>("BeregnetTidspunkt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("beregnet_tidspunkt");
+
+                    b.Property<string>("Bevistrinn")
+                        .HasColumnType("text")
+                        .HasColumnName("bevistrinn");
+
+                    b.Property<string>("ErstattetAvEid")
+                        .HasColumnType("text")
+                        .HasColumnName("erstattet_av_eid");
+
+                    b.Property<Guid?>("ErstattetAvNodeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("erstattet_av_node_id");
+
+                    b.Property<Guid?>("ErstattetAvRettskildeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("erstattet_av_rettskilde_id");
+
+                    b.Property<string>("FulgtEli")
+                        .HasColumnType("text")
+                        .HasColumnName("fulgt_eli");
+
+                    b.Property<string>("HjemmelEid")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("hjemmel_eid");
+
+                    b.Property<string>("HjemmelEli")
+                        .HasColumnType("text")
+                        .HasColumnName("hjemmel_eli");
+
+                    b.Property<string>("Kunnskapsstatus")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("kunnskapsstatus");
+
+                    b.Property<Guid?>("MalRettskildeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("mal_rettskilde_id");
+
+                    b.Property<string>("OpphevetAvEid")
+                        .HasColumnType("text")
+                        .HasColumnName("opphevet_av_eid");
+
+                    b.Property<Guid?>("OpphevetAvNodeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("opphevet_av_node_id");
+
+                    b.Property<Guid?>("OpphevetAvRettskildeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("opphevet_av_rettskilde_id");
+
+                    b.Property<string>("OpphevetAvSitat")
+                        .HasColumnType("text")
+                        .HasColumnName("opphevet_av_sitat");
+
+                    b.Property<DateOnly?>("OpphevetDato")
+                        .HasColumnType("date")
+                        .HasColumnName("opphevet_dato");
+
+                    b.Property<bool>("OpphevetFraKunngjort")
+                        .HasColumnType("boolean")
+                        .HasColumnName("opphevet_fra_kunngjort");
+
+                    b.Property<string>("Premissmangel")
+                        .HasColumnType("text")
+                        .HasColumnName("premissmangel");
+
+                    b.Property<string>("Regel")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("regel");
+
+                    b.Property<string>("Regelversjon")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("regelversjon");
+
+                    b.Property<Guid>("RettskildeHjemmelId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("rettskilde_hjemmel_id");
+
+                    b.Property<Guid>("RettskildeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("rettskilde_id");
+
+                    b.Property<string>("Rolle")
+                        .HasColumnType("text")
+                        .HasColumnName("rolle");
+
+                    b.Property<string>("RolleRegel")
+                        .HasColumnType("text")
+                        .HasColumnName("rolle_regel");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("status");
+
+                    b.Property<string>("UkjentGrunn")
+                        .HasColumnType("text")
+                        .HasColumnName("ukjent_grunn");
+
+                    b.Property<string>("VidereforingDekning")
+                        .HasColumnType("text")
+                        .HasColumnName("videreforing_dekning");
+
+                    b.Property<string>("VidereforingEid")
+                        .HasColumnType("text")
+                        .HasColumnName("videreforing_eid");
+
+                    b.Property<string>("VidereforingForbehold")
+                        .HasColumnType("text")
+                        .HasColumnName("videreforing_forbehold");
+
+                    b.Property<string>("VidereforingForm")
+                        .HasColumnType("text")
+                        .HasColumnName("videreforing_form");
+
+                    b.Property<bool>("VidereforingFraKunngjort")
+                        .HasColumnType("boolean")
+                        .HasColumnName("videreforing_fra_kunngjort");
+
+                    b.Property<Guid?>("VidereforingNodeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("videreforing_node_id");
+
+                    b.Property<Guid?>("VidereforingRettskildeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("videreforing_rettskilde_id");
+
+                    b.Property<string>("VidereforingSitat")
+                        .HasColumnType("text")
+                        .HasColumnName("videreforing_sitat");
+
+                    b.Property<DateOnly?>("VidereforingTidsfrist")
+                        .HasColumnType("date")
+                        .HasColumnName("videreforing_tidsfrist");
+
+                    b.HasKey("Id")
+                        .HasName("hjemmelsstatus_pkey");
+
+                    b.HasIndex("ErstattetAvNodeId");
+
+                    b.HasIndex("ErstattetAvRettskildeId");
+
+                    b.HasIndex("MalRettskildeId")
+                        .HasDatabaseName("ix_hjemmelsstatus_mal_rettskilde");
+
+                    b.HasIndex("OpphevetAvNodeId");
+
+                    b.HasIndex("OpphevetAvRettskildeId");
+
+                    b.HasIndex("RettskildeHjemmelId")
+                        .IsUnique()
+                        .HasDatabaseName("ux_hjemmelsstatus_rettskilde_hjemmel");
+
+                    b.HasIndex("RettskildeId")
+                        .HasDatabaseName("ix_hjemmelsstatus_rettskilde");
+
+                    b.HasIndex("Status")
+                        .HasDatabaseName("ix_hjemmelsstatus_status");
+
+                    b.HasIndex("VidereforingNodeId");
+
+                    b.HasIndex("VidereforingRettskildeId");
+
+                    b.ToTable("hjemmelsstatus", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_hjemmelsstatus_bevis_sitat", "bevistrinn IS NULL OR opphevet_av_sitat IS NOT NULL");
+
+                            t.HasCheckConstraint("ck_hjemmelsstatus_bevistrinn", "bevistrinn IS NULL OR bevistrinn IN ('E1', 'E1u', 'E2', 'EN_LTI')");
+
+                            t.HasCheckConstraint("ck_hjemmelsstatus_dekning", "videreforing_dekning IS NULL OR videreforing_dekning IN ('dekket', 'dokumenttype_ikke_nevnt', 'avgrensning_ikke_kontrollert')");
+
+                            t.HasCheckConstraint("ck_hjemmelsstatus_erstattet", "status <> 'erstattet' OR erstattet_av_rettskilde_id IS NOT NULL");
+
+                            t.HasCheckConstraint("ck_hjemmelsstatus_form", "videreforing_form IS NULL OR videreforing_form IN ('V1', 'V2', 'V2a', 'V3', 'V4')");
+
+                            t.HasCheckConstraint("ck_hjemmelsstatus_kunngjort", "NOT opphevet_fra_kunngjort OR opphevet_av_node_id IS NULL");
+
+                            t.HasCheckConstraint("ck_hjemmelsstatus_kunnskapsstatus", "kunnskapsstatus IN ('tekstfunn', 'normalisering', 'fortolkning', 'avledet', 'eksternt_dokumentert', 'uavklart', 'omstridt')");
+
+                            t.HasCheckConstraint("ck_hjemmelsstatus_oppheving", "status NOT IN ('opphevet', 'viderefort', 'videreforing_utlopt', 'erstattet', 'gjenstandslos') OR (bevistrinn IS NOT NULL AND opphevet_av_sitat IS NOT NULL AND opphevet_av_eid IS NOT NULL)");
+
+                            t.HasCheckConstraint("ck_hjemmelsstatus_rolle", "rolle IS NULL OR rolle IN ('materiell', 'kompetanseledd', 'overgangsgrunnlag', 'gjenstand')");
+
+                            t.HasCheckConstraint("ck_hjemmelsstatus_status", "status IN ('aktiv', 'opphevet', 'opphevet_bestemmelse', 'viderefort', 'videreforing_utlopt', 'erstattet', 'gjenstandslos', 'ukjent')");
+
+                            t.HasCheckConstraint("ck_hjemmelsstatus_utlopt", "status <> 'videreforing_utlopt' OR videreforing_tidsfrist IS NOT NULL");
+
+                            t.HasCheckConstraint("ck_hjemmelsstatus_videreforing", "status NOT IN ('viderefort', 'videreforing_utlopt') OR (videreforing_sitat IS NOT NULL AND videreforing_form IS NOT NULL)");
+                        });
+                });
+
             modelBuilder.Entity("RegelIde.Data.KildefeilEntitet", b =>
                 {
                     b.Property<Guid>("Id")
@@ -5407,6 +5615,56 @@ namespace RegelIde.Data.Migrasjoner
                     b.HasOne("RegelIde.Data.Virksomhet", null)
                         .WithMany()
                         .HasForeignKey("VirksomhetId");
+                });
+
+            modelBuilder.Entity("RegelIde.Data.HjemmelsstatusEntitet", b =>
+                {
+                    b.HasOne("RegelIde.Data.RettskildeNodeEntitet", null)
+                        .WithMany()
+                        .HasForeignKey("ErstattetAvNodeId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("RegelIde.Data.RettskildeEntitet", null)
+                        .WithMany()
+                        .HasForeignKey("ErstattetAvRettskildeId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("RegelIde.Data.RettskildeEntitet", null)
+                        .WithMany()
+                        .HasForeignKey("MalRettskildeId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("RegelIde.Data.RettskildeNodeEntitet", null)
+                        .WithMany()
+                        .HasForeignKey("OpphevetAvNodeId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("RegelIde.Data.RettskildeEntitet", null)
+                        .WithMany()
+                        .HasForeignKey("OpphevetAvRettskildeId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("RegelIde.Data.RettskildeHjemmelEntitet", null)
+                        .WithMany()
+                        .HasForeignKey("RettskildeHjemmelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("RegelIde.Data.RettskildeEntitet", null)
+                        .WithMany()
+                        .HasForeignKey("RettskildeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("RegelIde.Data.RettskildeNodeEntitet", null)
+                        .WithMany()
+                        .HasForeignKey("VidereforingNodeId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("RegelIde.Data.RettskildeEntitet", null)
+                        .WithMany()
+                        .HasForeignKey("VidereforingRettskildeId")
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("RegelIde.Data.KildefeilEntitet", b =>

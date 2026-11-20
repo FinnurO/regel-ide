@@ -89,6 +89,7 @@ import type {
   RettskildeDetalj,
   RettskildeEndringDto,
   RettskildeHjemletForDto,
+  HjemmelsstatusDto,
   RettskildeHjemmelDto,
   RettskildeHjemmelRelasjonDto,
   RettskildeNodeDto,
@@ -303,6 +304,8 @@ export const api = {
   hentHjemmel: (id: string) => kall<RettskildeHjemmelDto[]>(`/api/rettskilder/${id}/hjemmel`),
 
   hentHjemmelFor: (id: string) => kall<RettskildeHjemletForDto[]>(`/api/rettskilder/${id}/hjemmel-for`),
+  // [Ny, issue #472 PR 1] Statusen per hjemmel og den samlede statusen (regnet ut, ikke lagret).
+  hentHjemmelsstatus: (id: string) => kall<HjemmelsstatusDto>(`/api/rettskilder/${id}/hjemmelsstatus`),
 
   // [Ny, issue #193] Departement-filterets nedtrekksliste — avledet fra faktiske data server-side.
   hentDepartementer: () => kall<string[]>('/api/rettskilder/departementer'),
