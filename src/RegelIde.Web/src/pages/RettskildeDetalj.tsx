@@ -36,10 +36,11 @@ import { eidVisningstekst, finnRettskildeForEid, rettskildeLenke, rettskildeLenk
 import { paragrafEtikett } from '../rettskilde/paragrafEtikett';
 import { KontekstPanel, type KontekstPanelGruppe } from '../entitet/KontekstPanel';
 // [Ny, issue #429]
-import type { FunnDto } from '../api/types';
+import type { FunnDto, HjemmelsstatusDto } from '../api/types';
 import { PUNKTMERKE_FORKLARING, harTekstEtterListen, underordnetInnhold } from '../rettskilde/punktliste';
 import type { PunktVisning, Underblokk } from '../rettskilde/punktliste';
 import { Metatekst } from '../entitet/Metatekst';
+import { Hjemmelsstatus } from '../rettskilde/Hjemmelsstatus';
 
 const STITYPE_FARGE: Record<string, 'info' | 'success'> = { tematisk: 'info', organisatorisk: 'success' };
 
@@ -214,6 +215,8 @@ export default function RettskildeDetalj() {
   const [hjemler, setHjemler] = useState<RettskildeHjemmelDto[]>([]);
   // Motsatt retning — kun ikke-tom for en LOV noe faktisk er hjemlet i.
   const [hjemletFor, setHjemletFor] = useState<RettskildeHjemletForDto[]>([]);
+  // [Ny, issue #472 PR 1] Statusen per hjemmel og den samlede statusen (regnet ut av API-et, ikke lagret). Null = ikke hentet.
+  const [hjemmelsstatus, setHjemmelsstatus] = useState<HjemmelsstatusDto | null>(null);
   // [Ny, nemnd/sekretariat-runden, 2026-09-09] Organrelasjonene denne rettskilden hjemler.
   // [ENDRET, issue #311] Alle strukturkanter hjemlet her (GET /api/rettskilder/{id}/strukturkanter) — ikke
   // bare relasjoner: tildelinger, medlemskap og kompetanse hjemlet i loven svarer på det samme spørsmålet.
@@ -427,6 +430,7 @@ export default function RettskildeDetalj() {
     api.hentReferanser(id).then(setReferanser).catch(() => setReferanser([]));
     api.hentHjemmel(id).then(setHjemler).catch(() => setHjemler([]));
     api.hentHjemmelFor(id).then(setHjemletFor).catch(() => setHjemletFor([]));
+    api.hentHjemmelsstatus(id).then(setHjemmelsstatus).catch(() => setHjemmelsstatus(null));
     api.hentStrukturkanterForRettskilde(id).then(setStrukturkanter).catch(() => setStrukturkanter([]));
     api.hentFunn({ rettskildeId: id }).then(setFunn).catch(() => setFunn([]));
     api.hentRettskildeEndringer(id).then(setEndringer).catch(() => setEndringer([]));
@@ -1735,7 +1739,12 @@ export default function RettskildeDetalj() {
       )}
 
       {fane === 'relasjoner' && (
-        <KontekstPanel variant="full" grupper={kontekstGrupper} />
+        <>
+          {/* [Ny, issue #472 PR 1] Øverst i Relasjoner, over «Hjemmel»-gruppen: status og bevis per hjemmel (docs/09 §55). Bare når
+              rettskilden har hjemler. */}
+          {hjemler.length > 0 && <Hjemmelsstatus data={hjemmelsstatus} />}
+          <KontekstPanel variant="full" grupper={kontekstGrupper} />
+        </>
       )}
 
       {fane === 'handbok' && visHandbokFane && (

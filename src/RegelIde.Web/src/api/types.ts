@@ -205,6 +205,71 @@ export interface RettskildeReferanseDto {
  * synlig i den åpne rettskilde-lista) — «ingen gjettet fallback»: vis kun som lenke når
  * `finnRettskildeForEid`/`rettskildeLenke` faktisk finner et treff i den allerede hentede listen.
  */
+/** [Ny, issue #472 PR 1] En kilde i hjemmelsstatusen: den som opphever, viderefører eller erstatter. */
+export interface HjemmelsstatusKildeDto {
+  rettskildeId: string | null;
+  dokumentId: string | null;
+  /** «LOV-2004-03-05-12». */
+  referanse: string | null;
+  tittel: string | null;
+  eid: string | null;
+  /** «§ 48 andre ledd», «kap. III første ledd». */
+  bestemmelse: string | null;
+  sitat: string | null;
+  /** Sitatet er lest i den kunngjorte teksten (Norsk Lovtidend), ikke i korpuset. */
+  fraKunngjort: boolean;
+}
+
+export interface HjemmelsstatusVidereforingDto {
+  kilde: HjemmelsstatusKildeDto;
+  form: string;
+  forbehold: string | null;
+  tidsfrist: string | null;
+  dekning: string | null;
+}
+
+export interface HjemmelsstatusRadDto {
+  rettskildeHjemmelId: string;
+  hjemmelEid: string;
+  hjemmelEli: string | null;
+  malRettskildeId: string | null;
+  malReferanse: string | null;
+  malTittel: string | null;
+  bestemmelse: string | null;
+  rolle: string | null;
+  rolleRegel: string | null;
+  /** Lagret status for hjemmelen. */
+  status: string;
+  /** Etter rekursjonen: en hjemmel som selv er en forskrift, arver forskriftens samlede status. */
+  effektivStatus: string;
+  /** Teller i den samlede statusen (materiell eller ikke vurdert; ellers kompetanseledd og overgangsgrunnlag). */
+  teller: boolean;
+  arvetSamletStatus: string | null;
+  merknad: string | null;
+  bevistrinn: string | null;
+  ukjentGrunn: string | null;
+  fulgtEli: string | null;
+  opphevetAv: HjemmelsstatusKildeDto | null;
+  opphevetDato: string | null;
+  videreforing: HjemmelsstatusVidereforingDto | null;
+  erstattetAv: HjemmelsstatusKildeDto | null;
+  premissmangel: string | null;
+  kunnskapsstatus: Kunnskapsstatus;
+}
+
+/** [Ny, issue #472 PR 1] GET /api/rettskilder/{id}/hjemmelsstatus. Den samlede statusen regnes ut ved oppslag og lagres ikke. */
+export interface HjemmelsstatusDto {
+  beregnet: boolean;
+  regelversjon: string | null;
+  beregnetTidspunkt: string | null;
+  samletStatus: string | null;
+  samletKunnskapsstatus: Kunnskapsstatus | null;
+  gjenstandslos: boolean;
+  svakestePremissId: string | null;
+  rentEndringsvedtak: boolean | null;
+  hjemler: HjemmelsstatusRadDto[];
+}
+
 export interface RettskildeHjemmelDto {
   id: string;
   /** Paragraf-eId — eller, fra issue #217, en ledd-eId («…/§13-1/ledd-4») når kilden presiserer. */
