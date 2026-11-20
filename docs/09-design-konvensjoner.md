@@ -1567,3 +1567,13 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
   etterpå): «bostedskommune» godkjent med legaldefinisjonen § 1 første ledd nr. 1 (tekstfunn, ingen argumenter vist), «kommunale barnehager»
   godkjent som «kommunal barnehage» med bhl. § 7 første ledd (fortolkning; ordlyd og kontekst og system låst og lagret, tolkningsbegrunnelsen i
   begrepets begrunnelse). Knappen var av til godkjenningsnivået var valgt.
+
+## 55. Områdetypen «Rike» (issue #463, 2026-11-17)
+
+- `OMRADETYPE_VISNING` (`begrep/Omraderegister.tsx`) har `rike: 'Rike'`, med flertall «riker» og entall «rike» i relasjonsoverskriftene. Ingen ny
+  komponent: Norge vises som et område på begrepssiden, med «Består av andre områder» (Svalbard) og «Består av fylker» (docs/09 §47).
+- Staten vises på aktørsiden som andre aktører (§52). Ordsperren har ingen egen visning; målingen er `GET /api/ordsperre/maling?term=staten`.
+- **Kaldsjekket 2026-11-17** i kopien `regelide_norge` (API 5487; web 5473 med vite-proxy, fordi CORS bare tillater 5173/5373): Norge (fanene
+  Område og Grunndata), staten (Oversikt og Etter kategori) og Finansdepartementet (M-kanten og G del_av side om side). Kopien er slettet.
+- **Kaldsjekket på nytt 2026-11-20** i `regelide_norge2` etter Johanns avgjørelser (G `har_organ`): staten viser «har organet …», et
+  departement «er organ for staten» ved siden av M-kanten. Kopien er slettet.

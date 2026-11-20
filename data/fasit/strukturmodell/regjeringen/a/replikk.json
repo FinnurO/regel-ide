@@ -1,0 +1,26 @@
+[
+ {
+  "id": "Q",
+  "replikk": "presiserer",
+  "tekst": "Jeg godtar at noden er standardenheten og at det ikke bygges en ny bindingstype per tegnposisjon, på tre vilkår. (1) En tagg for én forekomst må ha samme status som en binding: godkjent og faglig vurdert, med gyldighet, og den må følge verket (#384). Den må også gå foran nodens binding, slik at regelen om at det smaleste spennet vinner, gjelder ned til tegnspennet. (2) En nodebinding må ikke stille dekke forekomster som ikke er tagget. Har noden to eller flere forekomster og bare noen er tagget, skal oppslaget gi «flertydig», ikke bruke nodebindingen på alle. (3) Ordlydsreglene (fremmed, generisk, rolle, funksjon, «regjeringens resolusjon») virker per forekomst som tagger, ikke som bindinger. Nytt argument: premisset om at bare r26 og r42 har to forekomster i samme node, og at ingen av dem gir kant, gjelder bare utvalget. Det gjelder ikke korpuset. 25 gjeldende noder har minst to forekomster av «regjeringen»/«regjeringens». Helsingforsavtalen art. 48 første ledd har tre i samme node: «utpekt av regjeringen» om Danmark, om Finland og om «hvert av de øvrige land». Den siste omfatter Norge og gir den norske regjeringens kompetanse til å utpeke representanter til Nordisk råd. Det er en kant. Reglement for avgradering av dokumenter utstedt i Stortinget § 2 annet ledd har både «oversendt fra regjeringen» (organet) og «et medlem av regjeringen» (rollen) i samme ledd. Vilkåret modellereren selv satte, «før et tilfelle i korpus krever ulik referent for to forekomster i samme node med kant», er dermed alt oppfylt. Det kan likevel løses med forekomsttagger hvis vilkår 1–3 holder. Derfor presiserer jeg og fastholder ikke.",
+  "sluttreplikk": "Vi er enige om hovedsaken: «regjeringen» betyr ulike ting i ulike setninger, og ordet skal ikke være et navn på verken statsrådet eller Kongen i statsråd. Det som står igjen, er hvor fint vi skal merke betydningen. Modellereren vil merke hele avsnittet (noden) og bare merke enkeltforekomster som avviker. Det godtar jeg, men det må være mulig å merke ett ord for seg med samme tyngde som en vanlig binding. Har et avsnitt flere forekomster som ikke er merket, må systemet si «uklart» i stedet for å gjette. Eksempel fra korpuset: i Helsingforsavtalen art. 48 står «utpekt av regjeringen» tre ganger i samme avsnitt. Første gang gjelder det Danmark, andre gang Finland og tredje gang blant annet Norge. Bare den tredje gir norsk myndighet.",
+  "kilder": [
+   {
+    "ref": "Helsingforsavtalen art. 48 første ledd (korpus, https://lovdata.no/eli/lov/1962/03/23/2/nor/a48/ledd-1)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "Reglement for avgradering av dokumenter utstedt i Stortinget § 2 annet ledd (korpus, https://lovdata.no/eli/forskrift/2019/06/20/2325/nor/§2/ledd-2)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "Korpus 2026-11-20 (SELECT): 25 gjeldende noder med to eller flere forekomster av «regjeringen»/«regjeringens»",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "docs/33 §5.7 (binding: smaleste spenn vinner, tagger per tegnspenn, status «flertydig»; #384 bindingen følger verket)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ }
+]

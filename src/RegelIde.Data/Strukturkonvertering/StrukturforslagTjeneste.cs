@@ -1,3 +1,4 @@
+﻿using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 
 namespace RegelIde.Data.Strukturkonvertering;
@@ -34,6 +35,9 @@ public static class Forslagsarsak
     public const string AvvistAvValideringen = "avvist_av_valideringen";
     /// <summary>[Ny, issue #419] Utsagnets eId er en merknads- eller veiledningsnode (<see cref="Merknadsnoder"/>) — aldri hjemmel.</summary>
     public const string HjemmelErMerknad = "hjemmel_er_merknad";
+    /// <summary>[Ny, issue #463] Aktøren er kjent, men ordsperren stopper alle forekomstene i noden (<see cref="Ordsperrer"/>: «den anmodede
+    /// staten», «staten der …», «EØS-staten», konvensjonstekst). Ingen kobling.</summary>
+    public const string AktorOrdsperre = "aktor_ordsperre";
 
     public static string Tekst(string arsak) => arsak switch
     {
@@ -45,6 +49,7 @@ public static class Forslagsarsak
         AktorGeneriskUtenBinding => "Generisk omtale («styret», «departementet») uten godkjent binding for denne rettskilden — lagt i navnekandidatkøen",
         AvvistAvValideringen => "Den felles skriveveien (StrukturkantTjeneste) avviste raden",
         HjemmelErMerknad => "Noden er merknad/veiledning i forskriftsteksten, ikke normtekst — aldri hjemmel (#419)",
+        AktorOrdsperre => "Ordet betyr ikke aktøren her: ordsperren stopper alle forekomstene i noden («den anmodede staten», «staten der …», konvensjonstekst) (#463)",
         _ => arsak,
     };
 }
@@ -312,10 +317,33 @@ public sealed partial class StrukturforslagTjeneste(
         var klassifiserer = await NyKlassifisererAsync(rettskildeId, ct);
         // [ENDRET, issue #378 B6] Oppslaget går gjennom samme klassifisering som aktørsveipet: eksakt → generisk med binding for
         // rettskilden (per eId, smaleste spenn) → ellers ingen node. Grunnlaget er cachet per aktør; bindingen slås opp per eId.
+        // [Ny, issue #463] Ordsperren («staten»): konvensjonsteksten slås opp per eId bare når en aktør har en form med sperre.
+        var konvensjonPerEid = new Dictionary<string, bool>(StringComparer.Ordinal);
+        async Task<bool> ErSperretAsync(StrukturAktor aktor, string eid)
+        {
+            var former = new[] { aktor.Tekstform }.Concat(aktor.Varianter).Where(Ordsperrer.HarSperre).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+            if (former.Count == 0 || nodetekster.GetValueOrDefault(eid) is not { } tekst) return false;
+            if (!konvensjonPerEid.TryGetValue(eid, out var iKonvensjon))
+            {
+                var nodeIder = await db.RettskildeNoder.Where(n => n.RettskildeId == rettskildeId && n.Eid == eid && n.Entitetsstatus == "gjeldende")
+                    .Select(n => n.Id).ToListAsync(ct);
+                konvensjonPerEid[eid] = iKonvensjon = (await Ordsperrer.KonvensjonsnoderAsync(db, nodeIder, ct)).Count > 0;
+            }
+            // Med ordgrensen fra før #463 (bindestrek teller), så «EØS-staten» også vurderes. Ingen forekomst → ingen sperre (ingenting å vurdere).
+            var treff = former.SelectMany(f => Regex.Matches(tekst, $@"(?<![\p{{L}}\p{{N}}]){Regex.Escape(f)}(?![\p{{L}}\p{{N}}])",
+                RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)).ToList();
+            return treff.Count > 0 && treff.All(m => Ordsperrer.Vurder(m.Value, tekst, m.Index, m.Index + m.Length, iKonvensjon) is not null);
+        }
+
         async Task<Oppslag> SlaOppAsync(string aktorId, string eid)
         {
             var k = await klassifiserer.GrunnlagAsync(aktorer[aktorId], ct);
             var (status, node, _, _) = await klassifiserer.ForekomstAsync(k, eid, ct);
+            // [Ny, issue #463] Alle forekomstene i noden er sperret («den anmodede staten», konvensjonstekst): ordet betyr ikke aktøren her.
+            if (status == Aktorstatus.Kjent && node?.VirksomhetId is not null && await ErSperretAsync(aktorer[aktorId], eid))
+            {
+                return new Oppslag(null, Forslagsarsak.AktorOrdsperre, k.Treff);
+            }
             return status switch
             {
                 Aktorstatus.Kjent => new Oppslag(node, null, k.Treff),

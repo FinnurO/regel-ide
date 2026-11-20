@@ -2325,6 +2325,94 @@ skrivingen to ganger): tørrkjøring og første skriving 2 klasser, 14 territori
 393 → 294 forekomster. «fylkeskommunen» rutes som bøyningsform av klassen og arver ingen standardregel (§5.16 regel 4); en fjerde standardregel
 er Johanns valg (§5.10). [ENDRET, #470] Johann sa ja 2026-11-17: «fylkeskommunen» er nå en generisk navneform med standardregel (§5.7).
 
+### 5.19 Norge, staten og departementene som organer for staten (#463, modell B, bygget 2026-11-17, rettet 2026-11-20)
+
+**Hvorfor.** Sak 2 av 3 etter beslutningsnotatet «Norge, staten og forvaltningsnivåene» (Johann 2026-11-05, modell B; klarsignal 2026-11-17).
+Spørsmålene saken flytter er S1 (hva er Norge og staten, og hvor er de hjemlet?) og S8 (hvilket område hører et fylke eller Svalbard til, og
+hvilke organer hører til staten?). Sak 1 er #442 (§5.18), sak 3 er #464.
+
+**Områdetypen `rike`** (migrasjonen `NorgeRike`, bare CHECK `ck_begreper_omradetype`; `Down` nekter når et område har typen). Bare Norge har
+den. Finland og Sverige i aktørkøen er ikke avgjort.
+
+**Skrivingen** (`NorgeStatenTjeneste`, `POST /api/norge-staten[?skriv=true]`). Alt nytt er forslag. Tørrkjøring er standard og gjør det samme i
+en transaksjon som rulles tilbake. Norge og staten har faste id-er, så en ny kjøring gir `finnes`, og et avvist forslag foreslås ikke på nytt.
+Før noe skrives, kontrolleres ordlyden i de fem bestemmelsene (ellers skrives ingenting):
+
+| Utsagn | Hjemmel | Kunnskapsstatus | Godkjenning |
+|---|---|---|---|
+| Området **Norge** (`rike`) | Grl. § 1 første ledd: «Kongeriket Norge er et fritt, selvstendig, udelelig og uavhendelig rike.» | tekstfunn | `manuelt_foreslatt` |
+| Norge `O bestar_av` hvert gjeldende fylke (15, også Oslo) | kl. § 2-1 første ledd («Norge er inndelt i kommuner og fylkeskommuner …»), med § 3-1 første ledd i begrunnelsen | fortolkning (ordlyd, kontekst og system) | `maskinelt_foreslatt`, `monster:norge-fylkene` |
+| Norge `O bestar_av` Svalbard | svalbardloven § 1 første ledd: «Svalbard er en del av kongeriket Norge.» | tekstfunn | `manuelt_foreslatt` |
+| Aktøren **staten** (uten orgnr) med gjeldende navneform «staten» | Grl. § 16 første ledd («understøttes som sådan av staten») | tekstfunn | `manuelt_foreslatt` |
+| Staten er rettssubjekt (aktørtypeutsagn) | tvl. § 2-1 første ledd bokstav b («stat, kommuner og fylkeskommuner» har partsevne) | fortolkning (ordlyd, kontekst og system) | `manuelt_foreslatt` |
+| Hvert medlem av klassen departement (#442) `G har_organ` staten («er organ for staten»; fra staten: «har organet …») | premissets hjemmel eller kilde utenfor korpus (organiseringsvedtaket) | avledet, premiss = medlemskapets premiss (R oppretter eller M-kanten) | `maskinelt_foreslatt`, `monster:departement-organ-for-staten` |
+
+Grunnloven § 1 er hjemmel for området, ikke for staten. Regelen «et departement er et organ for staten» står i klassens definisjon (#442).
+[ENDRET, Johanns avgjørelse 2026-11-18 på PR #480] Kanten er `har_organ`, ikke `del_av`, som PR-en først hadde. Retningen følger noderegelen
+for G (organ → rettssubjekt). Hjemmelen er premissets, så «Mest omtalt i» på staten viser et organiseringsvedtak. Johann godkjente samme dag
+fylkene med kl. § 2-1 som fortolkning og Grl. § 16 første ledd som tekstfunn for «staten».
+Jan Mayen er ikke et område i registeret og får ingen kant (Jan Mayen-loven § 1 sier det samme som svalbardloven). Johann 2026-11-18: egen sak,
+opprettes av hovedøkta.
+
+**Ikke registrert: navneformer for området.** «Kongeriket Norge» og «riket» hører til området Norge, men navneformer finnes bare for aktører
+(begreper med `virksomhet_referanse_id`). De står i begrunnelsen og i rapportens `ikkeRegistrert`, og bygges i #464. «Kongeriket Norge» er
+territorielt (svalbardloven og Jan Mayen-loven), ikke navnet på staten.
+
+**Ordsperren** (`Ordsperrer`, kode, ikke data). «staten» er gjeldende navneform, men ordet står også om andre stater. Sperren gjelder IKKE:
+- **«den (adj.) staten»**: «den» og et adjektiv i svak form (ender på -e), eventuelt med ett ord foran, eller ingen («den staten der …»).
+  «den norske staten» gjelder;
+- **«staten der/hvor/hvis»**. [ENDRET, Johanns avgjørelse 2026-11-18] «hvis» sperrer bare når et substantiv i ubestemt form følger («staten
+  hvis flagg»), ikke det betingede «hvis» («erstatning av staten hvis tapet skyldes», «dekkes av staten hvis den unge …»):
+  `Ordsperrer.ErPossessivtHvis`, med en lukket liste over pronomen og artikler og bestemt endelse (-en, -et, -a, -ne, -ene). Kjent grense: et
+  substantiv i ubestemt form som ender på -et eller -en («myndighet»), regnes som bestemt og sperrer ikke. Ingen slik forekomst etter «staten
+  hvis» i korpuset 2026-11-20;
+- **konvensjonstekst**: en overskrift fra noden og opp, eller rettskildens tittel, begynner med konvensjon, overenskomst, avtale, traktat, pakt
+  eller protokoll fulgt av om/av/mellom/til, med et navn på «-konvensjonen», eller med «EØS-avtalen vedlegg/protokoll»
+  (`Ordsperrer.ErKonvensjonsoverskrift`);
+- **bindestrek rett foran** («EØS-staten»). `AktoridentitetTjeneste.HeleOrd` regner ikke lenger bindestrek rett foran som ordgrense (for alle
+  navneformer: «Nord-Norge» er heller ikke «Norge»). Bindestrek rett etter er fortsatt ordgrense.
+
+Sperren brukes i taggingen (`SikreTreffAsync`: en sperret forekomst tagges ikke og telles som `Ordsperre`) og i lasteren (alle forekomstene i
+noden sperret → årsaken `aktor_ordsperre`, ingen kobling). Aktørkøens ruting bruker den ikke: «Staten yter …» (hol. § 11-5) er den ene
+forekomsten i køen, og den gjelder. Målingen: `GET /api/ordsperre/maling?term=staten`.
+
+**Målt 2026-11-17 i kopien `regelide_norge` av den delte basen, «staten der/hvor/hvis» og summene målt på nytt 2026-11-20 i `regelide_norge2`
+etter Johanns avgjørelse om «hvis»** (korpuset er det samme; gjeldende, ikke opphevede noder i gjeldende
+rettskilder, uten skille på store og små bokstaver):
+
+| | Forekomster | Rettskilder |
+|---|---|---|
+| Med ordgrensen før #463 | 2 511 | 695 |
+| Bindestrek rett foran (ikke lenger treff) | 240 | 39 |
+| Med ny ordgrense | 2 271 | |
+| «den (adj.) staten» | 226 | 67 |
+| «staten der/hvor/hvis» (før: 35 i 23) | 32 | 20 |
+| Konvensjonstekst | 81 | 22 |
+| **Sperret i alt** (med bindestrek; før: 582) | **579** | |
+| Gjelder | 1 932 (1 757 med liten forbokstav) | |
+
+Notatets anslag var 600–800. Kjent pris: «den rente staten oppnår» (1) sperres som «den (adj.) staten», selv om det er den norske staten. De tre
+betingede «staten hvis» gjelder nå. «denne staten» sperres ikke (Johann 2026-11-18): 56 forekomster står blant dem som gjelder. «den staten»
+uten adjektiv sperres fortsatt (145 av de 226), og konvensjonstekst avgjøres av overskriften, med EØS-vedleggene (Johann 2026-11-18).
+
+**Tørrkjøringen mot den delte basen** (bare SELECT, spørringene i PR-en): de fem bestemmelsene står én gang med ordlyden; Norge og staten finnes
+ikke og har ingen konflikt; 15 fylker og Svalbard; klassen departement finnes (`manuelt_foreslatt`) med 9 premisser fra livsløpet og 7
+M-kanter. Det gir 1 område, 16 O-kanter, staten med navneform og aktørtype, og 16 G-kanter. I kopien gav tørrkjøringen og den første skrivingen
+de samme tallene, og den andre skrivingen bare `finnes`. Aktørkøen i kopien etterpå: 190 navn, og «norge» og «staten» står ikke i den (rutes som kjent
+område og kjent aktør; antallet før skrivingen ble ikke målt i denne kopien). Kaldsjekket på nytt 2026-11-20 i `regelide_norge2` etter
+rettingene og flettingen av #478 og #479: samme tall, 16 G `har_organ` (avledet), og aktørkøen viser 189.
+
+**Venter fortsatt** (forhåndsklassifiseringen er ikke endret): «regjeringen», «det offentlige», «fremmed stat», «myndighetsnivåene», Finland og
+Sverige. Saken avgjør dem ikke.
+
+**«regjeringen»: juristrunde (Johann 2026-11-18), ikke bygget.** `data/fasit/strukturmodell/regjeringen/` (sammendrag, inndata, to runder).
+Utvalget er 50 av 268 forekomster i 97 rettskilder. Anbefalingen er verken A (statsrådet) eller B (Kongen i statsråd): ordet er kontekstavhengig
+(Grunnloven bruker det om styringen, statsrådskollegiet og medlemmene; Dok. 19 (2011–2012) pkt. 3.4.4). Statsrådet og Kongen i statsråd skal
+begge finnes som organer, og «regjeringen» blir ikke navneform for noen av dem. Ordlydsregler (fremmed, generisk konvensjonsstat, ikke aktør,
+rollen statsråd, funksjonen, «Regjeringens res.» = Kongen i statsråd etter Grl. § 32) setter tagger per forekomst; resten er forslag merket
+slutning. Bindingen gjelder noden som standard, med tre vilkår fra runde 2. Ingen uenighet igjen. Johann må velge hvem plikten ligger hos når
+«regjeringen skal legge fram for Stortinget» (kollegiet eller Kongen i statsråd).
+
 ### 5.6 Konvertering av eksisterende data
 
 | Fra | Til | Automatisk? |

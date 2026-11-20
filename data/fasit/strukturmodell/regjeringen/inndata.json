@@ -1,0 +1,801 @@
+{
+ "issue": 463,
+ "beslutning": "Johann 2026-11-18: juristrunde om «regjeringen» før noe bygges. Lesning A = statsrådet som eget organ (Grl. § 12 første ledd og § 15). Lesning B = et annet navn på Kongen i statsråd (Grl. § 13). Gir runden at ordet betyr ulike ting i ulike sammenhenger, skal regelen ikke gjette.",
+ "grunnlag": "Alle gjeldende, ikke opphevede noder i gjeldende rettskilder i delt regelide (SELECT, 2026-11-18): 268 forekomster av «regjeringen»/«regjeringens» (hele ord, ikke «regjeringene») i 97 rettskilder. Utvalg: inntil 2 per lov og 1 per forskrift, tilfeldig (seed 463): 26 fra lover, 24 fra forskrifter.",
+ "lesninger": {
+  "A": "statsrådet som eget organ",
+  "A_medlem": "medlem av statsrådet (rollen statsråd)",
+  "B": "Kongen i statsråd",
+  "B_historisk": "regjeringens resolusjon: statsrådet i Kongens sted",
+  "funksjon": "styringsfunksjonen, ikke et organ",
+  "fremmed": "en annen stats regjering",
+  "ikke_aktor": "nettsted eller del av et navn",
+  "uavklart": "kan ikke avgjøres av teksten",
+  "fremmed_og_B": "avtalepart, begge"
+ },
+ "kort": [
+  {
+   "id": "Q",
+   "type": "modellvalg",
+   "sporsmal": "Er «regjeringen» i norsk lovtekst (A) statsrådet som eget organ (kollegiet av statsministeren og statsrådene, Grl. § 12 første ledd, § 15), eller (B) et annet navn på Kongen i statsråd (Grl. § 13)?",
+   "foreslatt": {
+    "lesning": "A",
+    "referent": "statsrådet (nytt organ, aktørtype organ, G har_organ til staten)",
+    "merknad": "Modellererens forslag: regjeringen er statsrådet. Kongen i statsråd er den formelle beslutningsformen (statsrådet med Kongen). Der teksten bruker «regjeringen» om en formell kompetanse (proposisjon, resolusjon, folkerettslig avtale), er kompetansen Kongen i statsråds, og det avgjøres per rettskilde av et menneske (binding), ikke av en standardregel."
+   },
+   "kilder": [
+    "Grl. § 12 første ledd",
+    "Grl. § 13 første ledd",
+    "Grl. § 15 første ledd",
+    "Grl. § 28",
+    "Grl. § 30",
+    "Karanteneloven § 2 første ledd",
+    "Forvaltningsloven (r13)"
+   ]
+  },
+  {
+   "id": "R",
+   "type": "regel",
+   "foreslatt": {
+    "regel": [
+     "1. «medlem(mer) av regjeringen» og «regjeringens medlemmer» → rollen statsråd (medlem av statsrådet). Tekstfunn.",
+     "2. «regjeringen i <stat>», «den <adj.> regjeringen», konvensjons- og sanksjonstekst → ikke det norske organet (samme sperrer som ordsperren for «staten»).",
+     "3. «regjeringen.no» og navn som begynner med «Regjeringens …» (enhet) → ikke aktør.",
+     "4. «Regjeringens resolusjon» → historisk vedtaksform (statsrådet i Kongens sted, Grl. § 13 / § 41); ingen kobling uten et menneske.",
+     "5. Resten → generisk omtale «regjeringen» uten standardregel: et menneske binder per rettskilde (statsrådet eller Kongen i statsråd)."
+    ],
+    "merknad": "Ingen gjetting: regel 1–3 er ordlyd, 4–5 krever et menneske."
+   }
+  },
+  {
+   "id": "r1",
+   "type": "forekomst",
+   "rettskilde": "Lov om økonomisk støtte til mediene (mediestøtteloven)",
+   "kildetype": "Lov",
+   "eli": "https://lovdata.no/eli/lov/2020/12/18/153/nor",
+   "eid": "https://lovdata.no/eli/lov/2020/12/18/153/nor/§3/ledd-1",
+   "merknadsnode": false,
+   "utdrag": "Regjeringen skal foreslå faste, langsiktige økonomiske rammer for NRK og de direkte tilskuddsordningene for mediestøtte gjennom fireårige styringssignal. Forslag til styri",
+   "foreslatt": {
+    "lesning": "B",
+    "referent": "Kongen i statsråd",
+    "merknad": "Forslag til Stortinget i budsjettproposisjon; proposisjoner fremmes av Kongen i statsråd."
+   }
+  },
+  {
+   "id": "r2",
+   "type": "forekomst",
+   "rettskilde": "Lov om klimamål (klimaloven)",
+   "kildetype": "Lov",
+   "eli": "https://lovdata.no/eli/lov/2017/06/16/60/nor",
+   "eid": "https://lovdata.no/eli/lov/2017/06/16/60/nor/§6/ledd-1",
+   "merknadsnode": false,
+   "utdrag": "For å fremme omstilling til et lavutslippssamfunn, jf. § 5, skal regjeringen i 2020 og deretter hvert femte år legge fram for Stortinget oppdaterte klimamål. Disse skal",
+   "foreslatt": {
+    "lesning": "B",
+    "referent": "Kongen i statsråd",
+    "merknad": "«legge fram for Stortinget»: fremmes som proposisjon eller melding i statsråd."
+   }
+  },
+  {
+   "id": "r3",
+   "type": "forekomst",
+   "rettskilde": "Lov om straff (straffeloven)",
+   "kildetype": "Lov",
+   "eli": "https://lovdata.no/eli/lov/2005/05/20/28/nor",
+   "eid": "https://lovdata.no/eli/lov/2005/05/20/28/nor/§124/ledd-1/punkt-1",
+   "merknadsnode": false,
+   "utdrag": "gjerningspersonen er et medlem av regjeringen, Stortinget eller Høyesterett eller tilhører landets øverste sivile eller militære ledelse,",
+   "foreslatt": {
+    "lesning": "A_medlem",
+    "referent": "statsråd (rolle)",
+    "merknad": "«medlem av regjeringen»: personene i statsrådet."
+   }
+  },
+  {
+   "id": "r4",
+   "type": "forekomst",
+   "rettskilde": "Lov om rettergangsmåten i riksrettssaker [riksrettsrettergangsloven]",
+   "kildetype": "Lov",
+   "eli": "https://lovdata.no/eli/lov/1932/02/05/2/nor",
+   "eid": "https://lovdata.no/eli/lov/1932/02/05/2/nor/§28/ledd-1",
+   "merknadsnode": false,
+   "utdrag": "i Stortinget, hvorefter den forsynes med publikasjonspåtegning av Stortingets president og sendes tilbake til Riksrettspresidenten, som derefter sender den til Regjeringen med anmodning om dennes foranstaltning i henseende til dommens fullbyrdelse. Er Stortinget ikke samlet, sender Riksrettens president, efter å ha underrettet St",
+   "foreslatt": {
+    "lesning": "B",
+    "referent": "Kongen i statsråd",
+    "merknad": "Fullbyrdelse av riksrettsdom: formell beslutning av den utøvende makt."
+   }
+  },
+  {
+   "id": "r5",
+   "type": "forekomst",
+   "rettskilde": "Lov om betaling og innkreving av skatte- og avgiftskrav (skattebetalingsloven)",
+   "kildetype": "Lov",
+   "eli": "https://lovdata.no/eli/lov/2005/06/17/67/nor",
+   "eid": "https://lovdata.no/eli/lov/2005/06/17/67/nor/§4-8/ledd-2",
+   "merknadsnode": false,
+   "utdrag": "(2) Når et område er avskåret fra forbindelse med regjeringen eller det av andre grunner finnes nødvendig, kan Kongen gi statsforvalteren eller andre lokale forvaltningsorganer, herunder militære myndigheter, fullmakt til",
+   "foreslatt": {
+    "lesning": "uavklart",
+    "referent": "sentralmakten",
+    "merknad": "«avskåret fra forbindelse med regjeringen»: den sentrale utøvende makt, ikke et bestemt organ."
+   }
+  },
+  {
+   "id": "r6",
+   "type": "forekomst",
+   "rettskilde": "Lov om informasjonsplikt, karantene og saksforbud for politikere, embetsmenn og statsansatte (karanteneloven)",
+   "kildetype": "Lov",
+   "eli": "https://lovdata.no/eli/lov/2015/06/19/70/nor",
+   "eid": "https://lovdata.no/eli/lov/2015/06/19/70/nor/§2/ledd-1",
+   "merknadsnode": false,
+   "utdrag": "Med politiker og politisk stilling menes i denne lov nåværende eller tidligere medlemmer av regjeringen, statssekretærer og politiske rådgivere.",
+   "foreslatt": {
+    "lesning": "A_medlem",
+    "referent": "statsråd (rolle)",
+    "merknad": "Legaldefinisjon: «medlemmer av regjeringen»."
+   }
+  },
+  {
+   "id": "r7",
+   "type": "forekomst",
+   "rettskilde": "Lov om sjøfarten (sjøloven)",
+   "kildetype": "Lov",
+   "eli": "https://lovdata.no/eli/lov/1994/06/24/39/nor",
+   "eid": "kap-sjøl1/rom-vedleggII/rom-forbehold/ledd-1/punkt-11",
+   "merknadsnode": false,
+   "utdrag": "... regjeringen forbeholder seg retten til og forplikter seg til å godta slike forsikringssertifikater som er utstedt av andre stater som er part i konvensjonen, i henhold til",
+   "foreslatt": {
+    "lesning": "fremmed",
+    "referent": "annen stats regjering",
+    "merknad": "Sertifikatmal i konvensjonstekst."
+   }
+  },
+  {
+   "id": "r8",
+   "type": "forekomst",
+   "rettskilde": "Lov om rettergangsmåten i riksrettssaker [riksrettsrettergangsloven]",
+   "kildetype": "Lov",
+   "eli": "https://lovdata.no/eli/lov/1932/02/05/2/nor",
+   "eid": "https://lovdata.no/eli/lov/1932/02/05/2/nor/§28/ledd-1",
+   "merknadsnode": false,
+   "utdrag": "nde til dommens fullbyrdelse. Er Stortinget ikke samlet, sender Riksrettens president, efter å ha underrettet Stortingets president, domsavskriften direkte til Regjeringen med sådan anmodning som nevnt.",
+   "foreslatt": {
+    "lesning": "B",
+    "referent": "Kongen i statsråd",
+    "merknad": "Som r4."
+   }
+  },
+  {
+   "id": "r9",
+   "type": "forekomst",
+   "rettskilde": "Samarbeidsavtale mellom Norge, Danmark, Finland, Island og Sverige [Helsingforsavtalen]",
+   "kildetype": "Lov",
+   "eli": "https://lovdata.no/eli/lov/1962/03/23/2/nor",
+   "eid": "https://lovdata.no/eli/lov/1962/03/23/2/nor/a48/ledd-1",
+   "merknadsnode": false,
+   "utdrag": "es og Grønlands delegasjoner som nevnt i annet avsnitt. Finlands delegasjon består av medlemmer som er valgt av riksdagen og de representanter som er utpekt av regjeringen samt av Ålands delegasjon nevnt i annet avsnitt. Delegasjonen for hvert av de øvrige land består av de medlemmer som er valgt av den folkevalgte forsamling og ",
+   "foreslatt": {
+    "lesning": "fremmed",
+    "referent": "Finlands regjering",
+    "merknad": "Helsingforsavtalen: Finlands delegasjon, utpekt av regjeringen."
+   }
+  },
+  {
+   "id": "r10",
+   "type": "forekomst",
+   "rettskilde": "Lov om klimamål (klimaloven)",
+   "kildetype": "Lov",
+   "eli": "https://lovdata.no/eli/lov/2017/06/16/60/nor",
+   "eid": "https://lovdata.no/eli/lov/2017/06/16/60/nor/§7/ledd-2",
+   "merknadsnode": false,
+   "utdrag": "Regjeringen skal, basert på et faglig grunnlag, hvert år overfor Stortinget på egnet vis redegjøre for",
+   "foreslatt": {
+    "lesning": "B",
+    "referent": "Kongen i statsråd",
+    "merknad": "Redegjørelse overfor Stortinget (i praksis i budsjettproposisjonen)."
+   }
+  },
+  {
+   "id": "r11",
+   "type": "forekomst",
+   "rettskilde": "Lov om valg til Stortinget, fylkesting og kommunestyrer (valgloven)",
+   "kildetype": "Lov",
+   "eli": "https://lovdata.no/eli/lov/2023/06/16/62/nor",
+   "eid": "https://lovdata.no/eli/lov/2023/06/16/62/nor/§4-1/ledd-3/punkt-1",
+   "merknadsnode": false,
+   "utdrag": "medlemmer av regjeringen",
+   "foreslatt": {
+    "lesning": "A_medlem",
+    "referent": "statsråd (rolle)",
+    "merknad": "«medlemmer av regjeringen»."
+   }
+  },
+  {
+   "id": "r12",
+   "type": "forekomst",
+   "rettskilde": "Kongeriket Norges Grunnlov",
+   "kildetype": "Lov",
+   "eli": "https://lovdata.no/eli/lov/1814/05/17/nor",
+   "eid": "https://lovdata.no/eli/lov/1814/05/17/nor/§13/ledd-1",
+   "merknadsnode": false,
+   "utdrag": "Under kongens reiser innen riket kan han overdra styret av riket til statsrådet. Dette skal føre regjeringen i kongens navn og på hans vegne. Det skal ubrytelig etterleve så vel bestemmelsene i denne Grunnlov som de særskilte dermed overensstemmende forskrifter, som k",
+   "foreslatt": {
+    "lesning": "funksjon",
+    "referent": "styret av riket",
+    "merknad": "Grl. § 13: statsrådet «skal føre regjeringen i kongens navn»; regjeringen er her styringsfunksjonen, ikke et organ."
+   }
+  },
+  {
+   "id": "r13",
+   "type": "forekomst",
+   "rettskilde": "Lov om saksbehandlingen i offentlig forvaltning (forvaltningsloven)",
+   "kildetype": "Lov",
+   "eli": "https://lovdata.no/eli/lov/2025/06/20/81/nor",
+   "eid": "https://lovdata.no/eli/lov/2025/06/20/81/nor/§85/ledd-1",
+   "merknadsnode": false,
+   "utdrag": "(1) Reglene i §§ 86 til 91 gjelder for kollegiale organer i statsforvaltningen som fatter enkeltvedtak. Reglene gjelder ikke for regjeringen.",
+   "foreslatt": {
+    "lesning": "A",
+    "referent": "statsrådet",
+    "merknad": "Fvl.: reglene for kollegiale organer gjelder ikke for regjeringen; regjeringen er et kollegialt organ."
+   }
+  },
+  {
+   "id": "r14",
+   "type": "forekomst",
+   "rettskilde": "Lov om godtgjøring og andre ytelser til stortingsrepresentanter (representantytelsesloven)",
+   "kildetype": "Lov",
+   "eli": "https://lovdata.no/eli/lov/2025/06/20/57/nor",
+   "eid": "https://lovdata.no/eli/lov/2025/06/20/57/nor/§2/ledd-1/punkt-1",
+   "merknadsnode": false,
+   "utdrag": "stortingsrepresentanter som er utnevnt til statsråder, statssekretærer eller politiske rådgivere i regjeringen",
+   "foreslatt": {
+    "lesning": "A_medlem",
+    "referent": "statsråd (rolle)",
+    "merknad": "«statsråder, statssekretærer eller politiske rådgivere i regjeringen»."
+   }
+  },
+  {
+   "id": "r15",
+   "type": "forekomst",
+   "rettskilde": "Lov om skatt av formue og inntekt (skatteloven)",
+   "kildetype": "Lov",
+   "eli": "https://lovdata.no/eli/lov/1999/03/26/14/nor",
+   "eid": "https://lovdata.no/eli/lov/1999/03/26/14/nor/§5-16/ledd-1",
+   "merknadsnode": false,
+   "utdrag": "(1) Som inntekt regnes ikke fordel ved fri bolig til medlemmer av Stortinget og regjeringen, statssekretærer og politiske rådgivere i departementene og ved Statsministerens kontor. Fritaket gjelder bare så lenge personen har en annen bolig som utgjør ",
+   "foreslatt": {
+    "lesning": "A_medlem",
+    "referent": "statsråd (rolle)",
+    "merknad": "«medlemmer av … regjeringen»."
+   }
+  },
+  {
+   "id": "r16",
+   "type": "forekomst",
+   "rettskilde": "Lov om folkeregistrering (folkeregisterloven)",
+   "kildetype": "Lov",
+   "eli": "https://lovdata.no/eli/lov/2016/12/09/88/nor",
+   "eid": "https://lovdata.no/eli/lov/2016/12/09/88/nor/§5-4/ledd-1",
+   "merknadsnode": false,
+   "utdrag": "Medlemmer av Stortinget og regjeringen som må oppholde seg utenfor registrert bosted som følge av det politiske vervet, kan beholde denne boligen som registrert bosted. Det samme gjelder for statsse",
+   "foreslatt": {
+    "lesning": "A_medlem",
+    "referent": "statsråd (rolle)",
+    "merknad": "«Medlemmer av … regjeringen»."
+   }
+  },
+  {
+   "id": "r17",
+   "type": "forekomst",
+   "rettskilde": "Lov om behandling av personopplysninger (personopplysningsloven)",
+   "kildetype": "Lov",
+   "eli": "https://lovdata.no/eli/lov/2018/06/15/38/nor",
+   "eid": "https://lovdata.no/eli/lov/2018/06/15/38/nor/a70/ledd-1/punkt-19",
+   "merknadsnode": false,
+   "utdrag": "rer et tilstrekkelig beskyttelsesnivå. For dette formål skal Kommisjonen framlegge for Personvernrådet all nødvendig dokumentasjon, herunder korrespondanse med regjeringen i tredjestaten, med hensyn til nevnte tredjestat, territorium eller spesifikke sektor, eller med den internasjonale organisasjonen,",
+   "foreslatt": {
+    "lesning": "fremmed",
+    "referent": "tredjestatens regjering",
+    "merknad": "«regjeringen i tredjestaten»."
+   }
+  },
+  {
+   "id": "r18",
+   "type": "forekomst",
+   "rettskilde": "Lov om sjøfarten (sjøloven)",
+   "kildetype": "Lov",
+   "eli": "https://lovdata.no/eli/lov/1994/06/24/39/nor",
+   "eid": "kap-sjøl1/rom-vedlegg2/ledd-3",
+   "merknadsnode": false,
+   "utdrag": "Følgende tekst bør anvendes når en stat som er part i konvensjonen, benytter seg av artikkel 4a nr. 3: Dette sertifikatet er utstedt etter fullmakt fra regjeringen i ... ... .. ... ... ... ... ...... ... (statens offisielle betegnelse) av ... ... ... . . ... ... ... ... ... ... ... ... ... ... ... . . ... .. ... (institus",
+   "foreslatt": {
+    "lesning": "fremmed",
+    "referent": "annen stats regjering",
+    "merknad": "Sertifikatmal i konvensjonstekst."
+   }
+  },
+  {
+   "id": "r19",
+   "type": "forekomst",
+   "rettskilde": "Lov om Norges institusjon for menneskerettigheter (NIM-loven)",
+   "kildetype": "Lov",
+   "eli": "https://lovdata.no/eli/lov/2015/05/22/33/nor",
+   "eid": "https://lovdata.no/eli/lov/2015/05/22/33/nor/§3/ledd-1/punkt-2",
+   "merknadsnode": false,
+   "utdrag": "rådgi Stortinget, regjeringen, Sametinget og andre offentlige organer og private aktører om gjennomføringen av menneskerettighetene,",
+   "foreslatt": {
+    "lesning": "A",
+    "referent": "statsrådet",
+    "merknad": "NIM skal rådgi regjeringen: den politiske ledelsen, ikke formelle vedtak."
+   }
+  },
+  {
+   "id": "r20",
+   "type": "forekomst",
+   "rettskilde": "Instruks for Regjeringen",
+   "kildetype": "Lov",
+   "eli": "https://lovdata.no/eli/lov/1909/03/23/nor",
+   "eid": "https://lovdata.no/eli/lov/1909/03/23/nor/§1/ledd-1",
+   "merknadsnode": false,
+   "utdrag": "1. I statsrådet, som består av så mange medlemmer som til enhver tid bestemt, er statsministeren formann og kan som sådan forlange av ethvert av Regjeringens departementer enhver oplysning som han måtte finne anledning til, om enhver under vedkommende departement hørende sak. Statsministeren skal påse, at der – bort",
+   "foreslatt": {
+    "lesning": "A",
+    "referent": "statsrådet",
+    "merknad": "Regjeringsinstruksen: «Regjeringens departementer»."
+   }
+  },
+  {
+   "id": "r21",
+   "type": "forekomst",
+   "rettskilde": "Lov om nasjonal sikkerhet (sikkerhetsloven)",
+   "kildetype": "Lov",
+   "eli": "https://lovdata.no/eli/lov/2018/06/01/24/nor",
+   "eid": "https://lovdata.no/eli/lov/2018/06/01/24/nor/§1-4/ledd-2",
+   "merknadsnode": false,
+   "utdrag": "Bestemmelsene som er gitt i og i medhold av kapittel 8, gjelder ikke for stortingsrepresentanter, regjeringens medlemmer og dommere i Høyesterett.",
+   "foreslatt": {
+    "lesning": "A_medlem",
+    "referent": "statsråd (rolle)",
+    "merknad": "«regjeringens medlemmer»."
+   }
+  },
+  {
+   "id": "r22",
+   "type": "forekomst",
+   "rettskilde": "Lov om politiet (politiloven)",
+   "kildetype": "Lov",
+   "eli": "https://lovdata.no/eli/lov/1995/08/04/53/nor",
+   "eid": "https://lovdata.no/eli/lov/1995/08/04/53/nor/§17d/ledd-1/punkt-4",
+   "merknadsnode": false,
+   "utdrag": "straffeloven §§ 251, 254, 256, 263, 273 eller 275 og som retter seg mot medlemmer av Kongehuset, Stortinget, regjeringen, Høyesterett eller representanter for tilsvarende organer i andre stater.",
+   "foreslatt": {
+    "lesning": "A",
+    "referent": "statsrådet",
+    "merknad": "Oppregning av statsmaktene (Kongehuset, Stortinget, regjeringen, Høyesterett); vernet gjelder medlemmene."
+   }
+  },
+  {
+   "id": "r23",
+   "type": "forekomst",
+   "rettskilde": "Lov om rettergangsmåten i straffesaker (Straffeprosessloven)",
+   "kildetype": "Lov",
+   "eli": "https://lovdata.no/eli/lov/1981/05/22/25/nor",
+   "eid": "https://lovdata.no/eli/lov/1981/05/22/25/nor/§222d/ledd-3",
+   "merknadsnode": false,
+   "utdrag": "§§ 121, 123, 125, 126, 130 a, 131, 133, 134 eller 142, eller av §§ 251, 254, 256, 263, 273 eller 275 og som retter seg mot medlemmer av Kongehuset, Stortinget, regjeringen, Høyesterett eller representanter for tilsvarende organer i andre stater.",
+   "foreslatt": {
+    "lesning": "A",
+    "referent": "statsrådet",
+    "merknad": "Som r22."
+   }
+  },
+  {
+   "id": "r24",
+   "type": "forekomst",
+   "rettskilde": "Lov om offentlige tjenestetvister [tjenestetvistloven]",
+   "kildetype": "Lov",
+   "eli": "https://lovdata.no/eli/lov/1958/07/18/2/nor",
+   "eid": "https://lovdata.no/eli/lov/1958/07/18/2/nor/§15/ledd-2",
+   "merknadsnode": false,
+   "utdrag": "Enhver mekler må fylle vilkårene etter arbeidstvistloven § 36 første ledd. Medlem av Regjeringen, stortingsrepresentant, tjenestemann i det departement som statens lønnssaker hører under, medlem av hovedsammenslutnings eller tjenestemannsorganisasjons styr",
+   "foreslatt": {
+    "lesning": "A_medlem",
+    "referent": "statsråd (rolle)",
+    "merknad": "«Medlem av Regjeringen»."
+   }
+  },
+  {
+   "id": "r25",
+   "type": "forekomst",
+   "rettskilde": "Overenskomst mellom Norge og Storbritannia om gjensidig anerkjennelse og fullbyrdelse av dommer i sivile saker",
+   "kildetype": "Lov",
+   "eli": "https://lovdata.no/eli/lov/1961/06/12/nor",
+   "eid": "https://lovdata.no/eli/lov/1961/06/12/nor/aX/punkt-1",
+   "merknadsnode": false,
+   "utdrag": "Regjeringen for Det Forente Kongerike kan, ved underretning gitt ad diplomatisk veg, når som helst så lenge overenskomsten er i kraft i henhold til artikkel XI og forutsat",
+   "foreslatt": {
+    "lesning": "fremmed",
+    "referent": "Storbritannias regjering",
+    "merknad": "Overenskomstens tekst."
+   }
+  },
+  {
+   "id": "r26",
+   "type": "forekomst",
+   "rettskilde": "Lov om gjennomføring i norsk rett av miljøvernkonvensjon mellom Norge, Danmark, Finland og Sverige, undertegnet 19 februar 1974",
+   "kildetype": "Lov",
+   "eli": "https://lovdata.no/eli/lov/1976/04/09/21/nor",
+   "eid": "https://lovdata.no/eli/lov/1976/04/09/21/nor/a11/ledd-1",
+   "merknadsnode": false,
+   "utdrag": " for avgjørelse av regjeringen eller av vedkommende statsråd eller departement (ministerium) i virksomhetslandet, skal spørsmålet drøftes mellom statene dersom regjeringen i den førstnevnte staten krever det.",
+   "foreslatt": {
+    "lesning": "fremmed",
+    "referent": "avtalestatens regjering",
+    "merknad": "Konvensjonstekst: «regjeringen i den førstnevnte staten»."
+   }
+  },
+  {
+   "id": "r27",
+   "type": "forekomst",
+   "rettskilde": "Forskrift om tilskudd til tiltak mot vold og overgrep",
+   "kildetype": "Forskrift",
+   "eli": "https://lovdata.no/eli/forskrift/2021/11/24/3297/nor",
+   "eid": "https://lovdata.no/eli/forskrift/2021/11/24/3297/nor/§1/ledd-1",
+   "merknadsnode": false,
+   "utdrag": "r å bidra til å forebygge og bekjempe vold og overgrep i nære relasjoner, og ivareta voldsutsatte voksne og barn. Tilskuddsordningen skal bidra til at målene i regjeringens handlingsplaner mot vold og overgrep nås.",
+   "foreslatt": {
+    "lesning": "A",
+    "referent": "statsrådet",
+    "merknad": "«regjeringens handlingsplaner»: politiske dokumenter fra regjeringen."
+   }
+  },
+  {
+   "id": "r28",
+   "type": "forekomst",
+   "rettskilde": "Forskrift om overføring av forvaltningsansvar for naturvernområder. Delegering av forvaltningsansvar til statsforvalteren.",
+   "kildetype": "Forskrift",
+   "eli": "https://lovdata.no/eli/forskrift/1983/07/26/1385/nor",
+   "eid": "kap-I/ledd-1",
+   "merknadsnode": false,
+   "utdrag": "Innen hvert fylke tillegges vedkommende statsforvalter forvaltningsansvar for fredninger som er opprettet ved kongelig resolusjon, regjeringens resolusjon, Kronprinsregentens resolusjon, ministerpresidentens beslutning eller departementsvedtak i medhold av lov om naturfredning av 25. juli 1910 nr. 3, l",
+   "foreslatt": {
+    "lesning": "B_historisk",
+    "referent": "statsrådet i Kongens sted (Grl. § 13 / § 41)",
+    "merknad": "«regjeringens resolusjon» ved siden av kgl.res. og Kronprinsregentens resolusjon: en resolusjon truffet av statsrådet når Kongen ikke kan."
+   }
+  },
+  {
+   "id": "r29",
+   "type": "forekomst",
+   "rettskilde": "Myndighetsfordeling etter lov om matproduksjon og mattrygghet mv. (matloven).",
+   "kildetype": "Forskrift",
+   "eli": "https://lovdata.no/eli/forskrift/2003/12/19/1790/nor",
+   "eid": "kap-vedlegg/rom-1/ledd-1",
+   "merknadsnode": false,
+   "utdrag": "Regjeringen iverksetter fra 1. januar 2004 en stor reform på matområdet. Hovedformålet med reformen er å sikre fortsatt god mattrygghet og styrke arbeidet for norske forbr",
+   "foreslatt": {
+    "lesning": "A",
+    "referent": "statsrådet",
+    "merknad": "Innledning: «Regjeringen iverksetter … en stor reform»."
+   }
+  },
+  {
+   "id": "r30",
+   "type": "forekomst",
+   "rettskilde": "Regler for granskingskommisjoner. Rundskriv G-48/75 fra Justisdep.",
+   "kildetype": "Forskrift",
+   "eli": "https://lovdata.no/eli/forskrift/1975/03/04/1/nor",
+   "eid": "kap-I/ledd-2",
+   "merknadsnode": false,
+   "utdrag": "Regjeringen er kommet til at det ikke bør gis særskilte lovregler om når granskingskommisjoner kan oppnevnes eller om saksbehandlingen i slike kommisjoner. (Enkelte regler",
+   "foreslatt": {
+    "lesning": "A",
+    "referent": "statsrådet",
+    "merknad": "«Regjeringen er kommet til at …»."
+   }
+  },
+  {
+   "id": "r31",
+   "type": "forekomst",
+   "rettskilde": "Forskrift om avgrensning av eiendomsskatt på statlige eiendommer",
+   "kildetype": "Forskrift",
+   "eli": "https://lovdata.no/eli/forskrift/1992/11/18/850/nor",
+   "eid": "https://lovdata.no/eli/forskrift/1992/11/18/850/nor/§2/ledd-1/punkt-1",
+   "merknadsnode": false,
+   "utdrag": "benyttes av Kongen eller Kongehuset, Stortinget, domstolene, Regjeringen eller departementene. Skatteplikten gjelder likevel eiendommer som stilles til disposisjon for privat bruk for stortingsrepresentanter, regjeringsmedlemmer, an",
+   "foreslatt": {
+    "lesning": "A",
+    "referent": "statsrådet",
+    "merknad": "Eiendom benyttet av «Regjeringen» i oppregning av statsorganer."
+   }
+  },
+  {
+   "id": "r32",
+   "type": "forekomst",
+   "rettskilde": "Instruks for Regjeringsadvokaten",
+   "kildetype": "Forskrift",
+   "eli": "https://lovdata.no/eli/forskrift/1962/05/09/1/nor",
+   "eid": "https://lovdata.no/eli/forskrift/1962/05/09/1/nor/§2/ledd-1",
+   "merknadsnode": false,
+   "utdrag": "Regjeringsadvokaten skal med de unntak som følger av denne instruks, etter anmodning fra regjeringen eller et departement føre rettssaker (herunder voldgiftsaker) for det offentlige og for offentlige fond og gi uttalelse om juridiske spørsmål.",
+   "foreslatt": {
+    "lesning": "A",
+    "referent": "statsrådet",
+    "merknad": "«etter anmodning fra regjeringen eller et departement»."
+   }
+  },
+  {
+   "id": "r33",
+   "type": "forekomst",
+   "rettskilde": "Endringer i departementsstrukturen og i ansvarsfordelingen mellom departementene",
+   "kildetype": "Forskrift",
+   "eli": "https://lovdata.no/eli/forskrift/2018/04/27/638/nor",
+   "eid": "https://lovdata.no/eli/forskrift/2018/04/27/638/nor/punkt-3",
+   "merknadsnode": false,
+   "utdrag": "e statsråder: Kunnskapsdepartementet overtar Integreringsavdelingen i Justis- og beredskapsdepartementet og ansvaret for IMDi. Statsråd Sanner har ansvaret for regjeringens politikk for barnehager, grunnskole, videregående opplæring, fagskole, generelle kompetansepolitiske saker og integrering. Statsråd Sanner er også nordisk sama",
+   "foreslatt": {
+    "lesning": "A",
+    "referent": "statsrådet",
+    "merknad": "«regjeringens politikk»."
+   }
+  },
+  {
+   "id": "r34",
+   "type": "forekomst",
+   "rettskilde": "Forskrift om sanksjoner og tiltak mot Iran",
+   "kildetype": "Forskrift",
+   "eli": "https://lovdata.no/eli/forskrift/2007/02/09/149/nor",
+   "eid": "https://lovdata.no/eli/forskrift/2007/02/09/149/nor/a38/ledd-1/punkt-2",
+   "merknadsnode": false,
+   "utdrag": "andre iranske personer, enheter eller organer, herunder den iranske regjeringen,",
+   "foreslatt": {
+    "lesning": "fremmed",
+    "referent": "Irans regjering",
+    "merknad": "Sanksjonsliste."
+   }
+  },
+  {
+   "id": "r35",
+   "type": "forekomst",
+   "rettskilde": "Forskrift om gjenvinning av skip og flyttbare innretninger",
+   "kildetype": "Forskrift",
+   "eli": "https://lovdata.no/eli/forskrift/2018/12/06/1813/nor",
+   "eid": "https://lovdata.no/eli/forskrift/2018/12/06/1813/nor/a2-duplikat-2/ledd-1/punkt-2",
+   "merknadsnode": false,
+   "utdrag": "«Administrasjon» betyr regjeringen i staten hvis flagg skipet har rett til å seile under, eller hvis myndighet skipet opererer under.",
+   "foreslatt": {
+    "lesning": "fremmed",
+    "referent": "flaggstatens regjering",
+    "merknad": "Konvensjonstekst (Hongkong-konvensjonen)."
+   }
+  },
+  {
+   "id": "r36",
+   "type": "forekomst",
+   "rettskilde": "Omorganisering av departementsstrukturen – endringer i oppgaver, ansvarsområder og ressursfordeling.",
+   "kildetype": "Forskrift",
+   "eli": "https://lovdata.no/eli/forskrift/1989/12/22/1273/nor",
+   "eid": "kap-vedlegg2/rom-II/rom-til-arbeids-og-administrasjonsdepartementet-overfores-folgende/punkt-3/punkt-1",
+   "merknadsnode": false,
+   "utdrag": "melser. Arbeids- og administrasjonsdepartementet fører tilsyn med at lovens intensjoner blir etterlevd. Departementet rapporterer om departementenes arbeid til regjeringen.",
+   "foreslatt": {
+    "lesning": "A",
+    "referent": "statsrådet",
+    "merknad": "Rapporterer til regjeringen."
+   }
+  },
+  {
+   "id": "r37",
+   "type": "forekomst",
+   "rettskilde": "Forskrift om delegering av myndighet til Landbruksdepartementet – protokoll mellom Norge og Sverige om oppføring og vedlikehold av sperregjerder for rein.",
+   "kildetype": "Forskrift",
+   "eli": "https://lovdata.no/eli/forskrift/1986/01/10/18/nor",
+   "eid": "https://lovdata.no/eli/forskrift/1986/01/10/18/nor/ledd-1",
+   "merknadsnode": false,
+   "utdrag": "Den myndighet som er tillagt Regjeringen i artikkel 7, 2. ledd i protokoll av 9. februar 1972 mellom Norge og Sverige om oppføring og vedlikehold av sperregjerder for rein, legges til Landbruksdeparte",
+   "foreslatt": {
+    "lesning": "B",
+    "referent": "Kongen i statsråd",
+    "merknad": "Myndighet tillagt «Regjeringen» i en traktat, delegert ved vedtak: folkerettslig myndighet utøves av Kongen i statsråd."
+   }
+  },
+  {
+   "id": "r38",
+   "type": "forekomst",
+   "rettskilde": "Forskrift til lov om Oppgaveregisteret",
+   "kildetype": "Forskrift",
+   "eli": "https://lovdata.no/eli/forskrift/1997/10/10/1090/nor",
+   "eid": "https://lovdata.no/eli/forskrift/1997/10/10/1090/nor/§20/ledd-3",
+   "merknadsnode": false,
+   "utdrag": "Ved fortsatt uenighet, skal Nærings- og handelsdepartementet avgjøre om saken skal bringes inn for regjeringen til endelig avgjørelse.",
+   "foreslatt": {
+    "lesning": "A",
+    "referent": "statsrådet",
+    "merknad": "Saken bringes inn for regjeringen til endelig avgjørelse (regjeringskonferanse)."
+   }
+  },
+  {
+   "id": "r39",
+   "type": "forekomst",
+   "rettskilde": "Endring i departementsstrukturen. Endringer i oppgaver, ansvarsområder og ressursfordeling.",
+   "kildetype": "Forskrift",
+   "eli": "https://lovdata.no/eli/forskrift/1990/12/21/1022/nor",
+   "eid": "kap-vedlegg4/rom-II/ledd-1/punkt-4",
+   "merknadsnode": false,
+   "utdrag": "Sekretariat for Regjeringens kriseinformasjonsenhet oppnevnt ved kgl.res. av 1. juni 1989",
+   "foreslatt": {
+    "lesning": "ikke_aktor",
+    "referent": "navnedel",
+    "merknad": "«Regjeringens kriseinformasjonsenhet»: del av et navn."
+   }
+  },
+  {
+   "id": "r40",
+   "type": "forekomst",
+   "rettskilde": "Forskrift om restriktive tiltak mot Syria",
+   "kildetype": "Forskrift",
+   "eli": "https://lovdata.no/eli/forskrift/2011/09/02/902/nor",
+   "eid": "https://lovdata.no/eli/forskrift/2011/09/02/902/nor/a27/ledd-1/punkt-2",
+   "merknadsnode": false,
+   "utdrag": "andre syriske personer, enheter eller organer, herunder den syriske regjeringen,",
+   "foreslatt": {
+    "lesning": "fremmed",
+    "referent": "Syrias regjering",
+    "merknad": "Sanksjonsliste."
+   }
+  },
+  {
+   "id": "r41",
+   "type": "forekomst",
+   "rettskilde": "Instruks for Norsk senter for utvekslingssamarbeid (NOREC)",
+   "kildetype": "Forskrift",
+   "eli": "https://lovdata.no/eli/forskrift/2018/08/10/1242/nor",
+   "eid": "https://lovdata.no/eli/forskrift/2018/08/10/1242/nor/§3/ledd-2",
+   "merknadsnode": false,
+   "utdrag": "Tildelingsbrev og årsrapport publiseres på Utenriksdepartementets nettsider (regjeringen.no) og sendes i kopi til Riksrevisjonen.",
+   "foreslatt": {
+    "lesning": "ikke_aktor",
+    "referent": "nettsted",
+    "merknad": "«regjeringen.no»."
+   }
+  },
+  {
+   "id": "r42",
+   "type": "forekomst",
+   "rettskilde": "Forskrift om gjennomføring av bilaterale trygdeavtaler",
+   "kildetype": "Forskrift",
+   "eli": "https://lovdata.no/eli/forskrift/2024/11/15/2778/nor",
+   "eid": "https://lovdata.no/eli/forskrift/2024/11/15/2778/nor/§1/ledd-1/punkt-16",
+   "merknadsnode": false,
+   "utdrag": "Avtale mellom regjeringen i Kongeriket Norge og regjeringen i Republikken Ungarn om medisinsk stønad under midlertidig opphold i utlandet undertegnet i Budapest 17. juli 1991, ikrafttre",
+   "foreslatt": {
+    "lesning": "fremmed_og_B",
+    "referent": "avtalepartene",
+    "merknad": "«Avtale mellom regjeringen i Kongeriket Norge og regjeringen i Republikken Ungarn»: avtaleparten for Norge er formelt Kongen i statsråd (statens folkerettslige representasjon)."
+   }
+  },
+  {
+   "id": "r43",
+   "type": "forekomst",
+   "rettskilde": "Forskrift om restriktive tiltak vedrørende handlinger som undergraver eller truer Ukrainas territorielle integritet, suverenitet, uavhengighet og stabilitet",
+   "kildetype": "Forskrift",
+   "eli": "https://lovdata.no/eli/forskrift/2014/08/15/1076/nor",
+   "eid": "https://lovdata.no/eli/forskrift/2014/08/15/1076/nor/§19m/ledd-1",
+   "merknadsnode": false,
+   "utdrag": "til Den russiske føderasjons presidents dekret nr. 122 av 15. februar 2024, Den russiske føderasjons regjerings dekret nr. 1767 av 18. oktober 2021, endret ved regjeringens resolusjon nr. 380 av 27. mars 2024, eller i henhold til beslektet eller tilsvarende russisk lovgivning eller i henhold til rettslig pålegg, en kjennelse, et f",
+   "foreslatt": {
+    "lesning": "fremmed",
+    "referent": "Russlands regjering",
+    "merknad": "Sanksjonsforskrift."
+   }
+  },
+  {
+   "id": "r44",
+   "type": "forekomst",
+   "rettskilde": "Delegering av myndighet til Kultur- og kirkedepartementet – produksjonstilskudd til dagsaviser.",
+   "kildetype": "Forskrift",
+   "eli": "https://lovdata.no/eli/forskrift/1996/11/07/1016/nor",
+   "eid": "https://lovdata.no/eli/forskrift/1996/11/07/1016/nor/ledd-1",
+   "merknadsnode": false,
+   "utdrag": "Adgangen til å fastsette endringer i Regjeringens resolusjon av 7. november 1996 nr. 1015 om produksjonstilskudd til dagsaviser delegeres til Kultur- og kirkedepartementet.",
+   "foreslatt": {
+    "lesning": "B_historisk",
+    "referent": "statsrådet i Kongens sted",
+    "merknad": "«Regjeringens resolusjon av 7. november 1996»."
+   }
+  },
+  {
+   "id": "r45",
+   "type": "forekomst",
+   "rettskilde": "Delegering av myndighet til Kultur- og kirkedepartementet – tilskudd til innvandrerpublikasjoner.",
+   "kildetype": "Forskrift",
+   "eli": "https://lovdata.no/eli/forskrift/1996/11/07/1018/nor",
+   "eid": "https://lovdata.no/eli/forskrift/1996/11/07/1018/nor/ledd-1",
+   "merknadsnode": false,
+   "utdrag": "Adgangen til å fastsette endringer i Regjeringens resolusjon av 7. november 1996 nr. 1017 om tilskudd til innvandrerpublikasjoner delegeres til Kultur- og kirkedepartementet.",
+   "foreslatt": {
+    "lesning": "B_historisk",
+    "referent": "statsrådet i Kongens sted",
+    "merknad": "Som r44."
+   }
+  },
+  {
+   "id": "r46",
+   "type": "forekomst",
+   "rettskilde": "Instruks for Statens vegvesen.",
+   "kildetype": "Forskrift",
+   "eli": "https://lovdata.no/eli/forskrift/2005/05/27/473/nor",
+   "eid": "https://lovdata.no/eli/forskrift/2005/05/27/473/nor/§1-5/ledd-1",
+   "merknadsnode": false,
+   "utdrag": "Vegdirektøren er Regjeringens/Samferdselsdepartementets og Forsvarsjefens rådgiver i alle strategisk viktige vegsaker, og kan ta initiativ i slike saker dersom situasjonen tilsier det.",
+   "foreslatt": {
+    "lesning": "A",
+    "referent": "statsrådet",
+    "merknad": "«Regjeringens … rådgiver»."
+   }
+  },
+  {
+   "id": "r47",
+   "type": "forekomst",
+   "rettskilde": "Forskrift til utfylling og gjennomføring mv. av skatteloven av 26. mars 1999 nr. 14",
+   "kildetype": "Forskrift",
+   "eli": "https://lovdata.no/eli/forskrift/1999/11/19/1158/nor",
+   "eid": "https://lovdata.no/eli/forskrift/1999/11/19/1158/nor/§6-86-1/ledd-2/punkt-2",
+   "merknadsnode": false,
+   "utdrag": "ilfeldige tall, som igjen danner grunnlaget for hvem som skal få og ikke få rett til arbeidsfradrag. Programkoden som skal brukes, er offentlig tilgjengelig på regjeringen.no.",
+   "foreslatt": {
+    "lesning": "ikke_aktor",
+    "referent": "nettsted",
+    "merknad": "«regjeringen.no»."
+   }
+  },
+  {
+   "id": "r48",
+   "type": "forekomst",
+   "rettskilde": "Instruks om håndtering av bygge- og leiesaker i statlig sivil sektor",
+   "kildetype": "Forskrift",
+   "eli": "https://lovdata.no/eli/forskrift/2012/01/20/39/nor",
+   "eid": "kap-4/ledd-7",
+   "merknadsnode": false,
+   "utdrag": "For prosjekter over terskelverdi skal oppdragsdepartementet fremme sak for regjeringen om OFP. For prosjekter mellom 300 mill. kroner og terskelverdi skal oppdragsdepartementet fremme saken for KMD.",
+   "foreslatt": {
+    "lesning": "A",
+    "referent": "statsrådet",
+    "merknad": "«fremme sak for regjeringen» (regjeringskonferanse)."
+   }
+  },
+  {
+   "id": "r49",
+   "type": "forekomst",
+   "rettskilde": "Instruks for departementenes arbeid med samfunnssikkerhet (samfunnssikkerhetsinstruksen)",
+   "kildetype": "Forskrift",
+   "eli": "https://lovdata.no/eli/forskrift/2017/09/01/1349/nor",
+   "eid": "kap-VII/ledd-10",
+   "merknadsnode": false,
+   "utdrag": "Justis- og beredskapsdepartementet skal rapportere til regjeringen dersom det er påvist brudd på krav i etterlevelsen av kravene i denne instruksen i departementet det er ført tilsyn med, eller ved manglende oppfølging.",
+   "foreslatt": {
+    "lesning": "A",
+    "referent": "statsrådet",
+    "merknad": "Rapportere til regjeringen."
+   }
+  },
+  {
+   "id": "r50",
+   "type": "forekomst",
+   "rettskilde": "Instruks om Etterretningstjenesten.",
+   "kildetype": "Forskrift",
+   "eli": "https://lovdata.no/eli/forskrift/2001/08/31/1012/nor",
+   "eid": "https://lovdata.no/eli/forskrift/2001/08/31/1012/nor/§10/ledd-2",
+   "merknadsnode": false,
+   "utdrag": "Innenfor rammen av loven og § 11, § 12 og § 16 i instruksen her skal tjenesten utarbeide utredninger og innhente informasjon som regjeringen og berørte departementer har behov for.",
+   "foreslatt": {
+    "lesning": "A",
+    "referent": "statsrådet",
+    "merknad": "Informasjon regjeringen har behov for."
+   }
+  }
+ ]
+}
