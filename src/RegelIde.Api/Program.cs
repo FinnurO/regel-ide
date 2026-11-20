@@ -61,7 +61,7 @@ builder.Services.AddScoped<AktoridentitetTjeneste>();
 builder.Services.AddScoped<OmgjoringTjeneste>(); // [Ny, issue #386]
 builder.Services.AddScoped<KlassemedlemskapTjeneste>(); // [Ny, issue #384] utledet medlemskap («kommune» fra områderegisteret)
 builder.Services.AddScoped<KlasseoppsettTjeneste>(); // [Ny, issue #442] klassene fylkeskommune og departement som forslag (skrives bare på kall)
-builder.Services.AddScoped<NorgeStatenTjeneste>(); // [Ny, issue #463] Norge (rike), staten og departementene som del av staten, som forslag (skrives bare på kall)
+builder.Services.AddScoped<NorgeStatenTjeneste>(); // [Ny, issue #463] Norge (rike), staten og departementene som organer for staten, som forslag (skrives bare på kall)
 builder.Services.AddScoped<RegelIde.Data.Strukturkonvertering.KiStrukturkonverterer>();
 // [Ny, issue #312 «områderegister»] «Gitt kommune X → fylke, tingrett, lagdømme, statsforvalter, RHF» (AC5).
 builder.Services.AddScoped<OmradeOppslagTjeneste>();
@@ -4323,7 +4323,7 @@ app.MapPost("/api/norge-staten", async (bool? skriv, HttpRequest request, RegelI
     .WithName("NorgeOgStaten")
     .WithSummary("Issue #463 — området Norge (rike, Grl. § 1 første ledd), Norge består av fylkene (kl. § 2-1 første ledd, fortolkning) og " +
         "Svalbard (svalbardloven § 1), aktøren staten med navneformen «staten» (ordsperre) og aktørtypen rettssubjekt (fortolkning, tvl. § 2-1), " +
-        "og G del_av fra hvert departement til staten (avledet, premiss = medlemskapet i klassen departement). Alt som forslag. ?skriv=true skriver; " +
+        "og G har_organ fra hvert departement til staten («er organ for staten», avledet, premiss = medlemskapet i klassen departement). Alt som forslag. ?skriv=true skriver; " +
         "uten er det en tørrkjøring.");
 
 // [Ny, issue #463] Målingen av ordsperren over hele korpuset (bare lesing): forekomstene før og etter at bindestrek rett foran sluttet å være

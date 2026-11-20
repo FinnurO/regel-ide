@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 namespace RegelIde.Data.Tests;
 
 /// <summary>
-/// [Ny, issue #463, Johanns avgjørelse 2026-11-05 (modell B)] Norge, staten og departementene som del av staten, mot ekte embedded Postgres.
+/// [Ny, issue #463, Johanns avgjørelse 2026-11-05 (modell B)] Norge, staten og departementene som organer for staten, mot ekte embedded Postgres.
 /// Spørsmålene modellen skal kunne besvare etterpå (S1, S8):
 /// <list type="number">
 /// <item>Hva er Norge, og hvor er det hjemlet? Et område av typen rike, Grl. § 1 første ledd (tekstfunn), og fylkene og Svalbard er deler av det.</item>
@@ -18,7 +18,7 @@ namespace RegelIde.Data.Tests;
 [Collection(DataTestCollection.Navn)]
 public class NorgeStatenTjenesteTests(EmbeddedPostgresFixture fixture) : IAsyncLifetime
 {
-    /// <summary>Typekodene (O bestar_av, G del_av, M medlem_av) seedes ved oppstart i appen; testbasen har dem bare når en annen test har seedet.</summary>
+    /// <summary>Typekodene (O bestar_av, G har_organ, M medlem_av) seedes ved oppstart i appen; testbasen har dem bare når en annen test har seedet.</summary>
     public async Task InitializeAsync()
     {
         await using var db = fixture.NyDbContext();
@@ -150,10 +150,10 @@ public class NorgeStatenTjenesteTests(EmbeddedPostgresFixture fixture) : IAsyncL
         Assert.Equal(("rettssubjekt", Strukturkanter.Fortolkning, Strukturkanter.ManueltForeslatt), (aktortype.Aktortype, aktortype.Kunnskapsstatus, aktortype.Status));
         Assert.Null((await sjekk.Virksomheter.SingleAsync(v => v.Id == NorgeStatenTjeneste.StatenId)).Aktortype); // settes først ved godkjenning
 
-        var delAv = await sjekk.Strukturkanter.SingleAsync(k => k.FraVirksomhetId == departement && k.TilVirksomhetId == NorgeStatenTjeneste.StatenId);
-        Assert.Equal((Strukturkanter.Organtilhorighet, "del_av", Strukturkanter.Avledet, Strukturkanter.MaskineltForeslatt, "kgl_res"),
-            (delAv.Kategori, delAv.Typekode, delAv.Kunnskapsstatus, delAv.Status, delAv.KildeUtenforKorpusType));
-        Assert.Equal([mKant], await sjekk.StrukturkantPremisser.Where(p => p.KantId == delAv.Id).Select(p => p.PremissKantId).ToListAsync());
+        var organ = await sjekk.Strukturkanter.SingleAsync(k => k.FraVirksomhetId == departement && k.TilVirksomhetId == NorgeStatenTjeneste.StatenId);
+        Assert.Equal((Strukturkanter.Organtilhorighet, "har_organ", Strukturkanter.Avledet, Strukturkanter.MaskineltForeslatt, "kgl_res"),
+            (organ.Kategori, organ.Typekode, organ.Kunnskapsstatus, organ.Status, organ.KildeUtenforKorpusType));
+        Assert.Equal([mKant], await sjekk.StrukturkantPremisser.Where(p => p.KantId == organ.Id).Select(p => p.PremissKantId).ToListAsync());
 
         // Idempotent: en ny kjøring skriver ingenting.
         var igjen = await Tjeneste(sjekk).KjorAsync(skriv: true, "test");

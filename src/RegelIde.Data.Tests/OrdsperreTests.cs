@@ -24,7 +24,10 @@ public class OrdsperreTests
     [InlineData("i den utstrekning denne [staten] har gitt samtykke")]
     [InlineData("avgiften tilfaller [staten].")]
     [InlineData("[Staten] dekker utgiftene.")]
-    [InlineData("i denne [staten]")] // ikke med i notatet; telles i målingen
+    [InlineData("i denne [staten]")] // Johann 2026-11-18: sperres ikke
+    // Johann 2026-11-18: det betingede «hvis» sperrer ikke (de tre om den norske staten i korpuset).
+    [InlineData("rett til erstatning av [staten] hvis tapet skyldes feil")]
+    [InlineData("dekkes av [staten] hvis den unge ikke har rett til fri reise")]
     public void Gjelder(string tekst) => Assert.Null(Vurder(tekst));
 
     [Theory]
@@ -35,8 +38,19 @@ public class OrdsperreTests
     [InlineData("Den [staten] der fartøyet er registrert", Ordsperrer.DenAdjektiv)]
     [InlineData("reise til [staten] hvor de er bosatt", Ordsperrer.DerHvorHvis)]
     [InlineData("regjeringen i [staten] hvis flagg skipet fører", Ordsperrer.DerHvorHvis)]
+    [InlineData("navn på [staten] hvis lovgivning gjelder", Ordsperrer.DerHvorHvis)]
     [InlineData("myndigheten i EØS-[staten]", Ordsperrer.BindestrekForan)]
     public void Sperret(string tekst, string grunn) => Assert.Equal(grunn, Vurder(tekst));
+
+    [Theory]
+    [InlineData(" hvis flagg skipet fører", true)]
+    [InlineData(" hvis lovgivning gjelder", true)]
+    [InlineData(" hvis tapet skyldes", false)]
+    [InlineData(" hvis den unge", false)]
+    [InlineData(" hvis det er nødvendig", false)]
+    [InlineData(" hvis myndighetene samtykker", false)]
+    [InlineData(" der han bor", false)]
+    public void Possessivt_hvis(string etter, bool forventet) => Assert.Equal(forventet, Ordsperrer.ErPossessivtHvis(etter));
 
     [Fact]
     public void Konvensjonstekst_sperrer_bare_det_som_ellers_gjelder()

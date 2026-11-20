@@ -17,7 +17,9 @@ namespace RegelIde.Data;
 /// <item><b>«den (adj.) staten»</b>: «den» og et adjektiv i svak (bestemt) form, som ender på -e («den andre staten», «den anmodede staten»),
 /// eventuelt med ett ord foran («den særlig berørte staten»), eller ingen («den staten der …»). «den utstrekning denne staten» er ikke med. Unntak: <b>«den norske staten»</b> er aktøren og sperres ikke. Kjent pris:
 /// et substantiv på -e mellom «den» og «staten» sperrer også («den rente staten oppnår», 1 forekomst målt 2026-11-17).</item>
-/// <item><b>«staten der / hvor / hvis»</b>: ordet innleder en relativsetning som sier hvilken stat («staten der vedkommende er bosatt»).</item>
+/// <item><b>«staten der / hvor / hvis»</b>: ordet innleder en relativsetning som sier hvilken stat («staten der vedkommende er bosatt»).
+/// [ENDRET, Johanns avgjørelse 2026-11-18] «hvis» bare når et substantiv følger («staten hvis flagg»), ikke det betingede «hvis»
+/// («erstatning av staten hvis tapet skyldes»): <see cref="ErPossessivtHvis"/>.</item>
 /// <item><b>Spenn med konvensjonstekst</b>: noden står under en overskrift som er en konvensjon, overenskomst, avtale, protokoll eller
 /// traktat (eller et EØS-vedlegg), eller rettskilden selv er det (<see cref="ErKonvensjonsoverskrift"/>). Der er «staten» en part.</item>
 /// </list>
@@ -55,7 +57,31 @@ public static class Ordsperrer
     private static readonly Regex DenForan = new(@"(?:^|[^\p{L}\p{N}])den((?:\s+\p{Ll}+)?\s+\p{Ll}+e)?\s+$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
-    private static readonly Regex DerHvorHvisEtter = new(@"^\s+(der|hvor|hvis)(?![\p{L}\p{N}])", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+    private static readonly Regex DerHvorEtter = new(@"^\s+(der|hvor)(?![\p{L}\p{N}])", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+
+    /// <summary>[ENDRET, Johanns avgjørelse 2026-11-18 på PR #480] «hvis» sperrer bare som possessiv relativ («staten hvis flagg skipet fører»):
+    /// ordet etter er et substantiv i ubestemt form uten artikkel. Det betinge «hvis» («erstatning av staten hvis tapet skyldes», «dekkes av
+    /// staten hvis den unge …») har et subjekt etter seg: et pronomen, en artikkel eller et substantiv i bestemt form. Lista under er lukket, og
+    /// et ord den ikke kjenner, regnes som substantiv bare når det ikke har bestemt endelse (-en, -et, -a, -ene, -ne).</summary>
+    private static readonly Regex HvisEtter = new(@"^\s+hvis\s+(\p{Ll}+)(?![\p{L}\p{N}])", RegexOptions.CultureInvariant);
+
+    private static readonly HashSet<string> IkkeSubstantiv = new(StringComparer.Ordinal)
+    {
+        "den", "det", "de", "dem", "denne", "dette", "disse", "en", "et", "ei", "han", "hun", "man", "vi", "dere", "jeg", "du", "seg", "sin", "sitt",
+        "sine", "hans", "hennes", "deres", "noen", "ingen", "ikke", "vedkommende", "slik", "slike", "så", "også", "bare", "andre", "annen", "annet",
+        "ett", "alle", "hver", "hvert", "enten", "begge",
+    };
+
+    private static readonly string[] BestemtEndelse = ["ene", "ne", "en", "et", "a"];
+
+    /// <summary>Om «hvis» etter ordet er possessivt (et substantiv i ubestemt form følger).</summary>
+    public static bool ErPossessivtHvis(string etter)
+    {
+        var m = HvisEtter.Match(etter);
+        if (!m.Success) return false;
+        var ord = m.Groups[1].Value;
+        return !IkkeSubstantiv.Contains(ord) && !BestemtEndelse.Any(e => ord.Length > e.Length + 2 && ord.EndsWith(e, StringComparison.Ordinal));
+    }
 
     /// <summary>
     /// Grunnen til at forekomsten [<paramref name="start"/>, <paramref name="slutt"/>) av <paramref name="term"/> i <paramref name="tekst"/> er
@@ -74,7 +100,8 @@ public static class Ordsperrer
             if (!ord.Any(o => string.Equals(o, "norske", StringComparison.OrdinalIgnoreCase))
                 && !(ord.Length > 0 && string.Equals(ord[^1], "denne", StringComparison.OrdinalIgnoreCase))) return DenAdjektiv;
         }
-        if (DerHvorHvisEtter.IsMatch(tekst[slutt..])) return DerHvorHvis;
+        var etter = tekst[slutt..];
+        if (DerHvorEtter.IsMatch(etter) || ErPossessivtHvis(etter)) return DerHvorHvis;
         if (iKonvensjonstekst) return Konvensjonstekst;
         return null;
     }

@@ -1,0 +1,114 @@
+[
+ {
+  "id": "Q",
+  "svar": "delvis",
+  "tekst": "Aksepterer at A eller B er et falskt valg: ordet er kontekstavhengig, både statsrådet og Kongen i statsråd skal finnes som organer, og «regjeringen» blir ikke navneform for noen av dem. Delvis på enheten for bindingen: modellen har i dag binding per rettskilde med valgfritt paragrafspenn ned til én node (docs/33 §5.7), og tagger per tegnspenn. I utvalget har bare r26 og r42 to forekomster i samme node, og begge gir ingen kant (generisk avtalestat og avtaletittel). Forslaget er derfor: standardenheten er noden (binding med spenn = én eId), og en forekomst som skiller seg fra resten av noden, tagges for seg. En ny bindingstype per tegnposisjon bygges ikke før et tilfelle i korpus krever ulik referent for to forekomster i samme node med kant.",
+  "kilder": [
+   "docs/33 §5.7 (binding med paragrafspenn)",
+   "r26",
+   "r42"
+  ]
+ },
+ {
+  "id": "R",
+  "svar": "aksepter",
+  "tekst": "Regelen i rettingen tas inn som forslag (fremmed prøves først, sanksjonsforskrifter sperres ved tittel, «Regjeringens res.» følger Grl. § 32 og FastsattAvTolker, rolleregelen tar med sideordnede oppramsinger, funksjonsregel). Bygges ikke i #463 (Johann 2026-11-18).",
+  "kilder": []
+ },
+ {
+  "id": "r1",
+  "svar": "aksepter",
+  "tekst": "Hvem plikten ligger hos (kollegiet eller beslutningsformen), er et modellvalg. Det går til Johann sammen med r2 og r10.",
+  "kilder": []
+ },
+ {
+  "id": "r2",
+  "svar": "aksepter",
+  "tekst": "Som r1: til Johann.",
+  "kilder": []
+ },
+ {
+  "id": "r4",
+  "svar": "aksepter",
+  "tekst": "Rettingen tas inn.",
+  "kilder": []
+ },
+ {
+  "id": "r7",
+  "svar": "aksepter",
+  "tekst": "Rettingen tas inn.",
+  "kilder": []
+ },
+ {
+  "id": "r8",
+  "svar": "aksepter",
+  "tekst": "Rettingen tas inn.",
+  "kilder": []
+ },
+ {
+  "id": "r10",
+  "svar": "aksepter",
+  "tekst": "Rettingen tas inn.",
+  "kilder": []
+ },
+ {
+  "id": "r13",
+  "svar": "aksepter",
+  "tekst": "Rettingen tas inn.",
+  "kilder": []
+ },
+ {
+  "id": "r14",
+  "svar": "aksepter",
+  "tekst": "Rettingen tas inn.",
+  "kilder": []
+ },
+ {
+  "id": "r18",
+  "svar": "aksepter",
+  "tekst": "Rettingen tas inn.",
+  "kilder": []
+ },
+ {
+  "id": "r20",
+  "svar": "aksepter",
+  "tekst": "Rettingen tas inn.",
+  "kilder": []
+ },
+ {
+  "id": "r22",
+  "svar": "aksepter",
+  "tekst": "Rettingen tas inn.",
+  "kilder": []
+ },
+ {
+  "id": "r23",
+  "svar": "aksepter",
+  "tekst": "Rettingen tas inn.",
+  "kilder": []
+ },
+ {
+  "id": "r26",
+  "svar": "aksepter",
+  "tekst": "Rettingen tas inn.",
+  "kilder": []
+ },
+ {
+  "id": "r35",
+  "svar": "aksepter",
+  "tekst": "Rettingen tas inn.",
+  "kilder": []
+ },
+ {
+  "id": "r38",
+  "svar": "aksepter",
+  "tekst": "Teksten avgjør ikke; kortet står som uavklart til et menneske har sett forarbeidene. Går til Johann som eksempel på regel 6 (forslag merket slutning).",
+  "kilder": []
+ },
+ {
+  "id": "r42",
+  "svar": "aksepter",
+  "tekst": "Rettingen tas inn.",
+  "kilder": []
+ }
+]

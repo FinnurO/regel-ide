@@ -8,7 +8,7 @@ namespace RegelIde.Data;
 /// har avvist forslaget; det foreslås ikke på nytt).</summary>
 public sealed record NorgeStatenLedd(string Hva, string Utfall, Guid? Id, string? Merknad);
 
-/// <summary>[Ny, issue #463] Én kant: O Norge består av (fylke, Svalbard) eller G departement del av staten. <see cref="Utfall"/>: <c>ny</c> |
+/// <summary>[Ny, issue #463] Én kant: O Norge består av (fylke, Svalbard) eller G departement har_organ staten («er organ for staten»). <see cref="Utfall"/>: <c>ny</c> |
 /// <c>finnes</c> | <c>avvist</c>.</summary>
 public sealed record NorgeStatenKant(string Fra, string Til, string Hjemmel, string Kunnskapsstatus, string Utfall, Guid? KantId, Guid? PremissKantId);
 
@@ -38,7 +38,9 @@ public sealed record NorgeStatenRapport(
 /// <item><b>Staten</b>: aktør (rettssubjekt) uten organisasjonsnummer, med den gjeldende navneformen «staten» (hjemmel Grl. § 16 første ledd,
 /// der ordet står om den norske staten: «understøttes som sådan av staten», tekstfunn) og aktørtypen rettssubjekt som forslag med
 /// fortolkning (tvisteloven § 2-1 første ledd bokstav b: «stat» har partsevne). Navneformen har ordsperre (<see cref="Ordsperrer"/>).</item>
-/// <item><b>Departementene er organer for staten</b>: <c>G del_av</c> fra hvert medlem av klassen «departement» (#442) til staten,
+/// <item><b>Departementene er organer for staten</b>: [ENDRET, Johanns avgjørelse 2026-11-18 på PR #480: <c>har_organ</c>, ikke <c>del_av</c>]
+/// <c>G har_organ</c> fra hvert medlem av klassen «departement» (#442) til staten («Finansdepartementet er organ for staten»; fra staten:
+/// «har organet Finansdepartementet»). Retningen følger noderegelen for G (organ → rettssubjekt),
 /// kunnskapsstatus <c>avledet</c> med premisset for medlemskapet som premiss (R oppretter fra livsløpet eller M-kanten), og samme hjemmel eller
 /// kilde utenfor korpus som premisset. Regelen «et departement er et organ for staten» står i klassens definisjon (modell B).</item>
 /// </list>
@@ -65,7 +67,7 @@ public sealed class NorgeStatenTjeneste(RegelIdeDbContext db, StrukturkantTjenes
     public const string Grunnloven16Sitat = "understøttes som sådan av staten";
 
     public const string FylkeneOppdagelseskilde = "monster:norge-fylkene";
-    public const string DelAvOppdagelseskilde = "monster:departement-del-av-staten";
+    public const string HarOrganOppdagelseskilde = "monster:departement-organ-for-staten";
     public const string Oppdagelseskilde = "manuell";
     private const string Rettssubjekt = "rettssubjekt"; // Nodetyper.Aktortyper[0]; ingen egen konstant der
 
@@ -323,7 +325,7 @@ public sealed class NorgeStatenTjeneste(RegelIdeDbContext db, StrukturkantTjenes
                 ? $"{await db.Rettskilder.Where(r => r.Id == premiss.HjemmelRettskildeId).Select(r => r.Kortnavn ?? r.Tittel).FirstOrDefaultAsync(ct)} ({premiss.HjemmelEid})"
                 : premiss.KildeUtenforKorpusTekst ?? "";
             var tidligere = await kanttjeneste.GjeldendeInklAvviste
-                .Where(k => k.Kategori == Strukturkanter.Organtilhorighet && k.Typekode == "del_av" && k.FraVirksomhetId == m.VirksomhetId
+                .Where(k => k.Kategori == Strukturkanter.Organtilhorighet && k.Typekode == "har_organ" && k.FraVirksomhetId == m.VirksomhetId
                             && k.TilVirksomhetId == StatenId)
                 .OrderBy(k => k.Status == Strukturkanter.Avvist ? 1 : 0).FirstOrDefaultAsync(ct);
             if (tidligere is not null)
@@ -332,12 +334,12 @@ public sealed class NorgeStatenTjeneste(RegelIdeDbContext db, StrukturkantTjenes
                     tidligere.Id, m.PremissKantId));
                 continue;
             }
-            var o = await kanttjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Organtilhorighet, "del_av",
+            var o = await kanttjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Organtilhorighet, "har_organ",
                 Kantnode.Virksomhet(m.VirksomhetId), Kantnode.Virksomhet(StatenId),
                 HjemmelRettskildeId: premiss.HjemmelRettskildeId, HjemmelEid: premiss.HjemmelEid,
                 KildeUtenforKorpusTekst: premiss.KildeUtenforKorpusTekst, KildeUtenforKorpusLenke: premiss.KildeUtenforKorpusLenke,
                 KildeUtenforKorpusType: premiss.KildeUtenforKorpusType, KildeUtenforKorpusDokumentasjon: premiss.KildeUtenforKorpusDokumentasjon,
-                Status: Strukturkanter.MaskineltForeslatt, OppdagelsesKilde: DelAvOppdagelseskilde,
+                Status: Strukturkanter.MaskineltForeslatt, OppdagelsesKilde: HarOrganOppdagelseskilde,
                 Kunnskapsstatus: Strukturkanter.Avledet, Premisser: [m.PremissKantId],
                 Begrunnelse: $"{m.Navn} er medlem av klassen «departement» ({m.Premissart}, {m.Kunnskapsstatus}), og et departement er et organ for "
                              + "staten (klassens definisjon, beslutningsnotatet modell B, Johann 2026-11-05). Hjemmelen er premissets. #463.",
