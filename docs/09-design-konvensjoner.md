@@ -1577,3 +1577,22 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
   Område og Grunndata), staten (Oversikt og Etter kategori) og Finansdepartementet (M-kanten og G del_av side om side). Kopien er slettet.
 - **Kaldsjekket på nytt 2026-11-20** i `regelide_norge2` etter Johanns avgjørelser (G `har_organ`): staten viser «har organet …», et
   departement «er organ for staten» ved siden av M-kanten. Kopien er slettet.
+
+## 56. Hjemmelsstatus på rettskildesiden (issue #472 PR 1, Johanns avgjørelser 2026-11-18)
+
+- **Hvor:** seksjonen «Hjemmelsstatus» øverst i fanen Relasjoner på `RettskildeDetalj`, over kontekstpanelet, bare når rettskilden har hjemler.
+  Komponenten er `rettskilde/Hjemmelsstatus.tsx`; tekstene står i den rene modulen `rettskilde/hjemmelsstatusTekst.ts` (vitest, §17).
+- **Ingen merkelapp på linje 2 under tittelen** og ingen `danger`. Lovdata viser forskriften som gjeldende; en opphevet hjemmel er en lesning
+  av premissene, ikke en statusendring (CLAUDE.md §9). `Metatekst` under overskriften sier det, med regelversjon og dato.
+- **Samlet:** `Tag` `neutral` med teksten («Hjemmel opphevet, videreføring ikke funnet (mulig bortfalt)», Johanns ord 2026-11-18 (2); aldri
+  «sovende»), `KunnskapsstatusTag` (§35, uavklart er `warning`), og «Gjenstandsløs» som eget `neutral`-merke (avgjørelse (5)). Under står
+  forklaringen og «Svakeste premiss: …» som `Metatekst`, som i §47. Den samlede statusen regnes ut av API-et og lagres ikke.
+- **Tabellen** (`Card` med padding 0, §6) har tre kolonner: «Hjemmel» (lenke til hjemmelsdokumentet, bestemmelsen etter `Bestemmelsesetikett`;
+  «Bare referanse i korpuset» og «Teller ikke i den samlede statusen» som `Metatekst`), «Rolle» (`neutral`; «Ikke vurdert» `neutral` `outline`
+  som «Ikke avklart» i §42; regelen i `title`) og «Status og bevis» (status `neutral` og `KunnskapsstatusTag`, så opphevingen, videreføringen
+  og erstatningen som `Metatekst` med lenke til bestemmelsen og sitatet ordrett).
+- **Fargerollene (låst per betydning, §15/§25/§35):** status og rolle er klassifiseringer → `neutral`. «Ikraftsetting ikke kontrollert» er en
+  premissmangel → `warning`, som premissporten i §49.
+- **Sitat fra Lovtidend:** når opphevingen er lest i den kunngjorte teksten (EN_LTI), lenker bestemmelsen til rettskilden, ikke til noden, fordi
+  noden ikke finnes i korpuset. Bevistrinnet står i klartekst etter sitatet.
+- **Ikke beregnet:** før maskinregelen er kjørt med skriving, står «Ikke beregnet» som `Metatekst`, ikke en tom tabell.

@@ -2413,6 +2413,91 @@ rollen statsråd, funksjonen, «Regjeringens res.» = Kongen i statsråd etter G
 slutning. Bindingen gjelder noden som standard, med tre vilkår fra runde 2. Ingen uenighet igjen. Johann må velge hvem plikten ligger hos når
 «regjeringen skal legge fram for Stortinget» (kollegiet eller Kongen i statsråd).
 
+### 5.20 Hjemmelsstatus: statusen per hjemmel og maskinregelen (#472 PR 1, bygget 2026-11-20)
+
+[Ny, Johanns avgjørelser 2026-11-18 i #472, etter fase 1 og to juristrunder] Spørsmålet: «Hvilke hjemler har forskriften, hvilke av dem er
+opphevet, av hvilken bestemmelse, og er forskriften videreført?» Johann 2026-11-06: en forskrift kan stå på en opphevet hjemmel. Lovdata viser
+alle disse forskriftene som gjeldende, så svaret er alltid en lesning av premissene, aldri en statusendring. #445 er slått sammen inn i #472.
+
+**Tabellen `hjemmelsstatus`** (`Hjemmelsstatus.cs`, migrasjonen `Hjemmelsstatus`): én rad per rad i `rettskilde_hjemler`, avledet og skrevet på
+nytt av maskinregelen. Importtabellen røres ikke. Feltene:
+- **rolle** (normalisering etter en navngitt regel i `rolle_regel`, ellers NULL = ikke vurdert): `materiell` (hjemmelsteksten nevner loven etter
+  «med hjemmel i»), `kompetanseledd` (hjemmelen er selv et delegeringsvedtak, DEL-basen eller tittelen; vedtaket står etter «jf.»; Grl. § 12),
+  `overgangsgrunnlag` (bestemmelsen står i en paragraf med «overgang» i overskriften), `gjenstand` (ressortvedtak etter Grl. § 12 der
+  hjemmelsteksten ikke nevner loven, S08);
+- **status**: `aktiv`, `opphevet` (uten funnet videreføring), `opphevet_bestemmelse` (merket opphevet i en gjeldende lov; videreføringen står i
+  endringsloven og er ikke undersøkt, R5), `viderefort`, `videreforing_utlopt`, `erstattet` (et opphevet kompetanseledd der vedtaket som opphever
+  det, selv tildeler kompetanse), `gjenstandslos` (eget merke, Johanns avgjørelse (5)), `ukjent` med `ukjent_grunn`
+  (EN, END, E3, INGEN, eId ikke funnet, opphevingen ikke i kraft);
+- **bevistrinn** for en oppheving lest av teksten: E1 (hel opphevingssetning i en kilde med målet i «Endrer»), E1u (utvidet form: passiv,
+  «til» etter nummeret, hele noden når tittelen har punktum), E2 (uten «Endrer», med vakten), EN_LTI (setningen står bare i den kunngjorte
+  teksten i Norsk Lovtidend avd. I, Johanns avgjørelse (3));
+- **opphevet av**: rettskilde, node (NULL når sitatet er fra Lovtidend), eId, sitat ordrett, dato (ikrafttredelsen til kilden, dokumentnivå, R2);
+- **videreføring**: rettskilde, node, eId, sitat, form V1–V4 (V1 #429s `Videreforingssetning`, V2 utvidet ordform, V2a i en annen lov eller en
+  overgangsforskrift, V3 generisk, V4 kortnavn), forbehold, tidsfrist og dekning (`dekket`, `dokumenttype_ikke_nevnt`,
+  `avgrensning_ikke_kontrollert`). En avgrensning som ikke dekker hjemmelens paragraf («kapittel 4a og § 7-9», S12), er ikke et gyldig bevis;
+- **erstattet av**, **premissmangel** («ikraftsetting av opphevingsbestemmelsen ikke kontrollert» når loven kan settes i kraft til ulik tid),
+  **kunnskapsstatus** og proveniensen (`regel` `monster:hjemmelsstatus`, `regelversjon`, `beregnet_av`, `beregnet_tidspunkt`).
+
+Kunnskapsstatus per hjemmel: aktiv og gjenstandsløs `normalisering`; opphevet `tekstfunn` (EN_LTI `eksternt_dokumentert`); videreført
+`tekstfunn` (V3/V4 `normalisering`), men `fortolkning` med forbehold eller når dekningen ikke er `dekket`; erstattet `fortolkning`; ukjent
+`uavklart`.
+
+**Samlet status lagres ikke** (#345). `HjemmelsstatusSamlet` regner den ut ved oppslag, med svakeste premiss (§4.6) og rekursjon:
+1. Premissene er hjemlene med rolle materiell eller NULL; er det ingen, kompetanseledd og overgangsgrunnlag. Gjenstand teller aldri.
+2. En hjemmel som selv er en gjeldende forskrift, arver forskriftens samlede status (R1). En syklus gir ukjent. «Blandede hjemler» og
+   «uavklart» arves som ukjent.
+3. Én premiss ukjent → **ukjent** (den strenge varianten).
+4. Alle faller → **hjemmel opphevet, videreføring ikke funnet** (mulig bortfalt), eller **videreføringen er utløpt** når alle er utløpt.
+5. Noen faller og noen bærer → **blandede hjemler**, men **uavklart** når alle som bærer har rolle NULL (runde 2 R1). Delen pekes ikke ut (R6).
+6. Ellers **videreført** eller **aktiv**.
+
+Kunnskapsstatusen er det svakeste premisset, og aldri sterkere enn `fortolkning` når en hjemmel faller (Lovteknikk og lovforberedelse pkt. 7.3.5).
+
+**Maskinregelen** (`HjemmelsstatusRegel`, `POST /api/hjemmelsstatus/maskinregel`): tørrkjøring som standard, `?skriv=true` skriver tabellen,
+`?lovtidend=false` lar være å laste ned arkivet, `?medRader=true` og `?rettskildeId=` (med forskriftene den bygger på). Rapporten teller per
+status, bevistrinn, ukjent-grunn, rolle, videreføringsform, dekning og kunnskapsstatus, referanseradene (AK 4), Lovtidend-oppslaget, og den samlede
+statusen for gjeldende primære forskrifter med minst én hjemmel, med rene endringsvedtak (#446) og prefiks for seg.
+`GET /api/rettskilder/{id}/hjemmelsstatus` gir radene og den samlede statusen til rettskildesiden (docs/09 §56).
+
+**Tekstlesingen er delt** (`Hjemmelstekstlesing`): passiv, «til», hele noden, vakten mot et mål i tittelen til noe annet, og videreføringsformene.
+[LÅST, oppdraget for PR 1] De er IKKE koblet inn i R8/R9 i #429; det er PR 3. `Opphevingskontroll` tar bare målmønsteret utenfra (lov uten
+nummer), med samme svar for R8 og R9 (Pr3- og Pr4-testene er grønne). Endringer fra fase 1 som var nødvendige for riktige tall:
+- vakten godtar utstederen mellom dokumenttypen og datoen («Kongelig resolusjon fra X-departementet av …», AK 7);
+- V3 godtar bokmålsformen «regler som blir opphevet» (uhl. 2024 § 17-3; uten den sto 465 rader til uhl. 2005 som opphevet uten videreføring);
+- Lovtidend-teksten leses også i endringsblokkene (`article.change`/`document-change`), som parseren bevisst hopper over i konsolidert tekst. I
+  den kunngjorte uhl. 2024 står opphevingen av uhl. 2005 nettopp der (`data-repeal-part="lov/2005-04-01-15"`). Parseren er ikke endret.
+
+**Tørrkjørt mot den delte basen 2026-11-20 (bare lesing, `default_transaction_read_only=on`, Lovtidend fra Lovdatas API), mot fase 1 (før
+juristens rettinger):**
+
+| | Fase 1 | PR 1 |
+|---|---|---|
+| Hjemmelsrader (alle, også eldre versjoner) | — | 25 011 |
+| Referanserader for gjeldende primære forskrifter | 3 206 | 3 206, alle `entitetsstatus = gjeldende`, **0 aktive** (AK 4); 34 aktive via en fulgt endringslov |
+| E1 / E1u / E2 | 1 109 / 20 / 55 | 1 153 / 20 / 55 (+8 dokumenter fra formelen i forelderen og vakten, +19 fra fulgte endringslover) |
+| EN | 1 176 | 258 igjen; 892 rader lest i Lovtidend (EN_LTI). 26 av 110 EN-dokumenter løst; 93 av 109 kilder finnes i arkivet |
+| END / E3 / INGEN | 190 / 167 / 489 | 138 / 166 / 490 (34 fulgt til en gjeldende lov) |
+| Opphevet med tekstbevis (rader / dokumenter) | 1 184 / 154 | 2 120 / 214 |
+| Status per hjemmel (alle rader) | — | aktiv 21 545, videreført 1 376, ukjent 1 205, opphevet 678, opphevet (bestemmelse) 141, utløpt 44, erstattet 18, gjenstandsløs 4 |
+| Rolle | — | materiell 16 279, NULL 5 675, kompetanseledd 2 611, overgangsgrunnlag 380, gjenstand 66 |
+| Videreføringsform | 650 rader | V3 747, V1 675, V2a 36, V4 33, V2 28; dekket 1 010, dokumenttype ikke nevnt 506, avgrensning ikke kontrollert 3 |
+| Forskrifter med hjemmel | 5 595 | 5 595 |
+| Samlet: aktiv | 4 001 | 4 013 |
+| Samlet: videreført | 240 | 439 |
+| Samlet: ukjent | 1 095 | 821 |
+| Samlet: sovende → hjemmel opphevet, videreføring ikke funnet | 151 | 213 |
+| Samlet: delvis sovende → blandede hjemler / uavklart | 108 | 74 / 25 |
+| Samlet: videreføringen er utløpt | (i videreført) | 10 |
+| Rene endringsvedtak (#446 = true), telt for seg | — | 98 (aktiv 72, ukjent 12, videreført 8, hjemmel opphevet 3, blandede 3); resten 5 497 er ikke klassifisert |
+| Minst én hjemmel opphevet med tekstbevis | 637 | 913 |
+
+Vakten avviste 34 setninger. Kjøretid 2 minutter med nedlasting.
+
+**Ikke i PR 1:** funnundertypen og premissporten (PR 2: «Hjemmel opphevet, videreføring ikke funnet», vurderingspunktet «Ny hjemmel»), rettingene i
+#429-koden (PR 3), og flagget ved Lovdata-resynk (`HjemmelEndretFlagg`). En resynk som lager nye hjemmelsrader, gir rader uten status til regelen
+kjøres igjen. Funnene står som «oppdaget» til #446 er klassifisert og juristen har målt presisjonen (Johanns avgjørelse (4)).
+
 ### 5.6 Konvertering av eksisterende data
 
 | Fra | Til | Automatisk? |
