@@ -56,7 +56,8 @@ public class RegjeringenTjenesteTests(EmbeddedPostgresFixture fixture) : IAsyncL
         await Ledd(RegjeringenTjeneste.Grl12Eid,
             "Kongen velger selv et råd av stemmeberettigede norske borgere. Dette råd skal bestå av en statsminister og i det minste syv andre medlemmer.");
         await Ledd(RegjeringenTjeneste.Grl15Eid,
-            "Enhver som er medlem av statsrådet, har plikt til å innlevere sin avskjedssøknad etter at Stortinget har fattet beslutning om mistillit.");
+            "Enhver som er medlem av statsrådet, har plikt til å innlevere sin avskjedssøknad etter at Stortinget har fattet beslutning om mistillit "
+            + "til vedkommende statsråd alene eller til det samlede statsråd.");
         await Ledd(RegjeringenTjeneste.Grl32Eid,
             "De beslutninger som fattes av regjeringen under kongens fravær, utferdiges i kongens navn og undertegnes av statsrådet.");
         if (!await db.Virksomheter.AnyAsync(v => v.Id == NorgeStatenTjeneste.StatenId))
@@ -121,8 +122,19 @@ public class RegjeringenTjenesteTests(EmbeddedPostgresFixture fixture) : IAsyncL
         var nf = await les.Begreper.SingleAsync(b => b.VirksomhetReferanseId == RegjeringenTjeneste.StatsradetId && b.Entitetsstatus == "gjeldende"
                                                     && b.Godkjenning != Strukturkanter.Avvist);
         Assert.Equal("statsrådet", nf.Term);
-        Assert.Equal(RegjeringenTjeneste.Grl15Eid, nf.LovreferanseEid);
+        // [PR #489] Hjemmelen er § 12 første ledd med hjemmelens art oppretting; navnet står ikke der, så det er fortolkning.
+        Assert.Equal(RegjeringenTjeneste.Grl12Eid, nf.LovreferanseEid);
+        Assert.Equal("oppretting", nf.HjemmelArt);
+        Assert.Equal(Strukturkanter.Fortolkning, nf.Kunnskapsstatus);
         Assert.Equal(Strukturkanter.ManueltForeslatt, nf.Godkjenning);
+        var hjemmel = await new AktorsideTjeneste(les, new StrukturkantTjeneste(les), Identitet(les)).HjemmelAsync(RegjeringenTjeneste.StatsradetId);
+        Assert.Equal(Hjemmelkilder.HjemmelArt, hjemmel!.Kilde);
+        // [PR #489] Rollen statsråd er et eget rollebegrep, del av statsrådet.
+        var rolle = await les.Begreper.SingleAsync(b => b.Id == RegjeringenTjeneste.StatsradRolleId);
+        Assert.Equal(Nodetyper.Rolle, rolle.Begrepskategori);
+        Assert.Equal(RegjeringenTjeneste.Grl15Eid, rolle.LovreferanseEid);
+        var delAv = await les.Strukturkanter.SingleAsync(k => k.FraBegrepId == RegjeringenTjeneste.StatsradRolleId && k.Typekode == "del_av");
+        Assert.Equal(RegjeringenTjeneste.StatsradetId, delAv.TilVirksomhetId);
         Assert.False(await les.Begreper.AnyAsync(b => b.VirksomhetReferanseId != null && b.Term.ToLower() == "regjeringen" && b.Entitetsstatus == "gjeldende"));
         var aktortype = await les.AktortypeUtsagn.SingleAsync(a => a.VirksomhetId == RegjeringenTjeneste.StatsradetId);
         Assert.Equal("organ", aktortype.Aktortype);
@@ -136,7 +148,7 @@ public class RegjeringenTjenesteTests(EmbeddedPostgresFixture fixture) : IAsyncL
         Assert.Equal(3, bindinger.Count);
         Assert.All(bindinger, b => Assert.Equal(Strukturkanter.MaskineltForeslatt, b.Status));
         Assert.All(bindinger, b => Assert.NotNull(b.TekstTaggId));
-        Assert.Equal(RegjeringenTjeneste.StatsradetId, bindinger.Single(b => b.Lesning == Forekomstlesninger.RolleStatsrad).TilVirksomhetId);
+        Assert.Equal(RegjeringenTjeneste.StatsradRolleId, bindinger.Single(b => b.Lesning == Forekomstlesninger.RolleStatsrad).TilBegrepId);
         var slutning = bindinger.Single(b => b.Lesning == Forekomstlesninger.Slutning);
         Assert.Null(slutning.TilVirksomhetId);
         Assert.Null(slutning.TilBegrepId);
@@ -188,7 +200,7 @@ public class RegjeringenTjenesteTests(EmbeddedPostgresFixture fixture) : IAsyncL
         await generiske.GodkjennAsync(bindinger[medlem.Id].Id, "test");
         var rolle = await generiske.LosOppAsync(nfId, kilde, eider[0], taggId: medlem.Id);
         Assert.Equal(GeneriskOppslagstatus.Bundet, rolle.Status);
-        Assert.Equal(RegjeringenTjeneste.StatsradetId, rolle.Referent!.VirksomhetId);
+        Assert.Equal(RegjeringenTjeneste.StatsradRolleId, rolle.Referent!.BegrepId);
         Assert.Equal(Forekomstlesninger.RolleStatsrad, rolle.Lesning);
         Assert.True(rolle.Forekomst);
         Assert.Equal(GeneriskOppslagstatus.Flertydig, (await generiske.LosOppAsync(nfId, kilde, eider[0], taggId: fra.Id)).Status);

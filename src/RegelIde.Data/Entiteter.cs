@@ -1938,7 +1938,7 @@ public sealed class NavneformBindingEntitet
     /// [Ny, issue #486] Hva forekomsten er, når en ordlydsregel (eller et menneske) har lest den: <see cref="Forekomstlesninger"/>. Bare på
     /// en forekomstbinding (<see cref="TekstTaggId"/>). Uten referent for <c>fremmed_stat</c>, <c>generisk_konvensjonsstat</c>,
     /// <c>ikke_aktor</c>, <c>funksjon</c> og <c>slutning</c> (CHECK <c>ck_navneform_bindinger_referent_en</c>); med referent for
-    /// <c>rolle_statsrad</c> og <c>regjeringens_resolusjon</c>. NULL = en vanlig binding til referenten.
+    /// <c>rolle_statsrad</c> (rollebegrepet «statsråd») og <c>regjeringens_resolusjon</c> (Kongen i statsråd). NULL = en vanlig binding til referenten.
     /// </summary>
     public string? Lesning { get; set; }
 
@@ -1962,8 +1962,8 @@ public static class Forekomstlesninger
     public const string GeneriskKonvensjonsstat = "generisk_konvensjonsstat";
     /// <summary>Ikke en aktør: nettstedet (regjeringen.no), en avtaletittel eller en navnedel («Regjeringens sikkerhetsutvalg»).</summary>
     public const string IkkeAktor = "ikke_aktor";
-    /// <summary>Rollen statsråd: «medlem av regjeringen» (også i oppramsing) og «regjeringens medlemmer». Referenten er statsrådet; uttrykket
-    /// er rollen medlem av det.</summary>
+    /// <summary>Rollen statsråd: «medlem av regjeringen» (også i oppramsing) og «regjeringens medlemmer». [ENDRET, Johanns avgjørelse 2026-11-20
+    /// på PR #489] Referenten er rollebegrepet «statsråd» (G del_av statsrådet), ikke organet.</summary>
     public const string RolleStatsrad = "rolle_statsrad";
     /// <summary>Funksjonen, styret av riket («føre/forestå/ivareta regjeringen»). Ingen aktør.</summary>
     public const string Funksjon = "funksjon";
