@@ -53,7 +53,7 @@
 
 <main id="main">
   <div class="wrap page-head">
-    <span class="eyebrow">Innføring · oppdatert 20. november 2026</span>
+    <span class="eyebrow">Innføring · oppdatert 23. november 2026</span>
     <h1>Strukturmodell for forvaltningen</h1>
     <p class="lead">Lovene sier hvem som finnes i forvaltningen, hvordan de henger sammen og hvem som har hvilken myndighet. Men ingen kan lese hele lovverket, så den kunnskapen lever i dag på nettsider og i folks hoder. Strukturmodellen henter den ut av lovteksten og gjør den søkbar, med en lenke tilbake til paragrafen hver opplysning kommer fra.</p>
   </div>
@@ -68,46 +68,92 @@
     </div>
   </div>
 
-  <!-- [Ny, nettside-nytt-oktober, 2026-10-09] «Nytt oktober 2026». Alt innhold er hentet fra merget arbeid: PR #342, #346,
-       #351 (#341), #354 (#352), #358 (#353), #359 og #360 (#355), og beslutningskommentarene i #309, #335 og #361.
-       Lovsitatene er ordrett fra fasitfilene i data/fasit/strukturmodell/ (feltene «sitat» og nodeteksten). -->
-  <section class="section" id="nytt-oktober-2026">
+  <!-- [ENDRET, nettside-omstrukturering, 2026-11-23] Siden er delt i en referansedel uten dato, en endringslogg og en historikk
+       (Refs #486, #472). Det varige innholdet fra nyhetsseksjonene står nå i referansedelen, uten å gjentas. Historikken nederst står
+       ordrett slik den sto (master d737616), med merke og peker til dagens status (CLAUDE.md §22, REFERAT-regelen).
+       Ankerne som andre sider lenker til, er beholdt: #status, #aktorkoen, #hjemmel-for-aktoren, #norge-og-staten, #hjemmelsstatus,
+       #karasjok, #departementet, #nytt-pilot (pilotsiden) og #nytt-arbeidsmaten (pilotsiden og profilen). -->
+  <section class="section" id="innhold">
     <div class="wrap">
-      <div class="section-head">
-        <span class="kicker">Nytt oktober 2026 <span class="pill" data-tone="neutral">Historisk · 9. oktober 2026</span></span>
-        <h2>Modellen holder, og den kan svare på mer</h2>
-        <p>Fra 7. til 9. oktober ble modellen prøvd mot hva fem lover faktisk sier, kort for kort. Den holdt, men den måtte bli mer presis: myndighet er ordnet i familier, plikter mellom partene har fått sin egen plass, og ordninger som folketrygden er skilt fra aktørene. Samtidig har vi fått en ny måte å jobbe på, der en juristagent utfordrer hvert forslag før et menneske ser det.</p>
-      </div>
       <div class="prose">
-        <p>Her er hva som er nytt, med eksempler fra lovteksten. Der dataene ennå ikke er lastet inn i appen, står det.</p>
-        <!-- [Ny, nettside-rettinger, 2026-11-20] Seksjonene med dato er nyheter og står som historikk til siden omstruktureres (etter #486).
-             Statusen er kontrollert mot den delte basen 20. november 2026, bare med lesing. -->
-        <p class="struktur-forbehold"><strong>Slik leser du siden.</strong> Seksjonene merket «Historisk» er nyheter fra den datoen som står. Der noe er endret siden, står det en merknad «Oppdatert 20. november 2026». Hvor langt arbeidet er kommet i dag, står i <a href="#status">Status per 20. november 2026</a> nederst.</p>
-        <p class="struktur-forbehold"><strong>Nytt 15. oktober 2026:</strong> arbeidet er nå samlet i et <a href="../profil/">forslag til norsk profil for maskinlesbar rett</a>. Der står hvilke internasjonale standarder modellen bygger på, de åtte statusene som viser om et utsagn står i loven eller er en tolkning, og hvilke utvidelser som er bygget i DigRett. Forslaget er ikke vedtatt, og DigRett er utprøvingsarena og kandidatreferanseimplementasjon for det.</p>
+        <p class="struktur-forbehold"><strong>Slik leser du siden.</strong> Først forklares modellen slik den er nå. Hvor langt arbeidet er kommet, står i <a href="#status">Status per 23. november 2026</a>. Etter den kommer en kort <a href="#endringslogg">endringslogg</a>, og nederst <a href="#historikk">historikken</a>: rapporter og tall slik de sto den dagen de ble skrevet.</p>
+        <p>Arbeidet er også samlet i et <a href="../profil/">forslag til norsk profil for maskinlesbar rett</a>. Der står hvilke internasjonale standarder modellen bygger på, de åtte statusene som viser om et utsagn står i loven eller er en tolkning, og hvilke utvidelser som er bygget i DigRett. Forslaget er ikke vedtatt, og DigRett er utprøvingsarena og kandidatreferanseimplementasjon for det.</p>
       </div>
-      <ul class="nytt-innhold" aria-label="Innhold i denne delen">
-        <li><a href="#nytt-modellen-holder">Modellen holder</a></li>
-        <li><a href="#nytt-svar">Svar modellen gir nå</a></li>
-        <li><a href="#nytt-arbeidsmaten">Juristagenten</a></li>
-        <li><a href="#nytt-ikke-gjett">«Ikke gjett» i praksis</a></li>
-        <li><a href="#nytt-tall">Tallene så langt</a></li>
-        <li><a href="#departementet">Hvem er «departementet»?</a></li>
-        <li><a href="#nytt-pilot">Etter piloten på barnehageloven</a></li>
-        <li><a href="#aktorkoen">Aktørkøen</a></li>
-        <li><a href="#hjemmel-for-aktoren">Hjemmel for aktøren</a></li>
+      <ul class="nytt-innhold" aria-label="Innhold på siden">
+        <li><a href="#formalet">Formålet</a></li>
+        <li><a href="#byggeklossene">Byggeklossene</a></li>
+        <li><a href="#koblingene">Koblingene</a></li>
+        <li><a href="#nytt-svar">Tre svar</a></li>
+        <li><a href="#nytt-ikke-gjett">Ikke gjett</a></li>
+        <li><a href="#klasser">Grupper og klasser</a></li>
         <li><a href="#norge-og-staten">Norge og staten</a></li>
+        <li><a href="#standardreglene">Standardreglene</a></li>
+        <li><a href="#karasjok">Karasjok</a></li>
+        <li><a href="#departementet">«departementet»</a></li>
+        <li><a href="#regjeringen">«regjeringen»</a></li>
+        <li><a href="#aktorkoen">Aktørkøen</a></li>
+        <li><a href="#hjemmel-for-aktoren">Aktørsiden</a></li>
         <li><a href="#hjemmelsstatus">Hjemmelsstatus</a></li>
-        <li><a href="#status">Status per 20. november</a></li>
+        <li><a href="#funn">Funn</a></li>
+        <li><a href="#testet">Testet mot lovene</a></li>
+        <li><a href="#status">Status per 23. november</a></li>
+        <li><a href="#endringslogg">Endringslogg</a></li>
+        <li><a href="#historikk">Historikk</a></li>
       </ul>
     </div>
   </section>
 
-  <section class="section" id="nytt-modellen-holder">
+  <section class="section" id="formalet">
     <div class="wrap">
       <div class="section-head">
-        <span class="kicker">Nytt oktober 2026 · Modellen holder <span class="pill" data-tone="neutral">Historisk · 9. oktober 2026</span></span>
-        <h2>Aktører, områder, myndighet og plikter</h2>
-        <p>Byggeklossene er de samme som før. Det nye er at hver av dem nå kan uttrykke det lovene sier, uten å presse det inn i en kategori som nesten passer.</p>
+        <span class="kicker">Formålet</span>
+        <h2>Hva modellen skal kunne svare på</h2>
+        <p>Modellen er god nok når den kan svare på spørsmål som disse, direkte fra dataene:</p>
+      </div>
+      <div class="prose">
+        <ul>
+          <li>Hvem forvalter en lov, og hvem har ansvaret etter en bestemt paragraf?</li>
+          <li>Hvem blir berørt, direkte eller fordi de hører til en gruppe som «språkutviklingskommuner»?</li>
+          <li>Hvem er klageinstans for hvem, hvem er ankeinstans for en tingrett, og hvem er underlagt hvem?</li>
+          <li>Hvilke områder finnes, og hvem har ansvar hvor?</li>
+          <li>Hvem har hvilken myndighet etter hvilken paragraf: forskrift, vedtak, klage eller tilsyn?</li>
+          <li>Hva gjelder for én bestemt aktør, for eksempel Karasjok kommune?</li>
+          <li>Hvem har en kommune plikt til å samarbeide med, inngå avtale med eller betale til?</li>
+        </ul>
+        <p>Modellen beskriver <strong>strukturen</strong>. Den beskriver ikke plikter og rettigheter for innbyggere og virksomheter, og den avgjør ikke saker. Det hører til et senere lag, som forutsetter at strukturen er på plass. Plikter <em>mellom</em> forvaltningens parter, for eksempel at kommunen skal inngå avtale med helseforetaket, er derimot en del av strukturen: de sier hvem som har ansvar overfor hvem.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="byggeklossene">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Byggeklossene</span>
+        <h2>Hva som finnes: sju typer</h2>
+        <p>Alt lovteksten omtaler, er én av sju typer. Typen avgjør hvilke koblinger tingen kan ha.</p>
+      </div>
+      <div class="table-scroll">
+        <table class="ds-table struktur-tabell">
+          <thead>
+            <tr><th scope="col">Type</th><th scope="col">Hva det er</th><th scope="col">Eksempler fra lovene</th><th scope="col">Kjennetegn</th></tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">Rettssubjekt</th><td>En juridisk person som kan ha rettigheter og plikter</td><td>Staten, Oslo kommune, Helse Nord RHF</td><td>Kan eie, inngå avtaler og saksøkes</td></tr>
+            <tr><th scope="row">Organ</th><td>Handler på vegne av et rettssubjekt</td><td>Stortinget, Kongen i statsråd, departement, kommunestyret, Energiklagenemnda, tingrettene</td><td>Treffer beslutninger for noen</td></tr>
+            <tr><th scope="row">Organisatorisk enhet</th><td>En del av en organisasjon, uten selvstendig myndighet</td><td>Reguleringsmyndigheten for energi (enhet i NVE), Sametingets administrasjon, koordinerende enhet</td><td>Ligger inne i noe større</td></tr>
+            <tr><th scope="row">Rolle</th><td>En funksjon noen har i en bestemt sammenheng</td><td>konsesjonsmyndigheten, kommunelege, beredskapsmyndigheten</td><td>Kan ha ulik innehaver etter ulike paragrafer</td></tr>
+            <tr><th scope="row">Klasse</th><td>En kategori av aktører</td><td>kommunene, statsforvalterne, språkutviklingskommuner</td><td>Teksten snakker om mange av samme slag</td></tr>
+            <tr><th scope="row">Område</th><td>Et geografisk eller jurisdiksjonelt område</td><td>Karasjok (territoriet), et lagdømme, forvaltningsområdet for samiske språk</td><td>Kan pekes ut på et kart</td></tr>
+            <tr><th scope="row">Ordning</th><td>Ikke en aktør, men noe loven gir en funksjon: en trygdeordning, et fond eller en tilskuddsordning</td><td>Folketrygden, Energifondet</td><td>Forvaltes av et organ og kan ha plikter, men treffer ingen vedtak selv</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="no-callout struktur-merk">
+        <p>Samme ord kan være flere ting. «Kommunen» er både et rettssubjekt (Karasjok kommune) og et område (Karasjok). «Agder» er navnet på et fylke, en tingrett og et lagdømme. Modellen holder dem atskilt og kobler dem sammen.</p>
+      </div>
+      <!-- [ENDRET, nettside-omstrukturering] Aktører, områder og ordninger er flyttet hit fra «Modellen holder» (9. oktober). -->
+      <div class="prose struktur-etter-tabell" id="nytt-modellen-holder">
+        <h3>Aktører og områder</h3>
       </div>
       <div class="nytt-kort-grid">
         <div class="nytt-kort">
@@ -117,11 +163,49 @@
         <div class="nytt-kort">
           <h3>Områder</h3>
           <p>Områderegisteret har alle 15 fylker og 357 kommuner fra Kartverket, de 15 lagsognene og 6 lagdømmene fra forskriften om rettskretser og lagdømmer, og de 4 helseregionene fra vedtektene. Det er dette som gjør at modellen kan gå fra «tingretten» til én bestemt domstol.</p>
-          <p class="status">Domstolkoblingene ble lagt inn som forslag (<a href="https://github.com/FinnurO/regel-ide/pull/342" target="_blank" rel="noopener">#342</a>, <a href="https://github.com/FinnurO/regel-ide/pull/346" target="_blank" rel="noopener">#346</a>). <strong>Oppdatert 20. november 2026:</strong> de er godkjent av et menneske 16. oktober 2026.</p>
+          <p class="status">Domstolkoblingene er godkjent av et menneske (<a href="https://github.com/FinnurO/regel-ide/pull/342" target="_blank" rel="noopener">#342</a>, <a href="https://github.com/FinnurO/regel-ide/pull/346" target="_blank" rel="noopener">#346</a>).</p>
         </div>
       </div>
 
-      <div class="prose">
+      <div class="prose struktur-etter-tabell">
+        <h3>Ordninger: folketrygden er ikke en aktør</h3>
+        <p>Loven skriver «Folketrygden skal dekke behandlings- og forpleiningsutgifter …» (spesialisthelsetjenesteloven § 5-3 annet ledd). Men folketrygden er ikke et organ som treffer vedtak. Den er en ordning, og modellen har en egen type for det, med undertypene trygdeordning, fond og tilskuddsordning. En ordning forvaltes av noen. Hvem det er, ble slått opp i loven og ikke gjettet:</p>
+      </div>
+      <blockquote class="quote-block struktur-merk">Helsedirektoratet skal forvalte kapittel 5<cite><a href="https://lovdata.no/dokument/NL/lov/1997-02-28-19/§21-11a" target="_blank" rel="noopener">Folketrygdloven § 21-11 a første ledd</a></cite></blockquote>
+      <div class="prose struktur-etter-tabell">
+        <p>Før dette sto det i fasiten at folketrygden «forvaltes av Nav». Det var en antakelse uten kilde, og den er fjernet. Nå gjelder koblingen bare kapittel 5, fordi det er det loven sier. For de andre kapitlene bruker ikke folketrygdloven ordet «forvalte», så der står det et hull. Ingen bestemmelse sier heller at folketrygden tilhører staten, så den koblingen finnes ikke.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="koblingene">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Koblingene</span>
+        <h2>Hva lovteksten sier om dem: ni koblinger</h2>
+        <p>Hver opplysning er en kobling mellom to ting, eller mellom en ting og en paragraf. Det finnes ni slags koblinger.</p>
+      </div>
+      <div class="table-scroll">
+        <table class="ds-table struktur-tabell">
+          <thead>
+            <tr><th scope="col">Kobling</th><th scope="col">Hva den sier</th><th scope="col">Eksempel fra lovteksten</th></tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">Kompetanse</th><td>En aktør, en rolle eller en klasse har myndighet, eventuelt overfor en annen aktør, etter en bestemmelse. Står det «kommunen kan …» i en lov som gjelder alle kommuner, har hver kommune myndigheten: normgivning (forskrift, reglement, vedtekter …), vedtak, klage, tilsyn, instruksjon, delegering, oppnevning (å velge, ansette, utpeke, utnevne eller konstituere noen) og avsetting (å avsette, si opp eller avskjedige). Avslutningen speiler innsettingen: en fast dommer utnevnes av Kongen og kan bare avskjediges etter dom, mens en konstitusjon er midlertidig. Typene er ordnet i familier, og det står om kompetansen kan delegeres. Den vanligste koblingen i lovverket.</td><td>«Departementet kan gi forskrift om …», «Klageinstans for direktørens vedtak er styret»</td></tr>
+            <tr><th scope="row">Plikt</th><td>Det motsatte av kompetanse: hva en aktør <em>skal</em> overfor en annen. Samarbeid, avtale, betaling, bistand, informasjon og konsultasjon. Å legge et spørsmål fram for et organ som bare gir et råd, er konsultasjon. Gir organet et bindende svar, er det organets egen myndighet. Det står om teksten sier «skal», «kan» eller «bør». Mottakeren av en betaling registreres bare når teksten sier hvem som får pengene, og det sluttes aldri at plikten går begge veier.</td><td>«Kommunen skal inngå samarbeidsavtale med det regionale helseforetaket», «Folketrygden skal dekke behandlings- og forpleiningsutgifter»</td></tr>
+            <tr><th scope="row">Oppgave</th><td>Et arbeidsfelt eller ansvar loven legger til en aktør, uten at det gir myndighet over andre eller en plikt overfor en bestemt motpart: forvalte, samordne, sørge for, føre oversikt, bistå, være sekretariat, gi råd, veilede eller påse. «Skal samordne» betyr ikke at aktøren kan instruere dem som samordnes. En oppgave gir aldri kompetanse eller plikt i seg selv; står det i loven, er det egne koblinger (<a href="https://github.com/FinnurO/regel-ide/issues/368" target="_blank" rel="noopener">#368</a>).</td><td>«Beredskapsmyndigheten skal samordne beredskapsarbeid», «Fortegnelse over de valgte meddommere føres av kommunen»</td></tr>
+            <tr><th scope="row">Relasjon</th><td>Et forhold mellom to aktører uten myndighet: eierskap, ledelse, sekretariat, rapportering, etterfølger, og en delegering som er gjennomført. En ordning forvaltes av et organ.</td><td>«Departementet delegerer all myndighet etter [energiloven]» til NVE</td></tr>
+            <tr><th scope="row">Medlemskap</th><td>Noe hører til en klasse</td><td>tingrettene hører til «de alminnelige domstoler»</td></tr>
+            <tr><th scope="row">Områdesammensetning</th><td>Et område består av andre områder</td><td>Follo og Nordre Østfold tingretts rettskrets omfatter Ås</td></tr>
+            <tr><th scope="row">Ansvarsområde</th><td>En aktør har ansvar for, eller sete i, et område</td><td>Statsforvalteren i Troms og Finnmark har ansvar for Troms og Finnmark</td></tr>
+            <tr><th scope="row">Organtilhørighet</th><td>Et organ eller en enhet hører til et rettssubjekt, eller et organ er satt sammen på en bestemt måte — fast, eller i den enkelte sak («Høyesterett settes med fem dommere»)</td><td>«Et foretak ledes av et styre og en daglig leder»</td></tr>
+            <tr><th scope="row">Rolleinnehav</th><td>En aktør, eller alle i en klasse, er utpekt til en rolle</td><td>«Norges vassdrags- og energidirektorat utpekes som konsesjonsmyndighet», «Kommunen er lokal barnehagemyndighet»</td></tr>
+            <tr><th scope="row">Klassenivå</th><td>Alle i en klasse skal ha noe, hver for seg</td><td>«Høyesterett skal ha en direktør», «skal kommunen tilby koordinator»</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- [ENDRET, nettside-omstrukturering] Familiene, plikt og modalitet er flyttet hit fra «Modellen holder» (9. oktober). -->
+      <div class="prose struktur-etter-tabell">
         <h3>Myndighet er ordnet i familier</h3>
         <p>Det lovene oftest sier, er at noen <em>kan</em> noe: gi forskrift, oppnevne, avgjøre en klage. Det kaller modellen kompetanse. Typene er nå ordnet i familier: struktur, oppnevning, styring, normgivning, kontroll, klage og overprøving, vedtak og sanksjon. Da kan man spørre både bredt («hvem har myndighet over hvem som sitter i et verv?») og smalt («hvem kan utnevne?»).</p>
       </div>
@@ -173,25 +257,36 @@
       <div class="prose">
         <p>Står det at A skal samarbeide med B, betyr det ikke at B skal samarbeide med A. Modellen registrerer bare det teksten sier, og slutter aldri at plikten går begge veier.</p>
       </div>
-
       <div class="prose struktur-etter-tabell">
-        <h3>Ordninger: folketrygden er ikke en aktør</h3>
-        <p>Loven skriver «Folketrygden skal dekke behandlings- og forpleiningsutgifter …» (spesialisthelsetjenesteloven § 5-3 annet ledd). Men folketrygden er ikke et organ som treffer vedtak. Den er en ordning, og modellen har nå en egen type for det, med undertypene trygdeordning, fond og tilskuddsordning. En ordning forvaltes av noen. Hvem det er, ble slått opp i loven og ikke gjettet:</p>
+        <h3>Det hver kobling alltid har med seg</h3>
+        <ul>
+          <li><strong>Hjemmel:</strong> paragrafen og leddet koblingen kommer fra. Når opplysningen er bestemt utenfor lovtekstene, for eksempel i en kongelig resolusjon eller i vedtekter, står kilden i stedet. Merknader og veiledning i en forskrift er aldri hjemmel (<a href="#merknader">se under</a>).</li>
+          <li><strong>Avgrensning:</strong> hvilke saker eller paragrafer koblingen gjelder. Nesten alle koblinger i lovverket er avgrenset, for eksempel «bare enkeltvedtak».</li>
+          <li><strong>Fortegn:</strong> «kan ikke instrueres» er like viktig som «kan instruere», fordi det er slik uavhengighet uttrykkes.</li>
+          <li><strong>Modalitet</strong> (for plikter): «skal», «kan» eller «bør», slik teksten sier det. Står det ikke, står feltet tomt.</li>
+          <li><strong>Status:</strong> om et menneske har bekreftet koblingen, eller om den er et maskinforslag som venter på godkjenning.</li>
+        </ul>
       </div>
-      <blockquote class="quote-block struktur-merk">Helsedirektoratet skal forvalte kapittel 5<cite><a href="https://lovdata.no/dokument/NL/lov/1997-02-28-19/§21-11a" target="_blank" rel="noopener">Folketrygdloven § 21-11 a første ledd</a></cite></blockquote>
-      <div class="prose struktur-etter-tabell">
-        <p>Før dette sto det i fasiten at folketrygden «forvaltes av Nav». Det var en antakelse uten kilde, og den er fjernet. Nå gjelder koblingen bare kapittel 5, fordi det er det loven sier. For de andre kapitlene bruker ikke folketrygdloven ordet «forvalte», så der står det et hull. Ingen bestemmelse sier heller at folketrygden tilhører staten, så den koblingen finnes ikke.</p>
+      <!-- [ENDRET, nettside-omstrukturering] Flyttet fra «Etter piloten» (31. oktober). Kilde: docs/33 §5.14 (#419). -->
+      <div class="prose struktur-etter-tabell" id="merknader">
+        <h3>Merknader og veiledning er aldri hjemmel</h3>
+        <p>Noen forskrifter har departementets merknader, veiledning eller kommentarer som eget kapittel etter selve forskriften. Det er ikke forskriftstekst. Slike kapitler merkes når forskriften importeres. De kan aldri være hjemmel for en kobling, og konverteringen leser dem ikke.</p>
+        <p>De kan likevel være en tolkningskilde. En merknad kan siteres i begrunnelsen for hvordan en bestemmelse er forstått.</p>
+        <p>Regelen kjenner igjen kapitler øverst i forskriften som heter merknader, veiledning eller kommentarer, med alt under. Den treffer om lag 7&nbsp;000 noder i 100 forskrifter og instrukser. Ett kapittel er unntatt, fordi det er et bindende vedlegg som bare heter «Merknader».</p>
+        <p class="status">Avgjort i <a href="https://github.com/FinnurO/regel-ide/issues/419" target="_blank" rel="noopener">#419</a>. Hvordan en merknad skal pekes på som tolkningskilde, er ikke bygget.</p>
       </div>
     </div>
   </section>
 
+  <!-- [ENDRET, nettside-omstrukturering] «Svar modellen gir nå» er et varig eksempel. Statuslinjene er kontrollert mot den delte basen
+       2026-11-23: ankekanten, utnevningen etter domstolloven § 55 første ledd og pliktene i eksempelet finnes ikke der (#487). -->
   <section class="section" id="nytt-svar">
     <div class="wrap">
       <div class="section-head">
-        <span class="kicker">Nytt oktober 2026 · Svar modellen gir nå <span class="pill" data-tone="neutral">Historisk · 9. oktober 2026</span></span>
+        <span class="kicker">Eksempel · Tre svar</span>
         <h2>Tre spørsmål, tre svar som kan spores til paragrafen</h2>
         <p>Oppslagene under er bygget og testet. Ikke alle dataene fra de fem lovene er lastet inn i appen ennå. Det står ved hvert svar.</p>
-        <p class="struktur-forbehold"><strong>Oppdatert 20. november 2026:</strong> fasiten for de fem lovene ble lastet inn 27. oktober (<a href="https://github.com/FinnurO/regel-ide/issues/387" target="_blank" rel="noopener">#387</a>), men bare om lag 350 av 1&nbsp;825 utsagn kom med. Koblingene i de tre svarene under finnes i testene, men er ikke lastet i databasen. Hvorfor, undersøkes i <a href="https://github.com/FinnurO/regel-ide/issues/487" target="_blank" rel="noopener">#487</a>.</p>
+        <p class="struktur-forbehold"><strong>Status:</strong> fasiten for de fem lovene er lastet inn (<a href="https://github.com/FinnurO/regel-ide/issues/387" target="_blank" rel="noopener">#387</a>), men bare om lag 350 av 1&nbsp;825 utsagn kom med. Koblingene i de tre svarene under finnes i testene, men er ikke lastet i databasen. Hvorfor, undersøkes i <a href="https://github.com/FinnurO/regel-ide/issues/487" target="_blank" rel="noopener">#487</a>.</p>
       </div>
       <div class="nytt-to-kol">
         <figure class="nytt-figur">
@@ -241,122 +336,33 @@
             <h3>Hvem er ankeinstans for Agder tingrett?</h3>
             <p class="svaret">Agder lagmannsrett.</p>
             <p>Forskriften sier at «Til lagsognet Agder sogner Agder tingrett», at lagsognene Agder, Telemark og Vestfold utgjør Agder lagdømme, og at hvert lagdømme har en lagmannsrett som er ankeinstans. Modellen følger kjeden og finner én lagmannsrett. Hvilken lagmannsrett som hører til hvilket lagdømme, avgjøres av navnet, fordi forskriften ikke nevner lagmannsrettene ved navn.</p>
-            <p class="status">Status 20. november 2026: kjeden fra kommune til lagdømme er godkjent (16. oktober). Selve ankekoblingen (§ 10) finnes i testene, men er ikke lastet i databasen (<a href="https://github.com/FinnurO/regel-ide/issues/487" target="_blank" rel="noopener">#487</a>). Derfor svarer appen «mangler» for Agder tingrett og sier hvorfor. Med koblingen lagt inn i en test ga oppslaget Agder lagmannsrett (<a href="https://github.com/FinnurO/regel-ide/pull/360" target="_blank" rel="noopener">#360</a>).</p>
+            <p class="status">Status: kjeden fra kommune til lagdømme er godkjent av et menneske. Selve ankekoblingen (§ 10) finnes i testene, men er ikke lastet i databasen (<a href="https://github.com/FinnurO/regel-ide/issues/487" target="_blank" rel="noopener">#487</a>). Derfor svarer appen «mangler» for Agder tingrett og sier hvorfor. Med koblingen lagt inn i en test ga oppslaget Agder lagmannsrett (<a href="https://github.com/FinnurO/regel-ide/pull/360" target="_blank" rel="noopener">#360</a>).</p>
           </li>
           <li>
             <h3>Hvem kan sette inn en fast dommer?</h3>
             <p class="svaret">Bare Kongen i statsråd.</p>
             <p>Før svarte modellen Kongen, Innstillingsrådet og domstollederen, fordi alle tre var registrert med samme type: oppnevning. Nå skiller den utnevning til embete (domstolloven § 55 første ledd) fra konstitusjon, som er midlertidig (§ 55 a). En fast dommer kan heller ikke sies opp, og kan bare avskjediges etter rettergang og dom (§ 55 femte ledd). I appen vises det slik, sett fra dommerne: «Kongen i statsråd har oppnevningskompetanse (utnevning) overfor denne».</p>
-            <p class="status">Status 20. november 2026: oppslaget er testet mot fasiten og med testdata. Utnevningen etter § 55 første ledd finnes i testene, men er ikke lastet i databasen (<a href="https://github.com/FinnurO/regel-ide/issues/487" target="_blank" rel="noopener">#487</a>).</p>
+            <p class="status">Status: oppslaget er testet mot fasiten og med testdata. Utnevningen etter § 55 første ledd finnes i testene, men er ikke lastet i databasen (<a href="https://github.com/FinnurO/regel-ide/issues/487" target="_blank" rel="noopener">#487</a>).</p>
           </li>
           <li>
             <h3>Hvem har en kommune plikter overfor, og hvem har plikter overfor kommunen?</h3>
             <p class="svaret">Begge retninger, med paragraf og motpart.</p>
             <p>Kommunen skal inngå samarbeidsavtale med det regionale helseforetaket i helseregionen (helse- og omsorgstjenesteloven § 6-1). Og motsatt: «Regionalt helseforetak skal inngå samarbeidsavtale med kommunene om utskrivningsklare pasienter» (spesialisthelsetjenesteloven § 2-6). Loven nevner ikke hvilket helseforetak. Det finner modellen gjennom helseregionen kommunen ligger i. Sett fra motparten viser appen for eksempel: «HELSE SØR-ØST RHF har avtaleplikt (skal) overfor denne — samarbeidsavtale».</p>
-            <p class="status">Status 20. november 2026: oppslaget er bygget og viser begge retninger (<a href="https://github.com/FinnurO/regel-ide/pull/358" target="_blank" rel="noopener">#358</a>). Pliktene i eksempelet finnes i testene, men er ikke lastet i databasen (<a href="https://github.com/FinnurO/regel-ide/issues/487" target="_blank" rel="noopener">#487</a>).</p>
+            <p class="status">Status: oppslaget er bygget og viser begge retninger (<a href="https://github.com/FinnurO/regel-ide/pull/358" target="_blank" rel="noopener">#358</a>). Pliktene i eksempelet finnes i testene, men er ikke lastet i databasen (<a href="https://github.com/FinnurO/regel-ide/issues/487" target="_blank" rel="noopener">#487</a>).</p>
           </li>
         </ol>
       </div>
     </div>
   </section>
 
-  <section class="section" id="nytt-arbeidsmaten">
-    <div class="wrap">
-      <div class="section-head">
-        <span class="kicker">Nytt oktober 2026 · Arbeidsmåten <span class="pill" data-tone="neutral">Historisk · 9. oktober 2026</span></span>
-        <h2>En juristagent utfordrer, og mennesket ser bare reell uenighet</h2>
-        <p>Modellen er testet mot en fasit: fem lover der hvert utsagn om hvem som gjør hva, er skrevet ned med sitat og lenke til leddet. Fasiten er laget av KI-agenter. Hvert sitat er sjekket mot teksten, men tolkningen må kontrolleres. Spørsmålet er hvordan et menneske kan kontrollere over 1&nbsp;800 utsagn uten å drukne.</p>
-      </div>
-      <div class="nytt-to-kol">
-        <figure class="nytt-figur">
-          <svg viewBox="0 0 320 484" role="img" aria-label="Debatten om fasitkortene 9. oktober 2026, i fire trinn. Runde 1: juristagenten vurderte 65 fasitkort uten modellererens begrunnelser. 13 holdt, og 52 fikk innvending. Modellereren svarte på hver innvending med aksepter, delvis eller avvis. 19 ble akseptert, og 33 svar var delvis eller avvis. Runde 2: juristen ga replikk med godtar, presiserer eller fastholder. 30 ble avklart. 3 reelle uenigheter gikk videre til fagansvarlig Finnur Olafsson, som ser begge argumentene side om side og en forhåndsvisning i appen.">
-            <defs>
-              <marker id="nf-pil-d" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="nf-pilspiss" d="M0,0 L10,5 L0,10 z"/></marker>
-            </defs>
-            <rect class="nf-boks" x="10" y="10" width="300" height="74" rx="6"/>
-            <text class="nf-tall" x="22" y="58">65</text>
-            <text class="nf-navn" x="84" y="38">Juristen, runde 1</text>
-            <text class="nf-dempet" x="84" y="58">vurderer hvert fasitkort</text>
-            <text class="nf-dempet" x="84" y="74">uten modellererens begrunnelser</text>
-
-            <line class="nf-linje" x1="44" y1="84" x2="44" y2="138" marker-end="url(#nf-pil-d)"/>
-            <text class="nf-uthevet" x="58" y="108">52 innvendinger går videre</text>
-            <text class="nf-dempet" x="58" y="126">13 kort holdt</text>
-
-            <rect class="nf-boks" x="10" y="140" width="300" height="74" rx="6"/>
-            <text class="nf-tall" x="22" y="188">52</text>
-            <text class="nf-navn" x="84" y="168">Modellereren svarer</text>
-            <text class="nf-dempet" x="84" y="188">på hver innvending:</text>
-            <text class="nf-dempet" x="84" y="204">aksepter, delvis eller avvis</text>
-
-            <line class="nf-linje" x1="44" y1="214" x2="44" y2="268" marker-end="url(#nf-pil-d)"/>
-            <text class="nf-uthevet" x="58" y="238">33 svar var delvis eller avvis</text>
-            <text class="nf-dempet" x="58" y="256">19 innvendinger akseptert</text>
-
-            <rect class="nf-boks" x="10" y="270" width="300" height="74" rx="6"/>
-            <text class="nf-tall" x="22" y="318">33</text>
-            <text class="nf-navn" x="84" y="298">Juristen, runde 2</text>
-            <text class="nf-dempet" x="84" y="318">replikk på delvis og avvis:</text>
-            <text class="nf-dempet" x="84" y="334">godtar, presiserer, fastholder</text>
-
-            <line class="nf-linje" x1="44" y1="344" x2="44" y2="398" marker-end="url(#nf-pil-d)"/>
-            <text class="nf-uthevet" x="58" y="368">3 reelle uenigheter igjen</text>
-            <text class="nf-dempet" x="58" y="386">30 avklart etter runde 2</text>
-
-            <rect class="nf-boks nf-boks--slutt" x="10" y="400" width="300" height="74" rx="6"/>
-            <text class="nf-tall" x="30" y="448">3</text>
-            <text class="nf-navn" x="84" y="428">Finnur Olafsson avgjør</text>
-            <text class="nf-dempet" x="84" y="448">begge argumenter side om side</text>
-            <text class="nf-dempet" x="84" y="464">og forhåndsvisning i appen</text>
-          </svg>
-          <figcaption>Debatten om 65 fasitkort, 9. oktober 2026. Av 52 innvendinger sto 3 igjen som reell uenighet.</figcaption>
-        </figure>
-
-        <div class="prose">
-          <p>Løsningen er en debatt i to runder før noe legges fram:</p>
-          <ol>
-            <li><strong>Juristen leser først.</strong> En juristagent vurderer forslaget uten å se modellererens begrunnelser, og sier om det holder, om det har en innvending, om noe må kontrolleres, eller om det er et prinsippspørsmål.</li>
-            <li><strong>Modellereren svarer</strong> på hver innvending: aksepter, delvis eller avvis, med henvisning til modellen og beslutningene som er tatt.</li>
-            <li><strong>Juristen gir replikk</strong> der modellereren ikke var enig: godtar, presiserer eller fastholder.</li>
-            <li><strong>Mennesket ser bare det som fortsatt er uenighet</strong>, med begge argumentene side om side, på klart språk og med en forhåndsvisning av hvordan det blir seende ut i appen.</li>
-          </ol>
-          <p>Første gang dette ble kjørt, 9. oktober 2026, gjaldt det 65 fasitkort. 52 fikk innvending. Etter to runder var det 3 reelle uenigheter igjen til fagansvarlig Finnur Olafsson. Resten ble avklart og ført inn i sakene der rettingen hører hjemme.</p>
-          <p>Samme dag ble metoden brukt på konverteringen for avslutning og anke: 29 rader, 13 holdt og 16 fikk innvending. Alle 16 ble akseptert, så ingenting måtte legges fram (<a href="https://github.com/FinnurO/regel-ide/pull/360" target="_blank" rel="noopener">#360</a>).</p>
-          <p>Én lærdom: feilene i første runde kom av at juristen manglet kontekst, ikke av metoden. Juristen får nå det samme som modellereren: hele fasiten for bestemmelsen, en liste over hva som finnes i korpuset, og beslutningene som er tatt (<a href="https://github.com/FinnurO/regel-ide/pull/359" target="_blank" rel="noopener">#359</a>).</p>
-        </div>
-      </div>
-
-      <div class="prose struktur-etter-tabell">
-        <h3>Et kort gjennom debatten</h3>
-        <p>Slik så ett av kortene ut. Juristen fant tre regler der fasiten hadde én.</p>
-      </div>
-      <div class="debattkort struktur-merk" role="group" aria-label="Eksempel: fasitkort nr. 58, domstolloven § 55 femte ledd">
-        <div class="debattkort__hode">Kort nr. 58 · Domstolloven § 55 femte ledd</div>
-        <div class="debattkort__kropp">
-          <blockquote class="quote-block">Dommere kan ikke sies opp eller forflyttes mot sin vilje og kan bare avskjediges etter rettergang og dom.<cite><a href="https://lovdata.no/dokument/NL/lov/1915-08-13-5/§55" target="_blank" rel="noopener">Domstolloven § 55 femte ledd</a></cite></blockquote>
-          <div class="debattkort__sider">
-            <div class="debattkort__side"><strong>Forslaget i fasiten</strong>Én kobling: avsetting av dommere, med avgrensningen «kun etter rettergang og dom».</div>
-            <div class="debattkort__side"><strong>Innvendingen i debatten</strong>Setningen inneholder tre regler, og forflytning er ikke avsetting.</div>
-          </div>
-          <div class="debattkort__utfall">
-            <strong>Utfallet: tre koblinger</strong>
-            <ul>
-              <li>Dommere kan ikke sies opp.</li>
-              <li>Dommere kan bare avskjediges etter rettergang og dom.</li>
-              <li>Dommere kan ikke forflyttes mot sin vilje.</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
+  <!-- [ENDRET, nettside-omstrukturering] De tre varige kortene fra «"Ikke gjett" i praksis» (9. oktober). Kortet om feilen i lovteksten
+       står ordrett i historikken. -->
   <section class="section" id="nytt-ikke-gjett">
     <div class="wrap">
       <div class="section-head">
-        <span class="kicker">Nytt oktober 2026 · «Ikke gjett» i praksis <span class="pill" data-tone="neutral">Historisk · 9. oktober 2026</span></span>
+        <span class="kicker">Ikke gjett</span>
         <h2>Det maskinen ikke vet, skal synes</h2>
-        <p>Prinsippet har vært med fra starten. Denne måneden ble det konkret på fire måter.</p>
+        <p>Prinsippet har vært med fra starten. I modellen gjelder det på tre måter.</p>
       </div>
       <div class="nytt-kort-grid">
         <div class="nytt-kort">
@@ -364,7 +370,7 @@
           <p>Kan myndigheten delegeres? Noen ganger sier loven det rett ut:</p>
           <blockquote class="quote-block">Beslutningsmyndighet i henhold til §§ 2-9, 2-10 og 2-14 kan ikke delegeres.<cite><a href="https://lovdata.no/dokument/NL/lov/1987-06-12-56/§2-12" target="_blank" rel="noopener">Sameloven § 2-12 fjerde ledd</a></cite></blockquote>
           <p>Andre ganger sier den ingenting, som i «Kongen kan gi nærmere forskrifter om dommeres sidegjøremål» (domstolloven § 121 k). At Kongen trolig kan delegere dette, er en slutning etter alminnelige regler. Den skal vises som «Kan trolig delegeres (slutning)», ikke som om det sto i loven.</p>
-          <p class="status">Besluttet 9. oktober 2026 i <a href="https://github.com/FinnurO/regel-ide/issues/335" target="_blank" rel="noopener">#335</a>. Bygget 15. oktober 2026 sammen med <a href="../profil/#kunnskapsstatus">kunnskapsstatus</a> i <a href="https://github.com/FinnurO/regel-ide/issues/367" target="_blank" rel="noopener">#367</a> (PR #373).</p>
+          <p class="status">Besluttet i <a href="https://github.com/FinnurO/regel-ide/issues/335" target="_blank" rel="noopener">#335</a>. Bygget sammen med <a href="../profil/#kunnskapsstatus">kunnskapsstatus</a> i <a href="https://github.com/FinnurO/regel-ide/issues/367" target="_blank" rel="noopener">#367</a> (PR #373).</p>
         </div>
         <div class="nytt-kort">
           <h3>Hull vises som hull</h3>
@@ -383,130 +389,11 @@
             <li>Statsforvalternes embetsområder er hentet fra regjeringen.no og merket som sekundærkilde, fordi den kongelige resolusjonen ikke er funnet.</li>
           </ul>
         </div>
-        <div class="nytt-kort">
-          <h3>Juristen fant en feil i vår kopi av lovteksten</h3>
-          <p>I energiloven § 10-2 annet ledd sto det «… samt i Første punktum gjelder likevel …». Listen som skal stå mellom, med avtaleloven, markedsføringsloven og angrerettloven, var borte fra leddteksten. Feilen ble funnet i juristrunden.</p>
-          <p>Feilen lå i importen: teksten etter en liste ble limt inn i leddet. Den finnes <strong>949 steder i 407 dokumenter</strong> (119 lover og 288 forskrifter). Løsningen er besluttet: teksten etter listen blir en egen del av leddet, slik den internasjonale standarden Akoma Ntoso gjør det, og lovteksten skal være ordrett.</p>
-          <p class="status"><strong>Oppdatert 20. november 2026:</strong> rettet i importen 15. oktober 2026 (<a href="https://github.com/FinnurO/regel-ide/pull/369" target="_blank" rel="noopener">PR #369</a>). To rader i fasiten skal ennå flyttes til den nye delen av leddet (<a href="https://github.com/FinnurO/regel-ide/issues/361" target="_blank" rel="noopener">#361</a>).</p>
-        </div>
       </div>
     </div>
   </section>
 
-  <section class="section" id="nytt-tall">
-    <div class="wrap">
-      <div class="section-head">
-        <span class="kicker">Nytt oktober 2026 · Tallene så langt <span class="pill" data-tone="neutral">Historisk · 9. oktober 2026</span></span>
-        <h2>Hvor langt vi er kommet</h2>
-        <p>Tallene er målt mot fasiten. De endrer seg når fasiten rettes, og er ikke endelige.</p>
-      </div>
-      <div class="stat-row">
-        <div class="stat-tile"><span class="n">1&nbsp;809</span><span class="l">utsagn i fasiten for fem lover med tilhørende forskrifter</span></div>
-        <div class="stat-tile"><span class="n">96&nbsp;%</span><span class="l">av utsagnene har en plass i modellen (1&nbsp;728 av 1&nbsp;809)</span></div>
-        <div class="stat-tile"><span class="n">92,7&nbsp;%</span><span class="l">av koblingene de faste mønstrene foreslår, er riktige (presisjon)</span></div>
-        <div class="stat-tile"><span class="n">47,9&nbsp;%</span><span class="l">av koblingene i fasiten finner de faste mønstrene (gjenfinning)</span></div>
-      </div>
-      <div class="prose">
-        <p>Enkelt sagt: når de faste mønstrene foreslår en kobling, er den riktig i over 9 av 10 tilfeller, men de finner bare knapt halvparten. Resten må komme fra språkmodellen eller fra et menneske, og alt går gjennom godkjenning.</p>
-        <p class="struktur-forbehold"><strong>Beviset er ikke ferdig.</strong> At et utsagn har en plass i modellen, er ikke det samme som at modellen er bevist. Beviset er at de fem lovene faktisk ligger i databasen, og at <a href="#formalet">spørsmålene modellen skal kunne svare på</a>, besvares fra dataene med lenke til paragrafen. Det er arbeidet i <a href="https://github.com/FinnurO/regel-ide/issues/315" target="_blank" rel="noopener">#315</a>, og det er ikke gjort ennå. Fasiten kontrolleres fortsatt (<a href="https://github.com/FinnurO/regel-ide/issues/309" target="_blank" rel="noopener">#309</a>). Tallene er fra <a href="https://github.com/FinnurO/regel-ide/pull/360" target="_blank" rel="noopener">#360</a>, 9. oktober 2026.</p>
-        <!-- [Ny, nettside-rettinger, 2026-11-20] Tallene per 16. oktober er fra docs/33 (målingen etter #368, PR #381):
-             1 825 fasitutsagn, revidert ja 1 745 (96 %), mønster alle P/G 92,5 / 47,5 %. -->
-        <p class="struktur-forbehold"><strong>Oppdatert 20. november 2026:</strong> fasiten ble rettet igjen etter dette. Per 16. oktober 2026 har den <strong>1&nbsp;825 utsagn</strong>. 96&nbsp;% av dem (1&nbsp;745) har en plass i modellen, presisjonen for de faste mønstrene er 92,5&nbsp;% og gjenfinningen 47,5&nbsp;% (<a href="https://github.com/FinnurO/regel-ide/pull/381" target="_blank" rel="noopener">#381</a>). Tallene over står som de var 9. oktober.</p>
-      </div>
-    </div>
-  </section>
-
-  <section class="section" id="formalet">
-    <div class="wrap">
-      <div class="section-head">
-        <span class="kicker">Formålet</span>
-        <h2>Hva modellen skal kunne svare på</h2>
-        <p>Modellen er god nok når den kan svare på spørsmål som disse, direkte fra dataene:</p>
-      </div>
-      <div class="prose">
-        <ul>
-          <li>Hvem forvalter en lov, og hvem har ansvaret etter en bestemt paragraf?</li>
-          <li>Hvem blir berørt, direkte eller fordi de hører til en gruppe som «språkutviklingskommuner»?</li>
-          <li>Hvem er klageinstans for hvem, hvem er ankeinstans for en tingrett, og hvem er underlagt hvem?</li>
-          <li>Hvilke områder finnes, og hvem har ansvar hvor?</li>
-          <li>Hvem har hvilken myndighet etter hvilken paragraf: forskrift, vedtak, klage eller tilsyn?</li>
-          <li>Hva gjelder for én bestemt aktør, for eksempel Karasjok kommune?</li>
-          <li>Hvem har en kommune plikt til å samarbeide med, inngå avtale med eller betale til?</li>
-        </ul>
-        <p>Modellen beskriver <strong>strukturen</strong>. Den beskriver ikke plikter og rettigheter for innbyggere og virksomheter, og den avgjør ikke saker. Det hører til et senere lag, som forutsetter at strukturen er på plass. Plikter <em>mellom</em> forvaltningens parter, for eksempel at kommunen skal inngå avtale med helseforetaket, er derimot en del av strukturen: de sier hvem som har ansvar overfor hvem.</p>
-      </div>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="wrap">
-      <div class="section-head">
-        <span class="kicker">Byggeklossene</span>
-        <h2>Hva som finnes: sju typer</h2>
-        <p>Alt lovteksten omtaler, er én av sju typer. Typen avgjør hvilke koblinger tingen kan ha.</p>
-      </div>
-      <div class="table-scroll">
-        <table class="ds-table struktur-tabell">
-          <thead>
-            <tr><th scope="col">Type</th><th scope="col">Hva det er</th><th scope="col">Eksempler fra lovene</th><th scope="col">Kjennetegn</th></tr>
-          </thead>
-          <tbody>
-            <tr><th scope="row">Rettssubjekt</th><td>En juridisk person som kan ha rettigheter og plikter</td><td>Staten, Oslo kommune, Helse Nord RHF</td><td>Kan eie, inngå avtaler og saksøkes</td></tr>
-            <tr><th scope="row">Organ</th><td>Handler på vegne av et rettssubjekt</td><td>Stortinget, Kongen i statsråd, departement, kommunestyret, Energiklagenemnda, tingrettene</td><td>Treffer beslutninger for noen</td></tr>
-            <tr><th scope="row">Organisatorisk enhet</th><td>En del av en organisasjon, uten selvstendig myndighet</td><td>Reguleringsmyndigheten for energi (enhet i NVE), Sametingets administrasjon, koordinerende enhet</td><td>Ligger inne i noe større</td></tr>
-            <tr><th scope="row">Rolle</th><td>En funksjon noen har i en bestemt sammenheng</td><td>konsesjonsmyndigheten, kommunelege, beredskapsmyndigheten</td><td>Kan ha ulik innehaver etter ulike paragrafer</td></tr>
-            <tr><th scope="row">Klasse</th><td>En kategori av aktører</td><td>kommunene, statsforvalterne, språkutviklingskommuner</td><td>Teksten snakker om mange av samme slag</td></tr>
-            <tr><th scope="row">Område</th><td>Et geografisk eller jurisdiksjonelt område</td><td>Karasjok (territoriet), et lagdømme, forvaltningsområdet for samiske språk</td><td>Kan pekes ut på et kart</td></tr>
-            <tr><th scope="row">Ordning</th><td>Ikke en aktør, men noe loven gir en funksjon: en trygdeordning, et fond eller en tilskuddsordning</td><td>Folketrygden, Energifondet</td><td>Forvaltes av et organ og kan ha plikter, men treffer ingen vedtak selv</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="no-callout struktur-merk">
-        <p>Samme ord kan være flere ting. «Kommunen» er både et rettssubjekt (Karasjok kommune) og et område (Karasjok). «Agder» er navnet på et fylke, en tingrett og et lagdømme. Modellen holder dem atskilt og kobler dem sammen.</p>
-      </div>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="wrap">
-      <div class="section-head">
-        <span class="kicker">Koblingene</span>
-        <h2>Hva lovteksten sier om dem: ni koblinger</h2>
-        <p>Hver opplysning er en kobling mellom to ting, eller mellom en ting og en paragraf. Det finnes ni slags koblinger.</p>
-      </div>
-      <div class="table-scroll">
-        <table class="ds-table struktur-tabell">
-          <thead>
-            <tr><th scope="col">Kobling</th><th scope="col">Hva den sier</th><th scope="col">Eksempel fra lovteksten</th></tr>
-          </thead>
-          <tbody>
-            <tr><th scope="row">Kompetanse</th><td>En aktør, en rolle eller en klasse har myndighet, eventuelt overfor en annen aktør, etter en bestemmelse. Står det «kommunen kan …» i en lov som gjelder alle kommuner, har hver kommune myndigheten: normgivning (forskrift, reglement, vedtekter …), vedtak, klage, tilsyn, instruksjon, delegering, oppnevning (å velge, ansette, utpeke, utnevne eller konstituere noen) og avsetting (å avsette, si opp eller avskjedige). Avslutningen speiler innsettingen: en fast dommer utnevnes av Kongen og kan bare avskjediges etter dom, mens en konstitusjon er midlertidig. Typene er ordnet i familier, og det står om kompetansen kan delegeres. Den vanligste koblingen i lovverket.</td><td>«Departementet kan gi forskrift om …», «Klageinstans for direktørens vedtak er styret»</td></tr>
-            <tr><th scope="row">Plikt</th><td>Det motsatte av kompetanse: hva en aktør <em>skal</em> overfor en annen. Samarbeid, avtale, betaling, bistand, informasjon og konsultasjon. Å legge et spørsmål fram for et organ som bare gir et råd, er konsultasjon. Gir organet et bindende svar, er det organets egen myndighet. Det står om teksten sier «skal», «kan» eller «bør». Mottakeren av en betaling registreres bare når teksten sier hvem som får pengene, og det sluttes aldri at plikten går begge veier.</td><td>«Kommunen skal inngå samarbeidsavtale med det regionale helseforetaket», «Folketrygden skal dekke behandlings- og forpleiningsutgifter»</td></tr>
-            <tr><th scope="row">Oppgave</th><td>Et arbeidsfelt eller ansvar loven legger til en aktør, uten at det gir myndighet over andre eller en plikt overfor en bestemt motpart: forvalte, samordne, sørge for, føre oversikt, bistå, være sekretariat, gi råd, veilede eller påse. «Skal samordne» betyr ikke at aktøren kan instruere dem som samordnes. En oppgave gir aldri kompetanse eller plikt i seg selv; står det i loven, er det egne koblinger (<a href="https://github.com/FinnurO/regel-ide/issues/368" target="_blank" rel="noopener">#368</a>).</td><td>«Beredskapsmyndigheten skal samordne beredskapsarbeid», «Fortegnelse over de valgte meddommere føres av kommunen»</td></tr>
-            <tr><th scope="row">Relasjon</th><td>Et forhold mellom to aktører uten myndighet: eierskap, ledelse, sekretariat, rapportering, etterfølger, og en delegering som er gjennomført. En ordning forvaltes av et organ.</td><td>«Departementet delegerer all myndighet etter [energiloven]» til NVE</td></tr>
-            <tr><th scope="row">Medlemskap</th><td>Noe hører til en klasse</td><td>tingrettene hører til «de alminnelige domstoler»</td></tr>
-            <tr><th scope="row">Områdesammensetning</th><td>Et område består av andre områder</td><td>Follo og Nordre Østfold tingretts rettskrets omfatter Ås</td></tr>
-            <tr><th scope="row">Ansvarsområde</th><td>En aktør har ansvar for, eller sete i, et område</td><td>Statsforvalteren i Troms og Finnmark har ansvar for Troms og Finnmark</td></tr>
-            <tr><th scope="row">Organtilhørighet</th><td>Et organ eller en enhet hører til et rettssubjekt, eller et organ er satt sammen på en bestemt måte — fast, eller i den enkelte sak («Høyesterett settes med fem dommere»)</td><td>«Et foretak ledes av et styre og en daglig leder»</td></tr>
-            <tr><th scope="row">Rolleinnehav</th><td>En aktør, eller alle i en klasse, er utpekt til en rolle</td><td>«Norges vassdrags- og energidirektorat utpekes som konsesjonsmyndighet», «Kommunen er lokal barnehagemyndighet»</td></tr>
-            <tr><th scope="row">Klassenivå</th><td>Alle i en klasse skal ha noe, hver for seg</td><td>«Høyesterett skal ha en direktør», «skal kommunen tilby koordinator»</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="prose struktur-etter-tabell">
-        <h3>Det hver kobling alltid har med seg</h3>
-        <ul>
-          <li><strong>Hjemmel:</strong> paragrafen og leddet koblingen kommer fra. Når opplysningen er bestemt utenfor lovtekstene, for eksempel i en kongelig resolusjon eller i vedtekter, står kilden i stedet. Merknader og veiledning i en forskrift er aldri hjemmel (<a href="#nytt-pilot">se under</a>).</li>
-          <li><strong>Avgrensning:</strong> hvilke saker eller paragrafer koblingen gjelder. Nesten alle koblinger i lovverket er avgrenset, for eksempel «bare enkeltvedtak».</li>
-          <li><strong>Fortegn:</strong> «kan ikke instrueres» er like viktig som «kan instruere», fordi det er slik uavhengighet uttrykkes.</li>
-          <li><strong>Modalitet</strong> (for plikter): «skal», «kan» eller «bør», slik teksten sier det. Står det ikke, står feltet tomt.</li>
-          <li><strong>Status:</strong> om et menneske har bekreftet koblingen, eller om den er et maskinforslag som venter på godkjenning.</li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <section class="section">
+  <section class="section" id="klasser">
     <div class="wrap">
       <div class="section-head">
         <span class="kicker">Grupper</span>
@@ -535,7 +422,16 @@
         </ul>
         <p>For klassene står Grunnloven som forankring i begrunnelsen, ikke som hjemmel: § 49 gir rett til lokalt selvstyre, og §§ 12 og 28 handler om statsrådet og hvordan Kongen fordeler forretningene. Ordet «departement» står ikke i Grunnloven.</p>
       </div>
-      <!-- [Ny, issue #463 og #470, 2026-11-20] Norge, staten og nivåene i kort form, og ordsperren for «staten».
+      <!-- [ENDRET, nettside-omstrukturering] Flyttet fra «Etter piloten» (31. oktober). Ankeret #nytt-pilot lenkes fra pilotsiden.
+           Kilde: docs/33 §4.3 (#418). Kontrollert 2026-11-23: ingen statsforvalter er medlem av klassen i den delte basen. -->
+      <div class="prose struktur-etter-tabell" id="nytt-pilot">
+        <h3>En klasse kan ha kompetanse og en rolle</h3>
+        <p>Loven sier oftest «kommunen kan …», ikke navnet på én kommune. Derfor kan klassen kommune stå som innehaver av kompetansen. Klassen leses distributivt: det som står om klassen, gjelder hvert medlem for seg, slik det alt gjaldt for plikter og oppgaver. Det er ikke en slutning om lovens innhold. Hvilket organ i kommunen som utøver kompetansen, følger av kommuneloven. Et område kan ikke være innehaver.</p>
+        <p>En klasse kan også ha en rolle som loven selv navngir. Barnehageloven § 10 første ledd gjør kommunen til lokal barnehagemyndighet, og rollen er registrert på klassen kommune. Kompetanse kan stå på klassen eller på rollen. Teksten avgjør hvilken.</p>
+        <p>For én kommune regnes svaret ut når noen spør, og det lagres ikke. Veien går gjennom medlemskapet, eventuelt rollen, og kompetansen. Svaret er aldri sikrere enn det svakeste leddet. For statsforvalterne gir dette ingen svar, fordi ingen statsforvalter er registrert som medlem av klassen. Det vises som et hull.</p>
+        <p class="status">Avgjort i <a href="https://github.com/FinnurO/regel-ide/issues/418" target="_blank" rel="noopener">#418</a>. Før dette falt 103 utsagn om kommunens og statsforvalterens myndighet bort i piloten.</p>
+      </div>
+      <!-- [Ny, issue #463 og #470, 2026-11-20] Norge, staten og nivåene i kort form. Ordsperren for «staten» står under standardreglene.
            Kilder: docs/33 §5.18 og §5.19. Sitatene fra Grunnloven § 1, svalbardloven § 1 og tvisteloven § 2-1 er de NorgeStatenTjeneste
            kontrollerer ordrett i korpuset før noe skrives (GrunnlovenSitat, SvalbardlovenSitat, TvistelovenSitat). Tallene for ordsperren er
            målt 2026-11-20 i kopien regelide_norge2 (docs/33 §5.19). -->
@@ -546,7 +442,50 @@
           <li><strong>Norge</strong> er et område av typen <em>rike</em>, det eneste av den typen. Hjemmelen er Grunnloven § 1 første ledd: «Kongeriket Norge er et fritt, selvstendig, udelelig og uavhendelig rike.» Norge består av de 15 fylkene, også Oslo, og av Svalbard. At fylkene hører til Norge, følger av sammenhengen i kommuneloven §§ 2-1 og 3-1, ikke av ordlyden alene, og er merket som en fortolkning. For Svalbard står det ordrett i svalbardloven § 1 første ledd: «Svalbard er en del av kongeriket Norge.»</li>
           <li><strong>Staten</strong> er en aktør, ikke et område. Navnet er hjemlet i Grunnloven § 16 første ledd, der ordet står om den norske staten. At staten er et rettssubjekt, er en fortolkning: tvisteloven § 2-1 første ledd bokstav b gir «stat, kommuner og fylkeskommuner» partsevne. Grunnloven § 1 er hjemmel for området Norge, ikke for staten.</li>
           <li><strong>Departementene</strong> er organer for staten. Det står i definisjonen av klassen departement, så hvert av de 16 medlemmene får en kobling til staten. Koblingen er en avledet slutning og er aldri sterkere enn det medlemskapet bygger på. For 7 av departementene er det en fortolkning.</li>
+          <li><strong>Statsrådet</strong> er også et organ for staten. Det står under <a href="#regjeringen">«regjeringen»</a>.</li>
         </ul>
+        <p>Ordet «staten» har en sperre, fordi det også står om andre stater. Den står under <a href="#ordsperren">standardreglene</a>.</p>
+      </div>
+      <p class="struktur-forbehold"><strong>Forbehold.</strong> Alt er forslag som et menneske skal vurdere. Navn på området, som «Kongeriket Norge» og «riket», kan ikke registreres ennå. Det kommer i <a href="https://github.com/FinnurO/regel-ide/issues/464" target="_blank" rel="noopener">#464</a>, sammen med Oslo kommune som har fylkeskommunens oppgaver etter enkelte lover. Jan Mayen er ikke et område i registeret og får en egen sak (<a href="https://github.com/FinnurO/regel-ide/issues/483" target="_blank" rel="noopener">#483</a>). Bygget i <a href="https://github.com/FinnurO/regel-ide/issues/442" target="_blank" rel="noopener">#442</a> og <a href="https://github.com/FinnurO/regel-ide/issues/463" target="_blank" rel="noopener">#463</a> (<a href="https://github.com/FinnurO/regel-ide/pull/480" target="_blank" rel="noopener">PR #480</a>).</p>
+    </div>
+  </section>
+
+  <!-- [Ny, nettside-omstrukturering, 2026-11-23] Standardreglene samlet. Kilder: docs/33 §5.7, §5.10 og §5.19. Teksten om «fylkeskommunen»
+       (fra Karasjok) og ordsperren (fra Norge og staten) er flyttet hit, uendret bortsett fra overgangene. -->
+  <section class="section" id="standardreglene">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Standardreglene</span>
+        <h2>Når loven sier «kommunen» eller «departementet»</h2>
+        <p>Lovene skriver sjelden navn. De skriver «kommunen», «statsforvalteren» og «departementet». Et slikt ord er en <em>generisk navneform</em>: én for hele korpuset, men betydningen avgjøres for hver rettskilde. Det kan skje på to måter. Et menneske kan registrere en <strong>binding</strong> for rettskilden, eller en <strong>standardregel</strong> kan gi svaret. En binding som er godkjent eller faglig vurdert, går foran regelen.</p>
+      </div>
+      <div class="table-scroll">
+        <table class="ds-table struktur-tabell">
+          <thead>
+            <tr><th scope="col">Ordet</th><th scope="col">Hva standardregelen gir</th><th scope="col">Hvem det er i en bestemt sak</th></tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">«kommunen»</th><td>Klassen kommune</td><td>Saken avgjør hvilken kommune. Kobler loven to grupper, avgjør områdene det (se <a href="#karasjok">Karasjok</a>)</td></tr>
+            <tr><th scope="row">«statsforvalteren»</th><td>Klassen statsforvalter</td><td>Statsforvalteren som har ansvar for området saken gjelder</td></tr>
+            <tr><th scope="row">«fylkeskommunen»</th><td>Klassen fylkeskommune, med hjemmel i kommuneloven § 2-1 første ledd og § 3-1</td><td>Saken avgjør hvilken fylkeskommune. Oslo er aldri svaret (under)</td></tr>
+            <tr><th scope="row">«departementet»</th><td>Det ansvarlige departementet for rettskilden</td><td>Ressortfordelingen, og ellers Lovdatas felt «Ansvarlig departement», merket som sekundær kilde (se <a href="#departementet">eksempelet</a>)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="prose struktur-etter-tabell">
+        <p>Svarene regnes ut når noen spør, og lagres ikke. Standardreglene er bygget i <a href="https://github.com/FinnurO/regel-ide/issues/394" target="_blank" rel="noopener">#394</a> (<a href="https://github.com/FinnurO/regel-ide/pull/398" target="_blank" rel="noopener">#398</a>, <a href="https://github.com/FinnurO/regel-ide/pull/404" target="_blank" rel="noopener">#404</a>).</p>
+        <p>To ord har ingen standardregel. «staten» er navnet på én aktør, men ordet har en sperre (under). «regjeringen» leses for hver forekomst for seg (se <a href="#regjeringen">«regjeringen»</a>).</p>
+        <h3>«fylkeskommunen»</h3>
+        <ul>
+          <li>Regelen gir svar for <strong>1&nbsp;077 forekomster i 175 rettskilder</strong>. Hvilken fylkeskommune det er i en bestemt sak, avgjøres av saken, ikke av teksten.</li>
+          <li><strong>Der kilden navngir én fylkeskommune</strong>, gir regelen ikke svar for den kilden, og det står som et hull: 10 rettskilder med 337 forekomster. Det største eksempelet er opplæringsforskrifta. Én paragraf der navngir Finnmark fylkeskommune, men på de 170 andre stedene med ordet betyr det klassen. Slike kilder må et menneske binde. Der én paragraf både navngir én fylkeskommune og bruker «fylkeskommunen», foreslår maskinen en binding for den paragrafen. Det er bare et forslag til noen har vurdert det.</li>
+          <li>Også én forskrift som definerer ordet selv, og tre kilder om Svalbard står som hull.</li>
+          <li><strong>Oslo</strong> er aldri svaret, fordi Oslo ikke er en fylkeskommune. Der en lov legger fylkeskommunens oppgaver også til Oslo kommune (6 rettskilder), er ordet fortsatt klassen, og svaret får en merknad. Hvordan Oslo skal modelleres, venter på <a href="https://github.com/FinnurO/regel-ide/issues/464" target="_blank" rel="noopener">#464</a>.</li>
+        </ul>
+        <p>Bygget i <a href="https://github.com/FinnurO/regel-ide/issues/470" target="_blank" rel="noopener">#470</a> (<a href="https://github.com/FinnurO/regel-ide/pull/479" target="_blank" rel="noopener">PR #479</a>). Tallene er målt 17. november 2026.</p>
+      </div>
+      <div class="prose struktur-etter-tabell" id="ordsperren">
+        <h3>«staten» og ordsperren</h3>
         <p><strong>Ordet «staten» har en sperre.</strong> I loven betyr «staten» som regel den norske staten, men ordet står også om andre stater, for eksempel i konvensjoner. Av 2&nbsp;511 forekomster i 695 gjeldende rettskilder kobles 579 derfor ikke til staten:</p>
       </div>
       <div class="table-scroll">
@@ -567,7 +506,6 @@
       <div class="prose struktur-etter-tabell">
         <p>Sperren er en fast regel, og den har en kjent pris: noen få forekomster som gjelder den norske staten, blir også sperret. «denne staten» sperres ikke.</p>
       </div>
-      <p class="struktur-forbehold"><strong>Forbehold.</strong> Alt er forslag som et menneske skal vurdere. Navn på området, som «Kongeriket Norge» og «riket», kan ikke registreres ennå. Det kommer i <a href="https://github.com/FinnurO/regel-ide/issues/464" target="_blank" rel="noopener">#464</a>, sammen med Oslo kommune som har fylkeskommunens oppgaver etter enkelte lover. Jan Mayen er ikke et område i registeret og får en egen sak (<a href="https://github.com/FinnurO/regel-ide/issues/483" target="_blank" rel="noopener">#483</a>). Bygget i <a href="https://github.com/FinnurO/regel-ide/issues/442" target="_blank" rel="noopener">#442</a> og <a href="https://github.com/FinnurO/regel-ide/issues/463" target="_blank" rel="noopener">#463</a> (<a href="https://github.com/FinnurO/regel-ide/pull/480" target="_blank" rel="noopener">PR #480</a>).</p>
     </div>
   </section>
 
@@ -649,17 +587,6 @@
         </ol>
         <p>Står det bare «kommunen skal tilby …», trengs det ikke noe område. Da gjelder regelen hver kommune for seg. Området trengs når lovteksten kobler to grupper til hverandre.</p>
         <p>Den samme Karasjok kommune er hovedpersonen på <a href="../kjeden/">Kjeden</a>, som følger én rettighet fra lovtekst til vedtak.</p>
-        <!-- [Ny, issue #470, 2026-11-20] Standardregelen for «fylkeskommunen». Kilde: docs/33 §5.7 (målt 2026-11-17, den delte basen bare lest,
-             og kopien regelide_fkregel) og §5.10. Ingen lovsitater her utover kommuneloven, som står over på siden. -->
-        <h3>Standardregelen for «kommunen», og nå for «fylkeskommunen»</h3>
-        <p>At «kommunen» og «statsforvalteren» betyr klassen, er en <em>standardregel</em> for ordet. Den gjelder i hver rettskilde, til et menneske eventuelt binder ordet til én bestemt aktør der (se <a href="#departementet">«departementet»</a>, som har en egen regel). Nå har også «fylkeskommunen» fått en slik regel: ordet betyr klassen fylkeskommune, med hjemmel i kommuneloven § 2-1 første ledd og § 3-1.</p>
-        <ul>
-          <li>Regelen gir svar for <strong>1&nbsp;077 forekomster i 175 rettskilder</strong>. Hvilken fylkeskommune det er i en bestemt sak, avgjøres av saken, ikke av teksten.</li>
-          <li><strong>Der kilden navngir én fylkeskommune</strong>, gir regelen ikke svar for den kilden, og det står som et hull: 10 rettskilder med 337 forekomster. Det største eksempelet er opplæringsforskrifta. Én paragraf der navngir Finnmark fylkeskommune, men på de 170 andre stedene med ordet betyr det klassen. Slike kilder må et menneske binde. Der én paragraf både navngir én fylkeskommune og bruker «fylkeskommunen», foreslår maskinen en binding for den paragrafen. Det er bare et forslag til noen har vurdert det.</li>
-          <li>Også én forskrift som definerer ordet selv, og tre kilder om Svalbard står som hull.</li>
-          <li><strong>Oslo</strong> er aldri svaret, fordi Oslo ikke er en fylkeskommune. Der en lov legger fylkeskommunens oppgaver også til Oslo kommune (6 rettskilder), er ordet fortsatt klassen, og svaret får en merknad. Hvordan Oslo skal modelleres, venter på <a href="https://github.com/FinnurO/regel-ide/issues/464" target="_blank" rel="noopener">#464</a>.</li>
-        </ul>
-        <p>Bygget i <a href="https://github.com/FinnurO/regel-ide/issues/470" target="_blank" rel="noopener">#470</a> (<a href="https://github.com/FinnurO/regel-ide/pull/479" target="_blank" rel="noopener">PR #479</a>). Tallene er målt 17. november 2026. Svarene regnes ut når noen spør, og lagres ikke.</p>
       </div>
     </div>
   </section>
@@ -673,10 +600,10 @@
   <section class="section" id="departementet">
     <div class="wrap">
       <div class="section-head">
-        <span class="kicker">Eksempel · nytt oktober 2026 <span class="pill" data-tone="neutral">Historisk · 26. oktober 2026</span></span>
+        <span class="kicker">Eksempel</span>
         <h2>Hvem er «departementet»?</h2>
         <p>Lovene skriver sjelden navnet på departementet. De skriver «departementet». Ordet står som eget ord i 1&nbsp;543 gjeldende rettskilder i DigRett. Her følger vi ett av dem, fra ordet i lovteksten til aktøren, og viser hva hvert ledd i kjeden bygger på.</p>
-        <p class="struktur-forbehold"><strong>Kontrollert 20. november 2026:</strong> statusene under gjelder fortsatt. Ingen ressortkant er vurdert ennå. Siden 26. oktober er én ting lagt til: «fylkeskommunen» har fått en standardregel (se <a href="#karasjok">Karasjok</a>).</p>
+        <p class="struktur-forbehold"><strong>Kontrollert 23. november 2026:</strong> statusene under er lest fra appen 26. oktober 2026 og gjelder fortsatt. Ingen ressortkant er vurdert ennå.</p>
       </div>
       <blockquote class="quote-block struktur-merk">Etter retningslinjer fastsatt av Stortinget kan departementet fastsette forskrifter om fordeling, vilkår for utbetaling og tilbakebetaling av tilskudd etter reindriftsavtalen …<cite><a href="https://lovdata.no/dokument/NL/lov/2007-06-15-40/§82a" target="_blank" rel="noopener">Reindriftsloven § 82 a første ledd</a></cite></blockquote>
 
@@ -724,9 +651,7 @@
         <ol class="svar-liste">
           <li>
             <h3>1. Ordet er en generisk omtale</h3>
-            <p>«departementet» er ikke et navn. I DigRett er det en <em>generisk navneform</em>: én for hele korpuset, men betydningen avgjøres for hver rettskilde. Det kan skje på to måter. Et menneske kan registrere en <strong>binding</strong> for loven, eller en <strong>standardregel</strong> kan gi svaret. En binding som er godkjent eller faglig vurdert, går foran regelen.</p>
-            <p>Fire ord har en standardregel. «departementet» gir ansvarlig departement, slik det er vist her. «kommunen», «statsforvalteren» og, fra november, «fylkeskommunen» gir klassen med samme navn, og saken avgjør hvilket medlem som er ment (se <a href="#karasjok">Karasjok</a>).</p>
-            <p class="status">Bygget i <a href="https://github.com/FinnurO/regel-ide/issues/394" target="_blank" rel="noopener">#394</a> (<a href="https://github.com/FinnurO/regel-ide/pull/398" target="_blank" rel="noopener">#398</a>, <a href="https://github.com/FinnurO/regel-ide/pull/404" target="_blank" rel="noopener">#404</a>). Svarene regnes ut når noen spør, og lagres ikke.</p>
+            <p>«departementet» er ikke et navn, men en <em>generisk navneform</em>. Betydningen avgjøres for hver rettskilde, av en binding eller av standardregelen (se <a href="#standardreglene">standardreglene</a>).</p>
           </li>
           <li>
             <h3>2. Svaret, og hva det bygger på</h3>
@@ -828,94 +753,108 @@
     </div>
   </section>
 
-  <!-- [Ny, nettside-pilot-og-modell, 2026-10-31] Tre presiseringer fra piloten (#375) og aktørkøen (#440 PR 1).
-       Kilder: docs/33 §4.3 (#418), §5.3 Idempotens (#420), §5.14 (#419) og §5.16 (#440), og docs/profil/07 §8–§9.
-       Tabellen over koblingene sa alt at en klasse kan ha kompetanse og rolle (#418, PR #426). Det som er nytt her, er hvorfor,
-       hvordan svaret for ett medlem regnes ut, og de to andre presiseringene. -->
-  <section class="section" id="nytt-pilot">
+  <!-- [Ny, nettside-omstrukturering, 2026-11-23] «regjeringen» (#486, PR #489). Kilde: docs/33 §5.19.1 og avgjørelsene 2026-11-20
+       på PR #489. Sitatene er kontrollert ordrett mot nodeteksten i den delte basen 2026-11-23 (bare SELECT): Grl. § 12 første ledd,
+       § 13 første ledd og § 15 første ledd, skatteloven § 5-16 første ledd, klimaloven § 6 første ledd, forskrift om restriktive tiltak mot
+       Syria artikkel 5, forskrift om måling av skip og flyttbare innretninger artikkel 2, samfunnssikkerhetsinstruksen kap. VIII og forskrift
+       om forebyggelse av anslag mot sikkerheten i luftfarten § 14 første ledd. Taggen for hvert eksempel er lest fra navneform_bindinger.
+       Tallene for lesningene er målt i en kopi 2026-11-20 (docs/33 §5.19.1); den delte basen har de samme 254 taggene. -->
+  <section class="section" id="regjeringen">
     <div class="wrap">
       <div class="section-head">
-        <span class="kicker">Nytt 31. oktober 2026 · Etter piloten <span class="pill" data-tone="neutral">Historisk · 31. oktober 2026</span></span>
-        <h2>Tre presiseringer fra piloten på barnehageloven</h2>
-        <p>Piloten på barnehageloven var første gang modellen ble brukt på en ny lov. Den viste tre steder der modellen eller lasteren måtte bli mer presis. Alle tre er avgjort og bygget. Tallene står på <a href="../pilot-barnehageloven/">pilotsiden</a>.</p>
-      </div>
-      <div class="nytt-kort-grid nytt-kort-grid--bred">
-        <div class="nytt-kort">
-          <h3>En klasse kan ha kompetanse og en rolle</h3>
-          <p>Loven sier oftest «kommunen kan …», ikke navnet på én kommune. Nå kan klassen kommune stå som innehaver av kompetansen. Klassen leses distributivt: det som står om klassen, gjelder hvert medlem for seg, slik det alt gjaldt for plikter og oppgaver. Det er ikke en slutning om lovens innhold. Hvilket organ i kommunen som utøver kompetansen, følger av kommuneloven. Et område kan fortsatt ikke være innehaver.</p>
-          <p>En klasse kan også ha en rolle som loven selv navngir. Barnehageloven § 10 første ledd gjør kommunen til lokal barnehagemyndighet, og rollen er registrert på klassen kommune. Kompetanse kan stå på klassen eller på rollen. Teksten avgjør hvilken.</p>
-          <p>For én kommune regnes svaret ut når noen spør, og det lagres ikke. Veien går gjennom medlemskapet, eventuelt rollen, og kompetansen. Svaret er aldri sikrere enn det svakeste leddet. Alta kommune fikk 97 treff fra pilotkildene 29. oktober, alle merket som forslag. Statsforvalterne får ingen, fordi ingen statsforvalter er registrert som medlem av klassen. Det vises som et hull.</p>
-          <p class="status">Avgjort 29. oktober 2026 i <a href="https://github.com/FinnurO/regel-ide/issues/418" target="_blank" rel="noopener">#418</a>. Før dette falt 103 utsagn om kommunens og statsforvalterens myndighet bort i piloten.</p>
-        </div>
-        <div class="nytt-kort">
-          <h3>Merknader og veiledning er aldri hjemmel</h3>
-          <p>Noen forskrifter har departementets merknader, veiledning eller kommentarer som eget kapittel etter selve forskriften. Det er ikke forskriftstekst. Slike kapitler merkes når forskriften importeres. De kan aldri være hjemmel for en kobling, og konverteringen leser dem ikke.</p>
-          <p>De kan likevel være en tolkningskilde. En merknad kan siteres i begrunnelsen for hvordan en bestemmelse er forstått.</p>
-          <p>Regelen kjenner igjen kapitler øverst i forskriften som heter merknader, veiledning eller kommentarer, med alt under. Den treffer om lag 7&nbsp;000 noder i 100 forskrifter og instrukser. Ett kapittel er unntatt, fordi det er et bindende vedlegg som bare heter «Merknader».</p>
-          <p class="status">Avgjort 29. og 30. oktober 2026 i <a href="https://github.com/FinnurO/regel-ide/issues/419" target="_blank" rel="noopener">#419</a>. Hvordan en merknad skal pekes på som tolkningskilde, er ikke bygget.</p>
-        </div>
-        <div class="nytt-kort">
-          <h3>To utsagn i samme ledd holdes fra hverandre</h3>
-          <p>Et ledd kan si to ting om samme aktør. Barnehageloven § 53 andre ledd gir kommunen både et pålegg og et vedtak om stenging. Når loven lastes på nytt, må maskinen kjenne igjen det den har sett før, uten å slå sammen to forskjellige utsagn. Før var ledd, type og aktør nok til at to utsagn ble regnet som ett.</p>
-          <p>Nå skilles de på setningen sitatet starter i, og paringen er en-til-en. Hvert utsagn kan bare kjennes igjen som én rad som finnes, og hver rad brukes bare én gang i en kjøring. Først pares utsagn med nøyaktig samme sitat, deretter utsagn i samme setning. Står to utsagn i samme setning og det bare finnes én rad, blir det andre et nytt forslag.</p>
-          <p>Kjent restrisiko: siterer språkmodellen en annen setning for det samme utsagnet, blir det et nytt forslag. Det gir en synlig dublett i køen, ikke et stille tap.</p>
-          <p class="status">Avgjort 29. oktober 2026 i <a href="https://github.com/FinnurO/regel-ide/issues/420" target="_blank" rel="noopener">#420</a>.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- [ENDRET, nettside-aktorko-og-maling, 2026-11-05] Godkjenningen er bygget (#440 PR 2, PR #453), hjemmelregelen er presisert etter
-       juristrunde-440, og AK6 er målt i en testkopi. Kilder: docs/33 §5.16 og §5.16.1, og kommentaren på #440 2026-11-05.
-       [ENDRET, nettside-rettinger, 2026-11-20] Forleddssperren i gruppering og ruting er flettet (PR #454 og #457, 2026-11-05), og 192/193 er
-       forklart (docs/33 §5.16: 192 navn 31. oktober, 193 etter forleddssperren 5. november). -->
-  <section class="section" id="aktorkoen">
-    <div class="wrap">
-      <div class="section-head">
-        <span class="kicker">Nytt 31. oktober 2026, oppdatert 20. november · Aktørkøen <span class="pill" data-tone="neutral">Historisk · 31. oktober–18. november 2026</span> <span class="pill" data-tone="success">Godkjenningen er bygget</span></span>
-        <h2>Ukjente aktører godkjennes ett sted</h2>
-        <p>Når maskinen finner et navn den ikke kjenner, blir det en navnekandidat. Før var det én kandidat per forekomst, og det samme navnet kunne måtte godkjennes på fem forskjellige steder. Nå skal aktører godkjennes ett sted: i aktørkøen, der hvert ukjent navn står én gang med alle forekomstene.</p>
+        <span class="kicker">«regjeringen»</span>
+        <h2>Hva betyr «regjeringen» i denne setningen?</h2>
+        <p>Ordet «regjeringen» står 268 ganger i 97 rettskilder. Det betyr ikke det samme hver gang. Grunnloven bruker det om styringen av riket, om statsrådet som kollegium og om medlemmene (Dok. 19 (2011–2012) punkt 3.4.4). Derfor er ordet ikke navnet på én aktør. Det er en generisk navneform, som «departementet». Men i stedet for én betydning per rettskilde får hver forekomst sin egen lesning.</p>
       </div>
       <div class="prose">
-        <h3>Fra 1&nbsp;211 kandidater til under 200 navn</h3>
-        <p>Målt i den delte utviklingsbasen 31. oktober 2026 ventet 1&nbsp;211 navnekandidater. De fleste var ikke ukjente aktører. Hver kandidat får nøyaktig én rute, prøvd i denne rekkefølgen:</p>
+        <h3>Statsrådet er et organ, statsråd er en rolle</h3>
+        <ul>
+          <li><strong>Statsrådet</strong> er et organ for staten, ved siden av Kongen i statsråd. Hjemmelen er Grunnloven § 12 første ledd. Selve navnet står i annet ledd og i § 15, ikke i første ledd, så hjemmelen er merket som fortolkning.</li>
+          <li><strong>Statsråd</strong> er en rolle. Ordet står i Grunnloven § 15 første ledd, så det er et tekstfunn. Statsrådet har medlemmer med rollen statsråd.</li>
+        </ul>
+      </div>
+      <blockquote class="quote-block struktur-merk">Kongen velger selv et råd av stemmeberettigede norske borgere. Dette råd skal bestå av en statsminister og i det minste syv andre medlemmer.<cite><a href="https://lovdata.no/dokument/NL/lov/1814-05-17/§12" target="_blank" rel="noopener">Grunnloven § 12 første ledd</a></cite></blockquote>
+      <blockquote class="quote-block struktur-merk">… mistillit til vedkommende statsråd alene …<cite><a href="https://lovdata.no/dokument/NL/lov/1814-05-17/§15" target="_blank" rel="noopener">Grunnloven § 15 første ledd</a></cite></blockquote>
+      <div class="prose struktur-etter-tabell">
+        <h3>Hver forekomst får sin egen lesning</h3>
+        <p>Faste regler for ordlyden leser hver forekomst. Den første regelen som slår til, gjelder. Hver lesning blir en tagg på akkurat den forekomsten, med samme status som en binding: den kan godkjennes, avvises og ha hjemmel og kunnskapsstatus.</p>
       </div>
       <div class="table-scroll">
         <table class="ds-table struktur-tabell">
           <thead>
-            <tr><th scope="col">Rute</th><th scope="col">Hva det betyr</th><th scope="col">Kandidater</th></tr>
+            <tr><th scope="col">Lesning</th><th scope="col">Eksempel fra lovteksten</th><th scope="col">Hva ordet peker på</th><th scope="col">Kunnskapsstatus</th></tr>
           </thead>
           <tbody>
-            <tr><th scope="row">1. Generisk ord</th><td>Samme ord som en generisk omtale, som «departementet». Standardregelen står i svaret</td><td>387</td></tr>
-            <tr><th scope="row">2. Kjent aktør</th><td>Samme ord som et navn en aktør alt har</td><td>233</td></tr>
-            <tr><th scope="row">3. Kjent begrep</th><td>Samme ord som en klasse, en rolle, et område eller en gruppe som gjelder i rettskilden</td><td>75</td></tr>
-            <tr><th scope="row">4. Bøyningsform</th><td>En bøyd form av et ord i 1–3. Den arver aldri regelen til ordet den ligner: «et departement» er ikke «departementet»</td><td>123</td></tr>
-            <tr><th scope="row">5. Aktørkøen</th><td>Alt annet</td><td>393</td></tr>
-            <tr><th scope="row">Til sammen</th><td></td><td>1&nbsp;211</td></tr>
+            <tr><th scope="row">1. Fremmed stat</th><td>«den syriske regjeringen» (forskrift om restriktive tiltak mot Syria artikkel 5)</td><td>Ingen aktør i Norge</td><td>Tekstfunn</td></tr>
+            <tr><th scope="row">2. Stat i en konvensjon</th><td>«Administrasjon betyr regjeringen i den staten hvis flagg fartøyet fører.» (forskrift om måling av skip og flyttbare innretninger artikkel 2)</td><td>Ingen bestemt stat</td><td>Fortolkning</td></tr>
+            <tr><th scope="row">3. Ikke en aktør</th><td>«Regjeringens sikkerhetsutvalg (RSU)» (samfunnssikkerhetsinstruksen kap. VIII), nettstedet regjeringen.no og titler på avtaler</td><td>Et navn eller en tittel, ingen aktør</td><td>Tekstfunn</td></tr>
+            <tr><th scope="row">4. Rollen statsråd</th><td>«fri bolig til medlemmer av Stortinget og regjeringen» (<a href="https://lovdata.no/dokument/NL/lov/1999-03-26-14/§5-16" target="_blank" rel="noopener">skatteloven § 5-16 første ledd</a>)</td><td>Rollen statsråd</td><td>Fortolkning, med Grunnloven § 15 første ledd</td></tr>
+            <tr><th scope="row">5. Styringen av riket</th><td>«Dette skal føre regjeringen i kongens navn og på hans vegne.» (<a href="https://lovdata.no/dokument/NL/lov/1814-05-17/§13" target="_blank" rel="noopener">Grunnloven § 13 første ledd</a>)</td><td>En funksjon, ingen aktør</td><td>Fortolkning</td></tr>
+            <tr><th scope="row">6. «regjeringens resolusjon»</th><td>«opprettet ved regjeringens resolusjon 4. juli 1991» (<a href="https://lovdata.no/dokument/SF/forskrift/2011-03-01-214/§14" target="_blank" rel="noopener">forskrift om forebyggelse av anslag mot sikkerheten i luftfarten § 14 første ledd</a>)</td><td>Kongen i statsråd, etter Grunnloven § 32 første ledd</td><td>Fortolkning</td></tr>
+            <tr><th scope="row">Alt annet: slutning</th><td>Se under</td><td>Ingen aktør før et menneske har avgjort det</td><td>Uavklart</td></tr>
           </tbody>
         </table>
       </div>
       <div class="prose struktur-etter-tabell">
-        <p>De 393 forekomstene i aktørkøen står i 80 rettskilder. Samme ord og bøyninger med likt forledd slås sammen automatisk, og da ble det 192 navn 31. oktober. 5. november kom forleddssperren med i grupperingen og rutingen: står et annet ord foran navnet, er det et annet navn. «felles samarbeidsutvalg» i barnehageloven § 5 ble da et eget navn, ikke en bøyning av «samarbeidsutvalget». Det ga 193 navn, og det er de 193 som er forhåndsklassifisert (under). Et genitivforledd, som «barnehagens foreldreråd» mot «foreldrerådet», blir bare et forslag. «domstolens leder» slås aldri sammen med «leder».</p>
+        <p>Reglene leser 98 av de 268 forekomstene. De andre 170 er merket som slutning. Et menneske må avgjøre hver av dem og kan ikke godkjenne slutningen som den er.</p>
+        <p><strong>Ett eksempel på en slutning:</strong> klimaloven § 6 første ledd sier at regjeringen skal legge fram oppdaterte klimamål for Stortinget:</p>
+      </div>
+      <blockquote class="quote-block struktur-merk">… skal regjeringen i 2020 og deretter hvert femte år legge fram for Stortinget oppdaterte klimamål.<cite><a href="https://lovdata.no/dokument/NL/lov/2017-06-16-60/§6" target="_blank" rel="noopener">Klimaloven § 6 første ledd</a></cite></blockquote>
+      <div class="prose struktur-etter-tabell">
+        <p>Hvem plikten ligger hos, statsrådet som kollegium eller Kongen i statsråd, er ikke avgjort. Forekomsten står derfor som en slutning med kunnskapsstatus uavklart.</p>
+        <p><strong>Hvordan taggen virker sammen med bindingen.</strong> En vurdert tagg for én forekomst går foran bindingen for hele avsnittet. Er bare noen av forekomstene i et avsnitt tagget, er svaret for de andre «flertydig». Ingenting faller da tilbake på en regel for hele rettskilden. Taggene følger teksten når loven lastes på nytt. Kan en tagg ikke flyttes entydig, gjelder den ikke for den nye versjonen.</p>
+        <p>I aktørkøen behandles «regjeringen» nå som et generisk ord og står ikke lenger som et ukjent navn.</p>
+      </div>
+      <p class="struktur-forbehold"><strong>Forbehold.</strong> Alle taggene er forslag. Ingen er vurdert av et menneske. 14 forekomster i to instrukser er ikke tagget, fordi ingen ansvarlig departement kan eie taggen. De vises som hull, og ingen eier gjettes. Om ordet «statsråd» trenger en sperre som «staten», er ikke avgjort. En juristagent kontrollerte et utvalg på 20 av de 98 regeltaggene i to runder, uten uenighet igjen. Bygget i <a href="https://github.com/FinnurO/regel-ide/issues/486" target="_blank" rel="noopener">#486</a> (<a href="https://github.com/FinnurO/regel-ide/pull/489" target="_blank" rel="noopener">PR #489</a>).</p>
+    </div>
+  </section>
+
+  <!-- [ENDRET, nettside-omstrukturering, 2026-11-23] Reglene for aktørkøen står her uten dato. Tallene fra 31. oktober til 18. november
+       (rutene, juristrunden, relasjonene og målingen på piloten) står ordrett i historikken (#historikk-aktorkoen).
+       Kilder som før: docs/33 §5.16, §5.16.1, §5.16.2 og §5.16.3, og avgjørelsene i #469 2026-11-18. -->
+  <section class="section" id="aktorkoen">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Aktørkøen</span>
+        <h2>Ukjente aktører godkjennes ett sted</h2>
+        <p>Når maskinen finner et navn den ikke kjenner, blir det en navnekandidat. Før var det én kandidat per forekomst, og det samme navnet kunne måtte godkjennes på fem forskjellige steder. Nå skal aktører godkjennes ett sted: i aktørkøen, der hvert ukjent navn står én gang med alle forekomstene.</p>
+      </div>
+      <div class="prose">
+        <h3>Hver kandidat får én rute</h3>
+        <p>De fleste navnekandidatene er ikke ukjente aktører. Hver kandidat får nøyaktig én rute, prøvd i denne rekkefølgen:</p>
+      </div>
+      <div class="table-scroll">
+        <table class="ds-table struktur-tabell">
+          <thead>
+            <tr><th scope="col">Rute</th><th scope="col">Hva det betyr</th></tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">1. Generisk ord</th><td>Samme ord som en generisk omtale, som «departementet». Standardregelen står i svaret</td></tr>
+            <tr><th scope="row">2. Kjent aktør</th><td>Samme ord som et navn en aktør alt har</td></tr>
+            <tr><th scope="row">3. Kjent begrep</th><td>Samme ord som en klasse, en rolle, et område eller en gruppe som gjelder i rettskilden</td></tr>
+            <tr><th scope="row">4. Bøyningsform</th><td>En bøyd form av et ord i 1–3. Den arver aldri regelen til ordet den ligner: «et departement» er ikke «departementet»</td></tr>
+            <tr><th scope="row">5. Aktørkøen</th><td>Alt annet</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="prose struktur-etter-tabell">
+        <p>Samme ord og bøyninger med likt forledd slås sammen automatisk. Står et annet ord foran navnet, er det et annet navn: «felles samarbeidsutvalg» i barnehageloven § 5 er et eget navn, ikke en bøyning av «samarbeidsutvalget». Et genitivforledd, som «barnehagens foreldreråd» mot «foreldrerådet», blir bare et forslag. «domstolens leder» slås aldri sammen med «leder».</p>
         <p>For hvert navn foreslås en hjemmel der en rettskilde oppretter aktøren. Foreldrerådet får barnehageloven § 4 første ledd. Utdanningsdirektoratet står én gang, med 9 forekomster i 5 rettskilder, og uten hjemmel, fordi vedtaket som oppretter direktoratet, ikke er i korpuset. Hullet vises. Merknader og veiledning foreslås aldri som hjemmel.</p>
         <p>Rutene regnes ut når køen leses, og ingenting flyttes. Sveipene som leter etter nye navn, bruker samme ruting, så et kjent ord blir ikke en ny kandidat.</p>
-        <h3>Hjemmelregelen er presisert etter juristrunden</h3>
-        <p>Før godkjenningen ble bygget, prøvde juristagenten hjemmelregelen på 24 forslag. Bare 6 holdt. Regelen er derfor strammet inn:</p>
+        <h3>Hjemmelregelen</h3>
+        <p>Regelen for hvilken bestemmelse som oppretter en aktør, er strammet inn etter en juristrunde (se <a href="#historikk-aktorkoen">historikken</a>):</p>
         <ul>
           <li><strong>To uttrykk:</strong> «skal … ha et» og «det skal være et». «opprettes», «oppnevner» og «etableres» med navnet et sted i setningen er tatt ut. Ingen av de 10 forslagene de ga, holdt.</li>
           <li><strong>Navnet må være kjernen</strong> i frasen uttrykket styrer. I «skal ha en førstelagmann som leder» er det førstelagmannen som skal finnes, ikke lederen.</li>
           <li><strong>Forleddssperren:</strong> står det et annet ord enn et tall- eller mengdeord foran navnet, er det et annet organ. «felles samarbeidsutvalg» i barnehageloven § 5 er ikke samarbeidsutvalget i § 4.</li>
           <li><strong>Oppnevning, valg, utnevnelse og tilsetting</strong> gir aldri forslag. De forutsetter at organet alt finnes.</li>
         </ul>
-        <p>På de samme 24 forslagene gir den presiserte regelen 7 forslag, og 5 av dem er riktige. De 2 gale skyldes ikke hjemmelregelen. «direktøren» samler to ulike direktører under ett navn, og «Dommere» er ikke én aktør. Står hjemmelen i en annen paragraf enn alle forekomstene, står det under forslaget, så det er lett å se.</p>
+        <p>Står hjemmelen i en annen paragraf enn alle forekomstene, står det under forslaget, så det er lett å se.</p>
         <h3>Én godkjenning, ingenting forhåndsvalgt</h3>
         <p>Godkjenningen er bygget. Én godkjenning oppretter aktøren (eller klassen, rollen eller området), navnet med hjemmelen eller «hjemmel mangler», og koblingene for alle forekomstene. Alt skjer i én transaksjon: feiler ett steg, lagres ingenting, og navnet står i køen som før. Ingenting er forhåndsvalgt. Hva navnet er, hvilken skrivemåte fra teksten det skal ha, hvilken hjemmel det har, og hvor sikkert det er, må velges.</p>
-        <!-- [Ny, issue #469, 2026-11-20] Forhåndsklassifiseringens relasjoner som koblinger. Kilde: docs/33 §5.16.2 og §5.16.3, og Johanns
-             avgjørelser i #469 2026-11-18 (konstitutiv «er» regnes som «skal», med status fortolkning). Sitatene er fra
-             data/fasit/strukturmodell/aktorko-forhand/relasjonshjemler/endelig.json (n8.r1, n57.r1, n139.r1), kontrollert ordrett i basen. -->
         <h3>Relasjonene blir koblinger, én knapp for hver</h3>
-        <p>Hvert av de 193 navnene i køen har en forhåndsklassifisering: et forslag til hva navnet er, hvilken hjemmel det har, og hvordan det henger sammen med andre navn. Juristagenten har vurdert forslagene. «Godta forslaget» fyller ut skjemaet, men lagrer ingenting før et menneske har sett det.</p>
-        <p>Forslagene har 189 relasjoner, for eksempel at en rolle innehas av en aktør, at et organ hører til en klasse, eller at et område består av andre områder. Nå kan de skrives som koblinger i modellen. Hver relasjon har sin egen linje i køen, med én knapp, eller med grunnen til at den ikke kan skrives. Knappen lagrer koblingen som et forslag.</p>
+        <p>Hvert navn i køen har en forhåndsklassifisering: et forslag til hva navnet er, hvilken hjemmel det har, og hvordan det henger sammen med andre navn. Juristagenten har vurdert forslagene. «Godta forslaget» fyller ut skjemaet, men lagrer ingenting før et menneske har sett det.</p>
+        <p>Relasjonene i forslagene kan skrives som koblinger i modellen, for eksempel at en rolle innehas av en aktør, at et organ hører til en klasse, eller at et område består av andre områder. Hver relasjon har sin egen linje i køen, med én knapp, eller med grunnen til at den ikke kan skrives. Knappen lagrer koblingen som et forslag.</p>
       </div>
       <div class="table-scroll">
         <table class="ds-table struktur-tabell">
@@ -935,20 +874,19 @@
         </table>
       </div>
       <div class="prose struktur-etter-tabell">
-        <p><strong>Hver relasjon har sin egen hjemmel.</strong> En relasjon låner ikke hjemmelen til navnet. Modellereren foreslo hjemmel og ordrett sitat for 57 relasjoner, og juristagenten vurderte dem i to runder. 30 holdt i første runde, og de 27 innvendingene ble avklart. Ingen uenighet står igjen. 39 relasjoner beholdt navnets hjemmel, og 18 fikk en annen. Sitatet må stå ordrett i bestemmelsen i databasen. Ellers vises ingen knapp, fordi teksten kan være endret siden juristrunden.</p>
+        <p><strong>Hver relasjon har sin egen hjemmel.</strong> En relasjon låner ikke hjemmelen til navnet. Modellereren foreslår hjemmel og ordrett sitat, og juristagenten vurderer dem i to runder. Sitatet må stå ordrett i bestemmelsen i databasen. Ellers vises ingen knapp, fordi teksten kan være endret siden juristrunden.</p>
         <p><strong>«Skal» er ikke «kan».</strong> At hvert medlem av en klasse har en rolle eller et organ, skrives bare når loven sier «skal». Barnehageloven § 4 første ledd: «skal hver barnehage ha et foreldreråd». Det blir en kobling. Domstolloven § 19 fjerde ledd: «kan det utnevnes en dommer som leder for hver avdeling». Det blir ingen. En konstaterende «er», som i «Kommunestyret er det øverste organet i kommunen» (kommuneloven § 5-3 første ledd), leses som «skal», men er merket som fortolkning.</p>
-        <p><strong>Tallene.</strong> Av de 189 relasjonene kan 53 skrives med én knapp når begge navnene finnes i modellen. To av dem gjelder folketrygden og krever i tillegg at den er registrert som en ordning. De 136 andre kan ikke skrives: 110 er ikke koblinger i modellen eller er tvetydige, 11 er slutninger som bygger på mer enn hjemmelen sier, 3 sier ikke «skal», og 12 har andre grunner, som at motparten bare er tekst. En relasjon som allerede finnes, eller som er avvist, skrives ikke på nytt.</p>
-        <h3>Målt på piloten</h3>
-        <p>Spørsmålet er om pilotens utsagn nå har en aktør å høre til. Av 110 utsagn som de faste mønstrene fant i de 20 pilotkildene, manglet 31 en aktør. De 31 gjaldt 19 ulike navn. I en testkopi av databasen ble de 19 navnene opprettet gjennom godkjenningen i køen. Etterpå manglet <strong>0 av 110</strong> en aktør.</p>
+        <p>En relasjon som allerede finnes, eller som er avvist, skrives ikke på nytt. Ingen relasjon skrives før navnene på begge sider finnes, og det avgjør et menneske i køen.</p>
       </div>
-      <p class="struktur-forbehold"><strong>Forbehold:</strong> målingen er gjort i en testkopi. I den delte databasen er navnene ikke opprettet ennå. Det skal et menneske gjøre i køen. I testkopien ble alle 19 opprettet som aktører med «hjemmel mangler», fordi målingen spør om navnet finnes, ikke hva det er. Utsagnene fra språkmodellen er ikke målt. Bygget i <a href="https://github.com/FinnurO/regel-ide/issues/440" target="_blank" rel="noopener">#440</a> (<a href="https://github.com/FinnurO/regel-ide/pull/444" target="_blank" rel="noopener">PR #444</a> og <a href="https://github.com/FinnurO/regel-ide/pull/453" target="_blank" rel="noopener">PR #453</a>). Relasjonene er bygget i <a href="https://github.com/FinnurO/regel-ide/issues/469" target="_blank" rel="noopener">#469</a> (<a href="https://github.com/FinnurO/regel-ide/pull/478" target="_blank" rel="noopener">PR #478</a>), og tallene for dem er målt i en testkopi 18. november 2026. Ingen relasjon skrives før navnene på begge sider finnes, og det avgjør et menneske i køen.</p>
+      <p class="struktur-forbehold"><strong>Forbehold.</strong> I den delte databasen er navnene ikke opprettet ennå. Det skal et menneske gjøre i køen. Hvor mange som venter, står i <a href="#status">status</a>, og målingene i testkopier står i <a href="#historikk-aktorkoen">historikken</a>. Bygget i <a href="https://github.com/FinnurO/regel-ide/issues/440" target="_blank" rel="noopener">#440</a> (<a href="https://github.com/FinnurO/regel-ide/pull/444" target="_blank" rel="noopener">PR #444</a> og <a href="https://github.com/FinnurO/regel-ide/pull/453" target="_blank" rel="noopener">PR #453</a>). Relasjonene er bygget i <a href="https://github.com/FinnurO/regel-ide/issues/469" target="_blank" rel="noopener">#469</a> (<a href="https://github.com/FinnurO/regel-ide/pull/478" target="_blank" rel="noopener">PR #478</a>).</p>
     </div>
   </section>
 
+  <!-- [ENDRET, nettside-omstrukturering] Målingene i testkopien 5. november står ordrett i historikken (#historikk-aktorsiden). -->
   <section class="section" id="hjemmel-for-aktoren">
     <div class="wrap">
       <div class="section-head">
-        <span class="kicker">Nytt 5. november 2026 · Aktørsiden <span class="pill" data-tone="neutral">Historisk · 5. november 2026</span> <span class="pill" data-tone="success">Bygget</span></span>
+        <span class="kicker">Aktørsiden</span>
         <h2>Hvorfor finnes aktøren?</h2>
         <p>Aktørsiden samles rundt ett spørsmål: hvilken bestemmelse er grunnen til at aktøren finnes? Svaret står øverst. De andre rettskildene aktøren står i, kommer under, som relasjoner.</p>
       </div>
@@ -965,21 +903,20 @@
         <h3>Når hjemmelen mangler</h3>
         <p>For Karasjok kommune mangler hjemmelen. Siden viser da hvor kommunen står mest, men sier at dette ikke er hjemmel. Bare koblinger i modellen og merkede forekomster av navnet teller. Ord i fritekst teller ikke, og det gjør heller ikke regler som gjelder alle kommuner. Derfor er svaret forskriften om samiske språk, der Karasjok er en språkutviklingskommune. Politidistriktforskriften teller ikke, fordi Karasjok der bare er et stedsnavn.</p>
         <h3>De andre rettskildene: én rad hver</h3>
-        <p>Før sto Kunnskapsdepartementets koblinger i én liste på 449 rader. Nå har hver rettskilde én rad, med antall kompetanser, plikter, oppgaver og andre koblinger, og hvor mange forslag som venter. At Lovdata oppgir departementet som ansvarlig, vises som et merke. Det er en opplysning fra Lovdata, ikke noe lovteksten sier. Alle 65 koblingene telles én gang hver: 50 står i radene og 15 i vedtaket med hjemmelen. For en kommune står det som gjelder via klassen «kommune», for seg, merket som avledet.</p>
-        <p><strong>Målt i en testkopi 5. november:</strong> 14 av 538 aktører som finnes i dag, har en hjemmel etter regelen. Resten viser hullet.</p>
+        <p>Hver rettskilde har én rad, med antall kompetanser, plikter, oppgaver og andre koblinger, og hvor mange forslag som venter. At Lovdata oppgir departementet som ansvarlig, vises som et merke. Det er en opplysning fra Lovdata, ikke noe lovteksten sier. Hver kobling telles én gang. For en kommune står det som gjelder via klassen «kommune», for seg, merket som avledet.</p>
         <p>Oppgaver som en kommune har via klassen «kommune», vises ennå ikke på kommunens side. Det kommer i <a href="https://github.com/FinnurO/regel-ide/issues/461" target="_blank" rel="noopener">#461</a>.</p>
       </div>
     </div>
   </section>
 
-  <!-- [Ny, nettside-rettinger, 2026-11-20] Hjemmelsstatus (#472 PR 1, PR #484). Kilder: docs/33 §5.20 og Johanns avgjørelser i #472
+  <!-- [Ny, nettside-rettinger, 2026-11-20] Hjemmelsstatus (#472 PR 1, PR #484). Kilder: docs/33 §5.20 og prosjekteierens avgjørelser i #472
        2026-11-18 og 2026-11-20. Sitatene fra konkurranseloven 2004 § 48 andre ledd og § 49 første ledd er kontrollert ordrett mot nodeteksten
        i den delte basen (bare lesing). Statusene for FOR-1993-12-17-1314 er lest fra tabellen hjemmelsstatus samme dag.
-       Johanns avgjørelse: ingen funn og ingen antall forskrifter som «bortfalt» publiseres før #446 og juristmålingen. -->
+       prosjekteierens avgjørelse: ingen funn og ingen antall forskrifter som «bortfalt» publiseres før #446 og juristmålingen. -->
   <section class="section" id="hjemmelsstatus">
     <div class="wrap">
       <div class="section-head">
-        <span class="kicker">Nytt 20. november 2026 · Hjemmelsstatus <span class="pill" data-tone="success">Bygget</span></span>
+        <span class="kicker">Hjemmelsstatus</span>
         <h2>Står forskriften fortsatt på en hjemmel?</h2>
         <p>En forskrift er gitt i medhold av en lov. Men loven kan være opphevet siden, og en forskrift kan ha flere hjemler, der noen er opphevet og andre ikke. Lovdata viser forskriftene som gjeldende. DigRett leser derfor hver hjemmel for seg og spør: er den opphevet, av hvilken bestemmelse, og er forskriften likevel videreført?</p>
       </div>
@@ -1005,7 +942,21 @@
     </div>
   </section>
 
-  <section class="section">
+  <!-- [Ny, nettside-omstrukturering, 2026-11-23] Kort om funn, med lenke. Metoden står på funnsiden (docs/33 §5.15). -->
+  <section class="section" id="funn">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Funn</span>
+        <h2>Det modellen finner, vurderes før det publiseres</h2>
+        <p>Når modellen finner noe som ser galt ut, for eksempel at en forskrift fortsatt bruker navnet på en aktør som er lagt ned, blir det et funn til vurdering. Et funn er en observasjon, ikke en påstand om at loven er feil. En jurist prøver først å forklare det bort. Bare funn som ikke lar seg forklare bort, og som er godkjent for publisering, blir publisert.</p>
+      </div>
+      <div class="prose">
+        <p>Metoden, presisjonsmålingene og de publiserte funnene står på <a href="../funn/">Funn til vurdering</a>. Hvor mange funn som venter, står i <a href="#status">status</a>. Funn om forskrifter der hjemmelen er opphevet, kommer først etter <a href="https://github.com/FinnurO/regel-ide/issues/446" target="_blank" rel="noopener">#446</a> (se <a href="#hjemmelsstatus">hjemmelsstatus</a>).</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="testet">
     <div class="wrap">
       <div class="section-head">
         <span class="kicker">Testet mot lovene</span>
@@ -1033,7 +984,7 @@
     </div>
   </section>
 
-  <section class="section">
+  <section class="section" id="konvertering">
     <div class="wrap">
       <div class="section-head">
         <span class="kicker">Konvertering</span>
@@ -1046,6 +997,14 @@
           <li><strong>En språkmodell:</strong> finner flere, men tar oftere feil.</li>
         </ul>
         <p>Ingenting blir gjeldende av seg selv. Alle forslag går til en kø der et menneske godkjenner dem, og forslag fra språkmodellen merkes med lav tillit. Prinsippet er at det maskinen ikke vet, skal vises som ukjent. Det skal ikke fylles inn med noe som ser riktig ut.</p>
+        <!-- [ENDRET, nettside-omstrukturering] Paringen er flyttet hit fra «Etter piloten» (31. oktober). Kilde: docs/33 §5.3 (#420). -->
+        <h3>Samme utsagn kjennes igjen når loven lastes på nytt</h3>
+        <p>Et ledd kan si to ting om samme aktør. Barnehageloven § 53 andre ledd gir kommunen både et pålegg og et vedtak om stenging. Når loven lastes på nytt, må maskinen kjenne igjen det den har sett før, uten å slå sammen to forskjellige utsagn. Før var ledd, type og aktør nok til at to utsagn ble regnet som ett.</p>
+        <p>Nå skilles de på setningen sitatet starter i, og paringen er en-til-en. Hvert utsagn kan bare kjennes igjen som én rad som finnes, og hver rad brukes bare én gang i en kjøring. Først pares utsagn med nøyaktig samme sitat, deretter utsagn i samme setning. Står to utsagn i samme setning og det bare finnes én rad, blir det andre et nytt forslag.</p>
+        <p>Kjent restrisiko: siterer språkmodellen en annen setning for det samme utsagnet, blir det et nytt forslag. Det gir en synlig dublett i køen, ikke et stille tap.</p>
+        <p class="status">Avgjort i <a href="https://github.com/FinnurO/regel-ide/issues/420" target="_blank" rel="noopener">#420</a>.</p>
+        <h3>En juristagent utfordrer forslagene</h3>
+        <p>Før et menneske ser forslagene, går de gjennom en juristagent, som er KI, i to runder. Juristen vurderer forslaget uten modellererens begrunnelser, modellereren svarer på hver innvending, og juristen gir replikk. Mennesket ser bare det som fortsatt er uenighet, med begge argumentene side om side. Metoden er brukt på fasiten, konverteringen, aktørkøen, relasjonene, hjemmelsstatus og «regjeringen». Den første debatten står i <a href="#nytt-arbeidsmaten">historikken</a>.</p>
       </div>
     </div>
   </section>
@@ -1067,20 +1026,34 @@
     </div>
   </section>
 
-  <!-- [ENDRET, nettside-rettinger, 2026-11-20] Status skrevet om. Kontrollert mot den delte basen 2026-11-20 med bare lesing:
-       domstolinndelingen godkjent 2026-10-16 (467 kanter), fasiten 350 faglig vurdert (#387), 1 125 ressortforslag ikke vurdert,
-       1 211 navnekandidater venter, ingen godkjente forslag fra piloten. Den gamle teksten fra tidlig oktober står under som historikk. -->
-  <section class="section" id="status" style="border-bottom:none;">
+  <!-- [ENDRET, nettside-omstrukturering, 2026-11-23] Status kontrollert mot den delte basen 2026-11-23, bare med SELECT:
+       navnekandidater 1 211 Venter, 54 Godkjent, 4 Avvist (ingen behandlet siden 2026-10-23); nye aktører siden 26. oktober er bare staten og
+       statsrådet (20. november); «regjeringen»: 254 forekomstbindinger i 95 rettskilder, alle maskinelt_foreslatt; ressortkanter fra livsløpet
+       (typekode forvaltning) 1 125 maskinelt_foreslatt og 58 avvist, ingen godkjent; pilotkildene (barnehageloven) 0 godkjente kanter;
+       domstolinndelingen 467 godkjent 2026-10-16; fasiten 350 faglig_vurdert; funn 625 oppdaget (622 utgatt_aktor, 3 uklarhet_hull),
+       78 forklart_bort, 1 godkjent_for_publisering; hjemmelsstatus 25 011 rader i 5 649 rettskilder (beregnet 2026-11-20), 1 205 ukjent,
+       0 funn om hjemler. Antallet navn i køen (188) regnes ut i API-et og er målt i en kopi 2026-11-20 (docs/33 §5.19.1), ikke i den delte
+       basen. Avgjørelsen 2026-11-20 står fast: ingen funn og ingen antall forskrifter med opphevet hjemmel publiseres før #446. -->
+  <section class="section" id="status">
     <div class="wrap">
       <div class="section-head">
         <span class="kicker">Status</span>
-        <h2>Status per 20. november 2026</h2>
+        <h2>Status per 23. november 2026</h2>
       </div>
       <div class="prose">
-        <p><strong>Bygget og i bruk:</strong> typene og koblingene, med kunnskapsstatus og godkjenning for hvert utsagn. Områderegisteret med fylker, kommuner, domstolinndelingen, statsforvalternes embetsområder og helseregionene, der domstolinndelingen er godkjent av et menneske. Standardreglene for «departementet», «kommunen», «statsforvalteren» og «fylkeskommunen». Klassene kommune, fylkeskommune og departement, og Norge og staten. Aktørkøen, der ukjente aktører godkjennes ett sted, og aktørsiden, som viser hvorfor en aktør finnes. Hjemmelsstatus for forskriftene.</p>
-        <p><strong>Lastet, men ikke vurdert av et menneske:</strong> fasiten for de fem lovene (om lag 350 av 1&nbsp;825 utsagn, faglig vurdert, men ikke uavhengig kontrollert; resten finnes i testene, <a href="https://github.com/FinnurO/regel-ide/issues/487" target="_blank" rel="noopener">#487</a>), forslagene fra piloten på barnehageloven, ressortforslagene fra organiseringsvedtakene og navnene i aktørkøen.</p>
-        <p><strong>Neste steg:</strong> godkjenne navnene i aktørkøen, slik at pilotens utsagn får en aktør (<a href="https://github.com/FinnurO/regel-ide/issues/440" target="_blank" rel="noopener">#440</a>, <a href="https://github.com/FinnurO/regel-ide/issues/424" target="_blank" rel="noopener">#424</a>). Gå gjennom pilotforslagene og måle presisjon og gjenfinning (<a href="https://github.com/FinnurO/regel-ide/issues/375" target="_blank" rel="noopener">#375</a>). Kontrollere fasiten (<a href="https://github.com/FinnurO/regel-ide/issues/309" target="_blank" rel="noopener">#309</a>) og føre beviset (<a href="https://github.com/FinnurO/regel-ide/issues/315" target="_blank" rel="noopener">#315</a>).</p>
-        <p class="struktur-forbehold"><strong>Historisk · tidlig oktober 2026.</strong> Slik sto statusen før: Typeinndelingen er på plass, både mønsterkonverteringen og KI-konverteringen er målt, og alle koblingene er samlet i én tabell. Hver kobling har kildetype, og det er merket om kilden er lest i original. Områderegisteret er bygget: alle fylker og kommuner fra Kartverket, tingrettene, lagsognene og lagdømmene fra forskriften, statsforvalternes embetsområder og helseregionene. For en kommune svarer det på hvilket fylke, hvilken tingrett, statsforvalter og hvilket helseforetak den hører til. Plikter mellom partene og ordninger som folketrygden er lagt til. For en kommune viser modellen hvem den har plikt til å samarbeide med eller inngå avtale med. Når loven bare sier «det regionale helseforetaket», viser den klassen og sier tydelig hva som mangler for å finne det konkrete helseforetaket. Avslutning av en stilling speiler nå innsettingen, og ankeinstansen for en tingrett regnes ut gjennom lagsognet og lagdømmet uten å lagres for hvert par. Neste steg er å legge konverteringsresultatet inn som forslag og bruke områdene til å finne riktig motpart når loven sier «statsforvalteren» eller «tingretten». Begge deler er gjort siden (<a href="https://github.com/FinnurO/regel-ide/issues/313" target="_blank" rel="noopener">#313</a>, <a href="https://github.com/FinnurO/regel-ide/issues/394" target="_blank" rel="noopener">#394</a>).</p>
+        <p><strong>Bygget og i bruk:</strong> typene og koblingene, med kunnskapsstatus og godkjenning for hvert utsagn. Områderegisteret med fylker, kommuner, domstolinndelingen, statsforvalternes embetsområder og helseregionene. Standardreglene for «kommunen», «statsforvalteren», «fylkeskommunen» og «departementet», og ordsperren for «staten». Klassene kommune, fylkeskommune og departement. Norge, staten og statsrådet, og en lesning for hver forekomst av «regjeringen». Aktørkøen og aktørsiden. Hjemmelsstatus for forskriftene. Funn til vurdering.</p>
+        <p><strong>Godkjent av et menneske:</strong> domstolinndelingen, 467 koblinger fra kommune til lagdømme og lagmannsrett (16. oktober 2026).</p>
+        <p><strong>Lastet, men ikke vurdert av et menneske:</strong></p>
+        <ul>
+          <li><strong>Fasiten for de fem lovene:</strong> 350 av 1&nbsp;825 utsagn er lastet som faglig vurdert, men ikke uavhengig kontrollert. Resten finnes i testene (<a href="https://github.com/FinnurO/regel-ide/issues/487" target="_blank" rel="noopener">#487</a>).</li>
+          <li><strong>Aktørkøen:</strong> 1&nbsp;211 navnekandidater venter, og ingen er behandlet siden oktober. Ingen av navnene er opprettet i den delte databasen. Samlet blir det 188 navn, målt i en kopi av databasen 20. november, etter «regjeringen».</li>
+          <li><strong>Piloten på barnehageloven:</strong> ingen forslag er godkjent (<a href="https://github.com/FinnurO/regel-ide/issues/375" target="_blank" rel="noopener">#375</a>).</li>
+          <li><strong>Ressortkantene:</strong> 1&nbsp;125 forslag fra departementenes livsløp venter, og 58 er avvist som dubletter. Ingen er godkjent, så ressortfordelingen gir ennå ingen svar for «departementet».</li>
+          <li><strong>Norge, staten og statsrådet:</strong> alle utsagnene er forslag. Det samme gjelder de 254 taggene for «regjeringen» i 95 rettskilder.</li>
+          <li><strong>Hjemmelsstatus:</strong> 25&nbsp;011 hjemler i 5&nbsp;649 rettskilder har fått en status (20. november). 1&nbsp;205 av dem står som ukjent, fordi beviset ikke er funnet. Ingen funn om opphevede hjemler er publisert (<a href="https://github.com/FinnurO/regel-ide/issues/446" target="_blank" rel="noopener">#446</a>).</li>
+          <li><strong>Funn:</strong> 625 funn venter på vurdering, og 622 av dem er maskinfunn om aktører som er utgått. 78 er forklart bort, og 1 er publisert.</li>
+        </ul>
+        <p><strong>Neste steg:</strong> godkjenne navnene i aktørkøen, slik at pilotens utsagn får en aktør (<a href="https://github.com/FinnurO/regel-ide/issues/440" target="_blank" rel="noopener">#440</a>, <a href="https://github.com/FinnurO/regel-ide/issues/424" target="_blank" rel="noopener">#424</a>). Gå gjennom pilotforslagene og måle presisjon og gjenfinning (<a href="https://github.com/FinnurO/regel-ide/issues/375" target="_blank" rel="noopener">#375</a>). Laste resten av fasiten (<a href="https://github.com/FinnurO/regel-ide/issues/487" target="_blank" rel="noopener">#487</a>), kontrollere den (<a href="https://github.com/FinnurO/regel-ide/issues/309" target="_blank" rel="noopener">#309</a>) og føre beviset (<a href="https://github.com/FinnurO/regel-ide/issues/315" target="_blank" rel="noopener">#315</a>). Navn på områder og Oslo (<a href="https://github.com/FinnurO/regel-ide/issues/464" target="_blank" rel="noopener">#464</a>).</p>
         <p>Beviset er at de fem lovene ligger i modellen, og at <a href="#formalet">spørsmålene modellen skal kunne svare på</a>, besvares fra dataene med lenke til paragrafen. Fasiten kontrolleres av et menneske før tallene låses.</p>
       </div>
       <ul class="source-list struktur-lenker">
@@ -1089,6 +1062,260 @@
         <li><span class="dot" aria-hidden="true"></span><span><a href="https://github.com/FinnurO/regel-ide/blob/master/docs/32-formal-roller-og-sporsmal.md" target="_blank" rel="noopener">Spørsmålene (docs/32)</a><span class="desc">De ni spørsmålene hele DigRett skal kunne besvare, med S8 og S9 som kom fra dette arbeidet.</span></span></li>
       </ul>
       <p class="struktur-kilde">Lovtekst fra Lovdata (NLOD 2.0).</p>
+    </div>
+  </section>
+
+  <!-- [Ny, nettside-omstrukturering, 2026-11-23] Endringsloggen erstatter «Nytt oktober 2026». Én linje per milepæl, nyeste først.
+       Datoene er flettedatoene i git log for origin/master, utenom godkjenningen av domstolinndelingen (sist_endret_tidspunkt i basen). -->
+  <section class="section" id="endringslogg">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Endringslogg</span>
+        <h2>Hva som er kommet til, oktober–november 2026</h2>
+      </div>
+      <div class="prose">
+        <ul class="nyhet-liste">
+          <li><strong>20. november:</strong> <a href="#regjeringen">«regjeringen»</a>: statsrådet som organ, rollen statsråd og en lesning for hver forekomst (<a href="https://github.com/FinnurO/regel-ide/issues/486" target="_blank" rel="noopener">#486</a>, <a href="https://github.com/FinnurO/regel-ide/pull/489" target="_blank" rel="noopener">PR #489</a>).</li>
+          <li><strong>20. november:</strong> <a href="#hjemmelsstatus">hjemmelsstatus</a> for hver hjemmel (<a href="https://github.com/FinnurO/regel-ide/issues/472" target="_blank" rel="noopener">#472</a>, <a href="https://github.com/FinnurO/regel-ide/pull/484" target="_blank" rel="noopener">PR #484</a>).</li>
+          <li><strong>20. november:</strong> <a href="#norge-og-staten">Norge, staten og nivåene</a>, med <a href="#ordsperren">ordsperren</a> for «staten» (<a href="https://github.com/FinnurO/regel-ide/issues/463" target="_blank" rel="noopener">#463</a>, <a href="https://github.com/FinnurO/regel-ide/pull/480" target="_blank" rel="noopener">PR #480</a>).</li>
+          <li><strong>18. november:</strong> <a href="#aktorkoen">relasjonene i aktørkøen</a> blir koblinger (<a href="https://github.com/FinnurO/regel-ide/issues/469" target="_blank" rel="noopener">#469</a>, <a href="https://github.com/FinnurO/regel-ide/pull/478" target="_blank" rel="noopener">PR #478</a>).</li>
+          <li><strong>17. november:</strong> <a href="#standardreglene">standardregel for «fylkeskommunen»</a> (<a href="https://github.com/FinnurO/regel-ide/issues/470" target="_blank" rel="noopener">#470</a>, <a href="https://github.com/FinnurO/regel-ide/pull/479" target="_blank" rel="noopener">PR #479</a>).</li>
+          <li><strong>6. november:</strong> <a href="#klasser">klassene fylkeskommune og departement</a>, og regelen «minst hjemmel eller medlemsregel» (<a href="https://github.com/FinnurO/regel-ide/issues/442" target="_blank" rel="noopener">#442</a>, <a href="https://github.com/FinnurO/regel-ide/pull/467" target="_blank" rel="noopener">PR #467</a>).</li>
+          <li><strong>5. november:</strong> <a href="#hjemmel-for-aktoren">aktørsiden</a> (<a href="https://github.com/FinnurO/regel-ide/issues/441" target="_blank" rel="noopener">#441</a>, <a href="https://github.com/FinnurO/regel-ide/pull/459" target="_blank" rel="noopener">PR #459</a>), og godkjenning og forleddssperre i <a href="#aktorkoen">aktørkøen</a> (<a href="https://github.com/FinnurO/regel-ide/issues/440" target="_blank" rel="noopener">#440</a>, <a href="https://github.com/FinnurO/regel-ide/pull/453" target="_blank" rel="noopener">PR #453</a>, <a href="https://github.com/FinnurO/regel-ide/pull/454" target="_blank" rel="noopener">PR #454</a>, <a href="https://github.com/FinnurO/regel-ide/pull/457" target="_blank" rel="noopener">PR #457</a>).</li>
+          <li><strong>31. oktober:</strong> <a href="#aktorkoen">aktørkøen</a>, først bare til lesing (<a href="https://github.com/FinnurO/regel-ide/pull/444" target="_blank" rel="noopener">PR #444</a>), og <a href="../funn/">funn til vurdering</a> (<a href="https://github.com/FinnurO/regel-ide/issues/429" target="_blank" rel="noopener">#429</a>, <a href="https://github.com/FinnurO/regel-ide/pull/439" target="_blank" rel="noopener">PR #439</a>).</li>
+          <li><strong>29.–30. oktober:</strong> tre presiseringer etter <a href="../pilot-barnehageloven/">piloten på barnehageloven</a>: <a href="#nytt-pilot">en klasse kan ha kompetanse</a> (<a href="https://github.com/FinnurO/regel-ide/issues/418" target="_blank" rel="noopener">#418</a>), <a href="#merknader">merknader er aldri hjemmel</a> (<a href="https://github.com/FinnurO/regel-ide/issues/419" target="_blank" rel="noopener">#419</a>) og <a href="#konvertering">en-til-en-paring</a> (<a href="https://github.com/FinnurO/regel-ide/issues/420" target="_blank" rel="noopener">#420</a>).</li>
+          <li><strong>26. oktober:</strong> standardregel for <a href="#departementet">«departementet»</a> (<a href="https://github.com/FinnurO/regel-ide/issues/394" target="_blank" rel="noopener">#394</a>), departementenes livsløp (<a href="https://github.com/FinnurO/regel-ide/issues/395" target="_blank" rel="noopener">#395</a>, <a href="https://github.com/FinnurO/regel-ide/issues/397" target="_blank" rel="noopener">#397</a>), og fasiten lastet inn som faglig vurdert (<a href="https://github.com/FinnurO/regel-ide/issues/387" target="_blank" rel="noopener">#387</a>).</li>
+          <li><strong>16. oktober:</strong> domstolinndelingen godkjent av et menneske, og oppgave som egen kobling (<a href="https://github.com/FinnurO/regel-ide/issues/368" target="_blank" rel="noopener">#368</a>, <a href="https://github.com/FinnurO/regel-ide/pull/381" target="_blank" rel="noopener">PR #381</a>).</li>
+          <li><strong>15. oktober:</strong> kunnskapsstatus og godkjenning for hvert utsagn (<a href="https://github.com/FinnurO/regel-ide/issues/367" target="_blank" rel="noopener">#367</a>, <a href="https://github.com/FinnurO/regel-ide/pull/373" target="_blank" rel="noopener">PR #373</a>), forslagskøen (<a href="https://github.com/FinnurO/regel-ide/issues/313" target="_blank" rel="noopener">#313</a>) og <a href="../profil/">forslaget til norsk profil</a>.</li>
+          <li><strong>9. oktober:</strong> modellen prøvd mot fem lover: kompetansefamilier, plikt og ordninger (<a href="https://github.com/FinnurO/regel-ide/pull/354" target="_blank" rel="noopener">PR #354</a>, <a href="https://github.com/FinnurO/regel-ide/pull/358" target="_blank" rel="noopener">PR #358</a>, <a href="https://github.com/FinnurO/regel-ide/pull/360" target="_blank" rel="noopener">PR #360</a>), og <a href="#nytt-arbeidsmaten">juristagenten</a> (<a href="https://github.com/FinnurO/regel-ide/pull/359" target="_blank" rel="noopener">PR #359</a>).</li>
+          <li><strong>8. oktober:</strong> områderegisteret (<a href="https://github.com/FinnurO/regel-ide/pull/342" target="_blank" rel="noopener">PR #342</a>, <a href="https://github.com/FinnurO/regel-ide/pull/346" target="_blank" rel="noopener">PR #346</a>) og denne siden (<a href="https://github.com/FinnurO/regel-ide/issues/325" target="_blank" rel="noopener">#325</a>).</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- [Ny, nettside-omstrukturering, 2026-11-23] Historikken. Tekstene under står ordrett slik de sto på siden i master d737616. Bare
+       merket, pekeren til dagens status og overskriftene der et kort er gjort til en seksjon, er nye. De endres ikke i etterkant
+       (CLAUDE.md §22: et øyeblikksbilde får en peker, det skrives ikke om). Ankeret #nytt-arbeidsmaten lenkes fra pilotsiden og profilen. -->
+  <section class="section" id="historikk">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Historikk</span>
+        <h2>Slik sto det da det ble skrevet</h2>
+        <p>Her står rapporter, debatter og tall slik de ble publisert. De endres ikke i etterkant. Det som gjelder nå, står i referansedelen over og i <a href="#status">status per 23. november 2026</a>.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="nytt-arbeidsmaten">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Historikk · Arbeidsmåten <span class="pill" data-tone="neutral">Historisk · 9. oktober 2026</span></span>
+        <h2>En juristagent utfordrer, og mennesket ser bare reell uenighet</h2>
+        <p>Modellen er testet mot en fasit: fem lover der hvert utsagn om hvem som gjør hva, er skrevet ned med sitat og lenke til leddet. Fasiten er laget av KI-agenter. Hvert sitat er sjekket mot teksten, men tolkningen må kontrolleres. Spørsmålet er hvordan et menneske kan kontrollere over 1&nbsp;800 utsagn uten å drukne.</p>
+        <p class="struktur-forbehold"><strong>Status nå:</strong> metoden er i bruk og beskrevet under <a href="#konvertering">konverteringen</a>. Se <a href="#status">status per 23. november 2026</a>. Teksten er ordrett fra 9. oktober, bortsett fra at personnavnet er erstattet med rollen «prosjekteieren» (23. november 2026).</p>
+      </div>
+      <div class="nytt-to-kol">
+        <figure class="nytt-figur">
+          <svg viewBox="0 0 320 484" role="img" aria-label="Debatten om fasitkortene 9. oktober 2026, i fire trinn. Runde 1: juristagenten vurderte 65 fasitkort uten modellererens begrunnelser. 13 holdt, og 52 fikk innvending. Modellereren svarte på hver innvending med aksepter, delvis eller avvis. 19 ble akseptert, og 33 svar var delvis eller avvis. Runde 2: juristen ga replikk med godtar, presiserer eller fastholder. 30 ble avklart. 3 reelle uenigheter gikk videre til prosjekteieren, som ser begge argumentene side om side og en forhåndsvisning i appen.">
+            <defs>
+              <marker id="nf-pil-d" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="nf-pilspiss" d="M0,0 L10,5 L0,10 z"/></marker>
+            </defs>
+            <rect class="nf-boks" x="10" y="10" width="300" height="74" rx="6"/>
+            <text class="nf-tall" x="22" y="58">65</text>
+            <text class="nf-navn" x="84" y="38">Juristen, runde 1</text>
+            <text class="nf-dempet" x="84" y="58">vurderer hvert fasitkort</text>
+            <text class="nf-dempet" x="84" y="74">uten modellererens begrunnelser</text>
+
+            <line class="nf-linje" x1="44" y1="84" x2="44" y2="138" marker-end="url(#nf-pil-d)"/>
+            <text class="nf-uthevet" x="58" y="108">52 innvendinger går videre</text>
+            <text class="nf-dempet" x="58" y="126">13 kort holdt</text>
+
+            <rect class="nf-boks" x="10" y="140" width="300" height="74" rx="6"/>
+            <text class="nf-tall" x="22" y="188">52</text>
+            <text class="nf-navn" x="84" y="168">Modellereren svarer</text>
+            <text class="nf-dempet" x="84" y="188">på hver innvending:</text>
+            <text class="nf-dempet" x="84" y="204">aksepter, delvis eller avvis</text>
+
+            <line class="nf-linje" x1="44" y1="214" x2="44" y2="268" marker-end="url(#nf-pil-d)"/>
+            <text class="nf-uthevet" x="58" y="238">33 svar var delvis eller avvis</text>
+            <text class="nf-dempet" x="58" y="256">19 innvendinger akseptert</text>
+
+            <rect class="nf-boks" x="10" y="270" width="300" height="74" rx="6"/>
+            <text class="nf-tall" x="22" y="318">33</text>
+            <text class="nf-navn" x="84" y="298">Juristen, runde 2</text>
+            <text class="nf-dempet" x="84" y="318">replikk på delvis og avvis:</text>
+            <text class="nf-dempet" x="84" y="334">godtar, presiserer, fastholder</text>
+
+            <line class="nf-linje" x1="44" y1="344" x2="44" y2="398" marker-end="url(#nf-pil-d)"/>
+            <text class="nf-uthevet" x="58" y="368">3 reelle uenigheter igjen</text>
+            <text class="nf-dempet" x="58" y="386">30 avklart etter runde 2</text>
+
+            <rect class="nf-boks nf-boks--slutt" x="10" y="400" width="300" height="74" rx="6"/>
+            <text class="nf-tall" x="30" y="448">3</text>
+            <text class="nf-navn" x="84" y="428">Prosjekteieren avgjør</text>
+            <text class="nf-dempet" x="84" y="448">begge argumenter side om side</text>
+            <text class="nf-dempet" x="84" y="464">og forhåndsvisning i appen</text>
+          </svg>
+          <figcaption>Debatten om 65 fasitkort, 9. oktober 2026. Av 52 innvendinger sto 3 igjen som reell uenighet.</figcaption>
+        </figure>
+
+        <div class="prose">
+          <p>Løsningen er en debatt i to runder før noe legges fram:</p>
+          <ol>
+            <li><strong>Juristen leser først.</strong> En juristagent vurderer forslaget uten å se modellererens begrunnelser, og sier om det holder, om det har en innvending, om noe må kontrolleres, eller om det er et prinsippspørsmål.</li>
+            <li><strong>Modellereren svarer</strong> på hver innvending: aksepter, delvis eller avvis, med henvisning til modellen og beslutningene som er tatt.</li>
+            <li><strong>Juristen gir replikk</strong> der modellereren ikke var enig: godtar, presiserer eller fastholder.</li>
+            <li><strong>Mennesket ser bare det som fortsatt er uenighet</strong>, med begge argumentene side om side, på klart språk og med en forhåndsvisning av hvordan det blir seende ut i appen.</li>
+          </ol>
+          <p>Første gang dette ble kjørt, 9. oktober 2026, gjaldt det 65 fasitkort. 52 fikk innvending. Etter to runder var det 3 reelle uenigheter igjen til prosjekteieren. Resten ble avklart og ført inn i sakene der rettingen hører hjemme.</p>
+          <p>Samme dag ble metoden brukt på konverteringen for avslutning og anke: 29 rader, 13 holdt og 16 fikk innvending. Alle 16 ble akseptert, så ingenting måtte legges fram (<a href="https://github.com/FinnurO/regel-ide/pull/360" target="_blank" rel="noopener">#360</a>).</p>
+          <p>Én lærdom: feilene i første runde kom av at juristen manglet kontekst, ikke av metoden. Juristen får nå det samme som modellereren: hele fasiten for bestemmelsen, en liste over hva som finnes i korpuset, og beslutningene som er tatt (<a href="https://github.com/FinnurO/regel-ide/pull/359" target="_blank" rel="noopener">#359</a>).</p>
+        </div>
+      </div>
+
+      <div class="prose struktur-etter-tabell">
+        <h3>Et kort gjennom debatten</h3>
+        <p>Slik så ett av kortene ut. Juristen fant tre regler der fasiten hadde én.</p>
+      </div>
+      <div class="debattkort struktur-merk" role="group" aria-label="Eksempel: fasitkort nr. 58, domstolloven § 55 femte ledd">
+        <div class="debattkort__hode">Kort nr. 58 · Domstolloven § 55 femte ledd</div>
+        <div class="debattkort__kropp">
+          <blockquote class="quote-block">Dommere kan ikke sies opp eller forflyttes mot sin vilje og kan bare avskjediges etter rettergang og dom.<cite><a href="https://lovdata.no/dokument/NL/lov/1915-08-13-5/§55" target="_blank" rel="noopener">Domstolloven § 55 femte ledd</a></cite></blockquote>
+          <div class="debattkort__sider">
+            <div class="debattkort__side"><strong>Forslaget i fasiten</strong>Én kobling: avsetting av dommere, med avgrensningen «kun etter rettergang og dom».</div>
+            <div class="debattkort__side"><strong>Innvendingen i debatten</strong>Setningen inneholder tre regler, og forflytning er ikke avsetting.</div>
+          </div>
+          <div class="debattkort__utfall">
+            <strong>Utfallet: tre koblinger</strong>
+            <ul>
+              <li>Dommere kan ikke sies opp.</li>
+              <li>Dommere kan bare avskjediges etter rettergang og dom.</li>
+              <li>Dommere kan ikke forflyttes mot sin vilje.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="nytt-tall">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Historikk · Tallene så langt <span class="pill" data-tone="neutral">Historisk · 9. oktober 2026</span></span>
+        <h2>Hvor langt vi er kommet</h2>
+        <p>Tallene er målt mot fasiten. De endrer seg når fasiten rettes, og er ikke endelige.</p>
+        <p class="struktur-forbehold"><strong>Status nå:</strong> tallene per 16. oktober står under <a href="#testet">testet mot lovene</a>. Se <a href="#status">status per 23. november 2026</a>.</p>
+      </div>
+      <div class="stat-row">
+        <div class="stat-tile"><span class="n">1&nbsp;809</span><span class="l">utsagn i fasiten for fem lover med tilhørende forskrifter</span></div>
+        <div class="stat-tile"><span class="n">96&nbsp;%</span><span class="l">av utsagnene har en plass i modellen (1&nbsp;728 av 1&nbsp;809)</span></div>
+        <div class="stat-tile"><span class="n">92,7&nbsp;%</span><span class="l">av koblingene de faste mønstrene foreslår, er riktige (presisjon)</span></div>
+        <div class="stat-tile"><span class="n">47,9&nbsp;%</span><span class="l">av koblingene i fasiten finner de faste mønstrene (gjenfinning)</span></div>
+      </div>
+      <div class="prose">
+        <p>Enkelt sagt: når de faste mønstrene foreslår en kobling, er den riktig i over 9 av 10 tilfeller, men de finner bare knapt halvparten. Resten må komme fra språkmodellen eller fra et menneske, og alt går gjennom godkjenning.</p>
+        <p class="struktur-forbehold"><strong>Beviset er ikke ferdig.</strong> At et utsagn har en plass i modellen, er ikke det samme som at modellen er bevist. Beviset er at de fem lovene faktisk ligger i databasen, og at <a href="#formalet">spørsmålene modellen skal kunne svare på</a>, besvares fra dataene med lenke til paragrafen. Det er arbeidet i <a href="https://github.com/FinnurO/regel-ide/issues/315" target="_blank" rel="noopener">#315</a>, og det er ikke gjort ennå. Fasiten kontrolleres fortsatt (<a href="https://github.com/FinnurO/regel-ide/issues/309" target="_blank" rel="noopener">#309</a>). Tallene er fra <a href="https://github.com/FinnurO/regel-ide/pull/360" target="_blank" rel="noopener">#360</a>, 9. oktober 2026.</p>
+        <!-- [Ny, nettside-rettinger, 2026-11-20] Tallene per 16. oktober er fra docs/33 (målingen etter #368, PR #381):
+             1 825 fasitutsagn, revidert ja 1 745 (96 %), mønster alle P/G 92,5 / 47,5 %. -->
+        <p class="struktur-forbehold"><strong>Oppdatert 20. november 2026:</strong> fasiten ble rettet igjen etter dette. Per 16. oktober 2026 har den <strong>1&nbsp;825 utsagn</strong>. 96&nbsp;% av dem (1&nbsp;745) har en plass i modellen, presisjonen for de faste mønstrene er 92,5&nbsp;% og gjenfinningen 47,5&nbsp;% (<a href="https://github.com/FinnurO/regel-ide/pull/381" target="_blank" rel="noopener">#381</a>). Tallene over står som de var 9. oktober.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="historikk-lovtekstfeil">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Historikk · «Ikke gjett» i praksis <span class="pill" data-tone="neutral">Historisk · 9. oktober 2026</span></span>
+        <h2>Juristen fant en feil i vår kopi av lovteksten</h2>
+        <p class="struktur-forbehold"><strong>Status nå:</strong> importen er rettet, og <a href="https://github.com/FinnurO/regel-ide/issues/361" target="_blank" rel="noopener">#361</a> står åpen for de to fasitradene. Se <a href="#status">status per 23. november 2026</a>.</p>
+      </div>
+      <div class="prose">
+          <p>I energiloven § 10-2 annet ledd sto det «… samt i Første punktum gjelder likevel …». Listen som skal stå mellom, med avtaleloven, markedsføringsloven og angrerettloven, var borte fra leddteksten. Feilen ble funnet i juristrunden.</p>
+          <p>Feilen lå i importen: teksten etter en liste ble limt inn i leddet. Den finnes <strong>949 steder i 407 dokumenter</strong> (119 lover og 288 forskrifter). Løsningen er besluttet: teksten etter listen blir en egen del av leddet, slik den internasjonale standarden Akoma Ntoso gjør det, og lovteksten skal være ordrett.</p>
+          <p class="status"><strong>Oppdatert 20. november 2026:</strong> rettet i importen 15. oktober 2026 (<a href="https://github.com/FinnurO/regel-ide/pull/369" target="_blank" rel="noopener">PR #369</a>). To rader i fasiten skal ennå flyttes til den nye delen av leddet (<a href="https://github.com/FinnurO/regel-ide/issues/361" target="_blank" rel="noopener">#361</a>).</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="historikk-pilot">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Historikk · Etter piloten <span class="pill" data-tone="neutral">Historisk · 31. oktober 2026</span></span>
+        <h2>Tre presiseringer fra piloten på barnehageloven</h2>
+        <p>Piloten på barnehageloven var første gang modellen ble brukt på en ny lov. Den viste tre steder der modellen eller lasteren måtte bli mer presis. Alle tre er avgjort og bygget. Tallene står på <a href="../pilot-barnehageloven/">pilotsiden</a>.</p>
+        <p class="struktur-forbehold"><strong>Status nå:</strong> de tre presiseringene står under <a href="#nytt-pilot">klassene</a>, <a href="#merknader">koblingene</a> og <a href="#konvertering">konverteringen</a>. Se <a href="#status">status per 23. november 2026</a>.</p>
+      </div>
+      <div class="prose">
+        <p>Alta kommune fikk 97 treff fra pilotkildene 29. oktober, alle merket som forslag.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="historikk-aktorkoen">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Historikk · Aktørkøen i tall <span class="pill" data-tone="neutral">Historisk · 31. oktober–18. november 2026</span></span>
+        <h2>Aktørkøen målt fra 31. oktober til 18. november</h2>
+        <p class="struktur-forbehold"><strong>Status nå:</strong> reglene står under <a href="#aktorkoen">aktørkøen</a>. Se <a href="#status">status per 23. november 2026</a>.</p>
+      </div>
+      <div class="prose">
+        <h3>Fra 1&nbsp;211 kandidater til under 200 navn</h3>
+        <p>Målt i den delte utviklingsbasen 31. oktober 2026 ventet 1&nbsp;211 navnekandidater. De fleste var ikke ukjente aktører. Hver kandidat får nøyaktig én rute, prøvd i denne rekkefølgen:</p>
+      </div>
+      <div class="table-scroll">
+        <table class="ds-table struktur-tabell">
+          <thead>
+            <tr><th scope="col">Rute</th><th scope="col">Hva det betyr</th><th scope="col">Kandidater</th></tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">1. Generisk ord</th><td>Samme ord som en generisk omtale, som «departementet». Standardregelen står i svaret</td><td>387</td></tr>
+            <tr><th scope="row">2. Kjent aktør</th><td>Samme ord som et navn en aktør alt har</td><td>233</td></tr>
+            <tr><th scope="row">3. Kjent begrep</th><td>Samme ord som en klasse, en rolle, et område eller en gruppe som gjelder i rettskilden</td><td>75</td></tr>
+            <tr><th scope="row">4. Bøyningsform</th><td>En bøyd form av et ord i 1–3. Den arver aldri regelen til ordet den ligner: «et departement» er ikke «departementet»</td><td>123</td></tr>
+            <tr><th scope="row">5. Aktørkøen</th><td>Alt annet</td><td>393</td></tr>
+            <tr><th scope="row">Til sammen</th><td></td><td>1&nbsp;211</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="prose struktur-etter-tabell">
+        <p>De 393 forekomstene i aktørkøen står i 80 rettskilder. Samme ord og bøyninger med likt forledd slås sammen automatisk, og da ble det 192 navn 31. oktober. 5. november kom forleddssperren med i grupperingen og rutingen: står et annet ord foran navnet, er det et annet navn. «felles samarbeidsutvalg» i barnehageloven § 5 ble da et eget navn, ikke en bøyning av «samarbeidsutvalget». Det ga 193 navn, og det er de 193 som er forhåndsklassifisert (under). Et genitivforledd, som «barnehagens foreldreråd» mot «foreldrerådet», blir bare et forslag. «domstolens leder» slås aldri sammen med «leder».</p>
+        <h3>Hjemmelregelen er presisert etter juristrunden</h3>
+        <p>Før godkjenningen ble bygget, prøvde juristagenten hjemmelregelen på 24 forslag. Bare 6 holdt. Regelen er derfor strammet inn:</p>
+        <p>På de samme 24 forslagene gir den presiserte regelen 7 forslag, og 5 av dem er riktige. De 2 gale skyldes ikke hjemmelregelen. «direktøren» samler to ulike direktører under ett navn, og «Dommere» er ikke én aktør. Står hjemmelen i en annen paragraf enn alle forekomstene, står det under forslaget, så det er lett å se.</p>
+        <p><strong>Hver relasjon har sin egen hjemmel.</strong> En relasjon låner ikke hjemmelen til navnet. Modellereren foreslo hjemmel og ordrett sitat for 57 relasjoner, og juristagenten vurderte dem i to runder. 30 holdt i første runde, og de 27 innvendingene ble avklart. Ingen uenighet står igjen. 39 relasjoner beholdt navnets hjemmel, og 18 fikk en annen. Sitatet må stå ordrett i bestemmelsen i databasen. Ellers vises ingen knapp, fordi teksten kan være endret siden juristrunden.</p>
+        <p><strong>Tallene.</strong> Av de 189 relasjonene kan 53 skrives med én knapp når begge navnene finnes i modellen. To av dem gjelder folketrygden og krever i tillegg at den er registrert som en ordning. De 136 andre kan ikke skrives: 110 er ikke koblinger i modellen eller er tvetydige, 11 er slutninger som bygger på mer enn hjemmelen sier, 3 sier ikke «skal», og 12 har andre grunner, som at motparten bare er tekst. En relasjon som allerede finnes, eller som er avvist, skrives ikke på nytt.</p>
+        <h3>Målt på piloten</h3>
+        <p>Spørsmålet er om pilotens utsagn nå har en aktør å høre til. Av 110 utsagn som de faste mønstrene fant i de 20 pilotkildene, manglet 31 en aktør. De 31 gjaldt 19 ulike navn. I en testkopi av databasen ble de 19 navnene opprettet gjennom godkjenningen i køen. Etterpå manglet <strong>0 av 110</strong> en aktør.</p>
+      </div>
+      <p class="struktur-forbehold"><strong>Forbehold:</strong> målingen er gjort i en testkopi. I den delte databasen er navnene ikke opprettet ennå. Det skal et menneske gjøre i køen. I testkopien ble alle 19 opprettet som aktører med «hjemmel mangler», fordi målingen spør om navnet finnes, ikke hva det er. Utsagnene fra språkmodellen er ikke målt. Bygget i <a href="https://github.com/FinnurO/regel-ide/issues/440" target="_blank" rel="noopener">#440</a> (<a href="https://github.com/FinnurO/regel-ide/pull/444" target="_blank" rel="noopener">PR #444</a> og <a href="https://github.com/FinnurO/regel-ide/pull/453" target="_blank" rel="noopener">PR #453</a>). Relasjonene er bygget i <a href="https://github.com/FinnurO/regel-ide/issues/469" target="_blank" rel="noopener">#469</a> (<a href="https://github.com/FinnurO/regel-ide/pull/478" target="_blank" rel="noopener">PR #478</a>), og tallene for dem er målt i en testkopi 18. november 2026. Ingen relasjon skrives før navnene på begge sider finnes, og det avgjør et menneske i køen.</p>
+    </div>
+  </section>
+
+  <section class="section" id="historikk-aktorsiden">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Historikk · Aktørsiden <span class="pill" data-tone="neutral">Historisk · 5. november 2026</span></span>
+        <h2>Aktørsiden målt i en testkopi</h2>
+        <p class="struktur-forbehold"><strong>Status nå:</strong> aktørsiden er beskrevet under <a href="#hjemmel-for-aktoren">aktørsiden</a>. Se <a href="#status">status per 23. november 2026</a>.</p>
+      </div>
+      <div class="prose">
+        <p>Før sto Kunnskapsdepartementets koblinger i én liste på 449 rader. Nå har hver rettskilde én rad, med antall kompetanser, plikter, oppgaver og andre koblinger, og hvor mange forslag som venter. At Lovdata oppgir departementet som ansvarlig, vises som et merke. Det er en opplysning fra Lovdata, ikke noe lovteksten sier. Alle 65 koblingene telles én gang hver: 50 står i radene og 15 i vedtaket med hjemmelen. For en kommune står det som gjelder via klassen «kommune», for seg, merket som avledet.</p>
+        <p><strong>Målt i en testkopi 5. november:</strong> 14 av 538 aktører som finnes i dag, har en hjemmel etter regelen. Resten viser hullet.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="historikk-status-oktober" style="border-bottom:none;">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Historikk · Status <span class="pill" data-tone="neutral">Historisk · tidlig oktober 2026</span></span>
+        <h2>Status og neste steg, tidlig oktober 2026</h2>
+        <p class="struktur-forbehold"><strong>Status nå:</strong> Se <a href="#status">status per 23. november 2026</a>.</p>
+      </div>
+      <div class="prose">
+        <p class="struktur-forbehold"><strong>Historisk · tidlig oktober 2026.</strong> Slik sto statusen før: Typeinndelingen er på plass, både mønsterkonverteringen og KI-konverteringen er målt, og alle koblingene er samlet i én tabell. Hver kobling har kildetype, og det er merket om kilden er lest i original. Områderegisteret er bygget: alle fylker og kommuner fra Kartverket, tingrettene, lagsognene og lagdømmene fra forskriften, statsforvalternes embetsområder og helseregionene. For en kommune svarer det på hvilket fylke, hvilken tingrett, statsforvalter og hvilket helseforetak den hører til. Plikter mellom partene og ordninger som folketrygden er lagt til. For en kommune viser modellen hvem den har plikt til å samarbeide med eller inngå avtale med. Når loven bare sier «det regionale helseforetaket», viser den klassen og sier tydelig hva som mangler for å finne det konkrete helseforetaket. Avslutning av en stilling speiler nå innsettingen, og ankeinstansen for en tingrett regnes ut gjennom lagsognet og lagdømmet uten å lagres for hvert par. Neste steg er å legge konverteringsresultatet inn som forslag og bruke områdene til å finne riktig motpart når loven sier «statsforvalteren» eller «tingretten». Begge deler er gjort siden (<a href="https://github.com/FinnurO/regel-ide/issues/313" target="_blank" rel="noopener">#313</a>, <a href="https://github.com/FinnurO/regel-ide/issues/394" target="_blank" rel="noopener">#394</a>).</p>
+      </div>
     </div>
   </section>
 </main>
@@ -1123,7 +1350,7 @@
         <li><a href="https://github.com/FinnurO/regel-ide/blob/master/docs/33-strukturmodell-aktor-omrade-kompetanse.md" target="_blank" rel="noopener">Designnotatet (docs/33)</a></li>
       </ul>
     </div>
-    <p class="fine">Hver seksjon sier når tallene er målt, fra 7. oktober til 20. november 2026. Tallene fra fasiten er foreløpige til fasiten er kontrollert (#309).</p>
+    <p class="fine">Hver seksjon sier når tallene er målt, fra 7. oktober til 23. november 2026. Historikken nederst står slik den ble skrevet. Tallene fra fasiten er foreløpige til fasiten er kontrollert (#309).</p>
   </div>
 </footer>
 

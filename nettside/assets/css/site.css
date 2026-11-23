@@ -421,7 +421,7 @@ table.ds-table caption{ text-align:left; font-size: var(--ds-body-sm-font-size);
 .struktur-figur .sf-valgt-tekst{ fill: var(--ds-color-accent-text-default); font-weight:600; }
 
 /* ---------- [Ny, nettside-nytt-oktober, 2026-10-09] «Nytt oktober 2026» på strukturmodell-siden + nyhetsboks på forsiden ----------
-   Bare lyst tema (Johann lukket #328 2026-10-07). Figurene her er SMALE, STÅENDE SVG-er uten min-width, i motsetning til
+   Bare lyst tema (prosjekteieren lukket #328 2026-10-07). Figurene her er SMALE, STÅENDE SVG-er uten min-width, i motsetning til
    Karasjok-figuren over (.struktur-figur, min-width 40rem, ruller sidelengs): oppdraget var ingen sidelengs rulling på
    telefonbredde, så de nye figurene er tegnet 320 enheter brede og skaleres ned i stedet for å rulle. */
 .nyhet-boks{ border:1px solid var(--ds-color-accent-border-subtle, var(--ds-color-border-subtle)); background: var(--ds-color-accent-surface-tinted); border-radius: var(--ds-border-radius-lg); padding: var(--ds-size-5) var(--ds-size-6); max-width: 48rem; }
