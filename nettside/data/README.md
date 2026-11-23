@@ -39,7 +39,7 @@ til for den siden.
 
 Serveren filtrerer, og scriptet stopper uten å skrive fila hvis et øyeblikksbilde ikke stemmer med hashen sin. Den siste sperren er
 PR-en: siden endres først når fila flettes til master. `FunnRegisterJsonTests` (RegelIde.Data.Tests) sjekker at fila bare inneholder
-funnene som er godkjent i `src/RegelIde.Data/Seed/funn-429.json`, med nøyaktig den godkjente teksten. Godkjenner Johann et nytt funn i
+funnene som er godkjent i `src/RegelIde.Data/Seed/funn-429.json`, med nøyaktig den godkjente teksten. Godkjenner prosjekteieren et nytt funn i
 appen, må fila eksporteres på nytt og testen utvides i samme PR. Brukes av `funn/index.html`.
 
 ### 2. Detaljfiler — kun et STARTUTVALG
