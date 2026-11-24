@@ -49,7 +49,7 @@ public sealed record HjemmelOpphevet(
 /// [ENDRET, #472 PR 3, Johanns avgjørelse 2026-11-18 (4)] R8, R9 og målvedtaket leser teksten med hjemmelsstatusens lesing
 /// (<see cref="Hjemmelstekstlesing.LesOppheving"/>): <see cref="FullOpphevingssetning"/> først, så passiv, «til» etter nummeret og hele
 /// noden når tittelen har punktum, og alt gjennom vakten mot et mål i tittelen til noe annet. Kravet om «Endrer» og unntaket for SF og NL
-/// i R8 står fast, og R8 leser fortsatt ikke formelen i foreldrenoden (#429 PR 4 (1c)). <see cref="FullOpphevingssetning"/> og
+/// i R8 står fast. [ENDRET, prosjekteierens avgjørelse 2026-11-24] R8 leser også formelen i foreldrenoden. <see cref="FullOpphevingssetning"/> og
 /// <see cref="Videreforingssetning"/> er beholdt som byggesteinene de er.
 /// </para>
 /// </summary>
@@ -217,6 +217,9 @@ public static class Opphevingskontroll
     /// punktet under («Lov av 16. juni 1972 nr. 57 om regulering av deltagelsen i fisket.», M16 i måling 3). Barnet leses da med forelderens
     /// tekst foran, og opphevingen forankres i barnets eId. Bare når forelderen slutter med formelen (<see cref="UtgattAktorRegler.Opphevingsformel"/>).
     /// R8 bruker ikke dette: avgjørelsen gjaldt R3 og R9, og R8 ville gitt nye kildefeil.
+    /// [ENDRET, prosjekteierens avgjørelse 2026-11-24, fraviker #429 PR 4 (1c)] R8 leser også formelen i noden over, slik R3, R9 og
+    /// hjemmelsstatusen gjør, så R8 gir samme svar som hjemmelsstatusen på samme tekst. Målt i en kopi av basen: to kilder til går til
+    /// kildefeilkøen (LTI/forskrift/2001-12-21-1708 og LTI/forskrift/2013-02-01-134).
     /// </para></summary>
     private static async Task<List<(string MalEli, Kandidatnode Node)>> NoderSomEndrerAsync(
         RegelIdeDbContext db, IReadOnlyCollection<string> mal, bool bareLover, CancellationToken ct, bool medForelderformel = false)
@@ -281,7 +284,9 @@ public static class Opphevingskontroll
             .Select(r => new { r.Id, r.DokumentId }).ToDictionaryAsync(r => r.Id, r => r.DokumentId, ct);
         medDato = medDato.Where(k => dokumentIder.GetValueOrDefault(k.Id) is not { } d
             || !(d.StartsWith("SF/", StringComparison.Ordinal) || d.StartsWith("NL/", StringComparison.Ordinal))).ToList();
-        var noder = await NoderSomEndrerAsync(db, medDato.Select(k => k.Eli).Distinct(StringComparer.Ordinal).ToList(), bareLover: false, ct);
+        // [ENDRET, prosjekteierens avgjørelse 2026-11-24] Også formelen i noden over («Fra samme tid oppheves:», «Følgende delegeringsvedtak oppheves:»).
+        var noder = await NoderSomEndrerAsync(db, medDato.Select(k => k.Eli).Distinct(StringComparer.Ordinal).ToList(), bareLover: false, ct,
+            medForelderformel: true);
         var perMal = noder.GroupBy(x => x.MalEli, StringComparer.Ordinal).ToDictionary(g => g.Key, g => g.Select(x => x.Node).ToList(), StringComparer.Ordinal);
         foreach (var (id, eli) in medDato)
         {
