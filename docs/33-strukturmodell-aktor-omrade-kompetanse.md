@@ -1892,6 +1892,35 @@ barnehage (godkjent for publisering av Johann 2026-10-29), kontrollen for lærer
   - I lista (`/funn`) sto de 23 funnene med «Utgått aktør: bare i avgiverformelen» sist. Detaljsiden for F06 viste «Gjenåpnet» uten
     maskinregelmerket, og kildefeillista viste «Avvist av Kari Jurist …».
 
+**[Merknad, #472 PR 3, 2026-11-24] Den delte tekstlesingen fra hjemmelsstatusen** (Johanns avgjørelse 2026-11-18 (4), se §5.20 «Tekstlesingen
+er delt»). R8, R9 og målvedtaket leser nå teksten som hjemmelsstatusen: passiv, «til» etter nummeret, hele noden når tittelen har punktum,
+vakten (utvidet med lister og identifikasjon), lov uten nummer og videreføringsformene V1–V4. Kaldkjørt i kopien `regelide_472pr3` (laget med
+`pg_dump` av den delte basen, slettet etterpå), før og etter, 699 maskinfunn (622 oppdaget og 77 forklart bort i kopien):
+- **Svar:** ingen endret. Gjenværende 623, holdt tilbake 144, kildefeil 46 kilder med samme bevis og sitat som før. Ingen nye funn, ingen faller
+  bort, ingen gjenåpnes og ingen nye forklares bort. Uten utvidelsen av vakten ville 8 kilder falt ut av kildefeilkøen (se §5.20).
+- **Premiss (R9):** 16 funn har en endret premissmangel, alle oppdaget. R9 går fra 104 til 106 funn.
+  - 3 funn får en ny premissmangel fordi R9 nå leser en lov uten nummer: skifteloven 1930 er opphevet av LOV-2019-06-14-21 § 179 andre ledd
+    («Fra den tid loven trer i kraft, oppheves lov 21. februar 1930 om skifte og lov 3. mars 1972 nr. 5 om arv m.m.»). Funnene er i
+    DEL/forskrift/1990-11-02-883, DEL/forskrift/1993-12-10-1120 og INS/forskrift/1984-12-10-3584 (som hadde R9 fra før, for folkeregisterloven
+    1970).
+  - 13 funn får vist en videreføring der det før ikke sto noen: straffeloven 1902 i 7 funn (V4, LOV-2005-05-20-28 § 411 første ledd: «Forskrifter
+    gitt i medhold av straffeloven 1902 gjelder også etter at loven her har trådt i kraft.», for eksempel DEL/forskrift/1994-12-01-1066),
+    oppdrettsloven 1985 i 2 funn (V2, LOV-2005-06-17-79 § 33 første ledd: «… gitt i medhold av lov 14. juni 1985 nr. 68 … videreføres.»),
+    pengespilloven 1992 i 2 funn (V3, LOV-2022-03-18-12 § 38 andre ledd: «Forskrifter fastsatt med hjemmel i lovene nevnt i første ledd gjelder
+    også …») og kommunehelsetjenesteloven 1982 og sosialtjenesteloven 1991 i 2 funn (V3, LOV-2011-06-24-30 § 13-2 første ledd: «… gitt med
+    hjemmel i lov som oppheves eller endres når loven her trer i kraft, gjelder også …»).
+  - Premissmanglene regnes ut når funnet leses (`FunnTjeneste.PremissmanglerForAsync`). De 16 endringene vises derfor i den delte basen straks
+    koden er flettet, uten en ny kjøring.
+- **Sitat i påstanden (målvedtaket):** 2 funn får ny påstand ved `?skriv=true&oppfrisk=true`:
+  - FOR-2015-12-11-1667: «Rettskilden opphever …» blir «endrer eller opphever … ikke avklart». Setningen opphever bare en del av målvedtaket
+    («Andre ledd siste strekpunkt i delegeringsbeslutning av 1. april 2002 nr. 1090 …»), og vakten avviser den nå.
+  - FOR-2017-03-10-313: «endrer eller opphever» blir «Rettskilden opphever …» (punkt 11, nynorsk passiv: «Vedtak 19. april 2007 nr. 422 om
+    delegering av mynde til statsforvaltarene etter inndelingslova blir oppheva.»).
+- **Skrivekjøring i kopien:** `?skriv=true&oppfrisk=true` ga 0 nye, 0 kildefeil, 0 forklart bort og 2 oppfrisket. En ny kjøring ga 0 på alt.
+  I appen (web 5473 mot API 5487) viste FOR-1990-11-02-883 den nye premissmangelen og vurderingspunktet «Hjemmel».
+- **Ikke endret:** R8 leser fortsatt ikke formelen i foreldrenoden. Med den ville to kilder til gått til kildefeilkøen (LTI/forskrift/2001-12-21-1708
+  med 3 funn og LTI/forskrift/2013-02-01-134 med 1 funn). Det er et spørsmål til Johann.
+
 **Ikke i PR 1:** statsrådsembeter og organiseringsvedtak som har uttømt virkningen (#438).
 
 ### 5.16 Aktørkøen: ruting, gruppering og hjemmelforslag (#440 PR 1, bygget 2026-10-31)
@@ -2582,7 +2611,40 @@ statusen for gjeldende primære forskrifter med minst én hjemmel, med rene endr
 
 **Tekstlesingen er delt** (`Hjemmelstekstlesing`): passiv, «til», hele noden, vakten mot et mål i tittelen til noe annet, og videreføringsformene.
 [LÅST, oppdraget for PR 1] De er IKKE koblet inn i R8/R9 i #429; det er PR 3. `Opphevingskontroll` tar bare målmønsteret utenfra (lov uten
-nummer), med samme svar for R8 og R9 (Pr3- og Pr4-testene er grønne). Endringer fra fase 1 som var nødvendige for riktige tall:
+nummer), med samme svar for R8 og R9 (Pr3- og Pr4-testene er grønne).
+[LØST, #472 PR 3, 2026-11-24] Koblet inn. Dette er nå delt mellom hjemmelsstatusen og maskinregelen for utgåtte aktører:
+- **Lesingen av én tekst** (`Hjemmelstekstlesing.LesOppheving`): hel setning, ellers passiv, «til» etter nummeret og hele noden når tittelen
+  har punktum, og alt gjennom vakten. R8, R9 og målvedtaket bruker den. En hel setning går foran den utvidede formen, som E1 går foran E1u.
+- **Målet** (`Hjemmelstekstlesing.Mal`): også en lov uten nummer («lov 21. februar 1930 om skifte»). R9 leser den nå.
+- **Formelen i foreldrenoden** (`Hjemmelstekstlesing.MedForelderformel`): én funksjon for hjemmelsstatusen (korpus og Lovtidend) og R9.
+  R8 leser den fortsatt ikke (#429 PR 4 (1c)).
+- **Videreføringen** (`Hjemmelstekstlesing.Videreforinger`): V1, V2, V4 og V3 (også bokmål «regler som blir opphevet») i samme rekkefølge.
+  R9-hintet leser alle nodene i den opphevende loven, ikke bare nodene med et oppheve-ord. V2a (en annen lov) er ikke med i R9, fordi R9 leser
+  den opphevende loven.
+
+Det som fortsatt er ulikt, er kravene rundt teksten, ikke lesingen: R8 og R9 krever «Endrer» (hjemmelsstatusen godtar også E2 med vakten), R8
+holder SF og NL utenfor, R9 godtar bare en lov som opphever, og ingen av dem leser Lovtidend.
+
+**Vakten utvidet** (PR 3). Da vakten ble koblet inn i R8, falt 8 av 46 kilder ut av kildefeilkøen, sju av dem kontrollert som hele opphevinger
+av juristen i #429 måling 3 (den åttende, 1991-10-24-742, var «usikker»). Vakten leste dem som et mål i tittelen til noe annet. To former er
+lagt til. Den gamle vakten gjelder fortsatt, så tillegget kan bare gjøre flere setninger godtatt:
+- **Liste av hele dokumenter**, også uten nummer, med nummerering eller loddstrek: «oppheves følgende vedtak: 4.1. | Vedtak 18. juli 2013
+  nr. 921 om … 4.4. | Vedtak 30. juni 2006 nr. 735 …» (FOR-2018-06-04-810 kap. 4), «avløser kgl.res. 12. desember 1997 – Retningslinjer …, og
+  kgl.res. 18. april 2008 nr. 388» (FOR-2015-06-19-703). Bare målets eget ledd leses. Hvert ledd foran må ha egen dato, og teksten foran
+  lista må være tom eller «følgende vedtak/forskrifter/…», uten delmarkører («følgende bestemmelser:», FOR-2010-06-16-820).
+- **Beskrivelse og identifikasjon:** «oppheves: Delegering av myndighet … § 22, fastsatt ved kgl.res. 17. januar 2003 nr. 38»
+  (FOR-2008-04-11-337 kap. VI), «oppheves departementets delegering av myndighet til Sentralenheten ved vedtak 2. februar 2012 nr. 1490»
+  (FOR-2022-12-22-2499). Beskrivelsen må begynne med et dokument og ha ingen annen dato. Tittelen leses ikke (#429 PR 4 (1a)). Den svake
+  formen «forskrift om … av ‹dato›» godtas bare når beskrivelsen ikke nevner et annet dokument. Et paragrafspenn etter målet («… § 1 til § 9»,
+  FOR-1978-12-22-4) gir avvisning som før.
+
+Målt mot kopien `regelide_472pr3` (alle setninger i gjeldende primærkilder som nevner et mål med et oppheve-ord): 207 avvisninger før, 93
+etter. Alle de 114 som ble godtatt, er gått gjennom for hånd. Ingen ble avvist som var godtatt før. Virkningen på hjemmelsstatusen er én rad:
+FOR-1984-03-16-681 er nå opphevet (E2) av FOR-1991-05-31-349 («Forskriften erstatter forskrift om støysertifisering av sivile luftfartøyer
+av 16. mars 1984 nr. 681.»), og én forskrift går fra «ukjent» til «uavklart». Med Lovtidend: aktiv 21 545, videreført 1 376, ukjent 1 204,
+opphevet 679, og vakten avviste 33.
+
+Endringer fra fase 1 som var nødvendige for riktige tall (PR 1):
 - vakten godtar utstederen mellom dokumenttypen og datoen («Kongelig resolusjon fra X-departementet av …», AK 7);
 - V3 godtar bokmålsformen «regler som blir opphevet» (uhl. 2024 § 17-3; uten den sto 465 rader til uhl. 2005 som opphevet uten videreføring);
 - Lovtidend-teksten leses også i endringsblokkene (`article.change`/`document-change`), som parseren bevisst hopper over i konsolidert tekst. I

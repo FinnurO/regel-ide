@@ -1,5 +1,5 @@
 {
-  "_kilde": "GET /api/gruppebegrep/{id}/medlemsgrupper + /overordnede-grupper + /tildelinger for id=52dcc48d-d228-42d6-8bb1-d9397e29b734 — eksportert 2026-09-09T22:15:57Z",
+  "_kilde": "GET /api/gruppebegrep/{id}/medlemsgrupper + /overordnede-grupper + /tildelinger for id=52dcc48d-d228-42d6-8bb1-d9397e29b734 — eksportert 2026-11-24T07:42:19Z",
   "id": "52dcc48d-d228-42d6-8bb1-d9397e29b734",
   "term": "språkutviklingskommuner",
   "status": "publisert",
@@ -19,7 +19,8 @@
         }
       ],
       "gyldigFra": null,
-      "gyldigTil": null
+      "gyldigTil": null,
+      "status": "godkjent"
     }
   ],
   "tildelinger": [
@@ -36,7 +37,8 @@
       ],
       "vilkaar": null,
       "gyldigFra": null,
-      "gyldigTil": null
+      "gyldigTil": null,
+      "status": "godkjent"
     },
     {
       "id": "4613f00f-0c07-462d-ae43-ddb33cd26509",
@@ -51,7 +53,8 @@
       ],
       "vilkaar": null,
       "gyldigFra": null,
-      "gyldigTil": null
+      "gyldigTil": null,
+      "status": "godkjent"
     },
     {
       "id": "6f809260-a975-428c-8fd5-ce9e5111988f",
@@ -66,7 +69,8 @@
       ],
       "vilkaar": null,
       "gyldigFra": null,
-      "gyldigTil": null
+      "gyldigTil": null,
+      "status": "godkjent"
     },
     {
       "id": "050c0f9e-9efb-4b73-a529-93e9dbb41ad6",
@@ -81,7 +85,8 @@
       ],
       "vilkaar": null,
       "gyldigFra": null,
-      "gyldigTil": null
+      "gyldigTil": null,
+      "status": "godkjent"
     }
   ]
 }

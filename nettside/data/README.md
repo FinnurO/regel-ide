@@ -106,5 +106,11 @@ enkeltpersoners kontaktinformasjon. Konkret sjekket før eksport:
   tjenester) pluss id/tittel/eli — ingen navn, ingen liste over hvilke konkrete virksomheter/
   tjenester det gjelder.
 
+- **Personnavn byttes med rollen** (2026-11-24): begrunnelser i basen skriver «Johanns avgjørelse …». Eksportscriptet bytter det til
+  «Prosjekteierens avgjørelse …» i alle filer unntatt `funn/register.json` (frosset, godkjent tekst), og stopper hvis prosjekteierens navn
+  likevel står igjen i en fil under `nettside/data/`.
+- **Forslag** (godkjenning `maskinelt_foreslatt` eller `manuelt_foreslatt`) er med i `grupper/register.json` og vises med merket «forslag» på
+  gruppesiden, aldri som publisert.
+
 Et automatisk søk etter kjente testbruker-navn i alle filene under `nettside/data/` ga null treff
 ved siste eksport (se sluttrapporten fra byggerunden som opprettet dette).

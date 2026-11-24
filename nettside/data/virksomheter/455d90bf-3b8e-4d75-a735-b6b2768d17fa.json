@@ -1,5 +1,5 @@
 {
-  "_kilde": "GET /api/virksomheter/{id}/where-used + /myndighetstildelinger + /begrep for id=455d90bf-3b8e-4d75-a735-b6b2768d17fa — eksportert 2026-09-09T22:15:57Z",
+  "_kilde": "GET /api/virksomheter/{id}/where-used + /myndighetstildelinger + /begrep for id=455d90bf-3b8e-4d75-a735-b6b2768d17fa — eksportert 2026-11-24T07:42:18Z",
   "id": "455d90bf-3b8e-4d75-a735-b6b2768d17fa",
   "navn": "KARASJOGA GIELDA / KARASJOK KOMMUNE",
   "visningsnavn": "Karasjok kommune",
@@ -23,7 +23,8 @@
       {
         "tildelingId": "73faabd8-2f47-4346-8285-ff7ddfeb84c5",
         "gruppeBegrepId": "52dcc48d-d228-42d6-8bb1-d9397e29b734",
-        "gruppeTerm": "språkutviklingskommuner"
+        "gruppeTerm": "språkutviklingskommuner",
+        "gruppeBegrepskategori": "klasse"
       }
     ]
   },
@@ -41,27 +42,11 @@
       ],
       "vilkaar": null,
       "gyldigFra": null,
-      "gyldigTil": null
+      "gyldigTil": null,
+      "status": "godkjent"
     }
   ],
   "navneformer": [
-    {
-      "id": "9ea6cbe2-0614-4bea-81d6-201b8a8b1c42",
-      "virksomhetId": null,
-      "begrepskategori": "virksomhet",
-      "virksomhetReferanseId": "455d90bf-3b8e-4d75-a735-b6b2768d17fa",
-      "lovkildeId": null,
-      "term": "Karasjok",
-      "definisjon": null,
-      "lovreferanseEid": null,
-      "gjelderFor": [],
-      "kodelisteReferanseId": null,
-      "skosUrl": null,
-      "begrepstype": null,
-      "status": "publisert",
-      "versjon": 1,
-      "navneformgrunn": "kortform"
-    },
     {
       "id": "6dc58a74-3fdf-496f-a257-9fbcc1efef9b",
       "virksomhetId": null,
@@ -77,7 +62,22 @@
       "begrepstype": null,
       "status": "publisert",
       "versjon": 1,
-      "navneformgrunn": "gjeldende"
+      "navneformgrunn": "gjeldende",
+      "omradetype": null,
+      "omradekode": null,
+      "medlemskapsregel": null,
+      "kunnskapsstatus": null,
+      "godkjenning": null,
+      "kildeUtenforKorpusTekst": null,
+      "kildeUtenforKorpusType": null,
+      "kildeUtenforKorpusDokumentasjon": null,
+      "kildeUtenforKorpusLenker": null,
+      "begrunnelse": null,
+      "tolkningsargumenter": null,
+      "oppdagelsesKilde": null,
+      "avvisningBegrunnelse": null,
+      "sistEndretAv": null,
+      "ikkeKontrollertMotKunngjort": false
     },
     {
       "id": "e50396b7-4cd5-43d0-8d0a-11632fc886a5",
@@ -94,7 +94,91 @@
       "begrepstype": null,
       "status": "publisert",
       "versjon": 1,
-      "navneformgrunn": "parallellnavn"
+      "navneformgrunn": "parallellnavn",
+      "omradetype": null,
+      "omradekode": null,
+      "medlemskapsregel": null,
+      "kunnskapsstatus": null,
+      "godkjenning": null,
+      "kildeUtenforKorpusTekst": null,
+      "kildeUtenforKorpusType": null,
+      "kildeUtenforKorpusDokumentasjon": null,
+      "kildeUtenforKorpusLenker": null,
+      "begrunnelse": null,
+      "tolkningsargumenter": null,
+      "oppdagelsesKilde": null,
+      "avvisningBegrunnelse": null,
+      "sistEndretAv": null,
+      "ikkeKontrollertMotKunngjort": false
+    },
+    {
+      "id": "73dd4d09-d270-49b4-8a5b-f899c3ca9856",
+      "virksomhetId": null,
+      "begrepskategori": "virksomhet",
+      "virksomhetReferanseId": "455d90bf-3b8e-4d75-a735-b6b2768d17fa",
+      "lovkildeId": null,
+      "term": "Kárášjohka",
+      "definisjon": null,
+      "lovreferanseEid": null,
+      "gjelderFor": [],
+      "kodelisteReferanseId": null,
+      "skosUrl": null,
+      "begrepstype": null,
+      "status": "publisert",
+      "versjon": 1,
+      "navneformgrunn": "parallellnavn",
+      "omradetype": null,
+      "omradekode": null,
+      "medlemskapsregel": null,
+      "kunnskapsstatus": "fortolkning",
+      "godkjenning": "maskinelt_foreslatt",
+      "kildeUtenforKorpusTekst": "Kartverket kommuneinfo: gyldigeNavn «Kárášjohka» (nordsamisk, prioritet 1) for kommune 5610 (øyeblikksbildet i Seed/kartverket-fylker-kommuner.json, hentet 2026-10-28); Enhetsregisteret: organisasjonsform KOMM 963376030 har kommunenummer 5610",
+      "kildeUtenforKorpusType": "register",
+      "kildeUtenforKorpusDokumentasjon": "primaer",
+      "kildeUtenforKorpusLenker": [
+        "https://ws.geonorge.no/kommuneinfo/v1/kommuner/5610",
+        "https://data.brreg.no/enhetsregisteret/api/enheter/963376030"
+      ],
+      "begrunnelse": "Parallellnavn: kommunens navn på et annet språk enn norsk, fra Kartverkets gyldigeNavn (#390). Kartverket navngir kommuneområdet, og Enhetsregisteret knytter rettssubjektet til kommunenummeret; at rettssubjektet bærer områdets navn, er en slutning (kommuneloven § 3-1). Hva ordet viser til i en rettskilde (kommunen eller området), avgjøres av en binding eller konteksten.",
+      "tolkningsargumenter": [
+        "kontekst_system"
+      ],
+      "oppdagelsesKilde": "register:kartverket-kommunenavn",
+      "avvisningBegrunnelse": null,
+      "sistEndretAv": null,
+      "ikkeKontrollertMotKunngjort": false
+    },
+    {
+      "id": "9ea6cbe2-0614-4bea-81d6-201b8a8b1c42",
+      "virksomhetId": null,
+      "begrepskategori": "virksomhet",
+      "virksomhetReferanseId": "455d90bf-3b8e-4d75-a735-b6b2768d17fa",
+      "lovkildeId": "894b7cc1-5297-4181-ac92-f2d756ccc75d",
+      "term": "Karasjok",
+      "definisjon": null,
+      "lovreferanseEid": "https://lovdata.no/eli/forskrift/2005/06/17/657/nor/§1/ledd-1",
+      "gjelderFor": [],
+      "kodelisteReferanseId": null,
+      "skosUrl": null,
+      "begrepstype": null,
+      "status": "publisert",
+      "versjon": 1,
+      "navneformgrunn": "kortform",
+      "omradetype": null,
+      "omradekode": null,
+      "medlemskapsregel": null,
+      "kunnskapsstatus": "tekstfunn",
+      "godkjenning": null,
+      "kildeUtenforKorpusTekst": null,
+      "kildeUtenforKorpusType": null,
+      "kildeUtenforKorpusDokumentasjon": null,
+      "kildeUtenforKorpusLenker": null,
+      "begrunnelse": null,
+      "tolkningsargumenter": null,
+      "oppdagelsesKilde": null,
+      "avvisningBegrunnelse": null,
+      "sistEndretAv": "Anne Systemforvalter",
+      "ikkeKontrollertMotKunngjort": false
     }
   ]
 }

@@ -1,5 +1,5 @@
 {
-  "_kilde": "GET /api/gruppebegrep/{id}/medlemsgrupper + /overordnede-grupper + /tildelinger for id=7057ff4b-bc2e-4d23-af7b-c681a082ea32 — eksportert 2026-09-09T22:15:57Z",
+  "_kilde": "GET /api/gruppebegrep/{id}/medlemsgrupper + /overordnede-grupper + /tildelinger for id=7057ff4b-bc2e-4d23-af7b-c681a082ea32 — eksportert 2026-11-24T07:42:19Z",
   "id": "7057ff4b-bc2e-4d23-af7b-c681a082ea32",
   "term": "forvaltningsområdet for samiske språk",
   "status": "publisert",
@@ -18,7 +18,8 @@
         }
       ],
       "gyldigFra": null,
-      "gyldigTil": null
+      "gyldigTil": null,
+      "status": "godkjent"
     },
     {
       "id": "b669938d-0070-4a4e-9a70-89c2e4d51a6a",
@@ -32,7 +33,8 @@
         }
       ],
       "gyldigFra": null,
-      "gyldigTil": null
+      "gyldigTil": null,
+      "status": "godkjent"
     },
     {
       "id": "757aa3ac-191e-4081-96f2-0dc54f63f71f",
@@ -46,7 +48,8 @@
         }
       ],
       "gyldigFra": null,
-      "gyldigTil": null
+      "gyldigTil": null,
+      "status": "godkjent"
     }
   ],
   "overordnedeGrupper": [],
@@ -64,7 +67,8 @@
       ],
       "vilkaar": null,
       "gyldigFra": null,
-      "gyldigTil": null
+      "gyldigTil": null,
+      "status": "godkjent"
     }
   ]
 }
