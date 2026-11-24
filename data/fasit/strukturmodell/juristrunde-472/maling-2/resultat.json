@@ -1,0 +1,399 @@
+{
+ "sak": "#472 måling 2",
+ "dato": "2026-11-24",
+ "merknad": "Klassen etter to juristrunder, målt i kopien regelide_472pr4 etter rettingene i PR 4, før noe er skrevet mot den delte basen. Presisjon = riktig/(riktig+feil), Wilson 95 %. Ingen usikre.",
+ "resultat": {
+  "totalt": {
+   "riktig": 15,
+   "n": 20,
+   "presisjon": 0.75,
+   "wilson95": [
+    0.53,
+    0.89
+   ]
+  },
+  "uten_446": {
+   "riktig": 13,
+   "n": 18,
+   "presisjon": 0.72,
+   "wilson95": [
+    0.49,
+    0.88
+   ]
+  },
+  "uten_kjente_r8_hull": {
+   "riktig": 15,
+   "n": 18,
+   "presisjon": 0.83,
+   "wilson95": [
+    0.61,
+    0.94
+   ]
+  },
+  "vektet_etter_lagene": {
+   "presisjon": 0.73,
+   "merknad": "Lagene som er med i utvalget (238 av 250 funn), vektet med lagstørrelsen."
+  },
+  "usikre": [],
+  "per_undertype": {
+   "hjemmel_opphevet": {
+    "riktig": 9,
+    "n": 12,
+    "presisjon": 0.75,
+    "wilson95": [
+     0.47,
+     0.91
+    ]
+   },
+   "blandede_hjemler": {
+    "riktig": 2,
+    "n": 4,
+    "presisjon": 0.5,
+    "wilson95": [
+     0.15,
+     0.85
+    ]
+   },
+   "uavklart": {
+    "riktig": 2,
+    "n": 2,
+    "presisjon": 1.0,
+    "wilson95": [
+     0.34,
+     1.0
+    ]
+   },
+   "videreforing_utlopt": {
+    "riktig": 2,
+    "n": 2,
+    "presisjon": 1.0,
+    "wilson95": [
+     0.34,
+     1.0
+    ]
+   }
+  },
+  "per_prefiks": {
+   "DEL": {
+    "riktig": 6,
+    "n": 8,
+    "presisjon": 0.75,
+    "wilson95": [
+     0.41,
+     0.93
+    ]
+   },
+   "SF": {
+    "riktig": 7,
+    "n": 8,
+    "presisjon": 0.88,
+    "wilson95": [
+     0.53,
+     0.98
+    ]
+   },
+   "LTI": {
+    "riktig": 2,
+    "n": 4,
+    "presisjon": 0.5,
+    "wilson95": [
+     0.15,
+     0.85
+    ]
+   }
+  },
+  "per_feilarsak": {
+   "videreforingsformen": [
+    "M04",
+    "M06",
+    "M13"
+   ],
+   "populasjonen": [
+    "M10",
+    "M16"
+   ]
+  }
+ },
+ "funn": [
+  {
+   "id": "M01",
+   "undertype": "hjemmel_opphevet",
+   "prefiks": "DEL",
+   "forskrift": "DEL/forskrift/2009-11-27-1406",
+   "funn_id": "73c30c60-f5fb-4fe6-8289-0546a1831251",
+   "modellereren_runde1": "riktig",
+   "klasse": "riktig",
+   "undertype_riktig": true,
+   "sitat_eid_riktig": true,
+   "rent_endrings_eller_ikrafttredelsesvedtak_446": false,
+   "feilarsak": null,
+   "juristens_dom_runde1": "holder"
+  },
+  {
+   "id": "M02",
+   "undertype": "hjemmel_opphevet",
+   "prefiks": "DEL",
+   "forskrift": "DEL/forskrift/1999-08-20-951",
+   "funn_id": "03c66b54-161f-4a98-afa7-ee10c87e05d6",
+   "modellereren_runde1": "riktig",
+   "klasse": "riktig",
+   "undertype_riktig": true,
+   "sitat_eid_riktig": true,
+   "rent_endrings_eller_ikrafttredelsesvedtak_446": false,
+   "feilarsak": null,
+   "juristens_dom_runde1": "holder"
+  },
+  {
+   "id": "M03",
+   "undertype": "hjemmel_opphevet",
+   "prefiks": "DEL",
+   "forskrift": "DEL/forskrift/1994-03-25-233",
+   "funn_id": "f930de05-bb8d-46b0-9629-f2d8b19adc5e",
+   "modellereren_runde1": "riktig",
+   "klasse": "riktig",
+   "undertype_riktig": true,
+   "sitat_eid_riktig": true,
+   "rent_endrings_eller_ikrafttredelsesvedtak_446": false,
+   "feilarsak": null,
+   "juristens_dom_runde1": "holder"
+  },
+  {
+   "id": "M04",
+   "undertype": "hjemmel_opphevet",
+   "prefiks": "DEL",
+   "forskrift": "DEL/forskrift/2011-07-06-746",
+   "funn_id": "808aeb8e-2f84-4574-9699-ff87671f4f54",
+   "modellereren_runde1": "riktig",
+   "klasse": "feil",
+   "undertype_riktig": false,
+   "sitat_eid_riktig": true,
+   "rent_endrings_eller_ikrafttredelsesvedtak_446": false,
+   "feilarsak": "videreforingsformen",
+   "juristens_dom_runde1": "innvending"
+  },
+  {
+   "id": "M05",
+   "undertype": "hjemmel_opphevet",
+   "prefiks": "DEL",
+   "forskrift": "DEL/forskrift/2003-11-04-1312",
+   "funn_id": "342cc75f-54bf-42c2-b583-c359e679577a",
+   "modellereren_runde1": "riktig",
+   "klasse": "riktig",
+   "undertype_riktig": true,
+   "sitat_eid_riktig": true,
+   "rent_endrings_eller_ikrafttredelsesvedtak_446": false,
+   "feilarsak": null,
+   "juristens_dom_runde1": "holder"
+  },
+  {
+   "id": "M06",
+   "undertype": "hjemmel_opphevet",
+   "prefiks": "DEL",
+   "forskrift": "DEL/forskrift/2007-03-02-1264",
+   "funn_id": "374bf9f1-71f6-4efe-9e59-b9ba62281c40",
+   "modellereren_runde1": "riktig",
+   "klasse": "feil",
+   "undertype_riktig": false,
+   "sitat_eid_riktig": true,
+   "rent_endrings_eller_ikrafttredelsesvedtak_446": false,
+   "feilarsak": "videreforingsformen",
+   "juristens_dom_runde1": "innvending"
+  },
+  {
+   "id": "M07",
+   "undertype": "hjemmel_opphevet",
+   "prefiks": "DEL",
+   "forskrift": "DEL/forskrift/1999-06-25-706",
+   "funn_id": "6ab1d7a6-8c11-4392-b0a9-f683ac1fa4bc",
+   "modellereren_runde1": "riktig",
+   "klasse": "riktig",
+   "undertype_riktig": true,
+   "sitat_eid_riktig": true,
+   "rent_endrings_eller_ikrafttredelsesvedtak_446": false,
+   "feilarsak": null,
+   "juristens_dom_runde1": "holder"
+  },
+  {
+   "id": "M08",
+   "undertype": "hjemmel_opphevet",
+   "prefiks": "LTI",
+   "forskrift": "LTI/forskrift/2006-06-16-646",
+   "funn_id": "05ab332b-b6f0-47eb-be2e-aad3183c5fad",
+   "modellereren_runde1": "riktig",
+   "klasse": "riktig",
+   "undertype_riktig": true,
+   "sitat_eid_riktig": true,
+   "rent_endrings_eller_ikrafttredelsesvedtak_446": true,
+   "feilarsak": null,
+   "juristens_dom_runde1": "holder"
+  },
+  {
+   "id": "M09",
+   "undertype": "hjemmel_opphevet",
+   "prefiks": "LTI",
+   "forskrift": "LTI/forskrift/2010-02-22-195",
+   "funn_id": "46f2add6-b4e3-40bf-a01e-a41a0c286ec5",
+   "modellereren_runde1": "riktig",
+   "klasse": "riktig",
+   "undertype_riktig": true,
+   "sitat_eid_riktig": true,
+   "rent_endrings_eller_ikrafttredelsesvedtak_446": true,
+   "feilarsak": null,
+   "juristens_dom_runde1": "holder"
+  },
+  {
+   "id": "M10",
+   "undertype": "hjemmel_opphevet",
+   "prefiks": "LTI",
+   "forskrift": "LTI/forskrift/2003-06-27-802",
+   "funn_id": "b6dd6abd-11d9-47f2-b412-abd2db8ad33f",
+   "modellereren_runde1": "feil",
+   "klasse": "feil",
+   "undertype_riktig": false,
+   "sitat_eid_riktig": true,
+   "rent_endrings_eller_ikrafttredelsesvedtak_446": false,
+   "feilarsak": "populasjonen",
+   "juristens_dom_runde1": "holder"
+  },
+  {
+   "id": "M11",
+   "undertype": "hjemmel_opphevet",
+   "prefiks": "SF",
+   "forskrift": "SF/forskrift/1968-02-01-3641",
+   "funn_id": "fd8fa86b-9c21-416f-93d4-039d20c33f6d",
+   "modellereren_runde1": "riktig",
+   "klasse": "riktig",
+   "undertype_riktig": true,
+   "sitat_eid_riktig": true,
+   "rent_endrings_eller_ikrafttredelsesvedtak_446": false,
+   "feilarsak": null,
+   "juristens_dom_runde1": "holder"
+  },
+  {
+   "id": "M12",
+   "undertype": "hjemmel_opphevet",
+   "prefiks": "SF",
+   "forskrift": "SF/forskrift/1986-01-31-222",
+   "funn_id": "4a014218-6f0d-4cc7-9823-e60fcbef2886",
+   "modellereren_runde1": "riktig",
+   "klasse": "riktig",
+   "undertype_riktig": true,
+   "sitat_eid_riktig": true,
+   "rent_endrings_eller_ikrafttredelsesvedtak_446": false,
+   "feilarsak": null,
+   "juristens_dom_runde1": "holder"
+  },
+  {
+   "id": "M13",
+   "undertype": "blandede_hjemler",
+   "prefiks": "SF",
+   "forskrift": "SF/forskrift/2019-12-17-1878",
+   "funn_id": "65d44260-2473-4ec2-8a4f-d6bdd45a1181",
+   "modellereren_runde1": "feil",
+   "klasse": "feil",
+   "undertype_riktig": false,
+   "sitat_eid_riktig": true,
+   "rent_endrings_eller_ikrafttredelsesvedtak_446": false,
+   "feilarsak": "videreforingsformen",
+   "juristens_dom_runde1": "holder"
+  },
+  {
+   "id": "M14",
+   "undertype": "blandede_hjemler",
+   "prefiks": "SF",
+   "forskrift": "SF/forskrift/1963-05-31-9813",
+   "funn_id": "d2b07a9d-c0be-4913-933d-d0e4ab450cf7",
+   "modellereren_runde1": "riktig",
+   "klasse": "riktig",
+   "undertype_riktig": true,
+   "sitat_eid_riktig": true,
+   "rent_endrings_eller_ikrafttredelsesvedtak_446": false,
+   "feilarsak": null,
+   "juristens_dom_runde1": "holder"
+  },
+  {
+   "id": "M15",
+   "undertype": "blandede_hjemler",
+   "prefiks": "SF",
+   "forskrift": "SF/forskrift/2010-11-22-1466",
+   "funn_id": "f157dfc4-dfb4-4f03-b147-3ff553b4c0d4",
+   "modellereren_runde1": "riktig",
+   "klasse": "riktig",
+   "undertype_riktig": true,
+   "sitat_eid_riktig": true,
+   "rent_endrings_eller_ikrafttredelsesvedtak_446": false,
+   "feilarsak": null,
+   "juristens_dom_runde1": "holder"
+  },
+  {
+   "id": "M16",
+   "undertype": "blandede_hjemler",
+   "prefiks": "LTI",
+   "forskrift": "LTI/forskrift/2005-09-26-1093",
+   "funn_id": "8caac433-19d0-4b30-9bd8-113c826a513d",
+   "modellereren_runde1": "feil",
+   "klasse": "feil",
+   "undertype_riktig": false,
+   "sitat_eid_riktig": true,
+   "rent_endrings_eller_ikrafttredelsesvedtak_446": false,
+   "feilarsak": "populasjonen",
+   "juristens_dom_runde1": "holder"
+  },
+  {
+   "id": "M17",
+   "undertype": "uavklart",
+   "prefiks": "SF",
+   "forskrift": "SF/forskrift/2019-11-01-1469",
+   "funn_id": "dbb03078-bc30-4799-90ab-56de497387b2",
+   "modellereren_runde1": "riktig",
+   "klasse": "riktig",
+   "undertype_riktig": true,
+   "sitat_eid_riktig": true,
+   "rent_endrings_eller_ikrafttredelsesvedtak_446": false,
+   "feilarsak": null,
+   "juristens_dom_runde1": "holder"
+  },
+  {
+   "id": "M18",
+   "undertype": "uavklart",
+   "prefiks": "DEL",
+   "forskrift": "DEL/forskrift/1990-03-23-179",
+   "funn_id": "bcf53c9f-8cc7-487f-8fb9-c436af0a21c4",
+   "modellereren_runde1": "riktig",
+   "klasse": "riktig",
+   "undertype_riktig": true,
+   "sitat_eid_riktig": true,
+   "rent_endrings_eller_ikrafttredelsesvedtak_446": false,
+   "feilarsak": null,
+   "juristens_dom_runde1": "holder"
+  },
+  {
+   "id": "M19",
+   "undertype": "videreforing_utlopt",
+   "prefiks": "SF",
+   "forskrift": "SF/forskrift/2017-06-15-1044",
+   "funn_id": "54a5cd2d-fc6f-44fb-abf0-85cc39605421",
+   "modellereren_runde1": "riktig",
+   "klasse": "riktig",
+   "undertype_riktig": true,
+   "sitat_eid_riktig": true,
+   "rent_endrings_eller_ikrafttredelsesvedtak_446": false,
+   "feilarsak": null,
+   "juristens_dom_runde1": "holder"
+  },
+  {
+   "id": "M20",
+   "undertype": "videreforing_utlopt",
+   "prefiks": "SF",
+   "forskrift": "SF/forskrift/2017-10-17-1637",
+   "funn_id": "10f1fe44-fc84-4090-a13b-c9ad8612847f",
+   "modellereren_runde1": "riktig",
+   "klasse": "riktig",
+   "undertype_riktig": true,
+   "sitat_eid_riktig": true,
+   "rent_endrings_eller_ikrafttredelsesvedtak_446": false,
+   "feilarsak": null,
+   "juristens_dom_runde1": "holder"
+  }
+ ]
+}

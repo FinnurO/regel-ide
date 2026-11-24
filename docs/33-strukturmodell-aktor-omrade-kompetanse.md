@@ -2871,6 +2871,19 @@ hjemler eller hjemler med rolle NULL (punkt 1 i §5.20).
 - H07 og H09 står, med premissmangelen for kunngjort versjon. Opphevingen i 2012 er ikke i korpus.
 - H14 (usikker) er nå uavklart, ikke blandede.
 
+[Merknad, #472] **Målt 2026-11-24 (måling 2, i kopi, før skriving mot delt base).** Målt på 20 nye funn blant de 264 i kopien `regelide_472pr4`
+etter PR 4 (frø 20261125, stratifisert og om lag proporsjonalt, uten H01–H20), med to runder etter CLAUDE.md §23. Filene ligger i
+`data/fasit/strukturmodell/juristrunde-472/maling-2/`.
+- **Presisjon:** totalt **0,75 (0,53–0,89)**, 15/20; uten #446 **0,72 (0,49–0,88)**, 13/18 (M08 og M09); vektet etter lagene om lag 0,73.
+  Ingen usikre.
+- **Per undertype:** hjemmel opphevet 9/12, blandede 2/4, uavklart 2/2, utløpt 2/2. **Per prefiks:** DEL 6/8, SF 7/8, LTI 2/4.
+- **Feilene (5):**
+  - Videreføringen leses ikke når kortnavnet ikke står i opphevingssetningen. Viltressursloven § 61 andre ledd, «Forskrifter gitt i medhold av
+    viltloven gjelder også …», gjelder 23 av de 264 funnene (M13).
+  - Opphevingen gis virkning bare for nye tilfeller (lov 2013 nr. 110 om arveavgiftsloven, M04 og M06). Ingen undertype passer.
+  - To av de åtte R8-hullene (M10, M16).
+- **Ingen uenighet står igjen.** Forslagene står i `maling-2/sammendrag.md`, men er ikke bygget.
+
 ### 5.6 Konvertering av eksisterende data
 
 | Fra | Til | Automatisk? |

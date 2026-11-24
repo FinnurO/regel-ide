@@ -1,0 +1,28 @@
+[
+ {
+  "id": "M04",
+  "replikk": "godtar",
+  "tekst": "Svaret godtar innvendingen fullt ut: klassen feil, feilårsaken videreføringsformen og lesingen av tredje ledd. Én presisering til spørsmålet til prosjekteieren. Begge løsningene modellereren nevner, er forsvarlige. Ukjent er den enkleste, fordi den ikke gir funn. Men da forsvinner også funnet for de nye tilfellene, der hjemmelen faktisk er opphevet uten videreføring [slutning]. En egen markering («opphevet for nye tilfeller») viser begge sidene og gjetter ikke. Det er derfor min anbefaling. Hvor mange gamle arveavgiftssaker som er åpne i 2026, er fortsatt ikke kontrollert.",
+  "kilder": [
+   {
+    "ref": "NL/lov/2013-12-13-110 kap-I ledd-1, ledd-2, ledd-3 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/NLO/lov/1964-06-19-14 (§ 24, § 34, § 35)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "M06",
+  "replikk": "godtar",
+  "tekst": "Som M04. Delegeringen etter § 24 andre ledd andre punktum gjelder så lenge arveavgiftsloven gjelder for de gamle sakene. Klassen feil og feilårsaken videreføringsformen godtas.",
+  "kilder": [
+   {
+    "ref": "NL/lov/2013-12-13-110 kap-I ledd-1, ledd-2, ledd-3 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ }
+]

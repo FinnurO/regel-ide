@@ -1,0 +1,462 @@
+[
+ {
+  "id": "M01",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Kontrollert selv: sentralbankloven 2019 § 6-2 nr. 1 opphever loven fra 1985. § 6-1 har bare en hjemmel for overgangsbestemmelser, og Lovdatas fotnoter til § 6-1 og § 6-2 nevner ingen overgangsforskrift. Et søk i korpus på titler med «overgang» eller «ikrafttred» sammen med «Norges Bank» eller «sentralbank» gir bare eldre endringslover (1989-63, 2003-1600). Vedtaket er ikke nevnt i noen annen kilde i korpus, og Lovdata har det i DEL uten «Opphevet». Merknad uten betydning for klassen: opphevet_dato 2019-07-01 er dokumentdatoen. Etter fotnoten til § 6-1 trådte loven, også § 6-2 nr. 1, i kraft 1. januar 2020. Bare § 6-2 nr. 3 trådte i kraft 1. juli 2019. Premissmangelen om ikraftsettingen står i påstanden, så regelen har fanget usikkerheten.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "NL/lov/2019-06-21-31 §6-1 ledd-1, §6-2 ledd-1 og ledd-2 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/NL/lov/2019-06-21-31 (fotnote til § 6-1: i kraft 1. januar 2020, unntatt § 6-2 nr. 3 fra 1. juli 2019, res. 21. juni 2019 nr. 804)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/forskrift/2009-11-27-1406 (base DEL, ikke merket opphevet)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "M02",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Kontrollert selv: arbeidstvistloven 2012 § 64 opphever loven fra 1927 og har ingen overgangsregel. § 63 handler om grunnløs anke. LTI/forskrift/2004-10-08-1395 punkt 4 nevner vedtaket bare i lista over vedtak som skifter departement. Lovdata har vedtaket i DEL uten «Opphevet». At den nye loven gir tilsvarende kompetanse, hører til punktet «Ny hjemmel», ikke til klassen.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "NL/lov/2012-01-27-9 §63, §64 ledd-1 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "LTI/forskrift/2004-10-08-1395 kap-I punkt-4 (korpus)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "https://lovdata.no/forskrift/1999-08-20-951 (base DEL, ikke merket opphevet)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "M03",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Som M01 (sentralbankloven 1985 § 16). Vedtaket er ikke nevnt i noen annen kilde i korpus, og Lovdata har det i DEL uten «Opphevet». Merknad uten betydning for klassen: opphevet_dato 2019-07-01 er dokumentdatoen. Etter fotnoten til § 6-1 trådte loven, også § 6-2 nr. 1, i kraft 1. januar 2020. Bare § 6-2 nr. 3 trådte i kraft 1. juli 2019. Premissmangelen om ikraftsettingen står i påstanden, så regelen har fanget usikkerheten.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "NL/lov/2019-06-21-31 §6-1 ledd-1, §6-2 ledd-1 og ledd-2 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/NL/lov/2019-06-21-31 (fotnote til § 6-1: i kraft 1. januar 2020, unntatt § 6-2 nr. 3 fra 1. juli 2019, res. 21. juni 2019 nr. 804)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/forskrift/1994-03-25-233 (base DEL, ikke merket opphevet)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "M04",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Funnet er feil. Den koblede bestemmelsen opphever arveavgiftsloven, men leddet begrenser selv opphevingen i tid: «Opphevelsen gis virkning for gaver som ytes 1. januar 2014 eller senere og arv etter dødsfall som skjer 1. januar 2014 eller senere.» Andre ledd utvider opphevingen bare for særskilte tilfeller. Tredje ledd utvider den bare for arv der avgiften ikke var forfalt innen 1. januar 2021. For gaver før 2014, og for arv etter dødsfall før 2014 der avgiften forfalt før 2021, gjelder den gamle loven fortsatt. Lovdata merker loven slik (NLO: opphevet for gaver og dødsfall fra 1.1.2014). For de gamle sakene har loven ingen sluttdato. Avgiftsmyndigheten kan for eksempel rette feil innen ti år etter underretningen (§ 34) og omgjøre innen tre eller ti år (§ 35 andre og tredje ledd). En underretning sendt i 2020 kan altså rettes til 2030 [slutning]. Så lenge loven gjelder for disse sakene, gjelder også delegeringen etter § 35 første ledd fjerde punktum [slutning]. Dette er en overgangsregel i form av en tidsavgrenset virkning av opphevingen, ikke en videreføring av forskrifter, og regelen leser den ikke. Påstanden om at vedtaket uten en overgangsregel «i utgangspunktet [er] uten rettslig virkning», er derfor misvisende. Kortets grunn leser tredje ledd som at den gamle loven gjaldt for gamle saker bare til 2021, og sier at dette «i alle fall [er] passert». Det er en feillesing. Tredje ledd utvider opphevingen til arv som ikke var forfalt innen 2021. Leddet setter ingen frist for de sakene loven fortsatt gjelder for. Hvor mange gamle saker som faktisk står åpne i 2026, er ikke kontrollert. Derfor er alvoret middels og ikke høyt. Samme lesing gjelder alle de 6 funnene med LOV-2013-12-13-110 som opphevende bestemmelse (5 hjemmel opphevet og 1 uavklart, tellesøk i kopien).",
+  "retting": {
+   "klasse": "feil",
+   "undertype_riktig": false,
+   "sitat_eid_riktig": true,
+   "feilarsak": "videreforingsformen",
+   "grunn": "LOV-2013-12-13-110 kap. I første ledd andre punktum og tredje ledd gir opphevingen virkning bare for gaver og dødsfall fra 1.1.2014, og for arv som ikke var forfalt innen 1.1.2021. For andre saker gjelder arveavgiftsloven, også § 35 første ledd fjerde punktum, fortsatt og uten sluttdato (klageinstansens adgang til å forlenge klagefristen eller gi oppreising, delegert til skattekontoret). Det er en overgangsregel som regelen ikke leser, i form av en tidsavgrenset virkning av opphevingen, og ikke en utløpt videreføring. Ingen av undertypene passer. Nærmest er en egen markering «opphevet for nye tilfeller». Feilårsaken er nærmest videreføringsformen, fordi formen «Opphevelsen gis virkning for …» ikke leses."
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "NL/lov/2013-12-13-110 kap-I ledd-1, ledd-2, ledd-3 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/NLO/lov/1964-06-19-14 (merknad: opphevet for gaver og dødsfall fra 1.1.2014; § 24, § 34, § 35)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/forskrift/2011-07-06-746 (base DEL, ikke merket opphevet)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "M05",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Som H01–H04 i måling 1. Skatteforvaltningsloven § 16-1 andre ledd opphever ligningsloven. § 16-2 gjør den nye loven gjeldende også for gamle saker og holder ikke den gamle loven i live. Lovdata har vedtaket i DEL uten «Opphevet», og det er ikke nevnt i noen annen kilde i korpus.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "NL/lov/2016-05-27-14 §16-1 ledd-2, §16-2 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/forskrift/2003-11-04-1312 (base DEL, ikke merket opphevet)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "måling 1, a/utfordringer.json H01–H04",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "M06",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Funnet er feil. Den koblede bestemmelsen opphever arveavgiftsloven, men leddet begrenser selv opphevingen i tid: «Opphevelsen gis virkning for gaver som ytes 1. januar 2014 eller senere og arv etter dødsfall som skjer 1. januar 2014 eller senere.» Andre ledd utvider opphevingen bare for særskilte tilfeller. Tredje ledd utvider den bare for arv der avgiften ikke var forfalt innen 1. januar 2021. For gaver før 2014, og for arv etter dødsfall før 2014 der avgiften forfalt før 2021, gjelder den gamle loven fortsatt. Lovdata merker loven slik (NLO: opphevet for gaver og dødsfall fra 1.1.2014). For de gamle sakene har loven ingen sluttdato. Avgiftsmyndigheten kan for eksempel rette feil innen ti år etter underretningen (§ 34) og omgjøre innen tre eller ti år (§ 35 andre og tredje ledd). En underretning sendt i 2020 kan altså rettes til 2030 [slutning]. Så lenge loven gjelder for disse sakene, gjelder også delegeringen etter § 24 andre ledd andre punktum [slutning]. Dette er en overgangsregel i form av en tidsavgrenset virkning av opphevingen, ikke en videreføring av forskrifter, og regelen leser den ikke. Påstanden om at vedtaket uten en overgangsregel «i utgangspunktet [er] uten rettslig virkning», er derfor misvisende. Kortets grunn leser tredje ledd som at den gamle loven gjaldt for gamle saker bare til 2021, og sier at dette «i alle fall [er] passert». Det er en feillesing. Tredje ledd utvider opphevingen til arv som ikke var forfalt innen 2021. Leddet setter ingen frist for de sakene loven fortsatt gjelder for. Hvor mange gamle saker som faktisk står åpne i 2026, er ikke kontrollert. Derfor er alvoret middels og ikke høyt. Samme lesing gjelder alle de 6 funnene med LOV-2013-12-13-110 som opphevende bestemmelse (5 hjemmel opphevet og 1 uavklart, tellesøk i kopien).",
+  "retting": {
+   "klasse": "feil",
+   "undertype_riktig": false,
+   "sitat_eid_riktig": true,
+   "feilarsak": "videreforingsformen",
+   "grunn": "LOV-2013-12-13-110 kap. I første ledd andre punktum og tredje ledd gir opphevingen virkning bare for gaver og dødsfall fra 1.1.2014, og for arv som ikke var forfalt innen 1.1.2021. For andre saker gjelder arveavgiftsloven, også § 24 andre ledd andre punktum, fortsatt og uten sluttdato (departementets myndighet til å bestemme hvilket skattekontor som fastsetter arveavgiften, delegert til Skattedirektoratet). Det er en overgangsregel som regelen ikke leser, i form av en tidsavgrenset virkning av opphevingen, og ikke en utløpt videreføring. Ingen av undertypene passer. Nærmest er en egen markering «opphevet for nye tilfeller». Feilårsaken er nærmest videreføringsformen, fordi formen «Opphevelsen gis virkning for …» ikke leses."
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "NL/lov/2013-12-13-110 kap-I ledd-1, ledd-2, ledd-3 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/NLO/lov/1964-06-19-14 (merknad: opphevet for gaver og dødsfall fra 1.1.2014; § 24, § 34, § 35)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/forskrift/2007-03-02-1264 (base DEL, ikke merket opphevet)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "M07",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Kontrollert selv: revisorloven 2020 § 16-1 andre ledd opphever loven fra 1999. § 16-2 har overgangsregler bare for godkjenninger og etterutdanning, og en hjemmel for overgangsregler. Overgangsforskriftene i korpus (1999-711, 2009-707, 2011-401) gjelder eldre lover. Vedtaket er ikke nevnt i noen annen kilde i korpus, og Lovdata har det i DEL uten «Opphevet».",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "NL/lov/2020-11-20-128 §16-1, §16-2 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/forskrift/1999-06-25-706 (base DEL, ikke merket opphevet)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "M08",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Påstanden holder. Sjømannsloven er opphevet ved skipsarbeidsloven § 13-2 nr. 3 (kunngjort tekst). Kap. 13 har ingen overgangsregel om forskrifter eller delegeringer (Lovtidend-teksten er kontrollert). #446 er riktig: kap. I endrer annet ledd i vedtak 27. desember 1988 nr. 4321, og kap. II er ikrafttredelse. Lovdata har vedtaket bare i LTI. Hovedvedtaket 1988-4321 står i DEL uten «Opphevet», med «Sist endret: FOR-2006-06-16-646». Funnet hører egentlig hjemme på hovedvedtaket, og #446 tar det ut.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/LTI/lov/2013-06-21-102 (§ 13-1, § 13-2 nr. 3)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/forskrift/2006-06-16-646 (base LTI)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/forskrift/1988-12-27-4321 (base DEL, ikke merket opphevet, sist endret FOR-2006-06-16-646)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "M09",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Påstanden holder, og #446 er riktig. Kap. I opphever vedtak 25. juni 2001 nr. 762, og kap. II er ikrafttredelse (Lovdata, LTI). Merknad: vedtaket ble truffet 22. februar 2010 med hjemmel i en lov som var opphevet fra 1. januar 2010. Det endrer ikke påstanden.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "NL/lov/2009-06-19-58 §22-2 ledd-2 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/forskrift/2010-02-22-195 (base LTI)",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "M10",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Klassen feil og årsaken populasjonen holder. Lovdata har vedtaket i DELO, merket «Opphevet ved vedtak 20 des 2018 nr. 2052». Opphevingen står i korpus (DEL/forskrift/2018-12-20-2052 punkt 5 nr. 3). Sitatet for opphevingen av sikkerhetsloven 1998 er riktig i seg selv.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "DEL/forskrift/2018-12-20-2052 punkt-5/punkt-3 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/forskrift/2003-06-27-802 (DELO, «Opphevet», sist endret FOR-2018-12-20-2052 fra 01.01.2019)",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "M11",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Kontrollert selv: § 21 står i kap. IV «Reaksjonsmidler m.v.» (§§ 19–23). Endringsloven 2012 opphevet bare kap. III (§§ 10–18). Hele loven ble opphevet ved forsvarsloven § 87 første ledd nr. 3 fra 1. juli 2017 (Lovdata NLO). Koblingen er derfor riktig, i motsetning til H07 og H09. Lovdata har forskriften i SF uten «Opphevet». Merknad: reglene gjelder sivile tjenestepliktige, og sivil tjeneste falt bort i 2012. Forskriften har derfor trolig vært uten praktisk gjenstand siden da [slutning]. Det endrer ikke klassen.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "NL/lov/2016-08-12-77 §87 ledd-1 punkt-3 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/NLO/lov/1965-03-19-3 (kap. IV §§ 19–23; kap. III opphevet ved lov 20 apr 2012 nr. 19; loven opphevet ved lov 12 aug 2016 nr. 77 fra 1.7.2017)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/forskrift/1968-02-01-3641 (base SF, ikke merket opphevet)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "M12",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Kontrollert selv: i Lovtidend-teksten til skipsarbeidsloven har kap. 13 bare § 13-1 og § 13-2, og ingen overgangsregel om forskrifter. Lovdata har forskriften i SF uten «Opphevet». Det modellereren lot stå som ikke kontrollert, er sjekket: SF/forskrift/2013-08-19-990 om skipsarbeidslovens virkeområde er i korpus, men opphever ikke forskriften fra 1986. Den erstatter den i innhold, ikke formelt.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/LTI/lov/2013-06-21-102 (§ 13-1, § 13-2 nr. 3)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "SF/forskrift/2013-08-19-990 §4 (korpus, ingen oppheving)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "https://lovdata.no/forskrift/1986-01-31-222 (base SF, ikke merket opphevet)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "M13",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Klassen feil holder. Viltressursloven § 61 andre ledd står i korpus: «Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.» Kontekstlista i kortet fanget den ikke, fordi bare de 8 første nodene er med. Feilen er tverrgående: 23 av de 264 funnene har viltressursloven § 61 som opphevende bestemmelse (blandede 12, hjemmel opphevet 10, uavklart 1). 11 av de 12 blandede er SF-forskrifter, som § 61 andre ledd viderefører. For DEL- og LTI-vedtakene er dekningen «forskrifter» ikke nok alene (H14-regelen). Overgangsforskriften SF/forskrift/2026-06-22-1158 kap. I første ledd sier imidlertid at «Forvaltningsvedtak gitt med direkte hjemmel i viltloven og med varighet etter viltressurslovens ikrafttredelse» også gjelder etter ikrafttredelsen. Om det dekker delegeringsvedtak, er ikke avgjort [slutning].",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "NL/lov/2025-06-20-102 §61 ledd-2 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "SF/forskrift/2026-06-22-1158 kap-I ledd-1, kap-II (korpus)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "https://lovdata.no/forskrift/2019-12-17-1878 (base SF, hjemmel LOV-1981-05-29-38-§26, FOR-2019-09-13-1124, LOV-2025-06-20-102-§30)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "M14",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Kontrollert selv: bidragsinnkrevingsloven 2005 § 37 første ledd opphever loven fra 1955. Andre ledd gjelder saker, ikke forskrifter, og § 36 er en forskriftshjemmel. Loven fra 2005 står som hjemmel og bærer. Lovdata har forskriften i SF uten «Opphevet» (§§ 5–7 og 9 er opphevet). Svakt funn, som H11.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "NL/lov/2005-04-29-20 §36, §37 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/forskrift/1963-05-31-9813 (base SF, hjemmel LOV-1955-12-09-5-§25, §6 og LOV-2005-04-29-20)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "M15",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Kontrollert selv: brexit-loven 2020 har ingen regel om at forskrifter etter loven fra 2019 gjelder fortsatt. § 3 er en ny forskriftshjemmel, og den står som hjemmel og bærer. Lovdata har forskriften i SF uten «Opphevet», med begge brexit-lovene i hjemmelslista. Svakt funn, som H11. opphevet_dato 2020-11-27 er dokumentdatoen. Premissmangelen om ikraftsetting står i påstanden.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "NL/lov/2020-11-27-131 §3, §4 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/forskrift/2010-11-22-1466 (base SF, ikke merket opphevet)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "M16",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Klassen feil og årsaken populasjonen holder. Lovdata har vedtaket i DELO: «Opphevet 1 jan 2009, jf. vedtak 19 des 2008 nr. 1538». Opphevingen står i korpus (DEL/forskrift/2008-12-19-1538 kap. II).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "DEL/forskrift/2008-12-19-1538 kap-II ledd-1 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/forskrift/2005-09-26-1093 (DELO, «Opphevet»)",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "M17",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Påstanden holder. Lovdata har forskriften i SF uten «Opphevet», med begge sentralbanklovene som hjemmel (rettet 30.08.2021, tilføyd hjemmel). Juridisk er beskrivelsen egentlig blandede: sentralbankloven 2019 § 3-6 er en materiell hjemmel, og rollen er NULL bare fordi «21 juni 2019» mangler punktum (tekstlesingen). «Uavklart» er svakere, men ikke uriktig. Merknader: (1) Forskriften ble fastsatt 1. november 2019 med hjemmel i loven fra 1985. Det stemmer med at opphevingen trådte i kraft 1. januar 2020, ikke 1. juli 2019 som opphevet_dato sier (se M01). (2) Etter § 1 opphørte sedlene å være tvungent betalingsmiddel fra 15. november 2020. Forskriften har dermed langt på vei uttømt virkningen [slutning]. Det er et spørsmål for #446.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "NL/lov/2019-06-21-31 §6-1 ledd-1, §6-2 ledd-1 og ledd-2 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/NL/lov/2019-06-21-31 (fotnote til § 6-1: i kraft 1. januar 2020, unntatt § 6-2 nr. 3 fra 1. juli 2019, res. 21. juni 2019 nr. 804)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "https://lovdata.no/forskrift/2019-11-01-1469 (base SF, hjemmel LOV-1985-05-24-28-§15 og LOV-2019-06-21-31-§3-6)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "M18",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Kontrollert selv: i Lovtidend-teksten til næringsberedskapsloven er det bare § 23 (ikrafttredelse) og § 24 (opphever loven fra 1956), og ingen regel om forskrifter eller vedtak. Lovdata har vedtaket i DEL uten «Opphevet». Vedtaket nevner begge lovene (1950 § 3 og 1956 § 30) i teksten, men hjemmelsfeltet har ikke «med hjemmel i». Begge har derfor rolle NULL. Beredskapsloven 1950 er gjeldende. Uavklart er riktig.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/LTI/lov/2011-12-16-65 (§ 23, § 24)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/forskrift/1990-03-23-179 (base DEL, ikke merket opphevet; kap. I nevner begge lovene)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "LTI/forskrift/2004-10-08-1395 kap-I punkt-9 (korpus)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "M19",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Som H17. Fagskoleloven 2018 § 44 tredje ledd viderefører forskriftene «frem til 31. desember 2019 eller til forskriften blir opphevet». Lovdata har forskriften i SF uten «Opphevet», med «jf. LOV-2018-06-08-28 § 44» i hjemmelslista. Den er ikke nevnt i noen annen kilde i korpus. Merknad: fagskolelovradene har rolle NULL fordi hjemmelsfeltet er på nynorsk («med heimel i»). Regelen med_hjemmel_i leser ikke den formen (tekstlesingen). Det endrer ikke utfallet, fordi NULL teller som premiss.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "NL/lov/2018-06-08-28 §44 ledd-2 og ledd-3 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/forskrift/2017-06-15-1044 (base SF, ikke merket opphevet)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "M20",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Som M19 og H17. Lovdata har forskriften i SF uten «Opphevet», med «jf. LOV-2018-06-08-28 § 44» i hjemmelslista. Den er ikke nevnt i noen annen kilde i korpus.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "NL/lov/2018-06-08-28 §44 ledd-2 og ledd-3 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/forskrift/2017-10-17-1637 (base SF, ikke merket opphevet)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ }
+]
