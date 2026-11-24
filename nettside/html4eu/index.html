@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="nb" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HTML4EU: EUs nye HTML for rettsakter — DigRett showcase</title>
+<meta name="description" content="Hva HTML4EU er, hva eksemplene viser, hvordan det forholder seg til DigRett og forslaget til norsk profil, og hvorfor vi følger med. Skrevet av DigRett, ikke av Publikasjonskontoret.">
+<link rel="canonical" href="https://finnuro.github.io/regel-ide/html4eu/">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/css/fonts.css">
+<link rel="stylesheet" href="../assets/css/vendor/designsystemet.css">
+<link rel="stylesheet" href="../assets/css/vendor/designsystemet-theme.css">
+<link rel="stylesheet" href="../assets/css/site.css">
+<meta property="og:title" content="HTML4EU: EUs nye HTML for rettsakter — DigRett showcase">
+<meta property="og:description" content="DigRetts vurdering av HTML4EU 2.0 mot forslaget til norsk profil for maskinlesbar rett.">
+<meta property="og:type" content="article">
+</head>
+<body>
+
+<a class="ds-link skip-to-content" href="#main">Hopp til innhold</a>
+
+<div class="disclaimer-bar">
+  <div class="wrap">
+    <span>📎 <strong>Midlertidig showcase</strong> — statisk fasade, ikke selve applikasjonen.</span>
+  </div>
+</div>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand plain" href="../">
+      <span class="brand__mark" aria-hidden="true">DR</span>
+      <span class="brand__text">
+        <span class="brand__title">DigRett</span>
+        <span class="brand__subtitle">Digital rettsstat — showcase</span>
+      </span>
+    </a>
+    <nav class="main-nav" aria-label="Hovedmeny">
+      <a href="../">Forside</a>
+      <a href="../rettskilder/">Rettskilder</a>
+      <a href="../virksomheter/">Virksomheter</a>
+      <a href="../grupper/">Grupper</a>
+      <a href="../koblinger/">Koblinger</a>
+      <a href="../kjeden/">Kjeden</a>
+      <a href="../strukturmodell/">Strukturmodellen</a>
+      <a href="../funn/">Funn til vurdering</a>
+      <a href="../profil/">Profilforslag</a>
+      <a href="../pilot-barnehageloven/">Pilot</a>
+      <a href="../begreper/">Begreper</a>
+      <a href="../om/">Om</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <!-- [Ny, 2026-11-24] Artikkel om HTML4EU. Innholdet er hentet fra docs/profil/10-html4eu-vurdering.md, der
+       hver påstand har kilde og merking (v / ikke verifisert / slutning). Siden er skrevet av DigRett og skal ikke
+       se ut som den kommer fra Publikasjonskontoret: ingen logo, ingen grafikk og ingen sitater derfra.
+       Bruk rollen «prosjekteieren», ikke personnavn. Prosjekteieren besluttet 2026-11-24: følge med. -->
+  <div class="wrap page-head">
+    <span class="eyebrow">Standardlandskapet · 24. november 2026</span>
+    <h1>HTML4EU: EUs nye HTML for rettsakter</h1>
+    <p class="lead">Publikasjonskontoret i EU har laget en felles måte å skrive EU-rettsakter som nettsider på, der hver artikkel, hvert ledd og hvert punkt får en fast adresse. Her er hva det er, hva eksemplene viser, og hvordan det forholder seg til DigRett og forslaget til norsk profil.</p>
+  </div>
+
+  <div class="wrap">
+    <div class="purpose-box">
+      <span class="purpose-box__label">Om denne siden</span>
+      <div class="purpose-box__pills">
+        <span class="pill" data-tone="success">Besluttet: følge med</span><span class="pill" data-tone="neutral">Skrevet av DigRett</span>
+      </div>
+      <p>Siden er skrevet av DigRett-prosjektet. Den er ikke laget av eller sammen med Publikasjonskontoret, og vi har ikke noe samarbeid med dem. Alt vi skriver om HTML4EU, er hentet fra deres offentlige sider, spesifikasjonen og eksemplene 24. november 2026, med lenker under. Prosjekteieren besluttet 24. november 2026 å følge med på HTML4EU.</p>
+    </div>
+    <ul class="nytt-innhold" aria-label="Innhold på siden">
+      <li><a href="#hva-er-html4eu">Hva er HTML4EU?</a></li>
+      <li><a href="#eksemplene">Eksemplene</a></li>
+      <li><a href="#digrett">HTML4EU og DigRett</a></li>
+      <li><a href="#vurdering">Vår vurdering</a></li>
+      <li><a href="#ikke-sjekket">Ikke sjekket</a></li>
+      <li><a href="#kilder">Kilder</a></li>
+    </ul>
+  </div>
+
+  <!-- ===================== 1. Hva er HTML4EU ===================== -->
+  <section class="section" id="hva-er-html4eu">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Hva er HTML4EU?</span>
+        <h2>Én felles HTML for EU-rett på EUR-Lex</h2>
+        <p>HTML4EU er en spesifikasjon fra Den europeiske unions publikasjonskontor. Versjon 2.0 ble publisert 21. september 2026. Den første versjonen kom i mars 2025.</p>
+      </div>
+      <div class="prose">
+        <p>Spesifikasjonen sier hvordan en EU-rettsakt skal skrives som HTML: tittel, fortale, artikler, ledd, punkter, vedlegg og signaturer. Hver del får en ID som følger European Legislation Identifier (ELI), for eksempel <code>art_9/par_1</code> for artikkel 9 nr. 1. Delene kobles sammen maskinlesbart, slik at et program kan se at nr. 1 hører til artikkel 9.</p>
+        <p>Teksten lages ikke for hånd. Den lages fra AKN4EU, EU-institusjonenes felles XML-format for rettsakter, som igjen bygger på standarden Akoma Ntoso.</p>
+      </div>
+      <div class="nytt-kort-grid">
+        <div class="nytt-kort">
+          <h3>Hvem står bak</h3>
+          <p>Publikasjonskontoret står både som forfatter og utgiver. Det er samme kontor som driver EUR-Lex og EU-tidende. HTML4EU erstatter et tidligere prøveformat, LegalHTML, som ikke lenger utvikles.</p>
+        </div>
+        <div class="nytt-kort">
+          <h3>Hva det dekker</h3>
+          <p>Rettsakter som forordninger, direktiver og beslutninger, slik de ble kunngjort første gang. Et oppsett for rettsavgjørelser er satt av, men står tomt.</p>
+        </div>
+        <div class="nytt-kort">
+          <h3>Hva det ikke dekker</h3>
+          <p>Endringsbestemmelser, altså tekst som endrer en annen akt, og konsoliderte versjoner der endringene er tatt inn. Kryssreferanser mellom bestemmelser er heller ikke beskrevet.</p>
+        </div>
+        <div class="nytt-kort">
+          <h3>Lisens og status</h3>
+          <p>Vi fant ingen lisens oppgitt. Publikasjonskontoret skriver at spesifikasjonen er grunnlaget for et valideringsverktøy som utvikles. Et vedlegg som kobler AKN4EU til HTML, er merket som utkast.</p>
+        </div>
+      </div>
+      <div class="prose struktur-etter-tabell">
+        <h3>Hvem bruker det?</h3>
+        <p>Vi åpnet to akter på EUR-Lex 24. november 2026: én slik den ble kunngjort, og én konsolidert versjon av personvernforordningen. Ingen av dem brukte HTML4EU. Begge var den eldre HTML-en, som lages fra formatet Formex. Vi har ikke funnet andre som bruker HTML4EU, og ikke noe tilsvarende i Norge eller Norden.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 2. Eksemplene ===================== -->
+  <section class="section" id="eksemplene">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Eksemplene</span>
+        <h2>Tolv EU-akter, alle på engelsk</h2>
+        <p>Spesifikasjonen kommer med 12 eksempelfiler. De er laget samtidig, i september 2026.</p>
+      </div>
+      <div class="nytt-kort-grid">
+        <div class="nytt-kort">
+          <h3>Hva de viser</h3>
+          <p>Forordninger, direktiver og beslutninger fra Kommisjonen, Rådet og Europaparlamentet, fra to artikler til over tretti. Med kapitler, nummererte ledd, punkter, tabeller, en formel, et bilde, vedlegg og fotnoter.</p>
+        </div>
+        <div class="nytt-kort">
+          <h3>Hva de ikke viser</h3>
+          <p>Ingen konsoliderte versjoner, ingen endringsakter og ingen andre språk enn engelsk. Høyere nivåer som del og avsnitt, og tekst etter en punktliste, er heller ikke med.</p>
+        </div>
+        <div class="nytt-kort">
+          <h3>Små uoverensstemmelser</h3>
+          <p>Eksemplene bruker noen klasser som ikke står i spesifikasjonen, og skriver vedleggsnummer på en annen måte enn den. Måten delene kobles sammen på, er endret fra versjon 1 til 2.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 3. HTML4EU og DigRett ===================== -->
+  <section class="section" id="digrett">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">HTML4EU og DigRett</span>
+        <h2>Samme byggesteiner, ulik lovstruktur</h2>
+        <p>DigRett og HTML4EU bygger begge på ELI og Akoma Ntoso. Men HTML4EU er laget for EU-akter, og norske lover er bygget opp på en annen måte.</p>
+      </div>
+      <div class="table-scroll">
+        <table class="ds-table struktur-tabell">
+          <thead>
+            <tr><th scope="col">Del av loven</th><th scope="col">I HTML4EU</th><th scope="col">Kommentar</th></tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">Kapittel og paragraf</th><td>Kapittel og artikkel</td><td>Passer godt. Begge bruker nummeret som står i loven.</td></tr>
+            <tr><th scope="row">Ledd</th><td>Nummerert eller unummerert ledd, og underledd</td><td>Vårt ledd passer med de to første. EU deler i tillegg et nummerert ledd i underledd. Det har vi ikke.</td></tr>
+            <tr><th scope="row">Punkt</th><td>Punkt med bokstav eller tall, og tankestrek</td><td>EU bruker bokstaven (a, b), DigRett bruker løpenummer. Bokstaven er ikke lagret hos oss.</td></tr>
+            <tr><th scope="row">Tekst etter en punktliste</th><td>Avslutning</td><td>Passer med avslutningen DigRett innførte i oktober 2026.</td></tr>
+            <tr><th scope="row">Vedlegg og tabeller</th><td>Egne deler</td><td>DigRett har ikke egne noder for vedlegg og tabeller.</td></tr>
+            <tr><th scope="row">Versjoner og endringer</th><td>Nei</td><td>HTML4EU beskriver bare teksten slik den ble kunngjort. DigRett holder konsoliderte versjoner.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="prose struktur-etter-tabell">
+        <h3>Kan vi hente EU-rett med HTML4EU?</h3>
+        <p>Ikke teksten. Det som gjelder i Norge, er EU-akten med tilpasningene i EØS-avtalen, og den norske teksten er like gyldig. HTML4EU gir bare EU-språkene. Forordninger som er gjort til norsk lov, ligger dessuten allerede i DigRett gjennom Lovdata. Personvernforordningen står for eksempel i personopplysningsloven.</p>
+        <p>Adressene kan derimot brukes. Med dem kan vi peke presist på en artikkel eller et ledd i EU-utgaven, og vise hvilken norsk bestemmelse som svarer til hvilken EU-bestemmelse. Det er en tilsvarende bestemmelse, ikke den samme teksten.</p>
+        <h3>Fast identitet for hvert ledd?</h3>
+        <p>Vurderingen så også etter en løsning på en svakhet hos oss: identiteten DigRett gir hvert ledd, endres når loven nummereres om (<a href="https://github.com/FinnurO/regel-ide/issues/495" target="_blank" rel="noopener">#495</a>). HTML4EU løser ikke det. Adressene der gjelder bare én bestemt utgave av teksten og sier ikke hvilket ledd som svarer til hvilket i neste versjon. Formen på adressene er likevel et godt mønster hvis DigRett skal lage HTML med slike koblinger selv.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 4. Vurdering ===================== -->
+  <section class="section" id="vurdering">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Vår vurdering <span class="pill" data-tone="success">Besluttet 24. november 2026: følge med</span></span>
+        <h2>Følge med, ikke ta inn i profilen nå</h2>
+        <p>Vi følger med på HTML4EU. Prosjekteieren tok valget 24. november 2026 etter anbefalingen i vurderingen.</p>
+      </div>
+      <div class="nytt-kort-grid">
+        <div class="nytt-kort">
+          <h3>Hvorfor ikke ta det inn nå</h3>
+          <ul>
+            <li>Det gir aldri den teksten som gjelder i Norge.</li>
+            <li>Versjon 2.0 er ny og var ikke i bruk på EUR-Lex da vi så på det.</li>
+            <li>Det dekker ikke endringer eller konsoliderte versjoner.</li>
+            <li>Det er skrevet for EU-akter, ikke for norske lover.</li>
+          </ul>
+        </div>
+        <div class="nytt-kort">
+          <h3>Hvorfor ikke se bort fra det</h3>
+          <ul>
+            <li>Det er Publikasjonskontorets eget format for EUR-Lex og blir trolig formen EU-rett publiseres i.</li>
+            <li>Det bygger på ELI, som profilforslaget også gjør.</li>
+            <li>Det gir presise adresser til EU-bestemmelser.</li>
+          </ul>
+        </div>
+        <div class="nytt-kort">
+          <h3>Når vi ser på det igjen</h3>
+          <ul>
+            <li>Når EUR-Lex begynner å publisere i HTML4EU.</li>
+            <li>Når det får oppsett for endringer eller konsoliderte versjoner.</li>
+            <li>Når Lovdata eller EØS-tillegget får adresser per paragraf og ledd.</li>
+            <li>Når DigRett skal lage HTML med slike koblinger eller lenke til EU-kilder.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="prose struktur-etter-tabell">
+        <h3>Prøvd mot en jurist</h3>
+        <p>Vurderingen og koblingene ble angrepet av en juristagent før de ble lagt fram. Den rettet blant annet grunnlaget i EØS-retten og hvordan ledd og underledd i EU-tekst passer med våre ledd. Den fant også en feil hos oss: i teksten fra personvernforordningen er noen underledd limt inn i leddet foran punktlista. Uenigheten som står igjen, er liten og gjelder hvilken kilde datoen for versjon 2.0 er hentet fra.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 5. Ikke sjekket ===================== -->
+  <section class="section" id="ikke-sjekket">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Det vi ikke har sjekket</span>
+        <h2>Det vi ikke vet ennå</h2>
+      </div>
+      <div class="prose">
+        <ul>
+          <li>Reglene for ELI-adresser til deler av en akt, blant annet hva som skjer når en artikkel settes inn eller nummereres om. EUR-Lex stengte for nedlastingen, og en ny versjon av reglene er varslet.</li>
+          <li>Om EUR-Lex bruker HTML4EU for andre akter enn de to vi åpnet.</li>
+          <li>Lisensen for spesifikasjonen og eksemplene.</li>
+          <li>Valideringsverktøyet Publikasjonskontoret nevner.</li>
+          <li>Kommisjonens redigeringsverktøy for lovforslag (LEOS) og hvordan AKN4EU lages i praksis.</li>
+          <li>Hvilken utgave av EU-tidende som er den autentiske, ble ikke kontrollert i primærkilden.</li>
+          <li>Om de maskinlesbare koblingene i eksemplene er gyldige. Vi har ikke kjørt dem gjennom et verktøy.</li>
+          <li>Om Lovdatas data har punktbokstavene eller noe som kan gi hvert ledd en fast identitet.</li>
+          <li>Nordiske kilder er bare søkt i, ikke gått gjennom side for side.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 6. Kilder ===================== -->
+  <section class="section" id="kilder">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Kilder</span>
+        <h2>Primærkildene, lest 24. november 2026</h2>
+      </div>
+      <ul class="source-list struktur-lenker">
+        <li><span class="dot" aria-hidden="true"></span><span><a href="https://op.europa.eu/en/web/eu-vocabularies/dataset/-/resource?uri=http://publications.europa.eu/resource/dataset/html4eu" target="_blank" rel="noopener">HTML4EU på EU Vocabularies</a><span class="desc">Spesifikasjonen (versjon 2.0 og 1.0), eksemplene og stilarket.</span></span></li>
+        <li><span class="dot" aria-hidden="true"></span><span><a href="https://op.europa.eu/en/web/eu-vocabularies/html4eu" target="_blank" rel="noopener">Om HTML4EU</a><span class="desc">Publikasjonskontorets bakgrunnsside, med forholdet til AKN4EU, ELI og LegalHTML.</span></span></li>
+        <li><span class="dot" aria-hidden="true"></span><span><a href="https://op.europa.eu/en/web/eu-vocabularies/akn4eu" target="_blank" rel="noopener">AKN4EU</a><span class="desc">EU-institusjonenes felles XML-format for rettsakter.</span></span></li>
+        <li><span class="dot" aria-hidden="true"></span><span><a href="https://op.europa.eu/en/web/eu-vocabularies/legalhtml" target="_blank" rel="noopener">LegalHTML</a><span class="desc">Det tidligere prøveformatet, som HTML4EU har erstattet.</span></span></li>
+        <li><span class="dot" aria-hidden="true"></span><span><a href="https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:32024L2831" target="_blank" rel="noopener">EUR-Lex: direktiv (EU) 2024/2831</a><span class="desc">En av eksempelaktene, slik EUR-Lex viser den i dag.</span></span></li>
+        <li><span class="dot" aria-hidden="true"></span><span><a href="https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX:02016R0679-20160504" target="_blank" rel="noopener">EUR-Lex: personvernforordningen, konsolidert</a><span class="desc">Den andre stikkprøven.</span></span></li>
+        <li><span class="dot" aria-hidden="true"></span><span><a href="https://github.com/FinnurO/regel-ide/blob/HEAD/docs/profil/10-html4eu-vurdering.md" target="_blank" rel="noopener">Hele vurderingen (docs/profil/10)</a><span class="desc">Eksempeltabellen, koblingstabellen, juristrunden og alt som ikke er sjekket.</span></span></li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div>
+      <h3>Om nettstedet</h3>
+      <p style="font-size:var(--ds-body-sm-font-size); color:var(--ds-color-text-subtle); max-width:32ch; margin:0;">Midlertidig showcase av <strong>DigRett</strong>, ikke selve produktet. Kildekode: <a href="https://github.com/FinnurO/regel-ide" target="_blank" rel="noopener">regel-ide</a>.</p>
+    </div>
+    <div>
+      <h3>Sider</h3>
+      <ul>
+        <li><a href="../">Forside</a></li>
+        <li><a href="../rettskilder/">Rettskilder</a></li>
+        <li><a href="../virksomheter/">Virksomheter</a></li>
+        <li><a href="../grupper/">Grupper</a></li>
+        <li><a href="../koblinger/">Koblinger</a></li>
+        <li><a href="../kjeden/">Kjeden</a></li>
+        <li><a href="../strukturmodell/">Strukturmodellen</a></li>
+        <li><a href="../funn/">Funn til vurdering</a></li>
+        <li><a href="../profil/">Profilforslag</a></li>
+        <li><a href="../pilot-barnehageloven/">Pilot</a></li>
+        <li><a href="../begreper/">Begreper</a></li>
+        <li><a href="../om/">Om</a></li>
+      </ul>
+    </div>
+    <div>
+      <h3>Kildekode</h3>
+      <ul>
+        <li><a href="https://github.com/FinnurO/regel-ide" target="_blank" rel="noopener">FinnurO/regel-ide</a></li>
+        <li><a href="https://github.com/FinnurO/regel-ide/blob/HEAD/docs/profil/README.md" target="_blank" rel="noopener">Profilmappen (docs/profil)</a></li>
+      </ul>
+    </div>
+    <p class="fine">HTML4EU er utviklet av Den europeiske unions publikasjonskontor. Denne siden er skrevet av DigRett og er ikke tilknyttet eller godkjent av Publikasjonskontoret. Opplysningene er hentet fra offentlige kilder 24. november 2026.</p>
+  </div>
+</footer>
+
+<button type="button" class="ds-button feedback-fab" data-color="accent" id="feedback-open-btn" aria-haspopup="dialog">
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+  <span class="btn-label">Gi tilbakemelding</span>
+</button>
+
+<dialog class="feedback-dialog" id="feedback-dialog" aria-labelledby="feedback-dialog-title">
+  <div class="feedback-dialog__body">
+    <h2 id="feedback-dialog-title">Gi tilbakemelding</h2>
+    <p class="lead">Sendes som et innspill på GitHub — du logger inn med (eller oppretter) en gratis GitHub-konto for å fullføre innsendingen der.</p>
+    <p class="feedback-hint">Vi tar automatisk med hvilke seksjoner du har åpnet på siden. Vil du sitere en bestemt setning: lukk dette vinduet, marker teksten på siden, og trykk «Gi tilbakemelding» på nytt.</p>
+    <div class="feedback-context" id="feedback-context"></div>
+    <div class="feedback-field">
+      <label for="feedback-text">Hva vil du si noe om?</label>
+      <textarea id="feedback-text" placeholder="Skriv tilbakemeldingen din her …"></textarea>
+    </div>
+    <div class="feedback-actions">
+      <button type="button" class="ds-button" data-variant="tertiary" data-color="neutral" id="feedback-cancel-btn">Avbryt</button>
+      <button type="button" class="ds-button" data-color="accent" id="feedback-submit-btn">Send inn på GitHub →</button>
+    </div>
+  </div>
+</dialog>
+
+<script src="../assets/js/common.js"></script>
+<script src="../assets/js/feedback.js"></script>
+</body>
+</html>

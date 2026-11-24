@@ -21,6 +21,7 @@ Denne mappen holder **profilen**, altså det teknologinøytrale begrepsapparatet
 | 07 | [Pilot: barnehageloven](07-pilot-barnehageloven.md): konvertering, juristrunde og sammenligning med BU-kartleggingen (#375), med lærdommer for profilen | REFERAT 2026-10-28, før Johanns gjennomgang. §8 tillegg 2026-10-29 (ny lasting etter #418). §9 tillegg 2026-10-30 (tredje lasting etter #420 og #419) | Nei. Erfaringsgrunnlag |
 | 08 | [Sjekkliste for standardlandskapet](08-standardlandskap-sjekkliste.md): kilder og steder som sjekkes for hver profilversjon, med dato for siste sjekk (#473) | Arbeidsliste, oppdateres ved hver profilversjon | Nei |
 | 09 | [RUML-vurdering](09-ruml-vurdering.md): RUML 1.0.0 (Rulemapping Logic Format) mot profilforslaget og strukturmodellen, med forslag til koblinger, import- og eksportregler, KI-vurdering, anbefaling og juristrunde ([juristrunde-ruml-koblinger.json](juristrunde-ruml-koblinger.json)). [Ny, 2026-11-24] | Arbeidsutkast, venter på prosjekteierens valg | Nei. Informativt |
+| 10 | [HTML4EU-vurdering](10-html4eu-vurdering.md): HTML4EU 2.0.0.0 (Publikasjonskontorets HTML-profil for EU-rettsakter) mot rettskildenodene, eId og ELI, med eksemplene, mappingtabell, betydning for #495, anbefaling og juristrunde ([juristrunde-html4eu-koblinger.json](juristrunde-html4eu-koblinger.json)). [Ny, 2026-11-24] | Besluttet 2026-11-24: følge med. Artikkel på nettsiden (`nettside/html4eu/`) | Nei. Informativt |
 
 Implementasjonens svar på profilen: [../34-arkitekturvurdering-norsk-profil.md](../34-arkitekturvurdering-norsk-profil.md).
 
