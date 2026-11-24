@@ -1,5 +1,5 @@
 {
-  "_kilde": "GET /api/gruppebegrep/{id}/medlemsgrupper + /overordnede-grupper + /tildelinger for id=ea37d4ce-b7a2-439b-91b0-b79920759ddf — eksportert 2026-09-09T22:15:57Z",
+  "_kilde": "GET /api/gruppebegrep/{id}/medlemsgrupper + /overordnede-grupper + /tildelinger for id=ea37d4ce-b7a2-439b-91b0-b79920759ddf — eksportert 2026-11-24T07:42:19Z",
   "id": "ea37d4ce-b7a2-439b-91b0-b79920759ddf",
   "term": "språkvitaliseringskommuner",
   "status": "publisert",
@@ -19,7 +19,8 @@
         }
       ],
       "gyldigFra": null,
-      "gyldigTil": null
+      "gyldigTil": null,
+      "status": "godkjent"
     }
   ],
   "tildelinger": [
@@ -36,7 +37,8 @@
       ],
       "vilkaar": null,
       "gyldigFra": null,
-      "gyldigTil": null
+      "gyldigTil": null,
+      "status": "godkjent"
     },
     {
       "id": "170e8aa0-9f3e-4b12-9d51-11b4b11ebe6c",
@@ -51,7 +53,8 @@
       ],
       "vilkaar": null,
       "gyldigFra": null,
-      "gyldigTil": null
+      "gyldigTil": null,
+      "status": "godkjent"
     },
     {
       "id": "ffe65642-9aa1-4f29-ae8d-e809a37cb73a",
@@ -66,7 +69,8 @@
       ],
       "vilkaar": null,
       "gyldigFra": null,
-      "gyldigTil": null
+      "gyldigTil": null,
+      "status": "godkjent"
     },
     {
       "id": "11c7a344-daf2-4983-b9ee-cd11b6aa846a",
@@ -81,7 +85,8 @@
       ],
       "vilkaar": null,
       "gyldigFra": null,
-      "gyldigTil": null
+      "gyldigTil": null,
+      "status": "godkjent"
     },
     {
       "id": "ed72414b-ebf3-4e98-b57d-491c4a48fdad",
@@ -96,7 +101,8 @@
       ],
       "vilkaar": null,
       "gyldigFra": null,
-      "gyldigTil": null
+      "gyldigTil": null,
+      "status": "godkjent"
     },
     {
       "id": "9ba7f6c8-534f-4bc6-8444-1638676ce19f",
@@ -111,7 +117,8 @@
       ],
       "vilkaar": null,
       "gyldigFra": null,
-      "gyldigTil": null
+      "gyldigTil": null,
+      "status": "godkjent"
     },
     {
       "id": "d6c961da-08c9-462c-8f2c-417bbaedca6f",
@@ -126,7 +133,8 @@
       ],
       "vilkaar": null,
       "gyldigFra": null,
-      "gyldigTil": null
+      "gyldigTil": null,
+      "status": "godkjent"
     },
     {
       "id": "fbb699b8-bf81-44bb-a49a-ec10d57e3693",
@@ -141,7 +149,8 @@
       ],
       "vilkaar": null,
       "gyldigFra": null,
-      "gyldigTil": null
+      "gyldigTil": null,
+      "status": "godkjent"
     },
     {
       "id": "e002befb-a46f-4b20-9724-ad6eff83a571",
@@ -156,7 +165,8 @@
       ],
       "vilkaar": null,
       "gyldigFra": null,
-      "gyldigTil": null
+      "gyldigTil": null,
+      "status": "godkjent"
     }
   ]
 }
