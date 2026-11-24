@@ -84,7 +84,14 @@ function Write-JsonFile {
     $full = Join-Path $DataRoot $RelPath
     $dir = Split-Path -Parent $full
     if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null }
-    ($Data | ConvertTo-Json -Depth 20) | Set-Content -Path $full -Encoding utf8NoBOM
+    $json = $Data | ConvertTo-Json -Depth 20
+    # Nettsiden bruker rollen, ikke personnavnet (prosjekteierens avgjørelse 2026-11-23). Begrunnelser i
+    # basen skriver «Johanns avgjørelse …»; det byttes her. Funnregisteret er frosset tekst og byttes ikke,
+    # men sperren nederst stopper eksporten hvis et navn likevel står igjen.
+    if ($RelPath -notlike "funn/*") {
+        $json = $json -creplace "Johanns avgjørelse", "Prosjekteierens avgjørelse"
+    }
+    $json | Set-Content -Path $full -Encoding utf8NoBOM
     Write-Host "  skrev $RelPath" -ForegroundColor Green
 }
 
@@ -242,6 +249,13 @@ Write-JsonFile -RelPath "funn/register.json" -Data ([ordered]@{
     "antall" = @($publiserbare.funn).Count
     "funn"   = @($publiserbare.funn)
 })
+
+# Personnavnsperre: ingen fil under nettside/data skal inneholde prosjekteierens navn.
+$navnetreff = Get-ChildItem -Path $DataRoot -Recurse -Filter *.json |
+    Select-String -Pattern "Johann", "Olafsson", "Ólafsson" -SimpleMatch -List
+if ($navnetreff) {
+    throw "Personnavn står igjen i eksporten: $(($navnetreff | ForEach-Object { $_.Path }) -join ', '). Bytt til rollen før publisering."
+}
 
 Write-Host "`nFerdig. Alle filer skrevet under $DataRoot" -ForegroundColor Cyan
 Write-Host "Husk: sjekk gjennom nettside/data/README.md sin personvern-seksjon etter en eksport av NYE id-er." -ForegroundColor Yellow

@@ -1,0 +1,13 @@
+{
+  "_kilde": "GET /api/rettskilder/{id}/statistikk for id=64b5f3a2-1c57-4e1e-8343-8cee75c77873 (eli=https://lovdata.no/eli/lov/1989/06/02/27/nor) — eksportert 2026-11-24T07:42:36Z",
+  "_merk": "Presis telledefinisjon (antallVirksomheter/antallBegrep/antallTjenester): se RettskildeRepository.StatistikkAsync sin doc-kommentar i src/RegelIde.Api, gjengitt i PR-beskrivelsen for issue #286.",
+  "id": "64b5f3a2-1c57-4e1e-8343-8cee75c77873",
+  "tittel": "Lov om omsetning av alkoholholdig drikk m.v. (alkoholloven)",
+  "eli": "https://lovdata.no/eli/lov/1989/06/02/27/nor",
+  "statistikk": {
+    "rettskildeId": "64b5f3a2-1c57-4e1e-8343-8cee75c77873",
+    "antallVirksomheter": 0,
+    "antallBegrep": 0,
+    "antallTjenester": 2
+  }
+}

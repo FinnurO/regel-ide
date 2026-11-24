@@ -224,7 +224,12 @@
       var hjemmelCelle = lenke
         ? '<a href="' + S.esc(lenke) + '" target="_blank" rel="noopener">' + S.esc(g.lovreferanseEid) + '</a>'
         : '—';
-      return '<tr><td>' + S.esc(g.term) + '</td><td><span class="pill" data-tone="' + (g.status === 'publisert' ? 'success' : 'neutral') + '">' + S.esc(g.status) + '</span></td><td>' + hjemmelCelle + '</td></tr>';
+      // Forslag (godkjenning maskinelt_ eller manuelt_foreslatt) vises som forslag, aldri som publisert (prosjekteierens avgjørelse 2026-11-24).
+      var erForslag = g.godkjenning === 'maskinelt_foreslatt' || g.godkjenning === 'manuelt_foreslatt';
+      var merke = erForslag
+        ? '<span class="pill" data-tone="warning" title="Ikke godkjent ennå">forslag</span>'
+        : '<span class="pill" data-tone="' + (g.status === 'publisert' ? 'success' : 'neutral') + '">' + S.esc(g.status) + '</span>';
+      return '<tr><td>' + S.esc(g.term) + '</td><td>' + merke + '</td><td>' + hjemmelCelle + '</td></tr>';
     }).join('');
   }).catch(function (err) {
     S.renderError(document.getElementById('gruppe-tree'), err);

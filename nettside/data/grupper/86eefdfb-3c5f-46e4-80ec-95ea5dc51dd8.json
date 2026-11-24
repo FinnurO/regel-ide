@@ -1,5 +1,5 @@
 {
-  "_kilde": "GET /api/gruppebegrep/{id}/medlemsgrupper + /overordnede-grupper + /tildelinger for id=86eefdfb-3c5f-46e4-80ec-95ea5dc51dd8 — eksportert 2026-09-09T22:15:57Z",
+  "_kilde": "GET /api/gruppebegrep/{id}/medlemsgrupper + /overordnede-grupper + /tildelinger for id=86eefdfb-3c5f-46e4-80ec-95ea5dc51dd8 — eksportert 2026-11-24T07:42:19Z",
   "id": "86eefdfb-3c5f-46e4-80ec-95ea5dc51dd8",
   "term": "språkstimuleringskommuner",
   "status": "publisert",
@@ -19,7 +19,8 @@
         }
       ],
       "gyldigFra": null,
-      "gyldigTil": null
+      "gyldigTil": null,
+      "status": "godkjent"
     }
   ],
   "tildelinger": [
@@ -36,7 +37,8 @@
       ],
       "vilkaar": null,
       "gyldigFra": null,
-      "gyldigTil": null
+      "gyldigTil": null,
+      "status": "godkjent"
     }
   ]
 }
