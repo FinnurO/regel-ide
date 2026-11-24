@@ -188,8 +188,11 @@
 // forhåndsvisningen i appen (src/RegelIde.Web/src/funn/FunnVisning.tsx, OffentligFunn).
 (function () {
   var S = DigRettSite;
-  var KATEGORI = { utgatt_aktor: 'Utgått aktør', mulig_motstrid: 'Mulig motstrid', uklarhet_hull: 'Uklarhet eller hull' };
-  var UNDERTYPE = { nedlagt_aktor: 'nedlagt aktør', utgatt_navn: 'utgått navn', hull: 'hull', upresis_henvisning: 'upresis henvisning', publiseringsfeil_kilde: 'publiseringsfeil i kilden' };
+  // [ENDRET, #472 PR 2] «Hjemmel opphevet» og undertypene. Ingen slike funn publiseres før #446 (Johanns avgjørelse 2026-11-18 (4)).
+  var KATEGORI = { utgatt_aktor: 'Utgått aktør', mulig_motstrid: 'Mulig motstrid', uklarhet_hull: 'Uklarhet eller hull', hjemmel_opphevet: 'Hjemmel opphevet' };
+  var UNDERTYPE = { nedlagt_aktor: 'nedlagt aktør', utgatt_navn: 'utgått navn', hull: 'hull', upresis_henvisning: 'upresis henvisning', publiseringsfeil_kilde: 'publiseringsfeil i kilden',
+    hjemmel_opphevet: 'videreføring ikke funnet', blandede_hjemler: 'blandede hjemler', uavklart: 'de andre hjemlene ikke vurdert',
+    videreforing_utlopt: 'videreføringen er utløpt', gjenstandslos: 'gjenstandsløs' };
   var SIKKERHET = { hoy: 'høy', middels_til_hoy: 'middels til høy', middels: 'middels', lav_til_middels: 'lav til middels', lav: 'lav' };
 
   // Linjer som begynner med «- » er punkter (samme regel som funnTekst.ts i appen).
@@ -249,7 +252,10 @@
       }
     }
     if (f.ikkeAvgjort.length) {
-      h += '<h3>Ikke avgjort</h3><ul>' + f.ikkeAvgjort.map(function (p) { return '<li>' + S.esc(p.tekst) + '</li>'; }).join('') + '</ul>';
+      // [ENDRET, #472 PR 2] Med overskriften: «Ny hjemmel: Ikke vurdert.» sier ingenting uten den.
+      h += '<h3>Ikke avgjort</h3><ul>' + f.ikkeAvgjort.map(function (p) {
+        return '<li>' + (p.overskrift ? '<em>' + S.esc(p.overskrift) + ':</em> ' : '') + S.esc(p.tekst) + '</li>';
+      }).join('') + '</ul>';
     }
     if (f.kilder.length) {
       h += '<h3>Kilder</h3><ul>' + f.kilder.map(function (k) { return '<li>' + lenke(k) + '</li>'; }).join('') + '</ul>';
