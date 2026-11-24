@@ -1,0 +1,1104 @@
+{
+ "sak": "RUML-vurdering (docs/profil/09-ruml-vurdering.md)",
+ "dato": "2026-11-24",
+ "runder": 1,
+ "merknad": "Én runde. Juristen fikk kortene uten modellererens begrunnelser. Svar 'delvis' er ikke replisert.",
+ "inndata": {
+  "kontekst": "RUML 1.0.0 (ruml.org, 2026-11-15) vurdert mot DigRetts profilforslag og regel-/strukturmodell. Kortene er forslag til koblinger og regler, ikke lovtekstklassifisering.",
+  "kort": [
+   {
+    "id": "R1",
+    "type": "kobling",
+    "foreslatt": {
+     "vart_begrep": "Regel (komposisjonsnode OG/ELLER/IKKE, docs/01 §5.3)",
+     "ruml": "Foreldernode med operator AND/OR/NOT_AND (RUML §3.5, §3.6); unær IKKE = NOT_AND med ett barn",
+     "kobling": "nært beslektet"
+    }
+   },
+   {
+    "id": "R2",
+    "type": "kobling",
+    "foreslatt": {
+     "vart_begrep": "Vilkår (bladnode med vilkårstype, vurderingstype regel/skjønn/hybrid, begrep, gjelder_rolle; docs/03 §1.8)",
+     "ruml": "Bladnode; verdi fra ruml:query, ruml:ai-query eller manuell avgjørelse via ruml:actions (RUML §3.5, §4.8–4.10)",
+     "kobling": "bredere"
+    }
+   },
+   {
+    "id": "R3",
+    "type": "kobling",
+    "foreslatt": {
+     "vart_begrep": "Unntak (gjelder_regel + betingelse, INV-3/INV-4, docs/01 §5.4)",
+     "ruml": "Ingen egen type; uttrykkes som AND(regel, NOT_OR(betingelse))",
+     "kobling": "ingen match"
+    }
+   },
+   {
+    "id": "R4",
+    "type": "kobling",
+    "foreslatt": {
+     "vart_begrep": "Rettsfølge / utdata (docs/01 §7)",
+     "ruml": "ruml:actions (onTrue/onFalse/onUndefined)",
+     "kobling": "ingen match"
+    }
+   },
+   {
+    "id": "R5",
+    "type": "kobling",
+    "foreslatt": {
+     "vart_begrep": "Skjønnsgrunnlag og skjønnsmomenter (docs/01 §6.1)",
+     "ruml": "Ingen; nærmest ruml:context som inndata til språkmodell",
+     "kobling": "ingen match"
+    }
+   },
+   {
+    "id": "R6",
+    "type": "kobling",
+    "foreslatt": {
+     "vart_begrep": "Datasett/datapunkt (input)",
+     "ruml": "ruml:datapoints (RUML §4.7)",
+     "kobling": "nært beslektet"
+    }
+   },
+   {
+    "id": "R7",
+    "type": "kobling",
+    "foreslatt": {
+     "vart_begrep": "ErFormel-annotering (docs/10)",
+     "ruml": "Beregnede datapunkter og ruml:expression i JSONata (RUML §4.7, §4.14)",
+     "kobling": "snevrere"
+    }
+   },
+   {
+    "id": "R8",
+    "type": "kobling",
+    "foreslatt": {
+     "vart_begrep": "juridisk_grunnlag[] = {kilde, eId} på vilkår/regel/unntak",
+     "ruml": "Anker i refs: represents (normen noden gjennomfører, maks én) eller refers-to (tekst noden bygger på), element = GUID (RUML §4.12)",
+     "kobling": "nært beslektet"
+    }
+   },
+   {
+    "id": "R9",
+    "type": "kobling",
+    "foreslatt": {
+     "vart_begrep": "Vår stabile eId (endres aldri, docs/08 §1.2; har AKN wId-rollen, 04 §2)",
+     "ruml": "GUID på element i RUML Text (AKN som JSON); eId der er AKN-eId som endres ved omnummerering (RUML §4.12)",
+     "kobling": "nært beslektet"
+    }
+   },
+   {
+    "id": "R10",
+    "type": "kobling",
+    "foreslatt": {
+     "vart_begrep": "Rettskilde med ELI",
+     "ruml": "Tekstoppføring med uri = ELI (RUML §4.12)",
+     "kobling": "nært beslektet"
+    }
+   },
+   {
+    "id": "R11",
+    "type": "kobling",
+    "foreslatt": {
+     "vart_begrep": "Rettskildeversjon (erstatter-kjede, tekst_hash, opphevet/opphevetDato)",
+     "ruml": "Tekstoppføring med version, validFrom/validUntil, status (draft/proposed/enacted/inForce/amended/repealed), digest",
+     "kobling": "nært beslektet"
+    }
+   },
+   {
+    "id": "R12",
+    "type": "kobling",
+    "foreslatt": {
+     "vart_begrep": "Kunnskapsstatus (åtte verdier: tekstfunn, normalisering, fortolkning, avledet, eksternt_dokumentert, uavklart, omstridt, foreldet; docs/33 §4.6)",
+     "ruml": "Ingen",
+     "kobling": "ingen match"
+    }
+   },
+   {
+    "id": "R13",
+    "type": "kobling",
+    "foreslatt": {
+     "vart_begrep": "Svakeste premiss (avledet utsagn får aldri sterkere kunnskapsstatus enn svakeste premiss; docs/33 §4.6)",
+     "ruml": "Ingen; treverdi-logikk true/false/undefined sprer undefined i en sak",
+     "kobling": "ingen match"
+    }
+   },
+   {
+    "id": "R14",
+    "type": "kobling",
+    "foreslatt": {
+     "vart_begrep": "Godkjenning per utsagn (maskinelt_foreslatt | manuelt_foreslatt | faglig_vurdert | godkjent | avvist)",
+     "ruml": "metadata.status for hele fila (draft, review, approved, inForce, suspended, expired, replaced) (RUML §3.3)",
+     "kobling": "bredere"
+    }
+   },
+   {
+    "id": "R15",
+    "type": "kobling",
+    "foreslatt": {
+     "vart_begrep": "Livssyklus vilkår/regel/unntak (utkast, foreslatt_av_ai, under_revisjon, validert, publisert, tilbaketrukket, arkivert; docs/03 §3.1)",
+     "ruml": "Filstatus, derivedFrom (workingCopy/amendment/revision), replaces/replacedBy",
+     "kobling": "nært beslektet (på filnivå)"
+    }
+   },
+   {
+    "id": "R16",
+    "type": "kobling",
+    "foreslatt": {
+     "vart_begrep": "Oppdagelseskilde (manuell, monster:<id>, ki:<modell>)",
+     "ruml": "Ingen; authors har navn, e-post, organisasjon",
+     "kobling": "ingen match"
+    }
+   },
+   {
+    "id": "R17",
+    "type": "kobling",
+    "foreslatt": {
+     "vart_begrep": "Proveniens per utsagn (PROV-O, grunnlagsdokumentet §13)",
+     "ruml": "authors, organization, derivedFrom, signatur i container (RUML §3.3, §7.4)",
+     "kobling": "bredere"
+    }
+   },
+   {
+    "id": "R18",
+    "type": "kobling",
+    "foreslatt": {
+     "vart_begrep": "Jurisdiksjon og områder (kantene A og O, områder med type og kode)",
+     "ruml": "metadata.jurisdiction (ISO 3166) for hele fila",
+     "kobling": "bredere"
+    }
+   },
+   {
+    "id": "R19",
+    "type": "kobling",
+    "foreslatt": {
+     "vart_begrep": "Tid på kanter (gyldig_fra/gyldig_til)",
+     "ruml": "validFrom/validUntil for fila og hver tekst",
+     "kobling": "bredere"
+    }
+   },
+   {
+    "id": "R20",
+    "type": "kobling",
+    "foreslatt": {
+     "vart_begrep": "Strukturkantene K, P, R, M, O, A, G, I, T og F (docs/33 §4.3)",
+     "ruml": "Ingen",
+     "kobling": "ingen match"
+    }
+   },
+   {
+    "id": "R21",
+    "type": "kobling",
+    "foreslatt": {
+     "vart_begrep": "Modalitet (skal/kan/bør) og polaritet",
+     "ruml": "Ingen deontikk; negasjon av vilkår finnes (NOT_*)",
+     "kobling": "ingen match"
+    }
+   },
+   {
+    "id": "R22",
+    "type": "kobling",
+    "foreslatt": {
+     "vart_begrep": "Vilkårsutfall KL-VILKARSUTFALL (oppfylt, ikke_oppfylt, krever_skjonn, krever_dokumentasjon, ukjent, ma_vurderes_av_jurist)",
+     "ruml": "Nodestatus i .ruml-result: true, false, undefined (årsak error/default), ignored (RUML §5)",
+     "kobling": "bredere"
+    }
+   },
+   {
+    "id": "I1",
+    "type": "importregel",
+    "foreslatt": {
+     "regel": "Alt som importeres fra RUML får godkjenning maskinelt_foreslatt og oppdagelseskilde import:ruml, uansett filstatus hos utgiveren"
+    }
+   },
+   {
+    "id": "I2",
+    "type": "importregel",
+    "foreslatt": {
+     "regel": "En ruml:ai-query-node importeres som vilkår med vurderingstype skjønn eller hybrid og kunnskapsstatus uavklart; en språkmodells avgjørelse i en sak er aldri kilde for modellen"
+    }
+   },
+   {
+    "id": "I3",
+    "type": "importregel",
+    "foreslatt": {
+     "regel": "XOR importeres som ELLER, og forutsetningen om at barna utelukker hverandre blir et eget utsagn med status"
+    }
+   },
+   {
+    "id": "K1",
+    "type": "ki-vurdering",
+    "foreslatt": {
+     "pastand": "Selskapets KI-verktøy ARUM (lager første utkast til rulemap fra lovtekst) er forenlig med vår regel om at maskinforslag er forslag til et menneske har godkjent, men RUML-formatet bærer ikke skillet maskinforslag/godkjent per node"
+    }
+   },
+   {
+    "id": "K2",
+    "type": "ki-vurdering",
+    "foreslatt": {
+     "pastand": "ruml:ai-query (språkmodell avgjør et vilkår i en konkret sak) er utenfor profilforslaget, men kan reise spørsmål etter personvernforordningen art. 22, KI-forordningens høyrisikoregler og begrunnelsesplikten; ikke vurdert rettslig i notatet"
+    }
+   },
+   {
+    "id": "A1",
+    "type": "anbefaling",
+    "foreslatt": {
+     "anbefaling": "(b) følge med: sjekklistepost i 08 og merknad i docs/10, ikke ta RUML inn som mappet standard i profilen nå, ta opp igjen ved utløsere (styringsmodell, offentlig bruk, eksport av regellaget)",
+     "alternativer": "(a) ta inn i profilen som mappet standard; (c) ikke relevant"
+    }
+   }
+  ]
+ },
+ "runde1_utfordringer": [
+  {
+   "id": "R1",
+   "dom": "innvending",
+   "gjelder": "raden",
+   "alvor": "lav",
+   "innvending": "Koblingstypen holder, men regelen for IKKE er for snever. Vår IKKE er definert som «unær, på ett barn eller en gruppe» (docs/01 §3). For ett barn er NOT_AND og NOT_OR likeverdige. For en gruppe gir de motsatt resultat i vanlige tilfeller: NOT_AND = «ikke alle», NOT_OR = «ingen av» (lovens «verken … eller»). Vår modell sier ikke hvilken som menes, og ingen evaluator i koden avgjør det. Eksporten må derfor kreve et valg per node og ikke bruke NOT_AND som standard. I tillegg er evalueringen i RUML avhengig av modus og rekkefølge: AND i optimized-modus gir undefined ved første undefined, selv om et senere barn er false (RUML §3.6.1). I complete-modus gir det samme treet false. Vi har ingen tilsvarende regel for KL-VILKARSUTFALL. Det bør stå i koblingen at operatorene er like, men at utfallet ved ukjente vilkår ikke er det.",
+   "retting": {
+    "ruml": "Foreldernode med operator AND/OR (RUML §3.5, §3.6). IKKE på ett barn = NOT_AND eller NOT_OR med ett barn. IKKE på en gruppe krever et valg per node: «ingen av» = NOT_OR, «ikke alle» = NOT_AND. Utfallet ved undefined avhenger av evalueringsmodus (optimized/complete) og barnas rekkefølge."
+   },
+   "ny_rad": null,
+   "implementeringsstatus": null,
+   "kilder": [
+    {
+     "ref": "docs/01-referansemodell.md §3 (IKKE «unær, på ett barn eller en gruppe»), §5.3–5.4",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "RUML 1.0.0 §3.6.1–3.6.2 (AND/NOT_AND, OR/NOT_OR, optimized vs complete)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "src/RegelIde.Data/RegelnoderegisterTjeneste.cs (bare gyldige operatorer, ingen evaluering)",
+     "funksjon": "forutsatt_kilde"
+    }
+   ]
+  },
+  {
+   "id": "R2",
+   "dom": "innvending",
+   "gjelder": "raden",
+   "alvor": "middels",
+   "innvending": "To feil. (1) Retningen er feil. «Bredere» er her brukt fordi vårt vilkår har flere felt (vilkårstype, skjønnsgrunnlag osv.). Koblingstypene gjelder hvilke tilfeller begrepet omfatter, ikke hvor mange egenskaper det har. Flere bestemmende egenskaper gir et snevrere begrep. Hvert vilkår hos oss kan uttrykkes som en RUML-bladnode, men en RUML-bladnode kan også være noe vi ikke kaller vilkår. Det gjelder et blad med ruml:tree-include, som evaluerer et helt deltre fra en annen fil, altså en Regel hos oss. Det gjelder også et blad uten beslutningskapabilitet, som alltid blir undefined, og en plassholder i et utkast. Vårt begrep er altså snevrere. Vil man ta hensyn til at RUML-bladet bærer kjørbar logikk som vi ikke har, er «nært beslektet» det forsvarlige alternativet. «Bredere» er det ikke. (2) «Manuell avgjørelse via ruml:actions» stemmer ikke med spesifikasjonen. Handlinger «do not make decisions» (§4.10), og et blad uten query eller ai-query har alltid status undefined. requestDecision er bare en reaksjon, og spesifikasjonen sier ikke hvordan svaret føres tilbake. En menneskelig avgjørelse uttrykkes i RUML som et boolsk input-datapunkt som leses av ruml:query (eksempelet «Härtefall anerkannt», §5.1.5). Ellers blir den manualSkip med status ignored, og ignored telles ikke med i forelderens operator (§5.0). Det siste betyr at et vilkår som hoppes over manuelt under AND, ikke hindrer et positivt resultat.",
+   "retting": {
+    "ruml": "Bladnode. Verdien kommer fra ruml:query (også over et manuelt innlagt boolsk datapunkt med binding input) eller ruml:ai-query (RUML §3.5, §4.7–4.9). Uten beslutningskapabilitet er bladet alltid undefined. ruml:actions (requestDecision) er en reaksjon og ingen verdikilde.",
+    "kobling": "snevrere"
+   },
+   "ny_rad": null,
+   "implementeringsstatus": null,
+   "kilder": [
+    {
+     "ref": "docs/profil/00-grunnlagsdokument.md §5.7 (snevrere/bredere)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "RUML 1.0.0 §4.10 («They do not make decisions»; blad uten decision-kapabilitet er alltid undefined)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "RUML 1.0.0 §5.0 (ignored/manualSkip; «An ignored node is NOT included in the operator calculation»)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "RUML 1.0.0 §4.15 (ruml:tree-include evaluerer et deltre i stedet for et blad)",
+     "funksjon": "forutsatt_kilde"
+    },
+    {
+     "ref": "docs/03-domenemodell.md §1.8",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  },
+  {
+   "id": "R3",
+   "dom": "innvending",
+   "gjelder": "raden",
+   "alvor": "middels",
+   "innvending": "«Ingen match» stemmer, men omskrivingen AND(regel, NOT_OR(betingelse)) er ikke nøytral. Den gjør et unntak om til et kumulativt negativt vilkår. Når unntaksbetingelsen er ukjent, gir RUML da undefined for hele regelen (§3.6.1–3.6.2). For mange unntak («med mindre …», «når særlige grunner foreligger») gjelder hovedregelen til unntaket er godtgjort [slutning]. Hvem som har tvilsrisikoen, er en rettslig vurdering per bestemmelse. RUML kan ikke uttrykke «ukjent unntak = hovedregelen gjelder» i operatorlogikken. Også en DELEGATED-kombinator gir undefined når et barn er undefined (kontrakten punkt 3, §3.6.4). Det kan bare gjøres med en defaultValue på et input-datapunkt, og det er en presumsjon, altså en rettslig slutning. Vår modell har heller ikke avgjort hvordan et ukjent unntak skal virke (INV-6 sier bare «implisitt IKKE»). Omskrivingen tar dermed et valg som modellen ikke har tatt. To tekniske følger: rettsfølgen og handlingene flyttes fra Regelen til den nye AND-noden, og er Regelen rotnoden, blir AND-noden ny rot (LexID 1). Motsatt vei: en importert AND(…, NOT_*(…)) kan ikke skilles fra et negativt vilkår, så importen må aldri lage et Unntak automatisk.",
+   "retting": {
+    "ruml": "Ingen egen type. Nærmeste omskriving er AND(regel, NOT_OR(betingelse1..n)). Den gir undefined når en unntaksbetingelse er ukjent. En presumsjon for hovedregelen må i så fall uttrykkes som defaultValue på et datapunkt og merkes som rettslig slutning. Import lager aldri et Unntak automatisk."
+   },
+   "ny_rad": null,
+   "implementeringsstatus": null,
+   "kilder": [
+    {
+     "ref": "docs/01-referansemodell.md §5.4 INV-3, INV-4, INV-6; §8",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "RUML 1.0.0 §3.6.1–3.6.2, §3.6.4 (combiner-kontrakten punkt 3, eksempelet «Subsidiarity»)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "RUML 1.0.0 §4.7.2 (defaultValue på input-binding)",
+     "funksjon": "forutsatt_kilde"
+    }
+   ]
+  },
+  {
+   "id": "R4",
+   "dom": "innvending",
+   "gjelder": "utenfor_raden",
+   "alvor": "lav",
+   "innvending": "«Ingen match» for rettsfølgen holder, og det er riktig å ikke koble den til ruml:actions. Handlinger iverksetter (createDocument, initiatePayment, managePermission). De uttrykker ikke en rettsvirkning. En eksport av utdata som onTrue-handling ville gjort et vedtaksforslag om til en automatisk iverksatt avgjørelse. Da er det også uklart om et «kan»-skjønn i det hele tatt er utøvd: rettsfølgen ville inntre automatisk når vilkårene er oppfylt [slutning]. Raden overser likevel to motparter som finnes. (a) Avklaringsbehovet (docs/01 §6.1), med eskaleringsrolle og krever_dokumentasjon, svarer nær til onUndefined med requestDecision og recipient role:… eller requestData. Begge er et navngitt stoppunkt ved et ukjent utfall. (b) Innvilgelses- og avslagsteksten på Regel (docs/03 §1.9) svarer til onTrue/onFalse med createDocument og en mal. Selve beløpet i en rettsfølge kan være et beregnet datapunkt (§4.7.2 nevner «a monetary amount for a legal consequence»).",
+   "retting": null,
+   "ny_rad": {
+    "vart_begrep": "Avklaringsbehov (eskaleringsrolle, krever_dokumentasjon; docs/01 §6.1, docs/03 §1.8)",
+    "ruml": "ruml:actions onUndefined med operation requestDecision (recipient role:…) eller requestData (RUML §4.10)",
+    "kobling": "nært beslektet"
+   },
+   "implementeringsstatus": null,
+   "kilder": [
+    {
+     "ref": "RUML 1.0.0 §4.10 (Use Cases, Operations, onUndefined-eksempelet)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/01-referansemodell.md §6.1, §7",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/03-domenemodell.md §1.9 (innvilgelsestekst/avslagstekst)",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  },
+  {
+   "id": "R5",
+   "dom": "innvending",
+   "gjelder": "utenfor_raden",
+   "alvor": "lav",
+   "innvending": "«Ingen match» for skjønnsgrunnlag og skjønnsmomenter holder. Beskrivelsen av ruml:context som «inndata til språkmodell» er likevel for snever. Spesifikasjonen sier at context først og fremst er referansemateriale som rettsavgjørelser, kommentarer, rundskriv og eksempelsaker, eller dokumentet som skal vurderes (§4.11). Det gir en reell motpart som mangler i tabellen: vår Presedens (docs/03 §1.7) og presedensreferansen på et skjønnsmoment. Vårt begrep er bredere, fordi Presedens har rettskildevekt (KL-RETTSKILDEVEKT) og RUML ikke graderer. Det bør også stå en eksportregel: skjønnsmomenter skal aldri eksporteres som barn under en DELEGATED-terskel («minst 3 av 5»). Momenter skal vektes, ikke telles (docs/01 §6.1). En importert terskelnode kan omvendt være en helhetsvurdering som er gjort om til telling, og må merkes.",
+   "retting": null,
+   "ny_rad": {
+    "vart_begrep": "Presedens (docs/03 §1.7) og skjønnsmoment.presedensreferanse",
+    "ruml": "ruml:context, referansemateriale (subject: false), f.eks. kategori courtDecision (RUML §4.11)",
+    "kobling": "bredere"
+   },
+   "implementeringsstatus": null,
+   "kilder": [
+    {
+     "ref": "RUML 1.0.0 §4.11 (Reference material: court decisions, commentaries, administrative directives)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/01-referansemodell.md §6.1 (skjønnsmoment er ikke en betingelse som kan evalueres)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/03-domenemodell.md §1.7",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "RUML 1.0.0 §3.6.4 (DELEGATED-terskler)",
+     "funksjon": "forutsatt_kilde"
+    }
+   ]
+  },
+  {
+   "id": "R6",
+   "dom": "holder",
+   "gjelder": "raden",
+   "alvor": null,
+   "innvending": "Holder. Til tabellen: vår datapunkttype oppslagbart, brukeroppgitt og utledet svarer en til en mot binding external, input og computed (§4.7.2). Personvernfeltene våre (grunnlag, lagring, mottakere, bruk) har ingen motpart. RUML har bare sensitive (boolsk). En importert defaultValue på et input-datapunkt er en presumsjon om faktum og bør merkes som rettslig slutning ved import.",
+   "retting": null,
+   "ny_rad": null,
+   "implementeringsstatus": null,
+   "kilder": [
+    {
+     "ref": "RUML 1.0.0 §4.7, §4.7.2",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/03-domenemodell.md §1.6",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  },
+  {
+   "id": "R7",
+   "dom": "innvending",
+   "gjelder": "raden",
+   "alvor": "middels",
+   "innvending": "Feil mål. ruml:expression (§4.14) er kombinatoren for DELEGATED. Den regner ut en sannhetsverdi fra barnas status og hører ikke sammen med en formel som gir en verdi. Den må ut av raden. «Snevrere» står seg mot computed-datapunkter: ErFormel merker en beregnet verdi (f.eks. bevillingsgebyr), og hver slik verdi kan være et computed-datapunkt, men ikke omvendt. Den nærmeste motparten til computed er ellers vår datapunkttype utledet (R6), ikke ErFormel. Strukturforskjellen må stå: ErFormel ligger på en node i vilkårstreet, mens et computed-datapunkt ikke er en node. Eksporteres en ErFormel-node som blad, får den ingen beslutningskapabilitet. Da blir den alltid undefined (§4.10), og en AND over den blir undefined. Eksporten må flytte noden ut av treet og gjøre den til et datapunkt.",
+   "retting": {
+    "ruml": "Computed-datapunkt med binding.type computed og et JSONata-uttrykk (RUML §4.7.2). Ikke ruml:expression, som er kombinatoren for DELEGATED.",
+    "kobling": "snevrere"
+   },
+   "ny_rad": null,
+   "implementeringsstatus": null,
+   "kilder": [
+    {
+     "ref": "RUML 1.0.0 §3.6.4 (combiner = ruml:expression)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "RUML 1.0.0 §4.7.2 Computed Binding",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "src/RegelIde.Data/Entiteter.cs VilkarEntitet.ErFormel (kommentar)",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  },
+  {
+   "id": "R8",
+   "dom": "innvending",
+   "gjelder": "raden",
+   "alvor": "middels",
+   "innvending": "Koblingen kan stå som «nært beslektet», men den skjuler tre ting. (1) Ankeret kan bare peke inn i tekst i samme fil (§4.12: «anchors are local»). Vår {kilde, eId} peker til en egen rettskilde. Da må vi enten bygge hele lovteksten inn som RUML Text, med GUID på hvert element og digest, eller peke med ruml:tree-reference til en node i en egen lov-rulemap (documentType law). Spesifikasjonen anbefaler det siste (§4.15). Et anker til en tekst uten content kan bare treffe hele teksten (TXT-20). Ankeret kan altså ikke peke på leddet. RUML Text må dessuten validere mot AKN-skjemaet (TXT-18). 04 §2 viser at vår AKN avviker fra navnekonvensjonen og listestrukturen, og om den validerer, må kontrolleres. (2) Typen represents eller refers-to er en rettslig klassifisering som vår juridisk_grunnlag ikke har. Hvilken av flere hjemler en node «gjennomfører», og hvilke den bare bygger på, er en fortolkning. RUML tillater bare én represents. Velges den maskinelt ved eksport, er det en skjult slutning. Standarden må være refers-to til et menneske har valgt. Ved import går skillet tapt, med mindre vi får et felt for det. (3) element = GUID forutsetter at vi har en stabil elementidentitet. Det har vi ikke, se R9.",
+   "retting": {
+    "ruml": "Anker i refs bare inn i tekst i samme fil (represents = normen noden gjennomfører, maks én; refers-to = tekst noden bygger på; element = GUID i innebygd RUML Text), eller ruml:tree-reference til en node i en lov-rulemap (RUML §4.12, §4.15). Ankertypen finnes ikke hos oss. Eksport bruker refers-to til et menneske har valgt represents."
+   },
+   "ny_rad": null,
+   "implementeringsstatus": null,
+   "kilder": [
+    {
+     "ref": "RUML 1.0.0 §4.12 Node-Level: Anchors (TXT-01, TXT-19, TXT-20), Dialects (TXT-18)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "RUML 1.0.0 §4.15 ruml:tree-reference",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/profil/04-mappingnotat.md §2 (avvik fra AKN-NC og listestruktur)",
+     "funksjon": "forutsatt_kilde"
+    },
+    {
+     "ref": "docs/03-domenemodell.md §1.8 juridisk_grunnlag[] = {kilde, eId}",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  },
+  {
+   "id": "R9",
+   "dom": "innvending",
+   "gjelder": "raden",
+   "alvor": "hoy",
+   "innvending": "Premisset holder ikke. Vår eId «endres aldri» bare i den forstand at strengen på en noderad ikke skrives om. Den bygges på nytt i hver versjon fra §-nummeret og leddets og punktets løpenummer (docs/08 §3.1 steg 5; §1.2: «{paragraf-eId}/ledd-1», punkt etter indeks). Identitet over versjoner følger bare av lik eId pluss tekst_hash (docs/08 §2.1). Når § 3 blir § 4, eller et nytt ledd skyver ledd 2 til ledd 3, får det samme elementet en ny eId, og den gamle eId-en kan gå til et annet element. Det er nettopp oppførselen til AKN-eId (uttrykksnivå), ikke til wId eller RUML-GUID. GUID «MUST NOT change» og skal føres videre til elementet som fortsetter (TXT-03). Påstanden i 04 §2 om at vår eId har wId-rollen må derfor også rettes. Konsekvensen er alvorlig hvis eksporten avleder GUID deterministisk fra eId, f.eks. med UUIDv5. Etter en omnummerering peker et represents-anker da på feil bestemmelse, uten varsel: RUML-ankere har verken versjon eller hash (§4.12: «the anchors stay as they are»). Vår egen tekst_hash-flagging følger ikke med i fila. Det gir feil rettsgrunnlag. GUID må utstedes per element og føres videre ved en eksplisitt koblingsrunde mellom versjoner, med manuell kontroll når nummer eller tekst endres.",
+   "retting": {
+    "vart_begrep": "Vår eId (bygget i hver versjon fra §-nummer og ledd- og punktindeks, docs/08 §1.2 og §3.1 steg 5; identitet over versjoner bare ved lik eId og tekst_hash, docs/08 §2.1)",
+    "ruml": "Mot RUML Texts AKN-eId (designasjon i gjeldende versjon) er koblingen nært beslektet. Mot GUID (varig elementidentitet, TXT-03) har vi ingen motpart. GUID må utstedes og føres videre av oss og aldri avledes av eId.",
+    "kobling": "ingen match"
+   },
+   "ny_rad": null,
+   "implementeringsstatus": null,
+   "kilder": [
+    {
+     "ref": "docs/08-byggesteg1-teknisk-design.md §1.2, §2.1, §3.1 steg 5",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "RUML 1.0.0 §4.12 Element Identity: GUID (Stability, Across versions; TXT-03) og Node-Level Anchors",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/profil/04-mappingnotat.md §2 («Funnet ved verifiseringen»)",
+     "funksjon": "forutsatt_kilde"
+    }
+   ]
+  },
+  {
+   "id": "R10",
+   "dom": "innvending",
+   "gjelder": "raden",
+   "alvor": "lav",
+   "innvending": "Koblingen holder for verket, men tekstoppføringen er én bestemt tekst. Har den content, er den bundet til én versjon med digest. Vår ELI er derimot verks-ID-en pluss /nor uten dato, og etter AKN-NC betyr en slik ID «gjeldende versjon» (04 §2). Settes den som uri på en oppføring med en eldre konsolidert tekst, peker uri og innhold på hver sin versjon. uri må være uttrykksnivå med versjonsdato, slik Lovdatas ELI-mal har plass til, og eksempelet i RUML §4.12 viser. Vår egen seksjons-ELI-utvidelse ({ELI}/§10-2) skal ikke brukes i uri: den er ikke offisiell, og uri skal ikke adressere elementer i teksten («that is the job of anchors»).",
+   "retting": {
+    "ruml": "Tekstoppføring med uri = ELI på uttrykksnivå (med versjonsdato), aldri vår seksjons-ELI-utvidelse (RUML §4.12 URI Convention)"
+   },
+   "ny_rad": null,
+   "implementeringsstatus": null,
+   "kilder": [
+    {
+     "ref": "RUML 1.0.0 §4.12 URI Convention",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/profil/04-mappingnotat.md §2 (uttrykks-ID uten dato)",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  },
+  {
+   "id": "R11",
+   "dom": "innvending",
+   "gjelder": "raden",
+   "alvor": "middels",
+   "innvending": "«Nært beslektet» kan stå, men raden gjør det ser ut som om vi kan fylle feltene. Det kan vi ikke uten nye rettslige påstander. (1) amended betyr «replaced by a newer version but still valid for legacy cases». Erstatter-kjeden sier bare at en versjon er avløst. At den eldre teksten fortsatt gjelder for eldre saker, er en overgangsrettslig vurdering som vi ikke registrerer. Eksporteres avløste versjoner som amended, er det en skjult slutning. (2) draft, proposed og enacted har vi ikke. Vi har heller ikke ikrafttredelse per paragraf (04 §2). (3) validFrom for en konsolidert versjon er ikke lovens ikrafttredelse, som er det vi har på verket. Den datoen kan ikke brukes. (4) Har oppføringen content, SKAL status og datoer komme fra tekstens egne metadata, altså AKN lifecycle og temporalData (TXT-13), og dem skriver vi ikke (04 §2). (5) tekst_hash og digest er ikke samme verdi. digest er SHA3-256 av JCS-formen av hele content. tekst_hash er per node over normalisert tekst. Begge er integritetssjekker, men den ene kan ikke settes inn i stedet for den andre.",
+   "retting": {
+    "ruml": "Tekstoppføring med version, validFrom/validUntil, status og digest (RUML §4.12). status amended og enacted settes bare når overgangsregel og ikrafttredelse er registrert. Med content kommer status og datoer fra AKN lifecycle og temporalData. digest beregnes på nytt og er ikke tekst_hash."
+   },
+   "ny_rad": null,
+   "implementeringsstatus": null,
+   "kilder": [
+    {
+     "ref": "RUML 1.0.0 §4.12 Status Values, Optional Fields (TXT-13), Digest",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/profil/04-mappingnotat.md §2 (Opphevelse og tid; Endringer; FRBR-dato)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/08-byggesteg1-teknisk-design.md §2.1, §3.4",
+     "funksjon": "forutsatt_kilde"
+    }
+   ]
+  },
+  {
+   "id": "R12",
+   "dom": "holder",
+   "gjelder": "raden",
+   "alvor": null,
+   "innvending": "Holder. Til I2 og I3: kunnskapsstatus finnes i dag bare på strukturkanter og begreper (docs/33 §4.6, BegrepDto), ikke på Vilkår, Regel eller Unntak (VilkarEntitet har bare livssyklusstatus). I regellaget, som er det RUML dekker, mangler den altså hos begge.",
+   "retting": null,
+   "ny_rad": null,
+   "implementeringsstatus": null,
+   "kilder": [
+    {
+     "ref": "docs/33-strukturmodell-aktor-omrade-kompetanse.md §4.6",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "src/RegelIde.Data/Entiteter.cs VilkarEntitet/RegelnodeEntitet/UnntakEntitet (ingen Kunnskapsstatus)",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  },
+  {
+   "id": "R13",
+   "dom": "holder",
+   "gjelder": "raden",
+   "alvor": null,
+   "innvending": "Holder. Svakeste premiss gjelder hvor sikre modellutsagnene er. undefined i RUML gjelder fakta i en sak. Det er to ulike nivåer. En presisering: hvordan undefined spres i RUML, avhenger av modus og rekkefølge (AND i optimized-modus, §3.6.1), så «sprer undefined» er en forenkling.",
+   "retting": null,
+   "ny_rad": null,
+   "implementeringsstatus": null,
+   "kilder": [
+    {
+     "ref": "docs/33 §4.6 (Svakeste premiss)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "RUML 1.0.0 §3.6.1, §5.0",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  },
+  {
+   "id": "R14",
+   "dom": "innvending",
+   "gjelder": "raden",
+   "alvor": "middels",
+   "innvending": "Koblingstypen er feil. Vår godkjenning er ikke bredere enn metadata.status. RUML-statusen blander to dimensjoner. Den ene er arbeidsstadium (draft, review, approved). Den andre er gyldighet (inForce, suspended, expired, replaced), og den har godkjenningen vår ikke noe tilsvarende for. Godkjenningen har på sin side avvist og skillet mellom maskinelt og manuelt foreslått, som RUML mangler. Begrepene overlapper bare delvis, så typen er «nært beslektet». At vårt felt gjelder per utsagn og deres per fil, er en forskjell i nivå, ikke i bredde, og bør stå som egen merknad. approved har dessuten ikke definert hvem som godkjenner. Spesifikasjonen sier at den ikke definerer «governance models» (§1.1), og approved krever bare at organization bør være satt. Til slutt: godkjenning med disse verdiene finnes bare på strukturkanter, og de kan ikke uttrykkes i RUML (R20). Regellaget har livssyklusen i R15. Raden har derfor liten praktisk betydning.",
+   "retting": {
+    "kobling": "nært beslektet"
+   },
+   "ny_rad": null,
+   "implementeringsstatus": null,
+   "kilder": [
+    {
+     "ref": "ruml.org/data-model/3-3-metadata-object (statusverdier; approved bør ha organization; ingen godkjenner definert)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "RUML 1.0.0 §1.1 («does not define … Governance models»)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/33 §4.6 (godkjenning på strukturkanter)",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  },
+  {
+   "id": "R15",
+   "dom": "innvending",
+   "gjelder": "raden",
+   "alvor": "middels",
+   "innvending": "«På filnivå» skjuler at eksporten trenger en samleregel. Statusen ligger hos oss på hver node. Én fil har én status. Regelen må være at fila får statusen til den svakeste noden: én node i utkast eller foreslatt_av_ai gjør hele fila til draft, aldri review eller approved. Ellers går skillet mellom maskinforslag og godkjent tapt ved eksport (se K1). Det andre problemet er at publisert ikke er inForce. inForce krever validFrom og betyr at regelkartet gjelder. At vi har publisert en modell i et ikke-normativt verktøy (grunnlagsdokumentet §14.6, punkt 5), gir den ingen rettskraft. Eksport bør gi høyst approved. inForce bør bare settes når et organ har tatt kartet i bruk som grunnlag for sine avgjørelser, med organisasjonen i organization. tilbaketrukket og arkivert tilsvarer omtrent suspended/expired og replaced, men replaced krever replacedBy.",
+   "retting": {
+    "ruml": "Filstatus (draft, review, approved; inForce bare ved vedtatt bruk hos et organ), derivedFrom (workingCopy, amendment, revision), replaces/replacedBy. Filstatus = statusen til den svakeste noden.",
+    "kobling": "nært beslektet"
+   },
+   "ny_rad": null,
+   "implementeringsstatus": null,
+   "kilder": [
+    {
+     "ref": "docs/03-domenemodell.md §3.1",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "ruml.org/data-model/3-3-metadata-object (inForce krever validFrom; replaced krever replacedBy)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/profil/00-grunnlagsdokument.md §14.3, §14.6",
+     "funksjon": "forutsatt_kilde"
+    }
+   ]
+  },
+  {
+   "id": "R16",
+   "dom": "holder",
+   "gjelder": "raden",
+   "alvor": null,
+   "innvending": "Holder. Merk at oppdagelseskilde i dag bare finnes på strukturkanter og noen kataloger, ikke på Vilkår, Regel eller Unntak. Regellaget har foreslatt_av_ai i livssyklusen og ai_forslag_versjon i proveniensloggen (docs/03 §1.14). Det får betydning for I1.",
+   "retting": null,
+   "ny_rad": null,
+   "implementeringsstatus": null,
+   "kilder": [
+    {
+     "ref": "docs/33 §4.3 (OppdagelsesKilde på kanter)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/03-domenemodell.md §1.14",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "ruml.org/data-model/3-3-metadata-object (authors: name, email, organization)",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  },
+  {
+   "id": "R17",
+   "dom": "innvending",
+   "gjelder": "raden",
+   "alvor": "lav",
+   "innvending": "«Bredere» er for sterkt. Signaturen i containeren gir ekthet og ugjendrivelighet (§7.4: «Who published this file?»). Den binder en identitet til innholdet og kan etter omstendighetene ha rettsvirkning som elektronisk signatur [slutning]. Vi har ingen motpart, og den informasjonen er ikke en del av PROV-O-proveniensen vår. Resten (authors, organization, derivedFrom) er en mindre del av proveniensen vår, og på filnivå. Med signaturen blir overlappen bare delvis. Merk også at proveniens per utsagn etter grunnlagsdokumentet §13 er et mål, ikke bygget fullt ut (docs/03 §1.14 er en endringslogg).",
+   "retting": {
+    "kobling": "nært beslektet"
+   },
+   "ny_rad": null,
+   "implementeringsstatus": null,
+   "kilder": [
+    {
+     "ref": "RUML 1.0.0 §7.4 Signature Layer",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/profil/00-grunnlagsdokument.md §13",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  },
+  {
+   "id": "R18",
+   "dom": "innvending",
+   "gjelder": "raden",
+   "alvor": "middels",
+   "innvending": "Feil begrep på vår side. Kantene A og O sier hvilket område et organ har ansvar for, og hvordan områder er satt sammen. Det er stedlig kompetanse og forvaltningsstruktur. metadata.jurisdiction sier hvilken rettsorden eller hvilket territorium regelkartet hører til, for hele fila. Det er to forskjellige ting, ikke det samme på to detaljnivåer. Mot A og O er det ingen match. Den egentlige motparten er rettskildens territoriale virkeområde (grunnlagsdokumentet §4.6, §12.7). Mot det kan jurisdiction være nært beslektet, med en begrensning: ISO 3166-2:NO har etter det jeg vet koder på fylkesnivå og for Svalbard og Jan Mayen, men ikke for kommuner (ikke kontrollert i denne runden). Lokale forskrifter kan da ikke angis presist uten en ikke-standard kode. Navnet har_jurisdiksjon brukes allerede i tre betydninger (04 §5). Denne raden ville lagt til en fjerde.",
+   "retting": {
+    "vart_begrep": "Kantene A og O (ansvarsområde, områdesammensetning)",
+    "kobling": "ingen match"
+   },
+   "ny_rad": {
+    "vart_begrep": "Rettskildens territoriale virkeområde (grunnlagsdokumentet §4.6, §12.7)",
+    "ruml": "metadata.jurisdiction (ISO 3166-1/-2) for hele fila",
+    "kobling": "nært beslektet"
+   },
+   "implementeringsstatus": null,
+   "kilder": [
+    {
+     "ref": "ruml.org/data-model/3-3-metadata-object (jurisdiction)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/33 §4.3 (A og O)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/profil/04-mappingnotat.md §5 og §7.8 punkt 4 (har_jurisdiksjon i tre betydninger)",
+     "funksjon": "forutsatt_kilde"
+    },
+    {
+     "ref": "ISO 3166-2:NO (kodenivå)",
+     "funksjon": "ikke_funnet"
+    }
+   ]
+  },
+  {
+   "id": "R19",
+   "dom": "innvending",
+   "gjelder": "raden",
+   "alvor": "lav",
+   "innvending": "Strukturkanter kan ikke uttrykkes i RUML (R20), så tid på kantene har ingen motpart der. Det som kan sammenlignes, er gyldig_fra og gyldig_til på Vilkår, Regel og Unntak, som finnes i entitetene. Mot validFrom/validUntil for hele fila er vår tid per node bredere, i betydningen finere. validFrom/validUntil på tekstoppføringen hører til R11 (rettskildeversjon), ikke her. Ingen av sidene skiller mellom gyldighet og anvendelsestidspunkt, altså hvilken dato som avgjør hvilken versjon som gjelder for en sak.",
+   "retting": {
+    "vart_begrep": "Tid på vilkår, regel og unntak (gyldig_fra/gyldig_til, docs/03 §1.8–1.10)"
+   },
+   "ny_rad": null,
+   "implementeringsstatus": null,
+   "kilder": [
+    {
+     "ref": "src/RegelIde.Data/Entiteter.cs (GyldigFra/GyldigTil på VilkarEntitet og RegelnodeEntitet)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "ruml.org/data-model/3-3-metadata-object (validFrom/validUntil)",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  },
+  {
+   "id": "R20",
+   "dom": "holder",
+   "gjelder": "raden",
+   "alvor": null,
+   "innvending": "Holder. RUML har bare symbolske rolle-referanser i handlinger (recipient role:…), ingen strukturkanter.",
+   "retting": null,
+   "ny_rad": null,
+   "implementeringsstatus": null,
+   "kilder": [
+    {
+     "ref": "RUML 1.0.0 §4.10",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/33 §4.3",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  },
+  {
+   "id": "R21",
+   "dom": "holder",
+   "gjelder": "raden",
+   "alvor": null,
+   "innvending": "Holder. Vår negative polaritet sier at et forhold ikke gjelder (f.eks. manglende kompetanse). NOT_* negerer bare utfallet av en vurdering, så det er ingen motpart. Se R4 og A1 om «kan»-regler, som heller ikke regellaget vårt uttrykker.",
+   "retting": null,
+   "ny_rad": null,
+   "implementeringsstatus": null,
+   "kilder": [
+    {
+     "ref": "docs/33 §4.3 (Polaritet), §4.5 (modalitet)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "RUML 1.0.0 §3.6",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  },
+  {
+   "id": "R22",
+   "dom": "innvending",
+   "gjelder": "raden",
+   "alvor": "middels",
+   "innvending": "Koblingstypen er feil. Fire av våre seks utfall (krever_skjonn, krever_dokumentasjon, ukjent, ma_vurderes_av_jurist) er ulike grunner til undefined. RUML skiller bare mellom error og default og legger resten i message. RUML har til gjengjeld to ting vi mangler: ignored («bevisst ikke vurdert», med shortCircuit, manualSkip og conditionalDeactivation) og error. Overlappen er bare delvis, så typen er «nært beslektet». Det viktigste er en regel: ignored skal aldri tolkes som oppfylt. I RUML telles ignored ikke med i forelderens operator (§5.0). En manualSkip under AND kan dermed gi true uten at vilkåret er vurdert. Ved import av et resultat må ignored/manualSkip bli ukjent eller ma_vurderes_av_jurist. Merk at ignored mot undefined er nettopp skillet mellom «ikke spurt» og «skjønn bevisst uavklart» som docs/01 §5.8 punkt 1 har satt opp som kandidat.",
+   "retting": {
+    "kobling": "nært beslektet"
+   },
+   "ny_rad": null,
+   "implementeringsstatus": null,
+   "kilder": [
+    {
+     "ref": "RUML 1.0.0 §5.0 (undefined error/default; ignored ikke med i forelderens beregning)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/02-produktkrav.md (KL-VILKARSUTFALL, seks verdier)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/01-referansemodell.md §5.8 punkt 1",
+     "funksjon": "forutsatt_kilde"
+    }
+   ]
+  },
+  {
+   "id": "I1",
+   "dom": "innvending",
+   "gjelder": "raden",
+   "alvor": "middels",
+   "innvending": "Hovedgrepet er riktig: ingenting importert er godkjent hos oss, uansett filstatus. Regelen kan likevel ikke brukes slik den står. (1) Den bruker ord fra strukturkantene. Vilkår, Regel og Unntak har livssyklusstatus (utkast, foreslatt_av_ai …), ikke godkjenning (maskinelt_foreslatt …), og de har ikke noe felt for oppdagelseskilde (R16). (2) «maskinelt_foreslatt» sier noe feil om opphavet når fila er laget av mennesker hos et organ, f.eks. approved, signert og med organization satt. Det er da en ekstern, menneskelig fortolkning, ikke et maskinforslag. Omvendt kan et ARUM-utkast se ut som et menneskeverk (K1). Opphavet er ukjent, og det må stå. (3) Det RUML sier om seg selv, må bevares som data og ikke kastes: metadata.id, version, hash, status, organization, authors, signatur og om den er verifisert. Det sier noe om rettskildeverdien. Et regelkart et organ bruker, ligner forvaltningspraksis eller retningslinjer [slutning]. (4) En lov-rulemap (documentType law) har med lovteksten. Den teksten skal aldri erstatte eller sammenslås med Lovdata-teksten vår. Den kan bare sammenlignes, og den regnes som kilde utenfor korpus. (5) Sykliske strukturer (rekursive modulnoder, §6.4) bryter DAG-kravet vårt (INV-7). Da må importen avvises, ikke rettes stille.",
+   "retting": {
+    "regel": "Alt som importeres fra RUML, får livssyklusstatus foreslatt_av_ai (strukturkanter: godkjenning maskinelt_foreslatt) og en proveniensrad med handling import:ruml. Raden har metadata.id, version, hash, status, organization, authors og signatur (verifisert eller ikke) slik utgiveren oppga dem. Opphavet registreres som «eksternt, ukjent om maskinelt» når fila ikke sier noe. Utgiverens status gir aldri godkjenning hos oss. Lovtekst fra fila erstatter aldri korpusteksten. Sykliske strukturer avvises."
+   },
+   "ny_rad": null,
+   "implementeringsstatus": null,
+   "kilder": [
+    {
+     "ref": "docs/03-domenemodell.md §1.14, §3.1",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/33 §4.6 (godkjenning bare på strukturkanter)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "RUML 1.0.0 §6.4 (rekursjon), §7.4 (signatur)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/01-referansemodell.md §5.4 INV-7",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  },
+  {
+   "id": "I2",
+   "dom": "innvending",
+   "gjelder": "raden",
+   "alvor": "middels",
+   "innvending": "Regelen blander hvordan et vilkår evalueres med hva slags vilkår det er rettslig sett. vurderingstype (regelbasert, skjønnsbasert, hybrid) er en egenskap ved den rettslige standarden (docs/01 §6.1). At en språkmodell er satt til å svare, sier ikke noe om det. ai-query brukes like gjerne til faktumsjekk i et dokument (context med role subject), mens vilkåret i loven er regelbasert, f.eks. om et dokument er signert. Skjønnsbasert betyr også at det kreves ett skjønnsgrunnlag og minst ett skjønnsmoment, og dem gir ai-query ikke. Vurderingstypen må settes etter lovteksten som et forslag, og bruken av KI må registreres for seg, som en merknad eller et flagg som utløser avklaringsbehov. «Kunnskapsstatus uavklart» kan ikke settes, fordi feltet ikke finnes på Vilkår (R12). Ordet «aldri» om avgjørelser i saker holder, men det dekker ikke alt. Prompten, systemPrompt og eksempelsakene i context er forfatterens fortolkning. De bør importeres som fortolkningsforslag med kilde, ikke kastes. Eksempelsaker i context kan inneholde personopplysninger og må kontrolleres før lagring. I tillegg bør det motsatte stå: vi eksporterer aldri ruml:ai-query (se K2).",
+   "retting": {
+    "regel": "En ruml:ai-query-node importeres som Vilkår med vurderingstype satt etter lovteksten (forslag), status foreslatt_av_ai og et flagg om at forfatteren lot en språkmodell vurdere vilkåret. Prompt, systemPrompt og context-referanser importeres som fortolkningsforslag med kilde. En språkmodells avgjørelse i en sak er aldri kilde for modellen. Eksempelmateriale kontrolleres for personopplysninger. Vi eksporterer aldri ruml:ai-query."
+   },
+   "ny_rad": null,
+   "implementeringsstatus": null,
+   "kilder": [
+    {
+     "ref": "docs/01-referansemodell.md §6.1",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/03-domenemodell.md §1.8 (skjønnsfelt)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "RUML 1.0.0 §4.9 (inputs.context role subject; systemPrompt), §4.11",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  },
+  {
+   "id": "I3",
+   "dom": "innvending",
+   "gjelder": "raden",
+   "alvor": "middels",
+   "innvending": "Tre mangler. (1) XOR er ikke det samme som ELLER når et barn er undefined. I optimized-modus gir XOR undefined straks det første barnet er undefined, selv om et senere barn er true. OR gir true (§3.6.2–3.6.3). Rekkefølgen er altså en del av meningen. Importen kan ikke bare sette ELLER, men må registrere hvilken modus fila er laget for, og at rekkefølgen betyr noe. (2) XOR er også grunnlaget for rekursjon i RUML. Trygg rekursjon krever XOR, og selvreferansen kan ikke stå først (§6.4). En rekursiv XOR bryter INV-7 og skal avvises, ikke importeres som ELLER. (3) At barna utelukker hverandre, er en antakelse forfatteren har gjort («deliberately constructed»). Det står ikke nødvendigvis i loven. Utsagnet kan få fortolkning eller uavklart, aldri tekstfunn. Regellaget har ingen entitet for et slikt utsagn mellom vilkår, og ingen kunnskapsstatus (R12). Til det finnes, kan det bare ligge i beskrivelsen av Regelen, i proveniensen og som et testtilfelle som ikke lar begge barna være true. NOT_XOR blir IKKE(ELLER) med de samme forbeholdene.",
+   "retting": {
+    "regel": "XOR importeres som ELLER med merknad om modus og at rekkefølgen betyr noe. En rekursiv XOR avvises (INV-7). At barna utelukker hverandre, registreres som forfatterens forutsetning, kunnskapsstatus fortolkning eller uavklart, aldri tekstfunn: i Regelens beskrivelse og proveniens og som testtilfelle, til regellaget får en egen utsagnstype."
+   },
+   "ny_rad": null,
+   "implementeringsstatus": null,
+   "kilder": [
+    {
+     "ref": "RUML 1.0.0 §3.6.3 (legal XOR), §3.6.2",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "RUML 1.0.0 §6.4 Safe Recursion",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/01-referansemodell.md §3, §5.4 INV-7",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  },
+  {
+   "id": "K1",
+   "dom": "innvending",
+   "gjelder": "raden",
+   "alvor": "middels",
+   "innvending": "Påstanden går for langt i én retning og ikke langt nok i den andre. Den går for langt når den sier at ARUM er «forenlig med vår regel». Jeg har ikke funnet noen kilde som sier at ARUM-utkast skal godkjennes av et menneske. Prosjektsiden ved TUM sier bare at språkmodeller «can potentially take over parts of this formalization process» og nevner ikke menneskelig kontroll. Spesifikasjonen sier at den ikke regulerer «governance models». Ifølge den samme siden er ARUM et forskningsprosjekt ved TUM Legal Tech med Rulemapping Group GmbH som partner og BMFTR som finansiør, ikke bare «selskapets KI-verktøy». Det bør kontrolleres. Den går ikke langt nok når den sier at formatet ikke bærer skillet per node. Formatet bærer det ikke på noe nivå. Ingen felt sier at fila eller en node er laget maskinelt. authors har bare navn, derivedFrom.derivedBy er en person, og approved har ingen definert godkjenner. Når fila er utvekslet, kan et lett redigert ARUM-utkast som er satt til approved, ikke skilles fra et kart som er gjennomgått av jurister. Det kan bare løses utenfor formatet, med en egen kapabilitet med reverse-domain-navn (ikke portabel) eller med vår egen regel I1.",
+   "retting": {
+    "pastand": "ARUM er ifølge TUM et forskningsprosjekt (TUM Legal Tech og Rulemapping Group) som bruker språkmodeller til å lage rulemaps fra lovtekst. Ingen offentlig kilde sier at utkastene godkjennes av et menneske. RUML-formatet sier ikke på noe nivå, verken per node eller per fil, om innholdet er laget maskinelt eller hvem som har godkjent det. Vi behandler derfor alt importert som ikke godkjent og som ukjent opphav (I1)."
+   },
+   "ny_rad": null,
+   "implementeringsstatus": null,
+   "kilder": [
+    {
+     "ref": "https://legaltech.cit.tum.de/projects/5_project/ (ARUM, lest 2026-11-24)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "RUML 1.0.0 §1.1 (ingen governance); ruml.org/data-model/3-3-metadata-object (authors, derivedFrom, approved)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "Kilde for at ARUM-utkast godkjennes av menneske",
+     "funksjon": "ikke_funnet"
+    }
+   ]
+  },
+  {
+   "id": "K2",
+   "dom": "innvending",
+   "gjelder": "raden",
+   "alvor": "middels",
+   "innvending": "Påstanden undervurderer personvernforordningen og overvurderer KI-forordningen. (1) Art. 22. Kan en språkmodell alene avgjøre et vilkår, og gir onTrue/onFalse vedtak eller avslag direkte (§4.10 viser dette), er det en avgjørelse som utelukkende bygger på automatisert behandling, med rettsvirkning. Da kommer art. 22 nr. 1 til anvendelse, ikke bare «spørsmål». Unntaket i art. 22 nr. 2 bokstav b krever hjemmel i unionsretten eller nasjonal rett med egnede garantier. Om det finnes på området, må vurderes per sak. Den nye forvaltningsloven er ikke i kraft (docs/33 §4.6), og dens regler om automatiserte avgjørelser er ikke kontrollert. Gjelder det helseopplysninger eller andre særlige kategorier, som context med role subject lett inneholder, gjelder art. 22 nr. 4 i tillegg. Etter EU-domstolen C-634/21 (SCHUFA) kan også et delresultat som i praksis avgjør utfallet, være en «avgjørelse» [slutning: overført fra kredittscore til et vilkår vurdert av en språkmodell]. Et menneske i løkka teller bare hvis vurderingen er reell. (2) KI-forordningen. Vedlegg III nr. 5 bokstav a (offentlige myndigheters vurdering av rett til offentlige ytelser og tjenester) gjør slike bruk til høyrisiko. Unntaket i art. 6 nr. 3 gjelder ikke ved profilering. Forordningen er likevel ikke norsk rett ennå. Den er ikke tatt inn i EØS-avtalen, en norsk KI-lov skal etter planen legges fram våren 2027, og høyrisikoreglene er utsatt til 2. desember 2027 eller 2. august 2028, avhengig av type system (regjeringen.no 4.8.2026). Påstanden bør tidfeste dette. (3) Forvaltningsretten. Etter fvl. §§ 24–25 skal enkeltvedtak grunngis med reglene, de faktiske forholdene og «hovedhensyn» ved skjønn. Utredningsplikten etter § 17 gjelder også. En true/false med en reason-streng er ingen begrunnelse. Formatet krever heller ikke at modell, prompt eller rått svar lagres. model er bare en symbolsk henvisning, prompten kan ligge i verktøyets oppsett, og det finnes ikke noe definert resultatformat for ai-query (§4.9, §5.1). Det svekker etterprøving og klagebehandling. (4) Saken er ikke helt utenfor profilen. I2 importerer slike noder, så profilen bør si at vi aldri eksporterer ai-query, eller handlinger som iverksetter avgjørelser.",
+   "retting": {
+    "pastand": "ruml:ai-query lar en språkmodell avgjøre et vilkår i en sak. Sammen med handlinger som iverksetter et resultat (onTrue/onFalse) er det normalt en helautomatisert avgjørelse etter personvernforordningen art. 22 nr. 1. Den krever hjemmel med garantier (nr. 2 b), og strengere krav ved særlige kategorier (nr. 4). Formatet sikrer ikke at modell, prompt eller svar blir sporbare, og det svekker begrunnelse (fvl. §§ 24–25) og klagebehandling. KI-forordningens høyrisikoregler (vedlegg III nr. 5 a) vil gjelde slike bruk i offentlig forvaltning, men er ennå ikke norsk rett. Profilen eksporterer aldri ai-query eller iverksettende handlinger. Rettslig vurdering per bruk er ikke gjort."
+   },
+   "ny_rad": null,
+   "implementeringsstatus": null,
+   "kilder": [
+    {
+     "ref": "Forordning (EU) 2016/679 art. 22 nr. 1, nr. 2 bokstav b og nr. 4 (gjelder som norsk lov etter personopplysningsloven § 1)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "EU-domstolen C-634/21 OQ mot Land Hessen (SCHUFA), 7.12.2023",
+     "funksjon": "forutsatt_kilde"
+    },
+    {
+     "ref": "Forordning (EU) 2024/1689 vedlegg III nr. 5 bokstav a; art. 6 nr. 3 siste ledd",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "regjeringen.no 4.8.2026, «Tung vil sende KI-loven med endringer på høring» (id3169693)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "Forvaltningsloven (LOV-1967-02-10) §§ 17, 24, 25 (Lovdata, lest 2026-11-24)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "RUML 1.0.0 §4.9 (model symbolsk, prompt i verktøyoppsett), §5.1 (ingen resultatpayload for ai-query)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "Ny forvaltningslov, regler om automatiserte avgjørelser",
+     "funksjon": "ikke_funnet"
+    }
+   ]
+  },
+  {
+   "id": "A1",
+   "dom": "innvending",
+   "gjelder": "raden",
+   "alvor": "lav",
+   "innvending": "(b) er riktig konklusjon, men begrunnelsen mot (a) og (c) er ikke god nok. Mot (a): kostnaden ved å mappe er overdrevet. Grunnlagsdokumentet §14.6 sier at alle eksterne mappinger er informative i første versjon. En mappet standard er altså ingen tilslutning. Det som taler mot (a), er vedlikeholdskostnaden og at spesifikasjonen nettopp er utgitt (1.0.0, 15.11.2026), ikke at mappingen forplikter. Mot (c): (c) har bedre grunnlag enn notatet gir den for modul A–D. RUML har ikke noe for kompetanse, plikt, struktur eller kunnskapsstatus. Den er også skrevet for å kjøre saker (actions, ai-query), og det er uttrykkelig utenfor RC1 (§15). Spesifikasjonen er utgitt av ett selskap (Rulemapping Group GmbH) uten styringsmodell. Anbefalingen bør si at RUML bare er relevant for regellaget (modul E), og at det for modul A–D er (c). Utløserne er for vage til å kunne kontrolleres. «Offentlig bruk» kan allerede være oppfylt i Tyskland (søkeresultat om IT-Planungsrat og SPRIN-D, ikke lest). De bør formuleres som (1) en åpen styringsmodell eller overføring til et standardiseringsorgan, (2) bruk i et norsk, nordisk eller EU-organ, og (3) en beslutning om å bygge eksport av regellaget. Det må også stå hvor koblingstabellen ligger, og med hvilken status (f.eks. «mapping vurdert, ikke del av profilen»). Ellers er den en mapping i praksis. Til slutt opphavsretten: spesifikasjonen er lisensiert CC-BY-SA-4.0. Oversettes eller bearbeides definisjonstekst inn i profilen, kan del-på-samme-vilkår-klausulen gjelde for den delen [slutning]. Kortere henvisninger til begreper er ikke noe problem.",
+   "retting": {
+    "anbefaling": "(b) for regellaget (modul E): følge med, med sjekklistepost i 08 og merknad i docs/10. Koblingstabellen ligger som informativ vurdering med status «mapping vurdert, ikke del av profilen». For modul A–D er RUML ikke relevant (c). RUML tas opp igjen ved utløserne (1) åpen styringsmodell eller standardiseringsorgan, (2) bruk i et norsk, nordisk eller EU-organ, (3) beslutning om eksport av regellaget. Importreglene I1–I3 og forbudet mot å eksportere ai-query og iverksettende handlinger gjelder fra den dagen noe faktisk importeres eller eksporteres. Profilen gjengir ikke spesifikasjonstekst (CC-BY-SA)."
+   },
+   "ny_rad": null,
+   "implementeringsstatus": null,
+   "kilder": [
+    {
+     "ref": "docs/profil/00-grunnlagsdokument.md §14.6 (mappinger informative), §15 (utenfor RC1)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "RUML 1.0.0 §1.1 (ingen governance), SPDX-lisens CC-BY-SA-4.0 i spesifikasjonsfilene",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "IT-Planungsrat, Information 2026-04 «Sonderauftrag Law as Code» (kun søkeresultat, ikke lest)",
+     "funksjon": "ikke_funnet"
+    }
+   ]
+  }
+ ],
+ "svar": [
+  {
+   "id": "R1",
+   "svar": "godtar",
+   "tekst": "Rettingen er tatt inn i docs/profil/09-ruml-vurdering.md §4–§6."
+  },
+  {
+   "id": "R2",
+   "svar": "godtar",
+   "tekst": "Rettingen er tatt inn i docs/profil/09-ruml-vurdering.md §4–§6."
+  },
+  {
+   "id": "R3",
+   "svar": "godtar",
+   "tekst": "Rettingen er tatt inn i docs/profil/09-ruml-vurdering.md §4–§6."
+  },
+  {
+   "id": "R4",
+   "svar": "godtar",
+   "tekst": "Rettingen er tatt inn i docs/profil/09-ruml-vurdering.md §4–§6."
+  },
+  {
+   "id": "R5",
+   "svar": "godtar",
+   "tekst": "Rettingen er tatt inn i docs/profil/09-ruml-vurdering.md §4–§6."
+  },
+  {
+   "id": "R7",
+   "svar": "godtar",
+   "tekst": "Rettingen er tatt inn i docs/profil/09-ruml-vurdering.md §4–§6."
+  },
+  {
+   "id": "R8",
+   "svar": "godtar",
+   "tekst": "Rettingen er tatt inn i docs/profil/09-ruml-vurdering.md §4–§6."
+  },
+  {
+   "id": "R9",
+   "svar": "godtar",
+   "tekst": "Rettingen er tatt inn i docs/profil/09-ruml-vurdering.md §4–§6."
+  },
+  {
+   "id": "R10",
+   "svar": "godtar",
+   "tekst": "Rettingen er tatt inn i docs/profil/09-ruml-vurdering.md §4–§6."
+  },
+  {
+   "id": "R11",
+   "svar": "godtar",
+   "tekst": "Rettingen er tatt inn i docs/profil/09-ruml-vurdering.md §4–§6."
+  },
+  {
+   "id": "R14",
+   "svar": "godtar",
+   "tekst": "Rettingen er tatt inn i docs/profil/09-ruml-vurdering.md §4–§6."
+  },
+  {
+   "id": "R15",
+   "svar": "godtar",
+   "tekst": "Rettingen er tatt inn i docs/profil/09-ruml-vurdering.md §4–§6."
+  },
+  {
+   "id": "R17",
+   "svar": "godtar",
+   "tekst": "Rettingen er tatt inn i docs/profil/09-ruml-vurdering.md §4–§6."
+  },
+  {
+   "id": "R18",
+   "svar": "godtar",
+   "tekst": "Rettingen er tatt inn i docs/profil/09-ruml-vurdering.md §4–§6."
+  },
+  {
+   "id": "R19",
+   "svar": "godtar",
+   "tekst": "Rettingen er tatt inn i docs/profil/09-ruml-vurdering.md §4–§6."
+  },
+  {
+   "id": "R22",
+   "svar": "godtar",
+   "tekst": "Rettingen er tatt inn i docs/profil/09-ruml-vurdering.md §4–§6."
+  },
+  {
+   "id": "I1",
+   "svar": "godtar",
+   "tekst": "Rettingen er tatt inn i docs/profil/09-ruml-vurdering.md §4–§6."
+  },
+  {
+   "id": "I2",
+   "svar": "godtar",
+   "tekst": "Rettingen er tatt inn i docs/profil/09-ruml-vurdering.md §4–§6."
+  },
+  {
+   "id": "I3",
+   "svar": "godtar",
+   "tekst": "Rettingen er tatt inn i docs/profil/09-ruml-vurdering.md §4–§6."
+  },
+  {
+   "id": "K1",
+   "svar": "delvis",
+   "tekst": "Godtar at formatet ikke viser maskinopphav på noe nivå, og at alt importert behandles som ikke godkjent og med ukjent opphav. Fastholder at det finnes en kilde for at ARUM lager utkast: rulemapping.org sier at ARUM gir «the starting point; the finished model comes from modelling» og at verktøyenes resultater er «drafts and findings that remain open to review». Påstanden er omskrevet til å gjengi selskapets beskrivelse, ikke at et menneske faktisk godkjenner."
+  },
+  {
+   "id": "K2",
+   "svar": "godtar",
+   "tekst": "Rettingen er tatt inn i docs/profil/09-ruml-vurdering.md §4–§6."
+  },
+  {
+   "id": "A1",
+   "svar": "delvis",
+   "tekst": "Godtar delingen etter lag, informativ status for tabellen, kontrollerbare utløsere, opphavsrettsmerknaden og rettet kostnad for (a). Utløser 2 er utvidet til også å gjelde et nasjonalt departement i EU/EØS (f.eks. BMDS/IT-Planungsrat), fordi Tyskland er det mest sannsynlige første brukerstedet og det kan kontrolleres."
+  }
+ ]
+}

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="nb" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RUML: et nytt format for beslutningstrær over lovtekst — DigRett showcase</title>
+<meta name="description" content="Hva RUML er, hva KI-verktøyet rundt det gjør, hvordan det forholder seg til DigRett og forslaget til norsk profil, og vår foreløpige vurdering. Skrevet av DigRett, ikke av RUML.">
+<link rel="canonical" href="https://finnuro.github.io/regel-ide/ruml/">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/css/fonts.css">
+<link rel="stylesheet" href="../assets/css/vendor/designsystemet.css">
+<link rel="stylesheet" href="../assets/css/vendor/designsystemet-theme.css">
+<link rel="stylesheet" href="../assets/css/site.css">
+<meta property="og:title" content="RUML: et nytt format for beslutningstrær over lovtekst — DigRett showcase">
+<meta property="og:description" content="DigRetts foreløpige vurdering av RUML 1.0.0 mot forslaget til norsk profil for maskinlesbar rett.">
+<meta property="og:type" content="article">
+</head>
+<body>
+
+<a class="ds-link skip-to-content" href="#main">Hopp til innhold</a>
+
+<div class="disclaimer-bar">
+  <div class="wrap">
+    <span>📎 <strong>Midlertidig showcase</strong> — statisk fasade, ikke selve applikasjonen.</span>
+  </div>
+</div>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand plain" href="../">
+      <span class="brand__mark" aria-hidden="true">DR</span>
+      <span class="brand__text">
+        <span class="brand__title">DigRett</span>
+        <span class="brand__subtitle">Digital rettsstat — showcase</span>
+      </span>
+    </a>
+    <nav class="main-nav" aria-label="Hovedmeny">
+      <a href="../">Forside</a>
+      <a href="../rettskilder/">Rettskilder</a>
+      <a href="../virksomheter/">Virksomheter</a>
+      <a href="../grupper/">Grupper</a>
+      <a href="../koblinger/">Koblinger</a>
+      <a href="../kjeden/">Kjeden</a>
+      <a href="../strukturmodell/">Strukturmodellen</a>
+      <a href="../funn/">Funn til vurdering</a>
+      <a href="../profil/">Profilforslag</a>
+      <a href="../pilot-barnehageloven/">Pilot</a>
+      <a href="../begreper/">Begreper</a>
+      <a href="../om/">Om</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <!-- [Ny, 2026-11-24] Artikkel om RUML. Innholdet er hentet fra docs/profil/09-ruml-vurdering.md, der
+       hver påstand har kilde og merking (v / ikke verifisert). Siden er skrevet av DigRett og skal ikke
+       se ut som den kommer fra RUML: ingen logo, ingen grafikk og høyst ett kort sitat derfra.
+       Bruk rollen «prosjekteieren», ikke personnavn. Anbefalingen er ikke besluttet. -->
+  <div class="wrap page-head">
+    <span class="eyebrow">Standardlandskapet · 24. november 2026</span>
+    <h1>RUML: et nytt format for beslutningstrær over lovtekst</h1>
+    <p class="lead">I november 2026 ble RUML publisert, et åpent filformat for å skrive lovens vilkår som et beslutningstre en maskin kan kjøre. Her er hva det er, hva KI-verktøyet rundt det gjør, og hvordan det forholder seg til DigRett og forslaget til norsk profil.</p>
+  </div>
+
+  <div class="wrap">
+    <div class="purpose-box">
+      <span class="purpose-box__label">Om denne siden</span>
+      <div class="purpose-box__pills">
+        <span class="pill" data-tone="warning">Foreløpig vurdering</span><span class="pill" data-tone="neutral">Ikke besluttet</span><span class="pill" data-tone="neutral">Skrevet av DigRett</span>
+      </div>
+      <p>Siden er skrevet av DigRett-prosjektet. Den er ikke laget av eller sammen med dem som står bak RUML, og vi har ikke noe samarbeid med dem. Alt vi skriver om RUML, er hentet fra deres offentlige sider og spesifikasjon 24. november 2026, med lenker under. Vurderingen er foreløpig og ikke besluttet av prosjekteieren.</p>
+    </div>
+    <ul class="nytt-innhold" aria-label="Innhold på siden">
+      <li><a href="#hva-er-ruml">Hva er RUML?</a></li>
+      <li><a href="#ki">KI-verktøyet</a></li>
+      <li><a href="#digrett">RUML og DigRett</a></li>
+      <li><a href="#vurdering">Vår vurdering</a></li>
+      <li><a href="#ikke-sjekket">Ikke sjekket</a></li>
+      <li><a href="#kilder">Kilder</a></li>
+    </ul>
+  </div>
+
+  <!-- ===================== 1. Hva er RUML ===================== -->
+  <section class="section" id="hva-er-ruml">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Hva er RUML?</span>
+        <h2>Et filformat for lovens vilkår som et tre</h2>
+        <p>RUML står for «Rulemapping Logic Format». Versjon 1.0.0 av spesifikasjonen er datert 15. november 2026.</p>
+      </div>
+      <div class="prose">
+        <p>Mange lovbestemmelser kan leses som et sett vilkår: noe skal være oppfylt, og noe annet eller noe tredje. RUML skriver slike vilkår som et tre. Øverst står spørsmålet som skal avgjøres. Under det står vilkårene, koblet sammen med «og», «eller» og «ikke». Hvert vilkår kan pekes tilbake til paragrafen eller leddet i loven det kommer fra.</p>
+        <p>Fila er vanlig JSON, så den kan leses av mange programmer. En maskin kan «kjøre» treet for en konkret sak og skrive resultatet i en egen fil: oppfylt, ikke oppfylt eller uavklart for hvert vilkår, med en kort begrunnelse.</p>
+      </div>
+      <div class="nytt-kort-grid">
+        <div class="nytt-kort">
+          <h3>Hvem står bak</h3>
+          <p>Spesifikasjonen er utgitt av Law as Code Institut GmbH. Rettighetene og varemerket eies av Rulemapping Group GmbH i Berlin, som har søkt om EU-varemerke. Selskapet utvikler Rulemapping-metoden og fikk i april 2025 en investering der det tyske byrået for sprangvis innovasjon (SPRIND) deltok.</p>
+        </div>
+        <div class="nytt-kort">
+          <h3>Lisens</h3>
+          <p>Spesifikasjonsteksten har lisensen CC BY-SA 4.0. Skjemaene, testene og eksemplene har Apache 2.0. Det kreves ingen lisens for å lage, lese eller dele RUML-filer.</p>
+        </div>
+        <div class="nytt-kort">
+          <h3>Styring</h3>
+          <p>Spesifikasjonen sier selv at den ikke beskriver noen styringsmodell. Repoet på GitHub er en eksport fra utgiverens interne kilder. Andre kan melde feil og forslag, men ikke sende inn endringer ennå.</p>
+        </div>
+        <div class="nytt-kort">
+          <h3>Koblingen til loven</h3>
+          <p>Lovteksten pekes ut med European Legislation Identifier (ELI), og hele teksten kan legges i fila i Akoma Ntoso-format. Det er de samme standardene som forslaget til norsk profil bygger på. Hvert element i teksten får en fast identitet som skal overleve omnummerering.</p>
+        </div>
+      </div>
+      <div class="prose struktur-etter-tabell">
+        <h3>Hvem bruker det?</h3>
+        <p>Formatet var ni dager gammelt da vi så på det, og vi har ikke funnet noen offentlig myndighet som bruker selve formatet. Metoden bak brukes i Tyskland: det tyske departementet for digitalisering og statsmodernisering presenterte i 2026 Rulemapping som én av metodene for «Law as Code», med pilotprosjekter og et verktøy for departementenes regelverksarbeid. Formatet er ikke nevnt i den presentasjonen. Vi har ikke funnet noen norsk eller nordisk omtale.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 2. KI-verktøyet ===================== -->
+  <section class="section" id="ki">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">KI-verktøyet</span>
+        <h2>To forskjellige ting kalles KI her</h2>
+        <p>Det ene er et verktøy som lager utkast til trær fra lovtekst. Det andre er en del av selve formatet, der en språkmodell kan avgjøre et vilkår i en konkret sak. De må vurderes hver for seg.</p>
+      </div>
+      <div class="nytt-kort-grid nytt-kort-grid--bred">
+        <div class="nytt-kort">
+          <h3>KI som lager treet</h3>
+          <p>Selskapet tilbyr verktøyet ARUM. Ifølge selskapet leser det lover, forskrifter og retningslinjer og lager et første utkast til treet, som en modellerer så gjør ferdig. Det skal også kunne oppdatere et tre når loven endres. Om verktøyene sine skriver selskapet at resultatene er «drafts and findings that remain open to review».</p>
+          <p>Et forskningsprosjekt med samme navn ved Technische Universität München, med selskapet som partner, undersøker hvordan språkmodeller kan gjøre dette arbeidet.</p>
+          <p class="status">Vi har ikke prøvd verktøyet. Det krever registrering og er i en testfase.</p>
+        </div>
+        <div class="nytt-kort">
+          <h3>KI som avgjør et vilkår i en sak</h3>
+          <p>Formatet lar en språkmodell svare «oppfylt», «ikke oppfylt» eller «uavklart» på et vilkår når treet kjøres for en konkret sak. Eksemplet i spesifikasjonen er om en begrunnelse for et unntak i en sosial ytelse er plausibel.</p>
+          <p>Formatet krever ikke at et menneske ser på svaret når modellen sier ja eller nei. Hvilken modell som brukes, og hva den ble spurt om, trenger ikke stå i fila. Det er meldt som en åpen sak i RUML-repoet 19. november 2026 at resultatfila ikke har noe fast format for slike avgjørelser.</p>
+          <p class="status">Dette er rettslig følsomt i offentlig forvaltning, se under.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 3. RUML og DigRett ===================== -->
+  <section class="section" id="digrett">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">RUML og DigRett</span>
+        <h2>Ulike lag av samme lov</h2>
+        <p>RUML svarer på «er vilkårene oppfylt i denne saken?». Strukturmodellen i DigRett svarer på «hvem har myndighet og plikter etter denne bestemmelsen?». De overlapper bare delvis.</p>
+      </div>
+      <div class="table-scroll">
+        <table class="ds-table struktur-tabell">
+          <thead>
+            <tr><th scope="col">Del av modellen</th><th scope="col">I RUML?</th><th scope="col">Kommentar</th></tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">Vilkår og regler (og, eller, ikke)</th><td>Ja</td><td>Treet i RUML ligner vilkårstreet i DigRett. RUML har i tillegg «enten eller» og terskler som «minst tre av fem».</td></tr>
+            <tr><th scope="row">Unntak og skjønn</th><td>Nei</td><td>Et unntak kan skrives som et vilkår med «ikke», men da forsvinner det at det er et unntak. Skjønnsmomenter har ingen plass.</td></tr>
+            <tr><th scope="row">Kobling til lovteksten</th><td>Ja</td><td>Med ELI og Akoma Ntoso, som i profilforslaget.</td></tr>
+            <tr><th scope="row">Aktører, myndighet og plikter</th><td>Nei</td><td>Strukturmodellen, med organer, kompetanse, plikter og områder, har ingen motpart i RUML.</td></tr>
+            <tr><th scope="row">Hvor sikkert et utsagn er</th><td>Nei</td><td>DigRett merker hvert utsagn som tekstfunn, tolkning, uavklart og så videre. RUML har ikke noe slikt per vilkår.</td></tr>
+            <tr><th scope="row">Om et menneske har godkjent</th><td>Bare for hele fila</td><td>DigRett godkjenner hvert utsagn for seg. RUML har status for hele fila, og ingenting som viser at noe er laget av en maskin.</td></tr>
+            <tr><th scope="row">Anvendelse på en sak</th><td>Ja</td><td>Med resultatfil og logg. Forslaget til norsk profil handler i første versjon om hva loven sier, ikke om konkrete saker.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="prose struktur-etter-tabell">
+        <h3>Kan vi flytte trær mellom DigRett og RUML?</h3>
+        <p>Ja, men ikke uten tap. Et vilkårstre fra DigRett kan skrives som RUML, men unntak, skjønn og statusen for hvert utsagn går tapt hvis vi bare bruker det RUML selv definerer. Vi kunne lagt dem i en egen utvidelse, men andre verktøy ville ignorert den og vist treet som om alt var avgjort og godkjent.</p>
+        <p>Den andre veien setter vi strenge regler: alt som hentes inn fra RUML, blir et forslag hos oss, uansett hvilken status fila har hos utgiveren. Et vilkår som en språkmodell skulle avgjøre, blir aldri en del av modellen som om det sto i loven.</p>
+        <p>Vurderingen fant også en svakhet hos oss selv: identiteten DigRett gir hver paragraf og hvert ledd, endres når loven nummereres om. Skal vi peke presist inn i lovteksten over flere versjoner, enten i RUML eller i Akoma Ntoso, trenger vi en fast identitet per element. Det gjelder uansett hva som velges for RUML.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 4. Vurdering ===================== -->
+  <section class="section" id="vurdering">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Vår foreløpige vurdering <span class="pill" data-tone="warning">Ikke besluttet</span></span>
+        <h2>Følge med, ikke ta inn i profilen nå</h2>
+        <p>Anbefalingen til prosjekteieren er å følge med på RUML for regellaget, og at RUML ikke er relevant for resten av profilforslaget. Valget er prosjekteierens.</p>
+      </div>
+      <div class="nytt-kort-grid">
+        <div class="nytt-kort">
+          <h3>Hvorfor ikke ta det inn nå</h3>
+          <ul>
+            <li>Profilforslaget handler først om kilder, organer og myndighet. RUML dekker regler og saksbehandling.</li>
+            <li>Spesifikasjonen er helt ny og har én utgiver, uten styringsmodell eller åpen endringsprosess.</li>
+            <li>Vi har ikke funnet noen offentlig myndighet som bruker formatet ennå.</li>
+          </ul>
+        </div>
+        <div class="nytt-kort">
+          <h3>Hvorfor ikke se bort fra det</h3>
+          <ul>
+            <li>RUML bygger på de samme kildestandardene som profilforslaget.</li>
+            <li>Tysk forvaltning prøver ut metoden i regelverksarbeid og vedtak.</li>
+            <li>Formatet er nyttig å kjenne når DigRett skal kunne eksportere vilkårstrær.</li>
+          </ul>
+        </div>
+        <div class="nytt-kort">
+          <h3>Når vi ser på det igjen</h3>
+          <ul>
+            <li>Når RUML får en åpen styringsmodell eller flyttes til et standardiseringsorgan.</li>
+            <li>Når en offentlig myndighet i Norden, EU eller EØS tar formatet i bruk.</li>
+            <li>Når DigRett skal bygge eksport av vilkårstrær.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="prose struktur-etter-tabell">
+        <h3>Om KI som avgjør vilkår i saker</h3>
+        <p>Lar en språkmodell alene avgjøre et vilkår, og resultatet gjennomføres uten reell menneskelig vurdering, vil det i offentlig forvaltning normalt være en helautomatisert avgjørelse etter personvernforordningen artikkel 22. Det krever hjemmel med egnede garantier. Begrunnelsesplikten i forvaltningsloven er vanskelig å oppfylle når det ikke er sikret at modell, spørsmål og svar kan etterprøves. EUs KI-forordning vil regne slik bruk for offentlige ytelser som høyrisiko, men den er ikke norsk rett ennå. Ifølge regjeringen (4. august 2026) tas det sikte på en norsk KI-lov våren 2027, og EU har utsatt høyrisikoreglene til desember 2027 eller august 2028. Dette er ikke en full rettslig vurdering.</p>
+        <p>For DigRett betyr det at vi aldri vil eksportere slike KI-avgjørelser eller handlinger som gjennomfører et vedtak.</p>
+        <h3>Prøvd mot en jurist</h3>
+        <p>Vurderingen og koblingene ble angrepet av en juristagent før de ble lagt fram. Den rettet blant annet hvordan unntak og ukjente vilkår skal behandles, at artikkel 22 var undervurdert, og at identiteten vår per paragraf ikke er varig. Uenigheten som står igjen, gjelder blant annet om selskapets egen beskrivelse av KI-verktøyet er nok til å si at utkastene kontrolleres av mennesker. Vi er enige om at det ikke kan kontrolleres, og at det ikke kan leses av fila.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 5. Ikke sjekket ===================== -->
+  <section class="section" id="ikke-sjekket">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Det vi ikke har sjekket</span>
+        <h2>Det vi ikke vet ennå</h2>
+      </div>
+      <div class="prose">
+        <ul>
+          <li>KI-verktøyet: ikke prøvd, og ingen resultater sett.</li>
+          <li>En eventuell lanseringsmelding fra selskapet. Vi har bare datoen på spesifikasjonen (15. november 2026). Én underside på selskapets nettsted var stengt for oss.</li>
+          <li>Hvordan selskapene bak henger sammen.</li>
+          <li>Deler av spesifikasjonen (pakking, valideringsreglene) og testene som følger med.</li>
+          <li>Om andre myndigheter i Tyskland, Østerrike eller EU bruker formatet.</li>
+          <li>En full rettslig vurdering av KI-avgjørelser i saker.</li>
+          <li>Tallene i en forskningsartikkel om metoden stemmer ikke med det vi noterte i juli 2026. Avviket er ikke avklart.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 6. Kilder ===================== -->
+  <section class="section" id="kilder">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Kilder</span>
+        <h2>Primærkildene, lest 24. november 2026</h2>
+      </div>
+      <ul class="source-list struktur-lenker">
+        <li><span class="dot" aria-hidden="true"></span><span><a href="https://ruml.org/" target="_blank" rel="noopener">ruml.org</a><span class="desc">Spesifikasjonen for RUML 1.0.0, datert 15. november 2026.</span></span></li>
+        <li><span class="dot" aria-hidden="true"></span><span><a href="https://github.com/Law-as-Code-Institute/ruml" target="_blank" rel="noopener">RUML-repoet på GitHub</a><span class="desc">Spesifikasjon, skjemaer, tester, lisens og åpne saker.</span></span></li>
+        <li><span class="dot" aria-hidden="true"></span><span><a href="https://rulemapping.org/" target="_blank" rel="noopener">rulemapping.org</a><span class="desc">Selskapets side om verktøyene, blant annet KI-verktøyet ARUM.</span></span></li>
+        <li><span class="dot" aria-hidden="true"></span><span><a href="https://law-as-code.org/" target="_blank" rel="noopener">law-as-code.org</a><span class="desc">Utgiveren av spesifikasjonen.</span></span></li>
+        <li><span class="dot" aria-hidden="true"></span><span><a href="https://legaltech.cit.tum.de/projects/5_project/" target="_blank" rel="noopener">TU München, prosjektet ARUM</a><span class="desc">Forskningsprosjekt om språkmodeller som lager slike trær.</span></span></li>
+        <li><span class="dot" aria-hidden="true"></span><span><a href="https://sprind.org/en/actions/projects/rulemapping" target="_blank" rel="noopener">SPRIND om Rulemapping</a><span class="desc">Investeringen i april 2025 og bakgrunnen for metoden.</span></span></li>
+        <li><span class="dot" aria-hidden="true"></span><span><a href="https://www.it-planungsrat.de/fileadmin/beschluesse/2026/Information_2026_04_AL_Sonderauftrag_Law_as_Code.pdf" target="_blank" rel="noopener">IT-Planungsrat: «Law as Code» (PDF, 2026)</a><span class="desc">Det tyske departementets presentasjon av Rulemapping som én metode.</span></span></li>
+        <li><span class="dot" aria-hidden="true"></span><span><a href="https://www.regjeringen.no/no/aktuelt/tung-vil-sende-ki-loven-med-endringer-pa-horing/id3169693/" target="_blank" rel="noopener">Regjeringen, 4. august 2026</a><span class="desc">Om KI-loven og utsettelsen av høyrisikoreglene.</span></span></li>
+        <li><span class="dot" aria-hidden="true"></span><span><a href="https://github.com/FinnurO/regel-ide/blob/HEAD/docs/profil/09-ruml-vurdering.md" target="_blank" rel="noopener">Hele vurderingen (docs/profil/09)</a><span class="desc">Koblingstabellen, reglene for import og eksport, juristrunden og alt som ikke er sjekket.</span></span></li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div>
+      <h3>Om nettstedet</h3>
+      <p style="font-size:var(--ds-body-sm-font-size); color:var(--ds-color-text-subtle); max-width:32ch; margin:0;">Midlertidig showcase av <strong>DigRett</strong>, ikke selve produktet. Kildekode: <a href="https://github.com/FinnurO/regel-ide" target="_blank" rel="noopener">regel-ide</a>.</p>
+    </div>
+    <div>
+      <h3>Sider</h3>
+      <ul>
+        <li><a href="../">Forside</a></li>
+        <li><a href="../rettskilder/">Rettskilder</a></li>
+        <li><a href="../virksomheter/">Virksomheter</a></li>
+        <li><a href="../grupper/">Grupper</a></li>
+        <li><a href="../koblinger/">Koblinger</a></li>
+        <li><a href="../kjeden/">Kjeden</a></li>
+        <li><a href="../strukturmodell/">Strukturmodellen</a></li>
+        <li><a href="../funn/">Funn til vurdering</a></li>
+        <li><a href="../profil/">Profilforslag</a></li>
+        <li><a href="../pilot-barnehageloven/">Pilot</a></li>
+        <li><a href="../begreper/">Begreper</a></li>
+        <li><a href="../om/">Om</a></li>
+      </ul>
+    </div>
+    <div>
+      <h3>Kildekode</h3>
+      <ul>
+        <li><a href="https://github.com/FinnurO/regel-ide" target="_blank" rel="noopener">FinnurO/regel-ide</a></li>
+        <li><a href="https://github.com/FinnurO/regel-ide/blob/HEAD/docs/profil/README.md" target="_blank" rel="noopener">Profilmappen (docs/profil)</a></li>
+      </ul>
+    </div>
+    <p class="fine">RUML er et varemerke for Rulemapping Group GmbH. Denne siden er skrevet av DigRett og er ikke tilknyttet eller godkjent av RUML eller selskapene bak. Opplysningene er hentet fra offentlige kilder 24. november 2026.</p>
+  </div>
+</footer>
+
+<button type="button" class="ds-button feedback-fab" data-color="accent" id="feedback-open-btn" aria-haspopup="dialog">
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+  <span class="btn-label">Gi tilbakemelding</span>
+</button>
+
+<dialog class="feedback-dialog" id="feedback-dialog" aria-labelledby="feedback-dialog-title">
+  <div class="feedback-dialog__body">
+    <h2 id="feedback-dialog-title">Gi tilbakemelding</h2>
+    <p class="lead">Sendes som et innspill på GitHub — du logger inn med (eller oppretter) en gratis GitHub-konto for å fullføre innsendingen der.</p>
+    <p class="feedback-hint">Vi tar automatisk med hvilke seksjoner du har åpnet på siden. Vil du sitere en bestemt setning: lukk dette vinduet, marker teksten på siden, og trykk «Gi tilbakemelding» på nytt.</p>
+    <div class="feedback-context" id="feedback-context"></div>
+    <div class="feedback-field">
+      <label for="feedback-text">Hva vil du si noe om?</label>
+      <textarea id="feedback-text" placeholder="Skriv tilbakemeldingen din her …"></textarea>
+    </div>
+    <div class="feedback-actions">
+      <button type="button" class="ds-button" data-variant="tertiary" data-color="neutral" id="feedback-cancel-btn">Avbryt</button>
+      <button type="button" class="ds-button" data-color="accent" id="feedback-submit-btn">Send inn på GitHub →</button>
+    </div>
+  </div>
+</dialog>
+
+<script src="../assets/js/common.js"></script>
+<script src="../assets/js/feedback.js"></script>
+</body>
+</html>

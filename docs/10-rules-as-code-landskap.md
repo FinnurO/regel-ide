@@ -16,6 +16,16 @@ Rapportens egen anbefaling (se "Recommendations" → Trinn 1 under) er å **ikke
 
 Terskel for å faktisk gjøre noe med 2–5: rapportens egne triggere («dersom pilotene treffer unntak-fra-unntak, motstridende regler, eller behov for å modellere plikter/kompetanse»).
 
+## Tillegg 2026-11-24: RUML er nå et publisert format
+
+[Ny, 2026-11-24] Rapporten under (juli 2026) bruker «RUML» om Rulemapping-metoden og verktøyet. Den 15. november 2026 kom **RUML 1.0.0 (Rulemapping Logic Format)** som en egen, publisert spesifikasjon: et JSON-format for beslutningstrær over lovtekst, med ELI- og Akoma Ntoso-forankring, treverdi-logikk (AND/OR/XOR med negasjoner), resultatfil og en kapabilitet der en språkmodell kan avgjøre et vilkår i en sak (https://ruml.org/, https://github.com/Law-as-Code-Institute/ruml). Spesifikasjonen er CC BY-SA 4.0, skjemaene Apache 2.0, og varemerket eies av Rulemapping Group GmbH. Det finnes ingen styringsmodell ennå.
+
+Vurderingen mot profilforslaget og regel- og strukturmodellen står i [profil/09-ruml-vurdering.md](profil/09-ruml-vurdering.md). Kort: RUML dekker regellaget (Vilkår/Regel, ikke Unntak som begrep, ikke skjønn) og saksanvendelse, ikke strukturmodellen. Anbefalingen er å følge med (sjekklisten i profil/08), ikke besluttet. Relevant for kandidatene over: RUML er et mulig interchange-mål for kandidat 5 ved siden av LegalRuleML og FLINT, og RUMLs skille mellom `ignored` og `undefined` svarer til kandidat 1.
+
+To ting i rapporten under bør leses med forbehold:
+- Tallene for den nevrosymbolske artikkelen (arXiv:2605.16280): rapporten oppgir nøyaktighet 0,90–0,98. Sammendraget slik det står 2026-11-24 oppgir recall 0,82–0,89 og presisjon 0,80–0,86, og sier at trærne er laget av eksperter. Avviket er ikke avstemt.
+- «97 %»-avsnittet heter «RUML 97 %-påstanden», men PoC-siden nevner ikke RUML-formatet. Det gjelder Rulemapping-metoden og selskapets KI.
+
 ---
 
 ## Rapporten (uredigert)
