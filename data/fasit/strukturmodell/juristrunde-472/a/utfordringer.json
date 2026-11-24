@@ -1,0 +1,593 @@
+[
+ {
+  "id": "H01",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Kontrollert selv: sktfvl. § 16-1 andre ledd opphever hele ligningsloven fra 1.1.2017; § 16-2 har bare overgangsregler om endring av fastsettinger og sanksjoner og en forskriftshjemmel, og skatteforvaltningsforskriften §§ 16-2-1 til 16-2-3 viderefører ikke delegeringer. Lovdata viser vedtaket i DEL uten «Opphevet» (hjemmel LOV-1980-06-13-24-§3-14, FOR-2014-04-04-391). Rollen er riktig: 2014-391 er kompetanseledd og teller ikke når det finnes en materiell hjemmel. Merknad uten betydning for klassen: hjemmelsstatusraden for 2014-391 står som «aktiv», selv om det vedtaket selv bare har lignl. § 3-14 som hjemmel. Etter R1 burde det arve «hjemmel opphevet». Det endrer ikke utfallet her.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "NL/lov/2016-05-27-14 §16-1 ledd-2, §16-2 ledd 1-3 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "SF/forskrift/2016-11-23-1360 §16-2-1 til §16-2-3 (korpus)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "DEL/forskrift/2014-04-30-590 ledd-1 (korpus)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "DEL/forskrift/2014-04-04-391 ledd-1 (korpus)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "https://lovdata.no/forskrift/2014-04-30-590 (base DEL, ikke merket opphevet)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "H02",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Som H01. Vedtaket delegerer FINs myndighet etter lignl. § 9-5 nr. 8 til SKD; ingen videreføring i sktfvl. kap. 16 eller forskriften. Lovdata viser vedtaket i DEL uten «Opphevet». Ingen senere oppheving av 1994-156 er funnet i korpus.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "NL/lov/2016-05-27-14 §16-1 ledd-2, §16-2 ledd 1-3 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "SF/forskrift/2016-11-23-1360 §16-2-1 til §16-2-3 (korpus)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "DEL/forskrift/1994-03-03-156 ledd-1 (korpus)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "https://lovdata.no/forskrift/1994-03-03-156 (base DEL, ikke merket opphevet)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "H03",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Som H01. LTI/forskrift/2013-08-08-963 er bare en endring (rettet «§ 4-9 nr. 8» til «nr. 7») og opphever ikke vedtaket. Lovdata viser vedtaket i DEL uten «Opphevet», sist endret ved FOR-2013-08-08-963.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "NL/lov/2016-05-27-14 §16-1 ledd-2, §16-2 ledd 1-3 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "SF/forskrift/2016-11-23-1360 §16-2-1 til §16-2-3 (korpus)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "DEL/forskrift/2007-12-14-1445 kap-I, kap-II (korpus)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "LTI/forskrift/2013-08-08-963 kap-I (korpus)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "https://lovdata.no/forskrift/2007-12-14-1445 (base DEL, ikke merket opphevet)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "H04",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Som H01 (lignl. § 4-2 nr. 2 og § 4-5 nr. 6 om forhåndsutfylt selvangivelse). Lovdata viser vedtaket i DEL uten «Opphevet».",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "NL/lov/2016-05-27-14 §16-1 ledd-2, §16-2 ledd 1-3 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "SF/forskrift/2016-11-23-1360 §16-2-1 til §16-2-3 (korpus)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "DEL/forskrift/2000-12-20-1391 kap-I (korpus)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "https://lovdata.no/forskrift/2000-12-20-1391 (base DEL, ikke merket opphevet)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "H05",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Klassen holder: støtteprosessloven § 19 nr. 1 opphever lov om offentlig støtte 1992, loven har ingen overgangsregel om forskrifter, og Lovdata viser delegeringen i DEL uten «Opphevet». Men grunnen («Loven fra 2022 har bare ikrafttredelse i § 18») overser at loven ble satt i kraft til ulik tid: § 19 nr. 4 fra 22.6.2022 (res. 22. juni 2022 nr. 1143) og øvrige bestemmelser, også § 19 nr. 1, fra 1.1.2023 (res. 16. des. 2022 nr. 2252). Hjemmelsstatusen har opphevet_dato 2022-06-22, som er dokumentdatoen fra korpus og feil for opphevingen [slutning: nr. 1 hører til «øvrige bestemmelser»]. Funnet mangler derfor premissmangelen om ikraftsetting, fordi § 18 ikke har ordene «til ulik tid». Det er en svakhet i premissporten (ulik ikraftsetting skjer også uten den ordlyden), ikke i klassen.",
+  "retting": {
+   "grunn": "Som modellereren, men opphevingen (§ 19 nr. 1) trådte i kraft 1.1.2023, ikke 22.6.2022. Loven ble satt i kraft til ulik tid uten at § 18 sier det, så premissmangelen om ikraftsetting burde stått."
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "NL/lov/2022-03-04-7 §18, §19 ledd-1 og ledd-2 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/NL/lov/2022-03-04-7 (fotnote til § 18: ikraftsetting 22.6.2022 for § 19 nr. 4 og 1.1.2023 for øvrige)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/DEL/forskrift/2014-05-09-624 (ikke merket opphevet)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "H06",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Kontrollert: FOR-2017-08-21-1331 (forskrift om undersøkelser av ulykker og hendelser i Forsvaret) § 17 opphever reglene fra 1995 i sin helhet fra 1.11.2017 og har ingen overgangsregel. Vedtaket delegerer myndighet til å endre reglene fra 1995 § 2 med hjemmel i § 17. Både hjemmelen og gjenstanden er altså opphevet. Undertypen hjemmel_opphevet går foran gjenstandsløs etter §5.21, så den er riktig. Lovdata viser vedtaket i DEL uten «Opphevet».",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "SF/forskrift/2017-08-21-1331 §17 ledd-1 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "DEL/forskrift/2002-12-04-1634 ledd-1 (korpus)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "https://lovdata.no/forskrift/2002-12-04-1634 (base DEL, ikke merket opphevet)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "H07",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "hoy",
+  "innvending": "Funnet er feil av to grunner. (1) Lovdata viser ikke vedtaket som gjeldende. Den ajourførte versjonen ligger i DELO, er merket «Opphevet» og har «Sist endret: LOV-2012-04-20-19». Korpuset har bare den kunngjorte LTI-versjonen (kildeform «kunngjort»), og den står som «Gjeldende». Påstandens første setning er dermed uriktig. (2) Den koblede opphevende bestemmelsen er feil. Militærnekterloven § 10 hører til kap. III «Sivil verneplikt», og hele kapitlet ble opphevet ved endringslov 20. april 2012 nr. 19 (i kraft 1.6.2012, jf. SF/forskrift/2012-05-25-465 § 1). Departementets lovspeil fra 2015 lister bare §§ 1–9 og 19–24 som gjeldende rett. Forsvarsloven § 87 nr. 3 opphevet i 2017 en lov der § 10 alt var borte. Hjemmelen er opphevet og ikke videreført, men ikke «med den bestemmelsen som er koblet», som kriteriet krever. Endringsloven 2012 er ikke i korpus (søk på 2012-04-20-19 ga ingen treff), så regelen kunne ikke se den. Kortets grunn om at «§ 86 (overgangsregler) gjelder bare yrkesbefal» er riktig, men treffer ikke feilen.",
+  "retting": {
+   "klasse": "feil",
+   "sitat_eid_riktig": false,
+   "feilarsak": "populasjonen",
+   "grunn": "Vedtaket er opphevet i Lovdata (DELO, sist endret LOV-2012-04-20-19); korpuset har bare LTI-versjonen som «gjeldende». § 10 ble opphevet med kap. III ved LOV-2012-04-20-19 (i kraft 1.6.2012), ikke ved forsvarsloven § 87 nr. 3. Feilårsaken «populasjonen» finnes ikke i lista; nærmeste er «dekningen» (korpusdekning)."
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/forskrift/2005-12-16-1816 (DELO, «Opphevet», sist endret LOV-2012-04-20-19)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/LTI/lov/2012-04-20-19 (opphever kap. III Sivil verneplikt)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://www.stortinget.no/contentassets/9c61087501884dc6852ae71f35e6ef46/vedtak-201112-038.pdf («Kapittel III Sivil verneplikt oppheves»)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://www.regjeringen.no/contentassets/256cd2320d824c6d834f48d09cd4fb18/lovspeil-militarnekterloven.pdf (gjeldende rett 2015: §§ 1–9, 19–24)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "SF/forskrift/2012-05-25-465 §1 (korpus, ikrafttredelse 1.6.2012)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "NL/lov/2016-08-12-77 §85–§87 (korpus)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "LTI/forskrift/2005-12-16-1816 (korpus, kildeform kunngjort, status Gjeldende)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "H08",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "hoy",
+  "innvending": "Vedtaket er selv opphevet. DEL/forskrift/2006-06-30-761 punkt 2 i korpuset sier: «Vedtak 29. april 2005 nr. 378 om delegering av myndighet til Kommunal- og regionaldepartementet etter utlendingsloven oppheves.» Samme myndighet ble delegert på nytt til AID i punkt 1. Lovdata har den ajourførte versjonen i DELO, merket «Opphevet 30 juni 2006, jf. vedtak 30 juni 2006 nr. 761». Påstanden «Lovdata viser … som gjeldende» er uriktig, og forskriften falt ikke på grunn av hjemmelen: den var opphevet fire år før utlendingsloven 1988 falt (1.1.2010). Riktig funn er en målvedtak-/R8-oppheving (#429), ikke «hjemmel opphevet». Opphevingen av uhl. 1988 og at videreføring mangler, er riktig lest. Søket i korpus på «1988 nr. 64» som kortet viser til, ville ha funnet 2006-761 punkt 2 ved et søk på «2005 nr. 378». Ikke #446: kap. I er en reell delegering.",
+  "retting": {
+   "klasse": "feil",
+   "feilarsak": "populasjonen",
+   "grunn": "Vedtaket er opphevet ved DEL/forskrift/2006-06-30-761 punkt 2 (Lovdata: DELO, «Opphevet 30 juni 2006»). Korpuset har bare LTI-versjonen som «gjeldende». Feilårsaken «populasjonen» finnes ikke i lista."
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "DEL/forskrift/2006-06-30-761 punkt-1 og punkt-2 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/forskrift/2005-04-29-378 (DELO, «Opphevet 30 juni 2006, jf. vedtak 30 juni 2006 nr. 761»)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "LTI/forskrift/2005-04-29-378 kap-I, kap-II (korpus)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "NL/lov/2008-05-15-35 §140 ledd-1 (korpus)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "H09",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "hoy",
+  "innvending": "Som H07. Lovdata har vedtaket i DELO, merket «Opphevet», med «Sist endret: LOV-2012-04-20-19». Delegeringen gjelder velferdstjeneste for sivile vernepliktige etter § 10 fjerde ledd, altså kap. III «Sivil verneplikt», som ble opphevet ved LOV-2012-04-20-19 (i kraft 1.6.2012). Den koblede bestemmelsen, forsvarsloven § 87 nr. 3, er dermed feil. Påstanden om at Lovdata viser vedtaket som gjeldende, er også feil. Ikke #446: ledd-3 er en reell delegering.",
+  "retting": {
+   "klasse": "feil",
+   "sitat_eid_riktig": false,
+   "feilarsak": "populasjonen",
+   "grunn": "Som H07: opphevet i Lovdata (DELO, sist endret LOV-2012-04-20-19). § 10 falt med kap. III i 2012, ikke ved forsvarsloven § 87 nr. 3."
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/forskrift/2010-08-31-1232 (DELO, «Opphevet», sist endret LOV-2012-04-20-19)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/LTI/lov/2012-04-20-19",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "LTI/forskrift/2010-08-31-1232 ledd-1 til ledd-3 (korpus)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "https://www.regjeringen.no/contentassets/256cd2320d824c6d834f48d09cd4fb18/lovspeil-militarnekterloven.pdf",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "H10",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Kontrollert: stiftelsesloven 2001 § 62 andre ledd nr. 2 opphever loven fra 1980. § 61 har bare særregler for stiftelser og en forskriftshjemmel. Forskrift til stiftelsesloven (SF/forskrift/2004-12-21-1793) § 5 viderefører bare registreringen hos fylkesmannen fram til melding, ikke forskrifter etter loven fra 1980. Lovdata viser forskriften i SF uten «Opphevet» (hjemmel LOV-1980-05-23-11-§10).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "NL/lov/2001-06-15-59 §60, §61, §62 ledd-2 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "SF/forskrift/2004-12-21-1793 §5 (korpus)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "https://lovdata.no/forskrift/1998-05-07-468 (base SF, ikke merket opphevet)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "H11",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Kontrollert: vareførselsloven § 14-1 opphever tolloven, § 14-2 har bare forskriftshjemmel, og vareførselsforskriften § 14-2-2 opprettholder bare enkeltvedtak (§ 14-2-1 gjelder endringsmelding). Tollavgiftsloven § 5-1 og § 5-4 bærer. Blandede hjemler er riktig undertype. Modellererens merknad om liten praktisk verdi er riktig, men den gjelder premissporten «Ny hjemmel» og ikke klassen.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "NL/lov/2022-03-11-9 §14-1, §14-2 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "SF/forskrift/2022-10-27-1901 §14-2-1, §14-2-2 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "SF/forskrift/2008-10-10-1132 hjemmelsfelt (inndata)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "Lovdata-status for SF/forskrift/2008-10-10-1132: ikke kontrollert",
+    "funksjon": "ikke_funnet"
+   }
+  ]
+ },
+ {
+  "id": "H12",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Kontrollert: i den kunngjorte abortloven 2024 § 28 står opphevingen av loven fra 1975 og «Kongen kan gi nærmere overgangsregler», men ingen videreføring av forskrifter. Den konsoliderte § 28 i korpus har bare ledd-1 og ledd-2, uten opphevingssetningen, så det er riktig at eId-en står uten ledd. Personopplysningsforskriften § 8 nr. 3 er en ren endring av abortforskriften. Merknaden om #446 på delnivå er riktig. Øvrige hjemler bærer, så blandede er riktig undertype.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/LTI/lov/2024-12-20-96 § 28",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "NL/lov/2024-12-20-96 §28 ledd-1, ledd-2 (korpus)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "SF/forskrift/2018-06-15-876 §8 ledd-2 (korpus)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "Ikrafttredelsesdato 1.6.2025 for abortloven 2024: ikke kontrollert",
+    "funksjon": "ikke_funnet"
+   }
+  ]
+ },
+ {
+  "id": "H13",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "hoy",
+  "innvending": "Vedtaket er selv opphevet, og hjemmelen er erstattet. LTI/forskrift/2013-07-18-921 ledd-2 i korpuset sier: «Vedtaket her trer i kraft 1. august 2013. Fra samme tid oppheves vedtak 30. juni 2006 nr. 733 …» Det nye vedtaket delegerer samme myndighet med hjemmel i strpl. § 118 og tvisteloven § 22-3, som er nettopp den «nye hjemmelen» kortet nevner. Lovdata har vedtaket i DELO, merket «Opphevet 1 aug 2013 ved vedtak 18 juli 2013 nr. 921». Påstanden om at Lovdata viser vedtaket som gjeldende, er uriktig, og blandede hjemler gir et feil bilde. Overgangsforskriften (DEL/forskrift/2007-01-26-88) og tvl. § 37-1 er riktig lest, men treffer ikke feilen.",
+  "retting": {
+   "klasse": "feil",
+   "undertype_riktig": false,
+   "feilarsak": "populasjonen",
+   "grunn": "Vedtaket er opphevet fra 1.8.2013 ved LTI/forskrift/2013-07-18-921 og erstattet med en delegering etter strpl. § 118 og tvl. § 22-3. Lovdata: DELO, «Opphevet». Korpuset har bare LTI-versjonen som «gjeldende»."
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "LTI/forskrift/2013-07-18-921 ledd-1, ledd-2 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/forskrift/2006-06-30-733 (DELO, «Opphevet 1 aug 2013 ved vedtak 18 juli 2013 nr. 921»)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "LTI/forskrift/2006-06-30-733 ledd-1 (korpus)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "H14",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "hoy",
+  "innvending": "Undertypen hviler på at finansvl. 1988 «bærer» fordi finansforetaksloven § 23-2 andre ledd viderefører «forskrifter gitt med hjemmel i» loven. Vedtaket 2003-730 er ikke en slik forskrift. Det er et delegeringsvedtak som overfører Kongens myndighet «til å gi forskrifter og treffe enkeltvedtak» etter finansvl. § 4a-1 tredje og fjerde ledd. En regel som viderefører forskrifter, viderefører det normative innholdet. Den holder ikke i live en kompetanse etter en opphevet bestemmelse, der ingen ny forskrift og intet enkeltvedtak lenger kan treffes [slutning]. Regelen har selv merket dekningen «dokumenttype_ikke_nevnt», som gjør premisset til fortolkning, men kortet sier likevel «riktig» uten å drøfte det. Om man følger dette, faller begge hjemlene, og riktig undertype er hjemmel_opphevet, ikke blandede. Motargumentet er at delegeringen kan være nødvendig for å endre eller oppheve de videreførte forskriftene. Det er mulig, men usikkert. Derfor setter jeg «usikker», ikke «feil». Det andre i kortet holder: sentralbankloven 2019 § 6-2 nr. 1 med ikrafttredelse 1.1.2020 og premissmangel, og hjemmelslenken «§ 4-1a» (Lovdata) mot «§ 4a-1» (vedtaket).",
+  "retting": {
+   "klasse": "usikker",
+   "undertype_riktig": false,
+   "feilarsak": "dekningen",
+   "grunn": "Finansforetaksloven § 23-2 (2) viderefører forskrifter, ikke et delegeringsvedtak om å gi forskrifter og treffe enkeltvedtak etter en opphevet bestemmelse. Hvis delegeringen ikke dekkes, faller begge hjemlene, og undertypen er hjemmel_opphevet. Det kan ikke avgjøres sikkert."
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "NL/lov/2015-04-10-17 §23-2 ledd-2, §23-3 ledd-4 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "DEL/forskrift/2003-06-20-730 ledd-1 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "NL/lov/2019-06-21-31 §6-1, §6-2 (korpus)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "https://lovdata.no/forskrift/2003-06-20-730 (base DEL, ikke merket opphevet)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "H15",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "hoy",
+  "innvending": "«Feil» er for bastant. Hjemmelsfeltet er tomt, og hvem som fastsatte reglene fra 1976 og med hvilken kompetanse, står ikke i teksten. Lovdata viser selv FOR-1975-12-29-1 som hjemmel, ved siden av sivilforsvarsloven § 41 og sivilbeskyttelsesloven § 39. Punkt 1 sier at reglene gjelder «i tillegg til» forskriften fra 1975 og direktoratets nærmere bestemmelser av samme dag. Punkt 3 bygger plassbehovet på «departementets forskrifter og direktoratets nærmere bestemmelser», altså normer som er opphevet ved FOR-1995-03-15-254 § 41. Forgjengeren i punkt 8 var «fastsatt av Industrivernet … og godkjent av Justisdepartementet», så det er nærliggende at også reglene fra 1976 bygde på kompetanse i forskriften fra 1975 eller direktoratets bestemmelser [slutning]. Det er ikke dokumentert at 1975-forskriften bare er gjenstanden og ikke hjemmelen. Påstanden i funnet er bokstavelig sann: 1975-forskriften er opphevet uten videreføring, og 1953-loven er videreført. «Uavklart» betyr nettopp at det andre premisset har en uvurdert rolle, og det er en dekkende beskrivelse av situasjonen. At samlet status er «videreført», som kortet hevder, forutsetter at 1975-forskriften ikke er hjemmel, og det er ikke vist. Kortet har rett i at «De andre hjemlene er gjeldende» er unøyaktig, fordi 1953-loven er opphevet og videreført, og at § 40 i 1995-forskriften er en delvis videreføring for rom bygget etter de gamle reglene.",
+  "retting": {
+   "klasse": "usikker",
+   "undertype_riktig": true,
+   "feilarsak": null,
+   "grunn": "Det kan ikke avgjøres om FOR-1975-12-29-1 var hjemmel (Lovdata oppgir den som hjemmel) eller bare den forskriften reglene supplerer. Uavklart er derfor en forsvarlig undertype. Ordlyden «De andre hjemlene er gjeldende» er unøyaktig."
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "SF/forskrift/1976-08-03-9783 punkt-1, punkt-3, punkt-8 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/forskrift/1976-08-03-9783 (hjemmelsfelt: LOV-1953-07-17-9-§41, LOV-2010-06-25-45-§39, FOR-1975-12-29-1)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "SF/forskrift/1995-03-15-254 §40, §41 (korpus)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "NL/lov/2010-06-25-45 §39, §40 (korpus)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "Teksten i FOR-1975-12-29-1 (ikke i korpus): ikke kontrollert",
+    "funksjon": "ikke_funnet"
+   }
+  ]
+ },
+ {
+  "id": "H16",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Klassen «feil» holder, men grunnen og feilårsaken treffer ikke hovedfeilen. Vedtaket er selv opphevet. DEL/forskrift/2022-12-22-2510 ledd-2 i korpuset sier: «Fra samme tidspunkt oppheves departementets delegering av myndighet til Longyearbyen lokalstyre ved vedtak 21. desember 2001 nr. 1552», med virkning fra 1.1.2023. Lovdata har vedtaket i DELO, merket «Opphevet ved vedtak 22 des 2022 nr. 2510». Påstanden om at Lovdata viser vedtaket som gjeldende, er altså uriktig, og det gjør funnet falskt uansett rolle. Kortets drøfting av basedOn-raden for bvl. 1992 § 1-2 er riktig, men den er en sekundær feil. Feilårsaken bør være den samme som for H08 og H13.",
+  "retting": {
+   "feilarsak": "populasjonen",
+   "grunn": "Vedtaket er opphevet fra 1.1.2023 ved DEL/forskrift/2022-12-22-2510 (Lovdata: DELO, «Opphevet»). I tillegg, men sekundært: bvl. 1992 § 1-2 er bare Lovdatas basedOn og ikke en direkte hjemmel."
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "DEL/forskrift/2022-12-22-2510 ledd-1, ledd-2 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/forskrift/2001-12-21-1552 (DELO, «Opphevet ved vedtak 22 des 2022 nr. 2510 (i kraft 1 jan 2023)»)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "LTI/forskrift/2021-10-11-3043 kap-I (korpus, bare navneendring)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "H17",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Kontrollert: fagskoleloven 2018 § 44 andre ledd opphever loven fra 2003, og tredje ledd viderefører forskrifter fram til 31.12.2019. Lovdata viser forskriften i SF uten «Opphevet» og med hjemmel «… jf. LOV-2018-06-08-28-§44», altså nettopp overgangsregelen som er utløpt. Om forskriften kunne vært gitt etter den nye loven, er spørsmålet «Ny hjemmel», ikke en feil i funnet.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "NL/lov/2018-06-08-28 §44 ledd-1 til ledd-4 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/forskrift/2017-10-30-2479 (base SF, ikke merket opphevet)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "H18",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Kortet står. Lovdata viser vedtaket i DEL med hjemmel LOV-2007-06-29-90 (endringsloven del II nr. 1). Teksten er bare ikraftsetting, tre overgangsdatoer (1.7.2008 og 1.1.2009) og en fullmakt til å endre dem, og alt dette er uttømt (#446). Endringsloven er ikke opphevet av fagskoleloven 2018 § 44, så koblingen og sitatet er feil. Merknad til målekriteriet: feilen kommer fra at regelen følger endringsloven til hovedloven (`EndringslovTil`/`FulgtEli` i HjemmelsstatusRegel.cs). Det er et annet trinn enn R1-rekursjonen i §5.20. Hvis «rekursjonen» skal dekke begge, bør det stå i definisjonen av feilårsakene.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/forskrift/2007-06-29-759 (base DEL, hjemmel LOV-2007-06-29-90)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "NL/lov/2018-06-08-28 §44 ledd-2, ledd-3 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "src/RegelIde.Data/HjemmelsstatusRegel.cs linje 239 og 535–544 (EndringslovTil/FulgtEli)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "H19",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Klassen holder: ressortvedtaket gjelder forskriftskompetansen etter tolloven § 6-4 tredje ledd, tolloven er opphevet i sin helhet, vareførselsforskriften § 14-2-2 gjelder bare enkeltvedtak, og Lovdata viser vedtaket i DEL uten «Opphevet». Men grunnen sier at «ny kompetanse er tildelt LMD ved DEL/forskrift/2022-10-21-1778». Det vedtaket gjelder tollavgiftsloven § 3-1, § 3-4 og § 5-1 til § 5-4 og vareførselsloven § 4-8, § 13-10 og § 13-11. Ingen av dem er åpenbart arvtakeren til § 6-4 tredje ledd (innenlands bearbeiding: forhåndstillatelse, krav til produksjon og lagerhold, varer av samme slag). Påstanden i grunnen er ikke dokumentert, og den hører uansett til punktet «Ny hjemmel», ikke til klassen.",
+  "retting": {
+   "grunn": "Tolloven er opphevet i sin helhet av vareførselsloven § 14-1, og vareførselsforskriften § 14-2-2 gjelder bare enkeltvedtak, så ressortvedtaket er gjenstandsløst. Om LMD har fått tilsvarende kompetanse etter tollavgiftsloven, er ikke kontrollert (DEL/forskrift/2022-10-21-1778 nevner ikke reglene om innenlands bearbeiding)."
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "DEL/forskrift/2019-12-20-1923 ledd-1 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "NL/lov/2022-03-11-9 §14-1, §14-2 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "DEL/forskrift/2022-10-21-1778 punkt-1, punkt-2 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/forskrift/2019-12-20-1923 (base DEL, ikke merket opphevet)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "H20",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Klassen «feil» holder: odelslova 1974 (punkt 7) er gjeldende, punkt 4–6 gjelder etater, ikke lover, og utlendingsloven 1988 mangler som gjenstand. Feilårsaken er likevel ikke «rollen». Alle fire gjenstandsrader har riktig rolle (gjenstand, S08). Feilen ligger i aggregeringen til samlet status: `effektive.Any(...)` i Hjemmelsstatus.cs linje 235 gir gjenstandsløs når én gjenstand er opphevet, ikke når alle er det. Ingen av de fem feilårsakene dekker aggregeringen. «Rekursjonen» (HjemmelsstatusSamlet) er nærmest. Tillegg til grunnen: Lovdata (DEL) viser at delegeringen i kap. II, så langt den gjelder punkt 1, er opphevet fra 29.4.2005 ved FOR-2005-04-29-378 kap. II. Resten av kap. II står.",
+  "retting": {
+   "feilarsak": "rekursjonen",
+   "grunn": "Tre av fire gjenstandslover er opphevet, men odelslova er gjeldende, og punkt 4–6 gjelder etater. Vedtaket er bare delvis gjenstandsløst. Feilen ligger i aggregeringen (Any i stedet for All, Hjemmelsstatus.cs:235), ikke i rollen. Kap. II er opphevet for punkt 1 ved FOR-2005-04-29-378 kap. II."
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "DEL/forskrift/2000-12-15-1263 kap-I (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/forskrift/2000-12-15-1263 (base DEL; fotnote: delegeringen for pkt. I nr. 1 opphevet fra 29.4.2005 ved FOR-2005-04-29-378 II)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "LTI/forskrift/2005-04-29-378 kap-II (korpus)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "src/RegelIde.Data/Hjemmelsstatus.cs:235",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ }
+]
