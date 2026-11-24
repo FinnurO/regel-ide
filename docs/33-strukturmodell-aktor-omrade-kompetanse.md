@@ -2779,6 +2779,22 @@ bortfalt)». FOR-1994-06-03-375, uten punktet, viste bare «Hjemmel opphevet, vi
 
 **Ikke i PR 2:** rettingene i #429-koden (PR 3), flagget ved Lovdata-resynk og juristens presisjonsmåling (fase 1 AK 8). Ingenting publiseres før #446.
 
+[Merknad, #472] **Målt 2026-11-24 (måling 1).** Målt på 20 av de 319 funnene, stratifisert etter undertype og prefiks (frø 20261124), med to runder
+etter CLAUDE.md §23. Mot den delte basen er det bare gjort lesing. Filene ligger i `data/fasit/strukturmodell/juristrunde-472/`.
+- **Presisjon** (riktig / (riktig + feil), Wilson 95 %):
+  - totalt **0,58 (0,36–0,77)**, 11/19;
+  - uten #446 **0,61 (0,39–0,80)**, 11/18 (H18 er et rent ikrafttredelsesvedtak);
+  - én usikker (H14).
+- **Per undertype:** hjemmel opphevet 7/10, blandede 2/3, uavklart 0/2, utløpt 1/2, gjenstandsløs 1/2.
+- **Per prefiks:** DEL 7/9, SF 4/5, LTI 0/5.
+- **Største feilkilde, populasjonen (5 av 8 feil):** LTI-vedtak som korpuset bare har som kunngjort versjon («Gjeldende»), men som Lovdata har
+  i DELO som opphevet. Tre av dem er opphevet av en kilde i korpus. Uten disse er presisjonen 0,79 (0,52–0,92).
+- **De andre feilene:**
+  - en endringslov fulgt til hovedloven fra ikrafttredelsesbestemmelsen (H18);
+  - gjenstandsløs satt når bare én av flere gjenstander er opphevet (`Any`, H20);
+  - en forskrift i basedOn med rolle NULL som teller som materiell premiss (H15).
+- **Ingen uenighet står igjen.** Rettingene er foreslått i `sammendrag.md` der, men ikke bygget.
+
 ### 5.6 Konvertering av eksisterende data
 
 | Fra | Til | Automatisk? |
