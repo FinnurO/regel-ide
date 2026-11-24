@@ -153,7 +153,8 @@ public static class Hjemmelstekstlesing
     /// <summary>
     /// [Ny, #472 PR 3] <b>Opphevingsformelen i noden over</b> (#429 PR 4 (1c), juristrunde 1 S15): slutter forelderen med formelen
     /// (<see cref="UtgattAktorRegler.Opphevingsformel"/>: «oppheves:», «Fra samme tid oppheves følgende lover:»), leses barnet med forelderens
-    /// tekst foran. Null når forelderen ikke slutter med formelen. Delt av hjemmelsstatusen (korpus og Lovtidend) og R9.
+    /// tekst foran. Null når forelderen ikke slutter med formelen. Delt av hjemmelsstatusen (korpus og Lovtidend), R9 og (fra prosjekteierens
+    /// avgjørelse 2026-11-24) R8.
     /// </summary>
     public static string? MedForelderformel(string? forelder, string? barn) =>
         barn is not null && forelder is not null && UtgattAktorRegler.Opphevingsformel(Normaliser(forelder)) ? forelder.TrimEnd() + " " + barn : null;
