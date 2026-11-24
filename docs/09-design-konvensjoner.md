@@ -1633,7 +1633,7 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
   «Ny hjemmel ikke vurdert» og «Uttømt virkning ikke klassifisert (#446)». «Hjemmel ikke vurdert» faller inn under «Premiss ikke vurdert» etter
   juristvurderingen, som før (`delPremissmangler`).
 - **Juristvurderingen** får to felt: «Hjemmel: har vedtaket fortsatt virkning …?» (alltid for denne kategorien, lagres som «Hjemmel») og «Ny hjemmel:
-  kan forskriften stå på en ny hjemmel som gir samme kompetanse?», med avkrysningen «Ikke vurdert». Avkrysset lagres punktet som type
+  kan forskriften stå på en ny hjemmel som gir samme kompetanse?», med avkrysningen «Ny hjemmel: ikke vurdert» rett under feltet (ikke i `Field`, §51). Avkrysset lagres punktet som type
   `ikke_avgjort` med teksten «Ikke vurdert.», og tekstfeltet er låst. Gjenstandsløs får ikke feltet «Ny hjemmel».
 - **«Ikke avgjort»** viser nå overskriften foran teksten («Ny hjemmel: Ikke vurdert.»), i appen, i forhåndsvisningen og på nettsiden
   (`nettside/funn/index.html`). Uten den sa punktet ingenting.
@@ -1644,6 +1644,6 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
   Lenken «Funn til vurdering» står ved den samlede statusen når forskriften har et slikt funn.
 - **Fargerollene er de låste fra §15/§35/§49.** Ingen nye farger.
 - **Kaldsjekket 2026-11-24** i kopien `regelide_472pr2` (API 5387, web 5373, bryteren for #446 på): lista viste 318 funn med kategorimerkene over og
-  «Ny hjemmel ikke vurdert» på 315. På FOR-2016-12-02-1426 ga «Ikke vurdert» merket «Mulig bortfalt» etter lagring, og «Ny hjemmel: Ikke vurdert.»
+  «Ny hjemmel ikke vurdert» på 315. På FOR-2016-12-02-1426 ga avkrysningen merket «Mulig bortfalt» etter lagring, og «Ny hjemmel: Ikke vurdert.»
   under «Ikke avgjort». Rettskildesiden til FOR-1994-06-03-375 viste «Hjemmel opphevet, videreføring ikke funnet» uten «(mulig bortfalt)» og
   lenken til funnet. Kopien er slettet.

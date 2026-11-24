@@ -322,9 +322,12 @@ export default function FunnDetalj() {
                   </Metatekst>
                   <Textarea data-size="sm" rows={2} value={nyHjemmel} disabled={nyHjemmelIkkeVurdert}
                     onChange={(e) => setNyHjemmel(e.target.value)} />
-                  <Checkbox data-size="sm" label="Ikke vurdert" checked={nyHjemmelIkkeVurdert}
-                    onChange={(e) => setNyHjemmelIkkeVurdert(e.target.checked)} />
                 </Field>
+              )}
+              {/* docs/09 §51: Checkbox er selv en Field og står ikke i den ytre Field-en over. */}
+              {sporOmNyHjemmel && (
+                <Checkbox data-size="sm" label="Ny hjemmel: ikke vurdert" checked={nyHjemmelIkkeVurdert}
+                  onChange={(e) => setNyHjemmelIkkeVurdert(e.target.checked)} />
               )}
               <Field>
                 <Label>Vurdering</Label>
