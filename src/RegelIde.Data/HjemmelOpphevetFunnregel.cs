@@ -15,7 +15,9 @@ public sealed record HjemmelOpphevetTolkning(int Funn, IReadOnlyDictionary<strin
 /// <c>POST /api/hjemmelsstatus/maskinregel?skriv=true</c> først.</param>
 /// <param name="Kandidater">Forskrifter med en undertype før regelen om uttømt virkning.</param>
 /// <param name="UtelattRentEndringsvedtak">#446-kolonnen er <c>true</c>: uttømt virkning, ingen funn.</param>
-/// <param name="UtelattIkrafttredelsesvedtak">Den eneste disposisjonstypen er ikrafttredelse: uttømt virkning, ingen funn.</param>
+/// <param name="IkrafttredelseEnesteDisposisjonstype">Kandidater der ikrafttredelse er den eneste disposisjonstypen (fra tittelen). Telles, men
+/// utelates IKKE: tittelregelen treffer også «Forskrift om ikrafttredelse av og overgangsregler til …» (DEL/forskrift/1999-06-25-711), som ikke har
+/// uttømt virkningen. Om ikrafttredelsesvedtak har uttømt virkning, avgjøres av #446.</param>
 /// <param name="IkkeKlassifisert">#446-kolonnen er NULL blant kandidatene som er igjen. Bryteren avgjør om de gir funn.</param>
 /// <param name="Streng">Tolkning A, fase 1 ordrett: NULL i #446-kolonnen gir ikke funn.</param>
 /// <param name="NullGirFunn">Tolkning B: bare <c>true</c> utelates; NULL gir funn med premissmangelen «Uttømt virkning ikke klassifisert».</param>
@@ -27,7 +29,7 @@ public sealed record HjemmelOpphevetRapport(
     bool Skrevet, string Regelversjon, bool HjemmelsstatusBeregnet, string? HjemmelsstatusRegelversjon, bool IkkeKlassifisertGirFunn,
     int Forskrifter, IReadOnlyDictionary<string, int> PerSamletStatus, int Gjenstandslose,
     int Kandidater, IReadOnlyDictionary<string, int> KandidaterPerUndertype,
-    int UtelattRentEndringsvedtak, int UtelattIkrafttredelsesvedtak, int IkkeKlassifisert,
+    int UtelattRentEndringsvedtak, int IkrafttredelseEnesteDisposisjonstype, int IkkeKlassifisert,
     HjemmelOpphevetTolkning Streng, HjemmelOpphevetTolkning NullGirFunn,
     int Foreslatt, IReadOnlyDictionary<string, int> ForeslattPerUndertype, int Nye, int Finnes, int FinnesForklartBort, int UndertypeEndret,
     int HoldtAvPremissporten, int MuligBortfaltVises, int UtenGrunnlag, IReadOnlyList<HjemmelOpphevetRad>? Rader);
@@ -43,7 +45,8 @@ public sealed record HjemmelOpphevetRapport(
 /// uavklarte hjemler, arves som ukjent (Johann 2026-11-20).
 /// </para>
 /// <para>
-/// <b>Uttømt virkning gir ikke funn</b> (#446): <c>rent_endringsvedtak = true</c>, og vedtak der ikrafttredelse er den eneste disposisjonstypen.
+/// <b>Uttømt virkning gir ikke funn</b> (#446): <c>rent_endringsvedtak = true</c>. Rene ikrafttredelsesvedtak har ingen egen markør ennå;
+/// disposisjonstypen fra tittelen er ikke nok (den treffer også overgangsregler), så de telles for seg og venter på #446.
 /// <b>NULL i #446-kolonnen</b> er én bryter (<see cref="KonfignokkelIkkeKlassifisertGirFunn"/>), standard av: fase 1 sier at NULL ikke gir funn,
 /// og kolonnen settes aldri til <c>false</c> (<see cref="DisposisjonstypeTjeneste"/>). Rapporten viser alltid begge tolkningene. Når bryteren er
 /// på, får funnet premissmangelen «Uttømt virkning ikke klassifisert», så det ikke kan godkjennes før #446 er gjort.
@@ -78,7 +81,6 @@ public sealed class HjemmelOpphevetFunnregel(RegelIdeDbContext db, FunnTjeneste 
 
     public const string UtfallForeslatt = "foreslatt";
     public const string UtfallRentEndringsvedtak = "utelatt_rent_endringsvedtak";
-    public const string UtfallIkrafttredelsesvedtak = "utelatt_ikrafttredelsesvedtak";
     public const string UtfallIkkeKlassifisert = "utelatt_ikke_klassifisert_446";
 
     private sealed record Kilde(Guid Id, string? Eli, string? DokumentId, string Tittel, string Kildetype, string Entitetsstatus, string Importrolle,
@@ -104,7 +106,7 @@ public sealed class HjemmelOpphevetFunnregel(RegelIdeDbContext db, FunnTjeneste 
         var memo = new Dictionary<Guid, SamletHjemmelsstatus>();
         var samlet = omfang.ToDictionary(id => id, id => HjemmelsstatusSamlet.Beregn(id, Premisser, memo));
 
-        // Uttømt virkning: ikrafttredelse som eneste disposisjonstype (tittel eller mønster).
+        // Ikrafttredelse som eneste disposisjonstype: telles, utelates ikke (se rapporten).
         var kandidatIder = samlet.Where(s => Undertype(s.Value) is not null).Select(s => s.Key).ToList();
         var disposisjoner = new Dictionary<Guid, HashSet<string>>();
         foreach (var bit in kandidatIder.Chunk(2000))
@@ -137,8 +139,8 @@ public sealed class HjemmelOpphevetFunnregel(RegelIdeDbContext db, FunnTjeneste 
             kandidatUndertyper.Add(undertype);
             var prefiks = (f.DokumentId ?? "(ingen)").Split('/')[0];
             string utfall;
+            if (f.RentEndringsvedtak != true && disposisjoner.GetValueOrDefault(id) is { Count: 1 } d && d.Contains(Disposisjonstyper.Ikrafttredelse)) ikraft++;
             if (f.RentEndringsvedtak == true) { utfall = UtfallRentEndringsvedtak; rent++; }
-            else if (disposisjoner.GetValueOrDefault(id) is { Count: 1 } d && d.Contains(Disposisjonstyper.Ikrafttredelse)) { utfall = UtfallIkrafttredelsesvedtak; ikraft++; }
             else if (f.RentEndringsvedtak is null)
             {
                 ikkeKlassifisert++;
@@ -221,11 +223,6 @@ public sealed class HjemmelOpphevetFunnregel(RegelIdeDbContext db, FunnTjeneste 
     private static string Bestemmelse(string? eid, string? dokumentEli) =>
         eid is null || eid == dokumentEli ? "" : " " + Hjemmelstekstlesing.Bestemmelsesetikett(eid);
 
-    /// <summary>Hjemmelen slik påstanden nevner den: «LOV-1993-06-11-65 § 7-2».</summary>
-    private static string Hjemmeltekst(HjemmelsstatusEntitet r, Dictionary<Guid, Kilde> kilder) =>
-        (r.MalRettskildeId is { } m && kilder.TryGetValue(m, out var mk) ? Referanse(mk) : EliReferanse(r.HjemmelEli) ?? r.HjemmelEid)
-        + Bestemmelse(r.HjemmelEid, r.HjemmelEli);
-
     private static string Kildetekst(Guid? id, string? eid, Dictionary<Guid, Kilde> kilder) =>
         id is { } g && kilder.TryGetValue(g, out var k) ? Referanse(k) + Bestemmelse(eid, k.Eli) : eid ?? "(ukjent kilde)";
 
@@ -237,48 +234,62 @@ public sealed class HjemmelOpphevetFunnregel(RegelIdeDbContext db, FunnTjeneste 
         IReadOnlyList<HjemmelsstatusEntitet> egne)
     {
         var lagret = egne.ToDictionary(r => r.RettskildeHjemmelId);
-        var linjer = new List<string>();
+        // (dokumentet, bestemmelsen, resten av setningen). Bestemmelser i samme dokument med samme resten slås sammen til én linje: tolloven
+        // 2007 står som hjemmel med åtte paragrafer i FOR-2016-12-02-1426, og alle er opphevet av samme setning.
+        var deler = new List<(string Dok, string Best, string Hale)>();
         foreach (var p in s.Premisser.Where(p => p.Teller || p.Rad.Rolle == Hjemmelsstatus.Gjenstand))
         {
             var r = lagret[p.Rad.HjemmelId];
-            var hjemmel = Hjemmeltekst(r, kilder);
+            var dok = Dokumenttekst(r, kilder);
+            var best = Bestemmelse(r.HjemmelEid, r.HjemmelEli).Trim();
             if (p.Rad.Rolle == Hjemmelsstatus.Gjenstand)
             {
                 if (p.Status == Hjemmelsstatus.Gjenstandslos)
-                    linjer.Add($"- Gjenstanden {hjemmel} er opphevet av {Kildetekst(r.OpphevetAvRettskildeId, r.OpphevetAvEid, kilder)}"
-                        + (r.OpphevetAvSitat is null ? "." : $": «{Kort(r.OpphevetAvSitat)}»."));
+                    deler.Add(("Gjenstanden " + dok, best, $"er opphevet av {Kildetekst(r.OpphevetAvRettskildeId, r.OpphevetAvEid, kilder)}"
+                        + (r.OpphevetAvSitat is null ? "." : $": «{Kort(r.OpphevetAvSitat)}».")));
                 continue;
             }
             if (p.Arvet is { } a && Hjemmelsstatus.Faller(p.Status))
             {
-                linjer.Add($"- {hjemmel} er selv en forskrift der {(a.Status == Hjemmelsstatus.SamletVidereforingUtlopt ? "videreføringen er utløpt" : "hjemmelen er opphevet uten funnet videreføring")}. Statusen arves (svakeste premiss).");
+                deler.Add((dok, best, $"er selv en forskrift der {(a.Status == Hjemmelsstatus.SamletVidereforingUtlopt ? "videreføringen er utløpt" : "hjemmelen er opphevet uten funnet videreføring")}. Statusen arves (svakeste premiss)."));
                 continue;
             }
             if (Hjemmelsstatus.Faller(p.Status))
             {
-                var linje = $"- {hjemmel} er opphevet av {Kildetekst(r.OpphevetAvRettskildeId, r.OpphevetAvEid, kilder)}"
+                var rest = $"er opphevet av {Kildetekst(r.OpphevetAvRettskildeId, r.OpphevetAvEid, kilder)}"
                     + (r.OpphevetAvSitat is null ? "" : $": «{Kort(r.OpphevetAvSitat)}»")
                     + (r.OpphevetFraKunngjort ? " (lest i den kunngjorte teksten i Norsk Lovtidend)" : "") + ".";
                 if (p.Status == Hjemmelsstatus.VidereforingUtlopt)
                 {
-                    linje += $" Den er videreført av {Kildetekst(r.VidereforingRettskildeId, r.VidereforingEid, kilder)}"
+                    rest += $" Videreført av {Kildetekst(r.VidereforingRettskildeId, r.VidereforingEid, kilder)}"
                         + (r.VidereforingTidsfrist is { } d ? $" fram til {d:dd.MM.yyyy}" : "") + ", og fristen er passert"
                         + (r.VidereforingSitat is null ? "." : $": «{Kort(r.VidereforingSitat)}».");
                 }
-                linjer.Add(linje);
-                if (r.Premissmangel is { } pm) linjer.Add($"- Ikke kontrollert: {pm}");
+                deler.Add((dok, best, rest));
+                if (r.Premissmangel is { } pm) deler.Add(("", "", $"Ikke kontrollert: {pm}"));
                 continue;
             }
             if (undertype is UndertypeBlandede or UndertypeUavklart && Hjemmelsstatus.Baerer(p.Status))
             {
                 var rolle = p.Rad.Rolle is null ? "rollen er ikke vurdert" : $"rolle {p.Rad.Rolle}";
-                linjer.Add(p.Status == Hjemmelsstatus.Viderefort
-                    ? $"- {hjemmel} er opphevet, men videreført av {Kildetekst(r.VidereforingRettskildeId, r.VidereforingEid, kilder)} ({rolle})."
-                    : $"- {hjemmel} er {(p.Status == Hjemmelsstatus.Erstattet ? "erstattet" : "aktiv")} ({rolle}).");
+                deler.Add((dok, best, p.Status == Hjemmelsstatus.Viderefort
+                    ? $"er opphevet, men videreført av {Kildetekst(r.VidereforingRettskildeId, r.VidereforingEid, kilder)} ({rolle})."
+                    : $"er {(p.Status == Hjemmelsstatus.Erstattet ? "erstattet" : "aktiv")} ({rolle})."));
             }
         }
-        return linjer;
+        return deler.GroupBy(d => (d.Dok, d.Hale)).Select(g =>
+        {
+            var best = g.Select(d => d.Best).Where(b => b.Length > 0).Distinct(StringComparer.Ordinal).ToList();
+            var hvem = g.Key.Dok.Length == 0 ? "" : (g.Key.Dok + (best.Count == 0 ? "" : " " + Liste(best)) + " ");
+            return $"- {hvem}{g.Key.Hale}";
+        }).ToList();
     }
+
+    private static string Liste(List<string> l) => l.Count == 1 ? l[0] : string.Join(", ", l.Take(l.Count - 1)) + " og " + l[^1];
+
+    /// <summary>Hjemmelsdokumentet uten bestemmelsen: «LOV-1993-06-11-65».</summary>
+    private static string Dokumenttekst(HjemmelsstatusEntitet r, Dictionary<Guid, Kilde> kilder) =>
+        r.MalRettskildeId is { } m && kilder.TryGetValue(m, out var mk) ? Referanse(mk) : EliReferanse(r.HjemmelEli) ?? r.HjemmelEid;
 
     private static NyttFunn ByggFunn(string nokkel, Kilde f, SamletHjemmelsstatus s, string undertype, Dictionary<Guid, Kilde> kilder,
         Dictionary<Guid, List<HjemmelsstatusEntitet>> perF)
@@ -322,7 +333,7 @@ public sealed class HjemmelOpphevetFunnregel(RegelIdeDbContext db, FunnTjeneste 
         foreach (var p in s.Premisser.Where(p => (p.Teller || p.Rad.Rolle == Hjemmelsstatus.Gjenstand) && p.Arvet is null))
         {
             var r = lagret[p.Rad.HjemmelId];
-            var hjemmel = Hjemmeltekst(r, kilder);
+            var hjemmel = Dokumenttekst(r, kilder);
             var opphevet = Hjemmelsstatus.Faller(p.Status) || p.Status == Hjemmelsstatus.Gjenstandslos;
             if (opphevet && r.OpphevetAvRettskildeId is { } o && kilder.GetValueOrDefault(o) is { Eli: { } oEli } ok
                 && sett.Add((Funn.OpphevendeBestemmelse, r.OpphevetAvEid, oEli)))

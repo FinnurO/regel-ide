@@ -90,10 +90,10 @@ public class HjemmelsstatusTests(EmbeddedPostgresFixture fixture)
     }
 
     /// <summary>S01: DEL/forskrift/1993-12-17-1314 og hjemlene, med konkurranseloven 2004 og LTI/forskrift/2004-04-16-631.</summary>
-    private sealed record S01(RettskildeEntitet F, RettskildeEntitet L65, RettskildeEntitet L66, RettskildeEntitet F1022, RettskildeEntitet F1023,
+    internal sealed record S01(RettskildeEntitet F, RettskildeEntitet L65, RettskildeEntitet L66, RettskildeEntitet F1022, RettskildeEntitet F1023,
         RettskildeEntitet L2004, RettskildeEntitet Lti631);
 
-    private static async Task<S01> ByggS01Async(Korpus k)
+    internal static async Task<S01> ByggS01Async(Korpus k)
     {
         DateOnly d65 = new(1993, 6, 11), dKgl = new(1993, 11, 12);
         int n65 = Nr(), n66 = Nr(), n1022 = Nr(), n1023 = Nr();
