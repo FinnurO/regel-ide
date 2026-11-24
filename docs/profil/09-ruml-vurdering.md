@@ -1,6 +1,6 @@
 # RUML vurdert mot profilforslaget og strukturmodellen
 
-[Ny, 2026-11-24] Prosjekteieren ba 24. november 2026 om en vurdering av RUML (lansert samme uke): kan det gå inn i modellene og standardene våre? Notatet svarer på det, foreslår koblinger og gir en anbefaling. **Ingenting er besluttet.** Mappingnotatet (04) er ikke endret. Koblingene under er forslag til rader i 04 §7 hvis prosjekteieren velger det.
+[Ny, 2026-11-24] Prosjekteieren ba 24. november 2026 om en vurdering av RUML (lansert samme uke): kan det gå inn i modellene og standardene våre? Notatet svarer på det, foreslår koblinger og gir en anbefaling. **Besluttet 24. november 2026:** prosjekteieren valgte (b) følge med. RUML står i sjekklisten (08) med utløserne i §6. Mappingnotatet (04) er ikke endret; koblingene under er forslag til rader i 04 §7 hvis RUML tas opp igjen.
 
 Status: arbeidsutkast. Normativt: nei (informativt, som 04).
 
@@ -103,7 +103,7 @@ Modulene er grunnlagsdokumentets §6. Strukturmodellen er docs/33 §4.
 
 Koblingstypene er grunnlagsdokumentets §5.7: **nært beslektet**, **snevrere** (vårt begrep er snevrere), **bredere** (vårt begrep er bredere), **ingen match**. Typen gjelder hvilke tilfeller begrepene dekker, ikke hvor mange felt de har. At vi har noe per utsagn og RUML per fil, er en forskjell i nivå og står i merknaden. Alle RUML-opplysninger er (v) mot [RUML] 1.0.0. Radene er rettet etter juristrunden (§7); kolonnen «Runde» viser hva som ble endret.
 
-**Status for tabellen:** mapping vurdert, ikke del av profilen. Den føres ikke inn i 04 før prosjekteieren har valgt.
+**Status for tabellen:** mapping vurdert, ikke del av profilen. Prosjekteieren valgte 24. november 2026 å følge med, så den føres ikke inn i 04 nå.
 
 | Vårt begrep | RUML 1.0.0 | Kobling | Merknad | Runde |
 |---|---|---|---|---|
