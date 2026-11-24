@@ -2,7 +2,7 @@
 
 [Ny, 2026-11-24] Prosjekteieren ba 24. november 2026 om en vurdering av HTML4EU, med eksemplene og dokumentasjonen. Notatet sier hva HTML4EU er, hva eksemplene viser, hvordan det passer med rettskildenodene, eId og ELI hos oss, og hva det betyr for sak #495 (varig elementidentitet). Det gir en anbefaling. Valget er prosjekteierens. Mappingnotatet (04) er ikke endret.
 
-Status: arbeidsutkast, venter på prosjekteierens valg. Normativt: nei (informativt, som 04).
+Status: besluttet 24. november 2026. Prosjekteieren valgte (b) følge med; HTML4EU står i sjekklisten (08) med utløserne i §6. Normativt: nei (informativt, som 04).
 
 **Kortversjon.** HTML4EU er Publikasjonskontorets HTML-profil for EU-rettsakter på EUR-Lex. Versjon 2.0.0.0 ble publisert 21. september 2026. Formatet bygger HTML fra AKN4EU, gir hver del av akten en ID etter ELI-underinndelingene (`art_9/par_1/sub_2/pnt_a`) og knytter delene sammen med ELI-ontologien i RDFa (`rel="eli:has_part"`). De 12 eksemplene er engelske originalutgaver (OJ) av forordninger, direktiver og beslutninger. Ingen av dem er konsolidert, og ingen er endringsakter. Spesifikasjonen dekker verken endringer eller konsolidering. EUR-Lex brukte ikke formatet i to stikkprøver 24. november 2026. Anbefalingen er **(b) følge med**, med en rad i sjekklisten (08). HTML4EU kan ikke gi oss en varig elementidentitet (#495): ID-ene er adresser i én utgave, bygget av trykt nummer og løpenummer, som vår eId. Formatet er likevel nyttig som mønster for presise ELI-adresser og for en eventuell HTML-eksport med RDFa.
 
@@ -145,7 +145,7 @@ Rettet etter juristrunden (§7).
 
 Koblingstypene er grunnlagsdokumentets §5.7: **nært beslektet**, **snevrere** (vårt begrep er snevrere), **bredere** (vårt begrep er bredere), **ingen match**. Opplysningene om HTML4EU er (v) mot [H2] og [EKS]. Radene er rettet etter juristrunden (§7); kolonnen «Runde» viser hva som ble endret.
 
-**Status for tabellen:** mapping vurdert, ikke del av profilen. Den føres ikke inn i 04 før prosjekteieren har valgt.
+**Status for tabellen:** mapping vurdert, ikke del av profilen. Prosjekteieren valgte 24. november 2026 å følge med, så den føres ikke inn i 04 nå.
 
 | Vårt begrep (eId) | HTML4EU 2.0.0.0 | ELI | Kobling | Merknad | Runde |
 |---|---|---|---|---|---|
