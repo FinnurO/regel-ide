@@ -1,0 +1,29 @@
+[
+ {
+  "id": "H15",
+  "replikk": "godtar",
+  "tekst": "Det nye argumentet holder. 1975-forskriften kan for reglene fra 1976 bare være én av to ting. Enten er den et kompetanseledd, det vil si en delegering til organet som fastsatte reglene. Eller den er bare den forskriften reglene supplerer. Er den et kompetanseledd, gjelder et alminnelig prinsipp: forskrifter som er gitt gyldig av en delegat, faller ikke bort fordi delegeringen senere oppheves, så lenge den materielle hjemmelen består [slutning, alminnelig forvaltningsrett]. Etter §5.20 punkt 1 teller kompetanseleddet da heller ikke som premiss når det finnes en materiell hjemmel. Er den bare den forskriften reglene supplerer, er den ikke hjemmel i det hele tatt. I begge tilfeller er det sivilforsvarsloven 1953 § 41 som bærer, og den er videreført ved sivilbeskyttelsesloven § 39 første ledd. Riktig samlet status er derfor videreført, og funnet skulle ikke ha vært skrevet. Klassen feil og feilårsaken rollen godtas. To forbehold bør stå i grunnen. (1) At § 41 er den materielle hjemmelen, bygger bare på Lovdatas hjemmelsfelt (basedOn), fordi forskriften ikke har noen hjemmelstekst. Ordlyden i sivilforsvarsloven 1953 § 41 er ikke kontrollert. (2) Reglene fra 1976 viser innholdsmessig til normer som er opphevet (punkt 1 og 3: departementets forskrifter og direktoratets bestemmelser fra 1975). Det er en mulig delvis gjenstandsløshet, men den hører til et annet spørsmål enn denne kategorien.",
+  "kilder": [
+   {
+    "ref": "docs/33 §5.20, samlet status punkt 1",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "SF/forskrift/1976-08-03-9783 punkt-1, punkt-3, punkt-8 (korpus)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "NL/lov/2010-06-25-45 §39 ledd-1 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/forskrift/1976-08-03-9783 (hjemmelsfelt LOV-1953-07-17-9-§41, LOV-2010-06-25-45-§39, FOR-1975-12-29-1)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "Ordlyden i lov 17. juli 1953 nr. 9 § 41: ikke kontrollert",
+    "funksjon": "ikke_funnet"
+   }
+  ]
+ }
+]
