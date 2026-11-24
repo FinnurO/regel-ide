@@ -25,6 +25,13 @@ public sealed record Opphevingslesning(string Sitat, bool Utvidet);
 /// kalle disse funksjonene. Det eneste som er endret i <see cref="Opphevingskontroll"/>, er at målmønsteret kan gis utenfra
 /// (<see cref="Opphevingskontroll.DelvisMal"/>, <see cref="Opphevingskontroll.VidereforingssetningMal"/>), med samme svar for R8 og R9.
 /// </para>
+/// <para>
+/// [LØST, #472 PR 3] <b>Koblet inn i #429.</b> R8, R9 og målvedtaket leser opphevingen med <see cref="LesOppheving"/> (hel setning, passiv,
+/// «til», hele noden og vakten), R9 leser hjemmelsloven også uten nummer (<see cref="Mal"/>), og R9-hintet bruker videreføringsformene V1–V4
+/// (<see cref="Videreforinger{T}"/>) i alle nodene til den opphevende loven. Formelen i foreldrenoden er én funksjon
+/// (<see cref="MedForelderformel"/>). Vakten er utvidet med lister og identifikasjon (<see cref="MalErObjekt"/>): uten det ville 8 av 46
+/// R8-kilder falt bort, sju av dem kontrollert som hele av juristen i #429 måling 3.
+/// </para>
 /// </summary>
 public static class Hjemmelstekstlesing
 {

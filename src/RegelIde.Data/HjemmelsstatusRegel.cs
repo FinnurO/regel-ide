@@ -118,7 +118,8 @@ public sealed record HjemmelsstatusForskrifter(
 /// </para>
 /// <para>
 /// <b>Ikke her</b> [LÅST, oppdraget for #472 PR 1]: funnundertypen og premissporten (PR 2), og rettingene i #429-koden (PR 3). Tekstformene
-/// PR 3 trenger, er delt i <see cref="Hjemmelstekstlesing"/>.
+/// PR 3 trenger, er delt i <see cref="Hjemmelstekstlesing"/>. [LØST, #472 PR 3] Lesingen av én tekst, formelen i foreldrenoden og
+/// videreføringssøket er flyttet dit og brukes av begge regler.
 /// </para>
 /// </summary>
 public sealed class HjemmelsstatusRegel(RegelIdeDbContext db, IKunngjortTekstkilde? kunngjort = null)

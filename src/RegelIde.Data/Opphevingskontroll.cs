@@ -45,6 +45,13 @@ public sealed record HjemmelOpphevet(
 /// konservative: en del foran målet («kapittel/§/del/punkt/ledd/vedlegg/romertall … i/av [inntil tre ord] &lt;dato&gt;») eller rett etter
 /// «oppheves» («oppheves kapittel 6»). En oppheving som ikke kjennes igjen, teller som delvis — ikke som hel (CLAUDE.md §8).
 /// </para>
+/// <para>
+/// [ENDRET, #472 PR 3, Johanns avgjørelse 2026-11-18 (4)] R8, R9 og målvedtaket leser teksten med hjemmelsstatusens lesing
+/// (<see cref="Hjemmelstekstlesing.LesOppheving"/>): <see cref="FullOpphevingssetning"/> først, så passiv, «til» etter nummeret og hele
+/// noden når tittelen har punktum, og alt gjennom vakten mot et mål i tittelen til noe annet. Kravet om «Endrer» og unntaket for SF og NL
+/// i R8 står fast, og R8 leser fortsatt ikke formelen i foreldrenoden (#429 PR 4 (1c)). <see cref="FullOpphevingssetning"/> og
+/// <see cref="Videreforingssetning"/> er beholdt som byggesteinene de er.
+/// </para>
 /// </summary>
 public static class Opphevingskontroll
 {
