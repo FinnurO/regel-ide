@@ -47,14 +47,23 @@ export const NY_HJEMMEL_OVERSKRIFT = 'Ny hjemmel';
 export const NY_HJEMMEL_MANGEL_START = 'Ny hjemmel ikke vurdert';
 export const UTTOMT_VIRKNING_MANGEL_START = 'Uttømt virkning ikke klassifisert';
 
+/** [Ny, #472 PR 4, prosjekteierens avgjørelse 2026-11-24 etter måling 1] Premissmangelen når korpuset bare har forskriften som kunngjort versjon
+ * (FunnTjeneste.KunngjortMangelStart), og vurderingspunktet som fjerner den (Funn.GjeldendeStatusOverskrift). */
+export const KUNNGJORT_MANGEL_START = 'Kunngjort versjon, gjeldende status ikke kontrollert';
+export const GJELDENDE_STATUS_OVERSKRIFT = 'Gjeldende status';
+
 /** [Ny, #429 PR 3] Deler premissmanglene i R9 (hjemmelsloven) og resten (navneform og etterfølger), så merkene kan vises hver for seg.
  * [ENDRET, #472 PR 2] Også «Ny hjemmel» og #446, som vises på et funn som bare er oppdaget, slik som R9. */
-export function delPremissmangler(mangler: string[]): { hjemmel: string[]; nyHjemmel: string[]; uttomt: string[]; andre: string[] } {
-  const egne = [HJEMMEL_MANGEL_START, NY_HJEMMEL_MANGEL_START, UTTOMT_VIRKNING_MANGEL_START];
+export function delPremissmangler(mangler: string[]): {
+  hjemmel: string[]; nyHjemmel: string[]; uttomt: string[]; kunngjort: string[]; andre: string[];
+} {
+  // [ENDRET, #472 PR 4] Også «Kunngjort versjon», som vises på et funn som bare er oppdaget, slik som #446.
+  const egne = [HJEMMEL_MANGEL_START, NY_HJEMMEL_MANGEL_START, UTTOMT_VIRKNING_MANGEL_START, KUNNGJORT_MANGEL_START];
   return {
     hjemmel: mangler.filter((m) => m.startsWith(HJEMMEL_MANGEL_START)),
     nyHjemmel: mangler.filter((m) => m.startsWith(NY_HJEMMEL_MANGEL_START)),
     uttomt: mangler.filter((m) => m.startsWith(UTTOMT_VIRKNING_MANGEL_START)),
+    kunngjort: mangler.filter((m) => m.startsWith(KUNNGJORT_MANGEL_START)),
     andre: mangler.filter((m) => !egne.some((e) => m.startsWith(e))),
   };
 }

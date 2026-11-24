@@ -8,7 +8,7 @@ import { rettskildeLenkeForId } from '../api/eidLenker';
 import type { FunnDto, FunnKoblingDto, FunnTilgangDto, FunnVurderingspunktInn } from '../api/types';
 import { Metatekst } from '../entitet/Metatekst';
 import { FunnMerker, FunnTekst, OffentligFunn, SIKKERHET_TEKST, lovdataLenke } from '../funn/FunnVisning';
-import { ETTERFOLGER_OVERSKRIFT, HJEMMEL_OVERSKRIFT, NY_HJEMMEL_OVERSKRIFT, delPremissmangler } from '../funn/funnTekst';
+import { ETTERFOLGER_OVERSKRIFT, GJELDENDE_STATUS_OVERSKRIFT, HJEMMEL_OVERSKRIFT, NY_HJEMMEL_OVERSKRIFT, delPremissmangler } from '../funn/funnTekst';
 
 const ROLLE_TEKST: Record<string, string> = {
   motstridende_bestemmelse: 'Mulig motstrid',
@@ -57,6 +57,7 @@ export default function FunnDetalj() {
   const [etterfolger, setEtterfolger] = useState('');
   // [Ny, #429 PR 3, R9] Juristens vurdering av om vedtaket fortsatt har virkning når hjemmelsloven er opphevet.
   const [hjemmel, setHjemmel] = useState('');
+  const [gjeldendeStatus, setGjeldendeStatus] = useState('');
   // [Ny, #472 PR 2] Juristens vurdering av om forskriften kan stå på en ny hjemmel, eller at det ikke er vurdert (premissporten).
   const [nyHjemmel, setNyHjemmel] = useState('');
   const [nyHjemmelIkkeVurdert, setNyHjemmelIkkeVurdert] = useState(false);
@@ -71,7 +72,7 @@ export default function FunnDetalj() {
   const last = useCallback(() => {
     if (!id) return;
     api.hentEttFunn(id).then((f) => {
-      setFunn(f); setVurdering(f.vurdering ?? ''); setEtterfolger(etterfolgerpunkt(f)?.tekst ?? ''); setHjemmel(hjemmelpunkt(f)?.tekst ?? '');
+      setFunn(f); setVurdering(f.vurdering ?? ''); setEtterfolger(etterfolgerpunkt(f)?.tekst ?? ''); setHjemmel(hjemmelpunkt(f)?.tekst ?? ''); setGjeldendeStatus(gjeldendeStatuspunkt(f)?.tekst ?? '');
       settNyHjemmel(f);
       setFeil(null);
     })
@@ -89,7 +90,7 @@ export default function FunnDetalj() {
       setFunn(f);
       setVurdering(f.vurdering ?? '');
       setEtterfolger(etterfolgerpunkt(f)?.tekst ?? '');
-      setHjemmel(hjemmelpunkt(f)?.tekst ?? '');
+      setHjemmel(hjemmelpunkt(f)?.tekst ?? ''); setGjeldendeStatus(gjeldendeStatuspunkt(f)?.tekst ?? '');
       settNyHjemmel(f);
       setBekreft(null);
     } catch (e) {
@@ -117,16 +118,20 @@ export default function FunnDetalj() {
     || funn.kategori === 'hjemmel_opphevet';
   // [Ny, #472 PR 2] «Ny hjemmel» for alle undertyper unntatt gjenstandsløs (premissporten).
   const sporOmNyHjemmel = funn.kategori === 'hjemmel_opphevet' && funn.undertype !== 'gjenstandslos';
+  // [Ny, #472 PR 4] «Gjeldende status» når premissporten melder at bare den kunngjorte versjonen er i korpus, eller juristen alt har svart.
+  const sporOmGjeldendeStatus = delPremissmangler(funn.premissmangler).kunngjort.length > 0 || gjeldendeStatuspunkt(funn) !== undefined;
 
   function juristvurder() {
     const gammeltEtterfolgerpunkt = etterfolgerpunkt(funn!);
     const gammeltHjemmelpunkt = hjemmelpunkt(funn!);
     const gammeltNyHjemmelpunkt = nyHjemmelpunkt(funn!);
+    const gammeltGjeldendeStatuspunkt = gjeldendeStatuspunkt(funn!);
     const nyHjemmelSvar = sporOmNyHjemmel && (nyHjemmelIkkeVurdert || nyHjemmel.trim() !== '');
     const eksisterende: FunnVurderingspunktInn[] = funn!.vurderingspunkter
       .filter((p) => !(sporOmEtterfolger && etterfolger.trim() && p === gammeltEtterfolgerpunkt))
       .filter((p) => !(sporOmHjemmel && hjemmel.trim() && p === gammeltHjemmelpunkt))
       .filter((p) => !(nyHjemmelSvar && p === gammeltNyHjemmelpunkt))
+      .filter((p) => !(sporOmGjeldendeStatus && gjeldendeStatus.trim() && p === gammeltGjeldendeStatuspunkt))
       .map((p) => ({ type: p.type, tekst: p.tekst, overskrift: p.overskrift, sikkerhet: p.sikkerhet }));
     const nye: FunnVurderingspunktInn[] = nyBortforklaring.trim()
       ? [{ type: 'bortforklaring_provd', tekst: nyBortforklaring.trim(), overskrift: nyBortforklaringOverskrift.trim() || null }]
@@ -136,6 +141,9 @@ export default function FunnDetalj() {
     }
     if (sporOmHjemmel && hjemmel.trim()) {
       nye.push({ type: 'vurdering', tekst: hjemmel.trim(), overskrift: HJEMMEL_OVERSKRIFT });
+    }
+    if (sporOmGjeldendeStatus && gjeldendeStatus.trim()) {
+      nye.push({ type: 'vurdering', tekst: gjeldendeStatus.trim(), overskrift: GJELDENDE_STATUS_OVERSKRIFT });
     }
     if (nyHjemmelSvar) {
       nye.push(nyHjemmelIkkeVurdert
@@ -313,6 +321,16 @@ export default function FunnDetalj() {
                   <Textarea data-size="sm" rows={2} value={hjemmel} onChange={(e) => setHjemmel(e.target.value)} />
                 </Field>
               )}
+              {sporOmGjeldendeStatus && (
+                <Field>
+                  <Label>Gjeldende status: hva viser Lovdata for vedtaket?</Label>
+                  <Metatekst>
+                    Korpuset har bare vedtaket slik det ble kunngjort i Norsk Lovtidend, og Lovdatas ajourførte status er ikke slått opp. Vedtaket kan
+                    selv være opphevet ved en kilde som ikke er i korpus (#472).
+                  </Metatekst>
+                  <Textarea data-size="sm" rows={2} value={gjeldendeStatus} onChange={(e) => setGjeldendeStatus(e.target.value)} />
+                </Field>
+              )}
               {sporOmNyHjemmel && (
                 <Field>
                   <Label>Ny hjemmel: kan forskriften stå på en ny hjemmel som gir samme kompetanse?</Label>
@@ -454,6 +472,11 @@ function BestemmelseRad({ k }: { k: FunnKoblingDto }) {
 /** [Ny, #429 PR 3, R9] Juristens vurderingspunkt «Hjemmel» (type vurdering), om det finnes. */
 function hjemmelpunkt(f: FunnDto) {
   return f.vurderingspunkter.find((p) => p.type === 'vurdering' && p.overskrift?.trim().toLowerCase() === HJEMMEL_OVERSKRIFT.toLowerCase());
+}
+
+/** [Ny, #472 PR 4] Juristens punkt «Gjeldende status» (type vurdering), om det finnes. */
+function gjeldendeStatuspunkt(f: FunnDto) {
+  return f.vurderingspunkter.find((p) => p.type === 'vurdering' && p.overskrift?.trim().toLowerCase() === GJELDENDE_STATUS_OVERSKRIFT.toLowerCase());
 }
 
 /** [Ny, #472 PR 2] Juristens punkt «Ny hjemmel»: vurdert (type vurdering) eller merket «ikke vurdert» (type ikke_avgjort), om det finnes. */

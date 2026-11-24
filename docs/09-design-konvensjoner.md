@@ -1647,3 +1647,11 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
   «Ny hjemmel ikke vurdert» på 315. På FOR-2016-12-02-1426 ga avkrysningen merket «Mulig bortfalt» etter lagring, og «Ny hjemmel: Ikke vurdert.»
   under «Ikke avgjort». Rettskildesiden til FOR-1994-06-03-375 viste «Hjemmel opphevet, videreføring ikke funnet» uten «(mulig bortfalt)» og
   lenken til funnet. Kopien er slettet.
+- [Ny, #472 PR 4, prosjekteierens avgjørelse 2026-11-24 etter måling 1] **Kunngjort versjon.** Har korpuset bare den kunngjorte versjonen (LTI),
+  står premissmangelen «Kunngjort versjon, gjeldende status ikke kontrollert». I lista og i hodet på funnet vises den som merket «Kunngjort
+  versjon, status ikke kontrollert» (`warning`, også når funnet bare er oppdaget, som #446; `delPremissmangler` i `funn/funnTekst.ts`, vitest).
+  Juristvurderingen får feltet «Gjeldende status: hva viser Lovdata for vedtaket?», som lagres som vurderingspunktet «Gjeldende status». Feltet
+  står bare når mangelen står, eller når punktet alt finnes. Når punktet er lagret, forsvinner mangelen. Ingen nye farger.
+- **Kaldsjekket 2026-11-24** i kopien `regelide_472pr4` (API 5387, web 5373): fra forsiden til «Funn til vurdering», søk «Siviltjenesten». Lista
+  viste FOR-2005-12-16-1816 med merket. Funnet viste påstanden «Korpuset har … bare slik det ble kunngjort i Norsk Lovtidend», mangelen og feltet.
+  Etter lagring med «Gjeldende status» var merket borte. Kopien er slettet.

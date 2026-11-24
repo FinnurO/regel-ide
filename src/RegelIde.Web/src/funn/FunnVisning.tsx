@@ -108,7 +108,7 @@ export function MaskinregelTag() {
 
 /** De merkene som hører til et funn, i fast rekkefølge: status, kategori, KI-vurdering eller maskinregel, kilde endret, premissport. */
 export function FunnMerker({ funn }: { funn: FunnDto }) {
-  const { hjemmel, nyHjemmel, uttomt, andre } = delPremissmangler(funn.premissmangler);
+  const { hjemmel, nyHjemmel, uttomt, kunngjort, andre } = delPremissmangler(funn.premissmangler);
   const apen = funn.status === 'oppdaget' || funn.status === 'juristvurdert';
   return (
     <>
@@ -142,6 +142,10 @@ export function FunnMerker({ funn }: { funn: FunnDto }) {
       )}
       {uttomt.length > 0 && apen && (
         <Tag data-size="sm" data-color="warning" title={uttomt.join(' ')}>Uttømt virkning ikke klassifisert (#446)</Tag>
+      )}
+      {/* [Ny, #472 PR 4] Korpuset har bare den kunngjorte versjonen (LTI): Lovdatas ajourførte status er ikke kontrollert. */}
+      {kunngjort.length > 0 && apen && (
+        <Tag data-size="sm" data-color="warning" title={kunngjort.join(' ')}>Kunngjort versjon, status ikke kontrollert</Tag>
       )}
     </>
   );
