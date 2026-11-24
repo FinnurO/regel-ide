@@ -1,0 +1,737 @@
+{
+ "sak": "HTML4EU-vurdering (docs/profil/10-html4eu-vurdering.md)",
+ "dato": "2026-11-24",
+ "runder": 1,
+ "merknad": "Én runde. Juristen fikk kortene uten modellererens begrunnelser. Svar 'delvis' er ikke replisert.",
+ "inndata": {
+  "kontekst": "HTML4EU 2.0.0.0 (Publikasjonskontoret, publisert 2026-09-21) vurdert mot DigRetts profilforslag, rettskildenodene og eId-konvensjonen (docs/08 §1.2) og sak #495 (varig elementidentitet). Kortene er forslag til koblinger, påstander om bruk og en anbefaling, ikke lovtekstklassifisering. Koblingstypene er grunnlagsdokumentets §5.7: nært beslektet, snevrere (vårt begrep er snevrere), bredere (vårt begrep er bredere), ingen match. Kildene ligger lokalt: spesifikasjonen som tekst i ../spec.txt (HTML-versjonen av html4eu-2.0.0.0), v1.0 som tekst i ../v1.txt, eksemplene i ../nedlasting/samples/*.html (12 EU-akter, engelsk, OJ-utgaven). Vår modell: NodeType = Kapittel, Underinndeling, Paragraf, Ledd, Punkt, Avslutning (src/RegelIde.Kildekonvertering/Modeller.cs); eId-byggerne i src/RegelIde.Kildekonvertering/LovdataIdentifikatorer.cs; docs/08-byggesteg1-teknisk-design.md §1.2 og §2.1; docs/profil/04-mappingnotat.md §2; docs/profil/03-metodenotat.md §3 (EØS-rett er kilde utenfor korpus); gh issue view 495. Funn fra korpuset (2026-11-24): personopplysningsloven inneholder GDPR-artiklene som noder med eId som https://lovdata.no/eli/lov/2018/06/15/38/nor/a5 under kap-gdpr/rom-II. Funn fra EUR-Lex (2026-11-24, to akter åpnet i nettleser): EUR-Lex viser i dag Formex-avledet HTML (ID art_9, art_9.tit_1, 009.001), uten RDFa og uten HTML4EU-metadata.",
+  "kort": [
+   {
+    "id": "K1",
+    "type": "kobling",
+    "foreslatt": {
+     "vart_begrep": "Rettskilde (lov/forskrift), eId = Lovdata-ELI + /nor",
+     "html4eu": "<article class=\"act\"> i <main>; prefikset doc: = aktens ELI-basis (f.eks. http://data.europa.eu/eli/reg/2024/2791/); resource=\"doc:oj\" på <body> i 2 av 12 eksempler",
+     "eli": "EU-ELI for OJ-utgaven: …/{type}/{år}/{nr}/oj",
+     "kobling": "nært beslektet",
+     "merknad": "HTML4EU beskriver bare OJ-utgaven. Konsolidert versjon er ikke beskrevet. Vår uttrykks-ID mangler dato (04 §2)."
+    }
+   },
+   {
+    "id": "K2",
+    "type": "kobling",
+    "foreslatt": {
+     "vart_begrep": "Rettskildeversjon (ny rettskilder-rad, erstatter-kjeden, tekst_hash)",
+     "html4eu": "Ingen. op-html-build er tidspunktet HTML-fila ble laget, ikke tekstversjonen",
+     "eli": "Konsolidert ELI har dato i stedet for oj (EUR-Lex: eli/reg/2016/679/2016-05-04)",
+     "kobling": "ingen match",
+     "merknad": "HTML4EU 2.0 har ingen versjonskjede for teksten."
+    }
+   },
+   {
+    "id": "K3",
+    "type": "kobling",
+    "foreslatt": {
+     "vart_begrep": "Kapittel, eId kap-N (lokal, uten ELI-rot)",
+     "html4eu": "<section class=\"chapter\" id=\"cpt_I\"> med <hgroup id=\"cpt_I/tit_1\">",
+     "eli": "cpt; …/cpt_I/oj",
+     "kobling": "nært beslektet",
+     "merknad": "Begge bygger ID av trykt nummer. HTML4EU-ID er lokal, men blir global med doc:. Vår er lokal uten rot."
+    }
+   },
+   {
+    "id": "K4",
+    "type": "kobling",
+    "foreslatt": {
+     "vart_begrep": "Underinndeling, eId kap-N/rom-II (romertall inne i et kapittel, f.eks. kap-gdpr/rom-II)",
+     "html4eu": "<section class=\"section\" id=\"sct_N\">; over kapittel: part (prt), title-subdivision (tis); under: subsection (sbs)",
+     "eli": "sct (prt/tis/sbs)",
+     "kobling": "nært beslektet",
+     "merknad": "Rekkefølgen Part > Title > Chapter > Section > Subsection er påbudt. For GDPR i personopplysningsloven er rom-II i realiteten EU-kapitlet (cpt_II), ikke en seksjon. Del (over kapittel) har ingen node hos oss."
+    }
+   },
+   {
+    "id": "K5",
+    "type": "kobling",
+    "foreslatt": {
+     "vart_begrep": "Paragraf, eId {lov-ELI}/§1-1 (og /a5 for GDPR-artikler i personopplysningsloven)",
+     "html4eu": "<section class=\"article\" id=\"art_1\"> med <hgroup id=\"art_1/tit_1\">",
+     "eli": "art; …/art_1/oj",
+     "kobling": "nært beslektet",
+     "merknad": "Lovdata-paragraf = AKN article (04 §2). Begge bruker trykt nummer. Artikkel-ID-en prefikses ikke med kapitlet i eksemplene (cpt_I inneholder art_1)."
+    }
+   },
+   {
+    "id": "K6",
+    "type": "kobling",
+    "foreslatt": {
+     "vart_begrep": "Ledd, eId …/ledd-N (løpenummer i paragrafen)",
+     "html4eu": "Nummerert ledd: <li class=\"paragraph\" id=\"art_X/par_N\"> (nummer fra <span>1.</span>); unummerert: <p class=\"unnumbered-paragraph\" id=\"art_X/unp_N\">; ledd inne i nummerert ledd: <li class=\"subparagraph\" id=\"…/sub_N\">",
+     "eli": "par / unp / sub",
+     "kobling": "bredere",
+     "merknad": "Vårt ledd dekker tre EU-koder. Valget avhenger av om leddet er nummerert i kilden (nye norske lover har «(1)», f.eks. forvaltningsloven 2025). Vår modell lagrer ikke om leddet er nummerert [slutning fra eId-byggeren]."
+    }
+   },
+   {
+    "id": "K7",
+    "type": "kobling",
+    "foreslatt": {
+     "vart_begrep": "Punkt, eId …/punkt-N (løpenummer i leddet)",
+     "html4eu": "Nummer/bokstav: <li class=\"point\" id=\"…/sub_1/pnt_a\"> (ID fra trykt bokstav); tankestrek: <li class=\"indent\" id=\"…/idt_N\"> (løpenummer)",
+     "eli": "pnt / idt",
+     "kobling": "bredere",
+     "merknad": "Vårt punkt dekker både pnt og idt. pnt bruker trykt bokstav, vi bruker indeks (04 §2, avvik 3). HTML4EU legger lista inne i et subparagraph med innledning, så stien får et ekstra nivå: par_1/sub_1/pnt_a mot ledd-1/punkt-1."
+    }
+   },
+   {
+    "id": "K8",
+    "type": "kobling",
+    "foreslatt": {
+     "vart_begrep": "Leddets egen tekst foran en punktliste (innledningen; docs/08 §1.2)",
+     "html4eu": "<p class=\"introductory-part\" id=\"…/sub_1/inp\">",
+     "eli": "inp",
+     "kobling": "nært beslektet",
+     "merknad": "HTML4EU gjør innledningen til en egen identifiserbar del. Hos oss er den leddets tekst, ikke en egen node."
+    }
+   },
+   {
+    "id": "K9",
+    "type": "kobling",
+    "foreslatt": {
+     "vart_begrep": "Avslutning, eId {forelder}/avslutning, /avslutning-2 … (#361)",
+     "html4eu": "<p class=\"closing-part\" id=\"…/sub_1/wrp\">",
+     "eli": "wrp",
+     "kobling": "nært beslektet",
+     "merknad": "Spesifikasjonen viser wrp uten nummer. Hvordan flere avslutninger i samme forelder skal nummereres, står ikke der."
+    }
+   },
+   {
+    "id": "K10",
+    "type": "kobling",
+    "foreslatt": {
+     "vart_begrep": "Vedlegg (ingen egen nodetype; leses inn som kapittel eller avsnitt, docs/08 §3.1.3)",
+     "html4eu": "<section class=\"annex\" id=\"anx_I\">, tillegg <section class=\"appendix\" id=\"anx_I/app_I\">; koblet med rel=\"eli:has_annex\"",
+     "eli": "anx / app; eli:has_annex",
+     "kobling": "ingen match",
+     "merknad": "Vi har ingen vedleggsnode. Eksport må utlede vedlegg fra overskrift eller kilde-ID."
+    }
+   },
+   {
+    "id": "K11",
+    "type": "kobling",
+    "foreslatt": {
+     "vart_begrep": "Tabell (flates ut på stedet, docs/08 §1.2)",
+     "html4eu": "<table id=\"tab_N\">",
+     "eli": "tab",
+     "kobling": "ingen match",
+     "merknad": "Vi beholder ikke tabellen som struktur."
+    }
+   },
+   {
+    "id": "K12",
+    "type": "kobling",
+    "foreslatt": {
+     "vart_begrep": "eId som identitet (bygget i hver versjon fra §-nummer og ledd- og punktindeks)",
+     "html4eu": "@id = ELI-underinndelingssti relativt til akten (art_9/par_1/sub_2/pnt_a); @resource = doc: + sti + /oj",
+     "eli": "ELI-underinndeling for OJ-utgaven",
+     "kobling": "nært beslektet",
+     "merknad": "Begge er adresser i én versjon, bygget av trykt nummer og løpenummer. Ingen av dem er en varig identitet (AKN wId eller GUID). HTML4EU sier ingenting om hva som skjer med ID-ene ved endring eller konsolidering."
+    }
+   },
+   {
+    "id": "K13",
+    "type": "kobling",
+    "foreslatt": {
+     "vart_begrep": "Seksjons-ELI (offisiell_eli, tom; egen utvidelse {ELI}/§10-2)",
+     "html4eu": "@resource=\"doc:art_10/par_2/oj\" med rel=\"eli:has_part\"",
+     "eli": "EU-malen for underinndelinger; Lovdatas mal har level-segmentet section/152 uten funksjon",
+     "kobling": "nært beslektet",
+     "merknad": "Mønsteret (id = sti, resource = full ELI) er det vi trenger når Lovdata gir nivået funksjon. EU-kodene (art, par) er ikke Lovdatas (section)."
+    }
+   },
+   {
+    "id": "K14",
+    "type": "kobling",
+    "foreslatt": {
+     "vart_begrep": "Forelder-barn mellom noder (nodehierarkiet)",
+     "html4eu": "Nesting i HTML + rel=\"eli:has_part\" på hvert identifiserbart barn; rel=\"eli:has_annex\" på vedlegg",
+     "eli": "eli:has_part / eli:is_part_of, eli:has_annex",
+     "kobling": "nært beslektet",
+     "merknad": "Containere som bare grupperer (citations, recitals) får ingen ressurs."
+    }
+   },
+   {
+    "id": "K15",
+    "type": "kobling",
+    "foreslatt": {
+     "vart_begrep": "Kryssreferanse <ref href=\"#{full ELI-eId}\">",
+     "html4eu": "Ikke beskrevet i 2.0 (bare fotnoteankre)",
+     "eli": "-",
+     "kobling": "ingen match",
+     "merknad": "v1.0 (2025) beskrev lenker med @rel; 2.0 har tatt det ut."
+    }
+   },
+   {
+    "id": "K16",
+    "type": "kobling",
+    "foreslatt": {
+     "vart_begrep": "Endringer (endringslov, changesToParent som proveniensrad) og opphevelse",
+     "html4eu": "Ingen. html4eu-modification-notice står i malen uten beskrivelse. v1.0 hadde et utkast for endringsbestemmelser, merket som uferdig",
+     "eli": "eli:amends / amended_by, consolidates / consolidated_by, in_force",
+     "kobling": "ingen match",
+     "merknad": "HTML4EU 2.0 dekker verken endringsbestemmelser eller konsolidering."
+    }
+   },
+   {
+    "id": "B1",
+    "type": "bruk",
+    "foreslatt": {
+     "pastand": "(a) HTML4EU som importformat for EU-rett i korpuset: nei for tekst. Korpuset er norsk lov og forskrift (03 §3: EØS-rett er kilde utenfor korpus). HTML4EU gir EU-språkene, ikke den norske teksten som gjelder i Norge. Det finnes bare 12 eksempler; EUR-Lex bruker ikke formatet ennå (sjekket 2026-11-24). Ja som adressering: ELI-underinndelingene i HTML4EU kan brukes til å peke presist på en EU-bestemmelse som kilde utenfor korpus, og til en krysstabell for EU-rettsakter som står inne i norske lover (GDPR-artiklene i personopplysningsloven, a5 ↔ art_5)."
+    }
+   },
+   {
+    "id": "B2",
+    "type": "bruk",
+    "foreslatt": {
+     "pastand": "(b) HTML4EU som eksportformat for vår konsoliderte tekst eller nettside: ikke som det står. Profilen «Legal act» er skrevet for EU-akter (fortale, betraktninger, artikler, signaturer) og har ikke norske ledd, punktum eller konsolidert tekst. Kjernen (dokumentmal, id = underinndelingssti, resource = full ELI, rel=eli:has_part) kan brukes som mønster for et HTML-uttrekk med RDFa når Lovdatas paragraf-ELI får funksjon."
+    }
+   },
+   {
+    "id": "B3",
+    "type": "bruk",
+    "foreslatt": {
+     "pastand": "(c) HTML4EU som kilde til varig elementidentitet (#495): nei. ID-ene er ELI-underinndelingsstier for OJ-utgaven, bygget av trykt nummer og løpenummer (sub_N, unp_N, idt_N). De er adresser i én versjon, som vår eId. HTML4EU bekrefter at offentlige adresser i EU også er versjonsbundne og trenger en egen varig ID ved siden av. At EU sjelden omnummererer artikler (innsatte artikler får 4a) er lovteknisk praksis, ikke en egenskap ved ID-en [slutning]."
+    }
+   },
+   {
+    "id": "A1",
+    "type": "anbefaling",
+    "foreslatt": {
+     "anbefaling": "(b) følge med, med sjekklistepost i 08. Ikke (a) fordi 2.0 er ny (2026-09-21), ikke i bruk på EUR-Lex, har et kartleggingsvedlegg merket utkast, ingen profil for rettsavgjørelser, og ikke dekker endringer eller konsolidering, og fordi profilen for rettsakter er EU-spesifikk. Ikke (c) fordi det er Publikasjonskontorets formelle HTML-format for EUR-Lex, bygger på ELI og ELI-ontologien, har erstattet LegalHTML, og blir trolig formen EU-rett publiseres i. Utløsere: EUR-Lex tar formatet i bruk; HTML4EU får profil for konsolidert tekst eller endringer; ELI-underinndelinger versjon 3 publiseres; Lovdata gir paragraf-ELI funksjon eller publiserer HTML med ELI-underinndelinger; prosjekteieren bestemmer å bygge HTML-eksport med RDFa eller lenking til EU-kilder."
+    }
+   }
+  ]
+ },
+ "runde1_utfordringer": [
+  {
+   "id": "K1",
+   "dom": "innvending",
+   "gjelder": "raden",
+   "alvor": "middels",
+   "innvending": "Kortet sammenligner to ulike versjoner. En rettskilde-rad hos oss er enten en konsolidert tekst (kildeform «konsolidert», NL/SF) eller en kunngjort tekst (kildeform «kunngjort», LTI, docs/08 §3.1.2). EU-ELI-en …/oj peker på originalutgaven i EUT. Lovdatas egen ELI-mal har et versjonssegment (oj eller consolidated, 04 §2). Det er derfor bare den kunngjorte formen som svarer til /oj. Den konsoliderte formen svarer til EU sin konsoliderte ELI med dato, og den beskriver HTML4EU ikke. Fordi vår rettskilde dekker begge formene, er vårt begrep bredere. I tillegg står «HTML4EU beskriver bare OJ-utgaven» som et tekstfunn. Spesifikasjonen sier ikke det. Den bruker bare /oj i §4.3 og i det uferdige kartleggingsvedlegget, og eksemplene gjør det samme. Det er en slutning og bør merkes slik.",
+   "retting": {
+    "kobling": "bredere",
+    "merknad": "Vår rettskilde dekker både kunngjort tekst (LTI, tilsvarer …/oj) og konsolidert tekst (tilsvarer EU sin konsoliderte ELI med dato, som HTML4EU ikke beskriver). Spesifikasjonen og alle 12 eksemplene bruker bare /oj [slutning: HTML4EU er i praksis laget for OJ-utgaven]. Vår uttrykks-ID mangler dato (04 §2). Kobl helst per kildeform: kunngjort ↔ /oj nært beslektet; konsolidert ↔ ingen match i HTML4EU."
+   },
+   "ny_rad": null,
+   "kilder": [
+    {
+     "ref": "spec.txt (HTML4EU 2.0.0.0) §4.3 og §5.1 (DRAFT, «ELI URI of the Act ex: …/oj»)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/08 §3.1.2 (kildeform konsolidert/kunngjort)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/profil/04-mappingnotat.md §2, rad Verk-ID (Lovdatas versjonssegment oj | consolidated)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "samples/*.html: body resource=\"doc:oj\" i 32014R0699 og 32022R0092, 2 av 12 (kontrollert)",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  },
+  {
+   "id": "K2",
+   "dom": "holder",
+   "gjelder": "raden",
+   "alvor": null,
+   "innvending": "Holder. Én presisering: hver @resource slutter på /oj, så HTML-fila sier hvilken versjon den gjelder (OJ-utgaven). Men HTML4EU har ingen versjonskjede, ingen dato for tekstversjonen og ingen kobling til en senere versjon. «Ingen match» for vår erstatter-kjede står. op-html-build er tidspunktet fila ble generert (spec §2.2).",
+   "retting": null,
+   "ny_rad": null,
+   "kilder": [
+    {
+     "ref": "spec.txt (HTML4EU 2.0.0.0) §2.2 (op-html-build) og §4.3",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  },
+  {
+   "id": "K3",
+   "dom": "innvending",
+   "gjelder": "raden",
+   "alvor": "lav",
+   "innvending": "Kortet passer for norske kapitler. I personopplysningsloven er derimot kap-gdpr hele forordningen (overskrift «EUROPAPARLAMENTS- OG RÅDSFORORDNING (EU) 2016/679 …»). EU-kapitlene ligger ett nivå lavere, som underinndelingene kap-gdpr/rom-I … rom-XI (kontrollert i korpuset 2026-11-24). Der svarer vårt Kapittel til akten eller de normative bestemmelsene (article.act/enc), ikke til cpt. Merknaden bør si det, ellers vil en krysstabell for GDPR koble kap-gdpr til cpt.",
+   "retting": {
+    "merknad": "Begge bygger ID av trykt nummer. HTML4EU-ID er lokal, men blir global med doc:. Vår er lokal uten rot. Unntak: i personopplysningsloven er kap-gdpr hele EU-forordningen (svarer til akten/enc), og EU-kapitlene er Underinndeling (kap-gdpr/rom-II), se K4."
+   },
+   "ny_rad": null,
+   "kilder": [
+    {
+     "ref": "korpus: rettskilde_noder for lov/2018/06/15/38 (kap-gdpr, kap-gdpr/rom-I–XI)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "spec.txt (HTML4EU 2.0.0.0) §3.2.7–3.2.8",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  },
+  {
+   "id": "K4",
+   "dom": "innvending",
+   "gjelder": "raden",
+   "alvor": "middels",
+   "innvending": "Feil koblingstype og feil beskrivelse av vårt begrep. I korpuset er Underinndeling ikke bare romertall i et kapittel. I personopplysningsloven dekker den både EU-kapitlene (kap-gdpr/rom-III = Chapter III) og EU-seksjonene under dem (kap-gdpr/rom-III/rom-1 … rom-5 = Section 1–5, med arabertall og prefikset «rom-»). Det ble kontrollert i korpuset 2026-11-24. Vårt begrep dekker altså cpt og sct, og romertallsavsnitt i norske lover. Da er det bredere enn sct, ikke nært beslektet. Merknaden nevner cpt_II, men konklusjonen følger ikke opp. At eId-byggeren lager rom-1 for arabertall, er en følge av at «rom-» er hardkodet [slutning fra LovdataIdentifikatorer.UnderinndelingEid].",
+   "retting": {
+    "vart_begrep": "Underinndeling, eId {forelder}/rom-X: romertallsavsnitt i et norsk kapittel, og i personopplysningsloven både EU-kapitler (kap-gdpr/rom-III) og EU-seksjoner (kap-gdpr/rom-III/rom-1, arabertall)",
+    "kobling": "bredere",
+    "merknad": "Vår Underinndeling dekker sct, og for EU-akter i norske lover også cpt (et nivå ned fordi akten er kap-gdpr). Rekkefølgen Part > Title > Chapter > Section > Subsection er påbudt (spec §3.2.7). Del (prt) har ingen node hos oss. Eksport må bruke dybden og kilden, ikke nodetypen, for å velge cpt eller sct."
+   },
+   "ny_rad": null,
+   "kilder": [
+    {
+     "ref": "korpus: lov/2018/06/15/38, kap-gdpr/rom-III/rom-1 … rom-5, kap-gdpr/rom-VII/rom-1 … rom-3",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "src/RegelIde.Kildekonvertering/LovdataIdentifikatorer.cs UnderinndelingEid",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "spec.txt (HTML4EU 2.0.0.0) §3.2.7–3.2.8",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  },
+  {
+   "id": "K5",
+   "dom": "holder",
+   "gjelder": "raden",
+   "alvor": null,
+   "innvending": "Holder. Kontrollert: artikkel-ID-ene i eksemplene har ikke kapittelet som prefiks (art_1 under cpt_I), mens høyere underinndelinger er nestet (prt_1/tis_I/cpt_1, spec §3.2.8). Vår eId for paragrafer er også uavhengig av kapittel.",
+   "retting": null,
+   "ny_rad": null,
+   "kilder": [
+    {
+     "ref": "spec.txt (HTML4EU 2.0.0.0) §3.2.8–3.2.9",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "samples/*.html (ingen id av formen cpt_…/art_…)",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  },
+  {
+   "id": "K6",
+   "dom": "innvending",
+   "gjelder": "raden",
+   "alvor": "middels",
+   "innvending": "Retningen «bredere» stemmer for par og unp, men ikke for sub. Kortet sier at vårt ledd dekker tre EU-koder. Korpuset viser noe annet. I personopplysningsloven er EU sin nummererte paragraf («nr. 1») ett Ledd (a6/ledd-1, nummer=1, tekst «1. Behandlingen …»). Underleddene (subparagraph) inne i den blir ikke egne noder. De limes inn i leddteksten foran lista. a6/ledd-1 har «… minst ett av følgende vilkår er oppfylt: Nr. 1 bokstav f) får ikke anvendelse …» før punktene. a6/ledd-3 har det samme med andre ledd i nr. 3. Vi har altså ikke noe som svarer til sub, og koblingen for sub er «ingen match». Det er også et rettslig poeng i terminologien. I den norske EØS-teksten er EU sin paragraph «nr.», og subparagraph er «ledd» («nr. 1 annet ledd»). Vår Ledd svarer da til det norske «nr.», mens det EØS-norske «ledd» ikke kan adresseres. Påstanden om at vi ikke lagrer nummereringen er riktig som strukturfelt (nummer er løpenummer, f.eks. fvl. 2025 § 11 ledd-1 nummer=1). Det trykte nummeret står likevel i teksten («(1)», «1.»).",
+   "retting": {
+    "html4eu": "Nummerert ledd: <li class=\"paragraph\" id=\"art_X/par_N\">; unummerert: <p class=\"unnumbered-paragraph\" id=\"art_X/unp_N\">. Ledd inne i et nummerert ledd (<li class=\"subparagraph\" id=\"…/sub_N\">) har ikke noe tilsvar hos oss",
+    "eli": "par / unp (sub: ingen match)",
+    "merknad": "Vårt ledd dekker par og unp. sub er ingen match: i EU-tekst i korpuset limes underleddene inn i leddteksten, og rekkefølgen brytes (personopplysningsloven a6/ledd-1 og ledd-3). Terminologi: i EØS-norsk er paragraph «nr.» og subparagraph «ledd», så vår Ledd svarer der til «nr.». Nummereringen står i teksten («(1)», «1.»), men ikke i et eget felt (nummer = løpenummer)."
+   },
+   "ny_rad": null,
+   "kilder": [
+    {
+     "ref": "korpus: lov/2018/06/15/38 a6/ledd-1 og a6/ledd-3 (tekst kontrollert 2026-11-24)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "korpus: lov/2025/06/20/81 §11/ledd-1–4 (nummer = løpenummer, «(1)» i tekst)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "spec.txt (HTML4EU 2.0.0.0) §3.2.10 (Numbered paragraph case 2 og 4, Unnumbered paragraph, Subparagraph)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "Lovdata, personopplysningsloven § 1 (GDPR gjelder som lov)",
+     "funksjon": "forutsatt_kilde"
+    }
+   ]
+  },
+  {
+   "id": "K7",
+   "dom": "innvending",
+   "gjelder": "raden",
+   "alvor": "lav",
+   "innvending": "Retningen «bredere» stemmer: vårt punkt dekker pnt og idt, også nestede (60 221 noder med …/punkt-N/punkt-M, f.eks. GDPR a4/ledd-1/punkt-22/punkt-2). Merknaden undervurderer avviket. Vi lagrer ikke bare indeks i eId. Den trykte bokstaven finnes verken i nummer eller i tekst (personopplysningsloven a6/ledd-1/punkt-1 til 6: nummer 1–6, teksten uten «a)»). En kobling punkt-N ↔ pnt_x kan da ikke lages fra våre data. Den må hentes fra kilde-HTML-en [ikke kontrollert om Lovdata-HTML har bokstaven]. Det betyr noe juridisk, for bestemmelsen siteres med bokstaven («nr. 1 bokstav f»). Mindre presisering: i eksemplene finnes idt bare inne i tabeller og uten id (32022R0092). idt_N bygger altså bare på spesifikasjonen.",
+   "retting": {
+    "merknad": "Vårt punkt dekker pnt og idt, også nestede. pnt bruker trykt bokstav. Vi bruker indeks, og den trykte bokstaven er ikke lagret i det hele tatt (nummer = løpenummer, bokstaven er ikke i teksten), så punkt-N ↔ pnt_x krever kilde-HTML (04 §2, avvik 3). HTML4EU legger lista inne i et subparagraph med innledning, så stien får et ekstra nivå: par_1/sub_1/pnt_a mot ledd-1/punkt-1. idt finnes i eksemplene bare i tabeller, uten id."
+   },
+   "ny_rad": null,
+   "kilder": [
+    {
+     "ref": "korpus: lov/2018/06/15/38 a6/ledd-1/punkt-1..6 og a4/ledd-1/punkt-22/punkt-2",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "spec.txt (HTML4EU 2.0.0.0) §3.2.10 (Point, Indent)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "samples/32022R0092.html (33 indent uten id, i tabell)",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  },
+  {
+   "id": "K8",
+   "dom": "innvending",
+   "gjelder": "raden",
+   "alvor": "lav",
+   "innvending": "«Nært beslektet» stemmer bare når leddet har ett underledd. Leddteksten vår er ikke alltid bare innledningen. I EU-tekst i korpuset inneholder den også de neste underleddene, og de står foran lista (personopplysningsloven a6/ledd-1: «… oppfylt: Nr. 1 bokstav f) får ikke anvendelse …»). HTML4EU sin inp er bare innledningen, som ender med kolon (spec §3.2.10, Introductory part). Merknaden bør ta forbeholdet. Samme funn viser en feil i konverteringen, utenfor raden: #361 skulle hindre at tekst limes inn i leddteksten, men GDPR-formen fanges ikke [slutning: markupen er en annen enn leddfortsettelse, ikke kontrollert i kilde-HTML].",
+   "retting": {
+    "merknad": "HTML4EU gjør innledningen til en egen identifiserbar del (inp, med egen ELI). Hos oss er den leddets tekst, ikke en egen node. Forbehold: i EU-tekst i korpuset inneholder leddteksten også de neste underleddene (personopplysningsloven a6/ledd-1 og ledd-3). Leddteksten er da ikke det samme som inp."
+   },
+   "ny_rad": null,
+   "kilder": [
+    {
+     "ref": "korpus: lov/2018/06/15/38 a6/ledd-1, a6/ledd-3",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "spec.txt (HTML4EU 2.0.0.0) §3.2.10 Introductory part",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/08 §1.2 (Avslutning, #361)",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  },
+  {
+   "id": "K9",
+   "dom": "holder",
+   "gjelder": "raden",
+   "alvor": null,
+   "innvending": "Holder. Tilføyelse til merknaden [slutning]: I HTML4EU står hver liste i sitt eget subparagraph (spec §3.2.10, Subparagraph case 2–3), så hver forelder har høyst én inp og én wrp. Problemet med flere avslutninger i samme forelder oppstår hos oss fordi vi mangler sub-nivået (se K6), ikke fordi spesifikasjonen har et hull. Ingen wrp i de 12 eksemplene.",
+   "retting": null,
+   "ny_rad": null,
+   "kilder": [
+    {
+     "ref": "spec.txt (HTML4EU 2.0.0.0) §3.2.10 Closing part, Subparagraph",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "samples/*.html (ingen wrp)",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  },
+  {
+   "id": "K10",
+   "dom": "holder",
+   "gjelder": "raden",
+   "alvor": null,
+   "innvending": "Holder. Vedleggstekst finnes hos oss, men uten egen type, så «ingen match» gjelder typen og ikke innholdet. To småting: eksemplene bruker arabertall (anx_1) der spesifikasjonen viser anx_I, og eksempelet for Appendix i spesifikasjonen skriver ann_II og ikke anx_II. Spesifikasjonen er altså ikke helt konsekvent. Rettslig er vedlegget en del av akten i begge systemer (spec §3.2.2: «Annexes form part of the Act»).",
+   "retting": null,
+   "ny_rad": null,
+   "kilder": [
+    {
+     "ref": "spec.txt (HTML4EU 2.0.0.0) §3.2.2, §3.2.13–3.2.14",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "samples/*.html (anx_1, anx_1/tab_1)",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  },
+  {
+   "id": "K11",
+   "dom": "holder",
+   "gjelder": "raden",
+   "alvor": null,
+   "innvending": "Holder. Vi beholder ikke tabellen som struktur. Det er et tap for normative tabeller (satser, frister), men det er en egenskap ved vår modell og ikke en feil i koblingen.",
+   "retting": null,
+   "ny_rad": null,
+   "kilder": [
+    {
+     "ref": "spec.txt (HTML4EU 2.0.0.0) §2.12",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/08 §1.2 (tabeller flates ut)",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  },
+  {
+   "id": "K12",
+   "dom": "innvending",
+   "gjelder": "raden",
+   "alvor": "middels",
+   "innvending": "Merknaden blander to egenskaper. Den ene er varighet: en ID gis aldri til et annet element. Den andre er identitet på tvers av versjoner. EU sin ELI for en underinndeling slutter på /oj. Den er bundet til en publikasjon som ikke endres, og blir da ikke gitt til et annet element senere [slutning fra at OJ-utgaven ligger fast; spesifikasjonen sier ikke noe om varighet]. Den er varig, men gjelder bare én versjon. Vår eId er bygget på nytt i hver konsolidert versjon og kan gå til et annet element etter omnummerering (#495). Den er verken varig eller versjonsuavhengig, selv om docs/08 §1.2.1 sier at den «endres aldri». I tillegg bygger HTML4EU på trykt betegnelse der den finnes (art, par, pnt_a), og bruker løpenummer bare for sub, unp og idt. Vi bruker løpenummer også for punkt. «Begge er adresser i én versjon, bygget av trykt nummer og løpenummer» skjuler forskjellen som er viktigst for #495.",
+   "retting": {
+    "merknad": "Begge bygger ID-en av trykt nummer og løpenummer, men HTML4EU bruker trykt bokstav for pnt, og vi bruker løpenummer. Den fulle EU-ressursen (…/oj) er knyttet til OJ-utgaven, som ikke endres, og blir ikke gitt til et annet element [slutning]. Vår eId bygges på nytt i hver konsolidert versjon og kan gå til et annet element (#495). Ingen av dem er en identitet på tvers av versjoner (AKN wId eller GUID). HTML4EU sier ingenting om ID-ene ved endring eller konsolidering."
+   },
+   "ny_rad": null,
+   "kilder": [
+    {
+     "ref": "spec.txt (HTML4EU 2.0.0.0) §4.3",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "gh issue 495 (FinnurO/regel-ide)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/08 §1.2, §1.2.1, §2.1",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "src/RegelIde.Kildekonvertering/LovdataIdentifikatorer.cs (LeddEid, PunktEid)",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  },
+  {
+   "id": "K13",
+   "dom": "holder",
+   "gjelder": "raden",
+   "alvor": null,
+   "innvending": "Holder. Mønsteret (id = relativ sti, resource = full ELI, rel = eli:has_part) er det som trengs. Når mønsteret tas i bruk, må resource-en få et versjonsledd. EU bruker /oj, og Lovdatas mal har oj eller consolidated etter nivåsegmentet (04 §2). Ellers får vi samme versjonsuklarhet som i K1.",
+   "retting": null,
+   "ny_rad": null,
+   "kilder": [
+    {
+     "ref": "spec.txt (HTML4EU 2.0.0.0) §4.3",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "docs/profil/04-mappingnotat.md §2, Seksjons-ELI og Verk-ID",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  },
+  {
+   "id": "K14",
+   "dom": "holder",
+   "gjelder": "raden",
+   "alvor": null,
+   "innvending": "Holder. Merk at kjedene ikke har samme dybde. EU sin has_part-kjede går par → sub → pnt, mens vår går ledd → punkt (spec §4.3: art_3 → par_1 → sub_1 → pnt_a). Hos oss blir kapitlet i personopplysningsloven akten, se K3 og K4. Det må med i en eventuell eksport.",
+   "retting": null,
+   "ny_rad": null,
+   "kilder": [
+    {
+     "ref": "spec.txt (HTML4EU 2.0.0.0) §4.3",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  },
+  {
+   "id": "K15",
+   "dom": "holder",
+   "gjelder": "raden",
+   "alvor": null,
+   "innvending": "Holder. To presiseringer. v1.0 sa bare at det var mulig å merke lenker med @rel, for relasjoner på aktnivå som based_on (v1 §2.1.4.5), og ikke at kryssreferanser skulle beskrives. Eksemplene i 2.0 har 5 eksterne lenker til OJ-ressurser (publications.europa.eu/resource/oj/…) i fotnotetekst, men ingen lenker mellom underinndelinger. «Ikke beskrevet» står.",
+   "retting": null,
+   "ny_rad": null,
+   "kilder": [
+    {
+     "ref": "v1.txt §2.1.4.5",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "spec.txt (HTML4EU 2.0.0.0) §2.4, §2.11",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "samples/*.html (5 href til publications.europa.eu/resource/oj)",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  },
+  {
+   "id": "K16",
+   "dom": "holder",
+   "gjelder": "raden",
+   "alvor": null,
+   "innvending": "Holder. Kontrollert: html4eu-modification-notice står i malen (spec §2.1) uten beskrivelse. Avsnittet i v1.0 om endringer i andre akter er merket «needs further work and study» (v1 §4.4.3). Tilføyelse: LegalHTML, som HTML4EU har erstattet, var laget for nettopp konsolidering. Den dekningen er altså borte i formatet som tok over.",
+   "retting": null,
+   "ny_rad": null,
+   "kilder": [
+    {
+     "ref": "spec.txt (HTML4EU 2.0.0.0) §2.1",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "v1.txt §4.4.3",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "legalhtml.html (op.europa.eu: «superseded by HTML4EU», «structure, semantics and consolidation of legal acts»)",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  },
+  {
+   "id": "B1",
+   "dom": "innvending",
+   "gjelder": "raden",
+   "alvor": "middels",
+   "innvending": "Konklusjonen (nei for tekst, ja for adressering) holder. Det rettslige grunnlaget er for tynt, og krysstabellen mangler et forbehold. (1) Det som gjelder i Norge, er ikke EU-teksten. Det er forordningen «med de tilpasningene som følger av vedlegg XI, protokoll 1 og avtalen for øvrig» (personopplysningsloven § 1). Den norske teksten er like gyldig og kunngjøres i EØS-tillegget (EØS-avtalen art. 129 nr. 1, jf. art. 7 bokstav a). Heller ikke den engelske EUT-teksten er altså den teksten som gjelder i Norge. Den kan også være en annen versjon i tid, når EU-endringer ennå ikke er tatt inn i EØS-avtalen [slutning]. (2) Krysstabellen a5 ↔ art_5 må derfor kalles «tilsvarende bestemmelse i EU-utgaven (OJ)», ikke identitet. Under artikkelnivå mangler vi bokstaven (K7) og underleddet (K6). (3) «EØS-rett er kilde utenfor korpus» (03 §3) er upresist. En forordning som er inkorporert ved «gjelder som lov», er norsk lov og ligger i korpus når Lovdata trykker teksten (GDPR i personopplysningsloven). Bare der inkorporasjonen er en ren henvisning, er teksten utenfor korpus [slutning]. (4) «EUR-Lex bruker ikke formatet ennå» bygger på to stikkprøver og bør stå slik. (5) Om ekthet: verken EUR-Lex-HTML eller HTML4EU er den autentiske teksten. Den autentiske er den elektroniske EUT-utgaven etter forordning (EU) nr. 216/2013 [ikke kontrollert, EUR-Lex blokkerte oppslaget].",
+   "retting": {
+    "pastand": "(a) HTML4EU som importformat for EU-rett i korpuset: nei for tekst. Det som gjelder i Norge, er forordningen med EØS-tilpasningene (f.eks. personopplysningsloven § 1), og den norske teksten er like gyldig og kunngjøres i EØS-tillegget (EØS-avtalen art. 129 nr. 1). HTML4EU gir EU-språkene og OJ-utgaven, ikke den norske teksten. Det er heller ikke den autentiske utgaven. Inkorporerte forordninger som Lovdata trykker, ligger allerede i korpus som norsk lov (GDPR i personopplysningsloven). Bare 12 eksempler finnes, og formatet var ikke i bruk på EUR-Lex i to stikkprøver 2026-11-24. Ja som adressering: ELI-underinndelingene kan brukes til å peke presist på en EU-bestemmelse som kilde utenfor korpus, og til en krysstabell for EU-akter i norske lover (a5 ↔ art_5) med forbeholdet «tilsvarende bestemmelse i EU-utgaven», ikke identitet. Under artikkelnivå krever tabellen trykt bokstav og underledd, som vi ikke lagrer i dag."
+   },
+   "ny_rad": null,
+   "kilder": [
+    {
+     "ref": "Lovdata: personopplysningsloven § 1 (kontrollert 2026-11-24)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "Lovdata: EØS-loven, EØS-avtalen art. 7 bokstav a og art. 129 nr. 1 (kontrollert 2026-11-24)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "Rådsforordning (EU) nr. 216/2013 om elektronisk kunngjøring av EUT (ikke kontrollert)",
+     "funksjon": "forutsatt_kilde"
+    },
+    {
+     "ref": "docs/profil/03-metodenotat.md §3",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "korpus: lov/2018/06/15/38, kap-gdpr",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  },
+  {
+   "id": "B2",
+   "dom": "innvending",
+   "gjelder": "raden",
+   "alvor": "lav",
+   "innvending": "Konklusjonen holder. «Har ikke norske ledd» er for sterkt. unp (artikkel uten nummererte ledd) og par (nummerert ledd, som «(1)» i fvl. 2025) dekker de vanlige norske leddformene (K6). Det som virkelig mangler, er punktum-nivået, versjon og konsolidering (K2, K16), endringsbestemmelser og norsk kildeinformasjon (kunngjøring i Lovtidend, hjemmel). Profilen har til og med Del (prt), som vi mangler. Påstanden bør rettes, så argumentet ikke kan avvises på et faktapunkt.",
+   "retting": {
+    "pastand": "(b) HTML4EU som eksportformat for vår konsoliderte tekst eller nettside: ikke som det står. Profilen «Legal act» er skrevet for EU-akter (fortale, betraktninger, artikler, signaturer). Den har ledd (par/unp/sub) og punkter som kan brukes på norske ledd, men ikke punktum, versjon eller konsolidert tekst, og heller ikke endringsbestemmelser. Kjernen (dokumentmal, id = underinndelingssti, resource = full ELI med versjonsledd, rel=eli:has_part) kan brukes som mønster for et HTML-uttrekk med RDFa når Lovdatas paragraf-ELI får funksjon."
+   },
+   "ny_rad": null,
+   "kilder": [
+    {
+     "ref": "spec.txt (HTML4EU 2.0.0.0) §3.2.1, §3.2.10",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "korpus: lov/2025/06/20/81 §11 (nummererte ledd)",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  },
+  {
+   "id": "B3",
+   "dom": "innvending",
+   "gjelder": "raden",
+   "alvor": "lav",
+   "innvending": "Konklusjonen (nei) holder. To ting i begrunnelsen bør rettes. (1) «HTML4EU bekrefter at offentlige adresser i EU også er versjonsbundne og trenger en egen varig ID ved siden av» står som et tekstfunn. Spesifikasjonen sier ingenting om varig ID eller om behovet for en. Det er en slutning og må merkes. (2) «Adresser i én versjon, som vår eId» overser forskjellen i K12. Den fulle EU-ressursen (…/oj) er knyttet til en utgave som ikke endres, og blir ikke gitt til et annet element. Vår eId kan bli det. Dessuten bruker pnt trykt bokstav og ikke løpenummer. Det bør også stå at ELI-underinndelingene versjon 3 ennå ikke er publisert (spec §1.3.2, fotnote), så reglene for ID-ene kan endres. Påstanden om omnummerering er riktig merket [slutning].",
+   "retting": {
+    "pastand": "(c) HTML4EU som kilde til varig elementidentitet (#495): nei. ID-ene er ELI-underinndelingsstier for OJ-utgaven, bygget av trykt betegnelse (art, par, pnt) og løpenummer (sub_N, unp_N, idt_N). Den fulle ressursen (…/oj) er knyttet til en utgave som ikke endres, og blir ikke gitt til et annet element [slutning]. Den sier likevel ingenting om hvilket element som svarer til hvilket i en senere versjon. HTML4EU har altså ingen ID på tvers av versjoner, og vi trenger fortsatt en egen varig ID ved siden av eId [slutning; spesifikasjonen sier ikke noe om dette]. ELI-underinndelingene versjon 3 er ikke publisert ennå. At EU sjelden omnummererer artikler (innsatte artikler får 4a), er lovteknisk praksis og ikke en egenskap ved ID-en [slutning]."
+   },
+   "ny_rad": null,
+   "kilder": [
+    {
+     "ref": "spec.txt (HTML4EU 2.0.0.0) §1.3.2 (fotnote om ELI subdivisions v3), §4.3",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "gh issue 495",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  },
+  {
+   "id": "A1",
+   "dom": "innvending",
+   "gjelder": "raden",
+   "alvor": "lav",
+   "innvending": "Anbefalingen (b) er godt begrunnet, og konklusjonen står. Tre tilføyelser. (1) Det sterkeste argumentet mot (a) mangler: for norsk rett gir HTML4EU aldri den teksten som gjelder (EØS-tilpasninger, norsk tekst i EØS-tillegget, B1), og HTML er ikke den autentiske utgaven. Formatet kan derfor bare brukes til adressering og visning, også om EUR-Lex tar det i bruk. (2) Det mangler en utløser på norsk side: at Lovdata eller EØS-tillegget publiserer EØS-akter med ELI-underinndelinger. Da blir krysstabellen (B1) mulig å bygge uten å lese HTML. (3) To faktapåstander må kontrolleres. «Publisert 2026-09-21» fant jeg ikke i de lokale kildene: eksemplene er bygget 2026-09-15, og asset-siden viser bare versjon 2.0.0.0 LATEST. «Ikke i bruk på EUR-Lex» bygger på to stikkprøver. At HTML4EU har erstattet LegalHTML, er kontrollert. Det samme gjelder at kartleggingsvedlegget er merket utkast, og at Caselaw er en tom plassholder.",
+   "retting": {
+    "anbefaling": "(b) følge med, med sjekklistepost i 08. Ikke (a): for norsk rett gir HTML4EU aldri den teksten som gjelder (EØS-tilpasninger, norsk tekst i EØS-tillegget), og HTML er ikke den autentiske utgaven. Dessuten er 2.0 ny, ikke i bruk på EUR-Lex i to stikkprøver 2026-11-24, har et kartleggingsvedlegg merket utkast og ingen profil for rettsavgjørelser, dekker ikke endringer eller konsolidering (som LegalHTML gjorde), og profilen for rettsakter er EU-spesifikk. Ikke (c): det er Publikasjonskontorets formelle HTML-format for EUR-Lex, bygger på ELI og ELI-ontologien, har erstattet LegalHTML, og blir trolig formen EU-rett publiseres i [slutning]. Utløsere: EUR-Lex tar formatet i bruk; HTML4EU får profil for konsolidert tekst eller endringer; ELI-underinndelinger versjon 3 publiseres; Lovdata gir paragraf-ELI funksjon eller publiserer HTML med ELI-underinndelinger; Lovdata eller EØS-tillegget publiserer EØS-akter med ELI-underinndelinger; prosjekteieren bestemmer å bygge HTML-eksport med RDFa eller lenking til EU-kilder."
+   },
+   "ny_rad": null,
+   "kilder": [
+    {
+     "ref": "legalhtml.html (superseded by HTML4EU)",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "spec.txt (HTML4EU 2.0.0.0) §3.3 (Caselaw tom), §5.1 (!!!DRAFT!!!), §1.3.2",
+     "funksjon": "direkte_hjemmel"
+    },
+    {
+     "ref": "side.txt (asset-side: 2.0.0.0 LATEST, publiseringsdato ikke funnet)",
+     "funksjon": "ikke_funnet"
+    },
+    {
+     "ref": "Lovdata: EØS-avtalen art. 129 nr. 1; personopplysningsloven § 1",
+     "funksjon": "direkte_hjemmel"
+    }
+   ]
+  }
+ ],
+ "svar": [
+  {
+   "id": "K1",
+   "svar": "godtar",
+   "tekst": "Rettingen er tatt inn i docs/profil/10-html4eu-vurdering.md."
+  },
+  {
+   "id": "K3",
+   "svar": "godtar",
+   "tekst": "Rettingen er tatt inn i docs/profil/10-html4eu-vurdering.md."
+  },
+  {
+   "id": "K4",
+   "svar": "godtar",
+   "tekst": "Rettingen er tatt inn i docs/profil/10-html4eu-vurdering.md."
+  },
+  {
+   "id": "K6",
+   "svar": "godtar",
+   "tekst": "Rettingen er tatt inn i docs/profil/10-html4eu-vurdering.md."
+  },
+  {
+   "id": "K7",
+   "svar": "godtar",
+   "tekst": "Rettingen er tatt inn i docs/profil/10-html4eu-vurdering.md."
+  },
+  {
+   "id": "K8",
+   "svar": "godtar",
+   "tekst": "Rettingen er tatt inn i docs/profil/10-html4eu-vurdering.md."
+  },
+  {
+   "id": "K12",
+   "svar": "godtar",
+   "tekst": "Rettingen er tatt inn i docs/profil/10-html4eu-vurdering.md."
+  },
+  {
+   "id": "B1",
+   "svar": "godtar",
+   "tekst": "Rettingen er tatt inn i docs/profil/10-html4eu-vurdering.md."
+  },
+  {
+   "id": "B2",
+   "svar": "godtar",
+   "tekst": "Rettingen er tatt inn i docs/profil/10-html4eu-vurdering.md."
+  },
+  {
+   "id": "B3",
+   "svar": "godtar",
+   "tekst": "Rettingen er tatt inn i docs/profil/10-html4eu-vurdering.md."
+  },
+  {
+   "id": "A1",
+   "svar": "delvis",
+   "tekst": "Tilføyelsene (1) og (2) er tatt inn i docs/profil/10-html4eu-vurdering.md §6. Om (3): datoen 2026-09-21 står på datasettsiden under fanen Downloads («Published: 2026-09-21») og i Cellar-adressene til distribusjonene (…/html4eu/20260921-0/…), lest av modellereren 2026-11-24. Byggetidspunktet 2026-09-15 i eksemplene er når HTML-filene ble laget, ikke publiseringsdatoen. «Ikke i bruk på EUR-Lex» står nå som to stikkprøver."
+  }
+ ]
+}
