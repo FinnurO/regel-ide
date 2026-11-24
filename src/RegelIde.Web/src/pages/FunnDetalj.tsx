@@ -437,7 +437,8 @@ function BestemmelseRad({ k }: { k: FunnKoblingDto }) {
       <Table.Cell>
         {k.rettskildeId ? (
           <Link asChild><RouterLink to={k.eid ? rettskildeLenkeForId(k.rettskildeId, k.eid) : `/rettskilder/${k.rettskildeId}`}>
-            {k.nodeId ? 'Åpne bestemmelsen' : 'Åpne rettskilden (bestemmelsen ikke funnet)'}
+            {/* [ENDRET, #472 PR 2] En kobling til hele forskriften har ingen eId: da er det rettskilden, ikke en bestemmelse som mangler. */}
+            {k.nodeId ? 'Åpne bestemmelsen' : k.eid ? 'Åpne rettskilden (bestemmelsen ikke funnet)' : 'Åpne rettskilden'}
           </RouterLink></Link>
         ) : (
           <Metatekst as="span">Ikke i korpuset</Metatekst>

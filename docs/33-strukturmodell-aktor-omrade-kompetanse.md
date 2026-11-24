@@ -2616,7 +2616,84 @@ Vakten avviste 34 setninger. Kjøretid 2 minutter med nedlasting.
 
 **Ikke i PR 1:** funnundertypen og premissporten (PR 2: «Hjemmel opphevet, videreføring ikke funnet», vurderingspunktet «Ny hjemmel»), rettingene i
 #429-koden (PR 3), og flagget ved Lovdata-resynk (`HjemmelEndretFlagg`). En resynk som lager nye hjemmelsrader, gir rader uten status til regelen
-kjøres igjen. Funnene står som «oppdaget» til #446 er klassifisert og juristen har målt presisjonen (Johanns avgjørelse (4)).
+kjøres igjen. Funnene står som «oppdaget» til #446 er klassifisert og juristen har målt presisjonen (Johanns avgjørelse (4)). [Merknad, PR 2] Funnundertypen og premissporten er bygget, se §5.21.
+
+### 5.21 Funnet «Hjemmel opphevet»: undertyper og premissporten (#472 PR 2, bygget 2026-11-24)
+
+[Ny, Johanns avgjørelser 2026-11-18 og 2026-11-20 i #472] Hjemmelsstatusen fra §5.20 blir funn til vurdering i registeret fra §5.15. Lovdata viser
+forskriftene som gjeldende, så funnet er alltid en lesning av premissene, aldri en statusendring. Funnet heter «Hjemmel opphevet, videreføring ikke
+funnet» (mulig bortfalt), aldri «sovende».
+
+**Kategori og undertyper** (`Funn.HjemmelOpphevet`, `HjemmelOpphevetFunnregel.Undertyper`, migrasjonen `HjemmelOpphevetFunn`). Undertypene er de
+samme ordene som den samlede statusen:
+- `hjemmel_opphevet`: alle hjemlene som teller, er opphevet uten funnet videreføring («Hjemmel opphevet, videreføring ikke funnet»);
+- `blandede_hjemler`: minst én faller og minst én bærer;
+- `uavklart`: som blandede, men de som bærer, har rolle som ikke er vurdert (juristrunde 2 R1). Egen undertype, ikke slått sammen med blandede, så
+  navnet er det samme som i den samlede statusen;
+- `videreforing_utlopt`: alle hjemlene som faller, er videreført med en frist som er passert;
+- `gjenstandslos`: gjenstanden er opphevet (eget merke, avgjørelse (5)). Står bare når ingen av de andre undertypene gjelder.
+
+Ukjent gir aldri funn. En hjemmel som selv er en forskrift med blandede eller uavklarte hjemler, arves som ukjent (svakeste premiss, Johann
+2026-11-20). Det gjør `HjemmelsstatusSamlet` allerede, og en test holder det fast.
+
+**Koblingene:** forskriften (`gjelder_bestemmelse`, uten eId), den opphevende bestemmelsen (`opphevende_bestemmelse`, ny rolle) og overgangsregelen
+når den finnes (`videreforingsbestemmelse`, ny rolle: for en utløpt videreføring, og for hjemler som er videreført og bærer i blandede hjemler).
+Er opphevingen lest i Norsk Lovtidend, står koblingen med ELI og eId uten node. Funnet står i forskriften: rettskildesiden til den opphevende loven
+viser det ikke (som målvedtaket i §5.15).
+
+**Påstanden** sier at Lovdata viser forskriften som gjeldende, hvilke hjemler som faller (slått sammen per hjemmelsdokument og opphevende setning,
+med sitatet ordrett), at «ikke funnet» ikke betyr at videreføringen ikke finnes, og at om forskriften fortsatt har virkning, er en tolkning
+(Lovteknikk og lovforberedelse pkt. 7.3.5). Premissmangelen fra hjemmelsstatusen (ikraftsettingen ikke kontrollert) står som egen linje.
+
+**Premissporten** (`FunnTjeneste.LeggTilPremissmanglerHjemmelOpphevetAsync`). Manglene står også på et funn som bare er oppdaget, som R9:
+- **«Ny hjemmel»** (`Funn.NyHjemmelOverskrift`): juristen sier om forskriften kan stå på en ny hjemmel som gir samme kompetanse, eller merker punktet
+  «ikke vurdert» (type `ikke_avgjort`). Et maskinsignal for «ny tilsvarende hjemmel» er avvist (juristrunde 2). **Til punktet finnes, vises funnet
+  ikke som «mulig bortfalt»** (`FunnTjeneste.MuligBortfaltVises`, `FunnDto.MuligBortfalt`), heller ikke på rettskildesiden (docs/09 §56 og §58).
+  Merket gjelder bare undertypene `hjemmel_opphevet` og `videreforing_utlopt`. Blandede, uavklart og gjenstandsløs kalles aldri «mulig bortfalt», og
+  gjenstandsløs trenger ikke punktet.
+- **«Hjemmel»** (som R9): om forskriften fortsatt har virkning, det vil si videreført, erstattet eller uten virkning.
+- **#446:** forskriften er ikke klassifisert som rent endrings-, opphevings- eller ikrafttredelsesvedtak (`rent_endringsvedtak` er NULL).
+
+Regelen lager aldri punktene selv.
+
+**Uttømt virkning og #446-bryteren:**
+- `rent_endringsvedtak = true` gir ikke funn.
+- **NULL i #446-kolonnen er én bryter**, `RegelIde:Hjemmelsstatus:IkkeKlassifisertGirFunn`, standard `false` (fase 1 ordrett: NULL gir ikke funn).
+  Kolonnen settes aldri til `false` (`DisposisjonstypeTjeneste` skriver `true` eller NULL), så den strenge tolkningen gir 0 funn. Med bryteren på
+  gir NULL funn med premissmangelen «Uttømt virkning ikke klassifisert (#446)», så ingen av dem kan godkjennes før #446 er gjort. Rapporten viser
+  alltid begge tolkningene, per undertype og per prefiks. **Valget er Johanns.**
+- Rene ikrafttredelsesvedtak har ingen egen markør. Disposisjonstypen fra tittelen er ikke nok: den treffer også «Forskrift om ikrafttredelse av og
+  overgangsregler til …» (DEL/forskrift/1999-06-25-711), som ikke har uttømt virkningen. De telles derfor for seg og utelates ikke.
+
+**Maskinregelen** (`HjemmelOpphevetFunnregel`, `monster:hjemmel-opphevet`, regelversjon `472-pr2-2026-11-24`,
+`POST /api/funn/maskinregel/hjemmel-opphevet`) leser de lagrede radene i `hjemmelsstatus` og regner den samlede statusen for gjeldende primære
+forskrifter. Den skriver ett funn per forskrift med status `oppdaget` og nøkkelen `hjemmel-opphevet:<ELI uten prefiks>`. Regelversjonen og
+hjemmelsstatusens regelversjon står i den interne merknaden. Tørrkjøring er standard; `?skriv=true` skriver, og `?medRader=true` og `?rettskildeId=`
+virker som før. En ny kjøring gir 0 nye, endrer ikke lagrede funn og gjenåpner ingenting. Et lagret funn der forskriften ikke lenger gir funn,
+telles i `utenGrunnlag` og røres ikke.
+
+**Tørrkjørt i en kopi av den delte basen** (`regelide_472pr2`, API på 5387, 2026-11-24, hjemmelsstatus fra PR 1 skrevet 2026-11-20):
+
+| | Antall |
+|---|---|
+| Gjeldende primære forskrifter med hjemmelsstatus | 5 595 (aktiv 4 020, ukjent 814, videreført 439, hjemmel opphevet 213, blandede 74, uavklart 25, utløpt 10; 2 gjenstandsløse) |
+| Kandidater (har en undertype) | 324: hjemmel opphevet 213, blandede 74, uavklart 25, utløpt 10, gjenstandsløs 2 |
+| Utelatt som rent endringsvedtak (`true`) | 6 |
+| Ikrafttredelse som eneste disposisjonstype (telt, ikke utelatt) | 12 |
+| #446-kolonnen NULL blant resten | 318 (alle) |
+| **Tolkning A, streng (NULL gir ikke funn, standard)** | **0** |
+| **Tolkning B (NULL gir funn med premissmangel)** | **318**: hjemmel opphevet 210, blandede 71, uavklart 25, utløpt 10, gjenstandsløs 2; DEL 140, SF 87, LTI 84, INS 6, STV 1 |
+| Holdt av premissporten (ikke «mulig bortfalt» før «Ny hjemmel») | 220 av 318 (alle med undertype hjemmel opphevet eller utløpt) |
+
+FOR-1993-12-17-1314 er videreført og gir ikke funn (AK 2). SF/forskrift/2017-06-16-1124 gir `videreforing_utlopt` med fagskoleloven 2018 § 44 andre
+ledd som opphevende bestemmelse og tredje ledd som overgangsregel (AK 5).
+
+**Kaldkjørt i kopien med bryteren på:** `?skriv=true` skrev 318 funn, alle `oppdaget`. En ny kjøring ga 0 nye og 318 som finnes. Etter at «Ny
+hjemmel» ble merket «ikke vurdert» på FOR-2016-12-02-1426 i appen, fikk funnet merket «Mulig bortfalt», og rettskildesiden viste «(mulig
+bortfalt)». FOR-1994-06-03-375, uten punktet, viste bare «Hjemmel opphevet, videreføring ikke funnet». I lista sto «Ny hjemmel ikke vurdert» på de
+315 andre (gjenstandsløs trenger ikke punktet). Kopien er slettet.
+
+**Ikke i PR 2:** rettingene i #429-koden (PR 3), flagget ved Lovdata-resynk og juristens presisjonsmåling (fase 1 AK 8). Ingenting publiseres før #446.
 
 ### 5.6 Konvertering av eksisterende data
 

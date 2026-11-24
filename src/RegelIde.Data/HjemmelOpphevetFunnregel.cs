@@ -226,6 +226,13 @@ public sealed class HjemmelOpphevetFunnregel(RegelIdeDbContext db, FunnTjeneste 
     private static string Kildetekst(Guid? id, string? eid, Dictionary<Guid, Kilde> kilder) =>
         id is { } g && kilder.TryGetValue(g, out var k) ? Referanse(k) + Bestemmelse(eid, k.Eli) : eid ?? "(ukjent kilde)";
 
+    /// <summary>Sitatet i anførselstegn, med punktum etter bare når sitatet ikke selv slutter med et skilletegn.</summary>
+    private static string Sitat(string sitat)
+    {
+        var k = Kort(sitat).TrimEnd();
+        return $"«{k}»" + (k.Length > 0 && ".!?:;…".Contains(k[^1]) ? "" : ".");
+    }
+
     private static string Kort(string sitat) => sitat.Length <= 300 ? sitat : sitat[..297].TrimEnd() + " …";
 
     /// <summary>Linjene om hjemlene som bærer funnet: de som faller (og som teller), de som bærer i blandede hjemler, og gjenstanden som er
@@ -246,7 +253,7 @@ public sealed class HjemmelOpphevetFunnregel(RegelIdeDbContext db, FunnTjeneste 
             {
                 if (p.Status == Hjemmelsstatus.Gjenstandslos)
                     deler.Add(("Gjenstanden " + dok, best, $"er opphevet av {Kildetekst(r.OpphevetAvRettskildeId, r.OpphevetAvEid, kilder)}"
-                        + (r.OpphevetAvSitat is null ? "." : $": «{Kort(r.OpphevetAvSitat)}».")));
+                        + (r.OpphevetAvSitat is null ? "." : $": {Sitat(r.OpphevetAvSitat)}")));
                 continue;
             }
             if (p.Arvet is { } a && Hjemmelsstatus.Faller(p.Status))
@@ -257,13 +264,13 @@ public sealed class HjemmelOpphevetFunnregel(RegelIdeDbContext db, FunnTjeneste 
             if (Hjemmelsstatus.Faller(p.Status))
             {
                 var rest = $"er opphevet av {Kildetekst(r.OpphevetAvRettskildeId, r.OpphevetAvEid, kilder)}"
-                    + (r.OpphevetAvSitat is null ? "" : $": «{Kort(r.OpphevetAvSitat)}»")
-                    + (r.OpphevetFraKunngjort ? " (lest i den kunngjorte teksten i Norsk Lovtidend)" : "") + ".";
+                    + (r.OpphevetFraKunngjort ? " (lest i den kunngjorte teksten i Norsk Lovtidend)" : "")
+                    + (r.OpphevetAvSitat is null ? "." : $": {Sitat(r.OpphevetAvSitat)}");
                 if (p.Status == Hjemmelsstatus.VidereforingUtlopt)
                 {
                     rest += $" Videreført av {Kildetekst(r.VidereforingRettskildeId, r.VidereforingEid, kilder)}"
                         + (r.VidereforingTidsfrist is { } d ? $" fram til {d:dd.MM.yyyy}" : "") + ", og fristen er passert"
-                        + (r.VidereforingSitat is null ? "." : $": «{Kort(r.VidereforingSitat)}».");
+                        + (r.VidereforingSitat is null ? "." : $": {Sitat(r.VidereforingSitat)}");
                 }
                 deler.Add((dok, best, rest));
                 if (r.Premissmangel is { } pm) deler.Add(("", "", $"Ikke kontrollert: {pm}"));
@@ -279,7 +286,8 @@ public sealed class HjemmelOpphevetFunnregel(RegelIdeDbContext db, FunnTjeneste 
         }
         return deler.GroupBy(d => (d.Dok, d.Hale)).Select(g =>
         {
-            var best = g.Select(d => d.Best).Where(b => b.Length > 0).Distinct(StringComparer.Ordinal).ToList();
+            var best = g.Select(d => d.Best).Where(b => b.Length > 0).Distinct(StringComparer.Ordinal)
+                .OrderBy(b => System.Text.RegularExpressions.Regex.Replace(b, @"\d+", m => m.Value.PadLeft(6, '0')), StringComparer.Ordinal).ToList();
             var hvem = g.Key.Dok.Length == 0 ? "" : (g.Key.Dok + (best.Count == 0 ? "" : " " + Liste(best)) + " ");
             return $"- {hvem}{g.Key.Hale}";
         }).ToList();
