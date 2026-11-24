@@ -25,7 +25,11 @@ public static class Funn
     public const string UtgattAktor = "utgatt_aktor";
     public const string MuligMotstrid = "mulig_motstrid";
     public const string UklarhetHull = "uklarhet_hull";
-    public static readonly string[] Kategorier = [UtgattAktor, MuligMotstrid, UklarhetHull];
+    /// <summary>[Ny, #472 PR 2, Johanns avgjørelser 2026-11-18 og 2026-11-20] En gjeldende forskrift står på en hjemmel som er opphevet med tekstbevis
+    /// (<see cref="Hjemmelsstatus"/>). Funnet heter «Hjemmel opphevet, videreføring ikke funnet» (mulig bortfalt); aldri «sovende». Undertypene er de
+    /// samme ordene som den samlede statusen (<see cref="HjemmelOpphevetFunnregel.Undertyper"/>).</summary>
+    public const string HjemmelOpphevet = "hjemmel_opphevet";
+    public static readonly string[] Kategorier = [UtgattAktor, MuligMotstrid, UklarhetHull, HjemmelOpphevet];
 
     /// <summary>Undertypene per kategori. <c>mulig_motstrid</c> har ingen. NULL er alltid lov (ikke angitt).</summary>
     public static readonly IReadOnlyDictionary<string, string[]> Undertyper = new Dictionary<string, string[]>
@@ -34,6 +38,8 @@ public static class Funn
         [UtgattAktor] = ["nedlagt_aktor", "utgatt_navn", UtgattAktorFunnregel.UndertypeAvgiverformel],
         [MuligMotstrid] = [],
         [UklarhetHull] = ["hull", "upresis_henvisning", "publiseringsfeil_kilde"],
+        // [Ny, #472 PR 2] Maskinregelens klassifisering (HjemmelOpphevetFunnregel), samme ord som den samlede statusen i HjemmelsstatusSamlet.
+        [HjemmelOpphevet] = HjemmelOpphevetFunnregel.Undertyper,
     };
 
     // ---- Status ----
@@ -68,8 +74,16 @@ public static class Funn
     /// målvedtaket». Settes bare når det kan finnes uten gjetting — rettskilden endrer nøyaktig ETT dokument ifølge Lovdatas «Endrer»-felt
     /// (<see cref="RettskildeEndringEntitet"/>). Publiseres ikke som egen liste; påstanden sier det i klartekst.</summary>
     public const string Malvedtak = "malvedtak";
+    /// <summary>[Ny, #472 PR 2, Johanns avgjørelse 2026-11-18] Bestemmelsen som opphever hjemmelen (<see cref="HjemmelsstatusEntitet.OpphevetAvEid"/>).
+    /// Er sitatet lest i Norsk Lovtidend, finnes noden ikke i korpuset, og koblingen står med ELI og eId.</summary>
+    public const string OpphevendeBestemmelse = "opphevende_bestemmelse";
+    /// <summary>[Ny, #472 PR 2] Overgangsregelen som viderefører forskriften, når den finnes (<see cref="HjemmelsstatusEntitet.VidereforingEid"/>):
+    /// for en utløpt videreføring, og for hjemler som bærer i et funn med blandede hjemler.</summary>
+    public const string Videreforingsbestemmelse = "videreforingsbestemmelse";
     public static readonly string[] Koblingsroller =
-        [GjelderBestemmelse, MotstridendeBestemmelse, BerortAktor, Navneform, Etterfolger, Kilde, Malvedtak];
+        [GjelderBestemmelse, MotstridendeBestemmelse, BerortAktor, Navneform, Etterfolger, Kilde, Malvedtak, OpphevendeBestemmelse, Videreforingsbestemmelse];
+    /// <summary>Rollene som peker på en bestemmelse (ELI, valgfri eId og sitat).</summary>
+    public static readonly string[] Bestemmelsesroller = [GjelderBestemmelse, MotstridendeBestemmelse, OpphevendeBestemmelse, Videreforingsbestemmelse];
 
     /// <summary>[Ny, #429 PR 2, Johanns avgjørelse 2026-10-31 (3): premissporten for etterfølger gjelder alle fire gruppene] Overskriften
     /// på vurderingspunktet (type <see cref="Vurdering"/>) der juristen sier hvem som har oppgaven nå, eller at det er ukjent, når funnet
@@ -81,6 +95,12 @@ public static class Funn
     /// har virkning når hjemmelsloven er opphevet (videreført etter en overgangsregel, erstattet, eller uten virkning). Uten et slikt punkt
     /// stopper premissporten med «Hjemmelsloven kan være opphevet» (<see cref="Opphevingskontroll.Premissmangeltekst"/>).</summary>
     public const string HjemmelOverskrift = "Hjemmel";
+
+    /// <summary>[Ny, #472 PR 2, Johanns avgjørelse 2026-11-18] Overskriften på vurderingspunktet der juristen sier om forskriften kan stå på en ny
+    /// hjemmel som gir samme kompetanse. Et maskinsignal for «ny tilsvarende hjemmel» er avvist (fase 1, juristrunde 2): det er alltid en vurdering.
+    /// <b>Premissporten:</b> et funn i <see cref="HjemmelOpphevet"/> vises ikke som «mulig bortfalt» før punktet finnes, enten som type
+    /// <see cref="Vurdering"/> eller merket «ikke vurdert» (type <see cref="IkkeAvgjort"/>). Se <see cref="FunnTjeneste.NyHjemmelVurdert"/>.</summary>
+    public const string NyHjemmelOverskrift = "Ny hjemmel";
 
     // ---- Vurderingspunkter ----
     public const string BortforklaringProvd = "bortforklaring_provd";

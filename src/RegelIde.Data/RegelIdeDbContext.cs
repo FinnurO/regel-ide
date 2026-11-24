@@ -2216,11 +2216,14 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
         {
             e.ToTable("funn", t =>
             {
-                t.HasCheckConstraint("ck_funn_kategori", "kategori IN ('utgatt_aktor', 'mulig_motstrid', 'uklarhet_hull')");
+                // [ENDRET, #472 PR 2] 'hjemmel_opphevet' (Funn.HjemmelOpphevet).
+                t.HasCheckConstraint("ck_funn_kategori", "kategori IN ('utgatt_aktor', 'mulig_motstrid', 'uklarhet_hull', 'hjemmel_opphevet')");
                 // [ENDRET, #429 PR 4] 'avgiverformel' (UtgattAktorFunnregel.UndertypeAvgiverformel).
                 t.HasCheckConstraint("ck_funn_undertype",
                     "undertype IS NULL OR (kategori = 'utgatt_aktor' AND undertype IN ('nedlagt_aktor', 'utgatt_navn', 'avgiverformel')) "
-                    + "OR (kategori = 'uklarhet_hull' AND undertype IN ('hull', 'upresis_henvisning', 'publiseringsfeil_kilde'))");
+                    + "OR (kategori = 'uklarhet_hull' AND undertype IN ('hull', 'upresis_henvisning', 'publiseringsfeil_kilde')) "
+                    // [Ny, #472 PR 2] HjemmelOpphevetFunnregel.Undertyper.
+                    + "OR (kategori = 'hjemmel_opphevet' AND undertype IN ('hjemmel_opphevet', 'blandede_hjemler', 'uavklart', 'videreforing_utlopt', 'gjenstandslos'))");
                 t.HasCheckConstraint("ck_funn_status",
                     "status IN ('oppdaget', 'juristvurdert', 'godkjent_for_publisering', 'forklart_bort')");
                 // [ENDRET, #429 PR 3] 'maskinregel': funn som en maskinregel har forklart bort (Funn.Maskinregel).
@@ -2282,7 +2285,8 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.ToTable("funn_koblinger", t =>
             {
                 t.HasCheckConstraint("ck_funn_koblinger_rolle",
-                    "rolle IN ('gjelder_bestemmelse', 'motstridende_bestemmelse', 'berort_aktor', 'navneform', 'etterfolger', 'kilde', 'malvedtak')");
+                    "rolle IN ('gjelder_bestemmelse', 'motstridende_bestemmelse', 'berort_aktor', 'navneform', 'etterfolger', 'kilde', 'malvedtak', "
+                    + "'opphevende_bestemmelse', 'videreforingsbestemmelse')"); // [ENDRET, #472 PR 2]
                 // Nøyaktig ett mål. En bestemmelse har alltid ELI-en; rettskilde_id og node_id er oppslag mot korpuset og kan være NULL.
                 t.HasCheckConstraint("ck_funn_koblinger_ett_mal",
                     "(CASE WHEN rettskilde_eli IS NOT NULL THEN 1 ELSE 0 END) + (CASE WHEN virksomhet_id IS NOT NULL THEN 1 ELSE 0 END) "
@@ -2293,7 +2297,8 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
                 t.HasCheckConstraint("ck_funn_koblinger_node", "node_id IS NULL OR eid IS NOT NULL");
                 // Rollen bestemmer hva slags mål koblingen kan ha.
                 t.HasCheckConstraint("ck_funn_koblinger_rolle_mal",
-                    "(rolle IN ('gjelder_bestemmelse', 'motstridende_bestemmelse') AND rettskilde_eli IS NOT NULL) "
+                    "(rolle IN ('gjelder_bestemmelse', 'motstridende_bestemmelse', 'opphevende_bestemmelse', 'videreforingsbestemmelse') "
+                    + "AND rettskilde_eli IS NOT NULL) "
                     + "OR (rolle = 'berort_aktor' AND virksomhet_id IS NOT NULL) "
                     + "OR (rolle = 'navneform' AND begrep_id IS NOT NULL) "
                     + "OR (rolle = 'etterfolger' AND strukturkant_id IS NOT NULL) "

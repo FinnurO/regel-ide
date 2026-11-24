@@ -1172,11 +1172,11 @@ namespace RegelIde.Data.Migrasjoner
 
                             t.HasCheckConstraint("ck_funn_juristvurdert_hvem", "status NOT IN ('juristvurdert', 'godkjent_for_publisering') OR (juristvurdert_av IS NOT NULL AND juristvurdert_tidspunkt IS NOT NULL AND vurdert_av_type IS NOT NULL AND vurdering IS NOT NULL)");
 
-                            t.HasCheckConstraint("ck_funn_kategori", "kategori IN ('utgatt_aktor', 'mulig_motstrid', 'uklarhet_hull')");
+                            t.HasCheckConstraint("ck_funn_kategori", "kategori IN ('utgatt_aktor', 'mulig_motstrid', 'uklarhet_hull', 'hjemmel_opphevet')");
 
                             t.HasCheckConstraint("ck_funn_status", "status IN ('oppdaget', 'juristvurdert', 'godkjent_for_publisering', 'forklart_bort')");
 
-                            t.HasCheckConstraint("ck_funn_undertype", "undertype IS NULL OR (kategori = 'utgatt_aktor' AND undertype IN ('nedlagt_aktor', 'utgatt_navn', 'avgiverformel')) OR (kategori = 'uklarhet_hull' AND undertype IN ('hull', 'upresis_henvisning', 'publiseringsfeil_kilde'))");
+                            t.HasCheckConstraint("ck_funn_undertype", "undertype IS NULL OR (kategori = 'utgatt_aktor' AND undertype IN ('nedlagt_aktor', 'utgatt_navn', 'avgiverformel')) OR (kategori = 'uklarhet_hull' AND undertype IN ('hull', 'upresis_henvisning', 'publiseringsfeil_kilde')) OR (kategori = 'hjemmel_opphevet' AND undertype IN ('hjemmel_opphevet', 'blandede_hjemler', 'uavklart', 'videreforing_utlopt', 'gjenstandslos'))");
 
                             t.HasCheckConstraint("ck_funn_vurdert_av_type", "vurdert_av_type IS NULL OR vurdert_av_type IN ('menneske', 'ki_agent', 'maskinregel')");
                         });
@@ -1284,9 +1284,9 @@ namespace RegelIde.Data.Migrasjoner
 
                             t.HasCheckConstraint("ck_funn_koblinger_rettskilde", "(rettskilde_id IS NULL AND eid IS NULL AND node_id IS NULL) OR rettskilde_eli IS NOT NULL");
 
-                            t.HasCheckConstraint("ck_funn_koblinger_rolle", "rolle IN ('gjelder_bestemmelse', 'motstridende_bestemmelse', 'berort_aktor', 'navneform', 'etterfolger', 'kilde', 'malvedtak')");
+                            t.HasCheckConstraint("ck_funn_koblinger_rolle", "rolle IN ('gjelder_bestemmelse', 'motstridende_bestemmelse', 'berort_aktor', 'navneform', 'etterfolger', 'kilde', 'malvedtak', 'opphevende_bestemmelse', 'videreforingsbestemmelse')");
 
-                            t.HasCheckConstraint("ck_funn_koblinger_rolle_mal", "(rolle IN ('gjelder_bestemmelse', 'motstridende_bestemmelse') AND rettskilde_eli IS NOT NULL) OR (rolle = 'berort_aktor' AND virksomhet_id IS NOT NULL) OR (rolle = 'navneform' AND begrep_id IS NOT NULL) OR (rolle = 'etterfolger' AND strukturkant_id IS NOT NULL) OR (rolle = 'kilde' AND (rettskilde_eli IS NOT NULL OR ekstern_lenke IS NOT NULL OR kildefeil_id IS NOT NULL)) OR (rolle = 'malvedtak' AND rettskilde_eli IS NOT NULL)");
+                            t.HasCheckConstraint("ck_funn_koblinger_rolle_mal", "(rolle IN ('gjelder_bestemmelse', 'motstridende_bestemmelse', 'opphevende_bestemmelse', 'videreforingsbestemmelse') AND rettskilde_eli IS NOT NULL) OR (rolle = 'berort_aktor' AND virksomhet_id IS NOT NULL) OR (rolle = 'navneform' AND begrep_id IS NOT NULL) OR (rolle = 'etterfolger' AND strukturkant_id IS NOT NULL) OR (rolle = 'kilde' AND (rettskilde_eli IS NOT NULL OR ekstern_lenke IS NOT NULL OR kildefeil_id IS NOT NULL)) OR (rolle = 'malvedtak' AND rettskilde_eli IS NOT NULL)");
                         });
                 });
 

@@ -19,7 +19,8 @@ public sealed record HjemmelsstatusRadDto(
 /// <summary>Svaret på «hvilke hjemler har forskriften, hvilken status har hver, og hva blir den samlede statusen?» (#472 AK 1–2).</summary>
 public sealed record HjemmelsstatusDto(
     bool Beregnet, string? Regelversjon, DateTimeOffset? BeregnetTidspunkt, string? SamletStatus, string? SamletKunnskapsstatus,
-    bool Gjenstandslos, Guid? SvakestePremissId, bool? RentEndringsvedtak, IReadOnlyList<HjemmelsstatusRadDto> Hjemler);
+    bool Gjenstandslos, Guid? SvakestePremissId, bool? RentEndringsvedtak, IReadOnlyList<HjemmelsstatusRadDto> Hjemler,
+    Guid? FunnId = null, bool MuligBortfaltVises = false);
 
 /// <summary>
 /// [Ny, issue #472 PR 1, Johanns avgjørelser 2026-11-18] Endepunktene for hjemmelsstatusen. Egen fil, som <see cref="FunnEndepunkter"/>.
@@ -30,9 +31,7 @@ public static class HjemmelsstatusEndepunkter
 {
     /// <summary>«LOV-1993-06-11-65» for en dokument-ELI når dokumentet bare er en referanse-stub (kaldsjekken 2026-11-20: den rå ELI-en sto i
     /// tabellen). Ukjent form → ELI-en som den er.</summary>
-    public static string? EliReferanse(string? eli) => Hjemmelstekstlesing.Mal(eli) is { } m
-        ? $"{(m.Type == "lov" ? "LOV" : "FOR")}-{m.Aar:0000}-{m.Mnd:00}-{m.Dag:00}{(m.Nr.Length > 0 ? "-" + m.Nr : "")}"
-        : eli;
+    public static string? EliReferanse(string? eli) => HjemmelOpphevetFunnregel.EliReferanse(eli);
 
     public static void MapHjemmelsstatusEndepunkter(this WebApplication app)
     {
@@ -56,7 +55,7 @@ public static class HjemmelsstatusEndepunkter
 
         app.MapGet("/api/rettskilder/{id:guid}/hjemmelsstatus", async (Guid id, RegelIdeDbContext db, HjemmelsstatusRegel regel, CancellationToken ct) =>
             {
-                var f = await db.Rettskilder.AsNoTracking().Where(r => r.Id == id).Select(r => new { r.Id, r.RentEndringsvedtak }).FirstOrDefaultAsync(ct);
+                var f = await db.Rettskilder.AsNoTracking().Where(r => r.Id == id).Select(r => new { r.Id, r.Eli, r.RentEndringsvedtak }).FirstOrDefaultAsync(ct);
                 if (f is null) return Results.NotFound(new { feil = $"Ingen rettskilde med id '{id}'." });
                 if (await regel.LesAsync(id, ct) is not { } lest)
                     return Results.Ok(new HjemmelsstatusDto(false, null, null, null, null, false, null, f.RentEndringsvedtak, []));
@@ -86,8 +85,14 @@ public static class HjemmelsstatusEndepunkter
                         Kilde(r.ErstattetAvRettskildeId, r.ErstattetAvEid, null, false), r.Premissmangel, x.P.Kunnskapsstatus);
                 }).ToList();
                 var forste = egne.Select(x => x.R).MaxBy(r => r.BeregnetTidspunkt)!;
+                // [Ny, #472 PR 2, premissporten] «mulig bortfalt» står bare når funnet for forskriften har «Ny hjemmel» vurdert eller merket
+                // «ikke vurdert». Uten funn (ikke kjørt, eller uttømt virkning) står det ikke.
+                var nokkel = f.Eli is null ? null : HjemmelOpphevetFunnregel.NokkelPrefiks + UtgattAktorFunnregel.EliKort(f.Eli);
+                var funn = nokkel is null ? null
+                    : await db.Funn.AsNoTracking().Include(x => x.Vurderingspunkter).FirstOrDefaultAsync(x => x.EksternNokkel == nokkel, ct);
                 return Results.Ok(new HjemmelsstatusDto(true, forste.Regelversjon, forste.BeregnetTidspunkt, samlet.Status, samlet.Kunnskapsstatus,
-                    samlet.Gjenstandslos, samlet.SvakestePremissId, f.RentEndringsvedtak, dto));
+                    samlet.Gjenstandslos, samlet.SvakestePremissId, f.RentEndringsvedtak, dto, funn?.Id,
+                    funn is not null && funn.Status != Funn.ForklartBort && FunnTjeneste.NyHjemmelVurdert(funn)));
             })
             .WithOpenApi()
             .WithName("HentHjemmelsstatus")
