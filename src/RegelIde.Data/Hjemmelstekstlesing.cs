@@ -493,8 +493,8 @@ public static class Hjemmelstekstlesing
     /// endringene i hovedloven; de andre delene er endringslovens egne bestemmelser (ikrafttredelse, overgang, eller endringer i andre lover), som
     /// ikke blir en del av hovedloven. Delen leses bare i teksten etter endringslovens tittel, fram til neste lov, «jf.», «Fremmet»/«Fremja» eller
     /// «Endret». Null når ingen del er nevnt, eller delen er I.
-    /// <para>Målt i en kopi av den delte basen 2026-11-24: av 78 hjemmelsrader der endringsloven ble fulgt, viste 41 til en del (del II til del
-    /// XII), og ingen til del I.</para>
+    /// <para>Målt i kopien <c>regelide_472pr4</c> 2026-11-24: av 78 hjemmelsrader i gjeldende primære forskrifter der endringsloven ble fulgt,
+    /// viser 56 til en egen del (del II til del XII). 22 følges fortsatt.</para>
     /// </summary>
     public static string? EndringslovensEgenDel(string? hjemmelstekst, Dokumentmal endringslov)
     {

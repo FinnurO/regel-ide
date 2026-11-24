@@ -2793,7 +2793,83 @@ etter CLAUDE.md §23. Mot den delte basen er det bare gjort lesing. Filene ligge
   - en endringslov fulgt til hovedloven fra ikrafttredelsesbestemmelsen (H18);
   - gjenstandsløs satt når bare én av flere gjenstander er opphevet (`Any`, H20);
   - en forskrift i basedOn med rolle NULL som teller som materiell premiss (H15).
-- **Ingen uenighet står igjen.** Rettingene er foreslått i `sammendrag.md` der, men ikke bygget.
+- **Ingen uenighet står igjen.** Rettingene er foreslått i `sammendrag.md` der, men ikke bygget. [Merknad, PR 4] Bygget, se under.
+
+[ENDRET, prosjekteierens avgjørelse 2026-11-24 etter måling 1: «Bygg rettingene, mål på nytt»] **Rettingene (#472 PR 4).** Regelversjonene er
+`472-pr4-2026-11-24` for både hjemmelsstatusen og funnregelen. Testene står i `HjemmelOpphevetRettingerTests`, én per eksempel.
+1. **Forskriften er selv opphevet** (H08, H13, H16). En kandidat som er opphevet i sin helhet av en annen gjeldende kilde i korpus, gir ikke funn.
+   Lesingen er R8 i #429 (`Opphevingskontroll.OpphevetAvAnnenKildeAsync`): kilden har forskriften i «Endrer», hel setning eller den utvidede
+   formen gjennom vakten, og formelen i foreldrenoden. SF og NL holdes utenfor som i R8. Utfallet er `utelatt_forskriften_opphevet`, med
+   opphevingen ordrett som bevis. Treffet går ikke til kildefeilkøen (åpent spørsmål).
+2. **Kunngjort versjon** (H07, H09). Har korpuset bare den kunngjorte versjonen (`kildeform = kunngjort`), står det ikke «Lovdata viser … som
+   gjeldende» i påstanden, men at korpuset har vedtaket bare slik det ble kunngjort. Funnet får premissmangelen «Kunngjort versjon, gjeldende
+   status ikke kontrollert» (`FunnTjeneste.KunngjortMangelStart`). Den forsvinner når juristen har et vurderingspunkt «Gjeldende status».
+   - Militærnekterloven § 10 (H07, H09) falt med kap. III ved LOV-2012-04-20-19. Den loven er bare en referanse-stub i korpus. Den eneste teksten
+     som nevner den, er SF/forskrift/2012-05-25-465 § 1 andre ledd («slik den lyder etter endringslov 20. april 2012 nr. 19»), som ikke sier hva
+     som er opphevet. Korpuset kan altså ikke se det. Funnene står, med premissmangelen.
+3. **Endringslovens egne deler** (H18). Viser hjemmelsteksten til en annen del enn I av endringsloven («… om fagskoleutdanning del II nr. 1»),
+   følges ikke endringsloven til hovedloven (`Hjemmelstekstlesing.EndringslovensEgenDel`). Statusen blir ukjent (END). Av 78 hjemmelsrader der
+   endringsloven ble fulgt, viser 56 til en egen del (del II–XII), og 22 følges fortsatt.
+4. **Gjenstandsløs krever alle gjenstandene** (H20). `Any` er byttet med `All`. En gjenstand som er aktiv eller ukjent, gir ikke merket. Det er
+   ikke laget noen status «delvis gjenstandsløs». Hvilken del av vedtaket som står uten gjenstand, kan ikke leses uten fortolkning (som R6 for
+   blandede hjemler). Det er det enkleste som ikke gjetter, og det er stilt som spørsmål.
+5. **Rollen og dekningen** (H15, H14):
+   - En hjemmel som selv er en forskrift eller et vedtak, og som ingen annen regel har gitt rolle, får rollen kompetanseledd
+     (`rolle_regel = forskrift_som_hjemmel`, 1 581 rader).
+   - En videreføring med dekningen `dokumenttype_ikke_nevnt` bærer ikke alene. Står bare slike (eller rolle NULL) igjen når noe faller, er
+     samlet status uavklart (`Hjemmelsstatus.BaererVurdert`). Når ingenting faller, endrer den ingenting.
+   - FOR-1993-12-17-1314 er fortsatt videreført etter konkurranseloven 2004 § 49 første ledd («så langt de passer»), og testen AK2 er grønn.
+     Ingenting faller der, så H14-regelen slår ikke inn.
+6. **Funn som faller bort, forklares bort og slettes ikke**, som i #429. Gjelder et lagret funn som står som oppdaget og ikke er gjenåpnet
+   (`FunnTjeneste.ForklarBortMaskineltAsync`, vurdert av maskinregel, med grunnen i begrunnelsen). Det skjer når forskriften selv er opphevet,
+   når den samlede statusen ikke lenger gir en undertype, og når forskriften er et rent endringsvedtak. Et funn et menneske har vurdert eller
+   gjenåpnet, røres ikke. Holder bryteren for #446 et funn tilbake, røres det heller ikke.
+7. **Oppfrisking** (`?oppfrisk=true` med `skriv`), som i #429. Påstanden, undertypen og koblingene skrives på nytt for lagrede funn som står som
+   oppdaget og ikke er rørt av noen. Uten den ville H14 stått som «blandede» og LTI-funnene uten den nye påstanden.
+
+**Kaldkjørt i en kopi av den delte basen** (`regelide_472pr4`, API på 5387, 2026-11-24). Grunnlinjen er master-koden kjørt i samme kopi
+(hjemmelsstatus skrevet med Lovtidend, så funnregelen tørrkjørt). Den ga de samme 319 funnene som er lagret. Deretter ble PR 4 kjørt:
+hjemmelsstatus `?skriv=true`, funnregelen `?skriv=true&oppfrisk=true`, og en ny kjøring for å sjekke at den er idempotent.
+
+| | Før (master) | Etter (PR 4) |
+|---|---|---|
+| Hjemmelsrader med endret status | — | 70 av 25 011 |
+| Status per hjemmel | aktiv 21 545, videreført 1 376, ukjent 1 204, opphevet 679, utløpt 44, erstattet 18 | aktiv 21 516, videreført 1 371, ukjent 1 255, opphevet 644, utløpt 43, erstattet 37 |
+| END | 138 | 189 |
+| Rolle NULL / kompetanseledd | 5 675 / 2 611 | 4 094 / 4 192 |
+| Samlet: aktiv / ukjent / videreført | 4 013 / 820 / 439 | 4 136 / 697 / 471 |
+| Samlet: hjemmel opphevet / blandede / uavklart / utløpt / gjenstandsløs | 213 / 74 / 26 / 10 / 2 | 211 / 58 / 12 / 10 / 1 |
+| **Funn (oppdaget)** | **319**: hjemmel opphevet 210, blandede 71, uavklart 26, utløpt 10, gjenstandsløs 2; DEL 140, SF 88, LTI 84, INS 6, STV 1 | **264**: hjemmel opphevet 191, blandede 50, uavklart 12, utløpt 10, gjenstandsløs 1; DEL 121, SF 77, LTI 61, INS 4, STV 1 |
+| Forklart bort (lagret, slettes ikke) | 0 | **67**: forskriften selv opphevet 20 (LTI 19, DEL 1), samlet aktiv 26, ukjent 11, videreført 10. Per prefiks: LTI 29, DEL 21, SF 15, INS 2 |
+| Endret undertype | — | 3: H14 blandede → uavklart; LTI/forskrift/2004-02-12-1221 og LTI/forskrift/2021-10-11-3043 uavklart → hjemmel opphevet |
+| Nye funn | — | 12: hjemmel opphevet 6, uavklart 3, blandede 2, utløpt 1 (DEL 2, LTI 6, SF 4) |
+| Kunngjort versjon, premissmangel | — | 61 funn (alle LTI) |
+| Ny kjøring | — | 0 nye, 0 forklares bort, 0 oppfriskes, 264 finnes |
+
+**Hvorfor de 47 som ikke er «forskriften opphevet», faller bort** (lest av radene): rollen for en forskrift som hjemmel 35, endringslovens egen del
+(END) 11, gjenstandsløs 1. De 12 nye og de to som går fra uavklart til hjemmel opphevet, kommer alle fra rollen. Hjemmelen som var en forskrift
+med rolle NULL, var ukjent (11) eller aktiv (3) og avgjorde samlet status. Som kompetanseledd teller den ikke lenger når det finnes materielle
+hjemler eller hjemler med rolle NULL (punkt 1 i §5.20).
+- LTI/forskrift/2021-10-11-3043 er samme mønster som det juristen kalte sekundærfeilen i H16. Svalbard-forskriften er kompetanseledd, og bare
+  barnevernloven 1992 § 1-2 fra Lovdatas basedOn (rolle NULL) står igjen.
+- Juristens andre forslag til rollen (en basedOn-rad som hjemmelsteksten ikke nevner, teller ikke) er ikke bygget. Det er stilt som spørsmål.
+
+**LTI (de 84 funnene før):** 19 faller bort fordi forskriften selv er opphevet, og 10 av andre grunner. 55 står, alle med premissmangelen.
+- Juristen anslo minst 28 med en opphevingssetning i en annen kilde. Tellingen gjentatt i kopien gir 28: 18 tas av R8, 2 faller bort av andre
+  grunner, og 8 leser R8 som delvise. R8 tar i tillegg én som tellemønsteret ikke fanger.
+- De åtte er hele opphevinger etter ordlyden, men hvitelisten i R8 (#429 PR 4 (1a)) godtar ikke det som står rett etter målet. To former går
+  igjen:
+  - en tittel som begynner med «av»: «Delegering 29. juni 2001 nr. 721 av myndighet til Forsvarsdepartementet etter sikkerhetsloven § 12 … oppheves
+    1. januar 2019.» (DEL/forskrift/2018-12-20-2052);
+  - en dato rett etter verbet: «oppheves 1. januar 2019».
+- Rettingen hører til R8 og endrer også #429. Den er stilt som spørsmål, ikke bygget.
+
+**H01–H20 etter rettingene:**
+- De elleve riktige (H01–H06, H10, H11, H12, H17, H19) står uendret.
+- H08, H13 og H16 forklares bort fordi forskriften selv er opphevet.
+- H15 (videreført), H18 (ukjent, END) og H20 (aktiv) forklares bort fordi samlet status ikke lenger gir funn.
+- H07 og H09 står, med premissmangelen for kunngjort versjon. Opphevingen i 2012 er ikke i korpus.
+- H14 (usikker) er nå uavklart, ikke blandede.
 
 ### 5.6 Konvertering av eksisterende data
 
