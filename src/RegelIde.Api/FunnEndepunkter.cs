@@ -79,7 +79,8 @@ public static class FunnEndepunkter
         // [Ny, #472 PR 2, Johanns avgjørelser 2026-11-18 og 2026-11-20] Maskinregelen for «Hjemmel opphevet». Leser de lagrede radene i
         // hjemmelsstatus (PR 1). Tørrkjøring er standard. NULL i #446-kolonnen er én bryter i konfigurasjonen (standard på, 2026-11-24); rapporten viser begge
         // tolkningene uansett.
-        funn.MapPost("/maskinregel/hjemmel-opphevet", async (bool? skriv, bool? medRader, Guid? rettskildeId, HttpRequest request,
+        // [ENDRET, #472 PR 4] ?oppfrisk=true (med skriv) skriver påstanden på nytt for lagrede funn ingen har rørt, som for utgåtte aktører.
+        funn.MapPost("/maskinregel/hjemmel-opphevet", async (bool? skriv, bool? medRader, bool? oppfrisk, Guid? rettskildeId, HttpRequest request,
                 RegelIdeDbContext db, HjemmelOpphevetFunnregel regel, IConfiguration konfig, CancellationToken ct) =>
             {
                 var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
@@ -87,7 +88,7 @@ public static class FunnEndepunkter
                 var nullGirFunn = konfig.GetValue(HjemmelOpphevetFunnregel.KonfignokkelIkkeKlassifisertGirFunn,
                     HjemmelOpphevetFunnregel.StandardIkkeKlassifisertGirFunn);
                 return Results.Ok(await regel.KjorAsync(skriv ?? false, bruker.Navn, nullGirFunn, rettskildeId is { } rid ? [rid] : null,
-                    medRader ?? false, ct));
+                    medRader ?? false, ct, oppfrisk ?? false));
             })
             .WithName("KjorMaskinregelHjemmelOpphevet")
             .WithSummary("Issue #472 PR 2 — ett funn per gjeldende forskrift der den samlede hjemmelsstatusen sier at en hjemmel som teller, er "
@@ -95,7 +96,10 @@ public static class FunnEndepunkter
                          + "blandede_hjemler, uavklart, videreforing_utlopt og gjenstandslos. Ukjent gir ikke funn. Rene endringsvedtak (#446) og rene "
                          + "ikrafttredelsesvedtak gir ikke funn; NULL i #446-kolonnen gir funn bare når RegelIde:Hjemmelsstatus:IkkeKlassifisertGirFunn "
                          + "er true (standard true, prosjekteierens avgjørelse 2026-11-24), og rapporten viser begge tolkningene. ?skriv=true skriver funnene som oppdaget; uten er det en "
-                         + "tørrkjøring. Idempotent: en ny kjøring gir 0 nye. ?medRader=true tar med forskriftene; ?rettskildeId= avgrenser.");
+                         + "tørrkjøring. Idempotent: en ny kjøring gir 0 nye. ?medRader=true tar med forskriftene; ?rettskildeId= avgrenser. "
+                         + "[#472 PR 4] En forskrift som selv er opphevet i korpus (R8), gir ikke funn; et lagret funn som står som oppdaget og ikke lenger "
+                         + "gir funn, forklares bort maskinelt (slettes aldri). ?oppfrisk=true (med skriv) skriver påstanden og undertypen på nytt for "
+                         + "lagrede funn ingen har rørt.");
 
         funn.MapGet("/tilgang", async (HttpRequest request, RegelIdeDbContext db, IConfiguration konfig, CancellationToken ct) =>
             {

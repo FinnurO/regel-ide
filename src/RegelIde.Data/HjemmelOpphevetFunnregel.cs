@@ -3,9 +3,13 @@ using Microsoft.EntityFrameworkCore;
 namespace RegelIde.Data;
 
 /// <summary>Én forskrift i rapporten (<c>?medRader=true</c>).</summary>
+/// <param name="Undertype">Undertypen regelen gir, eller null når forskriften ikke gir funn (bare med når et lagret funn forklares bort).</param>
+/// <param name="ForklaresBort">[Ny, #472 PR 4] Et lagret funn som står som oppdaget, og som regelen forklarer bort.</param>
+/// <param name="Bevis">[Ny, #472 PR 4] Opphevingen av forskriften selv (R8), eller hvorfor funnet forklares bort.</param>
 public sealed record HjemmelOpphevetRad(
-    string? DokumentId, string Tittel, string EksternNokkel, string Undertype, string SamletStatus, string Kunnskapsstatus, bool? RentEndringsvedtak,
-    string Utfall, string? FinnesStatus, IReadOnlyList<string> Hjemler);
+    string? DokumentId, string Tittel, string EksternNokkel, string? Undertype, string SamletStatus, string Kunnskapsstatus, bool? RentEndringsvedtak,
+    string Utfall, string? FinnesStatus, IReadOnlyList<string> Hjemler, string? Kildeform = null, bool ForklaresBort = false, string? Bevis = null,
+    string? FinnesUndertype = null);
 
 /// <summary>Hvor mange funn én tolkning av #446-regelen gir, per undertype og per prefiks i Lovdatas dokument-id (SF, DEL, LTI …).</summary>
 public sealed record HjemmelOpphevetTolkning(int Funn, IReadOnlyDictionary<string, int> PerUndertype, IReadOnlyDictionary<string, int> PerPrefiks);
@@ -24,7 +28,19 @@ public sealed record HjemmelOpphevetTolkning(int Funn, IReadOnlyDictionary<strin
 /// <param name="Foreslatt">Funn etter tolkningen bryteren står på.</param>
 /// <param name="HoldtAvPremissporten">Funn med undertypen hjemmel opphevet eller videreføring utløpt som ikke vises som «mulig bortfalt», fordi
 /// «Ny hjemmel» ikke er vurdert. Alle nye funn er det.</param>
-/// <param name="UtenGrunnlag">Lagrede funn fra regelen der forskriften ikke lenger gir funn (status eller #446 er endret). Telles, røres ikke.</param>
+/// <param name="UtenGrunnlag">Lagrede funn fra regelen der forskriften ikke lenger er i omfanget (ikke gjeldende primær forskrift med
+/// hjemmelsstatus), eller der bare bryteren for #446 holder funnet tilbake. Telles, røres ikke. [ENDRET, #472 PR 4] Funn der regelen selv sier at
+/// forskriften ikke gir funn, telles i <paramref name="ForklaresBort"/>.</param>
+/// <param name="ForskriftenOpphevet">[Ny, #472 PR 4] Kandidater der forskriften selv er opphevet med tekstbevis i en annen gjeldende kilde i korpus
+/// (R8 i #429): ingen funn.</param>
+/// <param name="KunngjortIkkeKontrollert">[Ny, #472 PR 4] Foreslåtte funn der korpuset bare har forskriften som kunngjort versjon (LTI). De får
+/// premissmangelen «kunngjort versjon, gjeldende status ikke kontrollert».</param>
+/// <param name="ForklaresBort">[Ny, #472 PR 4] Lagrede funn (oppdaget, ikke gjenåpnet) der forskriften ikke lenger gir funn etter regelen.</param>
+/// <param name="ForklaresBortPerGrunn">Per grunn: forskriften opphevet, samlet status (aktiv, videreført, ukjent), rent endringsvedtak.</param>
+/// <param name="ForklartBortSatt">Satt til forklart bort i denne kjøringen (bare med <c>skriv</c>).</param>
+/// <param name="VurdertIkkeRort">Lagrede funn der regelen ikke lenger gir funn, men som et menneske har vurdert eller gjenåpnet. Røres ikke.</param>
+/// <param name="Oppfriskes">[Ny, #472 PR 4] Lagrede funn som ingen har rørt, der tittel, påstand, undertype eller koblinger er endret.</param>
+/// <param name="Oppfrisket">Skrevet på nytt i denne kjøringen (bare med <c>skriv</c> og <c>oppfrisk</c>).</param>
 public sealed record HjemmelOpphevetRapport(
     bool Skrevet, string Regelversjon, bool HjemmelsstatusBeregnet, string? HjemmelsstatusRegelversjon, bool IkkeKlassifisertGirFunn,
     int Forskrifter, IReadOnlyDictionary<string, int> PerSamletStatus, int Gjenstandslose,
@@ -32,7 +48,10 @@ public sealed record HjemmelOpphevetRapport(
     int UtelattRentEndringsvedtak, int IkrafttredelseEnesteDisposisjonstype, int IkkeKlassifisert,
     HjemmelOpphevetTolkning Streng, HjemmelOpphevetTolkning NullGirFunn,
     int Foreslatt, IReadOnlyDictionary<string, int> ForeslattPerUndertype, int Nye, int Finnes, int FinnesForklartBort, int UndertypeEndret,
-    int HoldtAvPremissporten, int MuligBortfaltVises, int UtenGrunnlag, IReadOnlyList<HjemmelOpphevetRad>? Rader);
+    int HoldtAvPremissporten, int MuligBortfaltVises, int UtenGrunnlag, IReadOnlyList<HjemmelOpphevetRad>? Rader,
+    int ForskriftenOpphevet = 0, IReadOnlyDictionary<string, int>? ForskriftenOpphevetPerPrefiks = null, int KunngjortIkkeKontrollert = 0,
+    int ForklaresBort = 0, IReadOnlyDictionary<string, int>? ForklaresBortPerGrunn = null, int ForklartBortSatt = 0, int VurdertIkkeRort = 0,
+    int Oppfriskes = 0, int Oppfrisket = 0, IReadOnlyDictionary<string, int>? ForeslattPerPrefiks = null);
 
 /// <summary>
 /// [Ny, #472 PR 2, Johanns avgjørelser 2026-11-18 og 2026-11-20] <b>Maskinregelen for «Hjemmel opphevet»</b> (<c>monster:hjemmel-opphevet</c>):
@@ -66,7 +85,9 @@ public sealed class HjemmelOpphevetFunnregel(RegelIdeDbContext db, FunnTjeneste 
 {
     public const string OppdagelsesKilde = "monster:hjemmel-opphevet";
     public const string NokkelPrefiks = "hjemmel-opphevet:";
-    public const string Regelversjon = "472-pr2-2026-11-24";
+    /// <summary>[ENDRET, #472 PR 4, prosjekteierens avgjørelse 2026-11-24 etter måling 1] Forskriften selv opphevet (R8), kunngjorte versjoner,
+    /// forklart bort og oppfrisket.</summary>
+    public const string Regelversjon = "472-pr4-2026-11-24";
 
     /// <summary>[Bryter] Om en forskrift der #446-kolonnen <c>rent_endringsvedtak</c> er NULL, gir funn. Standard <see cref="StandardIkkeKlassifisertGirFunn"/>.
     /// Se klassekommentaren.</summary>
@@ -87,21 +108,31 @@ public sealed class HjemmelOpphevetFunnregel(RegelIdeDbContext db, FunnTjeneste 
     public const string UtfallForeslatt = "foreslatt";
     public const string UtfallRentEndringsvedtak = "utelatt_rent_endringsvedtak";
     public const string UtfallIkkeKlassifisert = "utelatt_ikke_klassifisert_446";
+    /// <summary>[Ny, #472 PR 4] Forskriften er selv opphevet med tekstbevis i en annen gjeldende kilde i korpus (R8).</summary>
+    public const string UtfallForskriftenOpphevet = "utelatt_forskriften_opphevet";
+    /// <summary>[Ny, #472 PR 4] Forskriften har ingen undertype (aktiv, videreført eller ukjent), men et lagret funn står.</summary>
+    public const string UtfallIngenUndertype = "ingen_undertype";
+
+    /// <summary>[Ny, #472 PR 4] Kildeformen for vedtak slik de ble kunngjort i Norsk Lovtidend avd. I (<see cref="RettskildeEntitet.Kildeform"/>).</summary>
+    public const string KildeformKunngjort = "kunngjort";
 
     private sealed record Kilde(Guid Id, string? Eli, string? DokumentId, string Tittel, string Kildetype, string Entitetsstatus, string Importrolle,
-        bool? RentEndringsvedtak);
+        bool? RentEndringsvedtak, string? Kildeform);
 
+    /// <param name="oppfrisk">[Ny, #472 PR 4] Med <paramref name="skriv"/>: skriv tittel, påstand, undertype og koblinger på nytt for lagrede funn
+    /// som står som oppdaget og som ingen har rørt (sist endret av ingen eller av regelen), som <c>?oppfrisk=true</c> i #429.</param>
     public async Task<HjemmelOpphevetRapport> KjorAsync(bool skriv, string bruker, bool ikkeKlassifisertGirFunn,
-        IReadOnlyCollection<Guid>? forskriftIder = null, bool medRader = false, CancellationToken ct = default)
+        IReadOnlyCollection<Guid>? forskriftIder = null, bool medRader = false, CancellationToken ct = default, bool oppfrisk = false)
     {
         var kilder = await db.Rettskilder.AsNoTracking()
-            .Select(r => new Kilde(r.Id, r.Eli, r.DokumentId, r.Kortnavn ?? r.Tittel, r.Kildetype, r.Entitetsstatus, r.Importrolle, r.RentEndringsvedtak))
+            .Select(r => new Kilde(r.Id, r.Eli, r.DokumentId, r.Kortnavn ?? r.Tittel, r.Kildetype, r.Entitetsstatus, r.Importrolle, r.RentEndringsvedtak,
+                r.Kildeform))
             .ToDictionaryAsync(r => r.Id, ct);
         var rader = await db.Hjemmelsstatuser.AsNoTracking().ToListAsync(ct);
         var perF = rader.GroupBy(r => r.RettskildeId).ToDictionary(g => g.Key, g => g.OrderBy(r => r.HjemmelEid, StringComparer.Ordinal).ToList());
         IReadOnlyList<HjemmelPremiss>? Premisser(Guid id) => perF.TryGetValue(id, out var l)
             ? l.Select(b => new HjemmelPremiss(b.RettskildeHjemmelId, b.HjemmelEid, b.Rolle, b.Status, b.Kunnskapsstatus,
-                b.MalRettskildeId is { } m && kilder.GetValueOrDefault(m)?.Kildetype == "Forskrift" ? m : null)).ToList()
+                b.MalRettskildeId is { } m && kilder.GetValueOrDefault(m)?.Kildetype == "Forskrift" ? m : null, b.VidereforingDekning)).ToList()
             : null;
 
         var omfang = perF.Keys
@@ -124,6 +155,14 @@ public sealed class HjemmelOpphevetFunnregel(RegelIdeDbContext db, FunnTjeneste 
             }
         }
 
+        // [Ny, #472 PR 4, prosjekteierens avgjørelse 2026-11-24 etter måling 1 (H08, H13, H16)] Er forskriften selv opphevet i sin helhet av en
+        // annen gjeldende kilde i korpus, gir den ikke funn. Samme lesing som R8 i #429 (Opphevingskontroll.OpphevetAvAnnenKildeAsync): kilden
+        // står med forskriften i «Endrer», hel opphevingssetning eller den utvidede formen gjennom vakten, og formelen i foreldrenoden. SF og NL
+        // holdes utenfor som i R8, fordi Lovdata vedlikeholder statusen for dem. Fem av åtte feil i måling 1 var forskrifter som selv er
+        // opphevet (alle LTI); for tre av dem står opphevingen i korpus.
+        var opphevetSelv = await Opphevingskontroll.OpphevetAvAnnenKildeAsync(db,
+            kandidatIder.Select(id => (id, kilder[id].Eli!)).ToList(), ct);
+
         var nokler = await db.Funn.AsNoTracking().Where(f => f.EksternNokkel != null && f.EksternNokkel.StartsWith(NokkelPrefiks))
             .Include(f => f.Vurderingspunkter)
             .ToDictionaryAsync(f => f.EksternNokkel!, ct);
@@ -132,45 +171,75 @@ public sealed class HjemmelOpphevetFunnregel(RegelIdeDbContext db, FunnTjeneste 
         var tellerB = new List<(string Undertype, string Prefiks)>();
         var kandidatUndertyper = new List<string>();
         var foreslattUndertyper = new List<string>();
+        var foreslattPrefiks = new List<string>();
+        var opphevetPrefiks = new List<string>();
+        var bortGrunner = new List<string>();
         int rent = 0, ikraft = 0, ikkeKlassifisert = 0, nye = 0, finnes = 0, finnesBort = 0, undertypeEndret = 0, holdt = 0, vises = 0;
-        var gyldigeNokler = new HashSet<string>(StringComparer.Ordinal);
+        int kunngjort = 0, forklaresBort = 0, forklartBortSatt = 0, vurdertIkkeRort = 0, oppfriskes = 0, oppfrisket = 0;
+        var behandledeNokler = new HashSet<string>(StringComparer.Ordinal);
         var radliste = new List<HjemmelOpphevetRad>();
 
         foreach (var id in omfang)
         {
             var s = samlet[id];
-            if (Undertype(s) is not { } undertype) continue;
             var f = kilder[id];
-            kandidatUndertyper.Add(undertype);
+            var nokkel = NokkelPrefiks + UtgattAktorFunnregel.EliKort(f.Eli!);
+            var finnesFunn = nokler.GetValueOrDefault(nokkel);
             var prefiks = (f.DokumentId ?? "(ingen)").Split('/')[0];
+            var undertype = Undertype(s);
+            if (undertype is null && finnesFunn is null) continue;
+
             string utfall;
-            if (f.RentEndringsvedtak != true && disposisjoner.GetValueOrDefault(id) is { Count: 1 } d && d.Contains(Disposisjonstyper.Ikrafttredelse)) ikraft++;
-            if (f.RentEndringsvedtak == true) { utfall = UtfallRentEndringsvedtak; rent++; }
-            else if (f.RentEndringsvedtak is null)
+            string? bevis = null;
+            if (undertype is null)
             {
-                ikkeKlassifisert++;
-                tellerB.Add((undertype, prefiks));
-                utfall = ikkeKlassifisertGirFunn ? UtfallForeslatt : UtfallIkkeKlassifisert;
+                utfall = UtfallIngenUndertype;
+                bevis = $"Den samlede hjemmelsstatusen er nå «{s.Status}» (hjemmelsstatus {string.Join(", ", perF[id].Select(r => r.Regelversjon).Distinct())}), "
+                    + "og den gir ikke funn.";
             }
             else
             {
-                tellerA.Add((undertype, prefiks));
-                tellerB.Add((undertype, prefiks));
-                utfall = UtfallForeslatt;
+                kandidatUndertyper.Add(undertype);
+                if (f.RentEndringsvedtak != true && disposisjoner.GetValueOrDefault(id) is { Count: 1 } d && d.Contains(Disposisjonstyper.Ikrafttredelse)) ikraft++;
+                if (opphevetSelv.TryGetValue(id, out var o))
+                {
+                    utfall = UtfallForskriftenOpphevet;
+                    opphevetPrefiks.Add(prefiks);
+                    bevis = $"Forskriften er selv opphevet av {o.Etikett} (eId {o.Eid}): «{Opphevingskontroll.Kort(o.Sitat)}». Samme lesing som R8 i #429.";
+                }
+                else if (f.RentEndringsvedtak == true)
+                {
+                    utfall = UtfallRentEndringsvedtak;
+                    rent++;
+                    bevis = "Forskriften er klassifisert som et rent endringsvedtak (#446) og har uttømt virkningen.";
+                }
+                else if (f.RentEndringsvedtak is null)
+                {
+                    ikkeKlassifisert++;
+                    tellerB.Add((undertype, prefiks));
+                    utfall = ikkeKlassifisertGirFunn ? UtfallForeslatt : UtfallIkkeKlassifisert;
+                }
+                else
+                {
+                    tellerA.Add((undertype, prefiks));
+                    tellerB.Add((undertype, prefiks));
+                    utfall = UtfallForeslatt;
+                }
             }
 
-            var nokkel = NokkelPrefiks + UtgattAktorFunnregel.EliKort(f.Eli!);
-            var finnesFunn = nokler.GetValueOrDefault(nokkel);
+            var forklares = false;
             if (utfall == UtfallForeslatt)
             {
-                gyldigeNokler.Add(nokkel);
-                foreslattUndertyper.Add(undertype);
+                behandledeNokler.Add(nokkel);
+                foreslattUndertyper.Add(undertype!);
+                foreslattPrefiks.Add(prefiks);
+                if (f.Kildeform == KildeformKunngjort) kunngjort++;
                 var muligBortfalt = undertype is UndertypeHjemmelOpphevet or UndertypeVidereforingUtlopt;
                 if (finnesFunn is null)
                 {
                     nye++;
                     if (muligBortfalt) holdt++;
-                    if (skriv) await funnTjeneste.OpprettAsync(ByggFunn(nokkel, f, s, undertype, kilder, perF), bruker, ct);
+                    if (skriv) await funnTjeneste.OpprettAsync(ByggFunn(nokkel, f, s, undertype!, kilder, perF), bruker, ct);
                 }
                 else
                 {
@@ -181,18 +250,63 @@ public sealed class HjemmelOpphevetFunnregel(RegelIdeDbContext db, FunnTjeneste 
                     {
                         if (FunnTjeneste.NyHjemmelVurdert(finnesFunn)) vises++; else holdt++;
                     }
+                    // [Ny, #472 PR 4] Oppfrisking som i #429: bare et funn som står som oppdaget og som ingen har rørt.
+                    if (finnesFunn.Status == Funn.Oppdaget && (finnesFunn.SistEndretAv is null || finnesFunn.SistEndretAv == OppdagelsesKilde))
+                    {
+                        var nytt = ByggFunn(nokkel, f, s, undertype!, kilder, perF);
+                        if (nytt.Tittel != finnesFunn.Tittel || nytt.Beskrivelse != finnesFunn.Beskrivelse || nytt.Undertype != finnesFunn.Undertype)
+                        {
+                            oppfriskes++;
+                            if (skriv && oppfrisk)
+                            {
+                                await funnTjeneste.OppdaterAsync(finnesFunn.Id, new FunnEndring(nytt.Tittel, nytt.Beskrivelse, nytt.Undertype, null,
+                                    nytt.InternMerknad, nytt.Koblinger, null), OppdagelsesKilde, ct);
+                                oppfrisket++;
+                            }
+                        }
+                    }
                 }
             }
+            else if (utfall == UtfallIkkeKlassifisert)
+            {
+                // Bryteren holder funnet tilbake; det er ikke regelen som sier at forskriften ikke gir funn. Lagrede funn røres ikke (telles i
+                // utenGrunnlag, som før).
+            }
+            else if (finnesFunn is not null)
+            {
+                // [Ny, #472 PR 4] Regelen sier at forskriften ikke gir funn: et lagret funn som står som oppdaget, forklares bort maskinelt, som
+                // i #429 (FunnTjeneste.ForklarBortMaskineltAsync). Funnet slettes aldri. Et funn et menneske har vurdert eller gjenåpnet, røres ikke.
+                behandledeNokler.Add(nokkel);
+                if (finnesFunn.Status == Funn.Oppdaget && finnesFunn.GjenapnetTidspunkt is null)
+                {
+                    forklares = true;
+                    forklaresBort++;
+                    bortGrunner.Add(utfall == UtfallIngenUndertype ? $"samlet_{s.Status}" : utfall);
+                    if (skriv)
+                    {
+                        var begrunnelse = $"Forklart bort av maskinregelen {OppdagelsesKilde} (regelversjon {Regelversjon}, #472 PR 4, prosjekteierens "
+                            + $"avgjørelse 2026-11-24 etter måling 1). {bevis}";
+                        if (await funnTjeneste.ForklarBortMaskineltAsync(finnesFunn.Id, begrunnelse, OppdagelsesKilde, bruker, ct)) forklartBortSatt++;
+                    }
+                }
+                else if (finnesFunn.Status != Funn.ForklartBort)
+                {
+                    vurdertIkkeRort++;
+                }
+            }
+
             if (medRader)
             {
                 radliste.Add(new HjemmelOpphevetRad(f.DokumentId, f.Tittel, nokkel, undertype, s.Status, s.Kunnskapsstatus, f.RentEndringsvedtak, utfall,
-                    finnesFunn?.Status, HjemmelLinjer(s, undertype, kilder, perF[id])));
+                    finnesFunn?.Status, undertype is null ? [] : HjemmelLinjer(s, undertype, kilder, perF[id]), f.Kildeform, forklares, bevis,
+                    finnesFunn?.Undertype));
             }
         }
 
-        // Lagrede funn fra regelen der forskriften ikke lenger gir funn. Bare innenfor omfanget når det er avgrenset.
+        // Lagrede funn fra regelen som ikke er behandlet over: forskriften er ikke lenger i omfanget, eller bryteren for #446 holder dem tilbake.
+        // Bare innenfor omfanget når det er avgrenset.
         var omfangEli = forskriftIder is null ? null : omfang.Select(id => NokkelPrefiks + UtgattAktorFunnregel.EliKort(kilder[id].Eli!)).ToHashSet(StringComparer.Ordinal);
-        var utenGrunnlag = nokler.Keys.Count(k => !gyldigeNokler.Contains(k) && (omfangEli is null || omfangEli.Contains(k)));
+        var utenGrunnlag = nokler.Keys.Count(k => !behandledeNokler.Contains(k) && (omfangEli is null || omfangEli.Contains(k)));
 
         static IReadOnlyDictionary<string, int> Tell(IEnumerable<string> v) =>
             v.GroupBy(x => x).OrderByDescending(g => g.Count()).ThenBy(g => g.Key, StringComparer.Ordinal).ToDictionary(g => g.Key, g => g.Count());
@@ -205,7 +319,9 @@ public sealed class HjemmelOpphevetFunnregel(RegelIdeDbContext db, FunnTjeneste 
             samlet.Count, Tell(samlet.Values.Select(s => s.Status)), samlet.Values.Count(s => s.Gjenstandslos),
             kandidatUndertyper.Count, Tell(kandidatUndertyper), rent, ikraft, ikkeKlassifisert, Tolkning(tellerA), Tolkning(tellerB),
             foreslattUndertyper.Count, Tell(foreslattUndertyper), nye, finnes, finnesBort, undertypeEndret, holdt, vises, utenGrunnlag,
-            medRader ? radliste : null);
+            medRader ? radliste : null,
+            opphevetPrefiks.Count, Tell(opphevetPrefiks), kunngjort, forklaresBort, Tell(bortGrunner), forklartBortSatt, vurdertIkkeRort,
+            oppfriskes, oppfrisket, Tell(foreslattPrefiks));
     }
 
     /// <summary>Undertypen for en samlet status, eller null når forskriften ikke gir funn (aktiv, videreført, ukjent uten gjenstandsløs).</summary>
@@ -222,6 +338,11 @@ public sealed class HjemmelOpphevetFunnregel(RegelIdeDbContext db, FunnTjeneste 
     public static string? EliReferanse(string? eli) => Hjemmelstekstlesing.Mal(eli) is { } m
         ? $"{(m.Type == "lov" ? "LOV" : "FOR")}-{m.Aar:0000}-{m.Mnd:00}-{m.Dag:00}{(m.Nr.Length > 0 ? "-" + m.Nr : "")}"
         : eli;
+
+    /// <summary>[Ny, #472 PR 4] Linjen i påstanden for en kunngjort versjon. Samme ordlyd som premissmangelen
+    /// (<see cref="FunnTjeneste.KunngjortMangelStart"/>).</summary>
+    public const string KunngjortMangelLinje = FunnTjeneste.KunngjortMangelStart + ": korpuset har bare vedtaket slik det ble kunngjort i "
+        + "Norsk Lovtidend, og Lovdatas ajourførte status er ikke slått opp. Vedtaket kan selv være opphevet ved en kilde som ikke er i korpus.";
 
     private static string Referanse(Kilde k) => UtgattAktorFunnregel.Dokumentreferanse(k.DokumentId) ?? EliReferanse(k.Eli) ?? k.Tittel;
 
@@ -284,6 +405,9 @@ public sealed class HjemmelOpphevetFunnregel(RegelIdeDbContext db, FunnTjeneste 
             if (undertype is UndertypeBlandede or UndertypeUavklart && Hjemmelsstatus.Baerer(p.Status))
             {
                 var rolle = p.Rad.Rolle is null ? "rollen er ikke vurdert" : $"rolle {p.Rad.Rolle}";
+                // [Ny, #472 PR 4, H14] Videreføringen nevner ikke vedtakstypen: den bærer ikke alene.
+                if (p.Status == Hjemmelsstatus.Viderefort && r.VidereforingDekning == Hjemmelsstatus.DokumenttypeIkkeNevnt)
+                    rolle += ", og videreføringen nevner ikke denne typen vedtak, så om den dekker forskriften, er ikke vurdert";
                 deler.Add((dok, best, p.Status == Hjemmelsstatus.Viderefort
                     ? $"er opphevet, men videreført av {Kildetekst(r.VidereforingRettskildeId, r.VidereforingEid, kilder)} ({rolle})."
                     : $"er {(p.Status == Hjemmelsstatus.Erstattet ? "erstattet" : "aktiv")} ({rolle})."));
@@ -322,19 +446,27 @@ public sealed class HjemmelOpphevetFunnregel(RegelIdeDbContext db, FunnTjeneste 
                 + "Ikke funnet betyr ikke at den ikke finnes.",
             UndertypeBlandede => "Minst én hjemmel som teller, er opphevet uten funnet videreføring, mens andre hjemler bærer. Hvilken del av forskriften "
                 + "som står uten hjemmel, er ikke avgjort.",
-            UndertypeUavklart => "Minst én hjemmel som teller, er opphevet uten funnet videreføring. De andre hjemlene er gjeldende, men rollen deres er "
-                + "ikke vurdert, så det er uavklart om de bærer forskriften.",
+            // [ENDRET, #472 PR 4, H15 og H14] «De andre hjemlene er gjeldende» var unøyaktig når en av dem er opphevet og videreført.
+            UndertypeUavklart => "Minst én hjemmel som teller, er opphevet uten funnet videreføring. De andre hjemlene kan bære forskriften, men det er "
+                + "ikke vurdert: rollen deres er ikke avklart, eller videreføringen nevner ikke denne typen vedtak.",
             UndertypeVidereforingUtlopt => "Hjemmelen er opphevet, og overgangsregelen viderefører forskriften bare fram til en dato som er passert.",
             _ => "Loven vedtaket handler om (gjenstanden), er opphevet. Hjemmelen for vedtaket er ikke berørt.",
         };
+        // [ENDRET, #472 PR 4, prosjekteierens avgjørelse 2026-11-24 etter måling 1] For en kunngjort versjon (LTI) viser ikke korpuset Lovdatas
+        // ajourførte status: i måling 1 var fem slike vedtak opphevet i Lovdata (DELO), selv om korpuset har dem som «gjeldende».
+        var kunngjort = f.Kildeform == KildeformKunngjort;
+        var forste = kunngjort
+            ? $"Korpuset har «{f.Tittel}» ({referanse}) bare slik det ble kunngjort i Norsk Lovtidend, med status gjeldende."
+            : $"Lovdata viser «{f.Tittel}» ({referanse}) som gjeldende.";
         var linjer = new List<string>
         {
-            $"Lovdata viser «{f.Tittel}» ({referanse}) som gjeldende. {kjerne}"
+            $"{forste} {kjerne}"
                 + (undertype == UndertypeGjenstandslos ? "" : " Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i "
                     + "utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og "
                     + "lovforberedelse pkt. 7.3.5)."),
         };
         linjer.AddRange(HjemmelLinjer(s, undertype, kilder, perF[f.Id]));
+        if (kunngjort) linjer.Add($"- {KunngjortMangelLinje}");
         if (f.RentEndringsvedtak is null)
         {
             linjer.Add("- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446).");
@@ -365,7 +497,7 @@ public sealed class HjemmelOpphevetFunnregel(RegelIdeDbContext db, FunnTjeneste 
             }
         }
 
-        var intern = $"Maskinfunn ({OppdagelsesKilde}, regelversjon {Regelversjon}, #472 PR 2), lest av hjemmelsstatus "
+        var intern = $"Maskinfunn ({OppdagelsesKilde}, regelversjon {Regelversjon}, #472 PR 2 og PR 4), lest av hjemmelsstatus "
             + $"{string.Join(", ", perF[f.Id].Select(r => r.Regelversjon).Distinct())}. Samlet status {s.Status}, kunnskapsstatus {s.Kunnskapsstatus}. "
             + "Står som oppdaget til #446 er klassifisert og juristen har målt presisjonen (Johanns avgjørelse 2026-11-18 (4)).";
         return new NyttFunn(Funn.HjemmelOpphevet, undertype, $"{navn}: {f.Tittel} ({referanse})", string.Join("\n", linjer), OppdagelsesKilde,

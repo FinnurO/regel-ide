@@ -29,8 +29,8 @@ describe('delPremissmangler (#429 PR 3)', () => {
   it('skiller R9 (hjemmelsloven) fra navneform og etterfølger', () => {
     const r9 = 'Hjemmelsloven kan være opphevet: rettskilden bygger på lov 24. juni 1988 nr. 64 (Lovdatas hjemmelsfelt), og …';
     const etterfolger = 'Etterfølger ikke vurdert: «X» (maskinelt foreslått).';
-    expect(delPremissmangler([etterfolger, r9])).toEqual({ hjemmel: [r9], nyHjemmel: [], uttomt: [], andre: [etterfolger] });
-    expect(delPremissmangler([])).toEqual({ hjemmel: [], nyHjemmel: [], uttomt: [], andre: [] });
+    expect(delPremissmangler([etterfolger, r9])).toEqual({ hjemmel: [r9], nyHjemmel: [], uttomt: [], kunngjort: [], andre: [etterfolger] });
+    expect(delPremissmangler([])).toEqual({ hjemmel: [], nyHjemmel: [], uttomt: [], kunngjort: [], andre: [] });
   });
 });
 
@@ -55,7 +55,12 @@ describe('delPremissmangler og kategoriMerketekst (#472 PR 2)', () => {
     const ny = 'Ny hjemmel ikke vurdert: vurderingen har ikke noe punkt «Ny hjemmel» …';
     const uttomt = 'Uttømt virkning ikke klassifisert (#446): det er ikke avgjort …';
     const hjemmel = 'Hjemmel ikke vurdert: vurderingen har ikke noe punkt «Hjemmel» …';
-    expect(delPremissmangler([ny, hjemmel, uttomt])).toEqual({ hjemmel: [], nyHjemmel: [ny], uttomt: [uttomt], andre: [hjemmel] });
+    expect(delPremissmangler([ny, hjemmel, uttomt])).toEqual({ hjemmel: [], nyHjemmel: [ny], uttomt: [uttomt], kunngjort: [], andre: [hjemmel] });
+  });
+  it('skiller «Kunngjort versjon» ut som eget merke (#472 PR 4)', () => {
+    const kunngjort = 'Kunngjort versjon, gjeldende status ikke kontrollert: korpuset har bare forskriften …';
+    expect(delPremissmangler([kunngjort]).kunngjort).toEqual([kunngjort]);
+    expect(delPremissmangler([kunngjort]).andre).toEqual([]);
   });
   it('gir «Hjemmel opphevet: videreføring ikke funnet», men gjenstandsløs alene', () => {
     expect(kategoriMerketekst('Hjemmel opphevet', 'hjemmel_opphevet', 'Videreføring ikke funnet')).toBe('Hjemmel opphevet: videreføring ikke funnet');

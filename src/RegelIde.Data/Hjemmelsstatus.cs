@@ -15,8 +15,10 @@ public static class Hjemmelsstatus
 {
     public const string Regel = "monster:hjemmelsstatus";
 
-    /// <summary>Versjonen av regelen. Økes når reglene endres, så en lagret rad viser hvilken regel som satte den.</summary>
-    public const string Regelversjon = "472-pr1-2026-11-18";
+    /// <summary>Versjonen av regelen. Økes når reglene endres, så en lagret rad viser hvilken regel som satte den.
+    /// [ENDRET, #472 PR 4, prosjekteierens avgjørelse 2026-11-24 etter måling 1] Rollen for en forskrift som hjemmel (H15) og endringslovens
+    /// egne deler (H18).</summary>
+    public const string Regelversjon = "472-pr4-2026-11-24";
 
     // ---- Rolle (juristrunde 1 R1, godtatt i svaret; runde 2 R1: NULL = ikke vurdert) ----
     /// <summary>Rettsgrunnlaget for innholdet.</summary>
@@ -91,11 +93,24 @@ public static class Hjemmelsstatus
     public const string SamletUavklart = "uavklart";
     public const string SamletUkjent = "ukjent";
 
+    /// <summary>[Ny, #472 PR 4, H15] Rolleregelen for en hjemmel som selv er en forskrift eller et vedtak, når ingen annen regel gir rollen.</summary>
+    public const string RolleregelForskriftSomHjemmel = "forskrift_som_hjemmel";
+
     /// <summary>Teller i den samlede statusen: materiell og NULL. Er det ingen slike, teller kompetanseledd og overgangsgrunnlag. Gjenstand teller
     /// aldri (den er ikke hjemmel).</summary>
     internal static bool ErMateriellPremiss(string? rolle) => rolle is null or Materiell;
 
     internal static bool Baerer(string status) => status is Aktiv or Viderefort or Erstattet;
+
+    /// <summary>
+    /// [Ny, #472 PR 4, prosjekteierens avgjørelse 2026-11-24 etter måling 1, H14 og juristrunde 2 R1] Om en premiss som bærer, er vurdert. Den er
+    /// ikke vurdert når rollen er NULL, eller når den bare bærer ved en videreføring med dekningen <see cref="DokumenttypeIkkeNevnt"/>: setningen
+    /// viderefører «forskrifter», og om det dekker et delegeringsvedtak, er fortolkning (finansforetaksloven § 23-2 andre ledd om
+    /// DEL/forskrift/2003-06-20-730 i måling 1). En slik premiss bærer ikke alene: står bare slike igjen når noe faller, er den samlede statusen
+    /// uavklart, ikke blandede hjemler. Når ingenting faller, endrer den ingenting (FOR-1993-12-17-1314 er fortsatt videreført, fase 1 AK 2).
+    /// </summary>
+    internal static bool BaererVurdert(HjemmelPremiss p, string effektivStatus) =>
+        p.Rolle is not null && !(effektivStatus == Viderefort && p.VidereforingDekning == DokumenttypeIkkeNevnt);
     internal static bool Faller(string status) => status is Opphevet or VidereforingUtlopt;
 }
 
@@ -161,7 +176,9 @@ public sealed class HjemmelsstatusEntitet
 
 /// <summary>Én hjemmelsrad som premiss for den samlede statusen.</summary>
 /// <param name="MalForskriftId">Hjemmelen er selv en gjeldende primær forskrift: statusen arves (rekursjon, juristrunde 1 R1).</param>
-public sealed record HjemmelPremiss(Guid HjemmelId, string HjemmelEid, string? Rolle, string Status, string Kunnskapsstatus, Guid? MalForskriftId);
+/// <param name="VidereforingDekning">[Ny, #472 PR 4, H14] Dekningen til videreføringen når hjemmelen er videreført (<see cref="Hjemmelsstatus.Dekninger"/>).</param>
+public sealed record HjemmelPremiss(Guid HjemmelId, string HjemmelEid, string? Rolle, string Status, string Kunnskapsstatus, Guid? MalForskriftId,
+    string? VidereforingDekning = null);
 
 /// <summary>En premiss etter rekursjonen: <see cref="Status"/> er den effektive statusen, <see cref="Arvet"/> den samlede statusen til
 /// hjemmelsforskriften når den er arvet.</summary>
@@ -181,7 +198,8 @@ public sealed record SamletHjemmelsstatus(
 /// <item>Én premiss ukjent → <b>ukjent</b> (den strenge varianten).</item>
 /// <item>Alle faller (opphevet uten videreføring, eller videreføringen utløpt) → <b>hjemmel opphevet, videreføring ikke funnet</b>, eller
 /// <b>videreføring utløpt</b> når alle er utløpt.</item>
-/// <item>Noen faller og noen bærer → <b>blandede hjemler</b>, men <b>uavklart</b> når alle som bærer har rolle NULL (runde 2 R1).</item>
+/// <item>Noen faller og noen bærer → <b>blandede hjemler</b>, men <b>uavklart</b> når alle som bærer har rolle NULL (runde 2 R1).
+/// [ENDRET, #472 PR 4, H14] Også når de bare bærer ved en videreføring som ikke nevner vedtakstypen (<see cref="Hjemmelsstatus.BaererVurdert"/>).</item>
 /// <item>Ellers <b>videreført</b> når minst én er videreført, og <b>aktiv</b>.</item>
 /// </list>
 /// Kunnskapsstatusen er svakeste premiss (<see cref="SvakestePremiss"/>), og aldri sterkere enn fortolkning når svaret sier at en hjemmel
@@ -232,7 +250,12 @@ public static class HjemmelsstatusSamlet
             : effektive.Where(e => e.Rad.Rolle is Hjemmelsstatus.Kompetanseledd or Hjemmelsstatus.Overgangsgrunnlag).ToList();
         var teller = premisser.Select(p => p.Rad.HjemmelId).ToHashSet();
         effektive = effektive.Select(e => e with { Teller = teller.Contains(e.Rad.HjemmelId) }).ToList();
-        var gjenstandslos = effektive.Any(e => e.Rad.Rolle == Hjemmelsstatus.Gjenstand && e.Status == Hjemmelsstatus.Gjenstandslos);
+        // [ENDRET, #472 PR 4, prosjekteierens avgjørelse 2026-11-24 etter måling 1, H20] Gjenstandsløs bare når ALLE gjenstandene er opphevet. Før
+        // var det nok at én var det (Any): DEL/forskrift/2000-12-15-1263 ble merket gjenstandsløs selv om odelslova lever og vedtaket også gjelder
+        // etater. En gjenstand som er aktiv eller ukjent, gir ikke merket. Ingen «delvis gjenstandsløs»: hvilken del av vedtaket som står uten
+        // gjenstand, kan ikke leses uten fortolkning (som R6 for blandede hjemler). Det er et åpent spørsmål til prosjekteieren.
+        var gjenstander = effektive.Where(e => e.Rad.Rolle == Hjemmelsstatus.Gjenstand).ToList();
+        var gjenstandslos = gjenstander.Count > 0 && gjenstander.All(e => e.Status == Hjemmelsstatus.Gjenstandslos);
 
         string samlet;
         if (premisser.Count == 0 || premisser.Any(p => !Hjemmelsstatus.Baerer(p.Status) && !Hjemmelsstatus.Faller(p.Status)))
@@ -254,7 +277,8 @@ public static class HjemmelsstatusSamlet
             }
             else
             {
-                samlet = baerer.All(p => p.Rad.Rolle is null) ? Hjemmelsstatus.SamletUavklart : Hjemmelsstatus.SamletBlandede;
+                // [ENDRET, #472 PR 4, H14] «Ikke vurdert» er også en videreføring som ikke nevner vedtakstypen.
+                samlet = baerer.All(p => !Hjemmelsstatus.BaererVurdert(p.Rad, p.Status)) ? Hjemmelsstatus.SamletUavklart : Hjemmelsstatus.SamletBlandede;
             }
         }
 

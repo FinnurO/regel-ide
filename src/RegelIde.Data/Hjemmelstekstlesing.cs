@@ -487,6 +487,30 @@ public static class Hjemmelstekstlesing
         return $"https://lovdata.no/eli/lov/{e.Groups[7].Value}/{mnd:00}/{int.Parse(e.Groups[5].Value):00}/{e.Groups[8].Value}/nor";
     }
 
+    /// <summary>
+    /// [Ny, #472 PR 4, prosjekteierens avgjørelse 2026-11-24 etter måling 1, H18] Delen av endringsloven hjemmelsteksten viser til, når den er en
+    /// annen del enn I: «lov 29. juni 2007 nr. 90 om endringer i lov 20. juni 2003 nr. 56 om fagskoleutdanning del II nr. 1» gir «II». Del I er
+    /// endringene i hovedloven; de andre delene er endringslovens egne bestemmelser (ikrafttredelse, overgang, eller endringer i andre lover), som
+    /// ikke blir en del av hovedloven. Delen leses bare i teksten etter endringslovens tittel, fram til neste lov, «jf.», «Fremmet»/«Fremja» eller
+    /// «Endret». Null når ingen del er nevnt, eller delen er I.
+    /// <para>Målt i kopien <c>regelide_472pr4</c> 2026-11-24: av 78 hjemmelsrader i gjeldende primære forskrifter der endringsloven ble fulgt,
+    /// viser 56 til en egen del (del II til del XII). 22 følges fortsatt.</para>
+    /// </summary>
+    public static string? EndringslovensEgenDel(string? hjemmelstekst, Dokumentmal endringslov)
+    {
+        var t = Normaliser(hjemmelstekst);
+        var m = Regex.Match(t, MalRegex(endringslov));
+        if (!m.Success) return null;
+        var etter = t[(m.Index + m.Length)..];
+        // Den første «lov …» etter endringsloven er hovedloven i tittelen («om endringer i lov …»); slutten letes etter den.
+        var hoved = Regex.Match(etter, @"^\s*om\s+endring(ar|er)?\s+i\s+(lov(a|en)?\s+)?(av\s+)?\d{1,2}\.\s*" + Maaned + @"\s+\d{4}(\s+nr\.?\s*\d+)?");
+        var rest = etter[(hoved.Success ? hoved.Length : 0)..];
+        var slutt = Regex.Match(rest, @"\b(jfr?\.|Fremmet|Fremja|Endret|Endra)|\blov(a|en)?\s+(av\s+)?\d{1,2}\.\s*" + Maaned + @"\s+\d{4}");
+        var seg = slutt.Success ? rest[..slutt.Index] : rest;
+        var del = Regex.Match(seg, @"\bdel\s+([IVXLC]+)\b");
+        return del.Success && del.Groups[1].Value != "I" ? del.Groups[1].Value : null;
+    }
+
     /// <summary>[Fase 1, END] Hjemmelsteksten omtaler dokumentet som en endringslov: «lov … nr. N om endring(er) i …». Gjelder også når
     /// <see cref="EndringslovTil"/> ikke kan følge den (flere lover i tittelen).</summary>
     public static bool ErEndringslov(string? hjemmelstekst, Dokumentmal endringslov)

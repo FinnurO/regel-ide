@@ -1,0 +1,2468 @@
+{
+ "sak": "#472 måling 2 (presisjon for funnkategorien hjemmel_opphevet etter rettingene i PR 4)",
+ "dato": "2026-11-24",
+ "grunnlag": "Kopien regelide_472pr4 (bare SELECT) etter at PR 4 er kjørt: hjemmelsstatus og funnregelen 472-pr4-2026-11-24, 264 funn med status oppdaget. Utvalget står i utvalg.json. Måling 2 er gjort i kopien, før noe er skrevet mot den delte basen.",
+ "klasser": {
+  "riktig": "påstanden holder (hjemmelen er opphevet med den koblede bestemmelsen, og videreføringen finnes ikke / er utløpt / gjenstanden er opphevet) og undertypen er riktig",
+  "feil": "påstanden eller undertypen er feil",
+  "usikker": "kan ikke avgjøres fra kildene"
+ },
+ "feilarsaker": [
+  "populasjonen",
+  "tekstlesingen",
+  "rollen",
+  "rekursjonen",
+  "videreforingsformen",
+  "dekningen"
+ ],
+ "kort": [
+  {
+   "id": "M01",
+   "funn_id": "73c30c60-f5fb-4fe6-8289-0546a1831251",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2009/11/27/1406/nor",
+   "undertype": "hjemmel_opphevet",
+   "prefiks": "DEL",
+   "forskrift": {
+    "dokument_id": "DEL/forskrift/2009-11-27-1406",
+    "tittel": "Delegering av Kongens myndighet etter lov 24. mai 1985 nr. 28 om Norges Bank og pengevesenet § 30a tredje ledd siste punktum til Finansdepartementet.",
+    "lovdatas_hjemmelstekst": "Hjemmel: Fastsatt ved Kronprinsreg.res. 27. november 2009 med hjemmel i lov 24. mai 1985 nr. 28 om Norges Bank og pengevesenet mv. (sentralbankloven) § 30a. Fremmet av Finansdepartementet.",
+    "ikrafttredelse": "2009-11-27",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "foreslatt": {
+    "tittel": "Hjemmel opphevet, videreføring ikke funnet: Deleg. til FIN etter sentralbankloven § 30a (FOR-2009-11-27-1406)",
+    "pastand": "Lovdata viser «Deleg. til FIN etter sentralbankloven § 30a» (FOR-2009-11-27-1406) som gjeldende. Alle hjemlene som teller, er opphevet, og maskinregelen har ikke funnet en overgangsregel som viderefører forskriften. Ikke funnet betyr ikke at den ikke finnes. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1985-05-24-28 § 30a er opphevet av LOV-2019-06-21-31 § 6-2 andre ledd: «Lov 24. mai 1985 nr. 28 om Norges Bank og pengevesenet mv. oppheves.»\n- Ikke kontrollert: Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2019-06-21-31 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446).",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-2009-11-27-1406 Deleg. til FIN etter sentralbankloven § 30a",
+      "merknad": "forskriften",
+      "eid": null,
+      "nodetekst": null
+     },
+     {
+      "rolle": "opphevende_bestemmelse",
+      "etikett": "LOV-2019-06-21-31 § 6-2 andre ledd",
+      "merknad": "opphever LOV-1985-05-24-28",
+      "eid": "https://lovdata.no/eli/lov/2019/06/21/31/nor/§6-2/ledd-2",
+      "nodetekst": "1. Lov 24. mai 1985 nr. 28 om Norges Bank og pengevesenet mv. oppheves."
+     }
+    ],
+    "hjemmelsstatus": [
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1985/05/24/28/nor/§30a",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "opphevet",
+      "bevistrinn": "E1",
+      "opphevet_av": "NL/lov/2019-06-21-31",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2019/06/21/31/nor/§6-2/ledd-2",
+      "opphevet_av_sitat": "Lov 24. mai 1985 nr. 28 om Norges Bank og pengevesenet mv. oppheves.",
+      "opphevet_dato": "2019-07-01",
+      "lest_i_lovtidend": false,
+      "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2019-06-21-31 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+      "kunnskapsstatus": "tekstfunn"
+     }
+    ]
+   },
+   "kontekst": {
+    "forskriften_nevnt_i_annen_kilde": [],
+    "mulige_overgangsregler_i_opphevende_kilde": [
+     {
+      "dokument_id": "NL/lov/2019-06-21-31",
+      "eid": "https://lovdata.no/eli/lov/2019/06/21/31/nor/§1-11/ledd-1",
+      "tekst": "Bestemmelsene i §§ 1-2 til 1-7 og 1-9 til 1-10 gjelder ikke forvaltningen av Statens pensjonsfond utland så langt denne oppgaven er delegert til Norges Bank etter lov om Statens pensjonsfond § 3 annet ledd og § 10 første ledd, eller ved ansettelse av daglig leder av bankens forvaltning av Statens pensjonsfond utland, jf. § 2-13 første ledd."
+     },
+     {
+      "dokument_id": "NL/lov/2019-06-21-31",
+      "eid": "https://lovdata.no/eli/lov/2019/06/21/31/nor/§1-12/ledd-2",
+      "tekst": "(2) Bestemmelsene i §§ 3-5 og 3-6 gjelder på Svalbard, jf. Svalbardloven § 3."
+     },
+     {
+      "dokument_id": "NL/lov/2019-06-21-31",
+      "eid": "https://lovdata.no/eli/lov/2019/06/21/31/nor/§2-15/ledd-3",
+      "tekst": "(3) Hovedstyret kan bestemme at den som skal utføre arbeid eller tjeneste for Norges Bank, utføre arbeid for en tjenesteleverandør til banken eller for øvrig ha adgang uten følge til bankens bygninger, må fremlegge uttømmende politiattest etter politiregisterloven § 41 nr. 1, eller tilsvarende utenlandsk politiattest, dersom sikkerhetshensyn tilsier det. Det samme gjelder ved senere endringer i en ansatts stilling eller arbeidsoppgaver. Departementet kan gi forskrift om gjennomføringen av bestem"
+     },
+     {
+      "dokument_id": "NL/lov/2019-06-21-31",
+      "eid": "https://lovdata.no/eli/lov/2019/06/21/31/nor/§5-2/ledd-4",
+      "tekst": "(4) Taushetsplikten etter første og annet ledd og forvaltningslovens bestemmelser gjelder ikke overfor"
+     },
+     {
+      "dokument_id": "NL/lov/2019-06-21-31",
+      "eid": "https://lovdata.no/eli/lov/2019/06/21/31/nor/§5-2/ledd-5",
+      "tekst": "(5) Forvaltningsloven § 13 annet og tredje ledd og §§ 13 a til 13 e og 13 g gjelder som utfyllende bestemmelser til paragrafen her."
+     },
+     {
+      "dokument_id": "NL/lov/2019-06-21-31",
+      "eid": "https://lovdata.no/eli/lov/2019/06/21/31/nor/§6-1/ledd-1",
+      "tekst": "Loven gjelder fra den tid Kongen bestemmer. Kongen kan sette i kraft de enkelte bestemmelsene i loven til forskjellig tid. Kongen kan gi overgangsbestemmelser."
+     }
+    ]
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "undertype_riktig": true,
+    "sitat_eid_riktig": true,
+    "rent_endrings_eller_ikrafttredelsesvedtak_446": false,
+    "feilarsak": null,
+    "grunn": "Sentralbankloven 1985 er opphevet av sentralbankloven 2019 § 6-2 nr. 1 (andre ledd). § 6-1 har bare en hjemmel for overgangsbestemmelser; ingen overgangsforskrift til sentralbankloven 2019 er i korpus (DEL/forskrift/2003-12-19-1600 gjelder endringsloven 2003). Som sentralbanklovdelen av H14 i måling 1.",
+    "kontrollert_mot": [
+     "NL/lov/2019-06-21-31 §6-1, §6-2 (korpus)",
+     "søk i korpus etter overgangsforskrifter med «sentralbank»/«Norges Bank» i tittelen"
+    ]
+   }
+  },
+  {
+   "id": "M02",
+   "funn_id": "03c66b54-161f-4a98-afa7-ee10c87e05d6",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/1999/08/20/951/nor",
+   "undertype": "hjemmel_opphevet",
+   "prefiks": "DEL",
+   "forskrift": {
+    "dokument_id": "DEL/forskrift/1999-08-20-951",
+    "tittel": "Delegering av myndighet til Kommunal- og regionaldepartementet til å gi permisjoner, frita og oppnevne medlemmer og varemedlemmer av Arbeidsretten.",
+    "lovdatas_hjemmelstekst": "Fastsatt ved kgl.res. 20. august 1999 med hjemmel i lov av 5. mai 1927 nr. 1 om arbeidstvister § 10. Fremmet av Kommunal- og regionaldepartementet.",
+    "ikrafttredelse": "1999-08-20",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "foreslatt": {
+    "tittel": "Hjemmel opphevet, videreføring ikke funnet: Delegering til KRD etter arbeidstvistloven (FOR-1999-08-20-951)",
+    "pastand": "Lovdata viser «Delegering til KRD etter arbeidstvistloven» (FOR-1999-08-20-951) som gjeldende. Alle hjemlene som teller, er opphevet, og maskinregelen har ikke funnet en overgangsregel som viderefører forskriften. Ikke funnet betyr ikke at den ikke finnes. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1927-05-05-1 § 10 er opphevet av LOV-2012-01-27-9 § 64 første ledd: «Fra den tid loven trer i kraft, oppheves lov 5. mai 1927 nr. 1 om arbeidstvister.»\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446).",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-1999-08-20-951 Delegering til KRD etter arbeidstvistloven",
+      "merknad": "forskriften",
+      "eid": null,
+      "nodetekst": null
+     },
+     {
+      "rolle": "opphevende_bestemmelse",
+      "etikett": "LOV-2012-01-27-9 § 64 første ledd",
+      "merknad": "opphever LOV-1927-05-05-1",
+      "eid": "https://lovdata.no/eli/lov/2012/01/27/9/nor/§64/ledd-1",
+      "nodetekst": "Loven trer i kraft fra den tid Kongen bestemmer. Fra den tid loven trer i kraft, oppheves lov 5. mai 1927 nr. 1 om arbeidstvister."
+     }
+    ],
+    "hjemmelsstatus": [
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1927/05/05/1/nor/§10",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "opphevet",
+      "bevistrinn": "E1",
+      "opphevet_av": "NL/lov/2012-01-27-9",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2012/01/27/9/nor/§64/ledd-1",
+      "opphevet_av_sitat": "Fra den tid loven trer i kraft, oppheves lov 5. mai 1927 nr. 1 om arbeidstvister.",
+      "opphevet_dato": "2012-03-01",
+      "lest_i_lovtidend": false,
+      "kunnskapsstatus": "tekstfunn"
+     }
+    ]
+   },
+   "kontekst": {
+    "forskriften_nevnt_i_annen_kilde": [
+     {
+      "dokument_id": "LTI/forskrift/2004-10-08-1395",
+      "eid": "kap-I/rom-arbeidsmiljo-og-sikkerhetsavdelingen/rom-3/rom-arbeidsmiljo-og-arbeidsrettsseksjonen/punkt-4",
+      "tekst": "Vedtak 20. august 1999 nr. 951 om delegering av myndighet til Kommunal- og regionaldepartementet til å gi permisjoner, frita og oppnevne medlemmer og varamedlemmer av Arbeidsretten."
+     }
+    ],
+    "mulige_overgangsregler_i_opphevende_kilde": [
+     {
+      "dokument_id": "NL/lov/2012-01-27-9",
+      "eid": "https://lovdata.no/eli/lov/2012/01/27/9/nor/§9/ledd-1",
+      "tekst": "(1) Har medlemmer av en fagforening eller arbeidsgiverforening brutt en tariffavtale, er foreningen og vedkommende medlemmer erstatningsansvarlige. Foreningens ansvar inntrer bare når den selv er skyld i bruddet eller i fortsettelsen av det tariffstridige forholdet. En arbeidsgiver, arbeidsgiverforening, fagforening eller deres medlemmer er også erstatningsansvarlige for ulovlig streik, lockout eller annen arbeidskamp, jf. § 8 andre ledd. Andre punktum i bestemmelsen her gjelder tilsvarende."
+     },
+     {
+      "dokument_id": "NL/lov/2012-01-27-9",
+      "eid": "https://lovdata.no/eli/lov/2012/01/27/9/nor/§44/ledd-5",
+      "tekst": "(5) For øvrig gjelder bestemmelsene i tvisteloven kapittel 2 om parter, prosessdyktighet og stedfortredere og kapittel 3 om prosessfullmektiger og rettslige medhjelpere tilsvarende så langt de passer."
+     },
+     {
+      "dokument_id": "NL/lov/2012-01-27-9",
+      "eid": "https://lovdata.no/eli/lov/2012/01/27/9/nor/§48/ledd-8",
+      "tekst": "(8) Arbeidsretten kan kreve bevisopptak ved tingretten. Tvisteloven § 21-11 om bevisopptak, § 21-13 om bevisføringen i saker som behandles skriftlig og bestemmelsene i kapittel 27 om bevisopptak i rettssak gjelder tilsvarende så langt de passer."
+     },
+     {
+      "dokument_id": "NL/lov/2012-01-27-9",
+      "eid": "https://lovdata.no/eli/lov/2012/01/27/9/nor/§54/ledd-3",
+      "tekst": "(3) Bestemmelsene i tvisteloven kapittel 14 om offentlighet og innsynsrett gjelder tilsvarende så langt de passer."
+     },
+     {
+      "dokument_id": "NL/lov/2012-01-27-9",
+      "eid": "https://lovdata.no/eli/lov/2012/01/27/9/nor/§57/ledd-1",
+      "tekst": "(1) Det kan inngås rettsforlik under hovedforhandlingen. Rettsforlik føres inn i rettsboken og undertegnes av partene og rettens medlemmer. Har forliket ikke bestemmelser om sakskostnader, skal retten på begjæring fra partene avgjøre spørsmålet etter skjønn. Tvisteloven § 19-11 tredje ledd om rettens kontroll med forliket gjelder tilsvarende."
+     },
+     {
+      "dokument_id": "NL/lov/2012-01-27-9",
+      "eid": "https://lovdata.no/eli/lov/2012/01/27/9/nor/§60/ledd-2",
+      "tekst": "(2) Bestemmelsene i første ledd gjelder også ved saksbehandling for meklingsinstitusjonen."
+     }
+    ]
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "undertype_riktig": true,
+    "sitat_eid_riktig": true,
+    "rent_endrings_eller_ikrafttredelsesvedtak_446": false,
+    "feilarsak": null,
+    "grunn": "Arbeidstvistloven 1927 er opphevet av arbeidstvistloven 2012 § 64 (andre punktum). Loven har ingen overgangsregel om forskrifter eller delegeringer. LTI/forskrift/2004-10-08-1395 nevner vedtaket bare i lista over forskrifter som skifter departement, ikke som oppheving.",
+    "kontrollert_mot": [
+     "NL/lov/2012-01-27-9 §63, §64 (korpus)",
+     "LTI/forskrift/2004-10-08-1395 kap-I ledd-1 (korpus)"
+    ]
+   }
+  },
+  {
+   "id": "M03",
+   "funn_id": "f930de05-bb8d-46b0-9629-f2d8b19adc5e",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/1994/03/25/233/nor",
+   "undertype": "hjemmel_opphevet",
+   "prefiks": "DEL",
+   "forskrift": {
+    "dokument_id": "DEL/forskrift/1994-03-25-233",
+    "tittel": "Delegering av myndighet etter lov om Norges Bank og pengevesenet (sentralbankloven) § 16.",
+    "lovdatas_hjemmelstekst": "Fastsatt ved kgl.res. 25. mars 1994 med hjemmel i lov av 24. mai 1985 nr. 28 om Norges Bank og pengevesenet (sentralbankloven) § 16. Fremmet av Finans- og tolldepartementet.",
+    "ikrafttredelse": "1994-03-25",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "foreslatt": {
+    "tittel": "Hjemmel opphevet, videreføring ikke funnet: Delegering av myndighet etter sentralbankloven (FOR-1994-03-25-233)",
+    "pastand": "Lovdata viser «Delegering av myndighet etter sentralbankloven» (FOR-1994-03-25-233) som gjeldende. Alle hjemlene som teller, er opphevet, og maskinregelen har ikke funnet en overgangsregel som viderefører forskriften. Ikke funnet betyr ikke at den ikke finnes. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1985-05-24-28 § 16 er opphevet av LOV-2019-06-21-31 § 6-2 andre ledd: «Lov 24. mai 1985 nr. 28 om Norges Bank og pengevesenet mv. oppheves.»\n- Ikke kontrollert: Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2019-06-21-31 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446).",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-1994-03-25-233 Delegering av myndighet etter sentralbankloven",
+      "merknad": "forskriften",
+      "eid": null,
+      "nodetekst": null
+     },
+     {
+      "rolle": "opphevende_bestemmelse",
+      "etikett": "LOV-2019-06-21-31 § 6-2 andre ledd",
+      "merknad": "opphever LOV-1985-05-24-28",
+      "eid": "https://lovdata.no/eli/lov/2019/06/21/31/nor/§6-2/ledd-2",
+      "nodetekst": "1. Lov 24. mai 1985 nr. 28 om Norges Bank og pengevesenet mv. oppheves."
+     }
+    ],
+    "hjemmelsstatus": [
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1985/05/24/28/nor/§16",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "opphevet",
+      "bevistrinn": "E1",
+      "opphevet_av": "NL/lov/2019-06-21-31",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2019/06/21/31/nor/§6-2/ledd-2",
+      "opphevet_av_sitat": "Lov 24. mai 1985 nr. 28 om Norges Bank og pengevesenet mv. oppheves.",
+      "opphevet_dato": "2019-07-01",
+      "lest_i_lovtidend": false,
+      "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2019-06-21-31 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+      "kunnskapsstatus": "tekstfunn"
+     }
+    ]
+   },
+   "kontekst": {
+    "forskriften_nevnt_i_annen_kilde": [],
+    "mulige_overgangsregler_i_opphevende_kilde": [
+     {
+      "dokument_id": "NL/lov/2019-06-21-31",
+      "eid": "https://lovdata.no/eli/lov/2019/06/21/31/nor/§1-11/ledd-1",
+      "tekst": "Bestemmelsene i §§ 1-2 til 1-7 og 1-9 til 1-10 gjelder ikke forvaltningen av Statens pensjonsfond utland så langt denne oppgaven er delegert til Norges Bank etter lov om Statens pensjonsfond § 3 annet ledd og § 10 første ledd, eller ved ansettelse av daglig leder av bankens forvaltning av Statens pensjonsfond utland, jf. § 2-13 første ledd."
+     },
+     {
+      "dokument_id": "NL/lov/2019-06-21-31",
+      "eid": "https://lovdata.no/eli/lov/2019/06/21/31/nor/§1-12/ledd-2",
+      "tekst": "(2) Bestemmelsene i §§ 3-5 og 3-6 gjelder på Svalbard, jf. Svalbardloven § 3."
+     },
+     {
+      "dokument_id": "NL/lov/2019-06-21-31",
+      "eid": "https://lovdata.no/eli/lov/2019/06/21/31/nor/§2-15/ledd-3",
+      "tekst": "(3) Hovedstyret kan bestemme at den som skal utføre arbeid eller tjeneste for Norges Bank, utføre arbeid for en tjenesteleverandør til banken eller for øvrig ha adgang uten følge til bankens bygninger, må fremlegge uttømmende politiattest etter politiregisterloven § 41 nr. 1, eller tilsvarende utenlandsk politiattest, dersom sikkerhetshensyn tilsier det. Det samme gjelder ved senere endringer i en ansatts stilling eller arbeidsoppgaver. Departementet kan gi forskrift om gjennomføringen av bestem"
+     },
+     {
+      "dokument_id": "NL/lov/2019-06-21-31",
+      "eid": "https://lovdata.no/eli/lov/2019/06/21/31/nor/§5-2/ledd-4",
+      "tekst": "(4) Taushetsplikten etter første og annet ledd og forvaltningslovens bestemmelser gjelder ikke overfor"
+     },
+     {
+      "dokument_id": "NL/lov/2019-06-21-31",
+      "eid": "https://lovdata.no/eli/lov/2019/06/21/31/nor/§5-2/ledd-5",
+      "tekst": "(5) Forvaltningsloven § 13 annet og tredje ledd og §§ 13 a til 13 e og 13 g gjelder som utfyllende bestemmelser til paragrafen her."
+     },
+     {
+      "dokument_id": "NL/lov/2019-06-21-31",
+      "eid": "https://lovdata.no/eli/lov/2019/06/21/31/nor/§6-1/ledd-1",
+      "tekst": "Loven gjelder fra den tid Kongen bestemmer. Kongen kan sette i kraft de enkelte bestemmelsene i loven til forskjellig tid. Kongen kan gi overgangsbestemmelser."
+     }
+    ]
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "undertype_riktig": true,
+    "sitat_eid_riktig": true,
+    "rent_endrings_eller_ikrafttredelsesvedtak_446": false,
+    "feilarsak": null,
+    "grunn": "Som M01 (sentralbankloven 1985 § 16).",
+    "kontrollert_mot": [
+     "NL/lov/2019-06-21-31 §6-1, §6-2 (korpus)"
+    ]
+   }
+  },
+  {
+   "id": "M04",
+   "funn_id": "808aeb8e-2f84-4574-9699-ff87671f4f54",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2011/07/06/746/nor",
+   "undertype": "hjemmel_opphevet",
+   "prefiks": "DEL",
+   "forskrift": {
+    "dokument_id": "DEL/forskrift/2011-07-06-746",
+    "tittel": "Delegering av myndighet til skattekontoret etter lov 19. juni 1964 nr. 14 om avgift på arv og visse gaver § 35 første ledd fjerde punktum",
+    "lovdatas_hjemmelstekst": "Hjemmel: Fastsatt av Skattedirektoratet 6. juli 2011 med hjemmel i lov 19. juni 1964 nr. 14 om avgift på arv og visse gaver (arveavgiftsloven) § 35 første ledd fjerde punktum.",
+    "ikrafttredelse": "2011-08-01",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "foreslatt": {
+    "tittel": "Hjemmel opphevet, videreføring ikke funnet: Deleg. til skattekontoret etter arveavgiftsloven (FOR-2011-07-06-746)",
+    "pastand": "Lovdata viser «Deleg. til skattekontoret etter arveavgiftsloven» (FOR-2011-07-06-746) som gjeldende. Alle hjemlene som teller, er opphevet, og maskinregelen har ikke funnet en overgangsregel som viderefører forskriften. Ikke funnet betyr ikke at den ikke finnes. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1964-06-19-14 § 35 er opphevet av LOV-2013-12-13-110 kap. I første ledd: «Lov 19. juni 1964 nr. 14 om avgift på arv og visse gaver (arveavgiftsloven) oppheves.»\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446).",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-2011-07-06-746 Deleg. til skattekontoret etter arveavgiftsloven",
+      "merknad": "forskriften",
+      "eid": null,
+      "nodetekst": null
+     },
+     {
+      "rolle": "opphevende_bestemmelse",
+      "etikett": "LOV-2013-12-13-110 kap. I første ledd",
+      "merknad": "opphever LOV-1964-06-19-14",
+      "eid": "kap-I/ledd-1",
+      "nodetekst": "Lov 19. juni 1964 nr. 14 om avgift på arv og visse gaver (arveavgiftsloven) oppheves. Opphevelsen gis virkning for gaver som ytes 1. januar 2014 eller senere og arv etter dødsfall som skjer 1. januar 2014 eller senere."
+     }
+    ],
+    "hjemmelsstatus": [
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1964/06/19/14/nor/§35",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "opphevet",
+      "bevistrinn": "E1",
+      "opphevet_av": "NL/lov/2013-12-13-110",
+      "opphevet_av_eid": "kap-I/ledd-1",
+      "opphevet_av_sitat": "Lov 19. juni 1964 nr. 14 om avgift på arv og visse gaver (arveavgiftsloven) oppheves.",
+      "opphevet_dato": "2014-01-01",
+      "lest_i_lovtidend": false,
+      "kunnskapsstatus": "tekstfunn"
+     }
+    ]
+   },
+   "kontekst": {
+    "forskriften_nevnt_i_annen_kilde": [],
+    "mulige_overgangsregler_i_opphevende_kilde": []
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "undertype_riktig": true,
+    "sitat_eid_riktig": true,
+    "rent_endrings_eller_ikrafttredelsesvedtak_446": false,
+    "feilarsak": null,
+    "grunn": "Arveavgiftsloven er opphevet ved lov 13. desember 2013 nr. 110 kap. I. Opphevingen fikk ikke virkning for arv etter dødsfall før 2014, men etter tredje ledd likevel for slik arv når avgiften ikke var forfalt innen 1. januar 2021. Den gamle loven gjaldt altså for gamle saker en tid, men det er ikke en videreføring av forskrifter, og den er i alle fall passert. Hjemmel opphevet uten funnet videreføring er riktig i dag.",
+    "kontrollert_mot": [
+     "NL/lov/2013-12-13-110 kap-I, kap-II (korpus)"
+    ]
+   }
+  },
+  {
+   "id": "M05",
+   "funn_id": "342cc75f-54bf-42c2-b583-c359e679577a",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2003/11/04/1312/nor",
+   "undertype": "hjemmel_opphevet",
+   "prefiks": "DEL",
+   "forskrift": {
+    "dokument_id": "DEL/forskrift/2003-11-04-1312",
+    "tittel": "Delegering av myndighet til Skattedirektoratet etter ligningsloven § 4-2, § 4-3 og § 4-5.",
+    "lovdatas_hjemmelstekst": "Fastsatt av Finansdepartementet 4. november 2003 med hjemmel i lov av 13. juni 1980 nr. 24 om ligningsforvaltning (ligningsloven) § 4-2, § 4-3 og § 4-5.",
+    "ikrafttredelse": "2003-11-04",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "foreslatt": {
+    "tittel": "Hjemmel opphevet, videreføring ikke funnet: Deleg. av myndighet til Skattedirektorat (FOR-2003-11-04-1312)",
+    "pastand": "Lovdata viser «Deleg. av myndighet til Skattedirektorat» (FOR-2003-11-04-1312) som gjeldende. Alle hjemlene som teller, er opphevet, og maskinregelen har ikke funnet en overgangsregel som viderefører forskriften. Ikke funnet betyr ikke at den ikke finnes. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1980-06-13-24 § 4-2, § 4-3 og § 4-5 er opphevet av LOV-2016-05-27-14 § 16-1 andre ledd: «Fra samme tidspunkt oppheves lov 13. juni 1980 nr. 24 om ligningsforvaltning (ligningsloven).»\n- Ikke kontrollert: Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2016-05-27-14 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446).",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-2003-11-04-1312 Deleg. av myndighet til Skattedirektorat",
+      "merknad": "forskriften",
+      "eid": null,
+      "nodetekst": null
+     },
+     {
+      "rolle": "opphevende_bestemmelse",
+      "etikett": "LOV-2016-05-27-14 § 16-1 andre ledd",
+      "merknad": "opphever LOV-1980-06-13-24",
+      "eid": "https://lovdata.no/eli/lov/2016/05/27/14/nor/§16-1/ledd-2",
+      "nodetekst": "Fra samme tidspunkt oppheves lov 13. juni 1980 nr. 24 om ligningsforvaltning (ligningsloven)."
+     }
+    ],
+    "hjemmelsstatus": [
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1980/06/13/24/nor/§4-2",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "opphevet",
+      "bevistrinn": "E1",
+      "opphevet_av": "NL/lov/2016-05-27-14",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2016/05/27/14/nor/§16-1/ledd-2",
+      "opphevet_av_sitat": "Fra samme tidspunkt oppheves lov 13. juni 1980 nr. 24 om ligningsforvaltning (ligningsloven).",
+      "opphevet_dato": "2017-01-01",
+      "lest_i_lovtidend": false,
+      "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2016-05-27-14 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+      "kunnskapsstatus": "tekstfunn"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1980/06/13/24/nor/§4-3",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "opphevet",
+      "bevistrinn": "E1",
+      "opphevet_av": "NL/lov/2016-05-27-14",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2016/05/27/14/nor/§16-1/ledd-2",
+      "opphevet_av_sitat": "Fra samme tidspunkt oppheves lov 13. juni 1980 nr. 24 om ligningsforvaltning (ligningsloven).",
+      "opphevet_dato": "2017-01-01",
+      "lest_i_lovtidend": false,
+      "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2016-05-27-14 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+      "kunnskapsstatus": "tekstfunn"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1980/06/13/24/nor/§4-5",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "opphevet",
+      "bevistrinn": "E1",
+      "opphevet_av": "NL/lov/2016-05-27-14",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2016/05/27/14/nor/§16-1/ledd-2",
+      "opphevet_av_sitat": "Fra samme tidspunkt oppheves lov 13. juni 1980 nr. 24 om ligningsforvaltning (ligningsloven).",
+      "opphevet_dato": "2017-01-01",
+      "lest_i_lovtidend": false,
+      "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2016-05-27-14 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+      "kunnskapsstatus": "tekstfunn"
+     }
+    ]
+   },
+   "kontekst": {
+    "forskriften_nevnt_i_annen_kilde": [],
+    "mulige_overgangsregler_i_opphevende_kilde": [
+     {
+      "dokument_id": "NL/lov/2016-05-27-14",
+      "eid": "https://lovdata.no/eli/lov/2016/05/27/14/nor/§1-3/ledd-1/punkt-1",
+      "tekst": "Forvaltningsloven § 15 a om elektronisk kommunikasjon og forskrifter gitt i medhold av bestemmelsen gjelder for behandlingen av saker etter denne loven. Departementet kan gi forskrift som angitt i forvaltningsloven § 15 a tredje ledd for behandlingen av saker etter loven her."
+     },
+     {
+      "dokument_id": "NL/lov/2016-05-27-14",
+      "eid": "https://lovdata.no/eli/lov/2016/05/27/14/nor/§1-3/ledd-1/punkt-2",
+      "tekst": "Forvaltningsloven kapittel VII om forskrifter gjelder for behandlingen av saker etter denne loven."
+     },
+     {
+      "dokument_id": "NL/lov/2016-05-27-14",
+      "eid": "https://lovdata.no/eli/lov/2016/05/27/14/nor/§2-9/ledd-2",
+      "tekst": "(2) Departementet, Skattedirektoratet, skattekontoret og Oljeskattekontoret kan ikke endre vedtak fra Skatteklagenemnda, Skatteklagenemnda for Svalbard og Klagenemnda for petroleumsskatt. Første punktum gjelder ikke endringer i skattefastsettingen etter § 12-1 tredje ledd."
+     },
+     {
+      "dokument_id": "NL/lov/2016-05-27-14",
+      "eid": "https://lovdata.no/eli/lov/2016/05/27/14/nor/§2-13/ledd-1",
+      "tekst": "Departementet kan gi forskrift om at andre organer enn de som er nevnt i dette kapitlet, kan utøve myndighet etter denne loven. Departementet kan gi forskrift om hvilke saksbehandlingsregler som da skal gjelde, herunder gjøre unntak fra skatteforvaltningsloven."
+     },
+     {
+      "dokument_id": "NL/lov/2016-05-27-14",
+      "eid": "https://lovdata.no/eli/lov/2016/05/27/14/nor/§5-6/ledd-2",
+      "tekst": "(2) Forhåndsvarselet skal gjøre rede for hva saken gjelder og ellers inneholde det som anses påkrevd for at den vedtaket retter seg mot, på forsvarlig måte kan ivareta sine interesser."
+     },
+     {
+      "dokument_id": "NL/lov/2016-05-27-14",
+      "eid": "https://lovdata.no/eli/lov/2016/05/27/14/nor/§5-7/ledd-1",
+      "tekst": "(1) Enkeltvedtak skal begrunnes. Dette gjelder likevel ikke vedtak som nevnt i § 9-2 tredje ledd."
+     },
+     {
+      "dokument_id": "NL/lov/2016-05-27-14",
+      "eid": "https://lovdata.no/eli/lov/2016/05/27/14/nor/§5-9/ledd-1",
+      "tekst": "(1) Når skattemyndighetenes enkeltvedtak blir endret til gunst for den vedtaket retter seg mot, skal vedkommende tilkjennes dekning for vesentlige kostnader som har vært nødvendige for å få endret vedtaket. Dette gjelder likevel ikke dersom endringen skyldes vedkommendes eget forhold eller forhold utenfor vedkommendes og skattemyndighetenes kontroll, eller andre særlige forhold taler mot det."
+     },
+     {
+      "dokument_id": "NL/lov/2016-05-27-14",
+      "eid": "https://lovdata.no/eli/lov/2016/05/27/14/nor/§5-10/ledd-1",
+      "tekst": "Er reglene om behandlingsmåten i denne loven ikke overholdt ved behandlingen av en sak som gjelder enkeltvedtak, er vedtaket likevel gyldig når det er grunn til å regne med at feilen ikke kan ha virket bestemmende på vedtakets innhold."
+     }
+    ]
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "undertype_riktig": true,
+    "sitat_eid_riktig": true,
+    "rent_endrings_eller_ikrafttredelsesvedtak_446": false,
+    "feilarsak": null,
+    "grunn": "Som H01–H04 i måling 1: skatteforvaltningsloven § 16-1 andre ledd opphever ligningsloven; § 16-2 og forskriften §§ 16-2-1 til 16-2-3 viderefører ikke delegeringer.",
+    "kontrollert_mot": [
+     "NL/lov/2016-05-27-14 §16-1 (korpus)",
+     "måling 1 H01–H04"
+    ]
+   }
+  },
+  {
+   "id": "M06",
+   "funn_id": "374bf9f1-71f6-4efe-9e59-b9ba62281c40",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2007/03/02/1264/nor",
+   "undertype": "hjemmel_opphevet",
+   "prefiks": "DEL",
+   "forskrift": {
+    "dokument_id": "DEL/forskrift/2007-03-02-1264",
+    "tittel": "Delegering av myndighet til Skattedirektoratet etter lov om avgift på arv og visse gaver § 24",
+    "lovdatas_hjemmelstekst": "Hjemmel: Fastsatt av Finansdepartementet 2. mars 2007 med hjemmel i lov 19. juni 1964 nr. 14 om avgift på arv og visse gaver § 24.",
+    "ikrafttredelse": "2008-01-01",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "foreslatt": {
+    "tittel": "Hjemmel opphevet, videreføring ikke funnet: Deleg. til Skattedir. etter arveavgiftsloven (FOR-2007-03-02-1264)",
+    "pastand": "Lovdata viser «Deleg. til Skattedir. etter arveavgiftsloven» (FOR-2007-03-02-1264) som gjeldende. Alle hjemlene som teller, er opphevet, og maskinregelen har ikke funnet en overgangsregel som viderefører forskriften. Ikke funnet betyr ikke at den ikke finnes. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1964-06-19-14 § 24 er opphevet av LOV-2013-12-13-110 kap. I første ledd: «Lov 19. juni 1964 nr. 14 om avgift på arv og visse gaver (arveavgiftsloven) oppheves.»\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446).",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-2007-03-02-1264 Deleg. til Skattedir. etter arveavgiftsloven",
+      "merknad": "forskriften",
+      "eid": null,
+      "nodetekst": null
+     },
+     {
+      "rolle": "opphevende_bestemmelse",
+      "etikett": "LOV-2013-12-13-110 kap. I første ledd",
+      "merknad": "opphever LOV-1964-06-19-14",
+      "eid": "kap-I/ledd-1",
+      "nodetekst": "Lov 19. juni 1964 nr. 14 om avgift på arv og visse gaver (arveavgiftsloven) oppheves. Opphevelsen gis virkning for gaver som ytes 1. januar 2014 eller senere og arv etter dødsfall som skjer 1. januar 2014 eller senere."
+     }
+    ],
+    "hjemmelsstatus": [
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1964/06/19/14/nor/§24",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "opphevet",
+      "bevistrinn": "E1",
+      "opphevet_av": "NL/lov/2013-12-13-110",
+      "opphevet_av_eid": "kap-I/ledd-1",
+      "opphevet_av_sitat": "Lov 19. juni 1964 nr. 14 om avgift på arv og visse gaver (arveavgiftsloven) oppheves.",
+      "opphevet_dato": "2014-01-01",
+      "lest_i_lovtidend": false,
+      "kunnskapsstatus": "tekstfunn"
+     }
+    ]
+   },
+   "kontekst": {
+    "forskriften_nevnt_i_annen_kilde": [],
+    "mulige_overgangsregler_i_opphevende_kilde": []
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "undertype_riktig": true,
+    "sitat_eid_riktig": true,
+    "rent_endrings_eller_ikrafttredelsesvedtak_446": false,
+    "feilarsak": null,
+    "grunn": "Som M04 (arveavgiftsloven § 24).",
+    "kontrollert_mot": [
+     "NL/lov/2013-12-13-110 kap-I (korpus)"
+    ]
+   }
+  },
+  {
+   "id": "M07",
+   "funn_id": "6ab1d7a6-8c11-4392-b0a9-f683ac1fa4bc",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/1999/06/25/706/nor",
+   "undertype": "hjemmel_opphevet",
+   "prefiks": "DEL",
+   "forskrift": {
+    "dokument_id": "DEL/forskrift/1999-06-25-706",
+    "tittel": "Delegering av myndighet til Finans- og tolldepartementet etter lov om revisjon og revisorer (revisorloven).",
+    "lovdatas_hjemmelstekst": "Fastsatt ved kgl.res. 25. juni 1999 med hjemmel i lov av 15. januar 1999 nr. 2 om revisjon og revisorer (revisorloven). Fremmet av Finans- og tolldepartementet.",
+    "ikrafttredelse": "1999-06-25",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "foreslatt": {
+    "tittel": "Hjemmel opphevet, videreføring ikke funnet: Delegering til FIN etter revisorloven (FOR-1999-06-25-706)",
+    "pastand": "Lovdata viser «Delegering til FIN etter revisorloven» (FOR-1999-06-25-706) som gjeldende. Alle hjemlene som teller, er opphevet, og maskinregelen har ikke funnet en overgangsregel som viderefører forskriften. Ikke funnet betyr ikke at den ikke finnes. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1999-01-15-2 er opphevet av LOV-2020-11-20-128 § 16-1 andre ledd: «(2) Lov 15. januar 1999 nr. 2 om revisjon og revisorer oppheves fra den tiden loven trer i kraft.»\n- Ikke kontrollert: Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2020-11-20-128 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446).",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-1999-06-25-706 Delegering til FIN etter revisorloven",
+      "merknad": "forskriften",
+      "eid": null,
+      "nodetekst": null
+     },
+     {
+      "rolle": "opphevende_bestemmelse",
+      "etikett": "LOV-2020-11-20-128 § 16-1 andre ledd",
+      "merknad": "opphever LOV-1999-01-15-2",
+      "eid": "https://lovdata.no/eli/lov/2020/11/20/128/nor/§16-1/ledd-2",
+      "nodetekst": "(2) Lov 15. januar 1999 nr. 2 om revisjon og revisorer oppheves fra den tiden loven trer i kraft."
+     }
+    ],
+    "hjemmelsstatus": [
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1999/01/15/2/nor",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "opphevet",
+      "bevistrinn": "E1",
+      "opphevet_av": "NL/lov/2020-11-20-128",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2020/11/20/128/nor/§16-1/ledd-2",
+      "opphevet_av_sitat": "(2) Lov 15. januar 1999 nr. 2 om revisjon og revisorer oppheves fra den tiden loven trer i kraft.",
+      "opphevet_dato": "2021-01-01",
+      "lest_i_lovtidend": false,
+      "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2020-11-20-128 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+      "kunnskapsstatus": "tekstfunn"
+     }
+    ]
+   },
+   "kontekst": {
+    "forskriften_nevnt_i_annen_kilde": [],
+    "mulige_overgangsregler_i_opphevende_kilde": [
+     {
+      "dokument_id": "NL/lov/2020-11-20-128",
+      "eid": "https://lovdata.no/eli/lov/2020/11/20/128/nor/§2-1/ledd-4",
+      "tekst": "(4) Den revisjonspliktige kan ikke avsette revisor uten saklig grunn. Dette gjelder også for eventuell uavhengig tilbyder av attestasjonstjenester som nevnt i § 1-3. Uenighet om regnskapsmessig behandling eller revisjonshandlinger anses ikke som saklig grunn for avsettelse. Det gjør heller ikke uenighet om pliktig bærekraftsrapportering eller attestasjonshandlinger. Den revisjonspliktige skal uten ugrunnet opphold gi melding til Foretaksregisteret om at revisors oppdrag er avsluttet. Dersom et r"
+     },
+     {
+      "dokument_id": "NL/lov/2020-11-20-128",
+      "eid": "https://lovdata.no/eli/lov/2020/11/20/128/nor/§7-3/ledd-1",
+      "tekst": "(1) Revisjonsforetak skal registrere overtredelser av bestemmelser i denne loven eller revisjonsforordningen som gjelder oppdrag om lovfestet revisjon eller attestasjon av pliktig bærekraftsrapportering, samt tiltak som er gjennomført i den forbindelse. Det er ikke nødvendig å registrere mindre overtredelser. Revisjonsforetaket skal utarbeide en årlig rapport som gir en oversikt over tiltak som nevnt og gjøre den kjent internt."
+     },
+     {
+      "dokument_id": "NL/lov/2020-11-20-128",
+      "eid": "https://lovdata.no/eli/lov/2020/11/20/128/nor/§7-3/ledd-3",
+      "tekst": "(3) Bestemmelsene i paragrafen her gjelder ikke ved revisjon av små foretak etter regnskapsloven."
+     },
+     {
+      "dokument_id": "NL/lov/2020-11-20-128",
+      "eid": "https://lovdata.no/eli/lov/2020/11/20/128/nor/§8-1a/ledd-1",
+      "tekst": "(1) Bestemmelsene i kapittelet her gjelder tilsvarende ved attestasjon av pliktig bærekraftsrapportering."
+     },
+     {
+      "dokument_id": "NL/lov/2020-11-20-128",
+      "eid": "https://lovdata.no/eli/lov/2020/11/20/128/nor/§9-2/ledd-1",
+      "tekst": "(1) Før et revisjonsforetak påtar seg et oppdrag om lovfestet revisjon eller attestasjon av pliktig bærekraftsrapportering, skal revisjonsforetaket be den revidertes forrige revisor opplyse om det foreligger forhold som tilsier at en ny revisor ikke bør påta seg oppdraget. Den forrige revisoren skal uten hinder av taushetsplikten gi opplysninger som nevnt og opplyse om begrunnelsen for sin fratreden. Opplysningene skal gis skriftlig hvis revisjonsforetaket ber om det. Disse bestemmelsene gjelder"
+     },
+     {
+      "dokument_id": "NL/lov/2020-11-20-128",
+      "eid": "https://lovdata.no/eli/lov/2020/11/20/128/nor/§12-6/ledd-6",
+      "tekst": "(6) Bestemmelsene om reaksjoner og sanksjoner i §§ 14-3 til 14-8 gjelder for revisjonsforetaket og den oppdragsansvarlige revisoren."
+     },
+     {
+      "dokument_id": "NL/lov/2020-11-20-128",
+      "eid": "https://lovdata.no/eli/lov/2020/11/20/128/nor/§14-8/ledd-2",
+      "tekst": "(2) Den som forsettlig eller uaktsomt overtrer §§ 8-1 til 8-7, § 8-8 eller § 12-5, § 9-4 første, annet, fjerde eller femte ledd, § 9-4 a første, tredje eller fjerde ledd, § 9-10 eller 10-2, straffes med bøter eller fengsel inntil ett år. Det samme gjelder den som handler i strid med vedtak fattet med hjemmel i § 14-3 eller § 14-4."
+     },
+     {
+      "dokument_id": "NL/lov/2020-11-20-128",
+      "eid": "https://lovdata.no/eli/lov/2020/11/20/128/nor/§15-1/ledd-2",
+      "tekst": "(2) Forvaltningsloven gjelder for klagenemndens virksomhet. Departementet kan i forskrift fastsette regler om frister, innholdet av klage, tilsvar og muntlig forhandling og om klagenemndens sammensetning og virksomhet."
+     }
+    ]
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "undertype_riktig": true,
+    "sitat_eid_riktig": true,
+    "rent_endrings_eller_ikrafttredelsesvedtak_446": false,
+    "feilarsak": null,
+    "grunn": "Revisorloven 1999 er opphevet av revisorloven 2020 § 16-1 andre ledd. § 16-2 har overgangsregler for godkjenninger og en hjemmel for overgangsregler, men viderefører ikke forskrifter eller delegeringer. Overgangsforskriftene i korpus (2009, 2011) gjelder eldre endringslover.",
+    "kontrollert_mot": [
+     "NL/lov/2020-11-20-128 §16-1, §16-2 (korpus)"
+    ]
+   }
+  },
+  {
+   "id": "M08",
+   "funn_id": "05ab332b-b6f0-47eb-be2e-aad3183c5fad",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2006/06/16/646/nor",
+   "undertype": "hjemmel_opphevet",
+   "prefiks": "LTI",
+   "forskrift": {
+    "dokument_id": "LTI/forskrift/2006-06-16-646",
+    "tittel": "Vedtak om endring i delegering av myndighet til Sjøfartsdirektoratet etter sjømannsloven.",
+    "lovdatas_hjemmelstekst": "Fastsatt av Nærings- og handelsdepartementet 16. juni 2006 med hjemmel i sjømannslov 30. mai 1975 nr. 18, jf. overføringsvedtak 23. desember 1988 nr. 1081.",
+    "ikrafttredelse": "2006-07-01",
+    "rent_endringsvedtak": null,
+    "kildeform": "kunngjort"
+   },
+   "foreslatt": {
+    "tittel": "Hjemmel opphevet, videreføring ikke funnet: Endr. i deleg til Sdir etter sjømannsloven (FOR-2006-06-16-646)",
+    "pastand": "Korpuset har «Endr. i deleg til Sdir etter sjømannsloven» (FOR-2006-06-16-646) bare slik det ble kunngjort i Norsk Lovtidend, med status gjeldende. Alle hjemlene som teller, er opphevet, og maskinregelen har ikke funnet en overgangsregel som viderefører forskriften. Ikke funnet betyr ikke at den ikke finnes. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1975-05-30-18 er opphevet av LOV-2013-06-21-102 § 13-2 femte ledd (lest i den kunngjorte teksten i Norsk Lovtidend): «Sjømannslov 30. mai 1975 nr. 18 oppheves.»\n- Ikke kontrollert: Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2013-06-21-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.\n- Kunngjort versjon, gjeldende status ikke kontrollert: korpuset har bare vedtaket slik det ble kunngjort i Norsk Lovtidend, og Lovdatas ajourførte status er ikke slått opp. Vedtaket kan selv være opphevet ved en kilde som ikke er i korpus.\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446).",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-2006-06-16-646 Endr. i deleg til Sdir etter sjømannsloven",
+      "merknad": "forskriften",
+      "eid": null,
+      "nodetekst": null
+     },
+     {
+      "rolle": "opphevende_bestemmelse",
+      "etikett": "LOV-2013-06-21-102 § 13-2 femte ledd",
+      "merknad": "opphever LOV-1975-05-30-18 (lest i Norsk Lovtidend)",
+      "eid": "https://lovdata.no/eli/lov/2013/06/21/102/nor/§13-2/ledd-5",
+      "nodetekst": null
+     }
+    ],
+    "hjemmelsstatus": [
+     {
+      "hjemmel": "https://lovdata.no/eli/forskrift/1988/12/23/1081/nor",
+      "i_korpus": "DEL/forskrift/1988-12-23-1081",
+      "rolle": "kompetanseledd",
+      "rolle_regel": "delegeringsvedtak",
+      "status": "aktiv",
+      "lest_i_lovtidend": false,
+      "kunnskapsstatus": "normalisering"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1975/05/30/18/nor",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "opphevet",
+      "bevistrinn": "EN_LTI",
+      "opphevet_av": "NL/lov/2013-06-21-102",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2013/06/21/102/nor/§13-2/ledd-5",
+      "opphevet_av_sitat": "Sjømannslov 30. mai 1975 nr. 18 oppheves.",
+      "opphevet_dato": "2013-08-20",
+      "lest_i_lovtidend": true,
+      "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2013-06-21-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+      "kunnskapsstatus": "eksternt_dokumentert"
+     }
+    ]
+   },
+   "kontekst": {
+    "forskriften_nevnt_i_annen_kilde": [],
+    "mulige_overgangsregler_i_opphevende_kilde": [
+     {
+      "dokument_id": "NL/lov/2013-06-21-102",
+      "eid": "https://lovdata.no/eli/lov/2013/06/21/102/nor/§2-5/ledd-3",
+      "tekst": "(3) Solidaransvaret gjelder ikke krav som omfattes av lønnsgarantiloven og forskrifter gitt i medhold av loven når det er åpnet konkurs hos arbeidsgiver."
+     },
+     {
+      "dokument_id": "NL/lov/2013-06-21-102",
+      "eid": "https://lovdata.no/eli/lov/2013/06/21/102/nor/§3-6/ledd-2/punkt-1",
+      "tekst": "arbeidstaker som er midlertidig ansatt, og som på grunn av virksomhetens forhold ikke får fortsatt ansettelse. Denne bestemmelsen gjelder likevel ikke arbeidstaker i vikariat,"
+     },
+     {
+      "dokument_id": "NL/lov/2013-06-21-102",
+      "eid": "https://lovdata.no/eli/lov/2013/06/21/102/nor/§5-13/ledd-4",
+      "tekst": "(4) Bestemmelsene i §§ 5-1 første ledd, 5-3 og 5-11 gjelder tilsvarende så langt de passer."
+     },
+     {
+      "dokument_id": "NL/lov/2013-06-21-102",
+      "eid": "https://lovdata.no/eli/lov/2013/06/21/102/nor/§7-8/ledd-4",
+      "tekst": "(4) Departementet kan gi forskrift om slik permisjon, herunder om omfanget av permisjonen og for hvilke barn retten til permisjon gjelder."
+     },
+     {
+      "dokument_id": "NL/lov/2013-06-21-102",
+      "eid": "https://lovdata.no/eli/lov/2013/06/21/102/nor/§10-1/ledd-3",
+      "tekst": "(3) Bestemmelsene i dette kapittel gjelder tilsvarende ved diskriminering av arbeidstaker som arbeider deltid eller er midlertidig ansatt."
+     },
+     {
+      "dokument_id": "NL/lov/2013-06-21-102",
+      "eid": "https://lovdata.no/eli/lov/2013/06/21/102/nor/§10-2/ledd-1",
+      "tekst": "(1) Bestemmelsene i dette kapittel gjelder alle sider ved arbeidsforholdet, herunder:"
+     },
+     {
+      "dokument_id": "NL/lov/2013-06-21-102",
+      "eid": "https://lovdata.no/eli/lov/2013/06/21/102/nor/§10-2/ledd-2",
+      "tekst": "(2) Bestemmelsene i dette kapittel gjelder tilsvarende for rederiets valg og behandling av personer som har sitt arbeid om bord."
+     },
+     {
+      "dokument_id": "NL/lov/2013-06-21-102",
+      "eid": "https://lovdata.no/eli/lov/2013/06/21/102/nor/§10-2/ledd-3",
+      "tekst": "(3) Bestemmelsene i dette kapittel gjelder tilsvarende for innmelding i og deltakelse i en arbeidstaker-, arbeidsgiver- eller yrkesorganisasjon. Dette gjelder også for fordeler som slike organisasjoner gir sine medlemmer."
+     }
+    ]
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "undertype_riktig": true,
+    "sitat_eid_riktig": true,
+    "rent_endrings_eller_ikrafttredelsesvedtak_446": true,
+    "feilarsak": null,
+    "grunn": "Sjømannsloven 1975 er opphevet av skipsarbeidsloven 2013 § 13-2 femte ledd (lest i den kunngjorte teksten). Skipsarbeidsloven har ingen overgangsregel om forskrifter i korpus. Men vedtaket er et rent endringsvedtak: kap. I endrer vedtak 27. desember 1988 nr. 4321, kap. II er ikrafttredelse (#446). Lovdata-status for den kunngjorte versjonen er ikke kontrollert av modellereren.",
+    "kontrollert_mot": [
+     "LTI/forskrift/2006-06-16-646 kap-I, kap-II (korpus)",
+     "NL/lov/2013-06-21-102 §13-1, §13-2 (korpus)"
+    ]
+   }
+  },
+  {
+   "id": "M09",
+   "funn_id": "46f2add6-b4e3-40bf-a01e-a41a0c286ec5",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2010/02/22/195/nor",
+   "undertype": "hjemmel_opphevet",
+   "prefiks": "LTI",
+   "forskrift": {
+    "dokument_id": "LTI/forskrift/2010-02-22-195",
+    "tittel": "Vedtak om oppheving av vedtak om delegering av myndighet til Skattedirektoratet etter lov om merverdiavgift § 29 sjette ledd og § 75",
+    "lovdatas_hjemmelstekst": "Hjemmel: Fastsatt av Finansdepartementet 22. februar 2010 med hjemmel i lov 19. juni 1969 nr. 66 om merverdiavgift § 29 sjette ledd og § 75.",
+    "ikrafttredelse": "2010-02-22",
+    "rent_endringsvedtak": null,
+    "kildeform": "kunngjort"
+   },
+   "foreslatt": {
+    "tittel": "Hjemmel opphevet, videreføring ikke funnet: Opph. av delegering etter mval 1969 (FOR-2010-02-22-195)",
+    "pastand": "Korpuset har «Opph. av delegering etter mval 1969» (FOR-2010-02-22-195) bare slik det ble kunngjort i Norsk Lovtidend, med status gjeldende. Alle hjemlene som teller, er opphevet, og maskinregelen har ikke funnet en overgangsregel som viderefører forskriften. Ikke funnet betyr ikke at den ikke finnes. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1969-06-19-66 § 29 og § 75 er opphevet av LOV-2009-06-19-58 § 22-2 andre ledd: «(2) Fra samme tidspunkt oppheves lov 19. juni 1969 nr. 66 om merverdiavgift.»\n- Kunngjort versjon, gjeldende status ikke kontrollert: korpuset har bare vedtaket slik det ble kunngjort i Norsk Lovtidend, og Lovdatas ajourførte status er ikke slått opp. Vedtaket kan selv være opphevet ved en kilde som ikke er i korpus.\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446).",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-2010-02-22-195 Opph. av delegering etter mval 1969",
+      "merknad": "forskriften",
+      "eid": null,
+      "nodetekst": null
+     },
+     {
+      "rolle": "opphevende_bestemmelse",
+      "etikett": "LOV-2009-06-19-58 § 22-2 andre ledd",
+      "merknad": "opphever LOV-1969-06-19-66",
+      "eid": "https://lovdata.no/eli/lov/2009/06/19/58/nor/§22-2/ledd-2",
+      "nodetekst": "(2) Fra samme tidspunkt oppheves lov 19. juni 1969 nr. 66 om merverdiavgift."
+     }
+    ],
+    "hjemmelsstatus": [
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1969/06/19/66/nor/§29",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "opphevet",
+      "bevistrinn": "E1",
+      "opphevet_av": "NL/lov/2009-06-19-58",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2009/06/19/58/nor/§22-2/ledd-2",
+      "opphevet_av_sitat": "(2) Fra samme tidspunkt oppheves lov 19. juni 1969 nr. 66 om merverdiavgift.",
+      "opphevet_dato": "2010-01-01",
+      "lest_i_lovtidend": false,
+      "kunnskapsstatus": "tekstfunn"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1969/06/19/66/nor/§75",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "opphevet",
+      "bevistrinn": "E1",
+      "opphevet_av": "NL/lov/2009-06-19-58",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2009/06/19/58/nor/§22-2/ledd-2",
+      "opphevet_av_sitat": "(2) Fra samme tidspunkt oppheves lov 19. juni 1969 nr. 66 om merverdiavgift.",
+      "opphevet_dato": "2010-01-01",
+      "lest_i_lovtidend": false,
+      "kunnskapsstatus": "tekstfunn"
+     }
+    ]
+   },
+   "kontekst": {
+    "forskriften_nevnt_i_annen_kilde": [],
+    "mulige_overgangsregler_i_opphevende_kilde": [
+     {
+      "dokument_id": "NL/lov/2009-06-19-58",
+      "eid": "https://lovdata.no/eli/lov/2009/06/19/58/nor/§4-12/ledd-1",
+      "tekst": "(1) Ved kjøp av tjenester som nevnt i § 3-30 er beregningsgrunnlaget for merverdiavgiften vederlaget. Bestemmelsene om beregningsgrunnlag ved omsetning gjelder tilsvarende."
+     },
+     {
+      "dokument_id": "NL/lov/2009-06-19-58",
+      "eid": "https://lovdata.no/eli/lov/2009/06/19/58/nor/§5-1/ledd-2",
+      "tekst": "(2) Lovens §§ 5-2 til 5-12 gjelder i den utstrekning det følger av Stortingets vedtak om merverdiavgift at det skal beregnes merverdiavgift med redusert sats."
+     },
+     {
+      "dokument_id": "NL/lov/2009-06-19-58",
+      "eid": "https://lovdata.no/eli/lov/2009/06/19/58/nor/§6-11/ledd-4",
+      "tekst": "(4) Omsetning av varer og tjenester til bruk i forbindelse med bygging, ombygging, reparasjon og vedlikehold av rørledninger mellom havområder utenfor merverdiavgiftsområdet og land, er fritatt for merverdiavgift i siste omsetningsledd. Departementet kan treffe enkeltvedtak om at fritaket skal gjelde tilsvarende for tilhørende anlegg på land som er til direkte bruk i forbindelse med gjennomstrømming av gass."
+     },
+     {
+      "dokument_id": "NL/lov/2009-06-19-58",
+      "eid": "https://lovdata.no/eli/lov/2009/06/19/58/nor/§6-13/ledd-1",
+      "tekst": "Departementet kan på grunnlag av traktater og andre internasjonale avtaler gi forskrift om at omsetning av varer og tjenester til bestemte internasjonale militære styrker og kommandoenheter, er fritatt for merverdiavgift. Det samme gjelder omsetning til virksomheter som leverer varer eller tjenester til bruk for bestemte internasjonale militære styrker og kommandoenheter. Departementet kan videre gi forskrift om at omsetning av varer og tjenester fra internasjonale kommandoenheter til deres pers"
+     },
+     {
+      "dokument_id": "NL/lov/2009-06-19-58",
+      "eid": "https://lovdata.no/eli/lov/2009/06/19/58/nor/§6-28/ledd-5",
+      "tekst": "(5) For varetransport gjelder fritaket bare for tjenester som ytes før varen stilles til mottakerens disposisjon på avtalt bestemmelsessted."
+     },
+     {
+      "dokument_id": "NL/lov/2009-06-19-58",
+      "eid": "https://lovdata.no/eli/lov/2009/06/19/58/nor/§7-1/ledd-3",
+      "tekst": "(3) Bestemmelsene om adgang til å treffe enkeltvedtak om fritak for våpensystemet F-35 i § 6-37 gjelder tilsvarende for beregning av merverdiavgift ved innførsel av varer."
+     },
+     {
+      "dokument_id": "NL/lov/2009-06-19-58",
+      "eid": "https://lovdata.no/eli/lov/2009/06/19/58/nor/§10-1/ledd-5",
+      "tekst": "(5) Departementet kan gi forskrift om utfylling og gjennomføring av denne paragrafen, herunder om vilkår for refusjon. Departementet kan også gi forskrift om at refusjonen er betinget av at søkerens hjemland yter tilsvarende refusjon av merverdiavgift eller annen omsetningsavgift til næringsdrivende med forretningssted eller hjemsted i merverdiavgiftsområdet. Det samme gjelder for refusjon av merverdiavgift på varer og tjenester til bruk for lastebiler registrert eller hjemmehørende utenfor merv"
+     },
+     {
+      "dokument_id": "NL/lov/2009-06-19-58",
+      "eid": "https://lovdata.no/eli/lov/2009/06/19/58/nor/§15-11/ledd-3",
+      "tekst": "(3) Departementet kan gi forskrift om at foreninger og samvirkeforetak som hovedsakelig omsetter produkter fra medlemmenes fiske, skogbruk eller jordbruk med binæringer, skal kunne oppgi merverdiavgift i sitt avregningsoppgjør med en leverandør som ikke er registrert i Merverdiavgiftsregisteret. Departementet fastsetter nærmere vilkår for gjennomføringen av ordningen og kan bestemme at ordningen skal gjelde tilsvarende for andre avtakere og produsenter. Departementet kan i forskrift bestemme at "
+     }
+    ]
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "undertype_riktig": true,
+    "sitat_eid_riktig": true,
+    "rent_endrings_eller_ikrafttredelsesvedtak_446": true,
+    "feilarsak": null,
+    "grunn": "Merverdiavgiftsloven 1969 er opphevet av merverdiavgiftsloven 2009 § 22-2 andre ledd; § 22-1 tredje ledd er bare en forskriftshjemmel. Men vedtaket er et rent opphevingsvedtak (opphever vedtak 25. juni 2001 nr. 762) og har uttømt virkningen (#446).",
+    "kontrollert_mot": [
+     "LTI/forskrift/2010-02-22-195 kap-I, kap-II (korpus)",
+     "NL/lov/2009-06-19-58 §22-1, §22-2 (korpus)"
+    ]
+   }
+  },
+  {
+   "id": "M10",
+   "funn_id": "b6dd6abd-11d9-47f2-b412-abd2db8ad33f",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2003/06/27/802/nor",
+   "undertype": "hjemmel_opphevet",
+   "prefiks": "LTI",
+   "forskrift": {
+    "dokument_id": "LTI/forskrift/2003-06-27-802",
+    "tittel": "Delegering av myndighet til Forsvarsdepartementet etter sikkerhetsloven § 2 tredje ledd.",
+    "lovdatas_hjemmelstekst": "Fastsatt ved kgl.res. 27. juni 2003 med hjemmel i lov av 20. mars 1998 nr. 10 om forebyggende sikkerhetstjeneste (sikkerhetsloven) § 2 tredje ledd. Fremmet av Forsvarsdepartementet.",
+    "ikrafttredelse": "2003-06-27",
+    "rent_endringsvedtak": null,
+    "kildeform": "kunngjort"
+   },
+   "foreslatt": {
+    "tittel": "Hjemmel opphevet, videreføring ikke funnet: Deleg. til FD etter sikkerhetsloven (FOR-2003-06-27-802)",
+    "pastand": "Korpuset har «Deleg. til FD etter sikkerhetsloven» (FOR-2003-06-27-802) bare slik det ble kunngjort i Norsk Lovtidend, med status gjeldende. Alle hjemlene som teller, er opphevet, og maskinregelen har ikke funnet en overgangsregel som viderefører forskriften. Ikke funnet betyr ikke at den ikke finnes. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1998-03-20-10 § 2 er opphevet av LOV-2018-06-01-24 § 12-2 første ledd: «Fra det tidspunktet loven trer i kraft, oppheves lov 20. mars 1998 nr. 10 om forebyggende sikkerhetstjeneste.»\n- Ikke kontrollert: Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2018-06-01-24 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.\n- Kunngjort versjon, gjeldende status ikke kontrollert: korpuset har bare vedtaket slik det ble kunngjort i Norsk Lovtidend, og Lovdatas ajourførte status er ikke slått opp. Vedtaket kan selv være opphevet ved en kilde som ikke er i korpus.\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446).",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-2003-06-27-802 Deleg. til FD etter sikkerhetsloven",
+      "merknad": "forskriften",
+      "eid": null,
+      "nodetekst": null
+     },
+     {
+      "rolle": "opphevende_bestemmelse",
+      "etikett": "LOV-2018-06-01-24 § 12-2 første ledd",
+      "merknad": "opphever LOV-1998-03-20-10",
+      "eid": "https://lovdata.no/eli/lov/2018/06/01/24/nor/§12-2/ledd-1",
+      "nodetekst": "Fra det tidspunktet loven trer i kraft, oppheves lov 20. mars 1998 nr. 10 om forebyggende sikkerhetstjeneste."
+     }
+    ],
+    "hjemmelsstatus": [
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1998/03/20/10/nor/§2",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "opphevet",
+      "bevistrinn": "E1",
+      "opphevet_av": "NL/lov/2018-06-01-24",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2018/06/01/24/nor/§12-2/ledd-1",
+      "opphevet_av_sitat": "Fra det tidspunktet loven trer i kraft, oppheves lov 20. mars 1998 nr. 10 om forebyggende sikkerhetstjeneste.",
+      "opphevet_dato": "2019-01-01",
+      "lest_i_lovtidend": false,
+      "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2018-06-01-24 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+      "kunnskapsstatus": "tekstfunn"
+     }
+    ]
+   },
+   "kontekst": {
+    "forskriften_nevnt_i_annen_kilde": [
+     {
+      "dokument_id": "DEL/forskrift/2018-12-20-2052",
+      "eid": "https://lovdata.no/eli/forskrift/2018/12/20/2052/nor/punkt-5/punkt-3",
+      "tekst": "Delegering 27. juni 2003 nr. 802 av myndighet til Forsvarsdepartementet etter sikkerhetsloven § 2 tredje ledd oppheves 1. januar 2019."
+     }
+    ],
+    "mulige_overgangsregler_i_opphevende_kilde": [
+     {
+      "dokument_id": "NL/lov/2018-06-01-24",
+      "eid": "https://lovdata.no/eli/lov/2018/06/01/24/nor/§1-3/ledd-1",
+      "tekst": "Et departement skal innenfor sitt ansvarsområde fatte vedtak om at loven helt eller delvis skal gjelde for virksomheter som"
+     },
+     {
+      "dokument_id": "NL/lov/2018-06-01-24",
+      "eid": "https://lovdata.no/eli/lov/2018/06/01/24/nor/§1-3/ledd-2",
+      "tekst": "Et departement kan innenfor sitt ansvarsområde fatte vedtak om at kapittel 10 skal gjelde for virksomheter som har vesentlig betydning for grunnleggende nasjonale funksjoner, eller virksomheter som har vesentlig betydning for nasjonale sikkerhetsinteresser, uten å kunne knyttes direkte til en grunnleggende nasjonal funksjon."
+     },
+     {
+      "dokument_id": "NL/lov/2018-06-01-24",
+      "eid": "https://lovdata.no/eli/lov/2018/06/01/24/nor/§1-4/ledd-2",
+      "tekst": "Bestemmelsene som er gitt i og i medhold av kapittel 8, gjelder ikke for stortingsrepresentanter, regjeringens medlemmer og dommere i Høyesterett."
+     },
+     {
+      "dokument_id": "NL/lov/2018-06-01-24",
+      "eid": "https://lovdata.no/eli/lov/2018/06/01/24/nor/§1-4/ledd-3",
+      "tekst": "Loven gjelder for domstolene med de særreglene som følger av bestemmelsene om sikkerhetsklarering og autorisasjon i og i medhold av domstolloven og straffeprosessloven. Kongen kan fastsette ytterligere særregler."
+     },
+     {
+      "dokument_id": "NL/lov/2018-06-01-24",
+      "eid": "https://lovdata.no/eli/lov/2018/06/01/24/nor/§8-1/ledd-1",
+      "tekst": "Personer som skal få tilgang til sikkerhetsgradert informasjon, skal autoriseres i samsvar med § 8-9. Det samme gjelder personer som skal ha adgang til skjermingsverdige objekter og infrastruktur som det er fattet vedtak om etter § 8-3."
+     },
+     {
+      "dokument_id": "NL/lov/2018-06-01-24",
+      "eid": "https://lovdata.no/eli/lov/2018/06/01/24/nor/§9-4/ledd-4",
+      "tekst": "Dersom en anskaffelse til et skjermingsverdig informasjonssystem, objekt eller infrastruktur kan innebære en ikke ubetydelig risiko som nevnt i første ledd, kan Kongen i statsråd fatte vedtak om at anskaffelsen ikke skal gjennomføres, eller om at det skal settes vilkår for den. Dette gjelder også dersom det er inngått avtale om anskaffelsen. Dersom det ikke fattes vedtak etter første punktum, skal departementet orientere virksomheten om det. Et vedtak etter første punktum er et særlig tvangsgrun"
+     },
+     {
+      "dokument_id": "NL/lov/2018-06-01-24",
+      "eid": "https://lovdata.no/eli/lov/2018/06/01/24/nor/§10-3/ledd-1",
+      "tekst": "Dersom et erverv etter § 10-1 kan medføre en ikke ubetydelig risiko for at nasjonale sikkerhetsinteresser blir truet, kan Kongen i statsråd fatte vedtak om at ervervet ikke kan gjennomføres, eller om at det skal settes vilkår for gjennomføringen. Dette gjelder også dersom det allerede er inngått avtale om ervervet. Dersom det ikke fattes vedtak etter første punktum, skal departementet orientere erververen om dette."
+     },
+     {
+      "dokument_id": "NL/lov/2018-06-01-24",
+      "eid": "https://lovdata.no/eli/lov/2018/06/01/24/nor/§11-2/ledd-1",
+      "tekst": "Ved overtredelse av bestemmelser gitt i eller i medhold av §§ 3-4, 4-3, 4-4, 4-5, 5-2, 6-2, 6-3, 7-3, § 9-2 første ledd, § 9-4 første ledd første punktum eller § 9-4 andre ledd første eller andre punktum, kan tilsynsmyndigheten fastsette en tvangsmulkt som løper inntil forholdet er brakt i orden. Det samme gjelder for pålegg gitt i medhold av § 3-6."
+     }
+    ]
+   },
+   "vurdering": {
+    "klasse": "feil",
+    "undertype_riktig": false,
+    "sitat_eid_riktig": true,
+    "rent_endrings_eller_ikrafttredelsesvedtak_446": false,
+    "feilarsak": "populasjonen",
+    "grunn": "Vedtaket er selv opphevet: DEL/forskrift/2018-12-20-2052 punkt 5 nr. 3 «Delegering 27. juni 2003 nr. 802 av myndighet til Forsvarsdepartementet etter sikkerhetsloven § 2 tredje ledd oppheves 1. januar 2019.» Kilden har vedtaket i «Endrer». R8 leser setningen som delvis fordi «av myndighet …» og «oppheves 1. januar 2019» ikke står på hvitelisten. Ett av de åtte kjente R8-hullene (docs/33 §5.21).",
+    "kontrollert_mot": [
+     "DEL/forskrift/2018-12-20-2052 punkt-5 (korpus)"
+    ]
+   }
+  },
+  {
+   "id": "M11",
+   "funn_id": "fd8fa86b-9c21-416f-93d4-039d20c33f6d",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/1968/02/01/3641/nor",
+   "undertype": "hjemmel_opphevet",
+   "prefiks": "SF",
+   "forskrift": {
+    "dokument_id": "SF/forskrift/1968-02-01-3641",
+    "tittel": "Forskrift (disiplinærregler) for tjenestepliktige etter lov om fritaking for militærtjeneste av overbevisningsgrunner.",
+    "lovdatas_hjemmelstekst": "Fastsatt ved kgl.res. av 1. februar 1968 i medhold av § 21 i lov av 19. mars 1965 om fritak for militærtjeneste av overbevisningsgrunner. Endret ved kgl.res. 3 juni 1983, 30 mars 1990 nr. 229.",
+    "ikrafttredelse": "1968-03-01",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "foreslatt": {
+    "tittel": "Hjemmel opphevet, videreføring ikke funnet: Forskrift om disiplin i siviltjeneste (FOR-1968-02-01-3641)",
+    "pastand": "Lovdata viser «Forskrift om disiplin i siviltjeneste» (FOR-1968-02-01-3641) som gjeldende. Alle hjemlene som teller, er opphevet, og maskinregelen har ikke funnet en overgangsregel som viderefører forskriften. Ikke funnet betyr ikke at den ikke finnes. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1965-03-19-3 § 21 er opphevet av LOV-2016-08-12-77 § 87 første ledd punkt 3: «Fra det tidspunkt loven trer i kraft oppheves: lov 19. mars 1965 nr. 3 om fritaking for militærtjeneste av overbevisningsgrunner».\n- Ikke kontrollert: Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2016-08-12-77 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446).",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-1968-02-01-3641 Forskrift om disiplin i siviltjeneste",
+      "merknad": "forskriften",
+      "eid": null,
+      "nodetekst": null
+     },
+     {
+      "rolle": "opphevende_bestemmelse",
+      "etikett": "LOV-2016-08-12-77 § 87 første ledd punkt 3",
+      "merknad": "opphever LOV-1965-03-19-3",
+      "eid": "https://lovdata.no/eli/lov/2016/08/12/77/nor/§87/ledd-1/punkt-3",
+      "nodetekst": "lov 19. mars 1965 nr. 3 om fritaking for militærtjeneste av overbevisningsgrunner"
+     }
+    ],
+    "hjemmelsstatus": [
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1965/03/19/3/nor/§21",
+      "status": "opphevet",
+      "bevistrinn": "E1",
+      "opphevet_av": "NL/lov/2016-08-12-77",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2016/08/12/77/nor/§87/ledd-1/punkt-3",
+      "opphevet_av_sitat": "Fra det tidspunkt loven trer i kraft oppheves: lov 19. mars 1965 nr. 3 om fritaking for militærtjeneste av overbevisningsgrunner",
+      "opphevet_dato": "2017-07-01",
+      "lest_i_lovtidend": false,
+      "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2016-08-12-77 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+      "kunnskapsstatus": "tekstfunn"
+     }
+    ]
+   },
+   "kontekst": {
+    "forskriften_nevnt_i_annen_kilde": [],
+    "mulige_overgangsregler_i_opphevende_kilde": [
+     {
+      "dokument_id": "NL/lov/2016-08-12-77",
+      "eid": "https://lovdata.no/eli/lov/2016/08/12/77/nor/§64/ledd-3",
+      "tekst": "Departementet kan gi forskrift om at forvaltningsloven kapittel IV til VI likevel skal gjelde."
+     },
+     {
+      "dokument_id": "NL/lov/2016-08-12-77",
+      "eid": "https://lovdata.no/eli/lov/2016/08/12/77/nor/§82/ledd-3",
+      "tekst": "I tilfeller som nevnt i første ledd gjelder ikke bestemmelsene i § 76 om klagenemnd. Den refsende sjefs nærmeste foresatte er klageinstans. De øvrige reglene for klagebehandlingen ved klagenemnda gjelder så langt de passer."
+     },
+     {
+      "dokument_id": "NL/lov/2016-08-12-77",
+      "eid": "https://lovdata.no/eli/lov/2016/08/12/77/nor/§82/ledd-4",
+      "tekst": "Bestemmelsen i første, andre og tredje ledd gjelder også i de tilfeller hvor Kongen har truffet bestemmelse i medhold av straffeprosessloven § 463 andre ledd."
+     },
+     {
+      "dokument_id": "NL/lov/2016-08-12-77",
+      "eid": "https://lovdata.no/eli/lov/2016/08/12/77/nor/§82/ledd-5",
+      "tekst": "Departementet kan i forskrift gi nærmere bestemmelser som gjelder i krig eller når krig truer om begrenset disiplinærmyndighet, økning av satser for overtredelsesgebyr, økning i antall dager frihetsinnskrenkning kan anvendes, saksbehandling for krigsfanger og internerte og forenkling i saksbehandlingen, inkludert om rådgivning, frist for iverksetting og kontroll."
+     }
+    ]
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "undertype_riktig": true,
+    "sitat_eid_riktig": true,
+    "rent_endrings_eller_ikrafttredelsesvedtak_446": false,
+    "feilarsak": null,
+    "grunn": "Disiplinærreglene er gitt i medhold av militærnekterloven § 21. Den stod etter endringsloven 2012 (§§ 19–24 ble ikke opphevet med kap. III, jf. måling 1 H07) og falt med hele loven ved forsvarsloven § 87 første ledd nr. 3. Forsvarsloven § 86 gjelder yrkesbefal. Rollen er NULL fordi hjemmelsteksten mangler nummeret på loven, men det er den eneste hjemmelen.",
+    "kontrollert_mot": [
+     "NL/lov/2016-08-12-77 §85–§87 (korpus)",
+     "måling 1 H07"
+    ]
+   }
+  },
+  {
+   "id": "M12",
+   "funn_id": "4a014218-6f0d-4cc7-9823-e60fcbef2886",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/1986/01/31/222/nor",
+   "undertype": "hjemmel_opphevet",
+   "prefiks": "SF",
+   "forskrift": {
+    "dokument_id": "SF/forskrift/1986-01-31-222",
+    "tittel": "Forskrift om sjømannslovens virkeområde",
+    "lovdatas_hjemmelstekst": "Hjemmel: Fastsatt ved kgl.res. av 31. januar 1986 med hjemmel i sjømannslov 30. mai 1975 nr. 18 § 1 tredje og fjerde ledd og § 2 bokstav b. Fremmet av Handel- og skipsfartsdepartementet.\nEndret ved forskrifter 23 des 1988 nr. 1081, 27 nov 1992 nr. 871, 23 nov 2007 nr. 1291.\nRettet 10.02.2022 (tegnsetting i lister tilpasset universell utforming samt struktur).",
+    "ikrafttredelse": "1986-03-03",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "foreslatt": {
+    "tittel": "Hjemmel opphevet, videreføring ikke funnet: Forskrift om sjømannslovens virkeområde (FOR-1986-01-31-222)",
+    "pastand": "Lovdata viser «Forskrift om sjømannslovens virkeområde» (FOR-1986-01-31-222) som gjeldende. Alle hjemlene som teller, er opphevet, og maskinregelen har ikke funnet en overgangsregel som viderefører forskriften. Ikke funnet betyr ikke at den ikke finnes. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1975-05-30-18 § 1 og § 2 er opphevet av LOV-2013-06-21-102 § 13-2 femte ledd (lest i den kunngjorte teksten i Norsk Lovtidend): «Sjømannslov 30. mai 1975 nr. 18 oppheves.»\n- Ikke kontrollert: Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2013-06-21-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446).",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-1986-01-31-222 Forskrift om sjømannslovens virkeområde",
+      "merknad": "forskriften",
+      "eid": null,
+      "nodetekst": null
+     },
+     {
+      "rolle": "opphevende_bestemmelse",
+      "etikett": "LOV-2013-06-21-102 § 13-2 femte ledd",
+      "merknad": "opphever LOV-1975-05-30-18 (lest i Norsk Lovtidend)",
+      "eid": "https://lovdata.no/eli/lov/2013/06/21/102/nor/§13-2/ledd-5",
+      "nodetekst": null
+     }
+    ],
+    "hjemmelsstatus": [
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1975/05/30/18/nor/§1",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "opphevet",
+      "bevistrinn": "EN_LTI",
+      "opphevet_av": "NL/lov/2013-06-21-102",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2013/06/21/102/nor/§13-2/ledd-5",
+      "opphevet_av_sitat": "Sjømannslov 30. mai 1975 nr. 18 oppheves.",
+      "opphevet_dato": "2013-08-20",
+      "lest_i_lovtidend": true,
+      "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2013-06-21-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+      "kunnskapsstatus": "eksternt_dokumentert"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1975/05/30/18/nor/§2",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "opphevet",
+      "bevistrinn": "EN_LTI",
+      "opphevet_av": "NL/lov/2013-06-21-102",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2013/06/21/102/nor/§13-2/ledd-5",
+      "opphevet_av_sitat": "Sjømannslov 30. mai 1975 nr. 18 oppheves.",
+      "opphevet_dato": "2013-08-20",
+      "lest_i_lovtidend": true,
+      "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2013-06-21-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+      "kunnskapsstatus": "eksternt_dokumentert"
+     }
+    ]
+   },
+   "kontekst": {
+    "forskriften_nevnt_i_annen_kilde": [
+     {
+      "dokument_id": "DEL/forskrift/1988-12-23-1081",
+      "eid": "kap-II/ledd-5",
+      "tekst": "Forskrift om sjømannslovens virkeområde, gitt ved kgl.res. av 31. januar 1986 nr. 222."
+     },
+     {
+      "dokument_id": "DEL/forskrift/1996-12-20-1157",
+      "eid": "kap-forskrifter-under-utenriksdepartementet-ved-skipsfartsavdelingen-som-overfores-til-naerings-og-handelsdepartementet-pr-1-januar-1997/punkt-14",
+      "tekst": "Forskrift av 31. januar 1986 nr. 222 om sjømannslovens virkeområde."
+     },
+     {
+      "dokument_id": "SF/forskrift/2010-12-20-1780",
+      "eid": "kap-merknader/rom-veiledning/ledd-2",
+      "tekst": "(Arbeidstakere på flyttbare innretninger utenom petroleumsvirksomheten eller under transport til eller fra petroleumsvirksomheten omfattes i utgangspunktet av sjømannsloven. Dette følger av forskrift 31. januar 1986 nr. 222 om sjømannslovens virkeområde § 1 og § 7. «Flyttbare innretninger» er definert i sistnevnte forskrift § 2 nr. 1.)."
+     }
+    ],
+    "mulige_overgangsregler_i_opphevende_kilde": [
+     {
+      "dokument_id": "NL/lov/2013-06-21-102",
+      "eid": "https://lovdata.no/eli/lov/2013/06/21/102/nor/§2-5/ledd-3",
+      "tekst": "(3) Solidaransvaret gjelder ikke krav som omfattes av lønnsgarantiloven og forskrifter gitt i medhold av loven når det er åpnet konkurs hos arbeidsgiver."
+     },
+     {
+      "dokument_id": "NL/lov/2013-06-21-102",
+      "eid": "https://lovdata.no/eli/lov/2013/06/21/102/nor/§3-6/ledd-2/punkt-1",
+      "tekst": "arbeidstaker som er midlertidig ansatt, og som på grunn av virksomhetens forhold ikke får fortsatt ansettelse. Denne bestemmelsen gjelder likevel ikke arbeidstaker i vikariat,"
+     },
+     {
+      "dokument_id": "NL/lov/2013-06-21-102",
+      "eid": "https://lovdata.no/eli/lov/2013/06/21/102/nor/§5-13/ledd-4",
+      "tekst": "(4) Bestemmelsene i §§ 5-1 første ledd, 5-3 og 5-11 gjelder tilsvarende så langt de passer."
+     },
+     {
+      "dokument_id": "NL/lov/2013-06-21-102",
+      "eid": "https://lovdata.no/eli/lov/2013/06/21/102/nor/§7-8/ledd-4",
+      "tekst": "(4) Departementet kan gi forskrift om slik permisjon, herunder om omfanget av permisjonen og for hvilke barn retten til permisjon gjelder."
+     },
+     {
+      "dokument_id": "NL/lov/2013-06-21-102",
+      "eid": "https://lovdata.no/eli/lov/2013/06/21/102/nor/§10-1/ledd-3",
+      "tekst": "(3) Bestemmelsene i dette kapittel gjelder tilsvarende ved diskriminering av arbeidstaker som arbeider deltid eller er midlertidig ansatt."
+     },
+     {
+      "dokument_id": "NL/lov/2013-06-21-102",
+      "eid": "https://lovdata.no/eli/lov/2013/06/21/102/nor/§10-2/ledd-1",
+      "tekst": "(1) Bestemmelsene i dette kapittel gjelder alle sider ved arbeidsforholdet, herunder:"
+     },
+     {
+      "dokument_id": "NL/lov/2013-06-21-102",
+      "eid": "https://lovdata.no/eli/lov/2013/06/21/102/nor/§10-2/ledd-2",
+      "tekst": "(2) Bestemmelsene i dette kapittel gjelder tilsvarende for rederiets valg og behandling av personer som har sitt arbeid om bord."
+     },
+     {
+      "dokument_id": "NL/lov/2013-06-21-102",
+      "eid": "https://lovdata.no/eli/lov/2013/06/21/102/nor/§10-2/ledd-3",
+      "tekst": "(3) Bestemmelsene i dette kapittel gjelder tilsvarende for innmelding i og deltakelse i en arbeidstaker-, arbeidsgiver- eller yrkesorganisasjon. Dette gjelder også for fordeler som slike organisasjoner gir sine medlemmer."
+     }
+    ]
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "undertype_riktig": true,
+    "sitat_eid_riktig": true,
+    "rent_endrings_eller_ikrafttredelsesvedtak_446": false,
+    "feilarsak": null,
+    "grunn": "Sjømannsloven 1975 er opphevet av skipsarbeidsloven 2013 (lest i den kunngjorte teksten, § 13-2 femte ledd). Ingen overgangsregel om forskrifter i korpus. Forskriften står i SF som gjeldende. Om den er erstattet av en forskrift om skipsarbeidslovens virkeområde utenfor korpus, er ikke kontrollert.",
+    "kontrollert_mot": [
+     "NL/lov/2013-06-21-102 §13-1, §13-2 (korpus)",
+     "søk i korpus etter «1986 nr. 222»"
+    ]
+   }
+  },
+  {
+   "id": "M13",
+   "funn_id": "65d44260-2473-4ec2-8a4f-d6bdd45a1181",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2019/12/17/1878/nor",
+   "undertype": "blandede_hjemler",
+   "prefiks": "SF",
+   "forskrift": {
+    "dokument_id": "SF/forskrift/2019-12-17-1878",
+    "tittel": "Forskrift om utlegging av åte og fôring av vilt",
+    "lovdatas_hjemmelstekst": "Hjemmel: Fastsatt av Miljødirektoratet 17. desember 2019 med hjemmel i lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven) § 26 nr. 8, jf. delegeringsvedtak 13. september 2019 nr. 1124.\nTilføyd hjemmel: Lov 20. juni 2025 nr. 102 om jakt, fangst og felling av vilt mv. (viltressursloven) § 30.\nEndret ved forskrifter 26 okt 2022 nr. 1813, 18 juni 2025 nr. 1070, 26 juni 2026 nr. 1380 (i kraft 1 juli 2026, bl.a. hjemmel).",
+    "ikrafttredelse": "2020-01-01",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "foreslatt": {
+    "tittel": "Blandede hjemler, én opphevet uten funnet videreføring: Åteforskriften (FOR-2019-12-17-1878)",
+    "pastand": "Lovdata viser «Åteforskriften» (FOR-2019-12-17-1878) som gjeldende. Minst én hjemmel som teller, er opphevet uten funnet videreføring, mens andre hjemler bærer. Hvilken del av forskriften som står uten hjemmel, er ikke avgjort. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1981-05-29-38 § 26 er opphevet av LOV-2025-06-20-102 § 61 (lest i den kunngjorte teksten i Norsk Lovtidend): «Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.»\n- Ikke kontrollert: Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.\n- LOV-2025-06-20-102 § 30 er aktiv (rolle materiell).\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446).",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-2019-12-17-1878 Åteforskriften",
+      "merknad": "forskriften",
+      "eid": null,
+      "nodetekst": null
+     },
+     {
+      "rolle": "opphevende_bestemmelse",
+      "etikett": "LOV-2025-06-20-102 § 61",
+      "merknad": "opphever LOV-1981-05-29-38 (lest i Norsk Lovtidend)",
+      "eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61",
+      "nodetekst": null
+     }
+    ],
+    "hjemmelsstatus": [
+     {
+      "hjemmel": "https://lovdata.no/eli/forskrift/2019/09/13/1124/nor",
+      "i_korpus": "DEL/forskrift/2019-09-13-1124",
+      "rolle": "kompetanseledd",
+      "rolle_regel": "delegeringsvedtak",
+      "status": "aktiv",
+      "lest_i_lovtidend": false,
+      "kunnskapsstatus": "normalisering"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1981/05/29/38/nor/§26",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "opphevet",
+      "bevistrinn": "EN_LTI",
+      "opphevet_av": "NL/lov/2025-06-20-102",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61",
+      "opphevet_av_sitat": "Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.",
+      "opphevet_dato": "2026-07-01",
+      "lest_i_lovtidend": true,
+      "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+      "kunnskapsstatus": "eksternt_dokumentert"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§30",
+      "i_korpus": "NL/lov/2025-06-20-102",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "aktiv",
+      "lest_i_lovtidend": false,
+      "kunnskapsstatus": "normalisering"
+     }
+    ]
+   },
+   "kontekst": {
+    "forskriften_nevnt_i_annen_kilde": [
+     {
+      "dokument_id": "SF/forskrift/2020-04-01-565",
+      "eid": "https://lovdata.no/eli/forskrift/2020/04/01/565/nor/§2-2/ledd-2",
+      "tekst": "Ved innfanging etter første ledd kan Miljødirektoratet tillate bruk av åte, uten hensyn til bestemmelsene i forskrift 17. desember 2019 nr. 1878 om utlegging av åte og fôring av vilt."
+     }
+    ],
+    "mulige_overgangsregler_i_opphevende_kilde": [
+     {
+      "dokument_id": "NL/lov/2025-06-20-102",
+      "eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§4/ledd-1",
+      "tekst": "Ved vedtak i medhold av loven her som berører samiske interesser direkte, skal det innenfor rammen som gjelder for den enkelte bestemmelse, legges tilbørlig vekt på hensynet til naturgrunnlaget for samisk kultur."
+     },
+     {
+      "dokument_id": "NL/lov/2025-06-20-102",
+      "eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§10/ledd-2",
+      "tekst": "Innenfor rammene av naturmangfoldloven § 16 kan Kongen gi forskrift om å tillate jakt og fangst, blant annet om hvilke viltarter det er tillatt å jakte på eller drive fangst av, til hvilke tider og i hvilke områder det er tillatt med jakt og fangst, og om kvoter for jakt og fangst. Det kan fastsettes ulike tider for jakt og fangst for de enkelte delene av landet. Tidsrammen kan gjelde en bestemt tid av døgnet eller uken, og den kan settes forskjellig avhengig av viltets kjønn og alder."
+     },
+     {
+      "dokument_id": "NL/lov/2025-06-20-102",
+      "eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§42/ledd-5",
+      "tekst": "Kongen kan gi forskrift om at kommunen og villreinnemnda kan nekte å tildele fellingstillatelser helt eller delvis eller tildele ekstra fellingstillatelser i gjeldende jaktperiode for å nå fastsatte forvaltningsmål."
+     },
+     {
+      "dokument_id": "NL/lov/2025-06-20-102",
+      "eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§45/ledd-2",
+      "tekst": "Ved lisensfelling gjelder bestemmelsene i kapittel 1, 2, 4 og 5, kapittel 6 unntatt §§ 38 og 41, og §§ 13, 51, 58 og 60 i loven her, samt forskrifter gitt i medhold av disse bestemmelsene. Ved ettersøk i forbindelse med lisensfelling gjelder § 22 første, andre, fjerde, femte og syvende ledd i loven her tilsvarende."
+     },
+     {
+      "dokument_id": "NL/lov/2025-06-20-102",
+      "eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§46/ledd-1",
+      "tekst": "Ved skadefelling av vilt gjelder bestemmelsene i kapittel 1, 2, 4, kapittel 5 unntatt §§ 26 og 29, kapittel 6 unntatt §§ 38 og 41 og §§ 51, 58 og 60 i loven her samt forskrifter gitt i medhold av disse bestemmelsene. Ved ettersøk i forbindelse med skadefelling av bjørn, jerv, gaupe, kongeørn og ulv gjelder § 22 første, andre, fjerde, femte og syvende ledd i loven her tilsvarende."
+     },
+     {
+      "dokument_id": "NL/lov/2025-06-20-102",
+      "eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§47/ledd-1",
+      "tekst": "Ved felling av vilt som er iverksatt av myndighetene etter naturmangfoldloven § 18 tredje ledd, gjelder bestemmelsene i kapittel 1, 2 og 4, kapittel 5 unntatt §§ 26 og 29, kapittel 6 unntatt §§ 38 og 41 og §§ 51 og 60 i loven her samt forskrifter gitt i medhold av disse bestemmelsene. Ved ettersøk i forbindelse med felling etter naturmangfoldloven § 18 tredje ledd av bjørn, jerv, gaupe, kongeørn og ulv gjelder § 22 første, andre, fjerde, femte og syvende ledd i loven her tilsvarende."
+     },
+     {
+      "dokument_id": "NL/lov/2025-06-20-102",
+      "eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§49/ledd-3",
+      "tekst": "Kongen kan gi forskrift om utsetting av vilt som forekommer naturlig på stedet, blant annet om adgangen til å avlive ulovlig utsatt vilt og dekning av utgifter. For utsetting av vilt som ikke forekommer naturlig på stedet, gjelder reglene i naturmangfoldloven kapittel IV."
+     },
+     {
+      "dokument_id": "NL/lov/2025-06-20-102",
+      "eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§55/ledd-4",
+      "tekst": "Ved offentlig ettersøk etter første og andre ledd gjelder bestemmelsene gitt i eller i medhold av § 14, § 17, § 20, kapittel 5, § 51 og kapittel 10 i loven her. Viltmyndighetene kan beslutte å gjennomføre ettersøk uten hensyn til bestemmelsene gitt i § 24 første ledd, § 25 første ledd, § 26 første ledd, § 28 første punktum, § 29, § 32 første ledd bokstav a og f, eller bestemmelser gitt i forskrift i medhold av § 24 tredje ledd, § 25 andre og tredje ledd, § 27 tredje ledd og § 30, dersom det anse"
+     }
+    ]
+   },
+   "vurdering": {
+    "klasse": "feil",
+    "undertype_riktig": false,
+    "sitat_eid_riktig": true,
+    "rent_endrings_eller_ikrafttredelsesvedtak_446": false,
+    "feilarsak": "videreforingsformen",
+    "grunn": "Viltressursloven § 61 andre ledd: «Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.» Regelen fant den ikke: V4 krever at kortnavnet «viltloven» står i opphevingssetningen, og der står bare «lov 29. mai 1981 nr. 38 om jakt og fangst av vilt». Viltloven § 26 er derfor videreført, og forskriften har i tillegg fått viltressursloven § 30 som hjemmel. Samlet status er videreført, ikke blandede.",
+    "kontrollert_mot": [
+     "NL/lov/2025-06-20-102 §61 (korpus)",
+     "SF/forskrift/2026-06-22-1158 kap-II (korpus, nevner ikke forskriften)"
+    ]
+   }
+  },
+  {
+   "id": "M14",
+   "funn_id": "d2b07a9d-c0be-4913-933d-d0e4ab450cf7",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/1963/05/31/9813/nor",
+   "undertype": "blandede_hjemler",
+   "prefiks": "SF",
+   "forskrift": {
+    "dokument_id": "SF/forskrift/1963-05-31-9813",
+    "tittel": "Forskrift til gjennomføring av konvensjonen av 23. mars 1962 mellom Norge, Danmark, Finland, Island og Sverige om inndriving av underholdsbidrag",
+    "lovdatas_hjemmelstekst": "Hjemmel: Fastsatt ved kgl.res. 31. mai 1963 med hjemmel i lov av 9. desember 1955 nr. 5 om innkreving av underholdsbidrag m.v. (bidragsinnkrevingsloven) § 6 og lov 29. april 2005 nr. 20 om innkreving av underholdsbidrag mv. (bidragsinnkrevingsloven). Fremmet av Sosialdepartementet.\nEndret ved forskrifter 10 aug 1979, 17 des 1991 nr. 816, 20 april 2001 nr. 415 som endret 1 juli 2002 nr. 693 og satt i kraft 1 juli 2002 nr. 694, 3 juli 2002 nr. 794 (bl.a hjemmelsfelt), 8 okt 2004 nr. 1395, 16 des 2005 nr. 1563 (hjemmel), 13 mars 2018 nr. 339, 11 sep 2025 nr. 1815 (i kraft 1 jan 2026).",
+    "ikrafttredelse": "1965-07-01",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "foreslatt": {
+    "tittel": "Blandede hjemler, én opphevet uten funnet videreføring: Forskrift om konvensjon om inndriving av underholdsbidrag (FOR-1963-05-31-9813)",
+    "pastand": "Lovdata viser «Forskrift om konvensjon om inndriving av underholdsbidrag» (FOR-1963-05-31-9813) som gjeldende. Minst én hjemmel som teller, er opphevet uten funnet videreføring, mens andre hjemler bærer. Hvilken del av forskriften som står uten hjemmel, er ikke avgjort. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1955-12-09-5 § 6 og § 25 er opphevet av LOV-2005-04-29-20 § 37 første ledd: «Fra samme tid oppheves lov 9. desember 1955 nr. 5 om innkreving av underholdsbidrag mv. (bidragsinnkrevingsloven).»\n- LOV-2005-04-29-20 er aktiv (rolle materiell).\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446).",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-1963-05-31-9813 Forskrift om konvensjon om inndriving av underholdsbidrag",
+      "merknad": "forskriften",
+      "eid": null,
+      "nodetekst": null
+     },
+     {
+      "rolle": "opphevende_bestemmelse",
+      "etikett": "LOV-2005-04-29-20 § 37 første ledd",
+      "merknad": "opphever LOV-1955-12-09-5",
+      "eid": "https://lovdata.no/eli/lov/2005/04/29/20/nor/§37/ledd-1",
+      "nodetekst": "Loven gjelder fra den tid Kongen bestemmer. Fra samme tid oppheves lov 9. desember 1955 nr. 5 om innkreving av underholdsbidrag mv. (bidragsinnkrevingsloven)."
+     }
+    ],
+    "hjemmelsstatus": [
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1955/12/09/5/nor/§25",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "opphevet",
+      "bevistrinn": "E2",
+      "opphevet_av": "NL/lov/2005-04-29-20",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2005/04/29/20/nor/§37/ledd-1",
+      "opphevet_av_sitat": "Fra samme tid oppheves lov 9. desember 1955 nr. 5 om innkreving av underholdsbidrag mv. (bidragsinnkrevingsloven).",
+      "opphevet_dato": "2006-01-01",
+      "lest_i_lovtidend": false,
+      "kunnskapsstatus": "tekstfunn"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1955/12/09/5/nor/§6",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "opphevet",
+      "bevistrinn": "E2",
+      "opphevet_av": "NL/lov/2005-04-29-20",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2005/04/29/20/nor/§37/ledd-1",
+      "opphevet_av_sitat": "Fra samme tid oppheves lov 9. desember 1955 nr. 5 om innkreving av underholdsbidrag mv. (bidragsinnkrevingsloven).",
+      "opphevet_dato": "2006-01-01",
+      "lest_i_lovtidend": false,
+      "kunnskapsstatus": "tekstfunn"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/2005/04/29/20/nor",
+      "i_korpus": "NL/lov/2005-04-29-20",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "aktiv",
+      "lest_i_lovtidend": false,
+      "kunnskapsstatus": "normalisering"
+     }
+    ]
+   },
+   "kontekst": {
+    "forskriften_nevnt_i_annen_kilde": [
+     {
+      "dokument_id": "LTI/forskrift/2004-10-08-1395",
+      "eid": "kap-I/rom-trygdeavdelingen/rom-1/punkt-153",
+      "tekst": "Forskrift 31. mai 1963 nr. 9813 til gjennomføring av konvensjonen av 23. mars 1962 mellom Norge, Danmark, Finland, Island og Sverige om inndriving av underholdsbidrag."
+     },
+     {
+      "dokument_id": "LTI/forskrift/2018-03-13-339",
+      "eid": "kap-I/ledd-1",
+      "tekst": "I forskrifter 31. mai 1963 nr. 9813 til gjennomføring av konvensjonen av 23. mars 1962 mellom Norge, Danmark, Finland, Island og Sverige om inndriving av underholdsbidrag gjøres følgende endringer:"
+     }
+    ],
+    "mulige_overgangsregler_i_opphevende_kilde": [
+     {
+      "dokument_id": "NL/lov/2005-04-29-20",
+      "eid": "https://lovdata.no/eli/lov/2005/04/29/20/nor/§2/ledd-1",
+      "tekst": "Ved overenskomst med fremmed stat kan det bestemmes at en rettskraftig dom om underholdsbidrag som kan fullbyrdes der, også kan fullbyrdes i Norge. Det samme gjelder for annen rettsavgjørelse, forvaltningsvedtak eller skriftlig vedtakelse som kan tvangsfullbyrdes i vedkommende fremmede stat. Første punktum gjelder også for bidrag til utgifter ved fødselen og for kostnader som er pålagt den bidragspliktige i forbindelse med bidragssaken."
+     },
+     {
+      "dokument_id": "NL/lov/2005-04-29-20",
+      "eid": "https://lovdata.no/eli/lov/2005/04/29/20/nor/§26/ledd-2",
+      "tekst": "Bestemmelsen i første ledd gjelder tilsvarende for underholdsbidrag til ektefelle eller barn som bidragspliktige har betalt direkte til bidragsmottaker etter at bidragspliktige er gjort kjent med at betaling skal skje til Innkrevingsmyndigheten. Som betaling direkte til bidragsmottaker regnes også betaling til tredjeperson etter oppfordring fra bidragsmottaker."
+     },
+     {
+      "dokument_id": "NL/lov/2005-04-29-20",
+      "eid": "https://lovdata.no/eli/lov/2005/04/29/20/nor/§37/ledd-2",
+      "tekst": "Loven får virkning også for saker der innkreving er igangsatt eller begjært igangsatt før lovens ikraftsetting, likevel slik at straffebestemmelsene i § 33 bare gjelder for overtredelser som finner sted etter lovens ikraftsetting."
+     }
+    ]
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "undertype_riktig": true,
+    "sitat_eid_riktig": true,
+    "rent_endrings_eller_ikrafttredelsesvedtak_446": false,
+    "feilarsak": null,
+    "grunn": "Bidragsinnkrevingsloven 1955 er opphevet av bidragsinnkrevingsloven 2005 § 37 første ledd (E2, uten «Endrer»). § 37 andre ledd gjelder saker, ikke forskrifter. Loven fra 2005 er selv hjemmel og bærer. Blandede er riktig, men svakt (som H11): forskriften har fått ny hjemmel.",
+    "kontrollert_mot": [
+     "NL/lov/2005-04-29-20 §36–§38 (korpus)"
+    ]
+   }
+  },
+  {
+   "id": "M15",
+   "funn_id": "f157dfc4-dfb4-4f03-b147-3ff553b4c0d4",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2010/11/22/1466/nor",
+   "undertype": "blandede_hjemler",
+   "prefiks": "SF",
+   "forskrift": {
+    "dokument_id": "SF/forskrift/2010-11-22-1466",
+    "tittel": "Forskrift om stønad til helsetjenester mottatt i et annet EØS-land",
+    "lovdatas_hjemmelstekst": "Hjemmel: Fastsatt av Helse- og omsorgsdepartementet 22. november 2010 med hjemmel i lov 28. februar 1997 nr. 19 om folketrygd (folketrygdloven) § 5-3, § 5-22, § 5-24a og § 21-12, lov 24. juni 2011 nr. 30 om kommunale helse- og omsorgstjenester m.m. (helse- og omsorgstjenesteloven) § 11-1 sjette ledd, lov 3. juni 1983 nr. 54 om tannhelsetjenesten § 5-1, lov 2. juli 1999 nr. 61 om spesialisthelsetjenesten m.m. (spesialisthelsetjenesteloven) § 5-2, lov 2. juli 1999 nr. 63 om pasient- og brukerrettigheter (pasient- og brukerrettighetsloven) § 2-6 og lov 15. juni 2001 nr. 53 om erstatning ved pasientskader mv. (pasientskadeloven) § 7, jf. forskrift 31. oktober 2008 nr. 1166 om pasientskadelovens virkeområde og om tilskuddsplikt for den som yter helsehjelp utenfor den offentlige helse- og omsorgstjenesten § 11.\nTilføyd hjemmel: Lov 29. mars 2019 nr. 9 om overgangsregler mv. ved Storbritannias uttreden fra Den europeiske union § 1. Lov 27. november 2020 nr. 131 om overgangsregler mv. ved Storbritannias uttreden fra Den europeiske union (brexit-loven) § 3 første ledd bokstav d og § 3 andre ledd.\nEØS-henvisninger: EØS-avtalen artikkel 36. EØS-avtalen vedlegg X nr. 2 (direktiv 2011/24/EU).\nEndret ved forskrifter 16 des 2011 nr. 1396, 19 des 2012 nr. 1352, 17 jan 2013 nr. 61, 17 des 2014 nr. 1712, 29 okt 2015 nr. 1232, 3 mai 2016 nr. 464, 22 feb 2017 nr. 211, 10 april 2019 nr. 475, 28 nov 2019 nr. 1589, 8 des 2020 nr. 2643 (i kraft 1 jan 2021), 11 des 2020 nr. 2701 (i kraft 1 jan 2021), 18 des 2020 nr. 2996 (i kraft 1 jan 2021), 17 sep 2021 nr. 2821, 16 jan 2023 nr. 49, 21 sep 2023 nr. 1466 (i kraft 2 okt 2023), 23 mai 2024 nr. 813 (i kraft 1 juni 2024), 12 juni 2024 nr. 972 (i kraft 1 juli 2024), 20 aug 2025 nr. 1675.\nRettelser: 07.06.2013 (§ 7 første ledd), 27.09.2021 (tegnsetting i lister tilpasset universell utforming).",
+    "ikrafttredelse": "2011-01-01",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "foreslatt": {
+    "tittel": "Blandede hjemler, én opphevet uten funnet videreføring: Forskrift om stønad til helsetjenester i EØS (FOR-2010-11-22-1466)",
+    "pastand": "Lovdata viser «Forskrift om stønad til helsetjenester i EØS» (FOR-2010-11-22-1466) som gjeldende. Minst én hjemmel som teller, er opphevet uten funnet videreføring, mens andre hjemler bærer. Hvilken del av forskriften som står uten hjemmel, er ikke avgjort. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1983-06-03-54 § 5-1 er aktiv (rolle materiell).\n- LOV-1997-02-28-19 § 5-3, § 5-22, § 5-24a og § 21-12 er aktiv (rolle materiell).\n- LOV-1999-07-02-61 § 5-2 er aktiv (rolle materiell).\n- LOV-1999-07-02-63 § 2-6 er aktiv (rolle materiell).\n- LOV-2001-06-15-53 § 7 er aktiv (rolle materiell).\n- LOV-2011-06-24-30 § 11-1 sjette ledd er aktiv (rolle materiell).\n- LOV-2019-03-29-9 § 1 er opphevet av LOV-2020-11-27-131 § 5 tredje ledd (lest i den kunngjorte teksten i Norsk Lovtidend): «Lov 29. mars 2019 nr. 9 om overgangsregler mv. ved Storbritannias uttreden fra Den europeiske union oppheves.»\n- Ikke kontrollert: Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2020-11-27-131 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.\n- LOV-2020-11-27-131 § 3 er aktiv (rolle materiell).\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446).",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-2010-11-22-1466 Forskrift om stønad til helsetjenester i EØS",
+      "merknad": "forskriften",
+      "eid": null,
+      "nodetekst": null
+     },
+     {
+      "rolle": "opphevende_bestemmelse",
+      "etikett": "LOV-2020-11-27-131 § 5 tredje ledd",
+      "merknad": "opphever LOV-2019-03-29-9 (lest i Norsk Lovtidend)",
+      "eid": "https://lovdata.no/eli/lov/2020/11/27/131/nor/§5/ledd-3",
+      "nodetekst": null
+     }
+    ],
+    "hjemmelsstatus": [
+     {
+      "hjemmel": "https://lovdata.no/eli/forskrift/2008/10/31/1166/nor/§11",
+      "i_korpus": "SF/forskrift/2008-10-31-1166",
+      "rolle": "kompetanseledd",
+      "rolle_regel": "jf_vedtak",
+      "status": "aktiv",
+      "lest_i_lovtidend": false,
+      "kunnskapsstatus": "normalisering"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1983/06/03/54/nor/§5-1",
+      "i_korpus": "NL/lov/1983-06-03-54",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "aktiv",
+      "lest_i_lovtidend": false,
+      "kunnskapsstatus": "normalisering"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1997/02/28/19/nor/§21-12",
+      "i_korpus": "NL/lov/1997-02-28-19",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "aktiv",
+      "lest_i_lovtidend": false,
+      "kunnskapsstatus": "normalisering"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1997/02/28/19/nor/§5-22",
+      "i_korpus": "NL/lov/1997-02-28-19",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "aktiv",
+      "lest_i_lovtidend": false,
+      "kunnskapsstatus": "normalisering"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1997/02/28/19/nor/§5-24a",
+      "i_korpus": "NL/lov/1997-02-28-19",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "aktiv",
+      "lest_i_lovtidend": false,
+      "kunnskapsstatus": "normalisering"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1997/02/28/19/nor/§5-3",
+      "i_korpus": "NL/lov/1997-02-28-19",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "aktiv",
+      "lest_i_lovtidend": false,
+      "kunnskapsstatus": "normalisering"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§5-2",
+      "i_korpus": "NL/lov/1999-07-02-61",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "aktiv",
+      "lest_i_lovtidend": false,
+      "kunnskapsstatus": "normalisering"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1999/07/02/63/nor/§2-6",
+      "i_korpus": "NL/lov/1999-07-02-63",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "aktiv",
+      "lest_i_lovtidend": false,
+      "kunnskapsstatus": "normalisering"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/2001/06/15/53/nor/§7",
+      "i_korpus": "NL/lov/2001-06-15-53",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "aktiv",
+      "lest_i_lovtidend": false,
+      "kunnskapsstatus": "normalisering"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§11-1/ledd-6",
+      "i_korpus": "NL/lov/2011-06-24-30",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "aktiv",
+      "lest_i_lovtidend": false,
+      "kunnskapsstatus": "normalisering"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/2019/03/29/9/nor/§1",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "opphevet",
+      "bevistrinn": "EN_LTI",
+      "opphevet_av": "NL/lov/2020-11-27-131",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2020/11/27/131/nor/§5/ledd-3",
+      "opphevet_av_sitat": "Lov 29. mars 2019 nr. 9 om overgangsregler mv. ved Storbritannias uttreden fra Den europeiske union oppheves.",
+      "opphevet_dato": "2020-11-27",
+      "lest_i_lovtidend": true,
+      "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2020-11-27-131 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+      "kunnskapsstatus": "eksternt_dokumentert"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/2020/11/27/131/nor/§3",
+      "i_korpus": "NL/lov/2020-11-27-131",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "aktiv",
+      "lest_i_lovtidend": false,
+      "kunnskapsstatus": "normalisering"
+     }
+    ]
+   },
+   "kontekst": {
+    "forskriften_nevnt_i_annen_kilde": [
+     {
+      "dokument_id": "SF/forskrift/2000-12-01-1208",
+      "eid": "https://lovdata.no/eli/forskrift/2000/12/01/1208/nor/§7/ledd-3",
+      "tekst": "Vedtak etter rådsforordning (EF) nr. 883/2004 artikkel 20 eller forskrift 22. november 2010 nr. 1466 om stønad til helsetjenester mottatt i et annet EØS-land, kan påklages til Nasjonalt klageorgan for helsetjenesten (Helseklage), jf. folketrygdloven § 21-11a."
+     },
+     {
+      "dokument_id": "SF/forskrift/2000-12-01-1208",
+      "eid": "kap-merknader-til-de-enkelte-bestemmelsene/rom-merknader-til-3/ledd-8",
+      "tekst": "Uavhengig av om det foreligger fristbrudd kan en pasient søke HELFO om refusjon av utgifter til helsetjenester mottatt i andre EØS-land etter forskrift 22. november 2010 nr. 1466 om stønad til helsetjenester mottatt i et annet EØS-land. Det vises til prioriteringsforskriften § 6."
+     }
+    ],
+    "mulige_overgangsregler_i_opphevende_kilde": [
+     {
+      "dokument_id": "NL/lov/2020-11-27-131",
+      "eid": "https://lovdata.no/eli/lov/2020/11/27/131/nor/§2/ledd-1",
+      "tekst": "Følgende bestemmelser i avtale 28. januar 2020 om ordninger mellom Island, Fyrstedømmet Liechtenstein, Kongeriket Norge og Det forente kongerike Storbritannia og Nord-Irland som følge av Det forente kongerikes uttreden fra Den europeiske union, EØS-avtalen og andre avtaler som gjelder mellom Det forente kongerike og EØS/EFTA-statene i kraft av Det forente kongerikes medlemskap i Den europeiske union, gjelder som lov:"
+     },
+     {
+      "dokument_id": "NL/lov/2020-11-27-131",
+      "eid": "https://lovdata.no/eli/lov/2020/11/27/131/nor/§4/ledd-1",
+      "tekst": "Loven gjelder fra den tid Kongen bestemmer. De ulike bestemmelsene kan settes i kraft til ulik tid."
+     }
+    ]
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "undertype_riktig": true,
+    "sitat_eid_riktig": true,
+    "rent_endrings_eller_ikrafttredelsesvedtak_446": false,
+    "feilarsak": null,
+    "grunn": "Brexit-loven 2019 er opphevet av lov 27. november 2020 nr. 131 § 5 tredje ledd (lest i Lovtidend). Den nye loven § 3 er selv hjemmel, og de andre hjemlene er aktive. Blandede er riktig, men svakt (som H11).",
+    "kontrollert_mot": [
+     "NL/lov/2020-11-27-131 §2–§4 (korpus)"
+    ]
+   }
+  },
+  {
+   "id": "M16",
+   "funn_id": "8caac433-19d0-4b30-9bd8-113c826a513d",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2005/09/26/1093/nor",
+   "undertype": "blandede_hjemler",
+   "prefiks": "LTI",
+   "forskrift": {
+    "dokument_id": "LTI/forskrift/2005-09-26-1093",
+    "tittel": "Delegering av utøvelsen av statens partsstilling i prosesser på Skattedirektoratets område.",
+    "lovdatas_hjemmelstekst": "Fastsatt av Finansdepartementet 26. september 2005 med hjemmel i lov 21. november 1952 nr. 2 om betaling av skatt § 48 nr. 4 og lov 13. august 1915 nr. 5 om domstolene (domstolloven) § 191.",
+    "ikrafttredelse": "2006-01-01",
+    "rent_endringsvedtak": null,
+    "kildeform": "kunngjort"
+   },
+   "foreslatt": {
+    "tittel": "Blandede hjemler, én opphevet uten funnet videreføring: Deleg. av utøvelsen av statens partsstilling (FOR-2005-09-26-1093)",
+    "pastand": "Korpuset har «Deleg. av utøvelsen av statens partsstilling» (FOR-2005-09-26-1093) bare slik det ble kunngjort i Norsk Lovtidend, med status gjeldende. Minst én hjemmel som teller, er opphevet uten funnet videreføring, mens andre hjemler bærer. Hvilken del av forskriften som står uten hjemmel, er ikke avgjort. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1915-08-13-5 § 191 er aktiv (rolle materiell).\n- LOV-1952-11-21-2 § 48 er opphevet av LOV-2005-06-17-67 § 19-1 andre ledd: «(2) Lov 21. november 1952 nr. 2 om betaling og innkreving av skatt (skattebetalingsloven) oppheves fra den tid Kongen bestemmer.»\n- Ikke kontrollert: Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2005-06-17-67 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.\n- Kunngjort versjon, gjeldende status ikke kontrollert: korpuset har bare vedtaket slik det ble kunngjort i Norsk Lovtidend, og Lovdatas ajourførte status er ikke slått opp. Vedtaket kan selv være opphevet ved en kilde som ikke er i korpus.\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446).",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-2005-09-26-1093 Deleg. av utøvelsen av statens partsstilling",
+      "merknad": "forskriften",
+      "eid": null,
+      "nodetekst": null
+     },
+     {
+      "rolle": "opphevende_bestemmelse",
+      "etikett": "LOV-2005-06-17-67 § 19-1 andre ledd",
+      "merknad": "opphever LOV-1952-11-21-2",
+      "eid": "https://lovdata.no/eli/lov/2005/06/17/67/nor/§19-1/ledd-2",
+      "nodetekst": "(2) Lov 21. november 1952 nr. 2 om betaling og innkreving av skatt (skattebetalingsloven) oppheves fra den tid Kongen bestemmer."
+     }
+    ],
+    "hjemmelsstatus": [
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§191",
+      "i_korpus": "NL/lov/1915-08-13-5",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "aktiv",
+      "lest_i_lovtidend": false,
+      "kunnskapsstatus": "normalisering"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1952/11/21/2/nor/§48",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "opphevet",
+      "bevistrinn": "E1",
+      "opphevet_av": "NL/lov/2005-06-17-67",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2005/06/17/67/nor/§19-1/ledd-2",
+      "opphevet_av_sitat": "(2) Lov 21. november 1952 nr. 2 om betaling og innkreving av skatt (skattebetalingsloven) oppheves fra den tid Kongen bestemmer.",
+      "opphevet_dato": "2009-01-01",
+      "lest_i_lovtidend": false,
+      "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2005-06-17-67 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+      "kunnskapsstatus": "tekstfunn"
+     }
+    ]
+   },
+   "kontekst": {
+    "forskriften_nevnt_i_annen_kilde": [
+     {
+      "dokument_id": "DEL/forskrift/2008-12-19-1538",
+      "eid": "kap-II/ledd-1",
+      "tekst": "Delegeringen har virkning fra 1. januar 2009. Fra samme tidspunkt oppheves Finansdepartementets delegering 26. september 2005 nr. 1093 av utøvelsen av statens partsstilling i prosesser på Skattedirektoratets område."
+     }
+    ],
+    "mulige_overgangsregler_i_opphevende_kilde": [
+     {
+      "dokument_id": "NL/lov/2005-06-17-67",
+      "eid": "https://lovdata.no/eli/lov/2005/06/17/67/nor/§1-2/ledd-1",
+      "tekst": "Departementet kan i forskrift bestemme at hele eller deler av loven skal gjelde for andre krav som tilkommer staten når kravet har tvangsgrunnlag."
+     },
+     {
+      "dokument_id": "NL/lov/2005-06-17-67",
+      "eid": "https://lovdata.no/eli/lov/2005/06/17/67/nor/§3-1/ledd-1",
+      "tekst": "(1) Forvaltningsloven gjelder med de særlige bestemmelser som er gitt i denne loven."
+     },
+     {
+      "dokument_id": "NL/lov/2005-06-17-67",
+      "eid": "https://lovdata.no/eli/lov/2005/06/17/67/nor/§3-3/ledd-1",
+      "tekst": "(1) Forvaltningsloven §§ 16, 24 og 25 gjelder ikke for vedtak som treffes under avregningen."
+     },
+     {
+      "dokument_id": "NL/lov/2005-06-17-67",
+      "eid": "https://lovdata.no/eli/lov/2005/06/17/67/nor/§3-3/ledd-2",
+      "tekst": "(2) Forvaltningsloven kapittel IV til VI om enkeltvedtak gjelder ikke for vedtak etter § 16-20."
+     },
+     {
+      "dokument_id": "NL/lov/2005-06-17-67",
+      "eid": "https://lovdata.no/eli/lov/2005/06/17/67/nor/§3-3/ledd-3",
+      "tekst": "(3) Forvaltningsloven § 42 gjelder ikke for vedtak som treffes under avregningen og vedtak om årsavgift for motorvogn."
+     },
+     {
+      "dokument_id": "NL/lov/2005-06-17-67",
+      "eid": "https://lovdata.no/eli/lov/2005/06/17/67/nor/§4-8/ledd-1",
+      "tekst": "(1) Når riket er i krig, eller krig truer eller rikets selvstendighet eller sikkerhet er i fare, kan bestemmelsene i denne del av loven og gjeldende vedtak om forskudd på og endelig utskriving av trygdeavgift, skatt til staten, fylkeskommunene og kommunene fravikes ved beslutning av Kongen, når det finnes nødvendig for å lette gjennomføringen av utskriving, betaling, innkreving eller fordeling av forskudd på skatt og trygdeavgift. Kongen kan herunder fastsette særlige regler for enkelte grupper "
+     },
+     {
+      "dokument_id": "NL/lov/2005-06-17-67",
+      "eid": "https://lovdata.no/eli/lov/2005/06/17/67/nor/§4-8/ledd-2",
+      "tekst": "(2) Når et område er avskåret fra forbindelse med regjeringen eller det av andre grunner finnes nødvendig, kan Kongen gi statsforvalteren eller andre lokale forvaltningsorganer, herunder militære myndigheter, fullmakt til å utferdige slike bestemmelser som nevnt i første ledd. Fullmakt kan gis uten hensyn til den gjeldende administrative inndeling. Dersom det er strengt nødvendig, kan statsforvalteren utferdige bestemmelsene selv om fullmakt fra Kongen ennå ikke foreligger."
+     },
+     {
+      "dokument_id": "NL/lov/2005-06-17-67",
+      "eid": "https://lovdata.no/eli/lov/2005/06/17/67/nor/§5-5/ledd-4",
+      "tekst": "(4) Forskuddstrekk etter § 5-6 første ledd bokstav e beregnes av utbetaleren til det beløp skatten vil utgjøre etter Stortingets vedtak om skatt for det angjeldende år."
+     }
+    ]
+   },
+   "vurdering": {
+    "klasse": "feil",
+    "undertype_riktig": false,
+    "sitat_eid_riktig": true,
+    "rent_endrings_eller_ikrafttredelsesvedtak_446": false,
+    "feilarsak": "populasjonen",
+    "grunn": "Vedtaket er selv opphevet: DEL/forskrift/2008-12-19-1538 kap. II «Fra samme tidspunkt oppheves Finansdepartementets delegering 26. september 2005 nr. 1093 av utøvelsen av statens partsstilling …». R8 leser setningen som delvis fordi «av utøvelsen» står rett etter nummeret. Et av de åtte kjente R8-hullene.",
+    "kontrollert_mot": [
+     "DEL/forskrift/2008-12-19-1538 kap-II (korpus)"
+    ]
+   }
+  },
+  {
+   "id": "M17",
+   "funn_id": "dbb03078-bc30-4799-90ab-56de497387b2",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2019/11/01/1469/nor",
+   "undertype": "uavklart",
+   "prefiks": "SF",
+   "forskrift": {
+    "dokument_id": "SF/forskrift/2019-11-01-1469",
+    "tittel": "Forskrift om tilbaketrekking av betalingsmidler 1000-kroneseddelen",
+    "lovdatas_hjemmelstekst": "Hjemmel: Fastsatt av Norges Bank 1. november 2019 med hjemmel i lov 24. mai 1985 nr. 28 om Norges Bank og pengevesenet mv. (sentralbankloven) § 15 første ledd.\nTilføyd hjemmel: Lov 21 juni 2019 nr. 31 om Norges Bank og pengevesenet mv. (sentralbankloven) § 3-6.\nRettet 30.08.2021 (tilbakeført til gjeldende regelverk, tilføyd hjemmel).",
+    "ikrafttredelse": "2019-11-14",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "foreslatt": {
+    "tittel": "Hjemmel opphevet, de andre hjemlene ikke vurdert: Forskrift om tilbaketrekking av betalingsmidler 1000-kroneseddelen (FOR-2019-11-01-1469)",
+    "pastand": "Lovdata viser «Forskrift om tilbaketrekking av betalingsmidler 1000-kroneseddelen» (FOR-2019-11-01-1469) som gjeldende. Minst én hjemmel som teller, er opphevet uten funnet videreføring. De andre hjemlene kan bære forskriften, men det er ikke vurdert: rollen deres er ikke avklart, eller videreføringen nevner ikke denne typen vedtak. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1985-05-24-28 § 15 er opphevet av LOV-2019-06-21-31 § 6-2 andre ledd: «Lov 24. mai 1985 nr. 28 om Norges Bank og pengevesenet mv. oppheves.»\n- Ikke kontrollert: Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2019-06-21-31 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.\n- LOV-2019-06-21-31 § 3-6 er aktiv (rollen er ikke vurdert).\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446).",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-2019-11-01-1469 Forskrift om tilbaketrekking av betalingsmidler 1000-kroneseddelen",
+      "merknad": "forskriften",
+      "eid": null,
+      "nodetekst": null
+     },
+     {
+      "rolle": "opphevende_bestemmelse",
+      "etikett": "LOV-2019-06-21-31 § 6-2 andre ledd",
+      "merknad": "opphever LOV-1985-05-24-28",
+      "eid": "https://lovdata.no/eli/lov/2019/06/21/31/nor/§6-2/ledd-2",
+      "nodetekst": "1. Lov 24. mai 1985 nr. 28 om Norges Bank og pengevesenet mv. oppheves."
+     }
+    ],
+    "hjemmelsstatus": [
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1985/05/24/28/nor/§15",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "opphevet",
+      "bevistrinn": "E1",
+      "opphevet_av": "NL/lov/2019-06-21-31",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2019/06/21/31/nor/§6-2/ledd-2",
+      "opphevet_av_sitat": "Lov 24. mai 1985 nr. 28 om Norges Bank og pengevesenet mv. oppheves.",
+      "opphevet_dato": "2019-07-01",
+      "lest_i_lovtidend": false,
+      "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2019-06-21-31 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+      "kunnskapsstatus": "tekstfunn"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/2019/06/21/31/nor/§3-6",
+      "i_korpus": "NL/lov/2019-06-21-31",
+      "status": "aktiv",
+      "lest_i_lovtidend": false,
+      "kunnskapsstatus": "normalisering"
+     }
+    ]
+   },
+   "kontekst": {
+    "forskriften_nevnt_i_annen_kilde": [],
+    "mulige_overgangsregler_i_opphevende_kilde": [
+     {
+      "dokument_id": "NL/lov/2019-06-21-31",
+      "eid": "https://lovdata.no/eli/lov/2019/06/21/31/nor/§1-11/ledd-1",
+      "tekst": "Bestemmelsene i §§ 1-2 til 1-7 og 1-9 til 1-10 gjelder ikke forvaltningen av Statens pensjonsfond utland så langt denne oppgaven er delegert til Norges Bank etter lov om Statens pensjonsfond § 3 annet ledd og § 10 første ledd, eller ved ansettelse av daglig leder av bankens forvaltning av Statens pensjonsfond utland, jf. § 2-13 første ledd."
+     },
+     {
+      "dokument_id": "NL/lov/2019-06-21-31",
+      "eid": "https://lovdata.no/eli/lov/2019/06/21/31/nor/§1-12/ledd-2",
+      "tekst": "(2) Bestemmelsene i §§ 3-5 og 3-6 gjelder på Svalbard, jf. Svalbardloven § 3."
+     },
+     {
+      "dokument_id": "NL/lov/2019-06-21-31",
+      "eid": "https://lovdata.no/eli/lov/2019/06/21/31/nor/§2-15/ledd-3",
+      "tekst": "(3) Hovedstyret kan bestemme at den som skal utføre arbeid eller tjeneste for Norges Bank, utføre arbeid for en tjenesteleverandør til banken eller for øvrig ha adgang uten følge til bankens bygninger, må fremlegge uttømmende politiattest etter politiregisterloven § 41 nr. 1, eller tilsvarende utenlandsk politiattest, dersom sikkerhetshensyn tilsier det. Det samme gjelder ved senere endringer i en ansatts stilling eller arbeidsoppgaver. Departementet kan gi forskrift om gjennomføringen av bestem"
+     },
+     {
+      "dokument_id": "NL/lov/2019-06-21-31",
+      "eid": "https://lovdata.no/eli/lov/2019/06/21/31/nor/§5-2/ledd-4",
+      "tekst": "(4) Taushetsplikten etter første og annet ledd og forvaltningslovens bestemmelser gjelder ikke overfor"
+     },
+     {
+      "dokument_id": "NL/lov/2019-06-21-31",
+      "eid": "https://lovdata.no/eli/lov/2019/06/21/31/nor/§5-2/ledd-5",
+      "tekst": "(5) Forvaltningsloven § 13 annet og tredje ledd og §§ 13 a til 13 e og 13 g gjelder som utfyllende bestemmelser til paragrafen her."
+     },
+     {
+      "dokument_id": "NL/lov/2019-06-21-31",
+      "eid": "https://lovdata.no/eli/lov/2019/06/21/31/nor/§6-1/ledd-1",
+      "tekst": "Loven gjelder fra den tid Kongen bestemmer. Kongen kan sette i kraft de enkelte bestemmelsene i loven til forskjellig tid. Kongen kan gi overgangsbestemmelser."
+     }
+    ]
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "undertype_riktig": true,
+    "sitat_eid_riktig": true,
+    "rent_endrings_eller_ikrafttredelsesvedtak_446": false,
+    "feilarsak": null,
+    "grunn": "Sentralbankloven 1985 § 15 er opphevet (som M01). Lovdata har tilføyd sentralbankloven 2019 § 3-6 som hjemmel. Den har rolle NULL fordi hjemmelsteksten skriver «21 juni 2019» uten punktum. Uavklart er derfor en svakere beskrivelse enn blandede, men påstanden holder: én hjemmel faller, og om den andre bærer, er ikke vurdert.",
+    "kontrollert_mot": [
+     "NL/lov/2019-06-21-31 §6-1, §6-2 (korpus)"
+    ]
+   }
+  },
+  {
+   "id": "M18",
+   "funn_id": "bcf53c9f-8cc7-487f-8fb9-c436af0a21c4",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/1990/03/23/179/nor",
+   "undertype": "uavklart",
+   "prefiks": "DEL",
+   "forskrift": {
+    "dokument_id": "DEL/forskrift/1990-03-23-179",
+    "tittel": "Delegering av myndighet m.v. til Arbeids- og administrasjondepartementet vedrørende regulering av arbeidsmarkedet og sivil arbeidsplikt under krig m.v.",
+    "lovdatas_hjemmelstekst": "Fastsatt ved kgl.res. av 23. mars 1990. Fremmet av Arbeids- og administrasjonsdepartementet.",
+    "ikrafttredelse": "1990-03-23",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "foreslatt": {
+    "tittel": "Hjemmel opphevet, de andre hjemlene ikke vurdert: Del. av myndighet til Arbeids- og adm.dep. (FOR-1990-03-23-179)",
+    "pastand": "Lovdata viser «Del. av myndighet til Arbeids- og adm.dep.» (FOR-1990-03-23-179) som gjeldende. Minst én hjemmel som teller, er opphevet uten funnet videreføring. De andre hjemlene kan bære forskriften, men det er ikke vurdert: rollen deres er ikke avklart, eller videreføringen nevner ikke denne typen vedtak. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1950-12-15-7 § 3 er aktiv (rollen er ikke vurdert).\n- LOV-1956-12-14-7 § 30 er opphevet av LOV-2011-12-16-65 § 24 andre ledd (lest i den kunngjorte teksten i Norsk Lovtidend): «Lov 14. desember 1956 nr. 7 om forsynings- og beredskapstiltak oppheves.»\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446).",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-1990-03-23-179 Del. av myndighet til Arbeids- og adm.dep.",
+      "merknad": "forskriften",
+      "eid": null,
+      "nodetekst": null
+     },
+     {
+      "rolle": "opphevende_bestemmelse",
+      "etikett": "LOV-2011-12-16-65 § 24 andre ledd",
+      "merknad": "opphever LOV-1956-12-14-7 (lest i Norsk Lovtidend)",
+      "eid": "https://lovdata.no/eli/lov/2011/12/16/65/nor/§24/ledd-2",
+      "nodetekst": null
+     }
+    ],
+    "hjemmelsstatus": [
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1950/12/15/7/nor/§3",
+      "i_korpus": "NL/lov/1950-12-15-7",
+      "status": "aktiv",
+      "lest_i_lovtidend": false,
+      "kunnskapsstatus": "normalisering"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1956/12/14/7/nor/§30",
+      "status": "opphevet",
+      "bevistrinn": "EN_LTI",
+      "opphevet_av": "NL/lov/2011-12-16-65",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2011/12/16/65/nor/§24/ledd-2",
+      "opphevet_av_sitat": "Lov 14. desember 1956 nr. 7 om forsynings- og beredskapstiltak oppheves.",
+      "opphevet_dato": "2012-01-01",
+      "lest_i_lovtidend": true,
+      "kunnskapsstatus": "eksternt_dokumentert"
+     }
+    ]
+   },
+   "kontekst": {
+    "forskriften_nevnt_i_annen_kilde": [
+     {
+      "dokument_id": "LTI/forskrift/2004-10-08-1395",
+      "eid": "kap-I/rom-arbeidsavdelingen/rom-2/punkt-9",
+      "tekst": "Vedtak 23. mars 1990 nr. 179 om delegering av myndighet m.v. til Arbeids- og administrasjonsdepartementet vedrørende regulering av arbeidsmarkedet og sivil arbeidsplikt under krig m.v."
+     }
+    ],
+    "mulige_overgangsregler_i_opphevende_kilde": [
+     {
+      "dokument_id": "NL/lov/2011-12-16-65",
+      "eid": "https://lovdata.no/eli/lov/2011/12/16/65/nor/§7/ledd-1",
+      "tekst": "Når særlige grunner foreligger, kan departementet gi en tidsbegrenset forskrift, jf. § 6, som gjelder for inntil en måned av gangen, maksimalt 3 måneder."
+     },
+     {
+      "dokument_id": "NL/lov/2011-12-16-65",
+      "eid": "https://lovdata.no/eli/lov/2011/12/16/65/nor/§9/ledd-1",
+      "tekst": "Det kan ikke fattes vedtak om særskilte tiltak dersom formålet kan oppnås i tide på annen måte. Begrensningen gjelder ikke dersom dette åpenbart medfører uforholdsmessige kostnader."
+     },
+     {
+      "dokument_id": "NL/lov/2011-12-16-65",
+      "eid": "https://lovdata.no/eli/lov/2011/12/16/65/nor/§12/ledd-1",
+      "tekst": "Statsforvalteren fører tilsyn med kommunens og fylkeskommunens oppfyllelse av plikter gitt etter § 11 første ledd og i forskrifter med hjemmel i § 11 andre ledd. Reglene i kommuneloven kapittel 30 gjelder for slikt tilsyn."
+     },
+     {
+      "dokument_id": "NL/lov/2011-12-16-65",
+      "eid": "https://lovdata.no/eli/lov/2011/12/16/65/nor/§15/ledd-1",
+      "tekst": "Næringsdrivende har plikt til å gi opplysninger til beredskapsformål. Kongen kan gi bestemmelser om at opplysninger som er nødvendige til beredskapsformål, kan hentes fra Opplysningsplikten gjelder uten hensyn til taushetsplikt."
+     },
+     {
+      "dokument_id": "NL/lov/2011-12-16-65",
+      "eid": "https://lovdata.no/eli/lov/2011/12/16/65/nor/§21/ledd-1",
+      "tekst": "Med bøter eller med fengsel inntil 1 år eller med begge deler straffes den som overtrer bestemmelser i eller gitt i medhold av §§ 6 til 9. Det samme gjelder overtredelse av eller unnlatelse av å etterkomme vedtak om særskilte tiltak gitt med hjemmel i bestemmelser i eller i medhold av §§ 6 til 9."
+     },
+     {
+      "dokument_id": "NL/lov/2011-12-16-65",
+      "eid": "https://lovdata.no/eli/lov/2011/12/16/65/nor/§22/ledd-1",
+      "tekst": "For håndheving av sanksjoner overfor kommuner og fylkeskommuner gjelder bestemmelsene i kommuneloven kapittel 30. §§ 19 og 20 i loven her gjelder i tillegg."
+     }
+    ]
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "undertype_riktig": true,
+    "sitat_eid_riktig": true,
+    "rent_endrings_eller_ikrafttredelsesvedtak_446": false,
+    "feilarsak": null,
+    "grunn": "Hjemmelsfeltet er tomt; Lovdatas basedOn gir beredskapsloven 1950 § 3 (aktiv) og forsyningsloven 1956 § 30, som er opphevet ved næringsberedskapsloven 2011 (lest i Lovtidend). Rollen er ikke vurdert for noen av dem. Uavklart er riktig.",
+    "kontrollert_mot": [
+     "NL/lov/2011-12-16-65 §23, §24 (korpus)"
+    ]
+   }
+  },
+  {
+   "id": "M19",
+   "funn_id": "54a5cd2d-fc6f-44fb-abf0-85cc39605421",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2017/06/15/1044/nor",
+   "undertype": "videreforing_utlopt",
+   "prefiks": "SF",
+   "forskrift": {
+    "dokument_id": "SF/forskrift/2017-06-15-1044",
+    "tittel": "Forskrift for fagskoleutdanning i yrkesdykking ved Høgskulen på Vestlandet",
+    "lovdatas_hjemmelstekst": "Heimel: Fastsett av styret ved Høgskulen på Vestlandet 15. juni 2017 med heimel i lov 20. juni 2003 nr. 56 om fagskoleutdanning (fagskoleloven) § 4, § 5, § 6, § 7, § 8, § 9, § 10, § 11 og § 13, forskrift 17. mars 2017 nr. 334 om fagskoleutdanning, forskrift 21. desember 2016 nr. 1875 om opptak til Høgskulen på Vestlandet § 2-5 og forskrift 16. desember 2005 nr. 1568 om arbeidsmiljølovens anvendelse for personer som ikke er arbeidstakere § 1.",
+    "ikrafttredelse": "2017-07-01",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "foreslatt": {
+    "tittel": "Videreføringen av hjemmelen er utløpt: Forskrift for fagskoleutdanning i yrkesdykking ved HVL (FOR-2017-06-15-1044)",
+    "pastand": "Lovdata viser «Forskrift for fagskoleutdanning i yrkesdykking ved HVL» (FOR-2017-06-15-1044) som gjeldende. Hjemmelen er opphevet, og overgangsregelen viderefører forskriften bare fram til en dato som er passert. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-2003-06-20-56 § 4, § 5, § 6, § 7, § 8, § 9, § 10, § 11 og § 13 er opphevet av LOV-2018-06-08-28 § 44 andre ledd: «Fra samme tidspunkt oppheves lov 20. juni 2003 nr. 56 om fagskoleutdanning.» Videreført av LOV-2018-06-08-28 § 44 tredje ledd fram til 31.12.2019, og fristen er passert: «Forskrifter gitt med hjemmel i lov 20. juni 2003 nr. 56 om fagskoleutdanning skal gjelde frem til 31. desember 2019 eller til forskriften blir opphevet.»\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446).",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-2017-06-15-1044 Forskrift for fagskoleutdanning i yrkesdykking ved HVL",
+      "merknad": "forskriften",
+      "eid": null,
+      "nodetekst": null
+     },
+     {
+      "rolle": "opphevende_bestemmelse",
+      "etikett": "LOV-2018-06-08-28 § 44 andre ledd",
+      "merknad": "opphever LOV-2003-06-20-56",
+      "eid": "https://lovdata.no/eli/lov/2018/06/08/28/nor/§44/ledd-2",
+      "nodetekst": "Fra samme tidspunkt oppheves lov 20. juni 2003 nr. 56 om fagskoleutdanning."
+     },
+     {
+      "rolle": "videreforingsbestemmelse",
+      "etikett": "LOV-2018-06-08-28 § 44 tredje ledd",
+      "merknad": "viderefører forskrifter gitt etter LOV-2003-06-20-56 fram til 31.12.2019",
+      "eid": "https://lovdata.no/eli/lov/2018/06/08/28/nor/§44/ledd-3",
+      "nodetekst": "Forskrifter gitt med hjemmel i lov 20. juni 2003 nr. 56 om fagskoleutdanning skal gjelde frem til 31. desember 2019 eller til forskriften blir opphevet."
+     }
+    ],
+    "hjemmelsstatus": [
+     {
+      "hjemmel": "https://lovdata.no/eli/forskrift/2005/12/16/1568/nor/§1",
+      "i_korpus": "SF/forskrift/2005-12-16-1568",
+      "rolle": "kompetanseledd",
+      "rolle_regel": "forskrift_som_hjemmel",
+      "status": "aktiv",
+      "lest_i_lovtidend": false,
+      "kunnskapsstatus": "normalisering"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/forskrift/2016/12/21/1875/nor/§2-5",
+      "rolle": "kompetanseledd",
+      "rolle_regel": "forskrift_som_hjemmel",
+      "status": "ukjent",
+      "ukjent_grunn": "INGEN",
+      "lest_i_lovtidend": false,
+      "kunnskapsstatus": "uavklart"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/forskrift/2017/03/17/334/nor",
+      "rolle": "kompetanseledd",
+      "rolle_regel": "forskrift_som_hjemmel",
+      "status": "ukjent",
+      "ukjent_grunn": "INGEN",
+      "lest_i_lovtidend": false,
+      "kunnskapsstatus": "uavklart"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/2003/06/20/56/nor/§10",
+      "status": "videreforing_utlopt",
+      "bevistrinn": "E1",
+      "opphevet_av": "NL/lov/2018-06-08-28",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2018/06/08/28/nor/§44/ledd-2",
+      "opphevet_av_sitat": "Fra samme tidspunkt oppheves lov 20. juni 2003 nr. 56 om fagskoleutdanning.",
+      "opphevet_dato": "2018-07-01",
+      "lest_i_lovtidend": false,
+      "videreforing_kilde": "NL/lov/2018-06-08-28",
+      "videreforing_eid": "https://lovdata.no/eli/lov/2018/06/08/28/nor/§44/ledd-3",
+      "videreforing_form": "V1",
+      "videreforing_tidsfrist": "2019-12-31",
+      "videreforing_dekning": "dekket",
+      "videreforing_sitat": "Forskrifter gitt med hjemmel i lov 20. juni 2003 nr. 56 om fagskoleutdanning skal gjelde frem til 31. desember 2019 eller til forskriften blir opphevet.",
+      "kunnskapsstatus": "tekstfunn"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/2003/06/20/56/nor/§11",
+      "status": "videreforing_utlopt",
+      "bevistrinn": "E1",
+      "opphevet_av": "NL/lov/2018-06-08-28",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2018/06/08/28/nor/§44/ledd-2",
+      "opphevet_av_sitat": "Fra samme tidspunkt oppheves lov 20. juni 2003 nr. 56 om fagskoleutdanning.",
+      "opphevet_dato": "2018-07-01",
+      "lest_i_lovtidend": false,
+      "videreforing_kilde": "NL/lov/2018-06-08-28",
+      "videreforing_eid": "https://lovdata.no/eli/lov/2018/06/08/28/nor/§44/ledd-3",
+      "videreforing_form": "V1",
+      "videreforing_tidsfrist": "2019-12-31",
+      "videreforing_dekning": "dekket",
+      "videreforing_sitat": "Forskrifter gitt med hjemmel i lov 20. juni 2003 nr. 56 om fagskoleutdanning skal gjelde frem til 31. desember 2019 eller til forskriften blir opphevet.",
+      "kunnskapsstatus": "tekstfunn"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/2003/06/20/56/nor/§13",
+      "status": "videreforing_utlopt",
+      "bevistrinn": "E1",
+      "opphevet_av": "NL/lov/2018-06-08-28",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2018/06/08/28/nor/§44/ledd-2",
+      "opphevet_av_sitat": "Fra samme tidspunkt oppheves lov 20. juni 2003 nr. 56 om fagskoleutdanning.",
+      "opphevet_dato": "2018-07-01",
+      "lest_i_lovtidend": false,
+      "videreforing_kilde": "NL/lov/2018-06-08-28",
+      "videreforing_eid": "https://lovdata.no/eli/lov/2018/06/08/28/nor/§44/ledd-3",
+      "videreforing_form": "V1",
+      "videreforing_tidsfrist": "2019-12-31",
+      "videreforing_dekning": "dekket",
+      "videreforing_sitat": "Forskrifter gitt med hjemmel i lov 20. juni 2003 nr. 56 om fagskoleutdanning skal gjelde frem til 31. desember 2019 eller til forskriften blir opphevet.",
+      "kunnskapsstatus": "tekstfunn"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/2003/06/20/56/nor/§4",
+      "status": "videreforing_utlopt",
+      "bevistrinn": "E1",
+      "opphevet_av": "NL/lov/2018-06-08-28",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2018/06/08/28/nor/§44/ledd-2",
+      "opphevet_av_sitat": "Fra samme tidspunkt oppheves lov 20. juni 2003 nr. 56 om fagskoleutdanning.",
+      "opphevet_dato": "2018-07-01",
+      "lest_i_lovtidend": false,
+      "videreforing_kilde": "NL/lov/2018-06-08-28",
+      "videreforing_eid": "https://lovdata.no/eli/lov/2018/06/08/28/nor/§44/ledd-3",
+      "videreforing_form": "V1",
+      "videreforing_tidsfrist": "2019-12-31",
+      "videreforing_dekning": "dekket",
+      "videreforing_sitat": "Forskrifter gitt med hjemmel i lov 20. juni 2003 nr. 56 om fagskoleutdanning skal gjelde frem til 31. desember 2019 eller til forskriften blir opphevet.",
+      "kunnskapsstatus": "tekstfunn"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/2003/06/20/56/nor/§5",
+      "status": "videreforing_utlopt",
+      "bevistrinn": "E1",
+      "opphevet_av": "NL/lov/2018-06-08-28",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2018/06/08/28/nor/§44/ledd-2",
+      "opphevet_av_sitat": "Fra samme tidspunkt oppheves lov 20. juni 2003 nr. 56 om fagskoleutdanning.",
+      "opphevet_dato": "2018-07-01",
+      "lest_i_lovtidend": false,
+      "videreforing_kilde": "NL/lov/2018-06-08-28",
+      "videreforing_eid": "https://lovdata.no/eli/lov/2018/06/08/28/nor/§44/ledd-3",
+      "videreforing_form": "V1",
+      "videreforing_tidsfrist": "2019-12-31",
+      "videreforing_dekning": "dekket",
+      "videreforing_sitat": "Forskrifter gitt med hjemmel i lov 20. juni 2003 nr. 56 om fagskoleutdanning skal gjelde frem til 31. desember 2019 eller til forskriften blir opphevet.",
+      "kunnskapsstatus": "tekstfunn"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/2003/06/20/56/nor/§6",
+      "status": "videreforing_utlopt",
+      "bevistrinn": "E1",
+      "opphevet_av": "NL/lov/2018-06-08-28",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2018/06/08/28/nor/§44/ledd-2",
+      "opphevet_av_sitat": "Fra samme tidspunkt oppheves lov 20. juni 2003 nr. 56 om fagskoleutdanning.",
+      "opphevet_dato": "2018-07-01",
+      "lest_i_lovtidend": false,
+      "videreforing_kilde": "NL/lov/2018-06-08-28",
+      "videreforing_eid": "https://lovdata.no/eli/lov/2018/06/08/28/nor/§44/ledd-3",
+      "videreforing_form": "V1",
+      "videreforing_tidsfrist": "2019-12-31",
+      "videreforing_dekning": "dekket",
+      "videreforing_sitat": "Forskrifter gitt med hjemmel i lov 20. juni 2003 nr. 56 om fagskoleutdanning skal gjelde frem til 31. desember 2019 eller til forskriften blir opphevet.",
+      "kunnskapsstatus": "tekstfunn"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/2003/06/20/56/nor/§7",
+      "status": "videreforing_utlopt",
+      "bevistrinn": "E1",
+      "opphevet_av": "NL/lov/2018-06-08-28",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2018/06/08/28/nor/§44/ledd-2",
+      "opphevet_av_sitat": "Fra samme tidspunkt oppheves lov 20. juni 2003 nr. 56 om fagskoleutdanning.",
+      "opphevet_dato": "2018-07-01",
+      "lest_i_lovtidend": false,
+      "videreforing_kilde": "NL/lov/2018-06-08-28",
+      "videreforing_eid": "https://lovdata.no/eli/lov/2018/06/08/28/nor/§44/ledd-3",
+      "videreforing_form": "V1",
+      "videreforing_tidsfrist": "2019-12-31",
+      "videreforing_dekning": "dekket",
+      "videreforing_sitat": "Forskrifter gitt med hjemmel i lov 20. juni 2003 nr. 56 om fagskoleutdanning skal gjelde frem til 31. desember 2019 eller til forskriften blir opphevet.",
+      "kunnskapsstatus": "tekstfunn"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/2003/06/20/56/nor/§8",
+      "status": "videreforing_utlopt",
+      "bevistrinn": "E1",
+      "opphevet_av": "NL/lov/2018-06-08-28",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2018/06/08/28/nor/§44/ledd-2",
+      "opphevet_av_sitat": "Fra samme tidspunkt oppheves lov 20. juni 2003 nr. 56 om fagskoleutdanning.",
+      "opphevet_dato": "2018-07-01",
+      "lest_i_lovtidend": false,
+      "videreforing_kilde": "NL/lov/2018-06-08-28",
+      "videreforing_eid": "https://lovdata.no/eli/lov/2018/06/08/28/nor/§44/ledd-3",
+      "videreforing_form": "V1",
+      "videreforing_tidsfrist": "2019-12-31",
+      "videreforing_dekning": "dekket",
+      "videreforing_sitat": "Forskrifter gitt med hjemmel i lov 20. juni 2003 nr. 56 om fagskoleutdanning skal gjelde frem til 31. desember 2019 eller til forskriften blir opphevet.",
+      "kunnskapsstatus": "tekstfunn"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/2003/06/20/56/nor/§9",
+      "status": "videreforing_utlopt",
+      "bevistrinn": "E1",
+      "opphevet_av": "NL/lov/2018-06-08-28",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2018/06/08/28/nor/§44/ledd-2",
+      "opphevet_av_sitat": "Fra samme tidspunkt oppheves lov 20. juni 2003 nr. 56 om fagskoleutdanning.",
+      "opphevet_dato": "2018-07-01",
+      "lest_i_lovtidend": false,
+      "videreforing_kilde": "NL/lov/2018-06-08-28",
+      "videreforing_eid": "https://lovdata.no/eli/lov/2018/06/08/28/nor/§44/ledd-3",
+      "videreforing_form": "V1",
+      "videreforing_tidsfrist": "2019-12-31",
+      "videreforing_dekning": "dekket",
+      "videreforing_sitat": "Forskrifter gitt med hjemmel i lov 20. juni 2003 nr. 56 om fagskoleutdanning skal gjelde frem til 31. desember 2019 eller til forskriften blir opphevet.",
+      "kunnskapsstatus": "tekstfunn"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/2018/06/08/28/nor/§44",
+      "i_korpus": "NL/lov/2018-06-08-28",
+      "rolle": "overgangsgrunnlag",
+      "rolle_regel": "overgangsparagraf",
+      "status": "aktiv",
+      "lest_i_lovtidend": false,
+      "kunnskapsstatus": "normalisering"
+     }
+    ]
+   },
+   "kontekst": {
+    "forskriften_nevnt_i_annen_kilde": [],
+    "mulige_overgangsregler_i_opphevende_kilde": [
+     {
+      "dokument_id": "NL/lov/2018-06-08-28",
+      "eid": "https://lovdata.no/eli/lov/2018/06/08/28/nor/§2/ledd-1",
+      "tekst": "Loven gjelder for akkreditert fagskoleutdanning og fagskolevirksomhet i riket. Loven gjelder for Svalbard og Jan Mayen for så vidt ikke annet fastsettes av Kongen. Kongen kan gi forskrift om fagskoleutdanning av hensyn til de stedlige forhold. Kongen kan bestemme at loven skal gjelde helt eller delvis for fagskoleutdanning utenfor Norge."
+     },
+     {
+      "dokument_id": "NL/lov/2018-06-08-28",
+      "eid": "https://lovdata.no/eli/lov/2018/06/08/28/nor/§9/ledd-3/punkt-6",
+      "tekst": "sørge for at virksomheten drives i samsvar med gjeldende lover og regler, og etablere og sørge for gjennomføring av systematiske kontrolltiltak (internkontroll) for å sikre dette. Departementet kan gi forskrift om krav til internkontroll etter første punktum."
+     },
+     {
+      "dokument_id": "NL/lov/2018-06-08-28",
+      "eid": "https://lovdata.no/eli/lov/2018/06/08/28/nor/§15/ledd-7",
+      "tekst": "Arbeidstilsynet fører tilsyn med at kravene i tredje ledd er oppfylt. Arbeidsmiljøloven kapittel 18 gjelder så langt det passer. Departementet kan gi forskrift om tilsyn med læringsmiljøet."
+     },
+     {
+      "dokument_id": "NL/lov/2018-06-08-28",
+      "eid": "https://lovdata.no/eli/lov/2018/06/08/28/nor/§20/ledd-4",
+      "tekst": "Den lokale klagenemndas vedtak i saker som gjelder klage på fagskolens enkeltvedtak, kan ikke påklages."
+     },
+     {
+      "dokument_id": "NL/lov/2018-06-08-28",
+      "eid": "https://lovdata.no/eli/lov/2018/06/08/28/nor/§25/ledd-1",
+      "tekst": "Hvis en student, til tross for en skriftlig advarsel fra fagskolen, gjentatte ganger opptrer på en måte som virker grovt forstyrrende på medstudenters arbeid eller virksomheten ved fagskolen ellers, kan styret fatte vedtak om at studenten skal bortvises i inntil ett år. Rektoren ved skolen kan fatte vedtak om bortvisning dersom vilkårene i § 12 annet ledd er til stede. Et slikt vedtak gjelder inntil styret kan fatte et endelig vedtak i saken. Bortvisningen innebærer ikke at studenten fratas rett"
+     },
+     {
+      "dokument_id": "NL/lov/2018-06-08-28",
+      "eid": "https://lovdata.no/eli/lov/2018/06/08/28/nor/§28/ledd-2",
+      "tekst": "En student som får barn under utdanningen, har rett til permisjon fra utdanningen under svangerskapet og til omsorg for barn. I permisjonsperioden har studenten fortsatt status som student ved fagskolen og har rett til å gjenoppta utdanningen på samme nivå som før permisjonen. Bestemmelsene i arbeidsmiljøloven §§ 12-1 til 12-5 og § 12-7 gjelder så langt de passer."
+     },
+     {
+      "dokument_id": "NL/lov/2018-06-08-28",
+      "eid": "https://lovdata.no/eli/lov/2018/06/08/28/nor/§39/ledd-1",
+      "tekst": "Når fagskolene behandler saker etter loven her, gjelder bestemmelsene i forvaltningsloven om habilitet i §§ 6 til 10 og om taushetsplikt i §§ 13 til 13 e."
+     },
+     {
+      "dokument_id": "NL/lov/2018-06-08-28",
+      "eid": "https://lovdata.no/eli/lov/2018/06/08/28/nor/§39/ledd-3",
+      "tekst": "Departementet kan gi forskrift om at forvaltningsloven kapittel VI ikke skal gjelde for vedtak fra NOKUT om akkreditering av fagskoleutdanning."
+     }
+    ]
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "undertype_riktig": true,
+    "sitat_eid_riktig": true,
+    "rent_endrings_eller_ikrafttredelsesvedtak_446": false,
+    "feilarsak": null,
+    "grunn": "Som H17 i måling 1: fagskoleloven 2003 er opphevet av fagskoleloven 2018 § 44 andre ledd, og tredje ledd viderefører forskriftene bare til 31. desember 2019. Funnet er nytt etter PR 4: forskriftene som også står som hjemmel, er nå kompetanseledd, og to av dem var ukjent.",
+    "kontrollert_mot": [
+     "NL/lov/2018-06-08-28 §44 (korpus)",
+     "måling 1 H17"
+    ]
+   }
+  },
+  {
+   "id": "M20",
+   "funn_id": "10f1fe44-fc84-4090-a13b-c9ad8612847f",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2017/10/17/1637/nor",
+   "undertype": "videreforing_utlopt",
+   "prefiks": "SF",
+   "forskrift": {
+    "dokument_id": "SF/forskrift/2017-10-17-1637",
+    "tittel": "Forskrift om fagskoleutdanning ved Fredrikstad FagAkademi",
+    "lovdatas_hjemmelstekst": "Hjemmel: Fastsatt av styret ved Fredrikstad FagAkademi 17. oktober 2017 med hjemmel i lov 20. juni 2003 nr. 56 om fagskoleutdanning (fagskoleloven) § 4 og § 6.",
+    "ikrafttredelse": "2017-10-18",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "foreslatt": {
+    "tittel": "Videreføringen av hjemmelen er utløpt: Forskrift om fagskoleutdanning ved Fredrikstad FagAkademi (FOR-2017-10-17-1637)",
+    "pastand": "Lovdata viser «Forskrift om fagskoleutdanning ved Fredrikstad FagAkademi» (FOR-2017-10-17-1637) som gjeldende. Hjemmelen er opphevet, og overgangsregelen viderefører forskriften bare fram til en dato som er passert. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-2003-06-20-56 § 4 og § 6 er opphevet av LOV-2018-06-08-28 § 44 andre ledd: «Fra samme tidspunkt oppheves lov 20. juni 2003 nr. 56 om fagskoleutdanning.» Videreført av LOV-2018-06-08-28 § 44 tredje ledd fram til 31.12.2019, og fristen er passert: «Forskrifter gitt med hjemmel i lov 20. juni 2003 nr. 56 om fagskoleutdanning skal gjelde frem til 31. desember 2019 eller til forskriften blir opphevet.»\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446).",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-2017-10-17-1637 Forskrift om fagskoleutdanning ved Fredrikstad FagAkademi",
+      "merknad": "forskriften",
+      "eid": null,
+      "nodetekst": null
+     },
+     {
+      "rolle": "opphevende_bestemmelse",
+      "etikett": "LOV-2018-06-08-28 § 44 andre ledd",
+      "merknad": "opphever LOV-2003-06-20-56",
+      "eid": "https://lovdata.no/eli/lov/2018/06/08/28/nor/§44/ledd-2",
+      "nodetekst": "Fra samme tidspunkt oppheves lov 20. juni 2003 nr. 56 om fagskoleutdanning."
+     },
+     {
+      "rolle": "videreforingsbestemmelse",
+      "etikett": "LOV-2018-06-08-28 § 44 tredje ledd",
+      "merknad": "viderefører forskrifter gitt etter LOV-2003-06-20-56 fram til 31.12.2019",
+      "eid": "https://lovdata.no/eli/lov/2018/06/08/28/nor/§44/ledd-3",
+      "nodetekst": "Forskrifter gitt med hjemmel i lov 20. juni 2003 nr. 56 om fagskoleutdanning skal gjelde frem til 31. desember 2019 eller til forskriften blir opphevet."
+     }
+    ],
+    "hjemmelsstatus": [
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/2003/06/20/56/nor/§4",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "videreforing_utlopt",
+      "bevistrinn": "E1",
+      "opphevet_av": "NL/lov/2018-06-08-28",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2018/06/08/28/nor/§44/ledd-2",
+      "opphevet_av_sitat": "Fra samme tidspunkt oppheves lov 20. juni 2003 nr. 56 om fagskoleutdanning.",
+      "opphevet_dato": "2018-07-01",
+      "lest_i_lovtidend": false,
+      "videreforing_kilde": "NL/lov/2018-06-08-28",
+      "videreforing_eid": "https://lovdata.no/eli/lov/2018/06/08/28/nor/§44/ledd-3",
+      "videreforing_form": "V1",
+      "videreforing_tidsfrist": "2019-12-31",
+      "videreforing_dekning": "dekket",
+      "videreforing_sitat": "Forskrifter gitt med hjemmel i lov 20. juni 2003 nr. 56 om fagskoleutdanning skal gjelde frem til 31. desember 2019 eller til forskriften blir opphevet.",
+      "kunnskapsstatus": "tekstfunn"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/2003/06/20/56/nor/§6",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "videreforing_utlopt",
+      "bevistrinn": "E1",
+      "opphevet_av": "NL/lov/2018-06-08-28",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2018/06/08/28/nor/§44/ledd-2",
+      "opphevet_av_sitat": "Fra samme tidspunkt oppheves lov 20. juni 2003 nr. 56 om fagskoleutdanning.",
+      "opphevet_dato": "2018-07-01",
+      "lest_i_lovtidend": false,
+      "videreforing_kilde": "NL/lov/2018-06-08-28",
+      "videreforing_eid": "https://lovdata.no/eli/lov/2018/06/08/28/nor/§44/ledd-3",
+      "videreforing_form": "V1",
+      "videreforing_tidsfrist": "2019-12-31",
+      "videreforing_dekning": "dekket",
+      "videreforing_sitat": "Forskrifter gitt med hjemmel i lov 20. juni 2003 nr. 56 om fagskoleutdanning skal gjelde frem til 31. desember 2019 eller til forskriften blir opphevet.",
+      "kunnskapsstatus": "tekstfunn"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/2018/06/08/28/nor/§44",
+      "i_korpus": "NL/lov/2018-06-08-28",
+      "rolle": "overgangsgrunnlag",
+      "rolle_regel": "overgangsparagraf",
+      "status": "aktiv",
+      "lest_i_lovtidend": false,
+      "kunnskapsstatus": "normalisering"
+     }
+    ]
+   },
+   "kontekst": {
+    "forskriften_nevnt_i_annen_kilde": [],
+    "mulige_overgangsregler_i_opphevende_kilde": [
+     {
+      "dokument_id": "NL/lov/2018-06-08-28",
+      "eid": "https://lovdata.no/eli/lov/2018/06/08/28/nor/§2/ledd-1",
+      "tekst": "Loven gjelder for akkreditert fagskoleutdanning og fagskolevirksomhet i riket. Loven gjelder for Svalbard og Jan Mayen for så vidt ikke annet fastsettes av Kongen. Kongen kan gi forskrift om fagskoleutdanning av hensyn til de stedlige forhold. Kongen kan bestemme at loven skal gjelde helt eller delvis for fagskoleutdanning utenfor Norge."
+     },
+     {
+      "dokument_id": "NL/lov/2018-06-08-28",
+      "eid": "https://lovdata.no/eli/lov/2018/06/08/28/nor/§9/ledd-3/punkt-6",
+      "tekst": "sørge for at virksomheten drives i samsvar med gjeldende lover og regler, og etablere og sørge for gjennomføring av systematiske kontrolltiltak (internkontroll) for å sikre dette. Departementet kan gi forskrift om krav til internkontroll etter første punktum."
+     },
+     {
+      "dokument_id": "NL/lov/2018-06-08-28",
+      "eid": "https://lovdata.no/eli/lov/2018/06/08/28/nor/§15/ledd-7",
+      "tekst": "Arbeidstilsynet fører tilsyn med at kravene i tredje ledd er oppfylt. Arbeidsmiljøloven kapittel 18 gjelder så langt det passer. Departementet kan gi forskrift om tilsyn med læringsmiljøet."
+     },
+     {
+      "dokument_id": "NL/lov/2018-06-08-28",
+      "eid": "https://lovdata.no/eli/lov/2018/06/08/28/nor/§20/ledd-4",
+      "tekst": "Den lokale klagenemndas vedtak i saker som gjelder klage på fagskolens enkeltvedtak, kan ikke påklages."
+     },
+     {
+      "dokument_id": "NL/lov/2018-06-08-28",
+      "eid": "https://lovdata.no/eli/lov/2018/06/08/28/nor/§25/ledd-1",
+      "tekst": "Hvis en student, til tross for en skriftlig advarsel fra fagskolen, gjentatte ganger opptrer på en måte som virker grovt forstyrrende på medstudenters arbeid eller virksomheten ved fagskolen ellers, kan styret fatte vedtak om at studenten skal bortvises i inntil ett år. Rektoren ved skolen kan fatte vedtak om bortvisning dersom vilkårene i § 12 annet ledd er til stede. Et slikt vedtak gjelder inntil styret kan fatte et endelig vedtak i saken. Bortvisningen innebærer ikke at studenten fratas rett"
+     },
+     {
+      "dokument_id": "NL/lov/2018-06-08-28",
+      "eid": "https://lovdata.no/eli/lov/2018/06/08/28/nor/§28/ledd-2",
+      "tekst": "En student som får barn under utdanningen, har rett til permisjon fra utdanningen under svangerskapet og til omsorg for barn. I permisjonsperioden har studenten fortsatt status som student ved fagskolen og har rett til å gjenoppta utdanningen på samme nivå som før permisjonen. Bestemmelsene i arbeidsmiljøloven §§ 12-1 til 12-5 og § 12-7 gjelder så langt de passer."
+     },
+     {
+      "dokument_id": "NL/lov/2018-06-08-28",
+      "eid": "https://lovdata.no/eli/lov/2018/06/08/28/nor/§39/ledd-1",
+      "tekst": "Når fagskolene behandler saker etter loven her, gjelder bestemmelsene i forvaltningsloven om habilitet i §§ 6 til 10 og om taushetsplikt i §§ 13 til 13 e."
+     },
+     {
+      "dokument_id": "NL/lov/2018-06-08-28",
+      "eid": "https://lovdata.no/eli/lov/2018/06/08/28/nor/§39/ledd-3",
+      "tekst": "Departementet kan gi forskrift om at forvaltningsloven kapittel VI ikke skal gjelde for vedtak fra NOKUT om akkreditering av fagskoleutdanning."
+     }
+    ]
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "undertype_riktig": true,
+    "sitat_eid_riktig": true,
+    "rent_endrings_eller_ikrafttredelsesvedtak_446": false,
+    "feilarsak": null,
+    "grunn": "Som M19 og H17.",
+    "kontrollert_mot": [
+     "NL/lov/2018-06-08-28 §44 (korpus)"
+    ]
+   }
+  }
+ ]
+}
