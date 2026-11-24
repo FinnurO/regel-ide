@@ -1585,7 +1585,7 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
 - **Ingen merkelapp på linje 2 under tittelen** og ingen `danger`. Lovdata viser forskriften som gjeldende; en opphevet hjemmel er en lesning
   av premissene, ikke en statusendring (CLAUDE.md §9). `Metatekst` under overskriften sier det, med regelversjon og dato.
 - **Samlet:** `Tag` `neutral` med teksten («Hjemmel opphevet, videreføring ikke funnet (mulig bortfalt)», Johanns ord 2026-11-18 (2); aldri
-  «sovende»), `KunnskapsstatusTag` (§35, uavklart er `warning`), og «Gjenstandsløs» som eget `neutral`-merke (avgjørelse (5)). Under står
+  «sovende»; [ENDRET, #472 PR 2] «(mulig bortfalt)» står bare når funnet har «Ny hjemmel» vurdert, se §58), `KunnskapsstatusTag` (§35, uavklart er `warning`), og «Gjenstandsløs» som eget `neutral`-merke (avgjørelse (5)). Under står
   forklaringen og «Svakeste premiss: …» som `Metatekst`, som i §47. Den samlede statusen regnes ut av API-et og lagres ikke.
 - **Tabellen** (`Card` med padding 0, §6) har tre kolonner: «Hjemmel» (lenke til hjemmelsdokumentet, bestemmelsen etter `Bestemmelsesetikett`;
   «Bare referanse i korpuset» og «Teller ikke i den samlede statusen» som `Metatekst`), «Rolle» (`neutral`; «Ikke vurdert» `neutral` `outline`
@@ -1619,3 +1619,31 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
 - **Kaldsjekket på nytt 2026-11-20** etter Johanns avgjørelser på PR #489, i en ny kopi (samme porter): hjemmelkortet for statsrådet viser Grl. § 12
   første ledd (fortolkning, oppretting), «Organtilhørighet» har «har medlemmer fra statsråd» (lenke til rollebegrepet), og Grl. § 72 tredje ledd
   nr. 1 viser «Forekomst: rollen statsråd» → statsråd (rollebegrepet). Ingen ny komponent. Kopien er slettet.
+
+## 58. Funnet «Hjemmel opphevet» og premissporten «Ny hjemmel» (issue #472 PR 2, Johanns avgjørelser 2026-11-18 og 2026-11-20)
+
+- **Ingen ny side.** Funnene står i registeret (`/funn`, §49) med kategorien «Hjemmel opphevet». Kategorimerket er «Hjemmel opphevet: videreføring
+  ikke funnet», «… blandede hjemler», «… de andre hjemlene ikke vurdert» og «… videreføringen er utløpt» (`neutral`, en klassifisering).
+  Gjenstandsløs står alene som «Gjenstandsløs», fordi det er gjenstanden og ikke hjemmelen som er opphevet (`kategoriMerketekst` i
+  `funn/funnTekst.ts`, vitest). Kategorien kan ikke velges ved registrering (`REGISTRERBARE_KATEGORIER`): bare maskinregelen lager slike funn.
+- **«Mulig bortfalt»** er en lesning av premissene, ikke en status: `Tag` `neutral`, som den samlede statusen på rettskildesiden (§56). Merket står
+  bare når API-et sier `muligBortfalt = true`, det vil si når undertypen er hjemmel opphevet eller videreføringen utløpt OG vurderingspunktet «Ny
+  hjemmel» finnes. Ordet står aldri i tittelen eller påstanden, så det ikke kan slippe gjennom porten via teksten.
+- **Premissporten** viser manglene som `warning`, også på et funn som bare er oppdaget (som «Hjemmelsloven kan være opphevet» i §49):
+  «Ny hjemmel ikke vurdert» og «Uttømt virkning ikke klassifisert (#446)». «Hjemmel ikke vurdert» faller inn under «Premiss ikke vurdert» etter
+  juristvurderingen, som før (`delPremissmangler`).
+- **Juristvurderingen** får to felt: «Hjemmel: har vedtaket fortsatt virkning …?» (alltid for denne kategorien, lagres som «Hjemmel») og «Ny hjemmel:
+  kan forskriften stå på en ny hjemmel som gir samme kompetanse?», med avkrysningen «Ny hjemmel: ikke vurdert» rett under feltet (ikke i `Field`, §51). Avkrysset lagres punktet som type
+  `ikke_avgjort` med teksten «Ikke vurdert.», og tekstfeltet er låst. Gjenstandsløs får ikke feltet «Ny hjemmel».
+- **«Ikke avgjort»** viser nå overskriften foran teksten («Ny hjemmel: Ikke vurdert.»), i appen, i forhåndsvisningen og på nettsiden
+  (`nettside/funn/index.html`). Uten den sa punktet ingenting.
+- **Bestemmelsene** står i samme tabell som før, med rollene «Gjelder» (forskriften), «Opphever hjemmelen» og «Overgangsregel». En kobling til hele
+  forskriften har ingen eId, og lenken heter da «Åpne rettskilden», ikke «bestemmelsen ikke funnet».
+- **Rettskildesiden** (§56): den samlede statusen «Hjemmel opphevet, videreføring ikke funnet» får «(mulig bortfalt)» bare når funnet har «Ny
+  hjemmel» vurdert (`samletTekst` i `rettskilde/hjemmelsstatusTekst.ts`, vitest). Ellers sier forklaringen i `Metatekst` hvorfor det ikke står.
+  Lenken «Funn til vurdering» står ved den samlede statusen når forskriften har et slikt funn.
+- **Fargerollene er de låste fra §15/§35/§49.** Ingen nye farger.
+- **Kaldsjekket 2026-11-24** i kopien `regelide_472pr2` (API 5387, web 5373, bryteren for #446 på): lista viste 318 funn med kategorimerkene over og
+  «Ny hjemmel ikke vurdert» på 315. På FOR-2016-12-02-1426 ga avkrysningen merket «Mulig bortfalt» etter lagring, og «Ny hjemmel: Ikke vurdert.»
+  under «Ikke avgjort». Rettskildesiden til FOR-1994-06-03-375 viste «Hjemmel opphevet, videreføring ikke funnet» uten «(mulig bortfalt)» og
+  lenken til funnet. Kopien er slettet.

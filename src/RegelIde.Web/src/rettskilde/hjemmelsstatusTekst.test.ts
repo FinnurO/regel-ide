@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { kildetekst, norskDato, SAMLET_STATUS, STATUS } from './hjemmelsstatusTekst';
+import { kildetekst, norskDato, samletTekst, SAMLET_STATUS, STATUS } from './hjemmelsstatusTekst';
 
 describe('hjemmelsstatus (#472)', () => {
   it('har tekst for alle statusene API-et kan gi', () => {
@@ -11,8 +11,11 @@ describe('hjemmelsstatus (#472)', () => {
     }
   });
 
-  it('sier aldri at forskriften er bortfalt, bare at den mulig er det (Johann 2026-11-18)', () => {
-    expect(SAMLET_STATUS.hjemmel_opphevet.tekst).toBe('Hjemmel opphevet, videreføring ikke funnet (mulig bortfalt)');
+  it('sier aldri at forskriften er bortfalt, bare at den mulig er det, og først når «Ny hjemmel» er vurdert (Johann 2026-11-18, #472 PR 2)', () => {
+    expect(samletTekst('hjemmel_opphevet', true).tekst).toBe('Hjemmel opphevet, videreføring ikke funnet (mulig bortfalt)');
+    expect(samletTekst('hjemmel_opphevet', false).tekst).toBe('Hjemmel opphevet, videreføring ikke funnet');
+    expect(samletTekst('hjemmel_opphevet', undefined).forklaring).toMatch(/ny hjemmel/);
+    expect(samletTekst('aktiv', true).tekst).toBe('Hjemlene er aktive');
     for (const v of Object.values(SAMLET_STATUS)) expect(v.tekst.toLowerCase()).not.toMatch(/sovende|ugyldig|er bortfalt/);
   });
 

@@ -4,7 +4,7 @@ import type { HjemmelsstatusDto, HjemmelsstatusKildeDto, HjemmelsstatusRadDto } 
 import { rettskildeLenkeForId } from '../api/eidLenker';
 import { Metatekst } from '../entitet/Metatekst';
 import { KunnskapsstatusTag } from '../strukturkant/Utsagnsstatus';
-import { BEVISTRINN, DEKNING, ROLLE, ROLLEREGEL, SAMLET_STATUS, STATUS, UKJENT_GRUNN, kildetekst, norskDato } from './hjemmelsstatusTekst';
+import { BEVISTRINN, DEKNING, ROLLE, ROLLEREGEL, SAMLET_STATUS, STATUS, UKJENT_GRUNN, kildetekst, norskDato, samletTekst } from './hjemmelsstatusTekst';
 
 /**
  * [Ny, issue #472 PR 1, Johanns avgjørelser 2026-11-18] Hjemmelsstatusen på rettskildesiden (docs/09 §56): status, rolle og bevis per hjemmel,
@@ -12,7 +12,8 @@ import { BEVISTRINN, DEKNING, ROLLE, ROLLEREGEL, SAMLET_STATUS, STATUS, UKJENT_G
  * <p>
  * Fargerollene følger docs/09 §15/§35: statusene og rollene er klassifiseringer → `neutral`; kunnskapsstatus med sitt eget merke (uavklart er
  * `warning`). Ingen `danger` og ingen merkelapp på linje 2 under tittelen: Lovdata viser forskriften som gjeldende, og en opphevet hjemmel er en
- * lesning av premissene, ikke en statusendring (CLAUDE.md §9). Funnene kommer i PR 2.
+ * lesning av premissene, ikke en statusendring (CLAUDE.md §9). [ENDRET, #472 PR 2] Funnet «Hjemmel opphevet» lenkes fra den samlede statusen,
+ * og «(mulig bortfalt)» står først når funnet har «Ny hjemmel» vurdert (premissporten).
  */
 export function Hjemmelsstatus({ data }: { data: HjemmelsstatusDto | null }) {
   if (!data) return null;
@@ -24,7 +25,7 @@ export function Hjemmelsstatus({ data }: { data: HjemmelsstatusDto | null }) {
       </section>
     );
   }
-  const samlet = SAMLET_STATUS[data.samletStatus ?? ''] ?? { tekst: data.samletStatus ?? '', forklaring: '' };
+  const samlet = samletTekst(data.samletStatus, data.muligBortfaltVises);
   const svakest = data.hjemler.find((h) => h.rettskildeHjemmelId === data.svakestePremissId);
   return (
     <section style={{ marginBottom: '1.5rem' }}>
@@ -40,6 +41,9 @@ export function Hjemmelsstatus({ data }: { data: HjemmelsstatusDto | null }) {
         <KunnskapsstatusTag status={data.samletKunnskapsstatus} />
         {data.gjenstandslos && (
           <Tag data-size="sm" data-color="neutral" title="Gjenstanden for vedtaket (loven det handler om) er opphevet.">Gjenstandsløs</Tag>
+        )}
+        {data.funnId && (
+          <Link asChild data-size="sm"><RouterLink to={`/funn/${data.funnId}`}>Funn til vurdering</RouterLink></Link>
         )}
       </Paragraph>
       <Metatekst>{samlet.forklaring}</Metatekst>

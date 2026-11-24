@@ -1,7 +1,7 @@
 import { Heading, Link, Paragraph, Tag } from '@digdir/designsystemet-react';
 import type { FunnDto, FunnKategori, FunnOffentlig, FunnStatus } from '../api/types';
 import { Metatekst } from '../entitet/Metatekst';
-import { delITekstblokker, delPremissmangler, etterfolgerlinje, lovdataLenke, utenEtterfolgerpunkt } from './funnTekst';
+import { delITekstblokker, delPremissmangler, etterfolgerlinje, kategoriMerketekst, lovdataLenke, utenEtterfolgerpunkt } from './funnTekst';
 
 export { lovdataLenke };
 
@@ -22,6 +22,8 @@ export const KATEGORI_TEKST: Record<FunnKategori, string> = {
   utgatt_aktor: 'Utgått aktør',
   mulig_motstrid: 'Mulig motstrid',
   uklarhet_hull: 'Uklarhet eller hull',
+  // [Ny, #472 PR 2, Johanns avgjørelse 2026-11-18 (2)] Navnet er «Hjemmel opphevet, videreføring ikke funnet»; aldri «sovende».
+  hjemmel_opphevet: 'Hjemmel opphevet',
 };
 
 export const UNDERTYPE_TEKST: Record<string, string> = {
@@ -33,12 +35,19 @@ export const UNDERTYPE_TEKST: Record<string, string> = {
   hull: 'Hull',
   upresis_henvisning: 'Upresis henvisning',
   publiseringsfeil_kilde: 'Publiseringsfeil i kilden',
+  // [Ny, #472 PR 2] Samme ord som den samlede hjemmelsstatusen (rettskilde/hjemmelsstatusTekst.ts). Maskinregelens klassifisering, ikke i UNDERTYPER.
+  hjemmel_opphevet: 'Videreføring ikke funnet',
+  blandede_hjemler: 'Blandede hjemler',
+  uavklart: 'De andre hjemlene ikke vurdert',
+  videreforing_utlopt: 'Videreføringen er utløpt',
+  gjenstandslos: 'Gjenstandsløs',
 };
 
 export const UNDERTYPER: Record<FunnKategori, string[]> = {
   utgatt_aktor: ['nedlagt_aktor', 'utgatt_navn'],
   mulig_motstrid: [],
   uklarhet_hull: ['hull', 'upresis_henvisning', 'publiseringsfeil_kilde'],
+  hjemmel_opphevet: [],
 };
 
 export const STATUS_VISNING: Record<FunnStatus, { tekst: string; farge: 'info' | 'success' | 'neutral'; forklaring: string }> = {
@@ -61,7 +70,9 @@ export const SIKKERHET_TEKST: Record<string, string> = {
 };
 
 export const ALLE_STATUSER: FunnStatus[] = ['oppdaget', 'juristvurdert', 'godkjent_for_publisering', 'forklart_bort'];
-export const ALLE_KATEGORIER: FunnKategori[] = ['utgatt_aktor', 'mulig_motstrid', 'uklarhet_hull'];
+export const ALLE_KATEGORIER: FunnKategori[] = ['utgatt_aktor', 'mulig_motstrid', 'uklarhet_hull', 'hjemmel_opphevet'];
+/** [Ny, #472 PR 2] Kategoriene som kan velges ved registrering. «Hjemmel opphevet» lages bare av maskinregelen, fra hjemmelsstatusen. */
+export const REGISTRERBARE_KATEGORIER: FunnKategori[] = ['utgatt_aktor', 'mulig_motstrid', 'uklarhet_hull'];
 
 export function FunnStatusTag({ status }: { status: FunnStatus }) {
   const v = STATUS_VISNING[status];
@@ -71,7 +82,7 @@ export function FunnStatusTag({ status }: { status: FunnStatus }) {
 export function FunnKategoriTag({ kategori, undertype }: { kategori: FunnKategori; undertype: string | null }) {
   const tekst = KATEGORI_TEKST[kategori] ?? kategori;
   const under = undertype ? UNDERTYPE_TEKST[undertype] ?? undertype : null;
-  return <Tag data-size="sm" data-color="neutral">{under ? `${tekst}: ${under.toLowerCase()}` : tekst}</Tag>;
+  return <Tag data-size="sm" data-color="neutral">{kategoriMerketekst(tekst, undertype, under)}</Tag>;
 }
 
 /** Hele teksten står synlig, ikke bare i `title` — som fasitmerket i docs/09 §46 (Johann 2026-10-30, anbefaling 7). */
@@ -97,7 +108,8 @@ export function MaskinregelTag() {
 
 /** De merkene som hører til et funn, i fast rekkefølge: status, kategori, KI-vurdering eller maskinregel, kilde endret, premissport. */
 export function FunnMerker({ funn }: { funn: FunnDto }) {
-  const { hjemmel, andre } = delPremissmangler(funn.premissmangler);
+  const { hjemmel, nyHjemmel, uttomt, andre } = delPremissmangler(funn.premissmangler);
+  const apen = funn.status === 'oppdaget' || funn.status === 'juristvurdert';
   return (
     <>
       <FunnStatusTag status={funn.status} />
@@ -117,6 +129,19 @@ export function FunnMerker({ funn }: { funn: FunnDto }) {
       {/* [Ny, #429 PR 3, R9] Også på et funn som bare er oppdaget: mangelen skal synes før juristen tar det (Johann 2026-11-02 (5)). */}
       {hjemmel.length > 0 && (funn.status === 'oppdaget' || funn.status === 'juristvurdert') && (
         <Tag data-size="sm" data-color="warning" title={hjemmel.join(' ')}>Hjemmelsloven kan være opphevet</Tag>
+      )}
+      {/* [Ny, #472 PR 2, premissporten] «Mulig bortfalt» er en lesning av premissene, ikke en status (neutral, som på rettskildesiden §56), og
+          vises først når «Ny hjemmel» er vurdert eller merket «ikke vurdert». Til da står mangelen som warning, også på et oppdaget funn. */}
+      {funn.muligBortfalt === true && funn.status !== 'forklart_bort' && (
+        <Tag data-size="sm" data-color="neutral" title="Alle hjemlene som teller, er opphevet uten funnet videreføring, og «Ny hjemmel» er vurdert.">
+          Mulig bortfalt
+        </Tag>
+      )}
+      {nyHjemmel.length > 0 && apen && (
+        <Tag data-size="sm" data-color="warning" title={nyHjemmel.join(' ')}>Ny hjemmel ikke vurdert</Tag>
+      )}
+      {uttomt.length > 0 && apen && (
+        <Tag data-size="sm" data-color="warning" title={uttomt.join(' ')}>Uttømt virkning ikke klassifisert (#446)</Tag>
       )}
     </>
   );
@@ -200,7 +225,9 @@ export function OffentligFunn({ funn, modus, etterfolgerIkkeVurdert = false }: {
         <>
           <Paragraph data-size="sm" style={{ margin: '0.5rem 0 0.25rem' }}>Ikke avgjort:</Paragraph>
           <ul style={{ margin: '0 0 0.75rem', paddingLeft: '1.25rem' }}>
-            {funn.ikkeAvgjort.map((p, i) => <li key={i}><Paragraph data-size="sm" style={{ margin: 0 }}>{p.tekst}</Paragraph></li>)}
+            {funn.ikkeAvgjort.map((p, i) => (
+              <li key={i}><Paragraph data-size="sm" style={{ margin: 0 }}>{p.overskrift && <em>{p.overskrift}: </em>}{p.tekst}</Paragraph></li>
+            ))}
           </ul>
         </>
       )}

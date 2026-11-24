@@ -76,6 +76,27 @@ public static class FunnEndepunkter
                          + "påstanden på nytt for lastede funn som er oppdaget og ikke rørt av et menneske. ?medRader=true tar med parene; "
                          + "?rettskildeId= avgrenser.");
 
+        // [Ny, #472 PR 2, Johanns avgjørelser 2026-11-18 og 2026-11-20] Maskinregelen for «Hjemmel opphevet». Leser de lagrede radene i
+        // hjemmelsstatus (PR 1). Tørrkjøring er standard. NULL i #446-kolonnen er én bryter i konfigurasjonen (standard på, 2026-11-24); rapporten viser begge
+        // tolkningene uansett.
+        funn.MapPost("/maskinregel/hjemmel-opphevet", async (bool? skriv, bool? medRader, Guid? rettskildeId, HttpRequest request,
+                RegelIdeDbContext db, HjemmelOpphevetFunnregel regel, IConfiguration konfig, CancellationToken ct) =>
+            {
+                var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+                if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+                var nullGirFunn = konfig.GetValue(HjemmelOpphevetFunnregel.KonfignokkelIkkeKlassifisertGirFunn,
+                    HjemmelOpphevetFunnregel.StandardIkkeKlassifisertGirFunn);
+                return Results.Ok(await regel.KjorAsync(skriv ?? false, bruker.Navn, nullGirFunn, rettskildeId is { } rid ? [rid] : null,
+                    medRader ?? false, ct));
+            })
+            .WithName("KjorMaskinregelHjemmelOpphevet")
+            .WithSummary("Issue #472 PR 2 — ett funn per gjeldende forskrift der den samlede hjemmelsstatusen sier at en hjemmel som teller, er "
+                         + "opphevet uten funnet videreføring. Undertyper: hjemmel_opphevet («Hjemmel opphevet, videreføring ikke funnet»), "
+                         + "blandede_hjemler, uavklart, videreforing_utlopt og gjenstandslos. Ukjent gir ikke funn. Rene endringsvedtak (#446) og rene "
+                         + "ikrafttredelsesvedtak gir ikke funn; NULL i #446-kolonnen gir funn bare når RegelIde:Hjemmelsstatus:IkkeKlassifisertGirFunn "
+                         + "er true (standard true, prosjekteierens avgjørelse 2026-11-24), og rapporten viser begge tolkningene. ?skriv=true skriver funnene som oppdaget; uten er det en "
+                         + "tørrkjøring. Idempotent: en ny kjøring gir 0 nye. ?medRader=true tar med forskriftene; ?rettskildeId= avgrenser.");
+
         funn.MapGet("/tilgang", async (HttpRequest request, RegelIdeDbContext db, IConfiguration konfig, CancellationToken ct) =>
             {
                 var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
@@ -307,7 +328,8 @@ public sealed record FunnDto(
     string? VurdertAvType, string? ForklartBortBegrunnelse, string? ForklartBortAv, DateTimeOffset? ForklartBortTidspunkt,
     string? GodkjentAv, DateTimeOffset? GodkjentTidspunkt, DateTimeOffset? KildeEndretTidspunkt,
     List<FunnKoblingDto> Koblinger, List<FunnVurderingspunktDto> Vurderingspunkter, List<string> Premissmangler, JsonElement? Forhandsvisning,
-    string? GjenapnetAv = null, DateTimeOffset? GjenapnetTidspunkt = null, string? GjenapnetBegrunnelse = null)
+    string? GjenapnetAv = null, DateTimeOffset? GjenapnetTidspunkt = null, string? GjenapnetBegrunnelse = null,
+    bool? MuligBortfalt = null)
 {
     public static FunnDto Fra(FunnEntitet f, List<string> premissmangler, JsonElement? forhandsvisning) => new(
         f.Id, f.EksternNokkel, f.Kategori, f.Undertype, f.Tittel, f.Beskrivelse, f.Vurdering, f.InternMerknad, f.Status, f.OppdagelsesKilde,
@@ -319,5 +341,7 @@ public sealed record FunnDto(
             k.QuoteExact)).ToList(),
         f.Vurderingspunkter.OrderBy(p => p.Sortering).Select(p => new FunnVurderingspunktDto(p.Id, p.Type, p.Sortering, p.Overskrift, p.Tekst,
             p.Sikkerhet)).ToList(),
-        premissmangler, forhandsvisning, f.GjenapnetAv, f.GjenapnetTidspunkt, f.GjenapnetBegrunnelse);
+        premissmangler, forhandsvisning, f.GjenapnetAv, f.GjenapnetTidspunkt, f.GjenapnetBegrunnelse,
+        // [Ny, #472 PR 2] Premissporten: «mulig bortfalt» vises først når «Ny hjemmel» er vurdert eller merket «ikke vurdert». null = ikke aktuelt.
+        FunnTjeneste.MuligBortfaltVises(f));
 }

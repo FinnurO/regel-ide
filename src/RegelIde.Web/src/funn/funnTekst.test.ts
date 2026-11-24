@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { delITekstblokker, delPremissmangler, etterfolgerlinje, lovdataLenke, utenEtterfolgerpunkt } from './funnTekst';
+import {
+  delITekstblokker, delPremissmangler, etterfolgerlinje, kategoriMerketekst, lovdataLenke, utenEtterfolgerpunkt,
+} from './funnTekst';
 
 describe('delITekstblokker (#429)', () => {
   it('gjør «- »-linjer til én liste etter innledningen', () => {
@@ -27,8 +29,8 @@ describe('delPremissmangler (#429 PR 3)', () => {
   it('skiller R9 (hjemmelsloven) fra navneform og etterfølger', () => {
     const r9 = 'Hjemmelsloven kan være opphevet: rettskilden bygger på lov 24. juni 1988 nr. 64 (Lovdatas hjemmelsfelt), og …';
     const etterfolger = 'Etterfølger ikke vurdert: «X» (maskinelt foreslått).';
-    expect(delPremissmangler([etterfolger, r9])).toEqual({ hjemmel: [r9], andre: [etterfolger] });
-    expect(delPremissmangler([])).toEqual({ hjemmel: [], andre: [] });
+    expect(delPremissmangler([etterfolger, r9])).toEqual({ hjemmel: [r9], nyHjemmel: [], uttomt: [], andre: [etterfolger] });
+    expect(delPremissmangler([])).toEqual({ hjemmel: [], nyHjemmel: [], uttomt: [], andre: [] });
   });
 });
 
@@ -45,5 +47,19 @@ describe('etterfolgerlinje (#429 PR 2)', () => {
   it('sier «ukjent» uten kant og punkt, og «ikke vurdert» når premissporten stopper', () => {
     expect(etterfolgerlinje([], [])).toBe('ukjent');
     expect(etterfolgerlinje([], [punkt], true)).toBe('ikke vurdert');
+  });
+});
+
+describe('delPremissmangler og kategoriMerketekst (#472 PR 2)', () => {
+  it('skiller «Ny hjemmel» og #446 fra «Hjemmel ikke vurdert», som er en vanlig premiss', () => {
+    const ny = 'Ny hjemmel ikke vurdert: vurderingen har ikke noe punkt «Ny hjemmel» …';
+    const uttomt = 'Uttømt virkning ikke klassifisert (#446): det er ikke avgjort …';
+    const hjemmel = 'Hjemmel ikke vurdert: vurderingen har ikke noe punkt «Hjemmel» …';
+    expect(delPremissmangler([ny, hjemmel, uttomt])).toEqual({ hjemmel: [], nyHjemmel: [ny], uttomt: [uttomt], andre: [hjemmel] });
+  });
+  it('gir «Hjemmel opphevet: videreføring ikke funnet», men gjenstandsløs alene', () => {
+    expect(kategoriMerketekst('Hjemmel opphevet', 'hjemmel_opphevet', 'Videreføring ikke funnet')).toBe('Hjemmel opphevet: videreføring ikke funnet');
+    expect(kategoriMerketekst('Hjemmel opphevet', 'gjenstandslos', 'Gjenstandsløs')).toBe('Gjenstandsløs');
+    expect(kategoriMerketekst('Mulig motstrid', null, null)).toBe('Mulig motstrid');
   });
 });

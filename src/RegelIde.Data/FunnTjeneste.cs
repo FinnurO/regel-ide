@@ -63,7 +63,9 @@ public sealed class FunnTjeneste(RegelIdeDbContext db)
         {
             var eli = await db.Rettskilder.Where(r => r.Id == rid).Select(r => r.Eli).FirstOrDefaultAsync(ct);
             // [ENDRET, #429 PR 2] Målvedtaket til et endringsvedtak er ikke «funn i rettskilde X»: funnet står i endringsvedtaket.
-            q = q.Where(f => f.Koblinger.Any(k => k.Rolle != Funn.Malvedtak && (k.RettskildeId == rid || (eli != null && k.RettskildeEli == eli))));
+            // [ENDRET, #472 PR 2] Det samme gjelder loven som opphever en hjemmel, og overgangsregelen: funnet står i forskriften.
+            q = q.Where(f => f.Koblinger.Any(k => k.Rolle != Funn.Malvedtak && k.Rolle != Funn.OpphevendeBestemmelse && k.Rolle != Funn.Videreforingsbestemmelse
+                                                  && (k.RettskildeId == rid || (eli != null && k.RettskildeEli == eli))));
         }
         if (virksomhetId is { } vid) q = q.Where(f => f.Koblinger.Any(k => k.VirksomhetId == vid));
         // [ENDRET, #429 PR 4, Johanns avgjørelse 2026-11-04 (2)] Funn der navnet bare står i avgiverformelen, sorteres sist. De holdes ikke tilbake.
@@ -381,6 +383,13 @@ public sealed class FunnTjeneste(RegelIdeDbContext db)
     /// Samme regel som <see cref="PremissmanglerAsync"/>.</summary>
     public async Task<Dictionary<Guid, List<string>>> PremissmanglerForAsync(IReadOnlyCollection<FunnEntitet> funn, CancellationToken ct = default)
     {
+        var ut = await PremissmanglerUtgattAktorAsync(funn, ct);
+        await LeggTilPremissmanglerHjemmelOpphevetAsync(funn, ut, ct);
+        return ut;
+    }
+
+    private async Task<Dictionary<Guid, List<string>>> PremissmanglerUtgattAktorAsync(IReadOnlyCollection<FunnEntitet> funn, CancellationToken ct)
+    {
         var aktuelle = funn.Where(f => f.Kategori == Funn.UtgattAktor).ToList();
         var begrepIder = aktuelle.SelectMany(f => f.Koblinger).Where(k => k.Rolle == Funn.Navneform && k.BegrepId != null)
             .Select(k => k.BegrepId!.Value).Distinct().ToList();
@@ -436,6 +445,67 @@ public sealed class FunnTjeneste(RegelIdeDbContext db)
         }
         return ut;
     }
+
+    /// <summary>[Ny, #472 PR 2] Premissmangelen når «Ny hjemmel» ikke er vurdert. Starter alltid slik (appen skiller merkene på det).</summary>
+    public const string NyHjemmelMangelStart = "Ny hjemmel ikke vurdert";
+
+    /// <summary>[Ny, #472 PR 2] Premissmangelen når #446 ikke har klassifisert forskriften. Starter alltid slik.</summary>
+    public const string UttomtVirkningMangelStart = "Uttømt virkning ikke klassifisert";
+
+    /// <summary>
+    /// [Ny, #472 PR 2, Johanns avgjørelser 2026-11-18 og 2026-11-20] <b>Premissporten for «Hjemmel opphevet»</b> (svakeste premiss, docs/33 §4.6).
+    /// Mangelen står også på et funn som bare er oppdaget, som R9, så den synes før juristen tar det:
+    /// <list type="bullet">
+    /// <item><b>«Ny hjemmel»</b> (alle undertyper unntatt gjenstandsløs): juristen sier om forskriften kan stå på en ny hjemmel som gir samme
+    /// kompetanse, eller merker punktet «ikke vurdert». Til da vises funnet ikke som «mulig bortfalt» (<see cref="MuligBortfaltVises"/>). Et
+    /// maskinsignal for ny tilsvarende hjemmel er avvist i juristrunde 2.</item>
+    /// <item><b>«Hjemmel»</b> (som R9): om forskriften fortsatt har virkning — videreført, erstattet eller uten virkning.</item>
+    /// <item><b>#446:</b> forskriften er ikke klassifisert som rent endrings-, opphevings- eller ikrafttredelsesvedtak (<c>rent_endringsvedtak</c> er
+    /// NULL). Slike funn finnes bare når bryteren <see cref="HjemmelOpphevetFunnregel.KonfignokkelIkkeKlassifisertGirFunn"/> er på.</item>
+    /// </list>
+    /// </summary>
+    private async Task LeggTilPremissmanglerHjemmelOpphevetAsync(IReadOnlyCollection<FunnEntitet> funn, Dictionary<Guid, List<string>> ut, CancellationToken ct)
+    {
+        var aktuelle = funn.Where(f => f.Kategori == Funn.HjemmelOpphevet).ToList();
+        if (aktuelle.Count == 0) return;
+        var forskriftIder = aktuelle.SelectMany(f => f.Koblinger).Where(k => k.Rolle == Funn.GjelderBestemmelse && k.RettskildeId != null)
+            .Select(k => k.RettskildeId!.Value).Distinct().ToList();
+        var klassifisert = forskriftIder.Count == 0 ? new Dictionary<Guid, bool?>()
+            : await db.Rettskilder.AsNoTracking().Where(r => forskriftIder.Contains(r.Id))
+                .Select(r => new { r.Id, r.RentEndringsvedtak }).ToDictionaryAsync(r => r.Id, r => r.RentEndringsvedtak, ct);
+        foreach (var f in aktuelle)
+        {
+            var mangler = ut[f.Id];
+            if (f.Undertype != HjemmelOpphevetFunnregel.UndertypeGjenstandslos && !NyHjemmelVurdert(f))
+            {
+                mangler.Add($"{NyHjemmelMangelStart}: vurderingen har ikke noe punkt «{Funn.NyHjemmelOverskrift}» som sier om forskriften kan stå på en "
+                    + "ny hjemmel som gir samme kompetanse. Funnet vises ikke som «mulig bortfalt» før punktet er vurdert eller merket «ikke vurdert».");
+            }
+            if (HjemmelVurdering(f) is null)
+            {
+                mangler.Add("Hjemmel ikke vurdert: vurderingen har ikke noe punkt «Hjemmel» som sier om forskriften fortsatt har virkning "
+                    + "(videreført etter en overgangsregel, erstattet av en ny ordning, eller uten virkning).");
+            }
+            var forskrift = f.Koblinger.Where(k => k.Rolle == Funn.GjelderBestemmelse && k.RettskildeId != null).Select(k => k.RettskildeId!.Value)
+                .FirstOrDefault();
+            if (forskrift == Guid.Empty || !klassifisert.TryGetValue(forskrift, out var ren) || ren is null)
+            {
+                mangler.Add($"{UttomtVirkningMangelStart} (#446): det er ikke avgjort om forskriften er et rent endrings-, opphevings- eller "
+                    + "ikrafttredelsesvedtak. Et slikt vedtak har uttømt virkningen og gir ikke funn.");
+            }
+        }
+    }
+
+    /// <summary>[Ny, #472 PR 2] Juristens punkt «Ny hjemmel»: vurdert (type vurdering) eller merket «ikke vurdert» (type ikke_avgjort).</summary>
+    public static bool NyHjemmelVurdert(FunnEntitet f) => f.Vurderingspunkter.Any(p => p.Type is Funn.Vurdering or Funn.IkkeAvgjort
+        && string.Equals(p.Overskrift?.Trim(), Funn.NyHjemmelOverskrift, StringComparison.OrdinalIgnoreCase));
+
+    /// <summary>[Ny, #472 PR 2, Johanns avgjørelse 2026-11-18] Om funnet kan vises som «mulig bortfalt»: bare undertypene der alle hjemlene som
+    /// teller, faller (hjemmel opphevet, videreføringen utløpt), og bare når «Ny hjemmel» er vurdert eller merket «ikke vurdert» (premissporten).
+    /// <c>null</c> for funn der merket ikke hører hjemme (andre kategorier, blandede hjemler, uavklart, gjenstandsløs).</summary>
+    public static bool? MuligBortfaltVises(FunnEntitet f) =>
+        f.Kategori == Funn.HjemmelOpphevet && f.Undertype is HjemmelOpphevetFunnregel.UndertypeHjemmelOpphevet or HjemmelOpphevetFunnregel.UndertypeVidereforingUtlopt
+            ? NyHjemmelVurdert(f) : null;
 
     /// <summary>[Ny, #429 PR 3, R9] Hjemmelslovene som er opphevet, per funn, lest av rettskilden funnet står i og funnets egne noder. Tre
     /// til fem oppslag for hele lista.</summary>
@@ -534,7 +604,9 @@ public sealed class FunnTjeneste(RegelIdeDbContext db)
             tittel = f.Tittel,
             beskrivelse = f.Beskrivelse,
             vurdering = f.Vurdering,
-            bestemmelser = Rolle(Funn.MotstridendeBestemmelse, Funn.GjelderBestemmelse)
+            // [ENDRET, #472 PR 2] Den opphevende bestemmelsen og overgangsregelen står med rollen sin. Funn uten disse rollene får samme innhold
+            // og samme hash som før.
+            bestemmelser = Rolle(Funn.MotstridendeBestemmelse, Funn.GjelderBestemmelse, Funn.OpphevendeBestemmelse, Funn.Videreforingsbestemmelse)
                 .Select(k => new { rolle = k.Rolle, etikett = k.Etikett, merknad = k.Merknad, eli = k.RettskildeEli, eid = k.Eid }).ToList(),
             navneformer = Rolle(Funn.Navneform).Select(k => new { etikett = k.Etikett, merknad = k.Merknad }).ToList(),
             aktorer = Rolle(Funn.BerortAktor).Select(k => new { etikett = k.Etikett, merknad = k.Merknad }).ToList(),
@@ -635,7 +707,7 @@ public sealed class FunnTjeneste(RegelIdeDbContext db)
             }
             var rolleOk = k.Rolle switch
             {
-                Funn.GjelderBestemmelse or Funn.MotstridendeBestemmelse => eli is not null,
+                Funn.GjelderBestemmelse or Funn.MotstridendeBestemmelse or Funn.OpphevendeBestemmelse or Funn.Videreforingsbestemmelse => eli is not null,
                 Funn.BerortAktor => k.VirksomhetId is not null,
                 Funn.Navneform => k.BegrepId is not null,
                 Funn.Etterfolger => k.StrukturkantId is not null,

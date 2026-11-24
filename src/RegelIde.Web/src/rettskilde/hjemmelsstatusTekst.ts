@@ -13,8 +13,9 @@ export const SAMLET_STATUS: Record<string, { tekst: string; forklaring: string }
     tekst: 'Videreføringen er utløpt',
     forklaring: 'Hjemmelen er opphevet, og overgangsregelen viderefører bare fram til en dato som er passert.',
   },
+  // [ENDRET, #472 PR 2, premissporten] «(mulig bortfalt)» legges til av samletTekst bare når «Ny hjemmel» er vurdert i funnet.
   hjemmel_opphevet: {
-    tekst: 'Hjemmel opphevet, videreføring ikke funnet (mulig bortfalt)',
+    tekst: 'Hjemmel opphevet, videreføring ikke funnet',
     forklaring:
       'Alle hjemlene som teller, er opphevet, og ingen videreføring er funnet. Ikke funnet betyr ikke at den ikke finnes, og forskriften kan '
       + 'gjelde ved tolkning så langt den kunne vært gitt etter den nye loven. Lovdata viser forskriften som gjeldende.',
@@ -29,6 +30,18 @@ export const SAMLET_STATUS: Record<string, { tekst: string; forklaring: string }
   },
   ukjent: { tekst: 'Ukjent', forklaring: 'Statusen til minst én hjemmel kan ikke avgjøres med kildene i korpuset.' },
 };
+
+/**
+ * [Ny, #472 PR 2, Johanns avgjørelse 2026-11-18, premissporten] Den samlede statusen i klartekst. «(mulig bortfalt)» står bare når funnet for
+ * forskriften har «Ny hjemmel» vurdert eller merket «ikke vurdert» (`muligBortfaltVises` fra API-et).
+ */
+export function samletTekst(status: string | null, muligBortfaltVises: boolean | undefined): { tekst: string; forklaring: string } {
+  const s = SAMLET_STATUS[status ?? ''] ?? { tekst: status ?? '', forklaring: '' };
+  if (status !== 'hjemmel_opphevet') return s;
+  return muligBortfaltVises
+    ? { ...s, tekst: `${s.tekst} (mulig bortfalt)` }
+    : { ...s, forklaring: `${s.forklaring} Vises ikke som «mulig bortfalt» før juristen har vurdert om forskriften kan stå på en ny hjemmel.` };
+}
 
 export const STATUS: Record<string, string> = {
   aktiv: 'Aktiv',

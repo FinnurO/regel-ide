@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link as RouterLink, useParams } from 'react-router';
 import {
-  Alert, Button, Card, Dialog, Field, Heading, Label, Link, Paragraph, Select, Spinner, Table, Textarea, Textfield,
+  Alert, Button, Card, Checkbox, Dialog, Field, Heading, Label, Link, Paragraph, Select, Spinner, Table, Textarea, Textfield,
 } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import { rettskildeLenkeForId } from '../api/eidLenker';
 import type { FunnDto, FunnKoblingDto, FunnTilgangDto, FunnVurderingspunktInn } from '../api/types';
 import { Metatekst } from '../entitet/Metatekst';
 import { FunnMerker, FunnTekst, OffentligFunn, SIKKERHET_TEKST, lovdataLenke } from '../funn/FunnVisning';
-import { ETTERFOLGER_OVERSKRIFT, HJEMMEL_OVERSKRIFT, delPremissmangler } from '../funn/funnTekst';
+import { ETTERFOLGER_OVERSKRIFT, HJEMMEL_OVERSKRIFT, NY_HJEMMEL_OVERSKRIFT, delPremissmangler } from '../funn/funnTekst';
 
 const ROLLE_TEKST: Record<string, string> = {
   motstridende_bestemmelse: 'Mulig motstrid',
@@ -18,7 +18,13 @@ const ROLLE_TEKST: Record<string, string> = {
   etterfolger: 'Etterfølger',
   kilde: 'Kilde',
   malvedtak: 'Målvedtak',
+  // [Ny, #472 PR 2]
+  opphevende_bestemmelse: 'Opphever hjemmelen',
+  videreforingsbestemmelse: 'Overgangsregel',
 };
+
+/** [Ny, #472 PR 2] Teksten i punktet «Ny hjemmel» når juristen merker det «ikke vurdert» (type ikke_avgjort). */
+const NY_HJEMMEL_IKKE_VURDERT = 'Ikke vurdert.';
 
 function tid(iso: string | null): string {
   return iso ? new Date(iso).toLocaleDateString('nb-NO', { dateStyle: 'medium' }) : '';
@@ -51,12 +57,22 @@ export default function FunnDetalj() {
   const [etterfolger, setEtterfolger] = useState('');
   // [Ny, #429 PR 3, R9] Juristens vurdering av om vedtaket fortsatt har virkning når hjemmelsloven er opphevet.
   const [hjemmel, setHjemmel] = useState('');
+  // [Ny, #472 PR 2] Juristens vurdering av om forskriften kan stå på en ny hjemmel, eller at det ikke er vurdert (premissporten).
+  const [nyHjemmel, setNyHjemmel] = useState('');
+  const [nyHjemmelIkkeVurdert, setNyHjemmelIkkeVurdert] = useState(false);
   const [begrunnelse, setBegrunnelse] = useState('');
+
+  function settNyHjemmel(f: FunnDto) {
+    const p = nyHjemmelpunkt(f);
+    setNyHjemmelIkkeVurdert(p?.type === 'ikke_avgjort');
+    setNyHjemmel(p?.type === 'vurdering' ? p.tekst : '');
+  }
 
   const last = useCallback(() => {
     if (!id) return;
     api.hentEttFunn(id).then((f) => {
       setFunn(f); setVurdering(f.vurdering ?? ''); setEtterfolger(etterfolgerpunkt(f)?.tekst ?? ''); setHjemmel(hjemmelpunkt(f)?.tekst ?? '');
+      settNyHjemmel(f);
       setFeil(null);
     })
       .catch((e) => setFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved henting av funnet.'));
@@ -74,6 +90,7 @@ export default function FunnDetalj() {
       setVurdering(f.vurdering ?? '');
       setEtterfolger(etterfolgerpunkt(f)?.tekst ?? '');
       setHjemmel(hjemmelpunkt(f)?.tekst ?? '');
+      settNyHjemmel(f);
       setBekreft(null);
     } catch (e) {
       setHandlingFeil(e instanceof ApiError ? e.message : 'Ukjent feil.');
@@ -87,7 +104,7 @@ export default function FunnDetalj() {
   if (!funn) return <Spinner aria-label="Laster funnet …" data-size="sm" />;
 
   const bestemmelser = funn.koblinger.filter((k) => k.rolle === 'motstridende_bestemmelse' || k.rolle === 'gjelder_bestemmelse'
-    || k.rolle === 'malvedtak');
+    || k.rolle === 'malvedtak' || k.rolle === 'opphevende_bestemmelse' || k.rolle === 'videreforingsbestemmelse');
   const aktorer = funn.koblinger.filter((k) => k.rolle === 'berort_aktor' || k.rolle === 'navneform' || k.rolle === 'etterfolger');
   const kilder = funn.koblinger.filter((k) => k.rolle === 'kilde');
   const punkter = (type: string) => funn.vurderingspunkter.filter((p) => p.type === type);
@@ -95,14 +112,21 @@ export default function FunnDetalj() {
   const etterfolgerIkkeVurdert = funn.premissmangler.some((m) => m.startsWith('Etterfølger ikke vurdert'));
   const sporOmEtterfolger = funn.kategori === 'utgatt_aktor' && !funn.koblinger.some((k) => k.rolle === 'etterfolger');
   // [Ny, #429 PR 3, R9] Feltet vises når premissporten melder at hjemmelsloven kan være opphevet, eller når juristen alt har svart.
-  const sporOmHjemmel = delPremissmangler(funn.premissmangler).hjemmel.length > 0 || hjemmelpunkt(funn) !== undefined;
+  // [ENDRET, #472 PR 2] Alltid for et funn om en opphevet hjemmel: hele funnet handler om det.
+  const sporOmHjemmel = delPremissmangler(funn.premissmangler).hjemmel.length > 0 || hjemmelpunkt(funn) !== undefined
+    || funn.kategori === 'hjemmel_opphevet';
+  // [Ny, #472 PR 2] «Ny hjemmel» for alle undertyper unntatt gjenstandsløs (premissporten).
+  const sporOmNyHjemmel = funn.kategori === 'hjemmel_opphevet' && funn.undertype !== 'gjenstandslos';
 
   function juristvurder() {
     const gammeltEtterfolgerpunkt = etterfolgerpunkt(funn!);
     const gammeltHjemmelpunkt = hjemmelpunkt(funn!);
+    const gammeltNyHjemmelpunkt = nyHjemmelpunkt(funn!);
+    const nyHjemmelSvar = sporOmNyHjemmel && (nyHjemmelIkkeVurdert || nyHjemmel.trim() !== '');
     const eksisterende: FunnVurderingspunktInn[] = funn!.vurderingspunkter
       .filter((p) => !(sporOmEtterfolger && etterfolger.trim() && p === gammeltEtterfolgerpunkt))
       .filter((p) => !(sporOmHjemmel && hjemmel.trim() && p === gammeltHjemmelpunkt))
+      .filter((p) => !(nyHjemmelSvar && p === gammeltNyHjemmelpunkt))
       .map((p) => ({ type: p.type, tekst: p.tekst, overskrift: p.overskrift, sikkerhet: p.sikkerhet }));
     const nye: FunnVurderingspunktInn[] = nyBortforklaring.trim()
       ? [{ type: 'bortforklaring_provd', tekst: nyBortforklaring.trim(), overskrift: nyBortforklaringOverskrift.trim() || null }]
@@ -112,6 +136,11 @@ export default function FunnDetalj() {
     }
     if (sporOmHjemmel && hjemmel.trim()) {
       nye.push({ type: 'vurdering', tekst: hjemmel.trim(), overskrift: HJEMMEL_OVERSKRIFT });
+    }
+    if (nyHjemmelSvar) {
+      nye.push(nyHjemmelIkkeVurdert
+        ? { type: 'ikke_avgjort', tekst: NY_HJEMMEL_IKKE_VURDERT, overskrift: NY_HJEMMEL_OVERSKRIFT }
+        : { type: 'vurdering', tekst: nyHjemmel.trim(), overskrift: NY_HJEMMEL_OVERSKRIFT });
     }
     return utfor(async () => {
       const f = await api.juristvurderFunn(funn!.id, {
@@ -202,7 +231,9 @@ export default function FunnDetalj() {
             <>
               <Heading level={3} data-size="xs" style={{ marginBottom: '0.25rem' }}>Ikke avgjort</Heading>
               <ul style={{ margin: 0, paddingLeft: '1.25rem' }}>
-                {punkter('ikke_avgjort').map((p) => <li key={p.id}><Paragraph data-size="sm" style={{ margin: 0 }}>{p.tekst}</Paragraph></li>)}
+                {punkter('ikke_avgjort').map((p) => (
+                  <li key={p.id}><Paragraph data-size="sm" style={{ margin: 0 }}>{p.overskrift && <em>{p.overskrift}: </em>}{p.tekst}</Paragraph></li>
+                ))}
               </ul>
             </>
           )}
@@ -274,11 +305,29 @@ export default function FunnDetalj() {
                 <Field>
                   <Label>Hjemmel: har vedtaket fortsatt virkning når hjemmelsloven er opphevet?</Label>
                   <Metatekst>
-                    Regelen fant at loven rettskilden bygger på, er opphevet av en gjeldende lov (se premissporten over). Si om vedtaket er
-                    videreført etter en overgangsregel, erstattet av en ny ordning, eller uten virkning (#429, R9).
+                    {funn.kategori === 'hjemmel_opphevet'
+                      ? 'Regelen fant at en hjemmel forskriften bygger på, er opphevet (se påstanden). '
+                      : 'Regelen fant at loven rettskilden bygger på, er opphevet av en gjeldende lov (se premissporten over). '}
+                    Si om vedtaket er videreført etter en overgangsregel, erstattet av en ny ordning, eller uten virkning.
                   </Metatekst>
                   <Textarea data-size="sm" rows={2} value={hjemmel} onChange={(e) => setHjemmel(e.target.value)} />
                 </Field>
+              )}
+              {sporOmNyHjemmel && (
+                <Field>
+                  <Label>Ny hjemmel: kan forskriften stå på en ny hjemmel som gir samme kompetanse?</Label>
+                  <Metatekst>
+                    Maskinen leter ikke etter en ny tilsvarende hjemmel; det er en vurdering (#472). Funnet vises ikke som «mulig bortfalt» før
+                    dette er vurdert eller merket «ikke vurdert».
+                  </Metatekst>
+                  <Textarea data-size="sm" rows={2} value={nyHjemmel} disabled={nyHjemmelIkkeVurdert}
+                    onChange={(e) => setNyHjemmel(e.target.value)} />
+                </Field>
+              )}
+              {/* docs/09 §51: Checkbox er selv en Field og står ikke i den ytre Field-en over. */}
+              {sporOmNyHjemmel && (
+                <Checkbox data-size="sm" label="Ny hjemmel: ikke vurdert" checked={nyHjemmelIkkeVurdert}
+                  onChange={(e) => setNyHjemmelIkkeVurdert(e.target.checked)} />
               )}
               <Field>
                 <Label>Vurdering</Label>
@@ -391,7 +440,8 @@ function BestemmelseRad({ k }: { k: FunnKoblingDto }) {
       <Table.Cell>
         {k.rettskildeId ? (
           <Link asChild><RouterLink to={k.eid ? rettskildeLenkeForId(k.rettskildeId, k.eid) : `/rettskilder/${k.rettskildeId}`}>
-            {k.nodeId ? 'Åpne bestemmelsen' : 'Åpne rettskilden (bestemmelsen ikke funnet)'}
+            {/* [ENDRET, #472 PR 2] En kobling til hele forskriften har ingen eId: da er det rettskilden, ikke en bestemmelse som mangler. */}
+            {k.nodeId ? 'Åpne bestemmelsen' : k.eid ? 'Åpne rettskilden (bestemmelsen ikke funnet)' : 'Åpne rettskilden'}
           </RouterLink></Link>
         ) : (
           <Metatekst as="span">Ikke i korpuset</Metatekst>
@@ -404,6 +454,12 @@ function BestemmelseRad({ k }: { k: FunnKoblingDto }) {
 /** [Ny, #429 PR 3, R9] Juristens vurderingspunkt «Hjemmel» (type vurdering), om det finnes. */
 function hjemmelpunkt(f: FunnDto) {
   return f.vurderingspunkter.find((p) => p.type === 'vurdering' && p.overskrift?.trim().toLowerCase() === HJEMMEL_OVERSKRIFT.toLowerCase());
+}
+
+/** [Ny, #472 PR 2] Juristens punkt «Ny hjemmel»: vurdert (type vurdering) eller merket «ikke vurdert» (type ikke_avgjort), om det finnes. */
+function nyHjemmelpunkt(f: FunnDto) {
+  return f.vurderingspunkter.find((p) => (p.type === 'vurdering' || p.type === 'ikke_avgjort')
+    && p.overskrift?.trim().toLowerCase() === NY_HJEMMEL_OVERSKRIFT.toLowerCase());
 }
 
 /** [Ny, #429 PR 2] Juristens vurderingspunkt «Etterfølger» (type vurdering), om det finnes. */

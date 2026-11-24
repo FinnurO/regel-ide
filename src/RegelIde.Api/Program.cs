@@ -101,6 +101,7 @@ builder.Services.AddScoped<UtgattAktorFunnregel>(); // [Ny, #429 PR 2] maskinreg
 // kunngjorte teksten hentes fra Lovtidend-arkivet bare når endepunktet ber om det (?lovtidend, standard true).
 builder.Services.AddScoped<IKunngjortTekstkilde, LovtidendKunngjortTekstkilde>();
 builder.Services.AddScoped<HjemmelsstatusRegel>();
+builder.Services.AddScoped<HjemmelOpphevetFunnregel>(); // [Ny, #472 PR 2] funnregelen «Hjemmel opphevet», tørrkjøring som standard
 // [Ny, issue #440] Aktørkøen (bare lesing i PR 1) — se AktorkoTjeneste og AktorkoEndepunkter.
 builder.Services.AddScoped<AktorkoTjeneste>();
 builder.Services.AddScoped<AktorsideTjeneste>(); // [Ny, issue #441] den samlede aktørsiden (lesing + «Godkjenn hjemmelen»)

@@ -268,6 +268,10 @@ export interface HjemmelsstatusDto {
   svakestePremissId: string | null;
   rentEndringsvedtak: boolean | null;
   hjemler: HjemmelsstatusRadDto[];
+  /** [Ny, #472 PR 2] Funnet «Hjemmel opphevet» for forskriften, når det finnes. */
+  funnId?: string | null;
+  /** [Ny, #472 PR 2, premissporten] «(mulig bortfalt)» vises bare når funnet har «Ny hjemmel» vurdert eller merket «ikke vurdert». */
+  muligBortfaltVises?: boolean;
 }
 
 export interface RettskildeHjemmelDto {
@@ -2942,11 +2946,13 @@ export interface VeivisergrunnlagFelt {
 
 // ---------------------------------------------------------------------------------------------------------------------------------
 // [Ny, issue #429 «Funn til vurdering», 2026-10-30] Registeret — se FunnEndepunkter.cs og Funn.cs på serveren.
-export type FunnKategori = 'utgatt_aktor' | 'mulig_motstrid' | 'uklarhet_hull';
+// [ENDRET, #472 PR 2] 'hjemmel_opphevet': «Hjemmel opphevet, videreføring ikke funnet» og undertypene (HjemmelOpphevetFunnregel).
+export type FunnKategori = 'utgatt_aktor' | 'mulig_motstrid' | 'uklarhet_hull' | 'hjemmel_opphevet';
 export type FunnStatus = 'oppdaget' | 'juristvurdert' | 'godkjent_for_publisering' | 'forklart_bort';
 // [ENDRET, #429 PR 2] 'malvedtak': vedtaket et endringsvedtak endrer, når det er entydig.
+// [ENDRET, #472 PR 2] 'opphevende_bestemmelse' og 'videreforingsbestemmelse' for funn om en opphevet hjemmel.
 export type FunnKoblingsrolle = 'gjelder_bestemmelse' | 'motstridende_bestemmelse' | 'berort_aktor' | 'navneform' | 'etterfolger' | 'kilde'
-  | 'malvedtak';
+  | 'malvedtak' | 'opphevende_bestemmelse' | 'videreforingsbestemmelse';
 export type FunnVurderingspunktType = 'bortforklaring_provd' | 'vurdering' | 'ikke_avgjort';
 
 export interface FunnKoblingDto {
@@ -3033,6 +3039,9 @@ export interface FunnDto {
   gjenapnetAv?: string | null;
   gjenapnetTidspunkt?: string | null;
   gjenapnetBegrunnelse?: string | null;
+  /** [Ny, #472 PR 2] Premissporten for «Hjemmel opphevet»: true = vises som «mulig bortfalt»; false = holdes, fordi «Ny hjemmel» ikke er
+   * vurdert; null = ikke aktuelt (andre kategorier og undertyper). */
+  muligBortfalt?: boolean | null;
 }
 
 export interface FunnTilgangDto {

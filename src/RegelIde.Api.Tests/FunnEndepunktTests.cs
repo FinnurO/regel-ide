@@ -222,6 +222,58 @@ public class FunnEndepunktTests
         Assert.Contains(funn.GetProperty("premissmangler").EnumerateArray(), m => m.GetString()!.StartsWith("Etterfølger ikke vurdert"));
     }
 
+    /// <summary>[Ny, #472 PR 2, prosjekteierens avgjørelse 2026-11-24 (1)] Gir en uklassifisert forskrift (#446-kolonnen NULL) funn når
+    /// bryteren ikke er satt? Ja: standarden er tolkning B, og tørrkjøringen skriver ingenting.</summary>
+    [Fact]
+    public async Task Hjemmel_opphevet_Uklassifiserte_forskrifter_gir_funn_som_standard_og_torrkjoringen_skriver_ikke()
+    {
+        var jurist = await BrukerAsync("Jurist");
+        var rid = Guid.NewGuid();
+        await using (var db = _fixture.NyDbContext())
+        {
+            var nr = Random.Shared.Next(100_000, 999_999);
+            var f = new RettskildeEntitet
+            {
+                Id = rid, Doctype = "act", Kildetype = "Forskrift", Status = "Gjeldende", Importrolle = "primaer", Tittel = "Forskrift om noe",
+                Eli = $"https://lovdata.no/eli/forskrift/2001/01/01/{nr}/nor", DokumentId = $"SF/forskrift/2001-01-01-{nr}", AknXml = "<akomaNtoso/>",
+                OpprettetAv = "test", OpprettetTidspunkt = DateTimeOffset.UtcNow,
+            };
+            var stub = new RettskildeEntitet
+            {
+                Id = Guid.NewGuid(), Doctype = "act", Kildetype = "Lov", Status = "Utkast", Importrolle = "referanse",
+                Tittel = "stub", Eli = $"https://lovdata.no/eli/lov/1990/01/01/{nr}/nor", OpprettetAv = "test", OpprettetTidspunkt = DateTimeOffset.UtcNow,
+            };
+            var hjemmel = new RettskildeHjemmelEntitet
+            {
+                Id = Guid.NewGuid(), RettskildeId = rid, HjemmelEid = $"{stub.Eli}/§1", HjemmelRettskildeId = stub.Id, Sorteringsrekkefolge = 0,
+            };
+            db.Rettskilder.AddRange(f, stub);
+            db.RettskildeHjemler.Add(hjemmel);
+            // En lagret hjemmelsstatus (PR 1) der hjemmelen er opphevet uten funnet videreføring.
+            db.Hjemmelsstatuser.Add(new HjemmelsstatusEntitet
+            {
+                Id = Guid.NewGuid(), RettskildeHjemmelId = hjemmel.Id, RettskildeId = rid, HjemmelEid = hjemmel.HjemmelEid, HjemmelEli = stub.Eli,
+                Rolle = Hjemmelsstatus.Materiell, Status = Hjemmelsstatus.Opphevet, Bevistrinn = Hjemmelsstatus.E1,
+                OpphevetAvSitat = "Fra samme tid oppheves loven.", OpphevetAvEid = "https://lovdata.no/eli/lov/2020/01/01/1/nor/§9", Kunnskapsstatus = Strukturkanter.Tekstfunn,
+                BeregnetAv = "test", BeregnetTidspunkt = DateTimeOffset.UtcNow,
+            });
+            await db.SaveChangesAsync();
+        }
+
+        var torr = await SendAsync(Med(HttpMethod.Post, $"/api/funn/maskinregel/hjemmel-opphevet?rettskildeId={rid}", jurist), HttpStatusCode.OK);
+        Assert.True(HjemmelOpphevetFunnregel.StandardIkkeKlassifisertGirFunn);
+        Assert.True(torr.GetProperty("ikkeKlassifisertGirFunn").GetBoolean());
+        Assert.False(torr.GetProperty("skrevet").GetBoolean());
+        Assert.Equal(1, torr.GetProperty("foreslatt").GetInt32());
+        Assert.Equal(0, torr.GetProperty("streng").GetProperty("funn").GetInt32());
+        Assert.Equal(1, torr.GetProperty("nullGirFunn").GetProperty("funn").GetInt32());
+        await using (var db = _fixture.NyDbContext())
+        {
+            Assert.False(await db.Funn.AnyAsync(x => x.EksternNokkel != null && x.EksternNokkel.StartsWith(HjemmelOpphevetFunnregel.NokkelPrefiks)
+                && x.Koblinger.Any(k => k.RettskildeId == rid)));
+        }
+    }
+
     /// <summary>[Ny, #429 PR 4, Johanns avgjørelse 2026-11-04 (4)] Kan et menneske gjenåpne et funn som er forklart bort — og bare et menneske
     /// med rollen Jurist eller publiseringstilgang, og bare fra «forklart bort»?</summary>
     [Fact]
