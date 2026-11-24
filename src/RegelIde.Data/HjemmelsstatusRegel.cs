@@ -532,6 +532,17 @@ public sealed class HjemmelsstatusRegel(RegelIdeDbContext db, IKunngjortTekstkil
         // R5: en endringslov som navngir nøyaktig én lov, følges til den loven når selve endringsloven ikke er lest som opphevet. Kan den ikke
         // følges («… og enkelte andre lover»), eller er loven den endrer også ukjent, er grunnen END.
         var endringslov = u.Bevis is null && Hjemmelstekstlesing.Mal(eli) is { } em && Hjemmelstekstlesing.ErEndringslov(f?.AnnetOmDokumentet, em);
+        // [ENDRET, #472 PR 4, prosjekteierens avgjørelse 2026-11-24 etter måling 1, H18] Viser hjemmelsteksten til en egen del av endringsloven
+        // («… om fagskoleutdanning del II nr. 1»), er hjemmelen endringslovens egen bestemmelse (ikrafttredelse, overgang, eller endring i en annen
+        // lov), ikke bestemmelsene den føyer inn i hovedloven. Den følges ikke: DEL/forskrift/2007-06-29-759 fikk ellers statusen til fagskoleloven
+        // 2003, og funnet sa at endringsloven var opphevet ved en setning som opphever hovedloven. Endringsloven er ikke i korpus, så hva delen
+        // inneholder, kan ikke leses. Statusen blir ukjent (END), ikke gjettet.
+        if (endringslov && Hjemmelstekstlesing.EndringslovensEgenDel(f?.AnnetOmDokumentet, Hjemmelstekstlesing.Mal(eli)!) is not null)
+        {
+            SettUtfall(r, u, f, h.HjemmelEid, data, idag);
+            if (r.Status == Hjemmelsstatus.Ukjent && r.Bevistrinn is null) r.UkjentGrunn = Hjemmelsstatus.GrunnEnd;
+            return r;
+        }
         if (endringslov && Hjemmelstekstlesing.EndringslovTil(f?.AnnetOmDokumentet, Hjemmelstekstlesing.Mal(eli)!) is { } fulgt)
         {
             r.FulgtEli = fulgt;
@@ -687,6 +698,8 @@ public sealed class HjemmelsstatusRegel(RegelIdeDbContext db, IKunngjortTekstkil
     /// <item><c>jf_vedtak</c>: hjemmelsteksten nevner dokumentet etter «jf.» (eller «delegeringsvedtak»), og det er et vedtak, ikke en lov →
     /// kompetanseledd.</item>
     /// <item><c>med_hjemmel_i</c>: hjemmelsteksten nevner loven etter «med hjemmel i», før «jf.» → materiell.</item>
+    /// <item>[Ny, #472 PR 4, H15] <c>forskrift_som_hjemmel</c>: hjemmelen er en forskrift eller et vedtak, og ingen regel over har gitt rollen →
+    /// kompetanseledd.</item>
     /// </list>
     /// </summary>
     private static (string? Rolle, string? Regel) Rolle(Hjemmelsrad h, string? eli, Kilde? malKilde, Kilde? f, List<Hjemmelsrad> alle, Data data)
@@ -699,6 +712,19 @@ public sealed class HjemmelsstatusRegel(RegelIdeDbContext db, IKunngjortTekstkil
             && data.MalNoder.TryGetValue(p.Groups[1].Value, out var pn) && pn.Overskrift is { } o && Regex.IsMatch(o, "overgang", RegexOptions.IgnoreCase))
             return (Hjemmelsstatus.Overgangsgrunnlag, "overgangsparagraf");
 
+        var (rolle, regel) = RolleFraHjemmelsteksten(h, eli, f, alle, data);
+        // [Ny, #472 PR 4, prosjekteierens avgjørelse 2026-11-24 etter måling 1, H15] En hjemmel som selv er en forskrift eller et vedtak, og som
+        // ingen regel over har gitt rolle, er et kompetanseledd: en forskrift kan bare være hjemmel for en annen forskrift ved å delegere
+        // kompetanse. FOR-1975-12-29-1 sto med rolle NULL i SF/forskrift/1976-08-03-9783 og ga «uavklart», selv om den materielle hjemmelen
+        // (sivilforsvarsloven 1953 § 41) er videreført. Kompetanseleddet teller bare når det ikke finnes materielle hjemler eller hjemler med
+        // rolle NULL (§5.20 punkt 1), og en gjeldende forskrift som hjemmel arver da sin egen samlede status (R1).
+        if (rolle is null && eli.Contains("/eli/forskrift/", StringComparison.Ordinal))
+            return (Hjemmelsstatus.Kompetanseledd, Hjemmelsstatus.RolleregelForskriftSomHjemmel);
+        return (rolle, regel);
+    }
+
+    private static (string? Rolle, string? Regel) RolleFraHjemmelsteksten(Hjemmelsrad h, string eli, Kilde? f, List<Hjemmelsrad> alle, Data data)
+    {
         var tekst = Hjemmelstekstlesing.Normaliser(f?.AnnetOmDokumentet);
         if (tekst.Length == 0 || Hjemmelstekstlesing.Mal(eli) is not { } mal) return (null, null);
         var treff = Regex.Match(tekst, Hjemmelstekstlesing.MalRegex(mal));
@@ -753,7 +779,7 @@ public sealed class HjemmelsstatusRegel(RegelIdeDbContext db, IKunngjortTekstkil
         var perF = beregnet.GroupBy(b => b.RettskildeId).ToDictionary(g => g.Key, g => g.ToList());
         IReadOnlyList<HjemmelPremiss>? Premisser(Guid id) => perF.TryGetValue(id, out var l)
             ? l.Select(b => new HjemmelPremiss(b.RettskildeHjemmelId, b.HjemmelEid, b.Rolle, b.Status, b.Kunnskapsstatus,
-                b.MalRettskildeId is { } m && data.Kilder.GetValueOrDefault(m)?.Kildetype == "Forskrift" ? m : null)).ToList()
+                b.MalRettskildeId is { } m && data.Kilder.GetValueOrDefault(m)?.Kildetype == "Forskrift" ? m : null, b.VidereforingDekning)).ToList()
             : null;
         var memo = new Dictionary<Guid, SamletHjemmelsstatus>();
         var forskrifter = gjeldendeForskrift.Select(b => b.RettskildeId).Distinct().ToList();
@@ -816,7 +842,7 @@ public sealed class HjemmelsstatusRegel(RegelIdeDbContext db, IKunngjortTekstkil
         if (perF[forskriftId].Count == 0) return null;
         IReadOnlyList<HjemmelPremiss>? Premisser(Guid id) => perF.TryGetValue(id, out var l)
             ? l.Select(b => new HjemmelPremiss(b.RettskildeHjemmelId, b.HjemmelEid, b.Rolle, b.Status, b.Kunnskapsstatus,
-                b.MalRettskildeId is { } m && forskrift.Contains(m) ? m : null)).ToList()
+                b.MalRettskildeId is { } m && forskrift.Contains(m) ? m : null, b.VidereforingDekning)).ToList()
             : null;
         var samlet = HjemmelsstatusSamlet.Beregn(forskriftId, Premisser);
         return (samlet, perF.Values.SelectMany(l => l).ToDictionary(x => x.RettskildeHjemmelId));

@@ -452,6 +452,10 @@ public sealed class FunnTjeneste(RegelIdeDbContext db)
     /// <summary>[Ny, #472 PR 2] Premissmangelen når #446 ikke har klassifisert forskriften. Starter alltid slik.</summary>
     public const string UttomtVirkningMangelStart = "Uttømt virkning ikke klassifisert";
 
+    /// <summary>[Ny, #472 PR 4, prosjekteierens avgjørelse 2026-11-24 etter måling 1] Premissmangelen når korpuset bare har forskriften som
+    /// kunngjort versjon (LTI). Starter alltid slik.</summary>
+    public const string KunngjortMangelStart = "Kunngjort versjon, gjeldende status ikke kontrollert";
+
     /// <summary>
     /// [Ny, #472 PR 2, Johanns avgjørelser 2026-11-18 og 2026-11-20] <b>Premissporten for «Hjemmel opphevet»</b> (svakeste premiss, docs/33 §4.6).
     /// Mangelen står også på et funn som bare er oppdaget, som R9, så den synes før juristen tar det:
@@ -462,6 +466,10 @@ public sealed class FunnTjeneste(RegelIdeDbContext db)
     /// <item><b>«Hjemmel»</b> (som R9): om forskriften fortsatt har virkning — videreført, erstattet eller uten virkning.</item>
     /// <item><b>#446:</b> forskriften er ikke klassifisert som rent endrings-, opphevings- eller ikrafttredelsesvedtak (<c>rent_endringsvedtak</c> er
     /// NULL). Slike funn finnes bare når bryteren <see cref="HjemmelOpphevetFunnregel.KonfignokkelIkkeKlassifisertGirFunn"/> er på.</item>
+    /// <item>[Ny, #472 PR 4, prosjekteierens avgjørelse 2026-11-24 etter måling 1] <b>Kunngjort versjon:</b> korpuset har bare forskriften slik den
+    /// ble kunngjort i Norsk Lovtidend (<c>kildeform = kunngjort</c>), så Lovdatas ajourførte status er ikke kontrollert. I måling 1 var fem slike
+    /// vedtak opphevet i Lovdata (DELO); to av dem ved en lov som ikke er i korpus (militærnekterloven § 10, LOV-2012-04-20-19). Mangelen
+    /// forsvinner når juristen har et vurderingspunkt «<see cref="Funn.GjeldendeStatusOverskrift"/>» som sier hva Lovdata viser.</item>
     /// </list>
     /// </summary>
     private async Task LeggTilPremissmanglerHjemmelOpphevetAsync(IReadOnlyCollection<FunnEntitet> funn, Dictionary<Guid, List<string>> ut, CancellationToken ct)
@@ -470,9 +478,9 @@ public sealed class FunnTjeneste(RegelIdeDbContext db)
         if (aktuelle.Count == 0) return;
         var forskriftIder = aktuelle.SelectMany(f => f.Koblinger).Where(k => k.Rolle == Funn.GjelderBestemmelse && k.RettskildeId != null)
             .Select(k => k.RettskildeId!.Value).Distinct().ToList();
-        var klassifisert = forskriftIder.Count == 0 ? new Dictionary<Guid, bool?>()
+        var forskrifter = forskriftIder.Count == 0 ? []
             : await db.Rettskilder.AsNoTracking().Where(r => forskriftIder.Contains(r.Id))
-                .Select(r => new { r.Id, r.RentEndringsvedtak }).ToDictionaryAsync(r => r.Id, r => r.RentEndringsvedtak, ct);
+                .Select(r => new { r.Id, r.RentEndringsvedtak, r.Kildeform }).ToDictionaryAsync(r => r.Id, ct);
         foreach (var f in aktuelle)
         {
             var mangler = ut[f.Id];
@@ -488,7 +496,14 @@ public sealed class FunnTjeneste(RegelIdeDbContext db)
             }
             var forskrift = f.Koblinger.Where(k => k.Rolle == Funn.GjelderBestemmelse && k.RettskildeId != null).Select(k => k.RettskildeId!.Value)
                 .FirstOrDefault();
-            if (forskrift == Guid.Empty || !klassifisert.TryGetValue(forskrift, out var ren) || ren is null)
+            if (forskrift != Guid.Empty && forskrifter.TryGetValue(forskrift, out var fk) && fk.Kildeform == HjemmelOpphevetFunnregel.KildeformKunngjort
+                && GjeldendeStatusVurdering(f) is null)
+            {
+                mangler.Add($"{KunngjortMangelStart}: korpuset har bare forskriften slik den ble kunngjort i Norsk Lovtidend, og Lovdatas ajourførte "
+                    + $"status er ikke slått opp. Den kan selv være opphevet ved en kilde som ikke er i korpus. Juristen slår den opp og skriver et punkt "
+                    + $"«{Funn.GjeldendeStatusOverskrift}».");
+            }
+            if (forskrift == Guid.Empty || !forskrifter.TryGetValue(forskrift, out var fr) || fr.RentEndringsvedtak is null)
             {
                 mangler.Add($"{UttomtVirkningMangelStart} (#446): det er ikke avgjort om forskriften er et rent endrings-, opphevings- eller "
                     + "ikrafttredelsesvedtak. Et slikt vedtak har uttømt virkningen og gir ikke funn.");
@@ -537,6 +552,11 @@ public sealed class FunnTjeneste(RegelIdeDbContext db)
         }
         return ut;
     }
+
+    /// <summary>[Ny, #472 PR 4] Juristens punkt «Gjeldende status» (type vurdering): hva Lovdata viser for en kunngjort versjon.</summary>
+    public static FunnVurderingspunktEntitet? GjeldendeStatusVurdering(FunnEntitet f) => f.Vurderingspunkter
+        .Where(p => p.Type == Funn.Vurdering && string.Equals(p.Overskrift?.Trim(), Funn.GjeldendeStatusOverskrift, StringComparison.OrdinalIgnoreCase))
+        .OrderBy(p => p.Sortering).FirstOrDefault();
 
     /// <summary>[Ny, #429 PR 3, R9] Juristens vurdering av om vedtaket fortsatt har virkning når hjemmelsloven er opphevet: vurderingspunktet
     /// med overskriften <see cref="Funn.HjemmelOverskrift"/>. Null når det ikke finnes.</summary>

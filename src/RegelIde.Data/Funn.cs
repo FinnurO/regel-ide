@@ -102,6 +102,11 @@ public static class Funn
     /// <see cref="Vurdering"/> eller merket «ikke vurdert» (type <see cref="IkkeAvgjort"/>). Se <see cref="FunnTjeneste.NyHjemmelVurdert"/>.</summary>
     public const string NyHjemmelOverskrift = "Ny hjemmel";
 
+    /// <summary>[Ny, #472 PR 4, prosjekteierens avgjørelse 2026-11-24 etter måling 1] Juristens vurderingspunkt for et funn i en kunngjort versjon
+    /// (LTI): hva Lovdata viser som gjeldende status for vedtaket. Til punktet finnes, står premissmangelen
+    /// <see cref="FunnTjeneste.KunngjortMangelStart"/>.</summary>
+    public const string GjeldendeStatusOverskrift = "Gjeldende status";
+
     // ---- Vurderingspunkter ----
     public const string BortforklaringProvd = "bortforklaring_provd";
     public const string Vurdering = "vurdering";
