@@ -1,0 +1,206 @@
+{
+ "frø": 20261125,
+ "metode": "Lag = (undertype, prefiks). Innen hvert lag sorteres funnene på ekstern_nokkel og stokkes med random.Random(frø) i fast lagrekkefølge (KVOTE under); de n første trekkes. Uten tilbakelegging. H01–H20 er utelatt.",
+ "populasjon": {
+  "funn": 264,
+  "uten_maling1": 250,
+  "kategori": "hjemmel_opphevet",
+  "status": "oppdaget",
+  "database": "regelide_472pr4",
+  "regelversjon": "472-pr4-2026-11-24",
+  "lag": {
+   "hjemmel_opphevet/SF": 22,
+   "hjemmel_opphevet/DEL": 105,
+   "blandede_hjemler/SF": 36,
+   "hjemmel_opphevet/INS": 4,
+   "uavklart/DEL": 3,
+   "blandede_hjemler/DEL": 5,
+   "blandede_hjemler/LTI": 6,
+   "hjemmel_opphevet/LTI": 51,
+   "uavklart/LTI": 2,
+   "uavklart/SF": 6,
+   "videreforing_utlopt/SF": 9,
+   "blandede_hjemler/STV": 1
+  }
+ },
+ "kvote": {
+  "hjemmel_opphevet": {
+   "DEL": 7,
+   "LTI": 3,
+   "SF": 2
+  },
+  "blandede_hjemler": {
+   "SF": 3,
+   "LTI": 1
+  },
+  "uavklart": {
+   "SF": 1,
+   "DEL": 1
+  },
+  "videreforing_utlopt": {
+   "SF": 2
+  }
+ },
+ "utvalg": [
+  {
+   "id": "73c30c60-f5fb-4fe6-8289-0546a1831251",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2009/11/27/1406/nor",
+   "undertype": "hjemmel_opphevet",
+   "dokument_id": "DEL/forskrift/2009-11-27-1406",
+   "prefiks": "DEL",
+   "kort": "M01"
+  },
+  {
+   "id": "03c66b54-161f-4a98-afa7-ee10c87e05d6",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/1999/08/20/951/nor",
+   "undertype": "hjemmel_opphevet",
+   "dokument_id": "DEL/forskrift/1999-08-20-951",
+   "prefiks": "DEL",
+   "kort": "M02"
+  },
+  {
+   "id": "f930de05-bb8d-46b0-9629-f2d8b19adc5e",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/1994/03/25/233/nor",
+   "undertype": "hjemmel_opphevet",
+   "dokument_id": "DEL/forskrift/1994-03-25-233",
+   "prefiks": "DEL",
+   "kort": "M03"
+  },
+  {
+   "id": "808aeb8e-2f84-4574-9699-ff87671f4f54",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2011/07/06/746/nor",
+   "undertype": "hjemmel_opphevet",
+   "dokument_id": "DEL/forskrift/2011-07-06-746",
+   "prefiks": "DEL",
+   "kort": "M04"
+  },
+  {
+   "id": "342cc75f-54bf-42c2-b583-c359e679577a",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2003/11/04/1312/nor",
+   "undertype": "hjemmel_opphevet",
+   "dokument_id": "DEL/forskrift/2003-11-04-1312",
+   "prefiks": "DEL",
+   "kort": "M05"
+  },
+  {
+   "id": "374bf9f1-71f6-4efe-9e59-b9ba62281c40",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2007/03/02/1264/nor",
+   "undertype": "hjemmel_opphevet",
+   "dokument_id": "DEL/forskrift/2007-03-02-1264",
+   "prefiks": "DEL",
+   "kort": "M06"
+  },
+  {
+   "id": "6ab1d7a6-8c11-4392-b0a9-f683ac1fa4bc",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/1999/06/25/706/nor",
+   "undertype": "hjemmel_opphevet",
+   "dokument_id": "DEL/forskrift/1999-06-25-706",
+   "prefiks": "DEL",
+   "kort": "M07"
+  },
+  {
+   "id": "05ab332b-b6f0-47eb-be2e-aad3183c5fad",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2006/06/16/646/nor",
+   "undertype": "hjemmel_opphevet",
+   "dokument_id": "LTI/forskrift/2006-06-16-646",
+   "prefiks": "LTI",
+   "kort": "M08"
+  },
+  {
+   "id": "46f2add6-b4e3-40bf-a01e-a41a0c286ec5",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2010/02/22/195/nor",
+   "undertype": "hjemmel_opphevet",
+   "dokument_id": "LTI/forskrift/2010-02-22-195",
+   "prefiks": "LTI",
+   "kort": "M09"
+  },
+  {
+   "id": "b6dd6abd-11d9-47f2-b412-abd2db8ad33f",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2003/06/27/802/nor",
+   "undertype": "hjemmel_opphevet",
+   "dokument_id": "LTI/forskrift/2003-06-27-802",
+   "prefiks": "LTI",
+   "kort": "M10"
+  },
+  {
+   "id": "fd8fa86b-9c21-416f-93d4-039d20c33f6d",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/1968/02/01/3641/nor",
+   "undertype": "hjemmel_opphevet",
+   "dokument_id": "SF/forskrift/1968-02-01-3641",
+   "prefiks": "SF",
+   "kort": "M11"
+  },
+  {
+   "id": "4a014218-6f0d-4cc7-9823-e60fcbef2886",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/1986/01/31/222/nor",
+   "undertype": "hjemmel_opphevet",
+   "dokument_id": "SF/forskrift/1986-01-31-222",
+   "prefiks": "SF",
+   "kort": "M12"
+  },
+  {
+   "id": "65d44260-2473-4ec2-8a4f-d6bdd45a1181",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2019/12/17/1878/nor",
+   "undertype": "blandede_hjemler",
+   "dokument_id": "SF/forskrift/2019-12-17-1878",
+   "prefiks": "SF",
+   "kort": "M13"
+  },
+  {
+   "id": "d2b07a9d-c0be-4913-933d-d0e4ab450cf7",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/1963/05/31/9813/nor",
+   "undertype": "blandede_hjemler",
+   "dokument_id": "SF/forskrift/1963-05-31-9813",
+   "prefiks": "SF",
+   "kort": "M14"
+  },
+  {
+   "id": "f157dfc4-dfb4-4f03-b147-3ff553b4c0d4",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2010/11/22/1466/nor",
+   "undertype": "blandede_hjemler",
+   "dokument_id": "SF/forskrift/2010-11-22-1466",
+   "prefiks": "SF",
+   "kort": "M15"
+  },
+  {
+   "id": "8caac433-19d0-4b30-9bd8-113c826a513d",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2005/09/26/1093/nor",
+   "undertype": "blandede_hjemler",
+   "dokument_id": "LTI/forskrift/2005-09-26-1093",
+   "prefiks": "LTI",
+   "kort": "M16"
+  },
+  {
+   "id": "dbb03078-bc30-4799-90ab-56de497387b2",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2019/11/01/1469/nor",
+   "undertype": "uavklart",
+   "dokument_id": "SF/forskrift/2019-11-01-1469",
+   "prefiks": "SF",
+   "kort": "M17"
+  },
+  {
+   "id": "bcf53c9f-8cc7-487f-8fb9-c436af0a21c4",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/1990/03/23/179/nor",
+   "undertype": "uavklart",
+   "dokument_id": "DEL/forskrift/1990-03-23-179",
+   "prefiks": "DEL",
+   "kort": "M18"
+  },
+  {
+   "id": "54a5cd2d-fc6f-44fb-abf0-85cc39605421",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2017/06/15/1044/nor",
+   "undertype": "videreforing_utlopt",
+   "dokument_id": "SF/forskrift/2017-06-15-1044",
+   "prefiks": "SF",
+   "kort": "M19"
+  },
+  {
+   "id": "10f1fe44-fc84-4090-a13b-c9ad8612847f",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2017/10/17/1637/nor",
+   "undertype": "videreforing_utlopt",
+   "dokument_id": "SF/forskrift/2017-10-17-1637",
+   "prefiks": "SF",
+   "kort": "M20"
+  }
+ ]
+}
