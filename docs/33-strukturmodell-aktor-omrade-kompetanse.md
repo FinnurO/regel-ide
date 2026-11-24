@@ -2658,12 +2658,20 @@ Regelen lager aldri punktene selv.
 
 **Uttømt virkning og #446-bryteren:**
 - `rent_endringsvedtak = true` gir ikke funn.
-- **NULL i #446-kolonnen er én bryter**, `RegelIde:Hjemmelsstatus:IkkeKlassifisertGirFunn`, standard `false` (fase 1 ordrett: NULL gir ikke funn).
-  Kolonnen settes aldri til `false` (`DisposisjonstypeTjeneste` skriver `true` eller NULL), så den strenge tolkningen gir 0 funn. Med bryteren på
-  gir NULL funn med premissmangelen «Uttømt virkning ikke klassifisert (#446)», så ingen av dem kan godkjennes før #446 er gjort. Rapporten viser
-  alltid begge tolkningene, per undertype og per prefiks. **Valget er Johanns.**
+- **NULL i #446-kolonnen er én bryter**, `RegelIde:Hjemmelsstatus:IkkeKlassifisertGirFunn`, **standard `true`**
+  (`HjemmelOpphevetFunnregel.StandardIkkeKlassifisertGirFunn`). NULL gir funn med premissmangelen «Uttømt virkning ikke klassifisert (#446)», så
+  ingen av dem kan godkjennes før #446 er gjort. Kolonnen settes aldri til `false` (`DisposisjonstypeTjeneste` skriver `true` eller NULL), så
+  tolkningen i fase 1 (NULL gir ikke funn, bryteren av) gir 0 funn. Rapporten viser alltid begge tolkningene, per undertype og per prefiks.
 - Rene ikrafttredelsesvedtak har ingen egen markør. Disposisjonstypen fra tittelen er ikke nok: den treffer også «Forskrift om ikrafttredelse av og
   overgangsregler til …» (DEL/forskrift/1999-06-25-711), som ikke har uttømt virkningen. De telles derfor for seg og utelates ikke.
+
+**Prosjekteierens avgjørelse 2026-11-24** (Johann, på spørsmålene i PR #492):
+1. **#446:** uklassifiserte forskrifter gir funn med premissmangelen «#446 ikke klassifisert» (tolkning B, 318 funn i kopien). Bryteren er satt til
+   standard `true` og står, så den kan slås av.
+2. **Ikrafttredelsesvedtak:** de 12 med ikrafttredelse som eneste disposisjonstype gir funn med premissmangel nå. Regelen er ikke endret. #446 skal
+   senere også klassifisere rene ikrafttredelsesvedtak; da faller de ut som rene endringsvedtak gjør i dag.
+3. **«Uavklart»** er en egen undertype. **Gjenstandsløs** virker slik den er bygget: eget funn når ingen annen undertype gjelder, uten punktet «Ny
+  hjemmel».
 
 **Maskinregelen** (`HjemmelOpphevetFunnregel`, `monster:hjemmel-opphevet`, regelversjon `472-pr2-2026-11-24`,
 `POST /api/funn/maskinregel/hjemmel-opphevet`) leser de lagrede radene i `hjemmelsstatus` og regner den samlede statusen for gjeldende primære
@@ -2681,8 +2689,8 @@ telles i `utenGrunnlag` og røres ikke.
 | Utelatt som rent endringsvedtak (`true`) | 6 |
 | Ikrafttredelse som eneste disposisjonstype (telt, ikke utelatt) | 12 |
 | #446-kolonnen NULL blant resten | 318 (alle) |
-| **Tolkning A, streng (NULL gir ikke funn, standard)** | **0** |
-| **Tolkning B (NULL gir funn med premissmangel)** | **318**: hjemmel opphevet 210, blandede 71, uavklart 25, utløpt 10, gjenstandsløs 2; DEL 140, SF 87, LTI 84, INS 6, STV 1 |
+| Tolkning A, fase 1 ordrett (NULL gir ikke funn, bryteren av) | 0 |
+| **Tolkning B (NULL gir funn med premissmangel, standard fra 2026-11-24)** | **318**: hjemmel opphevet 210, blandede 71, uavklart 25, utløpt 10, gjenstandsløs 2; DEL 140, SF 87, LTI 84, INS 6, STV 1 |
 | Holdt av premissporten (ikke «mulig bortfalt» før «Ny hjemmel») | 220 av 318 (alle med undertype hjemmel opphevet eller utløpt) |
 
 FOR-1993-12-17-1314 er videreført og gir ikke funn (AK 2). SF/forskrift/2017-06-16-1124 gir `videreforing_utlopt` med fagskoleloven 2018 § 44 andre

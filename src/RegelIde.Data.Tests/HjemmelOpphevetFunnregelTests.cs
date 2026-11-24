@@ -182,7 +182,8 @@ public class HjemmelOpphevetFunnregelTests(EmbeddedPostgresFixture fixture)
         Assert.Equal((1, 0, 0, 0), (r.UtelattRentEndringsvedtak, r.Foreslatt, r.Streng.Funn, r.NullGirFunn.Funn));
         Assert.Null(await FunnAsync(db, ren));
 
-        // NULL i #446-kolonnen: bryteren av (fase 1 ordrett) gir ikke funn; rapporten viser begge tolkningene.
+        // NULL i #446-kolonnen: bryteren av (fase 1 ordrett) gir ikke funn; rapporten viser begge tolkningene. Standarden er på
+        // (prosjekteierens avgjørelse 2026-11-24), men bryteren står, så den kan slås av.
         var av = await KjorAsync(db, uklassifisert, skriv: true, nullGirFunn: false);
         Assert.Equal((1, 0, 0, 1), (av.IkkeKlassifisert, av.Foreslatt, av.Streng.Funn, av.NullGirFunn.Funn));
         Assert.Equal(1, av.NullGirFunn.PerPrefiks["DEL"]);

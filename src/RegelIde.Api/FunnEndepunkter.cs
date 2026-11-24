@@ -77,14 +77,15 @@ public static class FunnEndepunkter
                          + "?rettskildeId= avgrenser.");
 
         // [Ny, #472 PR 2, Johanns avgjørelser 2026-11-18 og 2026-11-20] Maskinregelen for «Hjemmel opphevet». Leser de lagrede radene i
-        // hjemmelsstatus (PR 1). Tørrkjøring er standard. NULL i #446-kolonnen er én bryter i konfigurasjonen (standard av); rapporten viser begge
+        // hjemmelsstatus (PR 1). Tørrkjøring er standard. NULL i #446-kolonnen er én bryter i konfigurasjonen (standard på, 2026-11-24); rapporten viser begge
         // tolkningene uansett.
         funn.MapPost("/maskinregel/hjemmel-opphevet", async (bool? skriv, bool? medRader, Guid? rettskildeId, HttpRequest request,
                 RegelIdeDbContext db, HjemmelOpphevetFunnregel regel, IConfiguration konfig, CancellationToken ct) =>
             {
                 var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
                 if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
-                var nullGirFunn = konfig.GetValue(HjemmelOpphevetFunnregel.KonfignokkelIkkeKlassifisertGirFunn, false);
+                var nullGirFunn = konfig.GetValue(HjemmelOpphevetFunnregel.KonfignokkelIkkeKlassifisertGirFunn,
+                    HjemmelOpphevetFunnregel.StandardIkkeKlassifisertGirFunn);
                 return Results.Ok(await regel.KjorAsync(skriv ?? false, bruker.Navn, nullGirFunn, rettskildeId is { } rid ? [rid] : null,
                     medRader ?? false, ct));
             })
@@ -93,7 +94,7 @@ public static class FunnEndepunkter
                          + "opphevet uten funnet videreføring. Undertyper: hjemmel_opphevet («Hjemmel opphevet, videreføring ikke funnet»), "
                          + "blandede_hjemler, uavklart, videreforing_utlopt og gjenstandslos. Ukjent gir ikke funn. Rene endringsvedtak (#446) og rene "
                          + "ikrafttredelsesvedtak gir ikke funn; NULL i #446-kolonnen gir funn bare når RegelIde:Hjemmelsstatus:IkkeKlassifisertGirFunn "
-                         + "er true (standard false), og rapporten viser begge tolkningene. ?skriv=true skriver funnene som oppdaget; uten er det en "
+                         + "er true (standard true, prosjekteierens avgjørelse 2026-11-24), og rapporten viser begge tolkningene. ?skriv=true skriver funnene som oppdaget; uten er det en "
                          + "tørrkjøring. Idempotent: en ny kjøring gir 0 nye. ?medRader=true tar med forskriftene; ?rettskildeId= avgrenser.");
 
         funn.MapGet("/tilgang", async (HttpRequest request, RegelIdeDbContext db, IConfiguration konfig, CancellationToken ct) =>

@@ -47,9 +47,10 @@ public sealed record HjemmelOpphevetRapport(
 /// <para>
 /// <b>Uttømt virkning gir ikke funn</b> (#446): <c>rent_endringsvedtak = true</c>. Rene ikrafttredelsesvedtak har ingen egen markør ennå;
 /// disposisjonstypen fra tittelen er ikke nok (den treffer også overgangsregler), så de telles for seg og venter på #446.
-/// <b>NULL i #446-kolonnen</b> er én bryter (<see cref="KonfignokkelIkkeKlassifisertGirFunn"/>), standard av: fase 1 sier at NULL ikke gir funn,
-/// og kolonnen settes aldri til <c>false</c> (<see cref="DisposisjonstypeTjeneste"/>). Rapporten viser alltid begge tolkningene. Når bryteren er
-/// på, får funnet premissmangelen «Uttømt virkning ikke klassifisert», så det ikke kan godkjennes før #446 er gjort.
+/// <b>NULL i #446-kolonnen</b> er én bryter (<see cref="KonfignokkelIkkeKlassifisertGirFunn"/>), standard PÅ etter prosjekteierens avgjørelse
+/// 2026-11-24 (tolkning B): NULL gir funn med premissmangelen «Uttømt virkning ikke klassifisert», så det ikke kan godkjennes før #446 er gjort.
+/// Kolonnen settes aldri til <c>false</c> (<see cref="DisposisjonstypeTjeneste"/>), så tolkningen i fase 1 (bryteren av) gir 0 funn. Rapporten viser
+/// alltid begge tolkningene.
 /// </para>
 /// <para>
 /// <b>Premissporten</b> (<see cref="FunnTjeneste.MuligBortfaltVises"/>): funnet vises ikke som «mulig bortfalt» før vurderingspunktet
@@ -67,9 +68,13 @@ public sealed class HjemmelOpphevetFunnregel(RegelIdeDbContext db, FunnTjeneste 
     public const string NokkelPrefiks = "hjemmel-opphevet:";
     public const string Regelversjon = "472-pr2-2026-11-24";
 
-    /// <summary>[Bryter, Johann avgjør] Om en forskrift der #446-kolonnen <c>rent_endringsvedtak</c> er NULL, gir funn. Standard <c>false</c>
-    /// (fase 1 ordrett). Se klassekommentaren.</summary>
+    /// <summary>[Bryter] Om en forskrift der #446-kolonnen <c>rent_endringsvedtak</c> er NULL, gir funn. Standard <see cref="StandardIkkeKlassifisertGirFunn"/>.
+    /// Se klassekommentaren.</summary>
     public const string KonfignokkelIkkeKlassifisertGirFunn = "RegelIde:Hjemmelsstatus:IkkeKlassifisertGirFunn";
+
+    /// <summary>[LÅST, prosjekteierens avgjørelse 2026-11-24 i #472 (1)] Uklassifiserte forskrifter gir funn med premissmangelen for #446
+    /// (tolkning B). Bryteren står, så den kan slås av med <c>false</c> i konfigurasjonen.</summary>
+    public const bool StandardIkkeKlassifisertGirFunn = true;
 
     public const string UndertypeHjemmelOpphevet = Hjemmelsstatus.SamletHjemmelOpphevet;
     public const string UndertypeBlandede = Hjemmelsstatus.SamletBlandede;
