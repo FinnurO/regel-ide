@@ -62,9 +62,10 @@ public static class Opphevingskontroll
         return (m.Groups[1].Value, d, m.Groups[5].Value);
     }
 
-    /// <summary>«lov 24. juni 1988 nr. 64» for en lov-ELI.</summary>
-    public static string Referanse(string eli) => DatoOgNummer(eli) is { } x
-        ? $"{x.Type} {x.Dato.Day}. {Maaneder[x.Dato.Month - 1]} {x.Dato.Year} nr. {x.Nr}"
+    /// <summary>«lov 24. juni 1988 nr. 64» for en lov-ELI. [ENDRET, #472 PR 3] «lov 15. juli 1925» for en lov uten nummer
+    /// (<see cref="Hjemmelstekstlesing.Mal"/>).</summary>
+    public static string Referanse(string eli) => Hjemmelstekstlesing.Mal(eli) is { } x
+        ? $"{x.Type} {x.Dag}. {Maaneder[x.Mnd - 1]} {x.Aar}" + (x.Nr.Length > 0 ? $" nr. {x.Nr}" : "")
         : UtgattAktorFunnregel.EliKort(eli);
 
     private static string DatoRegex(DateOnly d) => $@"\b{d.Day}\.\s*{Maaneder[d.Month - 1]}\s+{d.Year}\b";
@@ -168,6 +169,39 @@ public static class Opphevingskontroll
 
     private sealed record Kandidatnode(Guid RettskildeId, string? DokumentId, string Eli, string Tittel, string Eid, string? Tekst, int Rekkefolge);
 
+    /// <summary>
+    /// [Ny, #472 PR 3] <b>Den første opphevingen av <paramref name="m"/> i <paramref name="noder"/></b>, lest med den delte tekstlesingen
+    /// (<see cref="Hjemmelstekstlesing.LesOppheving"/>): hel setning, passiv, «til» etter nummeret, hele noden når tittelen har punktum, og
+    /// vakten mot et mål i tittelen til noe annet. En hel setning går foran den utvidede formen, slik E1 går foran E1u i hjemmelsstatusen;
+    /// ellers vinner den første noden i rekkefølgen. Erstatter <see cref="FullOpphevingssetning"/> i R8, R9 og målvedtaket, slik at #429 og
+    /// #472 gir samme svar på samme tekst.
+    /// </summary>
+    private static (Kandidatnode Node, string Sitat)? ForsteOppheving(IEnumerable<Kandidatnode> noder, Dokumentmal m)
+    {
+        (Kandidatnode, string)? utvidet = null;
+        foreach (var n in noder)
+        {
+            if (Hjemmelstekstlesing.LesOppheving(n.Tekst, m).Lesning is not { } l) continue;
+            if (!l.Utvidet) return (n, l.Sitat);
+            utvidet ??= (n, l.Sitat);
+        }
+        return utvidet;
+    }
+
+    /// <summary>[Ny, #472 PR 3] Alle gjeldende noder med tekst i <paramref name="kilder"/>, i lovens rekkefølge (som <c>NoderPerKilde</c> i
+    /// <see cref="HjemmelsstatusRegel"/>).</summary>
+    private static async Task<Dictionary<Guid, List<Kandidatnode>>> AlleNoderAsync(RegelIdeDbContext db, IReadOnlyCollection<Guid> kilder, CancellationToken ct)
+    {
+        if (kilder.Count == 0) return [];
+        var noder = await db.RettskildeNoder.AsNoTracking()
+            .Where(n => kilder.Contains(n.RettskildeId) && n.Entitetsstatus == "gjeldende" && !n.Opphevet && !n.ErMerknad && n.Tekst != null)
+            .Join(db.Rettskilder, n => n.RettskildeId, r => r.Id,
+                (n, r) => new Kandidatnode(r.Id, r.DokumentId, r.Eli ?? "", r.Kortnavn ?? r.Tittel, n.Eid, n.Tekst, n.Sorteringsrekkefolge))
+            .ToListAsync(ct);
+        return noder.GroupBy(n => n.RettskildeId)
+            .ToDictionary(g => g.Key, g => g.OrderBy(n => n.Rekkefolge).ThenBy(n => n.Eid, StringComparer.Ordinal).ToList());
+    }
+
     /// <summary>Nodene i de gjeldende primærkildene som har et av <paramref name="mal"/> i «Endrer»-feltet, med tekst som kan inneholde en
     /// oppheving eller en videreføring. Kildene som er selve målet, er utelatt.
     /// <para>
@@ -213,7 +247,7 @@ public static class Opphevingskontroll
                     .Join(db.Rettskilder, n => n.RettskildeId, r => r.Id,
                         (n, r) => new { Forelder = n.ParentNodeId!.Value, Node = new Kandidatnode(r.Id, r.DokumentId, r.Eli!, r.Kortnavn ?? r.Tittel, n.Eid, n.Tekst, n.Sorteringsrekkefolge) })
                     .ToListAsync(ct))
-                .Select(x => x.Node with { Tekst = formler[x.Forelder].TrimEnd() + " " + x.Node.Tekst }).ToList();
+                .Select(x => x.Node with { Tekst = Hjemmelstekstlesing.MedForelderformel(formler[x.Forelder], x.Node.Tekst) }).ToList();
         }
         var alle = noder.Select(n => n.Node).Concat(barn).ToList();
         var perKilde = alle.GroupBy(n => n.RettskildeId).ToDictionary(g => g.Key, g => g.OrderBy(n => n.Rekkefolge).ThenBy(n => n.Eid, StringComparer.Ordinal).ToList());
@@ -230,7 +264,7 @@ public static class Opphevingskontroll
         RegelIdeDbContext db, IReadOnlyCollection<(Guid Id, string Eli)> kilder, CancellationToken ct = default)
     {
         var ut = new Dictionary<Guid, Oppheving>();
-        var medDato = kilder.Where(k => DatoOgNummer(k.Eli) is not null).ToList();
+        var medDato = kilder.Where(k => Hjemmelstekstlesing.Mal(k.Eli) is not null).ToList();
         // [Ny, tørrkjøringen 2026-11-02] Sentrale forskrifter (SF) og lover (NL) holdes utenfor: Lovdata vedlikeholder statusen for dem, så
         // står de som gjeldende, er en «oppheving» i en annen kilde delvis. Alle tre SF-treffene i den delte basen var delvise:
         // FOR-1985-06-28-1679 (kapittel 6), FOR-1954-07-08-3 (kapitel VII) og FOR-1992-12-04-915 («… om sosiale tjenester mv. kapittel 5»,
@@ -244,16 +278,10 @@ public static class Opphevingskontroll
         var perMal = noder.GroupBy(x => x.MalEli, StringComparer.Ordinal).ToDictionary(g => g.Key, g => g.Select(x => x.Node).ToList(), StringComparer.Ordinal);
         foreach (var (id, eli) in medDato)
         {
-            var (_, dato, nr) = DatoOgNummer(eli)!.Value;
-            foreach (var n in (perMal.GetValueOrDefault(eli) ?? []).OrderBy(n => n.DokumentId, StringComparer.Ordinal).ThenBy(n => n.Rekkefolge))
-            {
-                if (n.RettskildeId == id) continue;
-                if (FullOpphevingssetning(n.Tekst, dato, nr) is { } s)
-                {
-                    ut[id] = new Oppheving(n.RettskildeId, n.DokumentId, n.Eli, n.Tittel, n.Eid, s);
-                    break;
-                }
-            }
+            var noderForMal = (perMal.GetValueOrDefault(eli) ?? []).Where(n => n.RettskildeId != id)
+                .OrderBy(n => n.DokumentId, StringComparer.Ordinal).ThenBy(n => n.Rekkefolge);
+            if (ForsteOppheving(noderForMal, Hjemmelstekstlesing.Mal(eli)!) is { } o)
+                ut[id] = new Oppheving(o.Node.RettskildeId, o.Node.DokumentId, o.Node.Eli, o.Node.Tittel, o.Node.Eid, o.Sitat);
         }
         return ut;
     }
@@ -278,15 +306,9 @@ public static class Opphevingskontroll
         var perKilde = noder.GroupBy(n => n.RettskildeId).ToDictionary(g => g.Key, g => g.OrderBy(n => n.Rekkefolge).ToList());
         foreach (var (kilde, malEli) in par.Distinct())
         {
-            if (DatoOgNummer(malEli) is not { } x) continue;
-            foreach (var n in perKilde.GetValueOrDefault(kilde) ?? [])
-            {
-                if (FullOpphevingssetning(n.Tekst, x.Dato, x.Nr) is { } s)
-                {
-                    ut[(kilde, malEli)] = new Oppheving(n.RettskildeId, n.DokumentId, n.Eli, n.Tittel, n.Eid, s);
-                    break;
-                }
-            }
+            if (Hjemmelstekstlesing.Mal(malEli) is not { } m) continue;
+            if (ForsteOppheving(perKilde.GetValueOrDefault(kilde) ?? [], m) is { } o)
+                ut[(kilde, malEli)] = new Oppheving(o.Node.RettskildeId, o.Node.DokumentId, o.Node.Eli, o.Node.Tittel, o.Node.Eid, o.Sitat);
         }
         return ut;
     }
@@ -344,16 +366,24 @@ public static class Opphevingskontroll
         var perMal = noderSomEndrer.GroupBy(x => x.MalEli, StringComparer.Ordinal)
             .ToDictionary(g => g.Key, g => g.Select(x => x.Node).OrderBy(n => n.DokumentId, StringComparer.Ordinal).ThenBy(n => n.Rekkefolge).ToList(), StringComparer.Ordinal);
 
-        var opphevet = new Dictionary<string, (Oppheving O, Oppheving? V)>(StringComparer.Ordinal);
+        var funnet = new Dictionary<string, (Dokumentmal M, Kandidatnode N, string S)>(StringComparer.Ordinal);
         foreach (var eli in kandidater)
         {
-            if (DatoOgNummer(eli) is not { } x || !perMal.TryGetValue(eli, out var noder)) continue;
-            var o = noder.Select(n => (n, s: FullOpphevingssetning(n.Tekst, x.Dato, x.Nr))).FirstOrDefault(p => p.s is not null);
-            if (o.s is null) continue;
-            var v = noder.Where(n => n.RettskildeId == o.n.RettskildeId)
-                .Select(n => (n, s: Videreforingssetning(n.Tekst, x.Dato, x.Nr))).FirstOrDefault(p => p.s is not null);
-            opphevet[eli] = (new Oppheving(o.n.RettskildeId, o.n.DokumentId, o.n.Eli, o.n.Tittel, o.n.Eid, o.s),
-                v.s is null ? null : new Oppheving(v.n.RettskildeId, v.n.DokumentId, v.n.Eli, v.n.Tittel, v.n.Eid, v.s));
+            if (Hjemmelstekstlesing.Mal(eli) is not { } m || !perMal.TryGetValue(eli, out var noder)) continue;
+            if (ForsteOppheving(noder, m) is { } o) funnet[eli] = (m, o.Node, o.Sitat);
+        }
+        // [ENDRET, #472 PR 3] Videreføringen leses i ALLE nodene til den opphevende loven, med formene V1–V4 fra hjemmelsstatusen
+        // (Hjemmelstekstlesing.Videreforinger), ikke bare i nodene med et oppheve-ord eller «medhold»: V2 godtar også «gitt etter» og
+        // «fastsatt etter», og V3 den generiske formen («regler som blir opphevet», uhl. 2024 § 17-3). V2a (en annen lov) er ikke med: R9
+        // leser den opphevende loven.
+        var egne = await AlleNoderAsync(db, funnet.Values.Select(f => f.N.RettskildeId).Distinct().ToList(), ct);
+        var opphevet = new Dictionary<string, (Oppheving O, Oppheving? V)>(StringComparer.Ordinal);
+        foreach (var (eli, (m, n, s)) in funnet)
+        {
+            var v = Hjemmelstekstlesing.Videreforinger(egne.GetValueOrDefault(n.RettskildeId) ?? [], x => x.Tekst, m)
+                .Select(x => ((string Form, Kandidatnode Node, string Sitat)?)x).FirstOrDefault();
+            opphevet[eli] = (new Oppheving(n.RettskildeId, n.DokumentId, n.Eli, n.Tittel, n.Eid, s),
+                v is { } vv ? new Oppheving(vv.Node.RettskildeId, vv.Node.DokumentId, vv.Node.Eli, vv.Node.Tittel, vv.Node.Eid, vv.Sitat) : null);
         }
         foreach (var g in hjemler.Where(h => opphevet.ContainsKey(h.Eli)).GroupBy(h => (h.Rk, h.Eli)))
         {

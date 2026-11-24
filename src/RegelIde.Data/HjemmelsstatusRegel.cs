@@ -273,7 +273,7 @@ public sealed class HjemmelsstatusRegel(RegelIdeDbContext db, IKunngjortTekstkil
                                 && !n.ErMerknad && n.Tekst != null)
                     .Select(n => new { n.Id, n.RettskildeId, n.Eid, n.Tekst, n.Sorteringsrekkefolge, Forelder = n.ParentNodeId!.Value })
                     .ToListAsync(ct);
-                kandidater.AddRange(barn.Select(b => new Lesning(b.RettskildeId, b.Id, b.Eid, formler[b.Forelder].TrimEnd() + " " + b.Tekst,
+                kandidater.AddRange(barn.Select(b => new Lesning(b.RettskildeId, b.Id, b.Eid, Hjemmelstekstlesing.MedForelderformel(formler[b.Forelder], b.Tekst)!,
                     b.Sorteringsrekkefolge, false)));
             }
         }
@@ -401,24 +401,13 @@ public sealed class HjemmelsstatusRegel(RegelIdeDbContext db, IKunngjortTekstkil
         return (null, e3 ? Hjemmelsstatus.GrunnE3 : Hjemmelsstatus.GrunnIngen);
     }
 
-    /// <summary>Hel opphevingssetning, ellers den utvidede formen; begge gjennom vakten. Returnerer sitatet og om det var den utvidede formen.</summary>
+    /// <summary>Hel opphevingssetning, ellers den utvidede formen; begge gjennom vakten. Returnerer sitatet og om det var den utvidede formen.
+    /// [ENDRET, #472 PR 3] Lesingen er flyttet til <see cref="Hjemmelstekstlesing.LesOppheving"/>, som R8, R9 og målvedtaket i #429 også bruker.</summary>
     private static (string? Sitat, bool Utvidet) LesOppheving(string tekst, Dokumentmal mal, Data data)
     {
-        var s = Hjemmelstekstlesing.FullOpphevingssetning(tekst, mal);
-        string? vakt = s;
-        var utvidet = false;
-        if (s is null && Hjemmelstekstlesing.UtvidetOpphevingssetning(tekst, mal) is { } u)
-        {
-            s = u.Sitat;
-            vakt = u.Vaktsetning;
-            utvidet = true;
-        }
-        if (s is not null && !Hjemmelstekstlesing.MalErObjekt(vakt!, mal))
-        {
-            data.VaktAvviste++;
-            return (null, false);
-        }
-        return (s, utvidet);
+        var (l, avvist) = Hjemmelstekstlesing.LesOppheving(tekst, mal);
+        if (avvist) data.VaktAvviste++;
+        return (l?.Sitat, l?.Utvidet ?? false);
     }
 
     private static Dictionary<string, List<Lesning>> IndekserTreff(Data data)
@@ -459,8 +448,8 @@ public sealed class HjemmelsstatusRegel(RegelIdeDbContext db, IKunngjortTekstkil
         {
             if (n.Tekst is null) continue;
             yield return new Lesning(kildeId, null, n.Eid, n.Tekst, n.Rekkefolge, true);
-            if (n.ForelderEid is { } f && tekstPerEid.TryGetValue(f, out var ft) && UtgattAktorRegler.Opphevingsformel(Hjemmelstekstlesing.Normaliser(ft)))
-                yield return new Lesning(kildeId, null, n.Eid, ft.TrimEnd() + " " + n.Tekst, n.Rekkefolge, true);
+            if (n.ForelderEid is { } f && Hjemmelstekstlesing.MedForelderformel(tekstPerEid.GetValueOrDefault(f), n.Tekst) is { } medFormel)
+                yield return new Lesning(kildeId, null, n.Eid, medFormel, n.Rekkefolge, true);
         }
     }
 
@@ -500,27 +489,13 @@ public sealed class HjemmelsstatusRegel(RegelIdeDbContext db, IKunngjortTekstkil
             .Concat(kunngjorte is null ? [] : kunngjorte.Where(n => n.Tekst is not null).OrderBy(n => n.Rekkefolge)
                 .Select(n => new Lesning(opphevende, null, n.Eid, n.Tekst!, n.Rekkefolge, true)))
             .ToList();
-        Videreforingskandidat? Forste(string form, IEnumerable<Lesning> noder, Func<string, string?> les)
-        {
-            foreach (var n in noder)
-            {
-                if (les(n.Tekst) is { } s) return new Videreforingskandidat(form, n.KildeId, n.NodeId, n.Eid, s, n.FraKunngjort);
-            }
-            return null;
-        }
-        if (Forste("V1", egne, t => Hjemmelstekstlesing.VidereforingV1(t, mal)) is { } v1) yield return v1;
-        if (Forste("V2", egne, t => Hjemmelstekstlesing.VidereforingV2(t, mal)) is { } v2) yield return v2;
-        var kortnavn = egne.SelectMany(n => Hjemmelstekstlesing.Kortnavn(n.Tekst, mal)).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToList();
-        foreach (var k in kortnavn)
-        {
-            if (Forste("V4", egne, t => Hjemmelstekstlesing.VidereforingV4(t, k)) is { } v4) { yield return v4; break; }
-        }
         var rxLos = new Regex(Hjemmelstekstlesing.MalRegexLos(mal));
         var andre = data.Videreforingsnoder
             .Where(n => n.KildeId != opphevende && data.Kilder.GetValueOrDefault(n.KildeId)?.Eli != eli && rxLos.IsMatch(Hjemmelstekstlesing.Normaliser(n.Tekst)))
             .OrderBy(n => data.Kilder.GetValueOrDefault(n.KildeId)?.DokumentId ?? "", StringComparer.Ordinal).ThenBy(n => n.Rekkefolge);
-        if (Forste("V2a", andre, t => Hjemmelstekstlesing.VidereforingV2(t, mal)) is { } v2a) yield return v2a;
-        if (Forste("V3", egne, Hjemmelstekstlesing.VidereforingV3) is { } v3) yield return v3;
+        // [ENDRET, #472 PR 3] Formene og rekkefølgen er flyttet til Hjemmelstekstlesing.Videreforinger, som R9-hintet i #429 også bruker.
+        foreach (var (form, n, s) in Hjemmelstekstlesing.Videreforinger(egne, l => l.Tekst, mal, andre))
+            yield return new Videreforingskandidat(form, n.KildeId, n.NodeId, n.Eid, s, n.FraKunngjort);
     }
 
     // ---- Én rad ------------------------------------------------------------------------------------------------------------------------

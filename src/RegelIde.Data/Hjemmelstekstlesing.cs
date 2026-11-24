@@ -9,6 +9,10 @@ public sealed record Dokumentmal(string Type, int Aar, int Mnd, int Dag, string 
     public DateOnly Dato => new(Aar, Mnd, Dag);
 }
 
+/// <summary>[Ny, #472 PR 3] En oppheving lest av én tekst: setningen ordrett, og om den bare ble funnet i den utvidede formen (passiv, «til»
+/// etter nummeret, hele noden; bevistrinn E1u i hjemmelsstatusen).</summary>
+public sealed record Opphevingslesning(string Sitat, bool Utvidet);
+
 /// <summary>
 /// [Ny, #472 PR 1, Johanns avgjørelser 2026-11-18] <b>Tekstlesingen bak hjemmelsstatusen</b> (<see cref="HjemmelsstatusRegel"/>): når er et
 /// hjemmelsdokument opphevet ifølge teksten i en annen gjeldende kilde, og når videreføres vedtak gitt i medhold av det. Portert fra
@@ -116,6 +120,37 @@ public static class Hjemmelstekstlesing
         return null;
     }
 
+    /// <summary>
+    /// [Ny, #472 PR 3] <b>Den delte lesingen av én tekst</b> for et mål, brukt av hjemmelsstatusen (E1/E1u/E2/EN_LTI) og av R8, R9 og
+    /// målvedtaket i #429 (<see cref="Opphevingskontroll"/>): hel opphevingssetning (<see cref="FullOpphevingssetning"/>), ellers den
+    /// utvidede formen (<see cref="UtvidetOpphevingssetning"/>), og begge gjennom vakten (<see cref="MalErObjekt"/>). Avviser vakten en hel
+    /// setning, prøves ikke den utvidede formen (samme rekkefølge som fase 1). Flyttet hit fra <see cref="HjemmelsstatusRegel"/> uendret, slik
+    /// at #429 og #472 gir samme svar på samme tekst.
+    /// </summary>
+    /// <returns>Sitatet ordrett og om det var den utvidede formen, eller null; og om vakten avviste en setning.</returns>
+    public static (Opphevingslesning? Lesning, bool VaktAvviste) LesOppheving(string? tekst, Dokumentmal m)
+    {
+        var s = FullOpphevingssetning(tekst, m);
+        var vakt = s;
+        var utvidet = false;
+        if (s is null && UtvidetOpphevingssetning(tekst, m) is { } u)
+        {
+            s = u.Sitat;
+            vakt = u.Vaktsetning;
+            utvidet = true;
+        }
+        if (s is null) return (null, false);
+        return MalErObjekt(vakt!, m) ? (new Opphevingslesning(s, utvidet), false) : (null, true);
+    }
+
+    /// <summary>
+    /// [Ny, #472 PR 3] <b>Opphevingsformelen i noden over</b> (#429 PR 4 (1c), juristrunde 1 S15): slutter forelderen med formelen
+    /// (<see cref="UtgattAktorRegler.Opphevingsformel"/>: «oppheves:», «Fra samme tid oppheves følgende lover:»), leses barnet med forelderens
+    /// tekst foran. Null når forelderen ikke slutter med formelen. Delt av hjemmelsstatusen (korpus og Lovtidend) og R9.
+    /// </summary>
+    public static string? MedForelderformel(string? forelder, string? barn) =>
+        barn is not null && forelder is not null && UtgattAktorRegler.Opphevingsformel(Normaliser(forelder)) ? forelder.TrimEnd() + " " + barn : null;
+
     private static readonly Regex AnnetDokument = new(
         @"\b(forskrift\w*|kgl\.?|kongelig\w*|vedtak\w*|delegering\w*|instruks\w*|resolusjon\w*|henvisning\w*|bestemmelse\w*"
         + @"|lovbestemmelse\w*|kapit+el|ikrafttred\w*|ikraftsetting\w*|unntak\w*|endring\w*|vedlegg)\b|§", RegexOptions.IgnoreCase);
@@ -146,6 +181,47 @@ public static class Hjemmelstekstlesing
             // Verbet står etter målet: fra setningens start til målet.
             seg = Regex.Replace(s[..mal.Index], @"^(Fra\s+(samme|den)\s+(tid|dag|dato|tidspunkt)[^,]*,?|Samtidig|Fra\s+samme\s+tid)\s*", "");
         }
+        if (MalErObjektPR1(seg)) return true;
+        // [Ny, #472 PR 3] De nye formene godtas ikke når et paragrafspenn står etter målet («… nr. 4 om … mv. § 1 til § 9.»,
+        // FOR-1978-12-22-4), som PR 1-vakten avviste.
+        if (Regex.IsMatch(s[(mal.Index + mal.Length)..], @"§\s*[\d-]+\w*\s*(til|–|-)\s*§")) return false;
+        return MalErObjektIListeEllerIdentifisert(seg);
+    }
+
+    private const RegexOptions Ic = RegexOptions.IgnoreCase | RegexOptions.CultureInvariant;
+    private const string DatoUtenMal = @"\d{1,2}\.\s*" + Maaned + @"\s+\d{4}";
+
+    /// <summary>Starten på et helt dokument i en liste eller en beskrivelse: dokumenttypen, også i flertall, sammensatt («helseforskrifter»,
+    /// «delegeringsvedtak») og med eier foran («departementets delegering», «Skattedirektoratets instruks»).</summary>
+    private const string Dokumentstart =
+        @"(?:(?:\w+s|tidligere|midlertidig\w*|mellombels\w*)\s+)?(?:\w*forskrift\w*|\w*vedtak\w*|\w*instruks\w*|delegering\w*|delegasjon\w*|kgl\.?\s*res|kongelig\w*\s+resolusjon\w*"
+        + @"|kongelege\s+resolusjon\w*|kronprins\w*|resolusjon\w*|lov(?:en|a)?\b|bestemmelse\b)";
+
+    /// <summary>Skillet foran et nytt dokument i en liste: komma, semikolon, kolon, punktum (også uten mellomrom: «nr. 648 om ….Forskrift»),
+    /// loddstrek, «og», «samt», med valgfri nummerering («4.2. | Vedtak …», FOR-2018-06-04-810 kap. 4).</summary>
+    private static readonly Regex Listeskille = new(
+        @"(?:[,;:.|]|\bog\b|\bsamt\b)\s*(?:\d+(?:\.\d+)*\.?\s*\|?\s*)?(?=" + Dokumentstart + ")", Ic);
+
+    /// <summary>Målets egen dokumenttype rett foran datoen, utvidet med flertall og sammensatte former («Forskrifter av», «helseforskrifter av»,
+    /// «delegeringsvedtak», «Kronprinsreg.res. av», «bestemmelse», «forskrift (Nr. 105) av», «forskrift fra»).</summary>
+    private static readonly Regex MaletsTypeUtvidet = new(
+        @"(?:(?:midlertidig\w*|mellombels\w*)\s+)?(?:\w*forskrift(?:a|en|er|ene)?|kgl\.?\s*res\.?|kongelig(?:e)?\s+resolusjon(?:en|er)?|kongelege\s+resolusjon(?:ar)?"
+        + @"|kronprins\w*\.?\s*res\.?|kronprins\w*\s+resolusjon|\w*vedtak(?:et)?|\w*instruks(?:en)?|resolusjon(?:en)?|delegering(?:en)?|bestemmelse|lov(?:a|en)?)"
+        + @"(?:\s*\([^)]{0,20}\))?(?:\s+fra\s+[\w\s-]{1,80}?(?:departementet|direktoratet|tilsynet|Kongen))?(?:\s+(?:av|fra|den))?\s*$", Ic);
+
+    /// <summary>Identifikasjonen etter en beskrivelse av målet: «… fastsatt ved kgl.res.», «… vedtatt ved kongelig resolusjon av», «… gitt i
+    /// kongelig resolusjon», «… fastsatt av Landbruksdepartementet den», «… vedtatt 15. oktober 1990 og», «… ved vedtak».</summary>
+    private static readonly Regex Identifikasjon = new(
+        @"^(?<b>.*?)[,\s]*(?:\b(?:fastsatt|fastsett|vedtatt|gitt|godkjent|truffet)(?:\s+(?:av\s+[\w\s-]{1,80}?(?:departementet|direktoratet|tilsynet|Kongen)|ved|i|den|av))*"
+        + @"(?:\s+" + DatoUtenMal + @"(?:\s+nr\.?\s*\d+)?\s*(?:,|og))*|\s\bved)\s*$", Ic);
+
+    /// <summary>Delmarkører: tekst foran lista som sier at bare en del av dokumentene oppheves («følgende bestemmelser:», «§ 3 i»).</summary>
+    private static readonly Regex Delmarkor = new(
+        @"\w*bestemmelse\w*|§|kapit+el|\bkap\.|\bledd\b|\bpunkt\w*|\bpkt\b|\bdel\b|\bvedlegg\b|\bendring\w*|ikrafttred\w*|\bunntak\w*|for\s+så\s+vidt", Ic);
+
+    /// <summary>Den opprinnelige vakten fra #472 PR 1, uendret.</summary>
+    private static bool MalErObjektPR1(string seg)
+    {
         const RegexOptions I = RegexOptions.IgnoreCase;
         // Målets egen dokumenttype rett foran datoen («oppheves forskrift 12. november …», «Lov av …», «kgl.res. av …»), også med utstederen
         // («Kongelig resolusjon fra X-departementet av …»).
@@ -162,6 +238,53 @@ public static class Hjemmelstekstlesing
         seg = Regex.Replace(seg.Trim(), @"^\(\d+\)\s*", "");
         seg = Regex.Replace(seg, @"^Fra\s+(den\s+tid|samme\s+tid|forskriftens\s+ikrafttredelse|ikrafttredelsen\s+av\s+\w+\s+her)[^,:]*[,:]?\s*", "", I);
         return !AnnetDokument.IsMatch(seg);
+    }
+
+    /// <summary>
+    /// [Ny, #472 PR 3] <b>Vakten utvidet med to former den avviste feilaktig.</b> Da vakten ble koblet inn i R8, falt 8 av de 46 kildene i
+    /// kildefeilkøen bort, sju av dem kontrollert som hele opphevinger av juristen i #429 måling 3. Vakten leste dem som et mål i tittelen
+    /// til noe annet. Formene, hver med setningen den er hentet fra:
+    /// <list type="number">
+    /// <item><b>Liste av hele dokumenter</b>, også uten nummer, med nummerering eller loddstrek: «oppheves følgende vedtak: 4.1. | Vedtak 18.
+    /// juli 2013 nr. 921 om … 4.4. | Vedtak 30. juni 2006 nr. 735 …» (FOR-2018-06-04-810 kap. 4), «avløser kgl.res. 12. desember 1997 –
+    /// Retningslinjer …, og kgl.res. 18. april 2008 nr. 388» (FOR-2015-06-19-703). Bare målets eget ledd i lista leses; hvert ledd foran må
+    /// ha egen dato (et helt dokument), og teksten foran lista må være tom eller «følgende vedtak/forskrifter/…», uten delmarkører
+    /// («følgende bestemmelser:», FOR-2010-06-16-820).</item>
+    /// <item><b>Beskrivelse og identifikasjon:</b> målet beskrives før datoen, og dokumenttypen står mellom med «fastsatt ved», «vedtatt ved»,
+    /// «gitt i», «fastsatt av X-departementet» eller «ved vedtak»: «oppheves: Delegering av myndighet … § 22, fastsatt ved kgl.res. 17.
+    /// januar 2003 nr. 38» (FOR-2008-04-11-337 kap. VI), «oppheves departementets delegering av myndighet til Sentralenheten ved vedtak 2.
+    /// februar 2012 nr. 1490» (FOR-2022-12-22-2499). Beskrivelsen må begynne med et dokument og ha ingen annen dato. Det som beskrives, er
+    /// det dokumentet identifikasjonen peker på, altså målet; tittelen leses ikke (#429 PR 4 (1a)). Den svake formen «forskrift om … av
+    /// ‹dato›» godtas bare når beskrivelsen ikke nevner et annet dokument.</item>
+    /// </list>
+    /// Den opprinnelige vakten (<see cref="MalErObjektPR1"/>) gjelder fortsatt. Dette kan bare gjøre flere setninger godtatt, aldri færre.
+    /// </summary>
+    private static bool MalErObjektIListeEllerIdentifisert(string seg)
+    {
+        var deler = Listeskille.Split(seg);
+        var ledd = deler[^1];
+        if (deler.Length > 1)
+        {
+            var forste = deler[0];
+            var forsteErDokument = Regex.IsMatch(forste, @"^\s*" + Dokumentstart, Ic) && Regex.IsMatch(forste, DatoUtenMal);
+            var innledning = Regex.Replace(forste,
+                @"^\s*(\(\d+\)\s*)?((følgende|disse|dessuten)\s+)?(andre\s+)?(sentralt\s+fastsatte\s+)?(lover|forskrifter|forskrift|vedtak|delegeringer|delegeringsvedtak"
+                + @"|delegeringsbeslutninger|kongelige\s+resolusjoner|instrukser)?\s*$", "", Ic);
+            if (!forsteErDokument && (innledning.Trim().Length > 0 || Delmarkor.IsMatch(forste))) return false;
+            if (deler[1..^1].Any(d => !Regex.IsMatch(d, DatoUtenMal))) return false;
+        }
+        var raa = Regex.Replace(ledd.Trim(), @"^[:\s]*(\(\d+\)\s*)?", "");
+        var utenType = MaletsTypeUtvidet.Replace(raa, "").Trim();
+        if (utenType.Length == 0) return true;
+        bool BegynnerMedDokument(string b) => Regex.IsMatch(b, @"^[\W]*" + Dokumentstart, Ic) && !Regex.IsMatch(b, DatoUtenMal);
+        if (Identifikasjon.Match(utenType) is { Success: true } id && BegynnerMedDokument(id.Groups["b"].Value)) return true;
+        // «forskrift for sortering, pakking og merking av planteskolevarer, av 25. mars 1988 nr. 647»: «av» rett foran datoen, uten type.
+        if (Regex.Match(raa, @"^(?<b>.*?),?\s+av\s*$", Ic) is { Success: true } av && BegynnerMedDokument(av.Groups["b"].Value))
+        {
+            var resten = Regex.Replace(av.Groups["b"].Value, @"^[\W]*" + Dokumentstart, "", Ic);
+            return !AnnetDokument.IsMatch(resten);
+        }
+        return false;
     }
 
     /// <summary>[Fase 1, E2] Uten «Endrer»-kobling må verbet stå utenfor parentes («(oppheving av juryordningen)» er tittel), og når verbet står
@@ -234,6 +357,34 @@ public static class Hjemmelstekstlesing
         var k = Regex.Escape(kortnavn);
         return Setninger(Normaliser(tekst)).FirstOrDefault(s => Regex.IsMatch(s, @"\b" + k + @"\b") && ErVidereforing(s)
             && Regex.IsMatch(s, @"(i\s+medh[oa]ld\s+av|med\s+(hjemmel|heimel)\s+i)\s+(\w+\s+){0,3}?" + k))?.Trim();
+    }
+
+    /// <summary>
+    /// [Ny, #472 PR 3] <b>Videreføringssøket, delt</b> av hjemmelsstatusen og R9-hintet i #429: den første setningen av hver form i fase
+    /// 1-rekkefølgen — V1, V2 og V4 i <paramref name="egne"/> (den opphevende kildens noder), V2a i <paramref name="andre"/> (andre lover og
+    /// overgangsforskrifter; R9 sender ingen), og V3 (generisk, også bokmål «regler som blir opphevet») i <paramref name="egne"/>. Flyttet hit
+    /// fra <see cref="HjemmelsstatusRegel"/> uendret.
+    /// </summary>
+    public static IEnumerable<(string Form, T Node, string Sitat)> Videreforinger<T>(
+        IReadOnlyList<T> egne, Func<T, string?> tekst, Dokumentmal m, IEnumerable<T>? andre = null)
+    {
+        (string, T, string)? Forste(string form, IEnumerable<T> noder, Func<string?, string?> les)
+        {
+            foreach (var n in noder)
+            {
+                if (les(tekst(n)) is { } s) return (form, n, s);
+            }
+            return null;
+        }
+        if (Forste("V1", egne, t => VidereforingV1(t, m)) is { } v1) yield return v1;
+        if (Forste("V2", egne, t => VidereforingV2(t, m)) is { } v2) yield return v2;
+        var kortnavn = egne.SelectMany(n => Kortnavn(tekst(n), m)).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToList();
+        foreach (var k in kortnavn)
+        {
+            if (Forste("V4", egne, t => VidereforingV4(t, k)) is { } v4) { yield return v4; break; }
+        }
+        if (andre is not null && Forste("V2a", andre, t => VidereforingV2(t, m)) is { } v2a) yield return v2a;
+        if (Forste("V3", egne, VidereforingV3) is { } v3) yield return v3;
     }
 
     /// <summary>[Juristrunde 1, R3] Forbeholdet i videreføringen: «så langt de passer», «med mindre de strider mot», «så langt de også kunne ha
