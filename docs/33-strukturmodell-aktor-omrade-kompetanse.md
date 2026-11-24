@@ -1847,7 +1847,8 @@ barnehage (godkjent for publisering av Johann 2026-10-29), kontrollen for lærer
 - **(1b) Videreføringen** (R9-hintet) godtar også «med hjemmel i» og «(skal) fortsatt gjelde» (ekomloven 2024 § 18-2 første ledd, M05).
 - **(1c) Opphevingsformelen i noden over** (`UtgattAktorRegler.Opphevingsformel`: «oppheves:», «oppheves følgende delegeringer:», «Fra
   samme tid oppheves følgende lover:») leses av R3 (forelderen til noden med termen, M20) og av R9 (barnet leses med forelderens tekst
-  foran, M16). R8 bruker den ikke: avgjørelsen gjaldt R3 og R9.
+  foran, M16). R8 bruker den ikke: avgjørelsen gjaldt R3 og R9. [ENDRET, prosjekteierens avgjørelse 2026-11-24] R8 leser den også, se
+  merknaden om #472 PR 3 under.
 - **(2) Avgiverformel som undertype** (`avgiverformel`, ny verdi i `ck_funn_undertype`): navnet står bare i avgiverformelen — «Xs
   myndighet … delegeres», «X delegerer/gir med dette/herved», «X har (med dette) delegert», «X fatter … følgende vedtak», med termen én
   gang i noden. Alle forekomstene som ikke treffes av en annen regel, må være avgiverformel. Funnet holdes ikke tilbake (juristens presedens
@@ -1918,8 +1919,21 @@ vakten (utvidet med lister og identifikasjon), lov uten nummer og videreførings
     delegering av mynde til statsforvaltarene etter inndelingslova blir oppheva.»).
 - **Skrivekjøring i kopien:** `?skriv=true&oppfrisk=true` ga 0 nye, 0 kildefeil, 0 forklart bort og 2 oppfrisket. En ny kjøring ga 0 på alt.
   I appen (web 5473 mot API 5487) viste FOR-1990-11-02-883 den nye premissmangelen og vurderingspunktet «Hjemmel».
-- **Ikke endret:** R8 leser fortsatt ikke formelen i foreldrenoden. Med den ville to kilder til gått til kildefeilkøen (LTI/forskrift/2001-12-21-1708
-  med 3 funn og LTI/forskrift/2013-02-01-134 med 1 funn). Det er et spørsmål til Johann.
+- **Ikke endret i PR 3:** R8 leste fortsatt ikke formelen i foreldrenoden. Med den ville to kilder til gått til kildefeilkøen
+  (LTI/forskrift/2001-12-21-1708 med 3 funn og LTI/forskrift/2013-02-01-134 med 1 funn).
+
+**[ENDRET, prosjekteierens avgjørelse 2026-11-24] R8 leser opphevingsformelen i noden over.** Fraviker #429 PR 4 (1c), der avgjørelsen gjaldt
+bare R3 og R9. Nå leser R8 teksten som R3, R9 og hjemmelsstatusen: et barn under «oppheves:», «Følgende delegeringsvedtak oppheves:» og lignende
+leses med forelderens tekst foran (`Hjemmelstekstlesing.MedForelderformel`). Begrunnelse: teksten er entydig, og R8 gir da samme svar som
+hjemmelsstatusen på samme tekst. Målvedtaket leser fortsatt bare nodenes egen tekst. Kaldkjørt i kopien `regelide_r8` (slettet etterpå):
+- Bare de to kildene endres. 4 funn går fra «foreslått» til kildefeil, og ingen andre funn endrer svar, bevis eller premissmangel:
+  - LTI/forskrift/2001-12-21-1708 (3 funn: Helsedepartementet, Sosial- og helsedepartementet, Sosialdepartementet), opphevet av
+    FOR-2010-03-18-425 kap. II andre ledd punkt 1: «Fra samme tid oppheves: Vedtak 21. desember 2001 nr. 1708 om delegering av myndighet til
+    Sosial- og helsedirektoratet»;
+  - LTI/forskrift/2013-02-01-134 (1 funn: Arbeids- og inkluderingsdepartementet), opphevet av FOR-2023-06-20-996 punkt 11 nr. 5: «Følgende
+    delegeringsvedtak oppheves: kgl.res. 1. februar 2013 nr. 134 om delegering av myndighet etter lov om petroleumsvirksomhet § 9-3 …».
+- Tall: gjenværende 623 → 619, holdt tilbake 144 → 148, kildefeil 46 → 48 kilder. R9 er uendret (106).
+- `?skriv=true` ga 2 nye kildefeil og 4 funn forklart bort av maskinregelen. En ny kjøring ga 0 på alt.
 
 **Ikke i PR 1:** statsrådsembeter og organiseringsvedtak som har uttømt virkningen (#438).
 
@@ -2617,7 +2631,7 @@ nummer), med samme svar for R8 og R9 (Pr3- og Pr4-testene er grønne).
   har punktum, og alt gjennom vakten. R8, R9 og målvedtaket bruker den. En hel setning går foran den utvidede formen, som E1 går foran E1u.
 - **Målet** (`Hjemmelstekstlesing.Mal`): også en lov uten nummer («lov 21. februar 1930 om skifte»). R9 leser den nå.
 - **Formelen i foreldrenoden** (`Hjemmelstekstlesing.MedForelderformel`): én funksjon for hjemmelsstatusen (korpus og Lovtidend) og R9.
-  R8 leser den fortsatt ikke (#429 PR 4 (1c)).
+  R8 leser den fortsatt ikke (#429 PR 4 (1c)). [ENDRET, prosjekteierens avgjørelse 2026-11-24] R8 leser den også (se #429-avsnittet).
 - **Videreføringen** (`Hjemmelstekstlesing.Videreforinger`): V1, V2, V4 og V3 (også bokmål «regler som blir opphevet») i samme rekkefølge.
   R9-hintet leser alle nodene i den opphevende loven, ikke bare nodene med et oppheve-ord. V2a (en annen lov) er ikke med i R9, fordi R9 leser
   den opphevende loven.

@@ -78,6 +78,34 @@ public class UtgattAktorFunnregelTekstlesingTests(EmbeddedPostgresFixture fixtur
     }
 
     [Theory]
+    // [Prosjekteierens avgjørelse 2026-11-24, fraviker #429 PR 4 (1c)] R8 leser formelen i noden over (LTI/forskrift/2001-12-21-1708,
+    // LTI/forskrift/2013-02-01-134). Uten formel i forelderen er barnet bare en tittel, og R8 slår ikke til.
+    [InlineData("Fra samme tid oppheves:", true)]
+    [InlineData("Følgende delegeringsvedtak oppheves:", true)]
+    [InlineData("Følgende vedtak gjelder fortsatt:", false)]
+    public async Task R8_leser_opphevingsformelen_i_noden_over(string forelder, bool opphevet)
+    {
+        await using var db = fixture.NyDbContext();
+        var o = new Oppsett(db);
+        var (a, _) = await o.AktorAsync(UtgattAktorFunnregelTests.Departement("Formel"), nedlagt: true);
+        var (kilde, _) = await o.ForskriftAsync(Lti, $"{a.Navn} kan videredelegere myndigheten.");
+        var k = new HjemmelsstatusTests.Korpus(db);
+        var opphevende = await k.DokumentAsync("forskrift", new(2019, 6, 7), HjemmelsstatusTests.Nr(), "LTI", "Delegering av myndighet",
+            [("kap-II", null, null), ("kap-II/ledd-2", forelder, null),
+             ("kap-II/ledd-2/punkt-1", $"Vedtak {Ref(kilde)} om delegering av myndighet til Sosial- og helsedirektoratet", null)]);
+        await k.EndrerAsync(opphevende, kilde);
+
+        var r = await new UtgattAktorFunnregel(db, new FunnTjeneste(db)).KjorAsync(skriv: false, "Test", [kilde.Id], medRader: true);
+        var rad = Assert.Single(r.Rader!);
+        Assert.Equal(opphevet ? UtgattAktorFunnregel.UtfallKildefeil : UtgattAktorFunnregel.UtfallForeslatt, rad.Utfall);
+        if (opphevet)
+        {
+            Assert.Contains($"{opphevende.Eli}/kap-II/ledd-2/punkt-1", rad.Bevis);
+            Assert.Contains($"«{forelder} Vedtak {Ref(kilde)}", rad.Bevis);
+        }
+    }
+
+    [Theory]
     [InlineData("Fra samme tid oppheves følgende vedtak: 4.1. | Vedtak 18. juli 2013 nr. 921 om delegering etter forvaltningsloven § 13d. 4.2. | Vedtak 31. mai 2012 nr. 474 om delegering.", 2012, 5, 31, "474", true)]
     [InlineData("Vedtaket avløser delegering av myndighet etter ligningsloven § 4-3 nr. 3 og § 4-4 nr. 7 vedtatt 15. oktober 1990 og 24. oktober 1991 nr. 742, samt delegeringsvedtak 5. mars 1984 nr. 3450.", 1991, 10, 24, "742", true)]
     [InlineData("Samtidig oppheves forskrift for sortering, pakking og merking av planteskolevarer, av 25. mars 1988 nr. 647.", 1988, 3, 25, "647", true)]
