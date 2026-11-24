@@ -4,7 +4,7 @@ import { Alert, Button, Card, Field, Heading, Label, Link, Select, Textarea, Tex
 import { ApiError, api } from '../api/client';
 import type { FunnKategori, FunnKoblingInn, FunnVurderingspunktInn, RettskildeSammendrag, VirksomhetDto } from '../api/types';
 import { Metatekst } from '../entitet/Metatekst';
-import { ALLE_KATEGORIER, KATEGORI_TEKST, UNDERTYPER, UNDERTYPE_TEKST } from '../funn/FunnVisning';
+import { KATEGORI_TEKST, REGISTRERBARE_KATEGORIER, UNDERTYPER, UNDERTYPE_TEKST } from '../funn/FunnVisning';
 import { RettskildeVelger } from '../rettskilde/RettskildeVelger';
 import { VirksomhetVelger } from '../virksomhet/VirksomhetVelger';
 
@@ -88,7 +88,7 @@ export default function FunnNytt() {
             <Label>Kategori</Label>
             <Select data-size="sm" value={kategori} onChange={(e) => { setKategori(e.target.value as FunnKategori | ''); setUndertype(''); }}>
               <Select.Option value="">Velg …</Select.Option>
-              {ALLE_KATEGORIER.map((k) => <Select.Option key={k} value={k}>{KATEGORI_TEKST[k]}</Select.Option>)}
+              {REGISTRERBARE_KATEGORIER.map((k) => <Select.Option key={k} value={k}>{KATEGORI_TEKST[k]}</Select.Option>)}
             </Select>
           </Field>
           {kategori && UNDERTYPER[kategori].length > 0 && (

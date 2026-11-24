@@ -40,12 +40,32 @@ export const HJEMMEL_OVERSKRIFT = 'Hjemmel';
 /** [Ny, #429 PR 3, R9] Premissmanglene fra R9 begynner alltid slik (Opphevingskontroll.Premissmangeltekst i API-et). */
 export const HJEMMEL_MANGEL_START = 'Hjemmelsloven kan være opphevet';
 
-/** [Ny, #429 PR 3] Deler premissmanglene i R9 (hjemmelsloven) og resten (navneform og etterfølger), så merkene kan vises hver for seg. */
-export function delPremissmangler(mangler: string[]): { hjemmel: string[]; andre: string[] } {
+/** [Ny, #472 PR 2] Overskriften på vurderingspunktet der juristen sier om forskriften kan stå på en ny hjemmel (Funn.NyHjemmelOverskrift). */
+export const NY_HJEMMEL_OVERSKRIFT = 'Ny hjemmel';
+
+/** [Ny, #472 PR 2] Premissmanglene for «Ny hjemmel» og #446 begynner alltid slik (FunnTjeneste.NyHjemmelMangelStart og UttomtVirkningMangelStart). */
+export const NY_HJEMMEL_MANGEL_START = 'Ny hjemmel ikke vurdert';
+export const UTTOMT_VIRKNING_MANGEL_START = 'Uttømt virkning ikke klassifisert';
+
+/** [Ny, #429 PR 3] Deler premissmanglene i R9 (hjemmelsloven) og resten (navneform og etterfølger), så merkene kan vises hver for seg.
+ * [ENDRET, #472 PR 2] Også «Ny hjemmel» og #446, som vises på et funn som bare er oppdaget, slik som R9. */
+export function delPremissmangler(mangler: string[]): { hjemmel: string[]; nyHjemmel: string[]; uttomt: string[]; andre: string[] } {
+  const egne = [HJEMMEL_MANGEL_START, NY_HJEMMEL_MANGEL_START, UTTOMT_VIRKNING_MANGEL_START];
   return {
     hjemmel: mangler.filter((m) => m.startsWith(HJEMMEL_MANGEL_START)),
-    andre: mangler.filter((m) => !m.startsWith(HJEMMEL_MANGEL_START)),
+    nyHjemmel: mangler.filter((m) => m.startsWith(NY_HJEMMEL_MANGEL_START)),
+    uttomt: mangler.filter((m) => m.startsWith(UTTOMT_VIRKNING_MANGEL_START)),
+    andre: mangler.filter((m) => !egne.some((e) => m.startsWith(e))),
   };
+}
+
+/**
+ * [Ny, #472 PR 2] Kategorimerket i klartekst: «Kategori: undertype». Gjenstandsløs står alene, fordi det er gjenstanden og ikke hjemmelen som er
+ * opphevet (Johanns avgjørelse 2026-11-18 (5): eget merke).
+ */
+export function kategoriMerketekst(kategoritekst: string, undertype: string | null, undertypetekst: string | null): string {
+  if (undertype === 'gjenstandslos' && undertypetekst) return undertypetekst;
+  return undertypetekst ? `${kategoritekst}: ${undertypetekst.toLowerCase()}` : kategoritekst;
 }
 
 /**
