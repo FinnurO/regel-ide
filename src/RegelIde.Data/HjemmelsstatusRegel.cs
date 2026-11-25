@@ -90,7 +90,14 @@ public sealed record HjemmelsstatusRapport(
     IReadOnlyDictionary<string, int> PerRolle, IReadOnlyDictionary<string, int> PerRolleregel, IReadOnlyDictionary<string, int> PerVidereforingsform,
     IReadOnlyDictionary<string, int> PerDekning, IReadOnlyDictionary<string, int> PerKunnskapsstatus,
     HjemmelsstatusReferanserader Referanserader, HjemmelsstatusLovtidendTall Lovtidend, HjemmelsstatusForskrifter Forskrifter,
-    int VaktAvviste, IReadOnlyList<HjemmelsstatusRapportRad>? Rader);
+    int VaktAvviste, IReadOnlyList<HjemmelsstatusRapportRad>? Rader,
+    // [Ny, #501] Kortnavnet fra tittelen for lovene med en lest oppheving (distinkte lover): «entydig», eller grunnen til at det ikke gis.
+    IReadOnlyDictionary<string, int>? KortnavnFraTittel = null,
+    // [Ny, #501] Med rader: lesingen per lov (ELI, kortnavnet eller null, grunnen).
+    IReadOnlyList<HjemmelsstatusKortnavn>? KortnavnPerLov = null);
+
+/// <summary>[Ny, #501] Kortnavnet fra tittelen for én opphevet lov.</summary>
+public sealed record HjemmelsstatusKortnavn(string Eli, string? Kortnavn, string Grunn);
 
 /// <summary>AK 4: referanseradene (hjemler som bare finnes som referanse-stub) for gjeldende primære forskrifter.</summary>
 public sealed record HjemmelsstatusReferanserader(
@@ -813,11 +820,16 @@ public sealed class HjemmelsstatusRegel(RegelIdeDbContext db, IKunngjortTekstkil
                 b.VidereforingForm, Ref(b.VidereforingRettskildeId, b.VidereforingEid), b.Kunnskapsstatus)).ToList();
         }
 
+        var opphevedeLover = beregnet
+            .Where(b => b.Bevistrinn is not null && b.HjemmelEli is not null && b.HjemmelEli.Contains("/eli/lov/", StringComparison.Ordinal))
+            .Select(b => b.HjemmelEli!).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal)
+            .Select(e => data.Kortnavn.Les(e) is var (k, g) ? new HjemmelsstatusKortnavn(e, k, k is null ? g : "entydig") : null!).ToList();
         return new HjemmelsstatusRapport(skriv, lovtidend, beregnet.Count, skrevne, endret,
             Tell(beregnet.Select(b => (string?)b.Status)), Tell(beregnet.Select(b => b.Bevistrinn)), Tell(beregnet.Select(b => b.UkjentGrunn)),
             Tell(beregnet.Select(b => b.Rolle)), Tell(beregnet.Select(b => b.RolleRegel)), Tell(beregnet.Select(b => b.VidereforingForm)),
             Tell(beregnet.Select(b => b.VidereforingDekning)), Tell(beregnet.Select(b => (string?)b.Kunnskapsstatus)),
-            refRader, lt, fTall, data.VaktAvviste, radliste);
+            refRader, lt, fTall, data.VaktAvviste, radliste,
+            Tell(opphevedeLover.Select(e => e.Kortnavn is not null ? "entydig" : (string?)e.Grunn)), medRader ? opphevedeLover : null);
     }
 
     // ---- Lesing for rettskildesiden ---------------------------------------------------------------------------------------------------
