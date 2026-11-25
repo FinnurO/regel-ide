@@ -38,7 +38,7 @@ public sealed record VedtaksformResultat(
 /// </summary>
 public static partial class Vedtaksform
 {
-    public const string Regelversjon = "446-pr1-2026-11-25";
+    public const string Regelversjon = "446-pr1-v2-2026-11-25";
 
     public const string RentEndringsvedtak = "rent_endringsvedtak";
     public const string RentIkrafttredelsesvedtak = "rent_ikrafttredelsesvedtak";
@@ -128,6 +128,8 @@ public static partial class Vedtaksform
         + @"endringar og oppheving|tilføyelse i|tillegg til)\s+(i|til)\b|^((forskrift|lov|vedtak|resolusjon)\s+(om|til)\s+)?endring(er|ar)?\s+av\s+(forskrift|lov|vedtak|"
         + @"instruks|resolusjon|kgl\.|kongelig|delegering|reglement|vedtekter|\w*forskrift|\w*instruks|\w*lov)|^midlertidig forskrift om endring(er)? i\b", F)]
     private static partial Regex TittelEndring();
+    [GeneratedRegex(@"\bovergangs(regel|regler|reglar|regelen|reglene|bestemmelse\w*|føresegn\w*)\b", F)]
+    private static partial Regex TittelOvergang();
     [GeneratedRegex(@"^((forskrift|lov|vedtak|resolusjon)\s+(om|til)\s+)?(oppheving|opphevelse|opphevning)\s+(av)\b", F)]
     private static partial Regex TittelOppheving();
     [GeneratedRegex(@"(^|[.;]\s+)((delvis|meddelelse om|kunngjøring om|forskrift om|vedtak om|resolusjon om)\s+)*(delvis\s+)?ikraft\w*|^(forskrift om )?(iverksetting|iverksettelse) av", F)]
@@ -177,6 +179,12 @@ public static partial class Vedtaksform
             new(klasse, $"Regel {Regelversjon}. {grunnlag} ({signal}.)", ks, medBevis ? bevisId : null, medBevis ? bevis : null, per, ut);
 
         if (E + Q + I + O + S == 0) return R(Ukjent, "Ingen operativ tekst i kroppen.", Strukturkanter.Uavklart);
+        // [ENDRET etter målingen i PR 1, M29] En tittel som sier at kilden har overgangsregler, har eget innhold, selv om leddet ikke
+        // gjenkjennes («For skolar som er godkjende etter … gjeld …»).
+        if (S == 0 && TittelOvergang().IsMatch(t))
+        {
+            return R(Blandet, $"Tittelen sier at kilden har overgangsregler («{TittelOvergang().Match(t).Value}»), så den har eget innhold.");
+        }
         if (S > 0)
         {
             var hvor = $"første: {bevisId ?? "(uten id)"} «{bevis}»";
@@ -184,13 +192,17 @@ public static partial class Vedtaksform
                 ? R(Blandet, $"Tittelen har {form}form, men {S} ledd har eget innhold, {hvor}.", medBevis: true)
                 : R(Selvstendig, $"{S} ledd har eget innhold, og tittelen har ikke endrings-, opphevings- eller ikrafttredelsesform; {hvor}.", medBevis: true);
         }
-        var harSignal = tittelform || endrerAntall > 0;
+        // [ENDRET etter målingen i PR 1, M01/M03/M05/M08] En ren klasse krever tittelform. «Endrer» i hodet alene var ikke nok: et nytt
+        // delegeringsvedtak som «endrer» det forrige og opphever det i samme vedtak, står med det forrige i «Endrer», men innholdet står bare i
+        // det nye vedtaket (4 av 10 i laget med bare hodesignal). Uten tittelform blir kilden ukjent.
+        var harSignal = tittelform;
         var tall = $"instrukser {E}, sitert tekst {Q}, ikrafttredelse {I}, oppheving {O}, eget innhold 0";
         if (E + Q > 0)
         {
             return harSignal
                 ? R(RentEndringsvedtak, $"Bare endringsinstrukser, sitert ny tekst, ikrafttredelse og oppheving av andre dokumenter ({tall}).")
-                : R(Ukjent, $"Endringsform i teksten ({tall}), men verken tittelen eller «Endrer» sier at kilden endrer andre dokumenter.", Strukturkanter.Uavklart);
+                : R(Ukjent, $"Endringsform i teksten ({tall}), men tittelen har ikke endringsform. «Endrer» i hodet alene avgjør ikke (målingen i PR 1).",
+                    Strukturkanter.Uavklart);
         }
         if (tEndr && endrerAntall > 0)
         {
@@ -202,7 +214,7 @@ public static partial class Vedtaksform
             // [ENDRET etter juristrunden for #446 fase 1, D4] Også rene opphevingsvedtak krever et tittel- eller hodesignal.
             return harSignal
                 ? R(RentOpphevingsvedtak, $"Bare oppheving av andre dokumenter og eventuelt ikrafttredelse ({tall}).")
-                : R(Ukjent, $"Bare opphevingssetninger ({tall}), men verken tittelen eller «Endrer» sier at kilden opphever andre dokumenter.", Strukturkanter.Uavklart);
+                : R(Ukjent, $"Bare opphevingssetninger ({tall}), men tittelen har ikke endrings-, opphevings- eller ikrafttredelsesform.", Strukturkanter.Uavklart);
         }
         return R(Ukjent, $"Bare ikrafttredelsessetninger ({tall}), men tittelen har ikke ikrafttredelsesform.", Strukturkanter.Uavklart);
     }
@@ -266,11 +278,18 @@ public static partial class Vedtaksform
         foreach (var u in enheter)
         {
             u.T = Norm(u.Tekst.ToString());
-            if (u.Overskrift) { u.Rolle = RolleOverskrift; continue; }
             var t = u.T;
+            if (u.Overskrift && !OverskriftIDefaultP().IsMatch(t)) { u.Rolle = RolleOverskrift; continue; }
             if (t.Length == 0 || Ellipse().IsMatch(t)) { u.Rolle = RolleIgnorert; continue; }
             if (Listehode().IsMatch(t)) { listehode = true; u.Rolle = RolleIgnorert; continue; }
-            if (u.Klasse is "defaultP" or "centeredP" && OverskriftIDefaultP().IsMatch(t)) { u.Rolle = RolleOverskrift; continue; }
+            if ((u.Klasse is "defaultP" or "centeredP" || u.Overskrift) && OverskriftIDefaultP().IsMatch(t))
+            {
+                // [ENDRET etter målingen i PR 1, M40] En overskrift «Overgangsregel …» eller «Ikrafttredelse …» utenfor Lovdatas markering for endret
+                // tekst avslutter endringsdelen: det som kommer etter, er kildens eget innhold, ikke sitert tekst.
+                if (!u.Beholdere.Any(b => Endringsbeholdere.Contains(typer.GetValueOrDefault(b, "")))) endringsdel = null;
+                u.Rolle = RolleOverskrift;
+                continue;
+            }
             if (listehode && Dokumentliste().IsMatch(t)) { u.Rolle = RolleIgnorert; continue; }
             listehode = false;
             if (u.DefaultPForeldre.Any(i => i >= 0 && Listehode().IsMatch(Norm(enheter[i].Tekst.ToString()))) && !SterkInstruks().IsMatch(t))

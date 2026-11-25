@@ -144,6 +144,43 @@ public class VedtaksformTests
             + "31. mai 1974 nr. 19 om konsesjon (konsesjonsloven). Delegering av myndighet.", html, 0).Klasse);
     }
 
+
+    [Fact]
+    public void Nytt_delegeringsvedtak_med_bare_hodesignal_er_ukjent_M03()
+    {
+        // DEL/forskrift/2025-06-26-1340: «endrer» det forrige vedtaket og opphever det; innholdet står bare her.
+        var html = Html(Del(1, "I", "<article class=\"legalP\" id=\"kapittel-1-ledd-1\">Delegeringsvedtak 1. januar 2020 nr. 1 endres slik:</article>"
+                + "<article class=\"legalP\" id=\"kapittel-1-ledd-2\">Myndighet etter energiloven § 2-1 legges til Norges vassdrags- og energidirektorat.</article>")
+            + Del(2, "II", "<article class=\"legalP\" id=\"kapittel-2-ledd-1\">Vedtaket trer i kraft 1. juli 2025. Fra samme tidspunkt oppheves delegeringsvedtak "
+                + "1. januar 2020 nr. 1.</article>"));
+        var r = Vedtaksform.Klassifiser("Delegering av myndighet til Norges vassdrags- og energidirektorat etter energiloven", html, 1);
+        Assert.Equal(Vedtaksform.Ukjent, r.Klasse);
+        Assert.Equal("uavklart", r.Kunnskapsstatus);
+    }
+
+    [Fact]
+    public void Overgangsregel_etter_endringsinstruks_er_eget_innhold_M40()
+    {
+        // NL/lov/2017-12-19-118: «– – –» etter instruksen, så en overskrift «Overgangsregel …» og regelen.
+        var html = Html(Del(1, "I", "<article class=\"legalP\" id=\"kapittel-1-ledd-1\">I lov 6. juni 1975 nr 29 om eigedomsskatt til kommunane gjøres følgende "
+                + "endringer: – – –</article><article class=\"defaultP\">Overgangsregel til eigedomsskattelova §§ 3 og 4:</article>"
+                + "<article class=\"legalP\" id=\"kapittel-1-ledd-2\">Kommunar som i skatteåret 2018 skreiv ut eigedomsskatt på verk og bruk kan frå og med "
+                + "skatteåret 2019 skrive ut eigedomsskatt på eit særskilt fastsett grunnlag.</article>")
+            + Del(2, "II", "<article class=\"legalP\" id=\"kapittel-2-ledd-1\">Loven trer i kraft 1. januar 2019.</article>"));
+        var r = Vedtaksform.Klassifiser("Lov om endringer i lov 6. juni 1975 nr. 29 om eigedomsskatt til kommunane (eigedomsskattelova)", html, 1);
+        Assert.Equal(Vedtaksform.Blandet, r.Klasse);
+        Assert.Equal("kapittel-1-ledd-2", r.BevisHtmlId);
+    }
+
+    [Fact]
+    public void Tittel_med_overgangsregler_er_blandet_M29()
+    {
+        var html = Html("<article class=\"legalP\" id=\"ledd-1\">Lova tek til å gjelde 1. august 2003.</article>"
+            + "<article class=\"legalP\" id=\"ledd-2\">For skolar som er godkjende etter privatskulelova, gjeld godkjenninga vidare.</article>");
+        Assert.Equal(Vedtaksform.Blandet, Vedtaksform.Klassifiser(
+            "Ikraftsetjing og overgangsreglar til lov av 4. juli 2003 nr. 84 om frittståande skolar (friskolelova).", html, 0).Klasse);
+    }
+
     [Theory]
     [InlineData("Vedtak om endring av navn på Arkitekthøgskolen i Oslo til Arkitektur- og designhøgskolen i Oslo.", false)]
     [InlineData("Forskrift om endring av landbruksfagskulane sin struktur og plass i skulesystemet", false)]

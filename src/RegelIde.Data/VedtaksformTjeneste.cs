@@ -4,10 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace RegelIde.Data;
 
-/// <summary>Én kilde i rapporten fra <see cref="VedtaksformTjeneste.KlassifiserAsync"/> (bare med <c>medRader</c>).</summary>
+/// <summary>Én kilde i rapporten fra <see cref="VedtaksformTjeneste.KlassifiserAsync"/> (bare med <c>medRader</c>). <see cref="Enheter"/> er rollen
+/// per lest enhet, bare med <c>medEnheter</c> (for kontroll mot teksten).</summary>
 public sealed record VedtaksformRad(
     Guid RettskildeId, string? DokumentId, string Tittel, string Klasse, string Grunnlag, string IkraftStatus, string IkraftGrunnlag,
-    bool? RentEndringsvedtakFor, bool? UttomtVirkning, IReadOnlyDictionary<string, int> PerRolle);
+    bool? RentEndringsvedtakFor, bool? UttomtVirkning, IReadOnlyDictionary<string, int> PerRolle, IReadOnlyList<VedtaksformEnhet>? Enheter = null);
 
 /// <summary>Rapporten fra en kjøring. <see cref="Overgang"/> er «dagens rent_endringsvedtak → ny klasse».</summary>
 public sealed record VedtaksformRapport(
@@ -38,7 +39,7 @@ public sealed partial class VedtaksformTjeneste(RegelIdeDbContext db)
     [GeneratedRegex(@"(^|-)punkt-\d+-ledd-1$")] private static partial Regex ForsteLeddIPunkt();
 
     public async Task<VedtaksformRapport> KlassifiserAsync(
-        bool skriv, Guid? rettskildeId = null, bool medRader = false, DateOnly? idag = null, CancellationToken ct = default)
+        bool skriv, Guid? rettskildeId = null, bool medRader = false, DateOnly? idag = null, bool medEnheter = false, CancellationToken ct = default)
     {
         var dag = idag ?? DateOnly.FromDateTime(DateTime.Now);
         var kilder = await db.Rettskilder.AsNoTracking()
@@ -151,7 +152,8 @@ public sealed partial class VedtaksformTjeneste(RegelIdeDbContext db)
             foreach (var rolle in roller.Values) noderPerRolle[rolle]++;
             if (medRader)
             {
-                rader.Add(new VedtaksformRad(k.Id, k.DokumentId, k.Tittel, r.Klasse, r.Grunnlag, status, ikraftGrunnlag, k.RentEndringsvedtak, u, r.PerRolle));
+                rader.Add(new VedtaksformRad(k.Id, k.DokumentId, k.Tittel, r.Klasse, r.Grunnlag, status, ikraftGrunnlag, k.RentEndringsvedtak, u, r.PerRolle,
+                    medEnheter ? r.Enheter : null));
             }
 
             var endret = k.Vedtaksform != r.Klasse || k.VedtaksformGrunnlag != r.Grunnlag || k.VedtaksformKunnskapsstatus != r.Kunnskapsstatus
