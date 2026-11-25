@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using static RegelIde.Data.Tests.HjemmelsstatusTests;
 
 namespace RegelIde.Data.Tests;
@@ -96,6 +97,40 @@ public class HjemmelKortnavnTests(EmbeddedPostgresFixture fixture)
         var (o, kunngjort) = await ByggM13Async(new Korpus(db), kort, nynorsk, Overgangsregel(kort));
         var rad = await ViltlovradAsync(db, o, kunngjort);
         Assert.Equal((Hjemmelsstatus.Viderefort, "V4"), (rad.Status, rad.VidereforingForm));
+    }
+
+    /// <summary>
+    /// [Ny, #501, prosjekteierens avgjørelse 2026-11-25 etter måling 3, alternativ (a)] E09 (DEL/forskrift/2002-09-13-995): et delegeringsvedtak etter
+    /// viltloven § 39. Paragraf 61 andre ledd viderefører bare «forskrifter», så dekningen er «dokumenttype ikke nevnt». Samlet status er uavklart,
+    /// ikke videreført, og funnet står med undertypen uavklart.
+    /// </summary>
+    [Fact]
+    public async Task E09_Et_delegeringsvedtak_som_bare_videreføres_som_forskrift_er_uavklart_og_gir_funn()
+    {
+        await using var db = fixture.NyDbContext();
+        var k = new Korpus(db);
+        var kort = Kortnavn();
+        var (o, kunngjort) = await ByggM13Async(k, kort, kort, Overgangsregel(kort));
+        var m = Hjemmelstekstlesing.Mal(o.Viltloven.Eli)!;
+        var del = await k.DokumentAsync("forskrift", new(2002, 9, 13), Nr(), "DEL",
+            "Delegering av myndighet til Klima- og miljødepartementet etter lov om viltet § 39.",
+            [("ledd-1", "Kongens myndighet etter viltloven § 39 delegeres til departementet.", null)],
+            annetOm: $"Hjemmel: Fastsatt ved kgl.res. 13. september 2002 med hjemmel i lov av {m.Dag}. mai {m.Aar} nr. {m.Nr} om viltet § 39.");
+        await k.HjemlerAsync(del, (o.Viltloven, "§39"));
+
+        await new HjemmelsstatusRegel(db, kunngjort).KjorAsync(skriv: true, "Test", lesLovtidend: true, forskriftIder: [del.Id]);
+        var (samlet, rader) = (await new HjemmelsstatusRegel(db).LesAsync(del.Id))!.Value;
+        var rad = Assert.Single(rader.Values);
+        Assert.Equal((Hjemmelsstatus.Viderefort, "V4", Hjemmelsstatus.DokumenttypeIkkeNevnt), (rad.Status, rad.VidereforingForm, rad.VidereforingDekning));
+        Assert.Equal(Hjemmelsstatus.SamletUavklart, samlet.Status);
+
+        var r = await new HjemmelOpphevetFunnregel(db, new FunnTjeneste(db)).KjorAsync(true, "Test", true, [del.Id], medRader: true);
+        Assert.Equal(1, r.Nye);
+        var funn = await db.Funn.SingleAsync(x => x.EksternNokkel == HjemmelOpphevetFunnregel.NokkelPrefiks + UtgattAktorFunnregel.EliKort(del.Eli!));
+        Assert.Equal((Funn.Oppdaget, HjemmelOpphevetFunnregel.UndertypeUavklart), (funn.Status, funn.Undertype));
+        // Forskriften i M13 er dekket og er fortsatt videreført.
+        await new HjemmelsstatusRegel(db, kunngjort).KjorAsync(skriv: true, "Test", lesLovtidend: true, forskriftIder: [o.Forskrift.Id]);
+        Assert.Equal(Hjemmelsstatus.SamletViderefort, (await new HjemmelsstatusRegel(db).LesAsync(o.Forskrift.Id))!.Value.Samlet.Status);
     }
 
     // ---- 2. Tvetydig kortnavn -----------------------------------------------------------------------------------------------------

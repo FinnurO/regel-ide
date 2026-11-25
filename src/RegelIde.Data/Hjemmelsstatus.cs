@@ -108,10 +108,27 @@ public static class Hjemmelsstatus
     /// viderefører «forskrifter», og om det dekker et delegeringsvedtak, er fortolkning (finansforetaksloven § 23-2 andre ledd om
     /// DEL/forskrift/2003-06-20-730 i måling 1). En slik premiss bærer ikke alene: står bare slike igjen når noe faller, er den samlede statusen
     /// uavklart, ikke blandede hjemler. Når ingenting faller, endrer den ingenting (FOR-1993-12-17-1314 er fortsatt videreført, fase 1 AK 2).
+    /// [ENDRET, #501, prosjekteierens avgjørelse 2026-11-25] Den gjelder også når ingenting faller, se <see cref="BaererBareUvurdertVidereforing"/>.
+    /// AK2 er fortsatt videreført, fordi en annen premiss bærer og er vurdert.
     /// </summary>
     internal static bool BaererVurdert(HjemmelPremiss p, string effektivStatus) =>
         p.Rolle is not null && !(effektivStatus == Viderefort && p.VidereforingDekning == DokumenttypeIkkeNevnt);
     internal static bool Faller(string status) => status is Opphevet or VidereforingUtlopt;
+
+    /// <summary>
+    /// [Ny, #501, prosjekteierens avgjørelse 2026-11-25 etter måling 3, alternativ (a)] Når ingenting faller: minst én premiss bærer bare ved en
+    /// videreføring med dekningen <see cref="DokumenttypeIkkeNevnt"/>, og ingen premiss som bærer, er vurdert (<see cref="BaererVurdert"/>). Da er
+    /// samlet status uavklart, ikke videreført. Viltressursloven § 61 andre ledd viderefører «forskrifter»; om det dekker et delegeringsvedtak etter
+    /// viltloven § 39 (DEL/forskrift/2002-09-13-995), er fortolkning (måling 3, E09–E11 og E15). Uten en slik videreføring endrer regelen ingenting:
+    /// en forskrift med bare aktive hjemler med rolle NULL er fortsatt aktiv. Står en vurdert premiss som bærer ved siden av, er den samlede
+    /// statusen fortsatt videreført (AK2, FOR-1993-12-17-1314, og E08, DEL/forskrift/1996-10-25-1008).
+    /// </summary>
+    internal static bool BaererBareUvurdertVidereforing(IEnumerable<(HjemmelPremiss Rad, string Status)> baerer)
+    {
+        var liste = baerer.ToList();
+        return liste.Any(p => p.Status == Viderefort && p.Rad.VidereforingDekning == DokumenttypeIkkeNevnt)
+            && liste.All(p => !BaererVurdert(p.Rad, p.Status));
+    }
 }
 
 /// <summary>
@@ -200,7 +217,9 @@ public sealed record SamletHjemmelsstatus(
 /// <b>videreføring utløpt</b> når alle er utløpt.</item>
 /// <item>Noen faller og noen bærer → <b>blandede hjemler</b>, men <b>uavklart</b> når alle som bærer har rolle NULL (runde 2 R1).
 /// [ENDRET, #472 PR 4, H14] Også når de bare bærer ved en videreføring som ikke nevner vedtakstypen (<see cref="Hjemmelsstatus.BaererVurdert"/>).</item>
-/// <item>Ellers <b>videreført</b> når minst én er videreført, og <b>aktiv</b>.</item>
+/// <item>Ellers <b>videreført</b> når minst én er videreført, og <b>aktiv</b>. [ENDRET, #501, prosjekteierens avgjørelse 2026-11-25] Men
+/// <b>uavklart</b> når minst én bare bærer ved en videreføring som ikke nevner vedtakstypen, og ingen som bærer, er vurdert
+/// (<see cref="Hjemmelsstatus.BaererBareUvurdertVidereforing"/>).</item>
 /// </list>
 /// Kunnskapsstatusen er svakeste premiss (<see cref="SvakestePremiss"/>), og aldri sterkere enn fortolkning når svaret sier at en hjemmel
 /// faller: om forskriften har mistet virkning, er alltid tolkning (Lovteknikk pkt. 7.3.5).
@@ -268,7 +287,12 @@ public static class HjemmelsstatusSamlet
             var baerer = premisser.Where(p => Hjemmelsstatus.Baerer(p.Status)).ToList();
             if (faller.Count == 0)
             {
-                samlet = baerer.Any(p => p.Status == Hjemmelsstatus.Viderefort) ? Hjemmelsstatus.SamletViderefort : Hjemmelsstatus.SamletAktiv;
+                // [ENDRET, #501, prosjekteierens avgjørelse 2026-11-25 etter måling 3, alternativ (a)] En videreføring med dekningen
+                // «dokumenttype ikke nevnt» bærer ikke alene, heller ikke når ingenting faller. Er alle premissene som bærer, ikke vurdert (samme
+                // vilkår som H14), er samlet status uavklart. AK2 (FOR-1993-12-17-1314) er fortsatt videreført: lov 1993 nr. 66 bærer og er vurdert.
+                samlet = Hjemmelsstatus.BaererBareUvurdertVidereforing(baerer.Select(p => (p.Rad, p.Status)))
+                    ? Hjemmelsstatus.SamletUavklart
+                    : baerer.Any(p => p.Status == Hjemmelsstatus.Viderefort) ? Hjemmelsstatus.SamletViderefort : Hjemmelsstatus.SamletAktiv;
             }
             else if (baerer.Count == 0)
             {

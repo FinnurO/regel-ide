@@ -87,7 +87,7 @@ public sealed class HjemmelOpphevetFunnregel(RegelIdeDbContext db, FunnTjeneste 
     public const string NokkelPrefiks = "hjemmel-opphevet:";
     /// <summary>[ENDRET, #472 PR 4, prosjekteierens avgjørelse 2026-11-24 etter måling 1] Forskriften selv opphevet (R8), kunngjorte versjoner,
     /// forklart bort og oppfrisket.</summary>
-    public const string Regelversjon = "472-pr4-2026-11-24";
+    public const string Regelversjon = "472-pr5-2026-11-25";
 
     /// <summary>[Bryter] Om en forskrift der #446-kolonnen <c>rent_endringsvedtak</c> er NULL, gir funn. Standard <see cref="StandardIkkeKlassifisertGirFunn"/>.
     /// Se klassekommentaren.</summary>
