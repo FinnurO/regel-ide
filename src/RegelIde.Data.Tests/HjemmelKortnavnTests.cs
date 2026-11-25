@@ -128,6 +128,10 @@ public class HjemmelKortnavnTests(EmbeddedPostgresFixture fixture)
         Assert.Equal(1, r.Nye);
         var funn = await db.Funn.SingleAsync(x => x.EksternNokkel == HjemmelOpphevetFunnregel.NokkelPrefiks + UtgattAktorFunnregel.EliKort(del.Eli!));
         Assert.Equal((Funn.Oppdaget, HjemmelOpphevetFunnregel.UndertypeUavklart), (funn.Status, funn.Undertype));
+        // Ingen hjemmel er opphevet uten funnet videreføring, så påstanden sier ikke det.
+        Assert.StartsWith("Hjemmel opphevet, videreføringen nevner ikke vedtakstypen:", funn.Tittel);
+        Assert.DoesNotContain("uten funnet videreføring", funn.Beskrivelse);
+        Assert.Contains("videreført av en overgangsregel som ikke nevner denne typen vedtak", funn.Beskrivelse);
         // Forskriften i M13 er dekket og er fortsatt videreført.
         await new HjemmelsstatusRegel(db, kunngjort).KjorAsync(skriv: true, "Test", lesLovtidend: true, forskriftIder: [o.Forskrift.Id]);
         Assert.Equal(Hjemmelsstatus.SamletViderefort, (await new HjemmelsstatusRegel(db).LesAsync(o.Forskrift.Id))!.Value.Samlet.Status);
