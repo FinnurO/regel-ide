@@ -1,0 +1,186 @@
+[
+ {
+  "kort": "E01",
+  "forskrift": "SF/forskrift/2011-05-15-537",
+  "undertype_for_pr5": "blandede_hjemler",
+  "status_na": "forklart_bort",
+  "undertype_na": "blandede_hjemler",
+  "klasse_maling3": "riktig"
+ },
+ {
+  "kort": "E02",
+  "forskrift": "SF/forskrift/2017-04-26-519",
+  "undertype_for_pr5": "blandede_hjemler",
+  "status_na": "forklart_bort",
+  "undertype_na": "blandede_hjemler",
+  "klasse_maling3": "riktig"
+ },
+ {
+  "kort": "E03",
+  "forskrift": "SF/forskrift/2005-03-18-242",
+  "undertype_for_pr5": "blandede_hjemler",
+  "status_na": "forklart_bort",
+  "undertype_na": "blandede_hjemler",
+  "klasse_maling3": "riktig"
+ },
+ {
+  "kort": "E04",
+  "forskrift": "SF/forskrift/2007-08-20-987",
+  "undertype_for_pr5": "blandede_hjemler",
+  "status_na": "forklart_bort",
+  "undertype_na": "blandede_hjemler",
+  "klasse_maling3": "riktig"
+ },
+ {
+  "kort": "E05",
+  "forskrift": "SF/forskrift/2022-01-21-128",
+  "undertype_for_pr5": "blandede_hjemler",
+  "status_na": "forklart_bort",
+  "undertype_na": "blandede_hjemler",
+  "klasse_maling3": "riktig"
+ },
+ {
+  "kort": "E06",
+  "forskrift": "SF/forskrift/2016-01-08-12",
+  "undertype_for_pr5": "blandede_hjemler",
+  "status_na": "forklart_bort",
+  "undertype_na": "blandede_hjemler",
+  "klasse_maling3": "riktig"
+ },
+ {
+  "kort": "E07",
+  "forskrift": "SF/forskrift/2015-06-19-716",
+  "undertype_for_pr5": "blandede_hjemler",
+  "status_na": "forklart_bort",
+  "undertype_na": "blandede_hjemler",
+  "klasse_maling3": "riktig"
+ },
+ {
+  "kort": "E08",
+  "forskrift": "DEL/forskrift/1996-10-25-1008",
+  "undertype_for_pr5": "blandede_hjemler",
+  "status_na": "forklart_bort",
+  "undertype_na": "blandede_hjemler",
+  "klasse_maling3": "feil"
+ },
+ {
+  "kort": "E09",
+  "forskrift": "DEL/forskrift/2002-09-13-995",
+  "undertype_for_pr5": "hjemmel_opphevet",
+  "status_na": "oppdaget",
+  "undertype_na": "uavklart",
+  "klasse_maling3": "feil"
+ },
+ {
+  "kort": "E10",
+  "forskrift": "DEL/forskrift/2002-09-19-1915",
+  "undertype_for_pr5": "hjemmel_opphevet",
+  "status_na": "oppdaget",
+  "undertype_na": "uavklart",
+  "klasse_maling3": "feil"
+ },
+ {
+  "kort": "E11",
+  "forskrift": "DEL/forskrift/1994-07-01-4322",
+  "undertype_for_pr5": "hjemmel_opphevet",
+  "status_na": "oppdaget",
+  "undertype_na": "uavklart",
+  "klasse_maling3": "feil"
+ },
+ {
+  "kort": "E12",
+  "forskrift": "LTI/forskrift/2009-12-22-1775",
+  "undertype_for_pr5": "hjemmel_opphevet",
+  "status_na": "forklart_bort",
+  "undertype_na": "hjemmel_opphevet",
+  "klasse_maling3": "feil"
+ },
+ {
+  "kort": "E13",
+  "forskrift": "LTI/forskrift/2011-03-01-206",
+  "undertype_for_pr5": "hjemmel_opphevet",
+  "status_na": "forklart_bort",
+  "undertype_na": "hjemmel_opphevet",
+  "klasse_maling3": "feil"
+ },
+ {
+  "kort": "E14",
+  "forskrift": "SF/forskrift/2005-03-21-247",
+  "undertype_for_pr5": "hjemmel_opphevet",
+  "status_na": "forklart_bort",
+  "undertype_na": "hjemmel_opphevet",
+  "klasse_maling3": "riktig"
+ },
+ {
+  "kort": "E15",
+  "forskrift": "DEL/forskrift/2013-03-15-283",
+  "undertype_for_pr5": "uavklart",
+  "status_na": "oppdaget",
+  "undertype_na": "uavklart",
+  "klasse_maling3": "feil"
+ },
+ {
+  "kort": "K01",
+  "forskrift": "LTI/forskrift/2018-04-16-852",
+  "undertype_for_pr5": "hjemmel_opphevet",
+  "status_na": "oppdaget",
+  "undertype_na": "hjemmel_opphevet",
+  "klasse_maling3": "feil"
+ },
+ {
+  "kort": "K02",
+  "forskrift": "DEL/forskrift/1997-12-09-1264",
+  "undertype_for_pr5": "hjemmel_opphevet",
+  "status_na": "oppdaget",
+  "undertype_na": "hjemmel_opphevet",
+  "klasse_maling3": "riktig"
+ },
+ {
+  "kort": "K03",
+  "forskrift": "DEL/forskrift/2007-12-05-1356",
+  "undertype_for_pr5": "hjemmel_opphevet",
+  "status_na": "oppdaget",
+  "undertype_na": "hjemmel_opphevet",
+  "klasse_maling3": "riktig"
+ },
+ {
+  "kort": "K04",
+  "forskrift": "DEL/forskrift/2008-06-06-543",
+  "undertype_for_pr5": "hjemmel_opphevet",
+  "status_na": "oppdaget",
+  "undertype_na": "hjemmel_opphevet",
+  "klasse_maling3": "riktig"
+ },
+ {
+  "kort": "K05",
+  "forskrift": "DEL/forskrift/2009-11-27-1406",
+  "undertype_for_pr5": "hjemmel_opphevet",
+  "status_na": "oppdaget",
+  "undertype_na": "hjemmel_opphevet",
+  "klasse_maling3": "riktig"
+ },
+ {
+  "kort": "K06",
+  "forskrift": "SF/forskrift/2017-04-05-450",
+  "undertype_for_pr5": "uavklart",
+  "status_na": "oppdaget",
+  "undertype_na": "uavklart",
+  "klasse_maling3": "riktig"
+ },
+ {
+  "kort": "K07",
+  "forskrift": "DEL/forskrift/1999-06-25-706",
+  "undertype_for_pr5": "hjemmel_opphevet",
+  "status_na": "oppdaget",
+  "undertype_na": "hjemmel_opphevet",
+  "klasse_maling3": "riktig"
+ },
+ {
+  "kort": "K08",
+  "forskrift": "DEL/forskrift/1990-02-13-1228",
+  "undertype_for_pr5": "hjemmel_opphevet",
+  "status_na": "oppdaget",
+  "undertype_na": "hjemmel_opphevet",
+  "klasse_maling3": "riktig"
+ }
+]
