@@ -307,6 +307,33 @@ public sealed class RettskildeEntitet
     public string? RentEndringsvedtakGrunnlag { get; set; }
 
     /// <summary>
+    /// [Ny, issue #446 PR 1, prosjekteierens avgjørelse 2026-11-25] Vedtaksformen: <c>rent_endringsvedtak</c>, <c>rent_ikrafttredelsesvedtak</c>,
+    /// <c>rent_opphevingsvedtak</c>, <c>blandet</c>, <c>selvstendig</c> eller <c>ukjent</c>; NULL = ikke vurdert. Lest ledd for ledd av Lovdatas rå
+    /// HTML (<see cref="Vedtaksform"/>), satt av <see cref="VedtaksformTjeneste"/>. Sier bare formen; om virkningen er uttømt, avhenger også av
+    /// <see cref="IkraftStatus"/> (<see cref="Vedtaksform.UttomtVirkning"/>).
+    /// </summary>
+    public string? Vedtaksform { get; set; }
+
+    /// <summary>[Ny, #446 PR 1] Regelversjonen, signalene og (for blandet og selvstendig) første ledd med eget innhold, med id og sitat.</summary>
+    public string? VedtaksformGrunnlag { get; set; }
+
+    /// <summary>[Ny, #446 PR 1] <c>normalisering</c> for de fem avgjorte klassene, <c>uavklart</c> for ukjent (docs/33 §4.6).</summary>
+    public string? VedtaksformKunnskapsstatus { get; set; }
+
+    /// <summary>[Ny, #446 PR 1] <see cref="Vedtaksform.Regelversjon"/> da formen ble satt.</summary>
+    public string? VedtaksformRegelversjon { get; set; }
+
+    /// <summary>
+    /// [Ny, #446 PR 1, prosjekteierens avgjørelse 2026-11-25] <c>ja</c>, <c>delvis</c>, <c>ikke_i_kraft</c>, <c>utlopt</c> eller <c>ukjent</c>; NULL = ikke
+    /// vurdert. Fra Lovdatas «I kraft fra» (<see cref="IkrafttredelseRaa"/>); når den sier «Kongen bestemmer», følges en ikraftsetting av hele loven i
+    /// korpus (juristrunden D8). Grunnlaget står i <see cref="IkraftStatusGrunnlag"/>.
+    /// </summary>
+    public string? IkraftStatus { get; set; }
+
+    /// <summary>[Ny, #446 PR 1] Feltet eller ikraftsettingen (dokument-id og sitat) som ga <see cref="IkraftStatus"/>.</summary>
+    public string? IkraftStatusGrunnlag { get; set; }
+
+    /// <summary>
     /// [Ny, fastsatt-av-runden, 2026-09-10, issue #215] Organet som FASTSATTE forskriften, slik det
     /// STÅR i hjemmelslinja — «styret ved Norges teknisk-naturvitenskapelige universitet (NTNU)»,
     /// «Mattilsynet», «kgl.res.».
@@ -496,6 +523,14 @@ public sealed class RettskildeNodeEntitet
     /// tolkningsargument i en begrunnelse. Egenskap, ikke nodetype: se <see cref="Merknadsnoder"/> for hvorfor.
     /// </summary>
     public bool ErMerknad { get; set; }
+
+    /// <summary>
+    /// [Ny, issue #446 PR 1, prosjekteierens avgjørelse 2026-11-25, valg A] Rollen leddet har i et endringsvedtak, lest av <see cref="Vedtaksform"/>:
+    /// <c>endringsinstruks</c>, <c>sitert_tekst</c> (ny tekst som settes inn i et annet dokument), <c>ikrafttredelse</c> eller <c>oppheving</c>.
+    /// NULL = eget innhold, eller ikke vurdert (se <see cref="RettskildeEntitet.Vedtaksform"/> på kilden). Koblet til noden på Lovdatas id
+    /// (<see cref="KildeId"/>). Sitert tekst er historisk når kilden er i kraft, så regelen for utgåtte aktører (#429) leser den ikke.
+    /// </summary>
+    public string? Endringsrolle { get; set; }
 
     public int Sorteringsrekkefolge { get; set; }
 
