@@ -2882,7 +2882,76 @@ etter PR 4 (frø 20261125, stratifisert og om lag proporsjonalt, uten H01–H20)
     viltloven gjelder også …», gjelder 23 av de 264 funnene (M13).
   - Opphevingen gis virkning bare for nye tilfeller (lov 2013 nr. 110 om arveavgiftsloven, M04 og M06). Ingen undertype passer.
   - To av de åtte R8-hullene (M10, M16).
-- **Ingen uenighet står igjen.** Forslagene står i `maling-2/sammendrag.md`, men er ikke bygget.
+- **Ingen uenighet står igjen.** Forslagene står i `maling-2/sammendrag.md`, men er ikke bygget. [Merknad, #501] Det første er bygget, se under.
+
+[ENDRET, #501 (#472 PR 5), prosjekteierens klarsignal 2026-11-25] **Videreføringen med lovens kortnavn fra tittelen.** Viltressursloven § 61
+andre ledd sier «Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.» Opphevingssetningen («Fra samme tid
+oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.») nevner ikke kortnavnet, og V4 leste før bare kortnavn som den opphevende loven selv
+bruker om målet. Nå leses kortnavnet også fra tittelen til den opphevede loven. Testene står i `HjemmelKortnavnTests`.
+- **Hvor tittelen leses** (`Kortnavnregister`, i `Hjemmelstekstlesing.cs`): lovens egen tittel og kortnavn-feltet når loven er i korpus, og
+  titlene hjemmelstekstene siterer («med hjemmel i lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven) § 26»). En opphevet lov er i
+  korpus bare som en referanse-stub med ELI-en som tittel, så det er i hjemmelstekstene tittelen står. En sitert tittel godtas bare når teksten
+  mellom nummeret og parentesen er tom eller begynner med «om», «til», «for» og lignende, og ikke nevner en annen dato, et nummer, en paragraf,
+  «jf.» eller en endring. Ellers kan parentesen høre til en annen lov («lov … om endringer i lov … (folketrygdloven)»).
+- **Bare når det er entydig:** alle kildene gir loven samme kortnavn (bokmål og nynorsk regnes som samme navn), og ingen annen lov har det.
+  Straffeloven 1902 og 2005 heter begge «straffeloven», så en setning om «straffeloven» kobles ikke til den gamle. Er det ikke entydig, gis det
+  ikke noe kortnavn, og videreføringen leses som før. Det gjettes ikke (§8).
+- **Hvor det godtas:** som mål i V4, etter kortnavnene den opphevende loven selv bruker, så et treff som fantes før, er uendret. V1 og V2 krever
+  fortsatt dato og nummer, og V3 har ikke noe mål. Et treff med kortnavnet er derfor alltid V4, med kunnskapsstatus normalisering: at kortnavnet
+  peker på loven, er lest av tittelen, ikke av setningen.
+- **Delt med #429:** hjemmelsstatusen og R9 laster registeret på samme måte (`Kortnavnregister.LastAsync`) og sender kortnavnet til
+  `Hjemmelstekstlesing.Videreforinger`. Rapporten fra hjemmelsstatusen teller lesingen per opphevet lov (`kortnavnFraTittel`, og med
+  `?medRader=true` lista `kortnavnPerLov`).
+- **Ikke lest:** kortnavn som bare står i lovtekst (nodene), og titler utenfor korpus. Regelversjonen for hjemmelsstatusen er
+  `472-pr5-2026-11-25`. Funnregelen er ikke endret.
+
+**Kaldkjørt i en kopi av den delte basen** (`regelide_501`, API på 5387, 2026-11-25). Før er de lagrede radene i kopien (master, PR 4). For #429
+er master-koden tørrkjørt i samme kopi. Deretter er PR 5 kjørt: hjemmelsstatus `?skriv=true`, funnregelen `?skriv=true&oppfrisk=true` to ganger, og
+maskinregelen for utgåtte aktører tørrkjørt.
+
+| | Før (PR 4) | Etter (PR 5) |
+|---|---|---|
+| Hjemmelsrader med endret status | — | **73 av 25 011**, alle til viltloven 1981: opphevet → videreført (V4). 62 dekket (normalisering), 11 dokumenttype ikke nevnt (fortolkning) |
+| Status per hjemmel: opphevet / videreført | 644 / 1 371 | 571 / 1 444. De andre statusene er uendret |
+| V4 | 33 | 106 |
+| Opphevede lover med en lest oppheving | 136 | kortnavnet entydig 18, brukes om flere lover 32, ingen tittel med kortnavn 86. Bare viltloven gir et nytt treff |
+| Samlet: videreført / hjemmel opphevet / blandede / uavklart | 471 / 211 / 58 / 12 | 495 / 201 / 45 / 11. Aktiv, ukjent og utløpt er uendret |
+| **Funn (oppdaget)** | **264** | **241**: hjemmel opphevet 181, blandede 38, uavklart 11, utløpt 10, gjenstandsløs 1; DEL 113, SF 65, LTI 58, INS 4, STV 1 |
+| Forklart bort (samlet status videreført) | — | **23, alle de 23 med viltressursloven som opphevende lov**: blandede 12 (SF 11, DEL 1), hjemmel opphevet 10 (DEL 6, LTI 3, SF 1), uavklart 1 (DEL) |
+| Nye funn / endret undertype | — | 0 / 0 |
+| Ny kjøring | — | 0 nye, 0 forklares bort, 0 oppfriskes, 241 finnes |
+| #429 (utgåtte aktører, tørrkjørt) | 767 par, 619 foreslått, 118 R9-mangler | Uendret, 0 endrede rader |
+
+#429 endres ikke fordi R9 ikke finner opphevingen av viltloven: den konsoliderte viltressursloven har ikke opphevingssetningen, som bare står i
+Lovtidend, og R9 leser ikke Lovtidend. Lesingen er den samme, og testen `R9_viser_videreforingen_med_kortnavnet_fra_tittelen…` holder det fast.
+
+[Merknad, #472] **Målt 2026-11-25 (måling 3, i kopi, før skriving mot delt base).** Målt på 15 av de 22 endrede funnene (uten M13) og 8
+kontrollfunn som fortsatt står, der en lov som faller, har kortnavn i tittelen (frø 20261126), med to runder etter CLAUDE.md §23. Filene ligger i
+`data/fasit/strukturmodell/juristrunde-472/maling-3/`.
+- **Presisjon:** totalt **0,65 (0,45–0,81)**, 15/23. Endret **0,53 (0,30–0,75)**, 8/15; uten #446 0,62 (0,36–0,82). Kontroll **0,88
+  (0,53–0,98)**, 7/8. Ingen usikre.
+- **Per prefiks (endret):** SF 8/8, DEL 0/5, LTI 0/2. Lest av radene er om lag 12 av alle 23 riktige: de 12 SF-forskriftene.
+- **Feilene (8):**
+  - **Delegeringsvedtak regnes som videreført** (5). Paragraf 61 viderefører bare «forskrifter», og dekningen blir «dokumenttype ikke nevnt».
+    Når ingenting annet faller, blir samlet status likevel videreført, fordi `BaererVurdert` (H14) bare slår inn når noe faller. Ikke bygget, se
+    spørsmålet under.
+  - **En særskilt oppheving blir oversett** (2, E12 og E13). Endringsforskrifter til forskrifter som ble opphevet ved forskrift 2026 nr. 1158 kap. II.
+    Gjelder #446, ikke kortnavnet.
+  - **K01:** vedtaket er selv opphevet (R8-hullet «Delegering ‹dato› … av …», #502). Kirkeordningen § 44 viderefører dessuten med kortnavnet
+    («i medhold av kirkeloven»), men V2a søker bare i forskrifter med «overgang» i tittelen og krever dato og nummer. Egen sak.
+- **Kortnavnet selv ga ingen feil.** Der det er tvetydig (sentralbankloven, revisorloven, statistikkloven), finnes ingen videreføring som går tapt.
+- **Ingen uenighet står igjen.**
+
+**Spørsmål til prosjekteieren (ikke bygget):** skal en videreføring med dekningen «dokumenttype ikke nevnt» bære når ingenting faller?
+- **(a) Svak:** nei, når alle premissene som bærer, er ikke vurdert (rolle NULL eller bare slik videreføring): samlet status uavklart, samme vilkår
+  som H14. AK2 er uendret (den har en vurdert, aktiv premiss). Om lag 178 forskrifter endres (DEL 160, INS 13, LTI 4, SF 1; direkte premisser,
+  uten rekursjon). E08 tettes ikke.
+- **(b) Sterk:** en slik videreføring regnes ikke som videreføring, og hjemmelen faller. Om lag 194 forskrifter endres, også AK2, som blir blandede
+  hjemler.
+
+**Mot den delte basen etter fletting** (skal godkjennes av prosjekteieren): `POST /api/hjemmelsstatus/maskinregel?skriv=true` (ventet 73 endrede
+statuser), så `POST /api/funn/maskinregel/hjemmel-opphevet?skriv=true&oppfrisk=true` (ventet 23 forklart bort, 241 oppdaget), og en ny kjøring av
+begge (ventet 0). #429 trenger ingen ny kjøring.
 
 ### 5.6 Konvertering av eksisterende data
 
