@@ -4,18 +4,20 @@
 docs/profil/04; forslaget til ny tekst står i §4.1 og venter på prosjekteieren.*
 
 **Kortversjon.**
-- **Vår eId er en adresse i én versjon, ikke en varig identitet.** Den bygges på nytt i hver versjon av §-nummer og ledd- og punktindeks. Settes et
-  punkt inn, får alle punktene etter det ny eId, og den gamle eId-en går til et annet element. Det er målt i korpuset: 45 noder i 6 av 46 verk med
-  ny konsolidering, og 2 981 noder i 190 verk der bare parseren var endret. Påstanden i 04 §2 om at vår eId har AKN sin `wId`-rolle, er feil.
+- **Vår eId er en intern adresse i én lagret versjon, ikke en varig identitet.** Den bygges på nytt i hver versjon av §-nummer og ledd- og
+  punktindeks. Settes et punkt inn, får alle punktene etter det ny eId, og den gamle eId-en går til et annet element. Det er målt i korpuset:
+  45 noder i 6 av 46 verk med ny konsolidering, og 2 981 noder i 190 verk der bare parseren var endret. Påstanden i 04 §2 om at vår eId har AKN
+  sin `wId`-rolle, er feil. Den er heller ikke en AKN-`eId`, fordi den bygges av løpenummer og ikke av det trykte nummeret.
 - **Ingenting følger et element over versjoner i dag.** Node-ID-en er ny i hver versjon. Taggene flyttes etter sitatet, og noen koblinger flagges,
   men ingen kobling flyttes til et element som har fått ny eId.
 - **Lovdata har ingen varig ID** i HTML-en. Lovdatas egne `id`-er er også posisjoner og flytter seg på samme måte. Endringslovene har derimot
   maskinlesbare endringsinstrukser (`data-move-part` m.fl.) som kan brukes som bevis når et element skal følges.
 - **#498 er data fra før #361, ikke en ny feil.** Kilde-HTML-en er riktig. Den delte basen ble sist synkronisert 3. september 2026, før #361 ble
   flettet 15. oktober. Dagens parser gir `a6/ledd-1/avslutning`. Kjøres dagens parser på den lagrede HTML-en, får 582 dokumenter 2 185 nye
-  avslutningsnoder. Punktbokstavene mangler derimot også i dagens parser: de står i kilden, men parseren lagrer løpenummeret.
-- **Forslag:** rett 04 §2 nå (tekst i §4.1). Lag en varig elementidentitet som egen byggesak (alternativ B). Lagre punktbokstaven i `nummer`, ikke i
-  eId-en.
+  avslutningsnoder. To ting mangler også i dagens parser: punktbokstavene (de står i kilden, men parseren lagrer løpenummeret), og om lag 1 700
+  underledd uten liste foran, som fortsatt limes inn i leddteksten (GDPR art. 8 nr. 1 annet ledd, funnet i juristrunden).
+- **Forslag:** rett 04 §2 og docs/08 §1.2.1 nå (tekst i §4.1). Lag en varig elementidentitet som egen byggesak (alternativ B), med AKN-`wId`
+  avledet av den. Lagre punktbokstaven i `nummer`, ikke i eId-en. Gi underledd en egen node (`{ledd}/underledd-N`).
 
 ---
 
@@ -31,6 +33,7 @@ Alt er lest eller målt 2026-11-25 i worktreen for grenen `495-498-undersokelse`
 | M3 Etiketter i kilden | For hvert punkt fra M2: `data-name` på `<li>` og `type` på lista. For hvert ledd: `data-numerator` på `numberedLegalP` |
 | M4 Attributter i kilde-HTML-en | Alle attributtnavn i `<main>` i 300 tilfeldige kilder, og deretter et fullt søk etter endringsinstruksene |
 | M5 Koblinger | Alle tabeller med en kolonne som peker på eId eller node, telt og matchet mot endringene i M2. Fasitfilene i `data/fasit/` er matchet på samme måte |
+| M6 Underledd uten liste | Nestet `<article class="legalP">` i et `numberedLegalP` uten `</ol>`/`</ul>` foran, talt med regulære uttrykk på lagret HTML. Juristen talte det samme med en litt annen avgrensning |
 
 Skriptene ligger ikke i repoet; de er engangsmålinger.
 
@@ -153,14 +156,41 @@ utdatert) eller mot den gjeldende (feil element etter en omnummerering).
 ### 2.5 Hvordan bør 04 §2 rettes?
 
 04 §2 sier: «Vår regel om at eId aldri endres (docs/08) gir altså vår eId samme rolle som AKN sin `wId`». Målingene over viser at det ikke
-stemmer. Regelen i docs/08 betyr at en lagret eId ikke skrives om. Den betyr ikke at eId-en følger elementet.
+stemmer.
+
+**Hva AKN sier** (AKN-NC 1.0 §5.3, §5.4.3, §5.5.2, §5.5.3, kontrollert av juristen hos OASIS):
+- `eId` er en adresse i ett uttrykk (én versjon). Nummeret tas fra det trykte nummeret (`<num>`), og `eId` oppdateres når elementet får ny plass
+  i et nytt uttrykk.
+- `wId` har samme syntaks, men er den `eId`-en elementet har i master-uttrykket, eller i et tenkt grunnuttrykk («Ur-Expression»). Den endres
+  aldri.
+- Mangler `wId`, regnes dokumentet som master-uttrykket, og `wId` er lik `eId`. Å utelate `wId` er derfor ikke nøytralt: eksporterer vi to
+  versjoner av tollavgiftsforskriften uten `wId`, sier eksporten at Kosovo (punkt 21 i versjon 3) er samme element som Libanon (punkt 21 i
+  versjon 2).
+- `GUID` er et eget, fritt attributt.
+
+**Vår eId er ingen av delene.** Den er ikke `wId`, fordi den flytter seg. Den er heller ikke en AKN-`eId`, fordi den bygges av løpenummeret, ikke
+av det trykte nummeret, og fordi den endres når bare parseren endres. Den er en intern adresse i én lagret versjon. docs/08 §1.2.1 sier at `eid`
+er en «permanent identitet» som «endres aldri etter opprettelse». Det holder bare i den svake formen (en lagret eId skrives ikke om), og
+§1.2.1 bør rettes sammen med 04.
 
 | Alternativ | Hva det er | For | Mot |
 |---|---|---|---|
-| **A. Rett påstanden** | 04 §2 sier at vår eId er en adresse i én versjon (AKN `eId`-rollen), og at vi ikke har noen `wId`. Eksporten skriver AKN-`eId` per versjon og utelater `wId` | Sant, billig, ingen kode. Hindrer at noen bygger GUID eller `wId` av eId (09 §4.1) | Hullet står åpent: koblinger uten versjon (`begreper`) peker fortsatt feil etter en omnummerering |
-| **B. A + varig elementidentitet som egen byggesak** | Ny kolonne med en varig ID per node. Ved ny versjon føres den videre etter samme eId og hash, så unik hash, så sitat, så Lovdatas endringsinstrukser. Det som ikke kan føres entydig, får ny ID og legges til gjennomgang. Eksporten bruker den som `wId` og GUID. Koblinger uten versjon flyttes til den varige ID-en | Gir `wId`-rollen et innhold. Bygger på det taggene gjør allerede. Riktig for RUML-ankere (09 §4.1) og HTML4EU (10 §5) | Byggekostnad (§6). En maskinell kobling er en påstand om identitet; den må kunne vurderes av et menneske når den er usikker. Eldre versjoner må kobles i ettertid |
-| C. Gjør eId-en selv varig | Et element beholder eId-en sin når det omnummereres; nye elementer får ny eId | En nøkkel i stedet for to | eId-en slutter å svare til det trykte nummeret, så `§5/ledd-3` kan være «fjerde ledd». Parseren kan ikke bygge eId av kilden alene, den må kjenne historikken. Bryter AKN sin `eId`-regel |
-| D. Vent på offisiell seksjons-ELI eller ELI-underinndelinger versjon 3 | | Ingen kostnad nå | Begge er adresser, ikke identitet (10 §5). Løser ikke problemet |
+| **A. Rett påstanden** | 04 §2 og docs/08 §1.2.1 sier at vår eId er en intern adresse i én versjon, og at vi ikke har noen `wId`. Eksporten skriver aldri flere versjoner av samme verk uten `wId`, og en eksport av én versjon merkes som ikke-konform på `wId` | Sant, billig, ingen kode. Hindrer at noen bygger GUID eller `wId` av eId (09 §4.1) | Hullet står åpent: koblinger uten versjon (`begreper`) peker fortsatt feil etter en omnummerering |
+| **B. A + varig elementidentitet som egen byggesak** | Ny kolonne med en varig intern ID per node (GUID-rollen i AKN og RUML-ankeret). AKN-`wId` avledes av den: `eId`-en elementet hadde i et valgt og låst grunnuttrykk. Bevisrekkefølgen ved ny versjon står under | Gir `wId` et innhold. Bygger på det taggene gjør allerede. Riktig for RUML (09 §4.1) og HTML4EU (10 §5) | Byggekostnad (§6). En maskinell kobling er en påstand om identitet og må kunne vurderes av et menneske når den er usikker. Eldre versjoner må kobles i ettertid |
+| C. Gjør eId-en selv varig | Et element beholder eId-en sin når det omnummereres; nye elementer får ny eId | En nøkkel i stedet for to | eId-en slutter å svare til det trykte nummeret. Parseren kan ikke bygge eId av kilden alene. Bryter AKN-NC §5.4.3 |
+| D. Vent på offisiell seksjons-ELI eller ELI-underinndelinger versjon 3 | | Ingen kostnad nå | Begge er adresser, ikke identitet (10 §5) |
+
+**Bevisrekkefølgen i B** (rettet etter juristrunden):
+1. Lovdatas endringsinstruks (`data-move-part` m.fl.) der den finnes for elementet. Den er lovgivers egen angivelse og går foran resten.
+2. Samme eId og samme hash, men bare når hashen er unik i paragrafen og teksten ikke er en standardtekst som «(Opphevet)».
+3. Unik hash et annet sted i versjonen.
+4. Sitat (som tagg-flyttingen i dag).
+5. Resten, og alt der et trinn strider mot en endringsinstruks: ny ID og gjennomgang hos et menneske.
+
+Grunnuttrykket for `wId` må velges og dokumenteres. Den delte basen har ikke originalvedtakene, bare konsolideringer fra august og september
+2026; forslaget er første lagrede versjon. Innsatte elementer må få en `wId` som ikke kolliderer (AKN sitt eget eksempel i §5.5.3.4 kolliderer).
+Koblinger som bare lagrer eId (`begreper.lovreferanse_eid`, `vilkar`, `kodelister`), flyttes til den varige ID-en og flagges «hjemmel endret»
+når innholdet er endret, slik strukturkantene gjør.
 
 **Anbefaling:** A nå, B som egen byggesak. Teksten for A står i §4.1.
 
@@ -178,9 +208,16 @@ Det er feilen fra #361. Målt direkte med dagens parser på den lagrede HTML-en 
 | Ledd og punkt med ny tekst (innledningen er skilt fra avslutningen) | 1 301 ledd og 996 punkt |
 | Avslutningsnoder i den delte basen i dag | 24 i 14 dokumenter |
 
-Feilen gjelder altså hele korpuset, ikke bare EØS-tekst. Formen i GDPR-teksten, der underleddet er et eget `<article class="legalP">` inne i
-et nummerert ledd etter lista, finnes 239 ganger i 83 dokumenter (21 lover, 62 forskrifter). Resten er `p.leddfortsettelse` (890),
+Feilen gjelder altså hele korpuset, ikke bare EØS-tekst. Formen i GDPR art. 6 nr. 1, der underleddet er et eget `<article class="legalP">` inne
+i et nummerert ledd etter lista, gir 239 av avslutningsnodene, i 83 dokumenter (21 lover, 62 forskrifter). Resten er `p.leddfortsettelse` (890),
 tekst etter en liste i et punkt (727) og andre former.
+
+**Underledd uten liste foran (funnet i juristrunden).** Et nestet `legalP` i et nummerert ledd som *ikke* står etter en liste, får ingen node,
+heller ikke med dagens parser. Det limes inn i leddteksten. Eksempel: GDPR art. 8 nr. 1 annet ledd («For disse formål kan medlemsstatene ved lov
+fastsette en lavere aldersgrense, forutsatt at den ikke er lavere enn 13 år.») står i `a8/ledd-1` også når dagens parser kjøres. Omfang, talt to
+ganger på den lagrede HTML-en med litt ulike avgrensninger: 1 700 i 166 dokumenter (modellereren) og 1 793 i 169 dokumenter (juristen), av 712
+dokumenter med nummererte ledd. Formen finnes også i norsk lov: 1 043 står i nummererte ledd som begynner med «1.», blant dem eldre norske lover og
+forskrifter, og 149 i ledd som begynner med «(1)», som ferieloven § 5. Ferieloven siterer selv «nr. 4 annet ledd».
 
 M2 viser i tillegg endringer fra #397 (vedlegg): 757 nye ledd og 6 118 nye punkt i 91 dokumenter, og de 184 punkt-eId-ene som forsvinner (§2.1).
 
@@ -191,38 +228,50 @@ M2 viser i tillegg endringer fra #397 (vedlegg): 757 nye ledd og 6 118 nye punkt
 - `<ol class="defaultList" type="a">` med `<li data-name="a." value="1">` … `<li data-name="f." value="6">`
 - etter lista: `<article class="legalP" id="…-nummer-1-ledd-1">Nr. 1 bokstav f) får ikke anvendelse …</article>`
 
-Bokstaven står i `data-name` og `type="a"`. Underleddet er et eget element med egen `id`.
+Bokstaven står i `data-name` og `type="a"`. Underleddet er et eget element med egen `id`. Det samme gjelder art. 8 nr. 1 annet ledd.
 
 **Parseren på importtidspunktet limte underleddet inn.** Versjon 7 ble laget 2026-09-02. #361 ble flettet 2026-10-15 (5bd93b8). Siste resynk
 var 2026-09-03, og ingen kilde er konvertert på nytt etter det. Den lagrede `a6/ledd-1` har derfor teksten «… minst ett av følgende vilkår er
 oppfylt: Nr. 1 bokstav f) får ikke anvendelse …».
 
-**Dagens parser gjør det riktig** for underleddet: `a6/ledd-1` er bare innledningen, og `a6/ledd-1/avslutning` er «Nr. 1 bokstav f) …». Det
-samme gjelder `a6/ledd-3/avslutning`. Personopplysningsloven får 5 nye avslutningsnoder.
+**Dagens parser skiller underleddet ut når det står etter en liste:** `a6/ledd-1` er bare innledningen, og `a6/ledd-1/avslutning` er «Nr. 1
+bokstav f) …». Det samme gjelder `a6/ledd-3/avslutning`. Underledd uten liste foran (art. 8) limes fortsatt inn.
 
 **Bokstaven mangler fortsatt.** Parseren setter `Nummer = punktIndeks.ToString()` (`LovdataHtmlParser.cs:1406` og `1425`) og leser aldri
 `data-name`. Det gjelder alle punkter, også i dagens kode. På samme måte får ledd løpenummeret, ikke `data-numerator`.
 
-### 3.3 Hvordan bør punktbokstaven lagres?
+**En følgefeil som finnes i dag (funnet i juristrunden):** `LosPresiseringAsync` (`RettskildeImportTjeneste.cs:381–406`) gjør Lovdatas presisering
+i hjemmelsfeltet (`ledd/4`, `ledd/3/bokstav/a`) om til eId `ledd-4`. Lovdata bruker det trykte nummeret, vi bruker løpenummeret, så oppslaget
+treffer feil ledd der de to er ulike (1 617 ledd, §2.1). Bokstaven treffer aldri, og koden faller da tilbake til leddet, som kommentaren der sier.
 
-**Forslag:** i `rettskilde_noder.nummer`, ikke i eId-en.
-- `nummer` = etiketten fra `<li data-name>` uten tegnsetting: `a`, `b`, `11a`. For ledd: `data-numerator` der det finnes. Mangler etiketten
-  (7 348 punkt har ingen `data-name`, og 18 285 står ikke i en `<li>`), beholdes løpenummeret og merkes ikke som trykt. Ingenting gjettes.
-- Hva etiketten er (bokstav, tall, strek), avledes av listas `type` og etiketten. Da kan visningen skrive «bokstav a» eller «nr. 1», og
-  sitatet «personopplysningsloven artikkel 6 nr. 1 bokstav f» kan slås opp.
-- AKN-`<num>` får etiketten. Da kan eksporten bygge AKN-`eId` (`point_f`) og HTML4EU-ID (`pnt_f`) fra den, slik 04 §2 avvik 3 krever.
+### 3.3 Hvordan bør punktbokstaven og underleddet lagres?
 
-**Hvorfor ikke i eId-en:** vår eId blir da ikke varig av den grunn. En bokstav endres også ved omnummerering (bokstav c blir d). Og alle
-punkt-eId-er i korpuset ville endret seg, sammen med alle koblingene til dem. Med #495 alternativ B er eId-en adressen; da kan en senere sak
-vurdere om adressen skal bygges av etiketten. Det er ikke en del av dette forslaget.
+**Punktbokstaven: i `nummer`, ikke i eId-en.**
+- `nummer` = den trykte etiketten fra `<li data-name>` uten tegnsetting: `a`, `b`, `11a`. For ledd: `data-numerator` der det finnes.
+- Mangler etiketten (7 348 punkt har ingen `data-name`, og 18 285 står ikke i en `<li>`), beholdes løpenummeret. Et eget felt sier om nummeret er
+  trykt eller et løpenummer. Det krever en ny kolonne.
+- AKN-`<num>` får den trykte formen («f)», «a.»). Eksporten bygger AKN-`eId` (`point_f`) og HTML4EU-ID (`pnt_f`) av etiketten uten tegnsetting
+  (AKN-NC §5.4.3).
+- Oppslag fra et sitat, fra Lovdatas presisering og fra endringsinstruksene går via forelder, nodetype og `nummer`, ikke via eId. Det retter
+  også feilen i `LosPresiseringAsync` (§3.2).
+- Sitatet som skal kunne slås opp, er slik loven selv siterer: «personvernforordningen artikkel 6 nr. 1 bokstav f» (personopplysningsloven §§ 5
+  og 8), og også «artikkel 6 nr. 1 første ledd bokstav f».
 
-**Underledd (`sub`).** HTML4EU deler et nummerert ledd i underledd: `par_1/sub_1` (innledning og punkter) og `par_1/sub_2` (neste underledd).
-Vi har ikke dette nivået. Forslaget er å beholde avslutningsnoden fra #361 og gjøre `sub` til en regel i eksporten: ledd med liste =
-`sub_1`, avslutning N = `sub_{N+1}`. Kilden skiller de to formene (eget `legalP` mot `p.leddfortsettelse`), så eksporten kan velge `sub_2`
-eller `wrp` (closing-part) uten å gjette. Et eget underleddsnivå i eId-en ville endret eId-en til hvert punkt i de berørte leddene.
+**Visningen** bruker listas type og etiketten: bokstavliste «bokstav a», talliste «nr. 1», romertall under bokstav «bokstav a) i)» (290
+forekomster i korpuset mot 27 for «bokstav a punkt i»), strekliste uten etikett «første strekpunkt». For nummererte ledd se uenighet 1 i §5.
 
-Merk: de 239 avslutningsnodene av EU-formen finnes ennå ikke i den delte basen. Skal de ha en annen eId enn `/avslutning` (for eksempel
-`/underledd-2`), er det billigst å bestemme det før den delte basen konverteres på nytt.
+**Hvorfor ikke i eId-en:** en bokstav endres også ved omnummerering (bokstav c blir d), så eId-en blir ikke varig av det. Og alle punkt-eId-er i
+korpuset ville endret seg, sammen med alle koblingene til dem.
+
+**Underleddet: egen node `{ledd-eId}/underledd-N` (N ≥ 2)** (rettet etter juristrunden). Et nestet `<article class="legalP">` i et nummerert ledd
+blir en egen node med `node_type` underledd, både etter en liste (art. 6 nr. 1) og uten liste foran (art. 8 nr. 1). Første underledd er leddet
+selv, så ingen punkt-eId endres. Avslutningsnoden fra #361 beholdes for `p.leddfortsettelse` og løs tekst etter en liste.
+- Grunnen: et selvstendig underledd er ikke avslutningsord til lista. Lagres begge som avslutning, kan eksporten ikke skille dem uten å gjette,
+  og AKN-eksporten (`wrapUp`) og HTML4EU-eksporten (`sub_2`) ville sagt ulike ting om samme tekst.
+- AKN: underledd blir `<subparagraph>` (`subpara_N`), avslutning blir `wrapUp`. HTML4EU: ledd med liste blir `par_X/sub_1`, underledd N blir
+  `par_X/sub_N`, avslutning blir `par_X/sub_1/wrp`.
+- Det endrer #361 for denne formen: de 239 nodene som i dag får `/avslutning`, får `/underledd-2`. De finnes ennå ikke i den delte basen, så det
+  er billigst å bestemme det før basen konverteres på nytt.
 
 ### 3.4 Påvirker en retting eId-er eller koblinger som allerede er lagret?
 
@@ -235,6 +284,9 @@ Merk: de 239 avslutningsnodene av EU-formen finnes ennå ikke i den delte basen.
 - **Fasit:** 15 eId-er i fasitfilene får ny tekst (blant dem helse-og-omsorgstjenesteloven § 12-4 fjerde ledd, som #361 AK7 gjelder).
 - 619 dokumenter får ny versjon.
 
+**Underleddsnoden.** Ingen eksisterende eId endres. Leddene med et underledd uten liste foran (om lag 1 700) får kortere tekst og ny hash, så
+koblinger til dem flagges eller flyttes som over. Hvor mange koblinger det gjelder, er ikke målt.
+
 **Bokstaven i `nummer`.** Ingen eId endres. `tekst_hash` endres ikke, og «hjemmel endret» sammenligner ikke `nummer`
 (`HjemmelEndretFlagg.Nodeavtrykk` har bare eId, overskrift og hash), så ingen koblinger flagges. Men AKN endres (`<num>`), og resynken lager en
 ny versjon når AKN er endret. Det gjelder om lag 3 500 dokumenter (3 497 dokumenter har punkt med etikett), med et fullt nytt sett noder hver.
@@ -246,37 +298,64 @@ Det er den største kostnaden, og grunnen til at det bør tas i samme kjøring s
 
 ### 4.1 Ny tekst i 04 §2 (alternativ A)
 
-Erstatter avsnittet «Funnet ved verifiseringen» og den første kulen i listen over den doble nøkkelen. Ikke innført; venter på prosjekteieren.
+Erstatter avsnittet «Funnet ved verifiseringen» og listen over den doble nøkkelen. Teksten er juristens retting, tatt inn uendret. Ikke innført;
+venter på prosjekteieren.
 
-> **Funnet ved verifiseringen (rettet etter #495, docs/35):** AKN har selv en dobbel nøkkel [AKN-NC §5.3, §5.5.2]. `eId` er uttrykksnivå og
-> *skal* endres når et element omnummereres. `wId` er verksnivå, endres aldri og bygges med samme syntaks fra «master expression». Vår eId bygges
-> på nytt i hver versjon av §-nummer og ledd- og punktindeks (docs/08 §1.2). Den oppfører seg derfor som AKN sin `eId`: settes et ledd eller
-> punkt inn, får de neste ny eId, og den gamle eId-en går til et annet element (målt i docs/35 §2.1). Regelen i docs/08 om at eId ikke endres,
-> betyr at vi ikke skriver om en eId som er lagret. Den betyr ikke at eId-en følger elementet. Vi har i dag ingen `wId`. Ved eksport skriver vi
-> en avledet AKN-`eId` per versjon og utelater `wId` til vi har en varig elementidentitet (#495).
+> **Funnet ved verifiseringen (rettet etter #495, docs/35):** AKN har selv en dobbel nøkkel [AKN-NC §5.3, §5.5.2, §5.5.3]. `eId` er
+> uttrykksnivå. Den tar nummeret fra `<num>` (§5.4.3) og oppdateres når elementets plass i strukturen endres i et nytt uttrykk. `wId` er
+> verksnivå, endres aldri og har samme syntaks: den er `eId`-en elementet har i master-uttrykket, eller i et tenkt «Ur-Expression» når det ikke
+> finnes noe master-uttrykk. Mangler `wId`, antas dokumentet å være master-uttrykket, og `wId` er lik `eId`. Et uttrykk som ikke er master, skal
+> ha `wId` der den avviker fra `eId` (§5.5.2). Vår eId er ingen av delene. Den bygges i hver lagrede versjon av §-nummeret og løpenummeret til
+> ledd og punkt (docs/08 §1.2), ikke av det trykte nummeret. Den endres også når bare parseren endres (docs/35 §2.1). Den er en intern adresse i
+> én lagret versjon. docs/08 §1.2.1 («endres aldri etter opprettelse») holder bare i den svake formen: en lagret eId skrives ikke om. Som påstand
+> om varig identitet er den feil og rettes. Vi har i dag ingen `wId`. Ved eksport skriver vi en AKN-`eId` per versjon, avledet av det trykte
+> nummeret. Til vi har en varig elementidentitet (#495), skriver vi aldri flere versjoner av samme verk uten `wId`. Etter §5.5.2 ville det si at
+> elementer med samme `eId` er det samme elementet. Eksport av en enkelt versjon merkes som ikke-konform på `wId`.
 
-Og i listen over den doble nøkkelen:
-- vår eId som adresse i én versjon (AKN `eId`-rollen), ikke som varig identitet,
-- en varig elementidentitet i `wId`-rollen, som må lages (#495),
-- en avledet AKN-eId etter navnekonvensjonen,
-- og uttrykks-ID med `@dato` og versjonskjede.
+Listen over den doble nøkkelen får fem punkter:
+- vår eId som intern adresse i én lagret versjon (løpenummer, avhengig av parseren), verken AKN-`eId` eller varig identitet,
+- en varig intern element-ID (`GUID`-rollen i AKN og RUML-ankeret), som må lages (#495),
+- en avledet AKN-`eId` per versjon etter navnekonvensjonen, med nummeret fra den trykte etiketten (`<num>`),
+- en avledet AKN-`wId`: den AKN-`eId`-en elementet hadde i det valgte master- eller grunnuttrykket, skrevet der den avviker fra `eId`
+  (AKN-NC §5.5.2). Den avledes av den varige ID-en, aldri av vår eId,
+- uttrykks-ID med `@dato` og versjonskjede.
 
-docs/08 §1.2 («`eid` … endres aldri») og §2.1 (tagger overlever gjennom eId og hash) bør presiseres på samme måte. Det er ikke gjort her.
+Setningen «Å endre eksisterende eId-er bryter docs/08 sin regel om at eId ikke endres, og bør ikke gjøres» kan stå, men bør få et tillegg: parseren
+endrer eId-er i praksis (2 981 noder, docs/35 §2.1). docs/08 §1.2.1 og §2.1 rettes i samme omgang.
 
 ### 4.2 Byggesaker (ingen er startet)
 
-1. **#498 a: bokstav og trykt nummer i `nummer`.** Parseren leser `<li data-name>`, listas `type` og `data-numerator`. Visningen skriver
-   «bokstav a»/«nr. 1». Fixture-tester: personopplysningsloven artikkel 6, tollavgiftsforskriften § 4-1-1, skatteloven § 10-5. Ingen migrasjon.
-2. **#498 b: konverter den delte basen på nytt** med dagens parser, etter 1. Ingen ny kode (`konverter-paa-nytt` eller resynk). Gir #361, #397
-   og bokstavene i én runde. Juristen ser de 32 koblingene og de 15 fasit-eId-ene.
-3. **#495: varig elementidentitet (alternativ B).** Kolonne, koblingsrunde ved ny versjon, etterkobling av de 1 118 versjonsparene, og
-   `begreper`, `vilkar` og `kodelister` over på den varige ID-en.
+1. **#498 a: trykt nummer og underledd.** Parseren leser `<li data-name>`, listas type og `data-numerator` inn i `nummer`, med en ny kolonne for
+   «trykt eller løpenummer». Nestet `legalP` i et nummerert ledd blir `underledd-N`. `LosPresiseringAsync` slår opp via `nummer`. Visningen skriver
+   «bokstav a» osv. Fixture-tester: personopplysningsloven art. 6 og 8, tollavgiftsforskriften § 4-1-1, skatteloven § 10-5, ferieloven § 5.
+2. **#498 b: konverter den delte basen på nytt** med dagens parser, etter 1. Ingen ny kode (`konverter-paa-nytt` eller resynk). Gir #361, #397,
+   bokstavene og underleddene i én runde. Juristen ser koblingene som flagges og de 15 fasit-eId-ene.
+3. **#495: varig elementidentitet (alternativ B).** Kolonne, koblingsrunde ved ny versjon med bevisrekkefølgen i §2.5, etterkobling av de 1 118
+   versjonsparene, avledet `wId` og `begreper`, `vilkar` og `kodelister` over på den varige ID-en.
 
 ---
 
 ## 5. Juristrunden
 
-*Fylles inn etter runden.*
+Én runde etter `.claude/agents/jurist-utfordrer.md`, kjørt som egen agent 2026-11-25. Juristen fikk fem kort (J1–J5) med forslaget til 04 §2,
+anbefalingen, bokstavvalget og underleddsvalget, og de målte fakta, men ikke modellererens begrunnelser. Kortene og svarene er ikke lagt i repoet;
+PR-en inneholder bare dette notatet.
+
+- **Resultat:** 0 holder, 5 innvendinger (4 middels: J1, J2, J3, J5; 1 lav: J4), ingen til kontroll og ingen prinsipielle. Hovedretningen holdt i
+  alle fem: vår eId er ikke varig, A nå og B som byggesak, C og D forkastes, bokstaven i `nummer`.
+- **Modellereren godtok:** at `wId` ikke kan utelates uten følger og ikke kan være en GUID (J1, J2), at vår eId heller ikke er en AKN-`eId` og at
+  docs/08 §1.2.1 skal rettes, ikke tolkes om (J1), bevisrekkefølgen med endringsinstruksen først og flagging ved flytting (J3), sitatformen,
+  romertall, ny kolonne og oppslaget via `nummer` (J4), og egen underleddsnode, også uten liste foran (J5). Art. 8 nr. 1 er kontrollert av
+  modellereren med dagens parser. Tallet for underledd uten liste foran er talt på nytt (1 700 mot juristens 1 793).
+
+**Uenighet som står igjen** (bare én runde, juristen har ikke replisert):
+
+1. **Hva et nummerert ledd heter i visningen (J4, liten).**
+   - *Juristen:* et nummerert ledd vises som «sjette ledd» i norsk lov (skatteloven § 10-5 er trykt «(6)») og «nr. 1» i en EØS-rettsakt.
+   - *Modellereren:* dokumentets art avgjør ikke dette heller. Ferieloven § 5 er norsk lov, er trykt «(1)» til «(6)», og siterer seg selv som
+     «nr. 4 annet ledd». Eldre norske lover og forskrifter bruker «1.». Visningen må lese hvordan bestemmelsen siterer seg selv, eller la
+     etiketten stå uten ord («(6)») til det er avklart.
+   - *Begge er enige om* at klassen `numberedLegalP` alene ikke avgjør det, og at ingenting skal gjettes.
 
 ---
 
@@ -284,19 +363,25 @@ docs/08 §1.2 («`eid` … endres aldri») og §2.1 (tagger overlever gjennom eI
 
 | Valg | Alternativer | Anbefaling | Pris |
 |---|---|---|---|
-| 1. 04 §2 | A rett påstanden · B A + byggesak · C eId varig · D vent | **B** (A nå, byggesaken etterpå) | A: én dokumentendring. B: se valg 4 |
-| 2. Hvor bokstaven lagres | `nummer` · eId (`punkt-a`) | **`nummer`** | `nummer`: parser + tester + liten visningsendring, ingen migrasjon. eId: alle punkt-eId-er og koblinger endres |
-| 3. EU-underledd | `/avslutning` som nå + `sub` i eksporten · egen eId (`/underledd-2`) | **`/avslutning` + eksportregel** | Første: ingen endring. Andre: liten parserendring nå, før den delte basen konverteres; dyrere etterpå |
-| 4. Når den delte basen konverteres på nytt | Nå · etter byggesak 1 | **Etter byggesak 1**, i samme kjøring | 619 dokumenter (+ om lag 3 500 med bokstavene) får ny versjon én gang i stedet for to |
+| 1. 04 §2 | A rett påstanden · B A + byggesak · C eId varig · D vent | **B** (A nå, byggesaken etterpå) | A: tekst i 04 og docs/08. B: se byggesak 3 |
+| 2. Hvor bokstaven lagres | `nummer` · eId (`punkt-a`) | **`nummer`** | `nummer`: parser, én kolonne, oppslag og visning. eId: alle punkt-eId-er og koblinger endres |
+| 3. EU-underledd og «nr. … ledd» | `/avslutning` som nå · egen node `/underledd-N` | **`/underledd-N`** (juristens forslag, godtatt) | Liten parserendring nå, før den delte basen konverteres. Endrer #361 for 239 noder som ennå ikke finnes i basen, og gir om lag 1 700 underledd en node |
+| 4. Når den delte basen konverteres på nytt | Nå · etter byggesak 1 | **Etter byggesak 1**, i samme kjøring | 619 dokumenter (og om lag 3 500 med bokstavene) får ny versjon én gang i stedet for to |
+| 5. Visning av nummerert ledd | «sjette ledd»/«nr. 1» etter dokumentets art (juristen) · etter hvordan bestemmelsen siterer seg selv, ellers bare etiketten (modellereren) | Modellerens | Se uenighet 1 i §5 |
 
-**Anslag for byggingen** (ikke tid, men omfang):
-- Byggesak 1: én PR. `LovdataHtmlParser` (to steder), `AknXmlSkriver` (uendret, `<num>` får etiketten), visningen av punkt (én komponent),
-  3 fixture-tester. Liten.
-- Byggesak 2: ingen kode. Én kjøring og en kontroll av de 32 koblingene og 15 fasit-eId-ene. Liten, men gir mange nye versjoner.
-- Byggesak 3: tre PR-er. (a) Migrasjon med kolonne og indeks, koblingsrunden i `OpprettNyVersjonAsync` med tester. (b) Etterkobling av
-  eksisterende versjonspar og en gjennomgangsliste for det som ikke kan kobles entydig. (c) `begreper.lovreferanse_eid`, `vilkar` og
-  `kodelister` over på den varige ID-en, og eksporten. Middels til stor. Koblingsrunden er en påstand om identitet og bør juristvurderes på et
-  utvalg.
+**Anslag for byggingen** (omfang, ikke tid):
+- **Byggesak 1:** én til to PR-er.
+  - `LovdataHtmlParser`: etikett, numerator og underledd.
+  - Migrasjon med én kolonne.
+  - `LosPresiseringAsync`.
+  - Visningen av punkt og ledd.
+  - 5 fixture-tester.
+  - Liten til middels.
+- **Byggesak 2:** ingen kode. Én kjøring og en kontroll av koblingene som flagges og de 15 fasit-eId-ene. Liten, men gir mange nye versjoner.
+- **Byggesak 3:** tre PR-er. Middels til stor. Koblingsrunden er en påstand om identitet og bør juristvurderes på et utvalg.
+  - (a) Migrasjon og koblingsrunden i `OpprettNyVersjonAsync`, med tester.
+  - (b) Etterkobling av eksisterende versjonspar, med en gjennomgangsliste for det som ikke kan kobles entydig.
+  - (c) `begreper.lovreferanse_eid`, `vilkar` og `kodelister` over på den varige ID-en, og avledet `wId` i eksporten.
 
 ---
 
@@ -306,4 +391,6 @@ docs/08 §1.2 («`eid` … endres aldri») og §2.1 (tagger overlever gjennom eI
 - Om alle omnummereringer i Lovdata har en endringsinstruks (`data-move-part`), og hvor mange slike som finnes i hele Lovtidend.
 - Kilde-HTML-en for versjonene fra før 2026-09-02, som ikke er lagret. Derfor kan årsaken i vareførselsforskriften § 5-11-5 ikke skilles.
 - Hvor mye den delte basen vokser når om lag 3 500 dokumenter får en ny versjon.
+- Hvor mange koblinger som peker på de om lag 1 700 leddene som får en underleddsnode.
+- Om den innsatte artikkelen i AKN sitt eksempel (§5.5.3.4) er ment å ha en implisitt `wId` (juristen).
 - Etiketter som «i.» er talt som bokstav; noen kan være romertall.
