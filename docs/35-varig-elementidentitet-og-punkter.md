@@ -1,7 +1,7 @@
 # Varig elementidentitet og punktbokstaver (undersøkelse for #495 og #498)
 
 *Status: undersøkelse, 2026-11-25. Ingenting er bygget. Prosjekteieren ga klarsignal til undersøkelse, ikke bygging. Notatet endrer ikke
-docs/profil/04; forslaget til ny tekst står i §4.1 og venter på prosjekteieren.*
+docs/profil/04; forslaget til ny tekst i §4.1 er innført 2026-11-25.*
 
 **Kortversjon.**
 - **Vår eId er en intern adresse i én lagret versjon, ikke en varig identitet.** Den bygges på nytt i hver versjon av §-nummer og ledd- og
@@ -298,8 +298,8 @@ Det er den største kostnaden, og grunnen til at det bør tas i samme kjøring s
 
 ### 4.1 Ny tekst i 04 §2 (alternativ A)
 
-Erstatter avsnittet «Funnet ved verifiseringen» og listen over den doble nøkkelen. Teksten er juristens retting, tatt inn uendret. Ikke innført;
-venter på prosjekteieren.
+Erstatter avsnittet «Funnet ved verifiseringen» og listen over den doble nøkkelen. Teksten er juristens retting, tatt inn uendret. [ENDRET 2026-11-25]
+Innført i 04 §2 og docs/08 §1.2.1 etter prosjekteierens avgjørelse 2026-11-25. Byggesakene er #508 og #509.
 
 > **Funnet ved verifiseringen (rettet etter #495, docs/35):** AKN har selv en dobbel nøkkel [AKN-NC §5.3, §5.5.2, §5.5.3]. `eId` er
 > uttrykksnivå. Den tar nummeret fra `<num>` (§5.4.3) og oppdateres når elementets plass i strukturen endres i et nytt uttrykk. `wId` er
