@@ -446,7 +446,10 @@ public static class Hjemmelstekstlesing
     /// </summary>
     public static IEnumerable<(Dokumentmal Lov, string Kortnavn)> SiterteLovtitler(string? tekst)
     {
-        foreach (Match x in SitertLovtittel.Matches(Normaliser(tekst)))
+        var t = Normaliser(tekst);
+        // Leses ett treff om gangen, og et avvist treff leses på nytt fra neste tegn: i «lov A om endringer i lov B (folketrygdloven)» hører
+        // parentesen til B, som ellers ville vært slukt av treffet for A.
+        for (var x = SitertLovtittel.Match(t); x.Success; x = SitertLovtittel.Match(t, x.Index + 1))
         {
             var seg = x.Groups["seg"].Value;
             if (seg.Trim().Length > 0 && !Regex.IsMatch(seg, @"^\s+(om|til|for|angående|vedrørende|angåande)\b", Ic)) continue;
