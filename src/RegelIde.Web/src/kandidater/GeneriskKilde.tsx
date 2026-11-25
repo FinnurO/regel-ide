@@ -32,6 +32,8 @@ export const FOREKOMSTLESNING_TEKST: Record<Forekomstlesning, string> = {
   funksjon: 'funksjonen (styret av riket)',
   regjeringens_resolusjon: '«Regjeringens res.» (Kongen i statsråd)',
   slutning: 'slutning',
+  kongen_i_statsrad: 'beslutningsformen Kongen i statsråd («i statsråd»)',
+  statsradet: 'organet statsrådet',
 };
 
 /**

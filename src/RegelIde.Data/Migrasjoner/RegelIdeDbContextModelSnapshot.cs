@@ -2732,7 +2732,7 @@ namespace RegelIde.Data.Migrasjoner
 
                             t.HasCheckConstraint("ck_navneform_bindinger_kunnskapsstatus_grunnlag", "(kunnskapsstatus IS NULL OR kunnskapsstatus <> 'eksternt_dokumentert' OR kilde_utenfor_korpus_tekst IS NOT NULL) AND (kunnskapsstatus IS NULL OR kunnskapsstatus NOT IN ('tekstfunn', 'normalisering') OR (hjemmel_rettskilde_id IS NOT NULL AND hjemmel_eid IS NOT NULL)) AND (kunnskapsstatus IS NULL OR kunnskapsstatus <> 'foreldet' OR entitetsstatus = 'foreldet')");
 
-                            t.HasCheckConstraint("ck_navneform_bindinger_lesning", "lesning IS NULL OR (tekst_tagg_id IS NOT NULL AND lesning IN ('fremmed_stat', 'generisk_konvensjonsstat', 'ikke_aktor', 'rolle_statsrad', 'funksjon', 'regjeringens_resolusjon', 'slutning'))");
+                            t.HasCheckConstraint("ck_navneform_bindinger_lesning", "lesning IS NULL OR (tekst_tagg_id IS NOT NULL AND lesning IN ('fremmed_stat', 'generisk_konvensjonsstat', 'ikke_aktor', 'rolle_statsrad', 'funksjon', 'regjeringens_resolusjon', 'slutning', 'kongen_i_statsrad', 'statsradet'))");
 
                             t.HasCheckConstraint("ck_navneform_bindinger_referent_en", "((til_virksomhet_id IS NULL) <> (til_begrep_id IS NULL)) OR (til_virksomhet_id IS NULL AND til_begrep_id IS NULL AND tekst_tagg_id IS NOT NULL AND lesning IN ('fremmed_stat', 'generisk_konvensjonsstat', 'ikke_aktor', 'funksjon', 'slutning'))");
 

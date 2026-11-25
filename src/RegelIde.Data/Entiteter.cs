@@ -1972,8 +1972,15 @@ public static class Forekomstlesninger
     /// <summary>Ordlyden avgjør ikke. Forslaget er en slutning som et menneske må ta; det har ingen referent og kan ikke godkjennes som det
     /// er (ingen gjetting, Johann 2026-11-20).</summary>
     public const string Slutning = "slutning";
+    /// <summary>[Ny, Refs #486 PR 2, prosjekteierens avgjørelse 2026-11-25] «i statsråd» der ordlyden er entydig («vedtak i statsråd», «behandling i
+    /// statsråd»): beslutningsformen Kongen i statsråd. Referenten er Kongen i statsråd.</summary>
+    public const string KongenIStatsrad = "kongen_i_statsrad";
+    /// <summary>[Ny, Refs #486 PR 2] Organet statsrådet («medlem av statsrådet», «sete i statsrådet», «det samlede statsråd»). Referenten er
+    /// organet statsrådet.</summary>
+    public const string Statsradet = "statsradet";
 
-    public static readonly string[] Alle = [FremmedStat, GeneriskKonvensjonsstat, IkkeAktor, RolleStatsrad, Funksjon, RegjeringensResolusjon, Slutning];
+    public static readonly string[] Alle =
+        [FremmedStat, GeneriskKonvensjonsstat, IkkeAktor, RolleStatsrad, Funksjon, RegjeringensResolusjon, Slutning, KongenIStatsrad, Statsradet];
 
     /// <summary>Lesningene som ikke har referent.</summary>
     public static readonly string[] UtenReferent = [FremmedStat, GeneriskKonvensjonsstat, IkkeAktor, Funksjon, Slutning];
@@ -1987,6 +1994,8 @@ public static class Forekomstlesninger
         Funksjon => "funksjonen (styret av riket)",
         RegjeringensResolusjon => "«Regjeringens res.» (Kongen i statsråd)",
         Slutning => "slutning",
+        KongenIStatsrad => "beslutningsformen Kongen i statsråd («i statsråd»)",
+        Statsradet => "organet statsrådet",
         null => "",
         _ => lesning,
     };

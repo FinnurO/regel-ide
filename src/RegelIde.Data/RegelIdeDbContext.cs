@@ -461,9 +461,10 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
                     + "AND tekst_tagg_id IS NOT NULL AND lesning IN ('fremmed_stat', 'generisk_konvensjonsstat', 'ikke_aktor', 'funksjon', 'slutning'))");
                 // [Ny, issue #486] Lesningen er en lukket liste og står bare på en forekomstbinding. En slutning er alltid et forslag (eller avvist):
                 // den har ingen referent og kan ikke godkjennes som den er.
+                // [ENDRET, Refs #486 PR 2] + kongen_i_statsrad og statsradet (tagg per forekomst av «statsråd»). Begge har referent.
                 t.HasCheckConstraint("ck_navneform_bindinger_lesning",
                     "lesning IS NULL OR (tekst_tagg_id IS NOT NULL AND lesning IN ('fremmed_stat', 'generisk_konvensjonsstat', 'ikke_aktor', "
-                    + "'rolle_statsrad', 'funksjon', 'regjeringens_resolusjon', 'slutning'))");
+                    + "'rolle_statsrad', 'funksjon', 'regjeringens_resolusjon', 'slutning', 'kongen_i_statsrad', 'statsradet'))");
                 t.HasCheckConstraint("ck_navneform_bindinger_slutning_forslag",
                     "lesning IS NULL OR lesning <> 'slutning' OR status IN ('maskinelt_foreslatt', 'manuelt_foreslatt', 'avvist')");
                 t.HasCheckConstraint("ck_navneform_bindinger_forekomst_spenn", "tekst_tagg_id IS NULL OR paragrafspenn_json = '[]'");
