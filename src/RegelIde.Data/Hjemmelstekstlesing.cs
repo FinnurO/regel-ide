@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using Microsoft.EntityFrameworkCore;
 
 namespace RegelIde.Data;
 
@@ -372,9 +373,18 @@ public static class Hjemmelstekstlesing
     /// 1-rekkefølgen — V1, V2 og V4 i <paramref name="egne"/> (den opphevende kildens noder), V2a i <paramref name="andre"/> (andre lover og
     /// overgangsforskrifter; R9 sender ingen), og V3 (generisk, også bokmål «regler som blir opphevet») i <paramref name="egne"/>. Flyttet hit
     /// fra <see cref="HjemmelsstatusRegel"/> uendret.
+    /// <para>
+    /// [ENDRET, #501 (#472 PR 5), prosjekteierens klarsignal 2026-11-25] <paramref name="tittelKortnavn"/> er kortnavnet fra tittelen til den
+    /// opphevede loven (<see cref="Kortnavnregister.Entydig"/>), bare når det er entydig. Det godtas som mål i V4 i tillegg til kortnavnene den
+    /// opphevende loven selv bruker, og prøves etter dem, så et treff som fantes før, er uendret. Både bokmåls- og nynorskformen prøves
+    /// («viltloven», «viltlova»). Viltressursloven § 61 andre ledd: «Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har
+    /// trådt i kraft.» Opphevingssetningen («Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.») nevner ikke kortnavnet.
+    /// V1 og V2 krever fortsatt dato og nummer, og V3 har ikke noe mål. Et treff med kortnavnet er derfor alltid V4, med kunnskapsstatus
+    /// normalisering: at kortnavnet peker på loven, er lest av tittelen, ikke av setningen.
+    /// </para>
     /// </summary>
     public static IEnumerable<(string Form, T Node, string Sitat)> Videreforinger<T>(
-        IReadOnlyList<T> egne, Func<T, string?> tekst, Dokumentmal m, IEnumerable<T>? andre = null)
+        IReadOnlyList<T> egne, Func<T, string?> tekst, Dokumentmal m, IEnumerable<T>? andre = null, string? tittelKortnavn = null)
     {
         (string, T, string)? Forste(string form, IEnumerable<T> noder, Func<string?, string?> les)
         {
@@ -387,12 +397,65 @@ public static class Hjemmelstekstlesing
         if (Forste("V1", egne, t => VidereforingV1(t, m)) is { } v1) yield return v1;
         if (Forste("V2", egne, t => VidereforingV2(t, m)) is { } v2) yield return v2;
         var kortnavn = egne.SelectMany(n => Kortnavn(tekst(n), m)).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToList();
+        if (tittelKortnavn is not null)
+            kortnavn.AddRange(Kortnavnformer(tittelKortnavn).Where(k => !kortnavn.Contains(k, StringComparer.OrdinalIgnoreCase)));
         foreach (var k in kortnavn)
         {
             if (Forste("V4", egne, t => VidereforingV4(t, k)) is { } v4) { yield return v4; break; }
         }
         if (andre is not null && Forste("V2a", andre, t => VidereforingV2(t, m)) is { } v2a) yield return v2a;
         if (Forste("V3", egne, VidereforingV3) is { } v3) yield return v3;
+    }
+
+    // ---- Kortnavnet fra tittelen til den opphevede loven (#501, #472 PR 5) ----------------------------------------------------------
+
+    private const string KortnavnOrd = @"\w{4,}(?:loven|lova)";
+
+    /// <summary>Bokmåls- og nynorskformen av et kortnavn: «viltloven» gir «viltloven» og «viltlova».</summary>
+    public static IReadOnlyList<string> Kortnavnformer(string kortnavn)
+    {
+        var k = kortnavn.ToLowerInvariant();
+        var stamme = k.EndsWith("loven", StringComparison.Ordinal) ? k[..^"loven".Length] : k.EndsWith("lova", StringComparison.Ordinal) ? k[..^"lova".Length] : null;
+        return stamme is null ? [k] : [stamme + "loven", stamme + "lova"];
+    }
+
+    /// <summary>Kortnavnet i parentes i tittelen til en lov i korpus: «Lov om jakt og fangst av vilt (viltloven)» gir «viltloven», også
+    /// «(arbeidsmiljøloven – aml.)». Null for en endringslov («Lov om endringer i …»: parentesen beskriver endringen, ikke loven) og for en tittel
+    /// uten et slikt kortnavn.</summary>
+    public static string? KortnavnITittel(string? tittel)
+    {
+        if (tittel is null || Regex.IsMatch(tittel, @"^\s*lov\s+om\s+endring", Ic)) return null;
+        var m = Regex.Match(tittel, @"\((?<k>" + KortnavnOrd + @")\s*(?:\)|[–,-])", Ic);
+        return m.Success ? m.Groups["k"].Value.ToLowerInvariant() : null;
+    }
+
+    /// <summary>Kortnavn-feltet når det er ett ord som slutter på «-loven» eller «-lova» («Viltressursloven»), ellers null («Endringslov til
+    /// folketrygdloven» er ikke lovens kortnavn).</summary>
+    public static string? KortnavnFelt(string? kortnavn) =>
+        kortnavn is not null && Regex.IsMatch(kortnavn.Trim(), "^" + KortnavnOrd + "$", Ic) ? kortnavn.Trim().ToLowerInvariant() : null;
+
+    private static readonly Regex SitertLovtittel = new(
+        @"\blov(?:en|a)?\s+(?:av\s+)?(?<d>\d{1,2})\.\s*(?<mnd>" + Maaned[1..^1] + @")\s+(?<a>\d{4})(?:\s+nr\.?\s*(?<nr>\d+))?\b"
+        + @"(?<seg>[^()]{0,200}?)\((?<k>" + KortnavnOrd + @")\s*(?:\)|[–,-])", Ic);
+
+    /// <summary>
+    /// Lovtitlene en tekst siterer med kortnavn: «lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)» gir (lov 1981-05-29 nr. 38,
+    /// «viltloven»). Teksten mellom nummeret og parentesen må være tom eller en tittel som begynner med «om», «til», «for», «angående» eller
+    /// «vedrørende», og den skal ikke nevne en annen dato, et nummer, en paragraf, «jf.» eller en endring. Ellers kan parentesen høre til en
+    /// annen lov («lov … om endringer i lov … (folketrygdloven)»).
+    /// </summary>
+    public static IEnumerable<(Dokumentmal Lov, string Kortnavn)> SiterteLovtitler(string? tekst)
+    {
+        foreach (Match x in SitertLovtittel.Matches(Normaliser(tekst)))
+        {
+            var seg = x.Groups["seg"].Value;
+            if (seg.Trim().Length > 0 && !Regex.IsMatch(seg, @"^\s+(om|til|for|angående|vedrørende|angåande)\b", Ic)) continue;
+            if (Regex.IsMatch(seg, @"\d{1,2}\.\s*" + Maaned + @"\s+\d{4}|\bnr\b|§|\bjfr?\.|endring|\blov(en|a)?\s+(av\s+)?\d", Ic)) continue;
+            var mnd = Array.IndexOf(Maaneder, x.Groups["mnd"].Value.ToLowerInvariant()) + 1;
+            int aar = int.Parse(x.Groups["a"].Value), dag = int.Parse(x.Groups["d"].Value);
+            if (mnd < 1 || !DateOnly.TryParse($"{aar:0000}-{mnd:00}-{dag:00}", out _)) continue;
+            yield return (new Dokumentmal("lov", aar, mnd, dag, x.Groups["nr"].Success ? x.Groups["nr"].Value : ""), x.Groups["k"].Value.ToLowerInvariant());
+        }
     }
 
     /// <summary>[Juristrunde 1, R3] Forbeholdet i videreføringen: «så langt de passer», «med mindre de strider mot», «så langt de også kunne ha
@@ -537,4 +600,77 @@ public static class Hjemmelstekstlesing
 
     private static readonly string[] Ordenstall = ["", "første", "andre", "tredje", "fjerde", "femte", "sjette", "sjuende", "åttende", "niende", "tiende"];
     private static string Ledd(int n) => n < Ordenstall.Length ? $"{Ordenstall[n]} ledd" : $"ledd {n}";
+}
+
+/// <summary>
+/// [Ny, #501 (#472 PR 5), prosjekteierens klarsignal 2026-11-25] <b>Kortnavnet fra tittelen til en lov, bare når det er entydig.</b> Brukes av
+/// hjemmelsstatusen og R9 i #429 (<see cref="Hjemmelstekstlesing.Videreforinger{T}"/>), lastet på samme måte (<see cref="LastAsync"/>), så
+/// begge gir samme svar. Kildene er titlene korpuset har:
+/// <list type="bullet">
+/// <item>tittelen og kortnavn-feltet til loven selv, når den er i korpus («Lov om jakt, fangst og felling av vilt mv. (viltressursloven)»);</item>
+/// <item>titlene som hjemmelstekstene siterer («med hjemmel i lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven) § 26 nr. 8»). En
+/// opphevet lov er i korpus bare som en referanse-stub med ELI-en som tittel, så det er her tittelen står.</item>
+/// </list>
+/// <b>Entydig</b> betyr to ting. Alle kildene gir loven det samme kortnavnet (bokmål og nynorsk regnes som samme navn). Og ingen annen lov har
+/// det kortnavnet i noen av kildene: straffeloven 1902 og straffeloven 2005 heter begge «straffeloven», så en setning om «straffeloven» kan ikke
+/// kobles til den gamle. Er det ikke entydig, gis det ikke noe kortnavn, og videreføringen leses som før. Det gjettes aldri (§8).
+/// <para>Ikke lest: kortnavn som bare står i lovtekst (nodene), og titler utenfor korpus. En lov som er sitert med kortnavn bare der, får ikke
+/// noe kortnavn herfra.</para>
+/// </summary>
+public sealed class Kortnavnregister
+{
+    /// <summary>Kortnavnet er ikke funnet i noen tittel.</summary>
+    public const string GrunnIngen = "ingen_tittel_med_kortnavn";
+    /// <summary>Kildene gir loven flere kortnavn.</summary>
+    public const string GrunnFlereKortnavn = "flere_kortnavn";
+    /// <summary>Kortnavnet brukes om flere lover.</summary>
+    public const string GrunnFlereLover = "kortnavnet_brukes_om_flere_lover";
+
+    private readonly Dictionary<Dokumentmal, HashSet<string>> perLov = [];
+    private readonly Dictionary<string, HashSet<Dokumentmal>> perKortnavn = new(StringComparer.Ordinal);
+
+    public static readonly Kortnavnregister Tomt = new();
+
+    private void Legg(Dokumentmal? lov, string? kortnavn)
+    {
+        if (lov is null || lov.Type != "lov" || kortnavn is null) return;
+        var k = Hjemmelstekstlesing.Kortnavnformer(kortnavn)[0];
+        if (!perLov.TryGetValue(lov, out var navn)) perLov[lov] = navn = new(StringComparer.Ordinal);
+        navn.Add(k);
+        if (!perKortnavn.TryGetValue(k, out var lover)) perKortnavn[k] = lover = [];
+        lover.Add(lov);
+    }
+
+    /// <summary>Bygger registeret av (ELI, tittel, kortnavn-feltet, hjemmelsteksten) for rettskildene i korpus.</summary>
+    public static Kortnavnregister Bygg(IEnumerable<(string? Eli, string? Tittel, string? Kortnavn, string? Hjemmelstekst)> kilder)
+    {
+        var r = new Kortnavnregister();
+        foreach (var (eli, tittel, kortnavn, hjemmelstekst) in kilder)
+        {
+            var lov = Hjemmelstekstlesing.Mal(eli);
+            r.Legg(lov, Hjemmelstekstlesing.KortnavnFelt(kortnavn));
+            r.Legg(lov, Hjemmelstekstlesing.KortnavnITittel(tittel));
+            foreach (var (sitert, k) in Hjemmelstekstlesing.SiterteLovtitler(hjemmelstekst)) r.Legg(sitert, k);
+        }
+        return r;
+    }
+
+    /// <summary>Laster registeret fra alle rettskildene i korpus (titler, kortnavn-feltet og hjemmelstekstene).</summary>
+    public static async Task<Kortnavnregister> LastAsync(RegelIdeDbContext db, CancellationToken ct = default)
+    {
+        var rader = await db.Rettskilder.AsNoTracking().Select(r => new { r.Eli, r.Tittel, r.Kortnavn, r.AnnetOmDokumentet }).ToListAsync(ct);
+        return Bygg(rader.Select(r => (r.Eli, (string?)r.Tittel, r.Kortnavn, r.AnnetOmDokumentet)));
+    }
+
+    /// <summary>Kortnavnet til loven med denne ELI-en når det er entydig, ellers null med grunnen.</summary>
+    public (string? Kortnavn, string Grunn) Les(string? eli)
+    {
+        if (Hjemmelstekstlesing.Mal(eli) is not { Type: "lov" } lov || !perLov.TryGetValue(lov, out var navn)) return (null, GrunnIngen);
+        if (navn.Count > 1) return (null, GrunnFlereKortnavn);
+        var k = navn.Single();
+        return perKortnavn[k].Count > 1 ? (null, GrunnFlereLover) : (k, "");
+    }
+
+    /// <summary>Kortnavnet til loven med denne ELI-en når det er entydig, ellers null.</summary>
+    public string? Entydig(string? eli) => Les(eli).Kortnavn;
 }

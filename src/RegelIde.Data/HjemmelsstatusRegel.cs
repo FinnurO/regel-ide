@@ -152,6 +152,8 @@ public sealed class HjemmelsstatusRegel(RegelIdeDbContext db, IKunngjortTekstkil
         public required List<Lesning> Videreforingsnoder; // lovnoder og overgangsforskrifter med hjemmelsuttrykk
         public required Dictionary<string, Node> MalNoder; // eId → node i en gjeldende primærkilde (hjemmelsbestemmelser og paragrafene over)
         public IReadOnlyDictionary<string, IReadOnlyList<KunngjortNode>> Kunngjort = new Dictionary<string, IReadOnlyList<KunngjortNode>>();
+        /// <summary>[Ny, #501] Kortnavnet fra tittelen til en opphevet lov, når det er entydig (V4).</summary>
+        public Kortnavnregister Kortnavn = Kortnavnregister.Tomt;
         public int VaktAvviste;
         public int LovtidendEtterspurt;
         public readonly Dictionary<string, Dokumentutfall> Utfall = new(StringComparer.Ordinal);
@@ -315,7 +317,7 @@ public sealed class HjemmelsstatusRegel(RegelIdeDbContext db, IKunngjortTekstkil
         var data = new Data
         {
             Kilder = kilder, GjeldendePrimaer = gjeldendePrimaer, Endrer = endrer, Kandidater = kandidater, NoderPerKilde = [],
-            Videreforingsnoder = videreforingsnoder, MalNoder = malNoder,
+            Videreforingsnoder = videreforingsnoder, MalNoder = malNoder, Kortnavn = await Kortnavnregister.LastAsync(db, ct),
         };
 
         // Bevistrinnene i korpuset først; så de opphevende kildenes noder (videreføring, ikraftsetting, tildeling); så Lovtidend for EN.
@@ -495,7 +497,8 @@ public sealed class HjemmelsstatusRegel(RegelIdeDbContext db, IKunngjortTekstkil
             .Where(n => n.KildeId != opphevende && data.Kilder.GetValueOrDefault(n.KildeId)?.Eli != eli && rxLos.IsMatch(Hjemmelstekstlesing.Normaliser(n.Tekst)))
             .OrderBy(n => data.Kilder.GetValueOrDefault(n.KildeId)?.DokumentId ?? "", StringComparer.Ordinal).ThenBy(n => n.Rekkefolge);
         // [ENDRET, #472 PR 3] Formene og rekkefølgen er flyttet til Hjemmelstekstlesing.Videreforinger, som R9-hintet i #429 også bruker.
-        foreach (var (form, n, s) in Hjemmelstekstlesing.Videreforinger(egne, l => l.Tekst, mal, andre))
+        // [ENDRET, #501 (#472 PR 5)] Kortnavnet fra tittelen til den opphevede loven godtas som mål i V4 når det er entydig.
+        foreach (var (form, n, s) in Hjemmelstekstlesing.Videreforinger(egne, l => l.Tekst, mal, andre, data.Kortnavn.Entydig(eli)))
             yield return new Videreforingskandidat(form, n.KildeId, n.NodeId, n.Eid, s, n.FraKunngjort);
     }
 

@@ -18,7 +18,7 @@ public static class Hjemmelsstatus
     /// <summary>Versjonen av regelen. Økes når reglene endres, så en lagret rad viser hvilken regel som satte den.
     /// [ENDRET, #472 PR 4, prosjekteierens avgjørelse 2026-11-24 etter måling 1] Rollen for en forskrift som hjemmel (H15) og endringslovens
     /// egne deler (H18).</summary>
-    public const string Regelversjon = "472-pr4-2026-11-24";
+    public const string Regelversjon = "472-pr5-2026-11-25";
 
     // ---- Rolle (juristrunde 1 R1, godtatt i svaret; runde 2 R1: NULL = ikke vurdert) ----
     /// <summary>Rettsgrunnlaget for innholdet.</summary>
