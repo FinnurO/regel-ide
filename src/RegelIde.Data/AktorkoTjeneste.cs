@@ -96,9 +96,11 @@ public sealed record Rutingssvar(
 /// <param name="Frase">[Ny, #440, Johanns avgjørelse 2026-11-05] Navnet med forleddet foran slik det står i teksten («felles samarbeidsutvalg»),
 /// når forleddssperren slo til for forekomsten (<see cref="Aktorkoregler.SperretFrase"/>). Null = ingen sperre; da er navnet bare
 /// <see cref="Tekst"/>.</param>
+/// <param name="Ordsperre">[Ny, Refs #486, prosjekteierens avgjørelse 2026-11-25] Grunnen når ordsperren (<see cref="Ordsperrer"/>) slo til for
+/// forekomsten («statsråd» i «vedtak i statsråd» er ikke rollen). Da rutes den til aktørkøen, så et menneske avgjør. Null = ingen sperre.</param>
 public sealed record KoForekomst(
     Guid NavnekandidatId, string Tekst, Guid RettskildeId, string NodeEid, int Start, int Slutt, string Kategori, string? Oppdagelseskilde,
-    string? Konfidens, string? Gruppe = null, string? Frase = null)
+    string? Konfidens, string? Gruppe = null, string? Frase = null, string? Ordsperre = null)
 {
     /// <summary>Navnet forekomsten står for, slik det står i teksten: frasen med forleddet når sperren slo til, ellers teksten.</summary>
     public string Navnetekst => Frase ?? Tekst;
@@ -264,8 +266,26 @@ public static partial class Aktorkoregler
     /// er <see cref="SperretFrase"/>, den samme hjelperen grupperingen bruker.
     /// </para>
     /// </summary>
+    /// <para>
+    /// [Ny, Refs #486, prosjekteierens avgjørelse 2026-11-25] En forekomst ordsperren stoppet (<see cref="KoForekomst.Ordsperre"/>: «statsråd»
+    /// i «Kongen i statsråd», «vedtak i statsråd», «i statsrådet»), rutes til aktørkøen: ordet betyr ikke det kjente ordet her, og et menneske
+    /// avgjør. Uten sperre er rutingen som før.
+    /// </para>
     public static Rutingssvar Ruter(Rutingstabell tabell, KoForekomst forekomst) =>
-        Ruter(tabell, forekomst.Navnetekst, forekomst.RettskildeId);
+        forekomst.Ordsperre is not null
+            ? new(Aktorkoruter.Aktorko, Normaliser(forekomst.Navnetekst), [])
+            : Ruter(tabell, forekomst.Navnetekst, forekomst.RettskildeId);
+
+    /// <summary>[Ny, Refs #486] Forekomsten med <see cref="KoForekomst.Ordsperre"/> satt når ordsperren slår til i <paramref name="nodetekst"/>.
+    /// Samme vakt som <see cref="MedForleddssperre"/>: bare når teksten fortsatt har ordet på posisjonen sveipet fant. Sperren vurderes på
+    /// teksten, ikke på en frase fra forleddssperren.</summary>
+    public static KoForekomst MedOrdsperre(KoForekomst forekomst, string? nodetekst, bool iKonvensjonstekst)
+    {
+        var f = forekomst;
+        if (f.Frase is not null || !Ordsperrer.HarSperre(f.Tekst) || nodetekst is null || f.Start < 0 || f.Slutt > nodetekst.Length || f.Slutt <= f.Start
+            || !string.Equals(nodetekst[f.Start..f.Slutt], f.Tekst, StringComparison.OrdinalIgnoreCase)) return f;
+        return Ordsperrer.Vurder(f.Tekst, nodetekst, f.Start, f.Slutt, iKonvensjonstekst) is { } grunn ? f with { Ordsperre = grunn } : f;
+    }
 
     /// <summary>
     /// [Ny, #456: skilt ut av <c>AktorkoTjeneste.SettForleddssperreAsync</c> uten endring i regelen, så rutingen og grupperingen setter frasen
@@ -853,6 +873,7 @@ public sealed class AktorkoTjeneste(RegelIdeDbContext db)
         // [ENDRET, #456] Sperren settes FØR rutingen, på alle ventende, og rutingen leser frasen (Aktorkoregler.Ruter med forekomsten). Før
         // (#440/#454) ble rutingen gjort på teksten, og sperren bare satt for forekomstene som alt var i køen.
         await SettForleddssperreAsync(forekomster, ct);
+        await SettOrdsperreAsync(forekomster, ct);
         var svar = forekomster.Select(f => Aktorkoregler.Ruter(tabell, f)).ToList();
         return (forekomster, svar);
     }
@@ -880,6 +901,29 @@ public sealed class AktorkoTjeneste(RegelIdeDbContext db)
         {
             var f = forekomster[i];
             if (noder.TryGetValue((f.RettskildeId, f.NodeEid), out var tekst)) forekomster[i] = Aktorkoregler.MedForleddssperre(f, tekst);
+        }
+    }
+
+    /// <summary>[Ny, Refs #486, prosjekteierens avgjørelse 2026-11-25] Ordsperren (<see cref="Aktorkoregler.MedOrdsperre"/>) for forekomstene av
+    /// et ord med sperre («statsråd», «statsrådet», «staten»). Leddene og konvensjonsteksten leses bare for dem.</summary>
+    private async Task SettOrdsperreAsync(List<KoForekomst> forekomster, CancellationToken ct)
+    {
+        var aktuelle = forekomster.Where(f => f.Frase is null && Ordsperrer.HarSperre(f.Tekst)).ToList();
+        if (aktuelle.Count == 0) return;
+        var ider = aktuelle.Select(f => f.RettskildeId).Distinct().ToList();
+        var eids = aktuelle.Select(f => f.NodeEid).Distinct().ToList();
+        var noder = await db.RettskildeNoder
+            .Where(n => ider.Contains(n.RettskildeId) && eids.Contains(n.Eid) && n.Entitetsstatus == "gjeldende" && n.Tekst != null)
+            .Select(n => new { n.Id, n.RettskildeId, n.Eid, n.Tekst }).ToListAsync(ct);
+        var konvensjon = await Ordsperrer.KonvensjonsnoderAsync(db, noder.Select(n => n.Id).ToList(), ct);
+        var perNode = noder.GroupBy(n => (n.RettskildeId, n.Eid)).ToDictionary(g => g.Key, g => g.First());
+        for (var i = 0; i < forekomster.Count; i++)
+        {
+            var f = forekomster[i];
+            if (f.Frase is null && Ordsperrer.HarSperre(f.Tekst) && perNode.TryGetValue((f.RettskildeId, f.NodeEid), out var n))
+            {
+                forekomster[i] = Aktorkoregler.MedOrdsperre(f, n.Tekst, konvensjon.Contains(n.Id));
+            }
         }
     }
 

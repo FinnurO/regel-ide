@@ -2417,7 +2417,7 @@ territorielt (svalbardloven og Jan Mayen-loven), ikke navnet på staten.
 
 Sperren brukes i taggingen (`SikreTreffAsync`: en sperret forekomst tagges ikke og telles som `Ordsperre`) og i lasteren (alle forekomstene i
 noden sperret → årsaken `aktor_ordsperre`, ingen kobling). Aktørkøens ruting bruker den ikke: «Staten yter …» (hol. § 11-5) er den ene
-forekomsten i køen, og den gjelder. Målingen: `GET /api/ordsperre/maling?term=staten`.
+forekomsten i køen, og den gjelder. Målingen: `GET /api/ordsperre/maling?term=staten`. [ENDRET, Refs #486, 2026-11-25] Rutingen bruker nå sperren (en sperret forekomst går til aktørkøen, §5.19.2); for «staten» endret det ingenting i køen.
 
 **Målt 2026-11-17 i kopien `regelide_norge` av den delte basen, «staten der/hvor/hvis» og summene målt på nytt 2026-11-20 i `regelide_norge2`
 etter Johanns avgjørelse om «hvis»** (korpuset er det samme; gjeldende, ikke opphevede noder i gjeldende
@@ -2575,6 +2575,64 @@ Grl. § 72 tredje ledd nr. 1 lenker til rollebegrepet «statsråd». Kopien er s
 **Avgjort av Johann 2026-11-20 (PR #489):** hjemmelen § 12 første ledd som oppretting; rollebegrepet «statsråd»; de 14 forekomstene uten eier
 står utagget som hull; plikten i «legge fram for Stortinget» er fortsatt slutning. **Ikke avgjort:** hvem plikten ligger hos (slutning til da), og
 om «statsråd» trenger en ordsperre.
+
+[ENDRET, 2026-11-25] Prosjekteieren avgjorde ordsperren for «statsråd» og «statsrådet»: §5.19.2.
+
+#### 5.19.2 «statsråd»: ordsperre (Refs #486, PR 1, bygget 2026-11-25)
+
+**Hvorfor.** Ordet «statsråd» betyr tre ting: organet statsrådet, møtet der Kongen i statsråd beslutter, og rollen statsråd. Rollebegrepet
+«statsråd» og navneformen «statsrådet» for organet finnes (§5.19.1). Uten sperre kan en forekomst om organet eller møtet kobles til rollen, og
+«i statsrådet» om møtet kobles til organet. Prosjekteieren ga klarsignal 2026-11-25 etter juristrunden i `data/fasit/strukturmodell/statsrad/`
+(to runder, ingen uenighet igjen), og valgte samme dag sperre (PR 1) og positiv tagg per forekomst (PR 2, §5.19.3).
+
+**Sperren** (`Ordsperrer`, kode, ikke data, samme mønster som «staten» i §5.19). For **«statsråd»** sier den når ordet IKKE betyr rollen:
+
+| Grunn | Kode | Eksempel |
+|---|---|---|
+| «i» rett foran | `i_foran` | «Kongen i statsråd», «vedtak i statsråd», «behandling i statsråd» |
+| intetkjønn foran | `intetkjonn` | «det samlede statsråd» (Grl. § 15), «sitt statsråd» (§ 21), «et statsråd» |
+| møtet | `motet` | «avholdelse av (beslutningsdyktig) statsråd», «et beslutningsdyktig statsråd», «hvert statsråd», «forberedende statsråd», «trekkes fra statsråd»; «fra» bare uten et navn etter («fra statsråd Jan Christian Vestre» er rollen) |
+| konvensjonstekst | `konvensjonstekst` | «vedkommende statsråd … i virksomhetslandet» (nordisk miljøvernkonvensjon art. 11) |
+
+For **«statsrådet»** sier den når ordet IKKE betyr organet: «i statsrådet» (`i_foran`, men ikke «sete i statsrådet») og «utenfor statsrådet»
+(`utenfor_foran`, Grl. § 14), som er møtet der Kongen i statsråd beslutter (Grl. §§ 20, 28, 30), og konvensjonstekst. Kjent pris (juristrunden,
+a2): Regjeringsinstruksen § 1 («I statsrådet, som består av …») og Grl. § 27 («nærværende i statsrådet») sperres selv om de kan leses som
+organet. Sperren er konservativ: den gir ingen tagg og ingen kobling, aldri en feil kobling. Sammensetninger («statsrådsprotokollen»,
+«fagstatsråds») er ikke treff, og bindestrek rett foran er ikke ordgrense (`AktoridentitetTjeneste.HeleOrd`).
+
+**Konvensjonsoverskriften** (`Ordsperrer.ErKonvensjonsoverskrift`) treffer nå også et sammensatt ord på «konvensjon» fulgt av av/om/mellom/til
+(«Miljøvernkonvensjon av 19. februar 1974, mellom Danmark, Finland, Norge og Sverige»). Regelen er felles med «staten»; i korpuset treffer
+utvidelsen bare den ene overskriften, og målingen av «staten» er identisk før og etter (under).
+
+**Fire brukssteder:**
+1. **Taggingen av aktører** (`SikreTreffAsync`): som før, nå også for «statsrådet» (en sperret forekomst tagges ikke og telles som `Ordsperre`).
+2. **Lasteren** (`StrukturforslagTjeneste`): sperren gjelder nå også når referenten er et begrep, ikke bare en aktør. En aktør med tekstformen
+   «statsråd» i et ledd der alle forekomstene er sperret («vedtak i statsråd»), gir årsaken `aktor_ordsperre` og ingen kobling til rollen.
+3. **Rutingen** (prosjekteierens avgjørelse 2026-11-25): en sperret forekomst rutes til aktørkøen, så et menneske avgjør, og ikke til det
+   kjente ordet (rollen). Det gjelder aktørkøen (`KoForekomst.Ordsperre`, `Aktorkoregler.MedOrdsperre`) og begge sveipene
+   (mønstersveipet og KI-sveipet). Det gjelder alle ord med sperre, også «staten».
+4. **Taggingen av begrepsforekomster** (`BegrepsforekomstTjeneste`, de andre forekomstene i kilden når en definisjon godkjennes): samme
+   ordgrense som aktørtaggingen (før ``, som regnet bindestrek som ordgrense) og ordsperren.
+
+**Målingen:** `GET /api/ordsperre/maling?term=statsråd` (og `statsrådet`, `staten`).
+
+**Målt 2026-11-25 i kopien `regelide_statsrad`** (pg_dump av den delte basen; API 5587):
+
+| | «statsråd» | «statsrådet» |
+|---|---:|---:|
+| Forekomster (hele ord) | 364 i 304 noder, 127 kilder | 47 i 40 noder, 4 kilder |
+| Bindestrek rett foran | 0 | 0 |
+| «i» rett foran | 254 | 13 |
+| «utenfor» | | 1 |
+| intetkjønn | 4 | |
+| møtet | 6 | |
+| konvensjonstekst | 1 | 0 |
+| **Sperret** | **265** | **14** |
+| Gjelder | 99 (rollen) | 33 (organet) |
+
+Før og etter i samme kopi: «staten» identisk (2 511 / 2 271, sperret 579 med konvensjonstekst 81, gjelder 1 932), aktørkøen identisk (1 211
+ventende, 188 navn, samme fordeling per rute), og tørrkjøringen for «regjeringen» identisk (98 regeltagger, 170 slutninger). Ingen tagger eller
+bindinger er endret (12 tagger på «Kongen i statsråd», 25 forekomstbindinger med `rolle_statsrad`): PR 1 skriver ingenting.
 
 ### 5.20 Hjemmelsstatus: statusen per hjemmel og maskinregelen (#472 PR 1, bygget 2026-11-20)
 

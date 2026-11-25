@@ -52,7 +52,8 @@ public static class Forslagsarsak
         AktorGeneriskUtenBinding => "Generisk omtale («styret», «departementet») uten godkjent binding for denne rettskilden — lagt i navnekandidatkøen",
         AvvistAvValideringen => "Den felles skriveveien (StrukturkantTjeneste) avviste raden",
         HjemmelErMerknad => "Noden er merknad/veiledning i forskriftsteksten, ikke normtekst — aldri hjemmel (#419)",
-        AktorOrdsperre => "Ordet betyr ikke aktøren her: ordsperren stopper alle forekomstene i noden («den anmodede staten», «staten der …», konvensjonstekst) (#463)",
+        AktorOrdsperre => "Ordet betyr ikke aktøren her: ordsperren stopper alle forekomstene i noden («den anmodede staten», «staten der …», konvensjonstekst; "
+                          + "«Kongen i statsråd» er ikke rollen statsråd, «i statsrådet» er møtet) (#463, Refs #486)",
         AktorIkkeAktor => "En vurdert tagg per forekomst sier at ordet ikke er en aktør her (fremmed stat, generisk konvensjonsstat, ikke aktør, funksjon) (#486)",
         _ => arsak,
     };
@@ -348,7 +349,9 @@ public sealed partial class StrukturforslagTjeneste(
             var k = await klassifiserer.GrunnlagAsync(aktorer[aktorId], ct);
             var (status, node, _, _) = await klassifiserer.ForekomstAsync(k, eid, ct);
             // [Ny, issue #463] Alle forekomstene i noden er sperret («den anmodede staten», konvensjonstekst): ordet betyr ikke aktøren her.
-            if (status == Aktorstatus.Kjent && node?.VirksomhetId is not null && await ErSperretAsync(aktorer[aktorId], eid))
+            // [ENDRET, Refs #486] Også når referenten er et begrep: rollebegrepet «statsråd» («Kongen i statsråd», «vedtak i statsråd» er ikke
+            // rollen). Før gjaldt sperren bare en aktør (virksomhet).
+            if (status == Aktorstatus.Kjent && node is not null && await ErSperretAsync(aktorer[aktorId], eid))
             {
                 return new Oppslag(null, Forslagsarsak.AktorOrdsperre, k.Treff);
             }

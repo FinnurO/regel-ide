@@ -695,8 +695,23 @@ public sealed class NavnekandidatOppdagelseTjeneste(
         // og ville bare gjentatt det kjente i køen. Tellingen per rute står i svaret, så ingenting forsvinner stille.
         var rutingstabell = await AktorkoTjeneste.LastRutingstabellAsync(db, ct);
         var utenforKoen = new Dictionary<string, int>(StringComparer.Ordinal);
-        bool UtenforAktorkoen(string tekst, Guid rettskildeId)
+        // [Ny, Refs #486, prosjekteierens avgjørelse 2026-11-25] Ordsperren: en sperret forekomst («statsråd» i «vedtak i statsråd») betyr ikke
+        // det kjente ordet (rollen), og rutes til aktørkøen, så et menneske avgjør. Konvensjonsteksten slås opp bare for noder med et sperreord.
+        var sperrenoder = noder.Where(n => Ordsperrer.Termer.Any(t => n.Tekst.Contains(t, StringComparison.OrdinalIgnoreCase))).ToList();
+        var sperreKilder = sperrenoder.Select(n => n.RettskildeId).Distinct().ToList();
+        var sperreEids = sperrenoder.Select(n => n.Eid).Distinct().ToList();
+        var sperreIder = await db.RettskildeNoder
+            .Where(n => sperreKilder.Contains(n.RettskildeId) && sperreEids.Contains(n.Eid) && n.Entitetsstatus == "gjeldende")
+            .Select(n => new { n.Id, n.RettskildeId, n.Eid }).ToListAsync(ct);
+        var konvensjonsIder = await Ordsperrer.KonvensjonsnoderAsync(db, sperreIder.Select(n => n.Id).ToList(), ct);
+        var konvensjonsnoder = sperreIder.Where(n => konvensjonsIder.Contains(n.Id)).Select(n => (n.RettskildeId, n.Eid)).ToHashSet();
+        bool UtenforAktorkoen(string tekst, Guid rettskildeId, SveipbarNode node, int start, int slutt)
         {
+            if (Ordsperrer.HarSperre(tekst)
+                && Ordsperrer.Vurder(tekst, node.Tekst, start, slutt, konvensjonsnoder.Contains((node.RettskildeId, node.Eid))) is not null)
+            {
+                return false;
+            }
             var rute = Aktorkoregler.Ruter(rutingstabell, tekst, rettskildeId).Rute;
             if (rute == Aktorkoruter.Aktorko) return false;
             utenforKoen[rute] = utenforKoen.GetValueOrDefault(rute) + 1;
@@ -755,7 +770,7 @@ public sealed class NavnekandidatOppdagelseTjeneste(
                     && gruppeKandidatTermerPerRettskilde.TryGetValue(node.RettskildeId, out var eksisterendeTermer)
                     && eksisterendeTermer.Contains(tekst);
                 if (alleredeDekketAvBegrep || alleredeDekketAvEksisterendeKandidat) continue;
-                if (UtenforAktorkoen(tekst, node.RettskildeId)) continue; // [Ny, issue #440]
+                if (UtenforAktorkoen(tekst, node.RettskildeId, node, start, start + lengde)) continue; // [Ny, issue #440] [ENDRET, Refs #486] med ordsperren
 
                 antallTreff++;
                 var forAntall = await db.Navnekandidater.CountAsync(
@@ -815,7 +830,7 @@ public sealed class NavnekandidatOppdagelseTjeneste(
                 }
 
                 if (virksomhetTermer.Contains(raaTekst)) continue; // allerede dekket av eksisterende Begrep.
-                if (UtenforAktorkoen(raaTekst, node.RettskildeId)) continue; // [Ny, issue #440]
+                if (UtenforAktorkoen(raaTekst, node.RettskildeId, node, start, start + lengde)) continue; // [Ny, issue #440] [ENDRET, Refs #486] med ordsperren
 
                 antallTreff++;
                 var forAntall = await db.Navnekandidater.CountAsync(
