@@ -1,0 +1,414 @@
+[
+ {
+  "id": "N01",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Vedtaket delegerer Kongens myndighet etter finansieringsvirksomhetsloven 1988 § 2-2 annet ledd nr. 6 til Finansdepartementet. Finansforetaksloven § 23-2 andre ledd viderefører «forskrifter», ikke delegeringsvedtak. Om en delegering etter en opphevet lov følger med til tilsvarende myndighet i den nye loven, er et reelt tolkningsspørsmål. Lovdata viser vedtaket uten opphevingsmerknad. Uavklart er riktig, og påstanden er riktig. [slutning] Finansforetaksloven legger det meste av myndigheten direkte til departementet, så delegeringen har trolig liten selvstendig betydning.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/DEL/forskrift/1999-05-07-434",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "LOV-2015-04-10-17 § 23-2 andre ledd (sitatet i kortet)",
+    "funksjon": "direkte_hjemmel"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "N02",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Delegering etter dyrevernloven 1974 §§ 22 og 27 og myndigheten som lå til «departementet». Dyrevelferdsloven § 40 andre ledd nevner «forskrifter eller enkeltvedtak», ikke delegeringer. Et delegeringsvedtak er verken forskrift (fvl. § 2 første ledd c) eller enkeltvedtak (fvl. § 2 første ledd b) [slutning], så om overgangsregelen dekker det, er et reelt spørsmål. Lovdata viser ingen oppheving. Kap. II (opphevingen av kgl.res. 2003 nr. 200) har uttømt virkningen. Det dekkes av premissmangelen #446.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/DEL/forskrift/2004-02-06-307",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "LOV-2009-06-19-97 § 40 andre ledd (sitatet i kortet)",
+    "funksjon": "direkte_hjemmel"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "N03",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Blandet vedtak: ikrafttredelse (pkt. 1, uttømt), en overgangsregel om gevinstautomater (pkt. 2), delegering til politiet (pkt. 3 og 4) og Svalbard (pkt. 5). Hjemmelsteksten har ingen «med hjemmel i», så rollen er ikke vurdert, og påstanden sier det. Pengespilloven § 38 andre ledd viderefører «forskrifter». Om det dekker delegeringene, er et reelt spørsmål. [slutning] Myndigheten etter pengespilloven ligger hos Lotteritilsynet, så pkt. 3 og 4 har trolig ingen virkning lenger, men det er en tolkning. Lovdata viser vedtaket uten opphevingsmerknad, og søk i korpus etter «1995 nr. 184» gir ingen oppheving. Ikrafttredelsen er dekket av premissmangelen #446.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/DEL/forskrift/1995-02-24-184",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "LOV-2022-03-18-12 § 38 andre ledd (sitatet i kortet)",
+    "funksjon": "direkte_hjemmel"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "N04",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Vedtaket overfører myndighet etter sjødyktighetsloven 1903 § 1 tredje ledd nr. 2 og § 3, som var delegert til Kommunal- og arbeidsdepartementet, til Nærings- og handelsdepartementet. Det er en ny delegering av Kongens myndighet, ikke en ren ressortendring etter Grl. § 12 [slutning]. Derfor er det forsvarlig å lese 1903-loven som premiss med rolle NULL. Skipssikkerhetsloven § 73 første ledd viderefører «forskrifter», og om delegeringen dekkes, er et reelt spørsmål. Lovdata viser ingen oppheving. Korpuset nevner vedtaket bare i lista over forskrifter som ble overført fra UD (DEL/forskrift/1996-12-20-1157 punkt 12). Den lista opphever det ikke.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/DEL/forskrift/1986-01-17-42",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "DEL/forskrift/1996-12-20-1157 punkt 12 (korpus)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "LOV-2007-02-16-9 § 73 første ledd (sitatet i kortet)",
+    "funksjon": "direkte_hjemmel"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "N05",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "hoy",
+  "innvending": "Påstanden har feil rettsgrunnlag. Vedtaket delegerer Kongens myndighet etter endringsloven 15. juni 2001 nr. 43 «til å bestemme ikrafttredelse og gi overgangsbestemmelser». Hjemmelen er endringslovens egen ikrafttredelsesdel, ikke en bestemmelse i verdipapirhandelloven 1997. Regelen har fulgt endringsloven til hovedloven (fulgt_eli = LOV-1997-06-19-79) og siterer opphevingen av den. Endringsloven er ikke opphevet ved den setningen. Riktig svar: hjemmelen er endringslovens egen del (END, altså ukjent etter PR 4 punkt 3). Ikrafttredelsesmyndigheten er brukt, så vedtaket har i hovedsak uttømt virkningen (#446). Hjemmelsteksten nevner ikke delen, og derfor slo END-regelen ikke inn. Funnet skulle ikke stått som uavklart. Retting i regelen: når hjemmelen er en endringslov, les også vedtaksteksten («ikrafttredelse», «overgangsbestemmelser»), ikke bare hjemmelsteksten.",
+  "retting": {
+   "hjemmelsstatus": [
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2001/06/15/43/nor",
+     "status": "ukjent (END: endringslovens egen ikrafttredelsesdel, ikke fulgt til LOV-1997-06-19-79)"
+    }
+   ],
+   "pastand": "LOV-2001-06-15-43 er en endringslov. Vedtaket gjelder endringslovens egen myndighet til å bestemme ikrafttredelse og gi overgangsbestemmelser. Den er ikke opphevet ved at verdipapirhandelloven 1997 ble opphevet, og virkningen er trolig uttømt (#446)."
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/DEL/forskrift/2001-06-15-656",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "hjemmelsstatus i regelide_501b: fulgt_eli = lov/1997/06/19/79",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "docs/33 §5.21, PR 4 punkt 3 (endringslovens egne deler)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "LOV-2001-06-15-43",
+    "funksjon": "ikke_funnet"
+   }
+  ],
+  "klasse": "feil",
+  "feilarsak": "tekstlesingen"
+ },
+ {
+  "id": "N06",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Ikrafttredelse av sparebankloven og forretningsbankloven 1961 (uttømt) og delegering av en rekke avgjørelser til Finans- og tolldepartementet. Begge lovene er opphevet ved finansforetaksloven, og § 23-2 andre ledd viderefører «forskrifter». Om delegeringen følger med, er et reelt spørsmål. Rollen er NULL (hjemlene §§ 60 og 44 kommer fra Lovdatas basedOn), og påstanden sier at rollen ikke er vurdert. Lovdata viser ingen oppheving. Ikke kontrollert: hva § 60 og § 44 i 1961-lovene gjaldt. Er det ikrafttredelsesbestemmelser, har delegeringsdelen en annen hjemmel, men samlet status blir fortsatt uavklart.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/DEL/forskrift/1961-09-22-8559",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "LOV-2015-04-10-17 § 23-2 andre ledd (sitatet i kortet)",
+    "funksjon": "direkte_hjemmel"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "N07",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Delegering av Kongens myndighet etter ny § 9 a i sjødyktighetsloven 1903 til Nærings- og handelsdepartementet. Skipssikkerhetsloven § 73 første ledd viderefører «forskrifter». Om delegeringen dekkes, er et reelt spørsmål. Lovdata viser ingen oppheving. Korpuset har en videredelegering til Sjøfartsdirektoratet som bygger på dette vedtaket (DEL/forskrift/1984-06-06-4278). Den bør få samme svar.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/DEL/forskrift/1984-05-25-1156",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "DEL/forskrift/1984-06-06-4278 (korpus)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "LOV-2007-02-16-9 § 73 første ledd (sitatet i kortet)",
+    "funksjon": "direkte_hjemmel"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "N08",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Delegering til Direktoratet for arbeidstilsynet: myndighet til å bestemme at forskriften om eksplosjonsfarlige atmosfærer skal gjelde for virksomheter uten arbeidstakere. Arbeidsmiljøloven 2005 § 20-2 første ledd viderefører «forskrifter». Om den dekker delegeringen, er et reelt spørsmål. Kompetanseleddet (kgl.res. 1992 nr. 590) er aktivt, men teller ikke når det finnes en materiell premiss (docs/33 §5.20 punkt 1). [slutning] Myndigheten ble trolig brukt i 2003, så virkningen kan være uttømt. Det dekkes av premissmangelen #446. Lovdata viser ingen oppheving.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/DEL/forskrift/2003-06-26-886",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "LOV-2005-06-17-62 § 20-2 første ledd (sitatet i kortet)",
+    "funksjon": "direkte_hjemmel"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "N09",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Uavklart er ikke det beste svaret her. Vedtaket delegerer myndighet til å begjære påtale på statens vegne etter straffeloven 1902 § 79 fjerde ledd. Straffeloven 2005 har ingen slik ordning. Straffeprosessloven § 62 a første ledd sier: «Den offentlige påtalemyndighet skal forfølge straffbare handlinger når ikke annet er bestemt ved lov.» [slutning] Det finnes ingen tilsvarende ordning der et statlig organ begjærer påtale. Myndigheten som er delegert, finnes da ikke lenger. Om § 411 første ledd («Forskrifter gitt i medhold av straffeloven 1902») dekker delegeringer, er derfor ikke et reelt spørsmål: selv om den gjorde det, er det ingen myndighet å utøve. Riktig undertype er hjemmel opphevet. Regelen kan ikke gjøre den fortolkningen, og funnet står uansett. Derfor er alvoret lavt. Forskjellen fra viltlovvedtakene i måling 3 (E09–E11) er at myndigheten der finnes i den nye loven, og det er gitt nye delegeringer. Her er myndigheten borte. Kap. II (opphevingen av 2012 nr. 850) har uttømt virkningen.",
+  "retting": {
+   "tittel": "Hjemmel opphevet, videreføring ikke funnet: Delegering til Kartverket etter straffeloven 1902 § 79 (FOR-2014-04-11-541)"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/DEL/forskrift/2014-04-11-541",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "LOV-1981-05-22-25 § 62 a første ledd (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "LOV-2005-05-20-28 § 411 første ledd (sitatet i kortet)",
+    "funksjon": "direkte_hjemmel"
+   }
+  ],
+  "klasse": "feil",
+  "feilarsak": "dekningen"
+ },
+ {
+  "id": "N10",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Delegering av Kongens myndighet etter arbeidstidsloven for skip § 15 første ledd andre punktum til Nærings- og handelsdepartementet. Skipssikkerhetsloven § 73 første ledd viderefører «forskrifter». Om delegeringen dekkes, er et reelt spørsmål. Lovdata viser ingen oppheving. Korpuset har en videredelegering til Sjøfartsdirektoratet som bygger på dette vedtaket (DEL/forskrift/2002-07-01-967). Den bør få samme svar.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/DEL/forskrift/2002-06-28-658",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "DEL/forskrift/2002-07-01-967 (korpus)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "LOV-2007-02-16-9 § 73 første ledd (sitatet i kortet)",
+    "funksjon": "direkte_hjemmel"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "N11",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Delegering til Post- og teletilsynet (nummerplanene E 210 og E 215, og vederlag etter § 12-2). Ekomloven 2024 § 18-2 første ledd nevner «enkeltvedtak og forskrift», ikke delegeringer. Om den dekker vedtaket, er et reelt spørsmål. Kompetanseleddet kgl.res. 2003 nr. 881 er opphevet (ved 2013 nr. 454). Et kompetanseledd teller ikke når det finnes en materiell premiss, og det er riktig etter docs/33 §5.20. Lovdata viser ingen oppheving, bare en rettelse i 2024.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/DEL/forskrift/2004-02-16-427",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "LOV-2024-12-13-76 § 18-2 første ledd (sitatet i kortet)",
+    "funksjon": "direkte_hjemmel"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "N12",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Delegering til Post- og teletilsynet om å fastsette datalagringsforskriften etter ekomloven 2003 §§ 2-7 til 2-9. Ekomloven 2024 § 18-2 første ledd nevner ikke delegeringer. Om den dekker vedtaket, er et reelt spørsmål. Lovdata viser ingen oppheving. Ikke kontrollert: om datalagringsforskriften noen gang ble fastsatt, og om § 2-7 a ble opphevet før 2024. Ble den aldri fastsatt og § 2-7 a opphevet, er vedtaket uten gjenstand, som N09.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/DEL/forskrift/2013-05-13-472",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "LOV-2024-12-13-76 § 18-2 første ledd (sitatet i kortet)",
+    "funksjon": "direkte_hjemmel"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "N13",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Instruks til Statens dyrehelsetilsyn – distriktsveterinæren. Matloven § 36 andre ledd nevner «forskrift eller enkeltvedtak», ikke instruks, så uavklart er riktig. To merknader endrer ikke klassen: (1) Kompetanseleddet, forskrift 1998 nr. 1484, er aktivt og har nå matloven som hjemmel (hjemmelsstatus i regelide_501b). Det trekker mot at instruksen fortsatt har grunnlag, men regelen veier ikke et kompetanseledd når det finnes en materiell premiss. (2) Påstanden sier at et vedtak uten overgangsregel «i utgangspunktet» er uten rettslig virkning. Det passer dårlig på en instruks, som bygger på instruksjonsmyndigheten og ikke bare på loven [slutning]. Adressaten (Statens dyrehelsetilsyn) finnes ikke lenger. Lovdata viser ingen oppheving.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/INS/forskrift/2001-02-01-1702",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "SF/forskrift/1998-12-31-1484 (korpus, aktiv)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "LOV-2003-12-19-124 § 36 andre ledd (sitatet i kortet)",
+    "funksjon": "direkte_hjemmel"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "N14",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Vedtaket er klart dekket. Det gir Lovisenberg diakonale høgskole status som høgskole med fullmakter etter § 3-3 annet ledd. Det er en avgjørelse om rettighetene til en bestemt institusjon, altså et enkeltvedtak etter fvl. § 2 første ledd b [slutning]. Universitets- og høyskoleloven 2024 § 17-3 første ledd sier: «Forskrifter og enkeltvedtak som er fastsatt med hjemmel i regler som blir opphevet … gjelder til departementet fastsetter noe annet.» Den dekker vedtaket, enten det regnes som forskrift eller enkeltvedtak. Dekningen «dokumenttype_ikke_nevnt» kommer av at regelen leser typen ut fra basen (INS = instruks), ikke ut fra vedtaket. Samlet status skal være videreført, og funnet skal ikke stå. Trolig gjelder det samme alle sju uhl-vedtakene i INS blant funnene (2007 nr. 304, 2009 nr. 1428, 2010 nr. 1470, 2011 nr. 93, 2011 nr. 649, 2011 nr. 650, 2012 nr. 125). Retting: når overgangsregelen nevner både forskrifter og enkeltvedtak, skal dekningen være «dekket» for vedtak i SF og INS som ikke er delegeringer eller instrukser.",
+  "retting": {
+   "hjemmelsstatus": [
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2005/04/01/15/nor/§1-2",
+     "videreforing_dekning": "dekket"
+    }
+   ]
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/INS/forskrift/2011-06-24-650",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "LOV-2024-03-08-9 § 17-3 første ledd (sitatet i kortet)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "forvaltningsloven § 2 første ledd b",
+    "funksjon": "forutsatt_kilde"
+   }
+  ],
+  "klasse": "feil",
+  "feilarsak": "dekningen"
+ },
+ {
+  "id": "N15",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Vedtaket er selv opphevet. Lovdata (INSO, ajourført versjon) viser instruksen som «Opphevet» ved forskrift 20. mai 2022 nr. 874. Den forskriften er ikke i korpus (søkt i regelide_501b). Korpuset har bare den kunngjorte versjonen. Påstanden har premissmangelen «kunngjort versjon, gjeldende status ikke kontrollert», som peker på nettopp dette. Det demper feilen, men funnet skal ikke stå. Det er samme populasjonsfeil som LTI-feilene i måling 1.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/forskrift/2004-06-21-921 (INSO: «Opphevet ved forskrift 20 mai 2022 nr. 874»)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FOR-2022-05-20-874 (ikke i korpus)",
+    "funksjon": "ikke_funnet"
+   }
+  ],
+  "klasse": "feil",
+  "feilarsak": "populasjonen"
+ },
+ {
+  "id": "N16",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Vedtaket er klart dekket. «Tillatelse for Posten Norge BA til å utgi og godta bruk av frimerker …» er en tillatelse til en bestemt virksomhet, altså et enkeltvedtak etter fvl. § 2 første ledd b [slutning], selv om Lovdata har det i SF. Postloven 2015 § 57 fjerde ledd sier: «Enkeltvedtak med hjemmel i lov 29. november 1996 nr. 73 … som er i kraft ved denne lovs ikrafttredelse, skal fortsatt gjelde.» Tillatelsen gjelder «inntil videre», og Lovdata viser ingen oppheving. Dekningen «dokumenttype_ikke_nevnt» kommer av at regelen leser SF som forskrift. Samlet status skal være videreført, og funnet skal ikke stå. Retting: når overgangsregelen bare nevner enkeltvedtak, må vedtaket leses (tillatelse, godkjenning eller status til en navngitt part). Basen alene kan ikke avgjøre det.",
+  "retting": {
+   "hjemmelsstatus": [
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1996/11/29/73/nor/§7",
+     "videreforing_dekning": "dekket"
+    }
+   ]
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/SF/forskrift/2001-08-31-1074",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "LOV-2015-09-04-91 § 57 fjerde ledd (sitatet i kortet)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "forvaltningsloven § 2 første ledd b",
+    "funksjon": "forutsatt_kilde"
+   }
+  ],
+  "klasse": "feil",
+  "feilarsak": "dekningen"
+ }
+]
