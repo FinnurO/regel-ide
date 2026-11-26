@@ -3239,6 +3239,16 @@ beholdes (valg D).
 
 Den nye påstanden er skrevet på 245 av #472-funnene (`oppfrisk`).
 
+[Merknad, kjørt på nytt 2026-11-26 etter at master fikk #506 (#472 PR 5) og #510, i en ny kopi av den delte basen] Utgangspunktet var 416 oppdagede #472-funn (411 og 5 gjenåpnede) og 619 #429-funn. Vedtaksformen ga de samme tallene som over. Endringene etter kjøringen:
+- **#472:** 416 → **404** oppdagede funn: 17 forklart bort, 5 nye. Utelatt som uttømt virkning: 18. Premissmangelen for #446 står på 5 funn og «Mål utenfor korpus» på 14. Uten noen #446-mangel: 385. De 5 gjenåpnede er ikke rørt.
+- **#429:** 619 → **593** foreslåtte par: 33 forklart bort, 7 nye. Uendret fra kjøringen over.
+- **Avvikene skyldes #506:**
+  - Grunnlaget i #472 er større (264 → 416, mest nye «uavklart»).
+  - To nye kandidater står i kilder med ukjent form (mangelen for #446 gikk fra 3 til 5).
+  - Tre rene kilder med mål utenfor korpus er ikke lenger kandidater (17 → 14).
+  - Antallet som forklares bort, nye funn, utelatte, klassene og #429 er de samme som over.
+- En ny kjøring ga 0 i alle steg.
+
 **Ikke i PR 2:**
 - Påstanden i #429 sier fortsatt «Om den bare er et endringsvedtak, er ikke avklart». Den bruker ikke klassen.
 - LTI/forskrift/2005-02-18-167 («… gjøres det endringer …») er blandet etter regelen. Ett av de sju nye #429-funnene står der, og bør ses på i
