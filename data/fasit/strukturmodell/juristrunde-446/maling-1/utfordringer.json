@@ -1,0 +1,797 @@
+[
+ {
+  "id": "M01",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "RENT ELLER IKKE: feil. Dette er et nytt, selvstendig delegeringsvedtak, ikke en endring. Innledningen sier at 2013-vedtaket «endres», men resten er hele den nye delegeringen, og siste ledd sier: «Delegeringsvedtaket trer i kraft straks. Fra samme tidspunkt oppheves delegeringsvedtak 27. november 2013 nr. 1386.» Målet oppheves av vedtaket selv, så den «siterte teksten» kan ikke være innarbeidet noe sted; den lever bare her. Hodefeltet «Endrer» er det eneste signalet regelen har (lag A). Samme form i LTI/forskrift/2013-11-27-1386 og LTI/forskrift/2019-10-31-1455 er av regelen selv klassifisert som selvstendig, så klassifiseringen er også inkonsistent. Middels og ikke høy fordi vedtaket selv er opphevet av LTI/forskrift/2018-12-20-2220 (at det står som gjeldende i korpus, er en annen sak enn #446). [slutning] ikraft «ja» er heller ikke riktig i dag, men uten betydning når klassen er selvstendig.",
+  "retting": {
+   "klasse": "selvstendig"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": "bygget",
+  "kilder": [
+   {
+    "ref": "Lovdatas rå HTML i korpuset: LTI/forskrift/2016-06-27-824",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "M02",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Rent: bare navneendringer i oppregnede forskrifter og ikrafttredelse.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Lovdatas rå HTML i korpuset: LTI/forskrift/2002-02-01-127",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "M03",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "hoy",
+  "innvending": "RENT ELLER IKKE: feil, og dette er den gjeldende delegeringen av myndighet etter energiloven til NVE. Del I sier at delegeringsvedtak 2019 nr. 1455 «endres», gir så hele den nye delegeringen, og del II sier: «Delegeringsvedtaket trer i kraft 1. juli 2025. Fra samme tidspunkt oppheves delegeringsvedtak 31. oktober 2019 nr. 1455.» Innholdet kan ikke være innarbeidet i et vedtak som oppheves samtidig; det står bare i dette dokumentet (konsolidert DEL-versjon). Med uttømt virkning = true utelater #472 og #429 den gjeldende delegeringen, der et funn om opphevet hjemmel eller et utgått aktørnavn ville være et reelt funn. Motsatt rettslig resultat på en gjeldende kilde, derfor høy. Regelen leser «endres» i første ledd som endringsinstruks og alt etter som sitert tekst; hodefeltet «Endrer: forskrift/2019-10-31-1455» er eneste signal. Retting i regelen: når kilden selv opphever målet for «endringen» («Fra samme tidspunkt oppheves …»), eller instruksen er «Nytt vedtak … skal lyde», er teksten eget innhold (erstatningsvedtak), ikke sitert tekst.",
+  "retting": {
+   "klasse": "selvstendig"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": "bygget",
+  "kilder": [
+   {
+    "ref": "Lovdatas rå HTML i korpuset: DEL/forskrift/2025-06-26-1340",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/DEL/forskrift/2025-06-26-1340",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "LTI/forskrift/2019-10-31-1455 i korpus (samme form, klassifisert selvstendig av samme regel)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "M04",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Rent: «skal lyde»-instrukser i fire andre instrukser og ikrafttredelse. Bare hodesignal, men teksten er entydig.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Lovdatas rå HTML i korpuset: LTI/forskrift/2021-12-03-3363",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "M05",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "RENT ELLER IKKE: feil, samme mønster som M01 og M03: «endres departementets delegeringsvedtak … av 27. juni 2016 nr. 824», deretter hele den nye delegeringen og «Fra samme tidspunkt oppheves delegeringsvedtak 27. juni 2016 nr. 824.» Erstatningsvedtak med eget innhold, ikke endringsvedtak. Middels fordi vedtaket selv senere er erstattet av 2019 nr. 1455.",
+  "retting": {
+   "klasse": "selvstendig"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": "bygget",
+  "kilder": [
+   {
+    "ref": "Lovdatas rå HTML i korpuset: LTI/forskrift/2018-12-20-2220",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "M06",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Rent etter hele teksten (rå HTML lest til slutt: bare «§ x skal lyde» og del II ikrafttredelse 1.10.2026). Merknad: tittelen «Forskrift endring i forskrift …» har endringsform, men tittelsignalet ble «endring=nei» fordi «om» mangler. Ingen virkning her, men tittelmønsteret bør tåle det.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Lovdatas rå HTML i korpuset: SF/forskrift/2026-05-19-1415",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "M07",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Rent etter hele teksten (lest til slutt: §§ 1–12 «skal lyde», del II «Instruksen trer i kraft straks»).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Lovdatas rå HTML i korpuset: LTI/forskrift/2021-06-18-2046",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "M08",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "RENT ELLER IKKE: feil. Kgl.res. med «1. Nytt vedtak om delegering av myndighet etter naturmangfoldloven skal lyde:» og «2. Fra samme tidspunkt oppheves forskrift 9. oktober 2015 nr. 1178». Det er et nytt vedtak som erstatter 2015-vedtaket, ikke en endring av det; innholdet lever bare her. Regelen har i tillegg merket punkt 2 (oppheving) og punkt 3 (ikrafttredelse) som sitert tekst. Middels fordi vedtaket senere er erstattet (av 2021 nr. 65, deretter DEL/forskrift/2025-02-28-320). Samme feil finnes utenfor utvalget i LTI/forskrift/2021-01-08-65 (rent_endringsvedtak), mens forgjengeren 2015-1178 og etterfølgeren 2025-320 med samme form er klassifisert som selvstendig.",
+  "retting": {
+   "klasse": "selvstendig"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": "bygget",
+  "kilder": [
+   {
+    "ref": "Lovdatas rå HTML i korpuset: LTI/forskrift/2018-06-15-891",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "DEL/forskrift/2025-02-28-320 i korpus",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "M09",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Rent. Siste avsnitt («Forskrifter som fastsettes med hjemmel i ovennevnte forskrifter …») står i del I, inne i det nye vedlegget til vedtak 2001 nr. 4686, og er ikke eget innhold.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Lovdatas rå HTML i korpuset: LTI/forskrift/2018-10-16-1576",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "M10",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": null,
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Lovdatas rå HTML i korpuset: LTI/forskrift/2015-11-27-1362",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "M11",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": null,
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Lovdatas rå HTML i korpuset: LTI/forskrift/2003-02-18-177",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "M12",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": null,
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Lovdatas rå HTML i korpuset: LTI/forskrift/2003-05-18-688",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "M13",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": null,
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Lovdatas rå HTML i korpuset: LTI/forskrift/2009-12-15-1522",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "M14",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": null,
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Lovdatas rå HTML i korpuset: LTI/forskrift/2014-03-03-244",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "M15",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": null,
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Lovdatas rå HTML i korpuset: LTI/forskrift/2007-12-20-1675",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "M16",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": null,
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Lovdatas rå HTML i korpuset: LTI/forskrift/2010-02-18-188",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "M17",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": null,
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Lovdatas rå HTML i korpuset: LTI/forskrift/2005-02-18-150",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "M18",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Klassen holder (lest til slutt: del I–III endringer, del IV «Loven trer i kraft fra det tidspunkt Kongen bestemmer»). Men ikraft er ikke ukjent: alle endringene er satt i kraft ved tre vedtak som ligger i korpus: LTI/forskrift/2008-10-17-1124 (fra 1.11.2008), LTI/forskrift/2010-03-19-407 (1.4.2010) og LTI/forskrift/2011-01-28-99 (§ 59a og § 462, straks). Til sammen dekker de alle endringene i del I–III. Riktig ikraft er ja, og uttømt virkning er true. Dette avgjør utelatelse: med NULL gir #472 og #429 funn (StandardIkkeKlassifisertGirFunn = true), med ja utelates kilden. D8 (ikraftsetting i korpus går foran LTI-hodet) har ikke slått inn her, trolig fordi titlene er «Delvis ikraftsetting av …» og dekningen må summeres.",
+  "retting": {
+   "ikraft_status": "ja"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Lovdatas rå HTML i korpuset: LTI/lov/2008-06-20-47",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "LTI/forskrift/2008-10-17-1124",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "LTI/forskrift/2010-03-19-407",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "LTI/forskrift/2011-01-28-99",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "M19",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": null,
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Lovdatas rå HTML i korpuset: LTI/forskrift/2019-12-20-1927",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "M20",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": null,
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Lovdatas rå HTML i korpuset: LTI/forskrift/2012-06-22-583",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "M21",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": null,
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Lovdatas rå HTML i korpuset: LTI/forskrift/2007-12-07-1370",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "M22",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": null,
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Lovdatas rå HTML i korpuset: LTI/forskrift/2010-02-22-194",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "M23",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": null,
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Lovdatas rå HTML i korpuset: LTI/forskrift/2009-02-11-156",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "M24",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": null,
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Lovdatas rå HTML i korpuset: LTI/forskrift/2009-02-11-159",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "M25",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": null,
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Lovdatas rå HTML i korpuset: LTI/forskrift/2002-12-04-1355",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "M26",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Rent. «settes ikke i kraft 1. februar 2012» endrer et ikrafttredelsesvedtak og har ikke eget innhold. Underklassen kunne like gjerne vært rent_ikrafttredelsesvedtak, men tittelen har endringsform, så valget er forsvarlig.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Lovdatas rå HTML i korpuset: DEL/forskrift/2012-01-27-69",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "M27",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Klassen holder. ikraft ukjent er forsvarlig («Departementet bestemmer», og jeg fant ikke noe ikraftsettingsvedtak). Merknad: målet DEL/forskrift/2024-12-20-3413 i korpus (hentet 2026-09-03) har fortsatt den gamle teksten i nr. 12. Det peker mot ikke_i_kraft, men er ikke bevis. NULL gir funn uansett.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Lovdatas rå HTML i korpuset: DEL/forskrift/2025-12-23-2896",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "M28",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": null,
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Lovdatas rå HTML i korpuset: DEL/forskrift/1997-01-17-24",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "M29",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "RENT ELLER IKKE: feil. Tittelen er «Ikraftsetjing og overgangsreglar …», og punkt 2 er en overgangsregel: «For skolar som er godkjende etter … privatskulelova, gjeld § 1-1 første ledd frå 1. oktober 2005. § 2-1 fjerde ledd og § 2-2 femte ledd gjeld frå 1. januar 2006.» Det er nettopp unntaket i klassedefinisjonen («for saker/søknader/personer …» er eget innhold, ikke ikrafttredelse). Punktet er også endret senere («Endra ved forskrift 20 mai 2005 nr. 437»), som viser at det er levende innhold i dette dokumentet. Kilden er av samme type som eksempelet på blandet i definisjonen (DEL/forskrift/1999-06-25-711). [slutning] Overgangsregelen har løpt ut (1.1.2006), så den praktiske virkningen er liten, men etter de avgjorte reglene er blandet aldri uttømt.",
+  "retting": {
+   "klasse": "blandet"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": "bygget",
+  "kilder": [
+   {
+    "ref": "Lovdatas rå HTML i korpuset: DEL/forskrift/2003-07-04-896",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "M30",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Rent: meddelelse om at loven trer i kraft, jf. loven § 32 og kgl.res. 15. juni 2018 nr. 875. Ingen egen disposisjon.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Lovdatas rå HTML i korpuset: DEL/forskrift/2018-07-17-1195",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "M31",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": null,
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Lovdatas rå HTML i korpuset: DEL/forskrift/1997-01-17-25",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "M32",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Rent. Merknad: hodet sier «I kraft fra 2026-09-01», teksten sier 15. september 2026. Begge datoene er passert, så ikraft ja holder.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Lovdatas rå HTML i korpuset: SF/forskrift/2025-06-30-1375",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "M33",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Rent etter hele teksten (del II og III opphever to andre dokumenter, del IV ikrafttredelse 1.1.2026).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Lovdatas rå HTML i korpuset: SF/forskrift/2025-12-01-2374",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "M34",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": null,
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Lovdatas rå HTML i korpuset: SF/forskrift/2026-08-26-1683",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "M35",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Rent etter hele teksten. ikraft delvis er riktig (del II: deler straks; § 6 første–sjette ledd, § 6a, § 10 første ledd og § 11 første ledd fra 1.1.2028), og dermed er uttømt virkning false.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Lovdatas rå HTML i korpuset: SF/forskrift/2026-02-03-128",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "M36",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": null,
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Lovdatas rå HTML i korpuset: SF/forskrift/2026-01-21-71",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "M37",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": null,
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Lovdatas rå HTML i korpuset: SF/forskrift/2026-05-07-763",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "M38",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Klassen holder (lest til slutt: del I–III endringer, del IV ikrafttredelse). ikraft er ikke ukjent, men delvis: fotnoten sier «Fra 1 juni 2026 iflg. res. 13 mars 2026 nr. 400 for endringsloven del II (helsepersonelloven) §§ 29 og 29 b», og målene i korpus merker resten «(i kraft fra den tid Kongen bestemmer)» (23 steder i helseforskningsloven, 3 i helseregisterloven). Endrer ikke utelatelse (NULL og false gir begge funn), bare kunnskapsstatusen.",
+  "retting": {
+   "ikraft_status": "delvis"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Lovdatas rå HTML i korpuset: NL/lov/2025-06-20-71",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "NL/lov/2008-06-20-44 og NL/lov/2014-06-20-43 i korpus (endringsmerknader)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "M39",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Underklassen er feil: loven har bare én disposisjon, «Lov 21. desember 1990 nr. 72 … oppheves», og ikrafttredelse. Det er et rent_opphevingsvedtak; regelen merket opphevingssetningen som sitert tekst. ikraft er heller ikke ukjent: målet NL/lov/1990-12-21-72 står som gjeldende i korpus, sist endret med virkning 2024-04-01, så opphevingen er sikkert ikke i kraft (ikke_i_kraft). Endrer ikke utelatelse (NULL blir false, og begge gir funn).",
+  "retting": {
+   "klasse": "rent_opphevingsvedtak",
+   "ikraft_status": "ikke_i_kraft"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": "bygget",
+  "kilder": [
+   {
+    "ref": "Lovdatas rå HTML i korpuset: NL/lov/2023-12-20-96",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "NL/lov/1990-12-21-72 i korpus",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "M40",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "RENT ELLER IKKE: feil. I rå HTML står «gjøres følgende endringer: – – –» og deretter overskriften «Overgangsregel til eigedomsskattelova §§ 3 og 4:» med to ledd. «– – –» er Lovdatas markering for utelatte endringer. Overgangsregelen er ikke sitert tekst som settes inn i eigedomsskattelova, men eget innhold i endringsloven. Den er også selv endret senere («Endret ved lov 22 juni 2018 nr. 75»). Tittelen har endringsform, så riktig klasse er blandet. Regelen så ikke overskriften (overskrifter telles ikke) og lot sitatspennet fortsette etter «– – –». [slutning] Overgangsregelen gjaldt til og med skatteåret 2024 og har løpt ut. Om blandet med utløpt eget innhold skal regnes som uttømt, er et eget spørsmål (se sammendraget), men etter dagens regel er svaret false.",
+  "retting": {
+   "klasse": "blandet"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": "bygget",
+  "kilder": [
+   {
+    "ref": "Lovdatas rå HTML i korpuset: NL/lov/2017-12-19-118",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/NL/lov/2017-12-19-118",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "M41",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Klassen holder. ikraft er delvis, ikke ukjent: fotnoten sier «Fra 3 april 2020 med unntak av endringene i § 26 og § 29, iflg. res. 3 april 2020 nr. 576», og vegtrafikkloven i korpus merker fortsatt «Endres ved lov 3 april 2020 nr. 18 (i kraft fra den til Kongen bestemmer)». Lovdata (lest i dag) viser ingen senere ikraftsetting. Endrer ikke utelatelse.",
+  "retting": {
+   "ikraft_status": "delvis"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Lovdatas rå HTML i korpuset: NL/lov/2020-04-03-18",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/NL/lov/2020-04-03-18",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "NL/lov/1965-06-18-4 i korpus",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "M42",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Rent. ikke_i_kraft er riktig (fotnote: fra 1. januar 2027 iflg. res. 20. juni 2025 nr. 1143), så uttømt virkning er false.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Lovdatas rå HTML i korpuset: NL/lov/2025-06-20-75",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "M43",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Klassen holder. ikraft er delvis, ikke ukjent: fotnotene setter deler i kraft 1.7.2023 og § 11-4 14.6.2024, mens sikkerhetsloven i korpus merker § 10-1, ny § 10-4 og § 11-3 «(i kraft fra den tid Kongen bestemmer)». Lovdata (lest i dag) viser ingen senere ikraftsetting. Endrer ikke utelatelse.",
+  "retting": {
+   "ikraft_status": "delvis"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Lovdatas rå HTML i korpuset: NL/lov/2023-06-20-77",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/NL/lov/2023-06-20-77",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "NL/lov/2018-06-01-24 i korpus",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "M44",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Rent: kunngjør bare at EØS-komiteens beslutning trer i kraft.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Lovdatas rå HTML i korpuset: STV/forskrift/1994-06-14-505",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "M45",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Rent etter hele teksten (lest til slutt: del I endringer i forretningsordenen, del II ikrafttredelse 1.10.2021).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Lovdatas rå HTML i korpuset: STV/forskrift/2021-06-17-2109",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ }
+]

@@ -170,6 +170,23 @@ public class HjemmelOpphevetFunnregelTests(EmbeddedPostgresFixture fixture)
     }
 
     [Fact]
+    public async Task Uttomt_virkning_med_mal_utenfor_korpus_gir_funn_med_premissmangel_446_AK7()
+    {
+        await using var db = fixture.NyDbContext();
+        var k = new Korpus(db);
+        var ren = await ByggS04Async(k, rentEndringsvedtak: true);
+        // Målet i «Endrer» er bare en referanse-stub: teksten der kan ikke kontrolleres.
+        await k.EndrerAsync(ren, await k.StubAsync("forskrift", new(2010, 1, 1), Nr()));
+
+        var r = await KjorAsync(db, ren, skriv: true, nullGirFunn: true);
+        Assert.Equal((0, 1, 1), (r.UtelattRentEndringsvedtak, r.RentMenMalUtenforKorpus, r.Foreslatt));
+        var funn = (await FunnAsync(db, ren))!;
+        var mangler = await new FunnTjeneste(db).PremissmanglerAsync(funn);
+        Assert.Contains(mangler, m => m.StartsWith(FunnTjeneste.MalUtenforKorpusMangelStart));
+        Assert.DoesNotContain(mangler, m => m.StartsWith(FunnTjeneste.UttomtVirkningMangelStart));
+    }
+
+    [Fact]
     public async Task Uttomt_virkning_Gir_et_rent_endringsvedtak_eller_en_uklassifisert_forskrift_funn()
     {
         await using var db = fixture.NyDbContext();

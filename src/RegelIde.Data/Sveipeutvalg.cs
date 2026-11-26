@@ -9,7 +9,7 @@ namespace RegelIde.Data;
 /// eller endrer en annen kilde, og treffene der er dubletter av treffene i kilden det gjelder.
 /// <para>
 /// Regelen er smal med vilje: en kilde hoppes over bare når ALLE disposisjonstypene den har er <c>ikrafttredelse</c>, eller når den er
-/// markert som rent endringsvedtak (<see cref="RettskildeEntitet.RentEndringsvedtak"/>, satt av <see cref="DisposisjonstypeTjeneste"/>). «Ikrafttredelse av lov … Delegering av
+/// har en ren vedtaksform (<see cref="RettskildeEntitet.Vedtaksform"/>, satt av <see cref="VedtaksformTjeneste"/>, #446). «Ikrafttredelse av lov … Delegering av
 /// myndighet» er også et delegeringsvedtak og blir med. En uklassifisert kilde blir alltid med — uklassifisert er ikke det samme som
 /// ikrafttredelse (§8). Velger en kaller én bestemt rettskilde, gjelder ikke filteret: det eksplisitte valget vinner.
 /// </para>
@@ -29,8 +29,11 @@ public static class Sveipeutvalg
 
         var utelatt = perKilde.Where(p => p.Value.All(t => t == Disposisjonstyper.Ikrafttredelse)).Select(p => p.Key).ToHashSet();
 
-        // [ENDRET, issue #395 avgjørelse 6] Rene endringsvedtak leses av markøren (rettskilder.rent_endringsvedtak), ikke av tittelen.
-        foreach (var id in await db.Rettskilder.Where(r => r.RentEndringsvedtak == true).Select(r => r.Id).ToListAsync(ct)) utelatt.Add(id);
+        // [ENDRET, #446 PR 2, prosjekteierens avgjørelse 2026-11-25] Rene vedtak leses av FORMEN (rettskilder.vedtaksform), ikke av markøren
+        // rent_endringsvedtak: den betyr nå «uttømt virkning» og er false for et rent vedtak som ikke er i kraft, men et slikt vedtak har heller
+        // ingen egne begreper. Blandet, selvstendig og ukjent blir med.
+        var rene = Vedtaksform.Rene.ToList();
+        foreach (var id in await db.Rettskilder.Where(r => r.Vedtaksform != null && rene.Contains(r.Vedtaksform)).Select(r => r.Id).ToListAsync(ct)) utelatt.Add(id);
         return utelatt;
     }
 }

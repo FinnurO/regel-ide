@@ -793,8 +793,20 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.Kildeform).HasColumnName("kildeform");
             e.Property(x => x.RentEndringsvedtak).HasColumnName("rent_endringsvedtak"); // [Ny, issue #395, avgjørelse 6]
             e.Property(x => x.RentEndringsvedtakGrunnlag).HasColumnName("rent_endringsvedtak_grunnlag");
-            e.ToTable("rettskilder", t => t.HasCheckConstraint(
-                "ck_rettskilder_kildeform", "kildeform IS NULL OR kildeform IN ('konsolidert', 'kunngjort')"));
+            // [Ny, issue #446 PR 1] Vedtaksformen og ikraftstatusen. Se RettskildeEntitet.Vedtaksform og Vedtaksform.
+            e.Property(x => x.Vedtaksform).HasColumnName("vedtaksform");
+            e.Property(x => x.VedtaksformGrunnlag).HasColumnName("vedtaksform_grunnlag");
+            e.Property(x => x.VedtaksformKunnskapsstatus).HasColumnName("vedtaksform_kunnskapsstatus");
+            e.Property(x => x.VedtaksformRegelversjon).HasColumnName("vedtaksform_regelversjon");
+            e.Property(x => x.IkraftStatus).HasColumnName("ikraft_status");
+            e.Property(x => x.IkraftStatusGrunnlag).HasColumnName("ikraft_status_grunnlag");
+            e.ToTable("rettskilder", t =>
+            {
+                t.HasCheckConstraint("ck_rettskilder_kildeform", "kildeform IS NULL OR kildeform IN ('konsolidert', 'kunngjort')");
+                t.HasCheckConstraint("ck_rettskilder_vedtaksform", "vedtaksform IS NULL OR vedtaksform IN ('rent_endringsvedtak', "
+                    + "'rent_ikrafttredelsesvedtak', 'rent_opphevingsvedtak', 'blandet', 'selvstendig', 'ukjent')");
+                t.HasCheckConstraint("ck_rettskilder_ikraft_status", "ikraft_status IS NULL OR ikraft_status IN ('ja', 'delvis', 'ikke_i_kraft', 'utlopt', 'ukjent')");
+            });
             // [Ny, fastsatt-av-runden, 2026-09-10, issue #215] Fastsetteren. Se entitetskommentaren
             // for hvorfor dette IKKE er virksomhet_id, og hvorfor etat-feltet ikke kan brukes.
             e.Property(x => x.FastsattAv).HasColumnName("fastsatt_av");
@@ -857,7 +869,9 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
 
         b.Entity<RettskildeNodeEntitet>(e =>
         {
-            e.ToTable("rettskilde_noder");
+            // [ENDRET, issue #446 PR 1] + CHECK for endringsrollen.
+            e.ToTable("rettskilde_noder", t => t.HasCheckConstraint("ck_rettskilde_noder_endringsrolle",
+                "endringsrolle IS NULL OR endringsrolle IN ('endringsinstruks', 'sitert_tekst', 'ikrafttredelse', 'oppheving')"));
             e.HasKey(x => x.Id).HasName("rettskilde_noder_pkey");
             e.Property(x => x.RettskildeId).HasColumnName("rettskilde_id");
             e.Property(x => x.Eid).HasColumnName("eid");
@@ -874,6 +888,8 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.OpphevetDato).HasColumnName("opphevet_dato");
             // [Ny, issue #419] Merknad/veiledning i forskriftsteksten — se Merknadsnoder.
             e.Property(x => x.ErMerknad).HasColumnName("er_merknad").HasDefaultValue(false);
+            // [Ny, issue #446 PR 1] Rollen i et endringsvedtak — se RettskildeNodeEntitet.Endringsrolle.
+            e.Property(x => x.Endringsrolle).HasColumnName("endringsrolle");
             e.Property(x => x.Sorteringsrekkefolge).HasColumnName("sorteringsrekkefolge");
             e.Property(x => x.Versjon).HasColumnName("versjon").HasDefaultValue(1);
             e.Property(x => x.Entitetsstatus).HasColumnName("entitetsstatus").HasDefaultValue("gjeldende");

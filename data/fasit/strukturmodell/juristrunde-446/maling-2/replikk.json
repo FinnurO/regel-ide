@@ -1,0 +1,44 @@
+[
+ {
+  "id": "N34",
+  "replikk": "godtar",
+  "tekst": "Godtar at ukjent (NULL) beholdes. Utelatelsen endres ikke, siden både NULL og false gir funn, og målets endringsmerknad («Endres ved forskrift 20 mai 2024 nr. 1009 (i kraft fra den tid Miljødirektoratet bestemmer)») leses i dag ikke deterministisk. Kjent begrensning i docs/33 bør si at ukjent her betyr at kilden ikke er lest, ikke at kilden er uklar.",
+  "kilder": [{"ref": "SF/forskrift/2021-03-15-797, endringsmerknad (korpus)", "funksjon": "direkte_hjemmel"}]
+ },
+ {
+  "id": "N37",
+  "replikk": "godtar",
+  "tekst": "Godtar ukjent av samme grunn: ingen virkning på utelatelsen, og en sikker lesing krever endringsmerknaden i målet, som ikke leses i dag.",
+  "kilder": [{"ref": "SF/forskrift/2021-03-15-798, endringsmerknad (korpus)", "funksjon": "direkte_hjemmel"}]
+ },
+ {
+  "id": "N38",
+  "replikk": "godtar",
+  "tekst": "Godtar ukjent i denne saken. Til en eventuell senere sak: fotnoten «Fra … iflg. res. … med unntak av …» står i kildens egen HTML og har fast form. Den er derfor den billigste sikre kilden til delvis.",
+  "kilder": [{"ref": "NL/lov/2026-03-06-8 del II fotnote 1", "funksjon": "direkte_hjemmel"}]
+ },
+ {
+  "id": "N39",
+  "replikk": "godtar",
+  "tekst": "Godtar ukjent: ingen virkning på utelatelsen. Lovdatas statusfelt «Ikke i kraft» finnes ikke i den rå HTML-en i korpuset, så det kan ikke leses derfra i dag.",
+  "kilder": [{"ref": "https://lovdata.no/dokument/NL/lov/2026-06-12-28", "funksjon": "direkte_hjemmel"}]
+ },
+ {
+  "id": "N42",
+  "replikk": "godtar",
+  "tekst": "Godtar ukjent i denne saken. Fotnoten («… med unntak av romertall I § 5-5 nytt tredje ledd») har samme faste form som i N38 og bør vurderes sammen med den hvis ikraft skal leses senere.",
+  "kilder": [{"ref": "NL/lov/2019-12-20-103 del III fotnote 1", "funksjon": "direkte_hjemmel"}]
+ },
+ {
+  "id": "N43",
+  "replikk": "godtar",
+  "tekst": "Godtar ukjent: ingen virkning på utelatelsen. Det sikre svaret (ikke i kraft) kommer bare fra Lovdatas statusfelt og målets merknader, og ingen av dem leses i dag.",
+  "kilder": [{"ref": "https://lovdata.no/dokument/NL/lov/2025-06-20-83", "funksjon": "direkte_hjemmel"}]
+ },
+ {
+  "id": "N44",
+  "replikk": "godtar",
+  "tekst": "Godtar ukjent: ingen virkning på utelatelsen. Statusen er bare kontrollert mot målets merknad i korpus, siden Lovdata-adressen ga 404.",
+  "kilder": [{"ref": "NL/lov/2018-06-01-24 § 8-16, endringsmerknad (korpus)", "funksjon": "direkte_hjemmel"}]
+ }
+]

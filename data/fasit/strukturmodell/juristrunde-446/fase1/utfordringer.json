@@ -1,0 +1,808 @@
+[
+ {
+  "id": "U01",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Klassen holder: bare endringsinstrukser, sitert ny tekst og ikrafttredelse. Men i_kraft er feil lest. «Kongen bestemmer» er feltet slik det ble kunngjort i LTI, og det er frosset der. Ikraftsettingen ligger i korpus: LTI/forskrift/2021-03-26-968 «Loven trer i kraft 1. april 2021.» Hele loven er altså i kraft, og i_kraft skal være ja. Feilen er konservativ (den gir funn i stedet for å utelate), men den får virkning når i_kraft blir et vilkår for å utelate (D2).",
+  "retting": {
+   "i_kraft": "ja"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/LTI/lov/2021-03-26-15",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "LTI/forskrift/2021-03-26-968 (i korpus)",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "U02",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Klassen holder. Del II («I følgende lover skal ‹friskolelova› erstattes med …» og en liste over mål) er en ren endringsinstruks, ikke eget innhold. i_kraft er lest av det frosne LTI-feltet. Ikraftsettingen er LTI/forskrift/2022-06-10-997 «Loven trer i kraft 15. juni 2022.», og den er i korpus. i_kraft skal være ja.",
+  "retting": {
+   "i_kraft": "ja"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/LTI/lov/2022-06-10-39",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "LTI/forskrift/2022-06-10-997 (i korpus)",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "U03",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Ren endring av delegeringsvedtak 2022-03-29-484 § 2 (nye nr. 11–15) og ikrafttredelse straks. Innholdet står i vedtaket som ble endret.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/LTI/forskrift/2025-03-11-414",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "U04",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Ren endring av forskrift 1963 nr. 2 del II punkt 17 (nye bokstaver f og g om gebyr), i kraft 1. april 2020.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/LTI/forskrift/2020-03-06-237",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "U05",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Endrer bare ikrafttredelsesdatoen i et opphevingsvedtak. Den siterte setningen «Endringen trer i kraft 1. november 2022» er sitert ny tekst (Q), ikke egen ikrafttredelse, og den er riktig lest. Begge vedtakene har uttømt virkningen. endrer_antall 2 påvirker ikke klassen.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/LTI/forskrift/2022-09-21-1619",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "U06",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Ren endring: kap. 4 og §§ 13–18 i forskrift 1979 nr. 8785 oppheves, som en endringsinstruks inne i endringsdelen. I kraft straks.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/LTI/forskrift/2003-01-31-124",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "U07",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Klassen og i_kraft = delvis er riktige. Del I (arbeidsmiljøloven) står som «– – –» fordi den er innarbeidet. Del II (folketrygdloven § 22-9) er ikke satt i kraft (korpus: «2026-07-01, Kongen bestemmer»). Vedtaket har derfor IKKE uttømt virkningen og skal ikke utelates før hele loven er i kraft (D2).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/NL/lov/2026-06-19-33",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "U08",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Bare ikraftsetting av et annet vedtak. Virkningen er uttømt fra 1. mars 2003.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/LTI/forskrift/2003-02-27-237",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "U09",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Bare ikraftsetting av avsnitt I–III i lov 1996 nr. 24 fra 1. januar 1997.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/DEL/forskrift/1996-12-13-1140",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "U10",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Fem ikraftsettinger. Unntakene for enkelte paragrafer er ikke eget innhold, for de paragrafene settes i kraft ved et annet vedtak. Dette vedtaket har uttømt virkningen.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/LTI/forskrift/2007-12-07-1371",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "U11",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "«Loven trer i kraft 1. juni 2014.» Rent ikraftsettingsvedtak.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/LTI/forskrift/2014-05-09-622",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "U12",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Klassen holder. i_kraft = ukjent er bare riktig etter teksten, der ikrafttredelsen er betinget av at protokollene trer i kraft for Norge. Vilkåret er oppfylt. Lovdata-fotnotene i atomenergiloven sier om lov 2007 nr. 37: «i kraft 1 jan 2022 iflg. meddelelse 31 jan 2022 nr. 145». Vedtakets eget Lovdata-hode sier fortsatt «Ikke i kraft», så hodet er utdatert. i_kraft bør være ja, med kunnskapsstatus eksternt_dokumentert. For ikraftsettingsvedtak er det målets ikrafttredelse som avgjør om virkningen er uttømt, ikke vedtakets eget I kraft-felt (D8). Meddelelsen er ikke i korpus.",
+  "retting": {
+   "i_kraft": "ja"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/DEL/forskrift/2007-06-15-626",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/NL/lov/1972-05-12-28 (fotnoter om lov 2007 nr. 37)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "Meddelelse 31. januar 2022 nr. 145",
+    "funksjon": "ikke_funnet"
+   }
+  ]
+ },
+ {
+  "id": "U13",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Opphever delegeringen 1994 nr. 87 «fra tidspunktet for vedtagelse». Ingen annen disposisjon.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/LTI/forskrift/2011-04-26-428",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "U14",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Opphever tre delegeringsvedtak fra 1. januar 2022.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/LTI/forskrift/2021-11-29-3354",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "U15",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Opphever et organiseringsvedtak (kgl.res. 1982 nr. 4071). Virkningen er uttømt.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/LTI/forskrift/2022-01-21-107",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "U16",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Opphever et delegeringsvedtak, i kraft straks.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/LTI/forskrift/2015-03-17-228",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "U17",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Ny bemyndigelse til Fiskeridepartementet og innskrenking av en eldre delegering. Dette er eget innhold med varig virkning, og kilden skal ikke utelates. Om den kalles blandet eller selvstendig, har ingen virkning i reglene (D6).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/DEL/forskrift/1985-07-12-1442",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "U18",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "«Forskrift om endring av landbruksfagskulane sin struktur …» har ikke endringsform i lovteknisk forstand. Den endrer ikke et annet dokument (Lovdata har ingen «Endrer»), men tar fem skoler ut av virkeområdet til en lov (hjemmel LOV-1964-05-15-2). Det er et selvstendig unntak med varig virkning, og klassen skal være selvstendig. Om kilden utelates, endres ikke. Tittelmønsteret er for vidt (D9).",
+  "retting": {
+   "klasse": "selvstendig"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/SF/forskrift/1988-07-08-562",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "U19",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Ikraftsetting (I) og tre varige delegeringer (II). Blandet, og skal ikke utelates.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/DEL/forskrift/1989-12-15-1241",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "U20",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Ikraftsetting, ressortfordeling, unntak fra loven og godkjenning av trygdeverk: blandet. I ledd-1 står ikraftsettingen og ressortfordelingen («Lova skal høyre under Samferdselsdepartementet») i samme ledd, så leddet er riktig lest som S. Grunnlaget peker likevel på et ledd som også har I.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/DEL/forskrift/1961-04-14-3000",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "U21",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "i_kraft = ja er feil. Forskriften var midlertidig. Lovdata viser «I kraft 17.01.2004–31.12.2004», og korpus har ikrafttredelse_raa «2004-01-17 – 2004-12-31». I teksten står «Endring i forskriften gjelder i perioden 17. januar – 31. desember 2004». Det er en tidsavgrensning (ikrafttredelse og opphør), ikke eget innhold, men regelen leste den som S. Forskriften er en endringsforskrift (hjemmel kml. § 28 og forskrift 1979 nr. 8785 § 19) der endringene er skrevet som direkte tekst, ikke som «skal lyde». Formklassen blandet kan forsvares. Virkningen er likevel uttømt fordi tiden har løpt ut, og verdien «utløpt» mangler i i_kraft (D7, D8). Hvis Sametinget har tilsvarende myndighet i dag, er det etter andre regler [slutning, ikke kontrollert], og det er dem funn etter #429 og #472 skal knyttes til.",
+  "retting": {
+   "i_kraft": "utlopt"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/LTI/forskrift/2004-01-16-218",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "korpus rettskilder.ikrafttredelse_raa",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "U22",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "«Vedtak om endring av navn på …» er et konstitutivt organiseringsvedtak (navneendring), ikke et endringsvedtak i lovteknisk forstand. Det endrer ikke noe annet dokument, og Lovdata har ingen «Endrer». Formklassen er selvstendig. Virkningen er likevel uttømt i det vedtaket treffes: navnet er endret. Det fanger ikke #446-klassene opp. #429 utelater kilden allerede gjennom Livslopstyper (navneendring), men #472 vil gi et falskt funn for at hjemmelen (uhl. 1995) er opphevet. Se D7 og #438.",
+  "retting": {
+   "klasse": "selvstendig"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/LTI/forskrift/2004-10-29-1411",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "src/RegelIde.Data/Disposisjonstyper.cs Livslopstyper; UtgattAktorFunnregel.cs l. 516",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "U23",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Delvis ikraftsetting og en varig delegering. Blandet.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/DEL/forskrift/1989-03-17-167",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "U24",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Materiell forskrift med varig innhold.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/SF/forskrift/2007-03-02-232",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "U25",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Overgangsregelen har egen virkning for saker som ikke er avsluttet, og er riktig lest som S. Teksten sier ikke om den i praksis er uttømt (alle aktuelle klagesaker avgjort), så kilden skal ikke utelates.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/SF/forskrift/2023-06-29-1162",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "U26",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Selvstendig lov (mortifikasjonslova). Kontrollert på Lovdata fordi teksten var avkortet: §§ 1–14 er materielle og prosessuelle regler, § 15 er ikrafttredelse og § 16 er endringer i andre lover. Klassen endres ikke.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/NL/lov/1959-12-18-1",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "U27",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Delegering av kompetanse til å endre. Det er varig kompetanse, ikke en endring.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/DEL/forskrift/1996-11-07-1018",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "U28",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Skal være rent_endringsvedtak. Del I er en ren ikraftsetting. Del II er en ren endringsinstruks («… punkt 4 skal lyde:») med sitert ny tekst. Delegeringen gjøres ved å endre kgl.res. 1974, ikke som en selvstendig delegering. Tittelen har ikrafttredelsesform («Ikrafttredelse av § 5 tredje ledd …»), som er et av signalene definisjonen godtar. Grunnlaget («verken tittelen eller hodet …») strider derfor mot regelen slik den er skrevet. Trolig ble signalet avvist på grunn av tillegget «Delegering av myndighet» i tittelen [slutning]. Målet, DEL/forskrift/1974-12-13-4049, er i korpus (tittelen har skrivefeilen «kosesjonsloven»). Lovdata viser den som gjeldende, og delegeringen står konsolidert i § 3. Dagens funn her (hjemmel opphevet, og utgått aktør «Landbruksdepartementet») hører hjemme i 1974-resolusjonen. Se D14.",
+  "retting": {
+   "klasse": "rent_endringsvedtak"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/DEL/forskrift/1984-01-20-213",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/forskrift/1974-12-13-4049 (DEL/forskrift/1974-12-13-4049 i korpus)",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "U29",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Riktig klasse er rent_endringsvedtak, med i_kraft ja. På Lovdata står det i kap. I at i stortingsvedtak 2025 nr. 2755 skal «§ 3 fyrste ledd bokstav b nr 2 … lyde:» (en tabell), og i kap. II «Endringa under I tek til å gjelde 1. september 2026.» Hodet har «Endrer FOR-2025-12-18-2755». Når rå tekst mangler, gjorde regelen det riktige: ukjent, uten å gjette ut fra tittelen. Rettingen er å hente rå tekst, ikke å bruke tittelen (D11).",
+  "retting": {
+   "klasse": "rent_endringsvedtak"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/LTI/forskrift/2026-06-19-1246",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "U30",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Riktig formklasse er selvstendig. Det er en materiell forskrift (§ 1 Formål til § 22 Overgangsbestemmelser), og § 21 opphever to eldre forskrifter, derfor «Endrer» i hodet. Viktigere: på Lovdata ligger forskriften i SFO, «Opphevet ved forskrift 27 aug 2026 nr. 1685 (i kraft 1 sep 2026)». Korpus har den som Gjeldende. Den hører altså ikke hjemme i populasjonen av gjeldende kilder, og trolig mangler rå tekst nettopp fordi den er opphevet [slutning]. Se D11.",
+  "retting": {
+   "klasse": "selvstendig"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/forskrift/2008-12-19-1574 (SFO, opphevet)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "FOR-2026-08-27-1685",
+    "funksjon": "ikke_funnet"
+   }
+  ]
+ },
+ {
+  "id": "D1",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "«Uttømt virkning» for et rent endringsvedtak er riktig. Endringene går inn i dokumentet som endres, og vedtaket har ingen selvstendig betydning når det er i kraft. Lovdata konsoliderer etter dette, og lovteknisk praksis bygger på det. At et utgått navn i et rent endringsvedtak er historisk tekst, er også riktig: et funn skal knyttes til det endrede dokumentet, ikke til vedtaket. Forutsetningen er at endringen faktisk er i kraft (D2), og at målet er tilgjengelig (D14). [slutning, alminnelig lovteknisk prinsipp]",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Lovteknikk og lovforberedelse (JD/Lovavdelingen), om endringslover og opphevingslover",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "klassedefinisjoner.md",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "D2",
+  "dom": "prinsipiell",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Modellregelen setter form lik virkning. Definisjonen sier det riktig: virkningen er uttømt bare når vedtaket er i kraft. Men reglene som bruker kolonnen, utelater på `rent_endringsvedtak == true` uten noe krav om i_kraft: HjemmelOpphevetFunnregel.cs l. 210, UtgattAktorFunnregel.cs l. 517 og Sveipeutvalg.cs l. 33, og docs/33 §5.21 sier «true gir ikke funn». Et endringsvedtak som ikke er (helt) i kraft, har ikke uttømt virkningen. Et utgått navn i sitert ny tekst som ennå ikke er i kraft, blir en reell feil når teksten trer i kraft. En opphevet hjemmel for en endringsforskrift som ikke er i kraft, kan hindre at den i det hele tatt kan settes i kraft. Av 403 rene endringsvedtak er 57 ikke «ja»: 19 delvis, 27 Kongen bestemmer, 10 framtidig og 1 ukjent. I NL gjelder det 28 av 33, fordi Lovdata har endringslover i NL nettopp så lenge de ikke er helt i kraft. Dagens funn rammes ikke (alle rene med funn har i_kraft ja), men regelen er feil. Rettingen: skriv true (utelat) bare når klassen er ren OG i_kraft = ja. Ellers skal kolonnen være false med grunnlag, eller formen og virkningen lagres i hver sin kolonne.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "src/RegelIde.Data/HjemmelOpphevetFunnregel.cs l. 210",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "src/RegelIde.Data/UtgattAktorFunnregel.cs l. 517",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "src/RegelIde.Data/Sveipeutvalg.cs l. 33",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "docs/33 §5.21 «Uttømt virkning og #446-bryteren»",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "oppsummering_v2.txt (rene x i_kraft)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "D3",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Rene ikrafttredelsesvedtak er en riktig klasse, med samme begrunnelse. Når målet er i kraft, står det i kraft selv om ikraftsettingsvedtaket eller hjemmelen for det senere faller bort. Et funn om at hjemmelen er opphevet, er da uten betydning. To krav: i_kraft må gjelde målets ikrafttredelse (U12), og ikrafttredelse som avhenger av en betingelse eller ligger fram i tid, er ikke uttømt.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "Lovteknikk og lovforberedelse (JD/Lovavdelingen), om endringslover og opphevingslover",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "D4",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "rent_opphevingsvedtak krever ikke signal fra tittelen eller hodet, i motsetning til de to andre rene klassene. O-mønsteret treffer setninger med eget innhold. I populasjonen ble disse klassifisert som rene opphevingsvedtak, men er det ikke: DEL/forskrift/2000-12-01-1200 «Sosial- og helsedepartementet gis myndighet til å oppheve eller endre forskrifter …» (en varig delegering, og den har i dag et #429-funn som ville blitt utelatt). DEL/forskrift/1999-12-10-1279 «… oppheves og myndigheten delegeres til Luftfartstilsynet» (ny delegering, altså blandet). DEL/forskrift/1988-05-20-357 «Loven oppheves fra den tid Fiskeridepartementet bestemmer» er i realiteten en delegering av tidspunktet, et grensetilfelle. Alle tre er DEL, og ingen av dem har opphevingsform i tittelen. Rettingen: krev tittel- eller hodesignal også for rent_opphevingsvedtak, og bruk unntaket for eget innhold (D5) på O-setninger.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "DEL/forskrift/2000-12-01-1200",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "DEL/forskrift/1999-12-10-1279",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "DEL/forskrift/1988-05-20-357",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "D5",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Unntaket «ikke når setningen også har eget innhold» gjelder bare for I, ikke for E og O. E-mønsteret og I-mønsteret treffer leddsetninger i setninger med eget innhold. To kilder ble klassifisert som rene endringsvedtak, men er det ikke: SF/forskrift/2012-06-08-499 «Forskrift om overgangsregler …», der «Endringer i lov … får anvendelse på anskaffelser der …» er overgangsregler (S, som U25), og DEL/forskrift/2014-06-20-794, en delegering av ikraftsettingsmyndighet som ble lest som E/Q. Tittelvakten fanget disse og gjorde dem til ukjent: DEL/forskrift/1999-12-17-1345 (delegering lest som E, burde vært blandet), DEL/forskrift/1999-06-25-706 («skal ‹departementet› forstås som …»), LTI/forskrift/2001-12-07-1376 (delegering med «(som trer i kraft …)» lest som I), SF/forskrift/2000-05-19-442 (godkjenning «fra det tidspunkt loven trer i kraft» lest som I) og DEL/forskrift/2003-07-04-896 (overgangsregel «For skolar som er godkjende …» lest som I). Rettingen: (a) samme unntak for E og O, med disse ordene som utløser S: delegeres, gis myndighet, legges til, godkjennes/gis godkjenning, får anvendelse, gjelder (ikke) for, skal forstås som; (b) verbet for endring, oppheving eller ikrafttredelse må være hovedverbet i setningen; (c) rene klasser bare når tittel eller hode gir signal. I populasjonen er det om lag 20 rene uten tittelsignal, og 4 av dem er feil. Med tittelsignal fant jeg ingen feil i utvalget.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "SF/forskrift/2012-06-08-499",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "DEL/forskrift/2014-06-20-794",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "klassifisering_v2.csv (ukjent-gruppen)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "D6",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "At blandet og selvstendig aldri utelates, er riktig. Overgangsregler, delegeringer og forskriftshjemler i en endringslov lever videre etter ikrafttredelsen. En forskrift kan ha hjemmel i en overgangsbestemmelse i en endringslov, så #472 må se dem. Skillet mellom blandet og selvstendig har ingen virkning i reglene, det er bare diagnostikk. Feil mellom de to (U18, U22) er derfor lav. Merk at 98 kilder som før var «true», nå er blandet. For #472 er det riktig, men for #429 gir det nye funn i sitert tekst (D10).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "oppsummering_v2.txt (gammel x ny)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "D7",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "To grupper har uttømt virkningen uten at klassene fanger dem opp. (a) Tidsbegrensede vedtak der tiden er ute: U21 (gjaldt 17.01–31.12.2004) og LTI/forskrift/2001-12-07-1376 («gjelder til og med 31. desember 2001»). Lovdata gir intervallet i «I kraft» (ikrafttredelse_raa), så dette kan leses uten å gjette. Det hører hjemme i i_kraft som verdien «utløpt», ikke som en ny formklasse. (b) Engangsdisposisjoner og organiseringsvedtak (navneendring, nedleggelse, sammenslåing), for eksempel U22 og INS/forskrift/2009-11-27-1433. #429 utelater dem allerede gjennom Livslopstyper. #472 gjør det ikke, og vil gi falske funn om opphevet hjemmel. Det er #438. #446 bør si fra om grensen i grunnlaget, ikke gjøre dem til rene.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/LTI/forskrift/2004-01-16-218",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "LTI/forskrift/2001-12-07-1376",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "issue #438",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "D8",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "i_kraft er lest av Lovdatas I kraft-felt for selve vedtaket. Det er ikke nok. (a) For LTI-lover står «Kongen bestemmer» frosset fra kunngjøringen, også når loven senere er satt i kraft. Ikraftsettingsvedtaket ligger ofte i korpus (U01, U02). Følg det, så minker de 27 med «Kongen bestemmer». (b) Lovdatas eget hode kan være utdatert når ikrafttredelsen avhenger av en betingelse (U12, «Ikke i kraft», selv om fotnotene i hovedloven sier 1.1.2022). Bruk da kunnskapsstatus eksternt_dokumentert, eller la den stå som ukjent. (c) Verdien «utløpt» mangler (U21). (d) For ikraftsettingsvedtak må i_kraft gjelde målet, ikke vedtaket. Feilene i (a) og (b) er konservative, men får virkning når i_kraft blir et vilkår (D2).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "LTI/forskrift/2021-03-26-968; LTI/forskrift/2022-06-10-997",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/NL/lov/1972-05-12-28",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "D9",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Tittelsignalene er dels for vide, dels for smale. For vide: «endring av navn», «endring av … struktur» og «Endring vedrørende …» (U18, U22) er ikke endringsform i lovteknisk forstand. Det gir blandet i stedet for selvstendig, uten virkning i reglene. For smale: ikrafttredelsesformen ble ikke godtatt i U28, trolig fordi tittelen også har «Delegering av myndighet» [slutning]. Det strider mot definisjonen. Hodesignalet (changesToDocuments) er heller ikke særlig spesifikt, for Lovdata fører også opphevinger i en ny hovedforskrift under «Endrer» (U30). Det er greit så lenge det bare er tilleggssignal ved E/Q uten S. Endringsform bør være «endring(er) i [dokument]», ikke ordet «endring» alene.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "utvalg30.json U18, U22, U28, U30",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "D10",
+  "dom": "innvending",
+  "gjelder": "utenfor_raden",
+  "alvor": "middels",
+  "innvending": "#429 utelater på kildenivå, men den lesingen ledd for ledd som #446 gjør, gir mer. Sitert ny tekst (Q) er historisk i alle kilder når endringen er i kraft, også i blandet og selvstendig: «Endringer i andre lover» i en ny hovedlov, og endringslover med en overgangsregel (98 kilder gikk fra true til blandet). Utgåtte navn i Q-ledd i slike kilder gir falske #429-funn. Rettingen: #429 bør hoppe over Q-ledd (og E-ledd) når kilden er i kraft, og eventuelt knytte funnet til målet. Regelen fra #446 kan levere rollen per ledd, så klassifiseringen på kildenivå blir ikke eneste vei.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "src/RegelIde.Data/UtgattAktorFunnregel.cs l. 515–519",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "D11",
+  "dom": "kontroller",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Ukjent fordi rå tekst mangler (24, alle uten dokument_id): ukjent er riktig som mellomstatus, og regelen gjetter ikke ut fra tittelen. Men de 24 er en blandet gruppe. U29 er nyere enn nedlastingen og er lett å klassifisere når teksten hentes. U30 er opphevet på Lovdata (SFO, 1.9.2026), men står som Gjeldende i korpus. Kontroller statusen for alle 24 på Lovdata (SF/SFO, LTI) før de klassifiseres. De som er opphevet, skal ut av populasjonen, ikke klassifiseres.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/forskrift/2008-12-19-1574",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/LTI/forskrift/2026-06-19-1246",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "D12",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Kunnskapsstatusen bør deles. Formen (rent eller ikke) er normalisering etter navngitt regel, og det er riktig. At virkningen er uttømt, er en slutning fra et lovteknisk prinsipp og i_kraft. Med i_kraft fra Lovdata-hodet er den normalisering eller eksternt_dokumentert. Med i_kraft ukjent, Kongen bestemmer eller utdatert hode er den uavklart. Med blandet (S finnes) er den aldri sterkere enn fortolkning hvis noen senere vil utelate på grunn av virkningen.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "docs/33 §4.6 (kunnskapsstatus)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "D13",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Utvalget er bare stratifisert etter klasse. Alle fire rene opphevingsvedtak og seks av sju rene endringsvedtak i utvalget er LTI med tydelig tittelform. Feilene jeg fant i populasjonen (D4, D5), ligger i DEL og SF og i kilder uten tittelsignal, og ingen av dem er i utvalget. Utelatelsen er den tillatende konklusjonen, så presisjonen for de rene klassene er det som teller. Mål den med et eget utvalg for rene klasser, stratifisert etter prefiks og etter om det finnes tittelsignal.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "utvalg30.json",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "D14",
+  "dom": "innvending",
+  "gjelder": "utenfor_raden",
+  "alvor": "lav",
+  "innvending": "Når et rent endringsvedtak utelates, skal funnet ikke forsvinne. Det skal flyttes til målet. Eksempel U28: det utgåtte navnet «Landbruksdepartementet» og hjemmelsspørsmålet hører hjemme i DEL/forskrift/1974-12-13-4049 § 3, som er i korpus. Kontroller at målet er i korpus og har konsolidert tekst. Hvis målet ikke er i korpus, bør utelatelsen få premissmangelen «mål utenfor korpus», ellers blir feilen usynlig.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "DEL/forskrift/1974-12-13-4049 (i korpus)",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ }
+]

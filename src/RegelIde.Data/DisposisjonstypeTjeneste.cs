@@ -34,10 +34,9 @@ public sealed class DisposisjonstypeTjeneste(RegelIdeDbContext db)
             .Where(r => rettskildeId == null || r.Id == rettskildeId)
             .Select(r => new { r.Id, r.Tittel, r.Kildeform })
             .ToListAsync(ct);
-        // [Ny, issue #395 avgjørelse 6] Hvor mange dokumenter hver kilde endrer (changesToDocuments), for markøren for rene endringsvedtak.
-        var endrer = (await db.RettskildeEndringer.Where(e => rettskildeId == null || e.RettskildeId == rettskildeId)
-                .GroupBy(e => e.RettskildeId).Select(g => new { g.Key, Antall = g.Count() }).ToListAsync(ct))
-            .ToDictionary(x => x.Key, x => x.Antall);
+        // [ENDRET, #446 PR 2] Kildene som har markøren rent_endringsvedtak = true (satt av VedtaksformTjeneste), bare for tellingen i rapporten.
+        var reneMarkert = (await db.Rettskilder.Where(r => r.RentEndringsvedtak == true && (rettskildeId == null || r.Id == rettskildeId))
+            .Select(r => r.Id).ToListAsync(ct)).ToHashSet();
         var reneEndringer = 0;
         if (rettskildeId is not null && kilder.Count == 0)
         {
@@ -63,20 +62,9 @@ public sealed class DisposisjonstypeTjeneste(RegelIdeDbContext db)
             foreach (var t in treff) perKilde[t.Kilde]++;
             if (medRader) rader.Add(new DisposisjonstypeRad(k.Id, k.Tittel, k.Kildeform, treff));
 
-            // [Ny, issue #395 avgjørelse 6] Rent endringsvedtak: BÅDE hodet sier at kilden endrer andre dokumenter, OG tittelen har formen
-            // «Forskrift/Lov om endring(er) i …», OG ingen organiseringstype slo til. To uavhengige signaler fra kilden; tittelen alene er ikke nok.
-            var antallEndret = endrer.GetValueOrDefault(k.Id);
-            var erRen = antallEndret > 0 && Disposisjonstyper.ErRentEndringsvedtak(k.Tittel)
-                && !treff.Any(t => Disposisjonstyper.Organiseringstyper.Contains(t.Disposisjonstype));
-            if (erRen) reneEndringer++;
-            if (skriv)
-            {
-                var rk = await db.Rettskilder.FirstAsync(r => r.Id == k.Id, ct);
-                rk.RentEndringsvedtak = erRen ? true : null;
-                rk.RentEndringsvedtakGrunnlag = erRen
-                    ? $"Regel: rent-endringsvedtak. Endrer {antallEndret} dokument(er) (changesToDocuments); tittelform «… om endring(er) i …»; ingen organiseringstype."
-                    : null;
-            }
+            // [ENDRET, #446 PR 2, prosjekteierens avgjørelse 2026-11-25] Markøren rent_endringsvedtak settes ikke lenger her, men av
+            // VedtaksformTjeneste («uttømt virkning», lest ledd for ledd). Rapporten teller fortsatt kilder med markøren true.
+            if (reneMarkert.Contains(k.Id)) reneEndringer++;
 
             var gamle = eksisterendePerKilde.GetValueOrDefault(k.Id) ?? [];
             foreach (var g in gamle.Where(g => !treff.Any(t => t.Disposisjonstype == g.Disposisjonstype && t.Kilde == g.Kilde)))

@@ -3484,6 +3484,14 @@ namespace RegelIde.Data.Migrasjoner
                         .HasColumnType("text")
                         .HasColumnName("http_last_modified");
 
+                    b.Property<string>("IkraftStatus")
+                        .HasColumnType("text")
+                        .HasColumnName("ikraft_status");
+
+                    b.Property<string>("IkraftStatusGrunnlag")
+                        .HasColumnType("text")
+                        .HasColumnName("ikraft_status_grunnlag");
+
                     b.Property<DateOnly?>("Ikrafttredelse")
                         .HasColumnType("date")
                         .HasColumnName("ikrafttredelse");
@@ -3621,6 +3629,22 @@ namespace RegelIde.Data.Migrasjoner
                         .HasColumnType("date")
                         .HasColumnName("vedtaksdato");
 
+                    b.Property<string>("Vedtaksform")
+                        .HasColumnType("text")
+                        .HasColumnName("vedtaksform");
+
+                    b.Property<string>("VedtaksformGrunnlag")
+                        .HasColumnType("text")
+                        .HasColumnName("vedtaksform_grunnlag");
+
+                    b.Property<string>("VedtaksformKunnskapsstatus")
+                        .HasColumnType("text")
+                        .HasColumnName("vedtaksform_kunnskapsstatus");
+
+                    b.Property<string>("VedtaksformRegelversjon")
+                        .HasColumnType("text")
+                        .HasColumnName("vedtaksform_regelversjon");
+
                     b.Property<string>("VedtattAv")
                         .HasColumnType("text")
                         .HasColumnName("vedtatt_av");
@@ -3655,9 +3679,13 @@ namespace RegelIde.Data.Migrasjoner
                         {
                             t.HasCheckConstraint("ck_rettskilder_akn_xml", "importrolle = 'referanse' OR akn_xml IS NOT NULL");
 
+                            t.HasCheckConstraint("ck_rettskilder_ikraft_status", "ikraft_status IS NULL OR ikraft_status IN ('ja', 'delvis', 'ikke_i_kraft', 'utlopt', 'ukjent')");
+
                             t.HasCheckConstraint("ck_rettskilder_importrolle", "importrolle IN ('primaer', 'referanse')");
 
                             t.HasCheckConstraint("ck_rettskilder_kildeform", "kildeform IS NULL OR kildeform IN ('konsolidert', 'kunngjort')");
+
+                            t.HasCheckConstraint("ck_rettskilder_vedtaksform", "vedtaksform IS NULL OR vedtaksform IN ('rent_endringsvedtak', 'rent_ikrafttredelsesvedtak', 'rent_opphevingsvedtak', 'blandet', 'selvstendig', 'ukjent')");
                         });
                 });
 
@@ -3739,6 +3767,10 @@ namespace RegelIde.Data.Migrasjoner
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("eid");
+
+                    b.Property<string>("Endringsrolle")
+                        .HasColumnType("text")
+                        .HasColumnName("endringsrolle");
 
                     b.Property<string>("Entitetsstatus")
                         .IsRequired()
@@ -3838,7 +3870,10 @@ namespace RegelIde.Data.Migrasjoner
                         .HasDatabaseName("ux_rettskilde_noder_eid_gjeldende")
                         .HasFilter("entitetsstatus = 'gjeldende'");
 
-                    b.ToTable("rettskilde_noder", (string)null);
+                    b.ToTable("rettskilde_noder", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_rettskilde_noder_endringsrolle", "endringsrolle IS NULL OR endringsrolle IN ('endringsinstruks', 'sitert_tekst', 'ikrafttredelse', 'oppheving')");
+                        });
                 });
 
             modelBuilder.Entity("RegelIde.Data.RettskildeReferanseEntitet", b =>

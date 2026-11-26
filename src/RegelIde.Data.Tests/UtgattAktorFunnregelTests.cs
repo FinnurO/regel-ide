@@ -198,6 +198,39 @@ public class UtgattAktorFunnregelTests(EmbeddedPostgresFixture fixture)
     }
 
     [Fact]
+    public async Task Sitert_endringstekst_i_en_kilde_i_kraft_gir_ikke_funn_og_lagret_funn_forklares_bort_446()
+    {
+        // [Ny, #446 PR 2, prosjekteierens avgjørelse 2026-11-25 (A)] Navnet står i ny tekst som settes inn i et annet dokument (sitert tekst).
+        await using var db = fixture.NyDbContext();
+        var o = new Oppsett(db);
+        var (nedlagt, _) = await o.AktorAsync(Departement("Sitert"), nedlagt: true);
+        var (rk, ledd) = await o.ForskriftAsync(r => { r.Vedtaksform = Vedtaksform.Blandet; r.IkraftStatus = Vedtaksform.IkraftJa; r.RentEndringsvedtak = false; },
+            $"{nedlagt.Navn} fører tilsyn.");
+        var regel = new UtgattAktorFunnregel(db, new FunnTjeneste(db));
+
+        // Før #446 har leddet ingen rolle: funnet foreslås og lagres.
+        var forst = await regel.KjorAsync(skriv: true, "Test", [rk.Id]);
+        Assert.Equal(1, forst.Nye);
+
+        ledd[0].Endringsrolle = Vedtaksform.RolleSitertTekst;
+        await db.SaveChangesAsync();
+        var torr = await regel.KjorAsync(skriv: false, "Test", [rk.Id]);
+        Assert.Equal((1, 0, 1), (torr.NodetreffSitertEndringstekst, torr.Foreslatt, torr.ForklaresBortUttomtVirkning));
+        var skrevet = await regel.KjorAsync(skriv: true, "Test", [rk.Id]);
+        Assert.Equal(1, skrevet.ForklartBortUttomtVirkningSatt);
+        var funn = await db.Funn.AsNoTracking().SingleAsync(f => f.EksternNokkel!.StartsWith(UtgattAktorFunnregel.NokkelPrefiks + UtgattAktorFunnregel.EliKort(rk.Eli!)));
+        Assert.Equal(Funn.ForklartBort, funn.Status);
+        Assert.Contains("sitert endringstekst", funn.ForklartBortBegrunnelse);
+        var igjen = await regel.KjorAsync(skriv: true, "Test", [rk.Id]);
+        Assert.Equal((0, 0), (igjen.Nye, igjen.ForklaresBortUttomtVirkning));
+
+        // Er kilden ikke i kraft, er teksten ikke historisk ennå: funnet ville blitt foreslått.
+        await db.Rettskilder.Where(r => r.Id == rk.Id).ExecuteUpdateAsync(x => x.SetProperty(r => r.IkraftStatus, Vedtaksform.IkraftIkkeIKraft));
+        var ikkeIKraft = await regel.KjorAsync(skriv: false, "Test", [rk.Id]);
+        Assert.Equal((0, 1), (ikkeIKraft.NodetreffSitertEndringstekst, ikkeIKraft.Foreslatt));
+    }
+
+    [Fact]
     public async Task Organiseringsvedtak_rene_endringsvedtak_og_tvetydige_navn_telles_men_foreslas_ikke()
     {
         await using var db = fixture.NyDbContext();

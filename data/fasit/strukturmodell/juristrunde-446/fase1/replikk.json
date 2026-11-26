@@ -1,0 +1,30 @@
+[
+ {
+  "id": "D7",
+  "replikk": "presiserer",
+  "tekst": "Godtar at organiseringsvedtak ligger utenfor formklassene i #446, og at om #472 skal utelate dem, er et eget valg for prosjekteieren eller hører til #438. Men begrunnelsen må presiseres. At navnet gjelder videre, betyr ikke at vedtaket har varig virkning i den forstand som betyr noe her. Navneendringen er gjennomført i og med at vedtaket ble truffet. Det nye navnet består selv om hjemmelen for vedtaket senere oppheves, akkurat som en endring består i dokumentet den er innarbeidet i [slutning, samme prinsipp som D1]. Et funn om at hjemmelen er opphevet, er derfor like uten betydning for et navnevedtak som for et endringsvedtak. Når valget legges fram for prosjekteieren, skal følgen derfor stå konkret: med dagens regel gir #472 falske funn for kilder som U22 (LTI/forskrift/2004-10-29-1411, hjemmel i uhl. 1995). Del (a), «utløpt», er avgjort.",
+  "kilder": [
+   {"ref": "https://lovdata.no/dokument/LTI/forskrift/2004-10-29-1411", "funksjon": "direkte_hjemmel"},
+   {"ref": "issue #438", "funksjon": "forutsatt_kilde"}
+  ]
+ },
+ {
+  "id": "D10",
+  "replikk": "fastholder",
+  "tekst": "Nytt argument: dette er ikke en utvidelse av #429. Det er en følge av #446 selv. De 97 kildene som går fra true til blandet, er i dag riktig utelatt i #429 for den delen som er sitert ny tekst. Det er #446-klassifiseringen som tar bort den utelatelsen. Uten tiltak blir #429 dårligere av #446, med nye funn i tekst som begge parter er enige om er historisk. At funnene er «riktige etter dagens regel», gjør dem ikke riktige i sak. De vil senke presisjonen i neste #429-måling uten at noe i #429 er endret. Krav i bygge-PR-en for #446, i én av disse formene: (1) #446 leverer rollen per ledd, og #429 hopper over Q- og E-ledd i kilder som er i kraft; eller (2) #429 beholder dagens utelatelse for de 97, merket «venter på prosjekteierens valg (rollen per ledd)», til valget er tatt. Uten et av disse bør klassifiseringen ikke skrives i kolonnen #429 leser.",
+  "kilder": [
+   {"ref": "src/RegelIde.Data/UtgattAktorFunnregel.cs l. 517", "funksjon": "direkte_hjemmel"},
+   {"ref": "oppsummering_v2.txt (gammel x ny: true -> blandet)", "funksjon": "forutsatt_kilde"}
+  ],
+  "sluttreplikk": "Når en lov endrer en annen lov, gjengir den den nye teksten ordrett. Den teksten er historie: den gjelder der den ble satt inn, ikke i endringsloven. Navn som har gått ut av bruk der, er ikke feil. I dag hopper regelen for utgåtte navn over 97 slike endringslover. Den nye klassifiseringen flytter dem til en gruppe som regelen leser, fordi de også har en liten egen bestemmelse, for eksempel en overgangsregel. Da dukker det opp funn i gammel, sitert tekst som alle er enige om ikke er feil. Jeg mener det må løses i samme omgang, ikke senere: enten leser regelen bare de delene som faktisk gjelder, eller så hopper den over disse 97 som før til du har bestemt deg."
+ },
+ {
+  "id": "D14",
+  "replikk": "godtar",
+  "tekst": "Argumentet holder. For #472 har målet sin egen hjemmelsstatus, og hjemmelen for endringsvedtaket sier ikke noe om hjemmelen for målet. For #429 fanger sveipet over målets konsoliderte tekst navnet, og målvedtaket er koblet på funnet. Det som gjensto, premissmangelen «mål utenfor korpus» når et mål i «Endrer» ikke er primærkilde i korpus, er akseptert. For U28 er målet DEL/forskrift/1974-12-13-4049 i korpus, så det blir ikke borte.",
+  "kilder": [
+   {"ref": "docs/33 §5.15 (malvedtak)", "funksjon": "forutsatt_kilde"},
+   {"ref": "DEL/forskrift/1974-12-13-4049 (i korpus)", "funksjon": "direkte_hjemmel"}
+  ]
+ }
+]

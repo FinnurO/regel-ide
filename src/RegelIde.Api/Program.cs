@@ -172,6 +172,7 @@ builder.Services.AddHttpClient<LovdataBulkHenter>();
 builder.Services.AddScoped<LovdataKatalogTjeneste>();
 builder.Services.AddScoped<LovdataFullimportTjeneste>();
 builder.Services.AddScoped<DisposisjonstypeTjeneste>(); // [Ny, issue #395]
+builder.Services.AddScoped<VedtaksformTjeneste>(); // [Ny, issue #446 PR 1]
 builder.Services.AddScoped<LovtidendImportTjeneste>(); // [Ny, issue #395]
 builder.Services.AddScoped<RettskildeKonverterPaaNyttTjeneste>(); // [Ny, issue #397]
 builder.Services.AddScoped<DepartementLivslopTjeneste>(); // [Ny, issue #395]
@@ -4660,6 +4661,28 @@ app.MapPost("/api/rettskilder/disposisjonstyper/klassifiser", async (bool? skriv
         "nedleggelse, omorganisering, overforing_ressortfordeling, delegering, instruks, ikrafttredelse, regulering): tittel først, mønster på " +
         "innholdet der tittelen ikke avgjør. Ingen treff = uklassifisert. ?skriv=true lagrer (erstatter bare maskinens egne rader); " +
         "?medRader=true tar med treffene per kilde.");
+
+// [Ny, issue #446 PR 1, prosjekteierens avgjørelse 2026-11-25] Vedtaksformen (rent endrings-, ikrafttredelses- eller opphevingsvedtak, blandet,
+// selvstendig, ukjent), ikraftstatusen og rollen per ledd. Tørrkjøring er standard. Skriver ikke rent_endringsvedtak (PR 2).
+app.MapPost("/api/rettskilder/vedtaksform/klassifiser", async (bool? skriv, bool? medRader, bool? medEnheter, Guid? rettskildeId, HttpRequest request,
+        RegelIdeDbContext db, VedtaksformTjeneste tjeneste, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            return Results.Ok(await tjeneste.KlassifiserAsync(skriv ?? false, rettskildeId, medRader ?? false, medEnheter: medEnheter ?? false, ct: ct));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithOpenApi()
+    .WithName("KlassifiserVedtaksform")
+    .WithSummary("Issue #446 — leser Lovdatas rå HTML ledd for ledd og setter vedtaksformen (rent_endringsvedtak, rent_ikrafttredelsesvedtak, " +
+        "rent_opphevingsvedtak, blandet, selvstendig, ukjent) med grunnlag, ikraftstatusen (ja, delvis, ikke_i_kraft, utlopt, ukjent; følger en " +
+        "ikraftsetting i korpus) og rollen per ledd på nodene. ?skriv=true lagrer; ?medRader=true tar med hver kilde, ?medEnheter=true også rollen per lest enhet.");
 
 // [Ny, issue #397] Konverter den lagrede kilde-HTML-en til én rettskilde på nytt med dagens parser (ny versjon hvis AKN endres).
 app.MapPost("/api/rettskilder/{id:guid}/konverter-paa-nytt", async (Guid id, bool? skriv, HttpRequest request, RegelIdeDbContext db,
