@@ -1,0 +1,362 @@
+[
+ {
+  "id": "U01",
+  "rettskilde": "LTI/lov/2021-03-26-15",
+  "tittel": "Lov om endringer i straffegjennomføringsloven mv. (omorganisering av kriminalomsorgen, bruk av pust- og bevegelsessensor i fengselsceller mv.)",
+  "lovdata": "https://lovdata.no/dokument/LTI/lov/2021-03-26-15",
+  "foreslatt": {
+   "klasse": "rent_endringsvedtak",
+   "grunnlag": "Bare endringsinstrukser og sitert ny tekst (6+4), ikrafttredelse (1) og oppheving av andre (0); tittel endringsform=True, endrer 1 dokument(er).",
+   "i_kraft": "ukjent_kongen_bestemmer",
+   "endrer_antall": 1
+  }
+ },
+ {
+  "id": "U02",
+  "rettskilde": "LTI/lov/2022-06-10-39",
+  "tittel": "Lov om endringer i friskolelova (nytt navn på loven og oppheving av to godkjenningsgrunnlag)",
+  "lovdata": "https://lovdata.no/dokument/LTI/lov/2022-06-10-39",
+  "foreslatt": {
+   "klasse": "rent_endringsvedtak",
+   "grunnlag": "Bare endringsinstrukser og sitert ny tekst (11+18), ikrafttredelse (1) og oppheving av andre (0); tittel endringsform=True, endrer 9 dokument(er).",
+   "i_kraft": "ukjent_kongen_bestemmer",
+   "endrer_antall": 9
+  }
+ },
+ {
+  "id": "U03",
+  "rettskilde": "LTI/forskrift/2025-03-11-414",
+  "tittel": "Endring i vedtak om delegering av myndighet fra Finansdepartementet til Finanstilsynet",
+  "lovdata": "https://lovdata.no/dokument/LTI/forskrift/2025-03-11-414",
+  "foreslatt": {
+   "klasse": "rent_endringsvedtak",
+   "grunnlag": "Bare endringsinstrukser og sitert ny tekst (2+5), ikrafttredelse (1) og oppheving av andre (0); tittel endringsform=True, endrer 1 dokument(er).",
+   "i_kraft": "ja",
+   "endrer_antall": 1
+  }
+ },
+ {
+  "id": "U04",
+  "rettskilde": "LTI/forskrift/2020-03-06-237",
+  "tittel": "Forskrift om endring i forskrift 25. januar 1963 nr. 2 om ikrafttreden av og delegasjon etter lov om skytevåpen og ammunisjon",
+  "lovdata": "https://lovdata.no/dokument/LTI/forskrift/2020-03-06-237",
+  "foreslatt": {
+   "klasse": "rent_endringsvedtak",
+   "grunnlag": "Bare endringsinstrukser og sitert ny tekst (1+2), ikrafttredelse (1) og oppheving av andre (0); tittel endringsform=True, endrer 1 dokument(er).",
+   "i_kraft": "ja",
+   "endrer_antall": 1
+  }
+ },
+ {
+  "id": "U05",
+  "rettskilde": "LTI/forskrift/2022-09-21-1619",
+  "tittel": "Endring i vedtak om oppheving av vedtak om delegering av kompetanse til Fiskeridirektoratets regionkontor til å tildele spesielle tillatelser til å drive enkelte former for fiske og fangst",
+  "lovdata": "https://lovdata.no/dokument/LTI/forskrift/2022-09-21-1619",
+  "foreslatt": {
+   "klasse": "rent_endringsvedtak",
+   "grunnlag": "Bare endringsinstrukser og sitert ny tekst (2+1), ikrafttredelse (1) og oppheving av andre (0); tittel endringsform=True, endrer 2 dokument(er).",
+   "i_kraft": "ja",
+   "endrer_antall": 2
+  }
+ },
+ {
+  "id": "U06",
+  "rettskilde": "LTI/forskrift/2003-01-31-124",
+  "tittel": "Forskrift om endring i forskrift om faglig ansvarsfordeling mv. etter kulturminneloven.",
+  "lovdata": "https://lovdata.no/dokument/LTI/forskrift/2003-01-31-124",
+  "foreslatt": {
+   "klasse": "rent_endringsvedtak",
+   "grunnlag": "Bare endringsinstrukser og sitert ny tekst (1+1), ikrafttredelse (1) og oppheving av andre (0); tittel endringsform=True, endrer 1 dokument(er).",
+   "i_kraft": "ja",
+   "endrer_antall": 1
+  }
+ },
+ {
+  "id": "U07",
+  "rettskilde": "NL/lov/2026-06-19-33",
+  "tittel": "Lov om endringer i arbeidsmiljøloven og folketrygdloven (hjemmel for oppdragsgiveransvar for å sikre overholdelse av krav om HMS-kort og trekk av fagforeningskontingent i ytelser)",
+  "lovdata": "https://lovdata.no/dokument/NL/lov/2026-06-19-33",
+  "foreslatt": {
+   "klasse": "rent_endringsvedtak",
+   "grunnlag": "Bare endringsinstrukser og sitert ny tekst (3+5), ikrafttredelse (1) og oppheving av andre (0); tittel endringsform=True, endrer 2 dokument(er).",
+   "i_kraft": "delvis",
+   "endrer_antall": 2
+  }
+ },
+ {
+  "id": "U08",
+  "rettskilde": "LTI/forskrift/2003-02-27-237",
+  "tittel": "Ikrafttredelse av vedtak av 22. januar 2003 nr. 58 om delegering av kompetanse til å fatte vedtak om ervervstillatelse etter deltakerloven.",
+  "lovdata": "https://lovdata.no/dokument/LTI/forskrift/2003-02-27-237",
+  "foreslatt": {
+   "klasse": "rent_ikrafttredelsesvedtak",
+   "grunnlag": "Bare ikrafttredelse (1) og eventuelt oppheving av andre (0); tittel ikrafttredelsesform.",
+   "i_kraft": "ja",
+   "endrer_antall": 1
+  }
+ },
+ {
+  "id": "U09",
+  "rettskilde": "DEL/forskrift/1996-12-13-1140",
+  "tittel": "Ikrafttredelse av lov av 3. mai 1996 nr. 24 om 1) endringer i lov 17. juni 1966 nr. 19 om Norges fiskerigrense og om forbud mot at utlendinger driver fiske m.v. innenfor fiskerigrensen, lov 3. juni 1983 nr. 40 om saltvannsfiske m.v. og lov 16. juni 1972 nr. 57 om regulering av deltagelsen i fisket, 2) samtykke til godkjennelse av en avtale mellom Kongeriket Norges regjering og Canadas regjering om bevaring og håndhevelse på fiskeriområdet, undertegnet 30. juni 1995.",
+  "lovdata": "https://lovdata.no/dokument/DEL/forskrift/1996-12-13-1140",
+  "foreslatt": {
+   "klasse": "rent_ikrafttredelsesvedtak",
+   "grunnlag": "Bare ikrafttredelse (1) og eventuelt oppheving av andre (0); tittel ikrafttredelsesform.",
+   "i_kraft": "ja",
+   "endrer_antall": 1
+  }
+ },
+ {
+  "id": "U10",
+  "rettskilde": "LTI/forskrift/2007-12-07-1371",
+  "tittel": "Ikrafttredelse av lovendringer 15. desember 2006 som følge av reorganiseringen av skatteetaten",
+  "lovdata": "https://lovdata.no/dokument/LTI/forskrift/2007-12-07-1371",
+  "foreslatt": {
+   "klasse": "rent_ikrafttredelsesvedtak",
+   "grunnlag": "Bare ikrafttredelse (5) og eventuelt oppheving av andre (0); tittel ikrafttredelsesform.",
+   "i_kraft": "ja",
+   "endrer_antall": 0
+  }
+ },
+ {
+  "id": "U11",
+  "rettskilde": "LTI/forskrift/2014-05-09-622",
+  "tittel": "Ikraftsetting av lov 9. mai 2014 nr. 15 om endringer i genteknologiloven og bioteknologiloven (navneendring og hjemmel til felles forskrift)",
+  "lovdata": "https://lovdata.no/dokument/LTI/forskrift/2014-05-09-622",
+  "foreslatt": {
+   "klasse": "rent_ikrafttredelsesvedtak",
+   "grunnlag": "Bare ikrafttredelse (1) og eventuelt oppheving av andre (0); tittel ikrafttredelsesform.",
+   "i_kraft": "ja",
+   "endrer_antall": 2
+  }
+ },
+ {
+  "id": "U12",
+  "rettskilde": "DEL/forskrift/2007-06-15-626",
+  "tittel": "Ikrafttredelse av lov 15. juni 2007 nr. 37 om endringer i lov 12. mai 1972 nr. 28 om atomenergivirksomhet og om samtykke til ratifikasjon av endringsprotokoller 12. februar 2004 til Pariskonvensjonen 29. juli 1960 og Brusselkonvensjonen 31. januar 1963 om erstatningsansvar på atomenergiens område",
+  "lovdata": "https://lovdata.no/dokument/DEL/forskrift/2007-06-15-626",
+  "foreslatt": {
+   "klasse": "rent_ikrafttredelsesvedtak",
+   "grunnlag": "Bare ikrafttredelse (1) og eventuelt oppheving av andre (0); tittel ikrafttredelsesform.",
+   "i_kraft": "ukjent",
+   "endrer_antall": 0
+  }
+ },
+ {
+  "id": "U13",
+  "rettskilde": "LTI/forskrift/2011-04-26-428",
+  "tittel": "Forskrift om oppheving av delegering til fylkesmannen av departementets myndighet til å samtykke i at det gis forklaring til politiet uten hensyn til taushetsplikt etter § 8-8 i sosialtjenesteloven",
+  "lovdata": "https://lovdata.no/dokument/LTI/forskrift/2011-04-26-428",
+  "foreslatt": {
+   "klasse": "rent_opphevingsvedtak",
+   "grunnlag": "Bare oppheving av andre dokumenter (1) og eventuelt ikrafttredelse (0); tittel opphevingsform=True.",
+   "i_kraft": "ja",
+   "endrer_antall": 1
+  }
+ },
+ {
+  "id": "U14",
+  "rettskilde": "LTI/forskrift/2021-11-29-3354",
+  "tittel": "Oppheving av delegeringsvedtak om delegering av departementets myndighet som følge av forskrift 26. november 2021 nr. 3292 om endring i kringkastingsforskriften",
+  "lovdata": "https://lovdata.no/dokument/LTI/forskrift/2021-11-29-3354",
+  "foreslatt": {
+   "klasse": "rent_opphevingsvedtak",
+   "grunnlag": "Bare oppheving av andre dokumenter (3) og eventuelt ikrafttredelse (1); tittel opphevingsform=True.",
+   "i_kraft": "ja",
+   "endrer_antall": 3
+  }
+ },
+ {
+  "id": "U15",
+  "rettskilde": "LTI/forskrift/2022-01-21-107",
+  "tittel": "Oppheving av kgl.res. 10. desember 1982 nr. 4071 om sammenslåing av Drivstofforsyningsrådet og det Rådgivende utvalg for oljeforsyningskriser i fredstid til Oljeberedskapsrådet",
+  "lovdata": "https://lovdata.no/dokument/LTI/forskrift/2022-01-21-107",
+  "foreslatt": {
+   "klasse": "rent_opphevingsvedtak",
+   "grunnlag": "Bare oppheving av andre dokumenter (1) og eventuelt ikrafttredelse (0); tittel opphevingsform=True.",
+   "i_kraft": "ja",
+   "endrer_antall": 1
+  }
+ },
+ {
+  "id": "U16",
+  "rettskilde": "LTI/forskrift/2015-03-17-228",
+  "tittel": "Vedtak om oppheving av delegering av myndighet til Mattilsynet etter matloven § 9",
+  "lovdata": "https://lovdata.no/dokument/LTI/forskrift/2015-03-17-228",
+  "foreslatt": {
+   "klasse": "rent_opphevingsvedtak",
+   "grunnlag": "Bare oppheving av andre dokumenter (1) og eventuelt ikrafttredelse (1); tittel opphevingsform=True.",
+   "i_kraft": "ja",
+   "endrer_antall": 1
+  }
+ },
+ {
+  "id": "U17",
+  "rettskilde": "DEL/forskrift/1985-07-12-1442",
+  "tittel": "Endring vedrørende delegering av myndighet etter sjøfartsloven (kjenningssignal – fiskerifartøyer).",
+  "lovdata": "https://lovdata.no/dokument/DEL/forskrift/1985-07-12-1442",
+  "foreslatt": {
+   "klasse": "blandet",
+   "grunnlag": "Tittelen har endringsform, men kilden har eget innhold (2 ledd), første: kapittel-1-ledd-1.",
+   "i_kraft": "ja",
+   "endrer_antall": 0
+  }
+ },
+ {
+  "id": "U18",
+  "rettskilde": "SF/forskrift/1988-07-08-562",
+  "tittel": "Forskrift om endring av landbruksfagskulane sin struktur og plass i skulesystemet – unntak frå lov om fagskulane i landbruket.",
+  "lovdata": "https://lovdata.no/dokument/SF/forskrift/1988-07-08-562",
+  "foreslatt": {
+   "klasse": "blandet",
+   "grunnlag": "Tittelen har endringsform, men kilden har eget innhold (1 ledd), første: ledd-1.",
+   "i_kraft": "ja",
+   "endrer_antall": 0
+  }
+ },
+ {
+  "id": "U19",
+  "rettskilde": "DEL/forskrift/1989-12-15-1241",
+  "tittel": "Ikrafttredelse av lov 16. juni 1989 nr. 69 om forsikringsavtaler og lov 16. juni 1989 nr. 70 om naturskadeforsikring. Delegering av myndighet.",
+  "lovdata": "https://lovdata.no/dokument/DEL/forskrift/1989-12-15-1241",
+  "foreslatt": {
+   "klasse": "blandet",
+   "grunnlag": "Tittelen har ikrafttredelsesform, men kilden har eget innhold (3 ledd), første: kapittel-2-punkt-1-ledd-1.",
+   "i_kraft": "ja",
+   "endrer_antall": 0
+  }
+ },
+ {
+  "id": "U20",
+  "rettskilde": "DEL/forskrift/1961-04-14-3000",
+  "tittel": "Ikrafttredelse av bilansvarsloven. Delegering.",
+  "lovdata": "https://lovdata.no/dokument/DEL/forskrift/1961-04-14-3000",
+  "foreslatt": {
+   "klasse": "blandet",
+   "grunnlag": "Tittelen har ikrafttredelsesform, men kilden har eget innhold (58 ledd), første: ledd-1.",
+   "i_kraft": "ja",
+   "endrer_antall": 0
+  }
+ },
+ {
+  "id": "U21",
+  "rettskilde": "LTI/forskrift/2004-01-16-218",
+  "tittel": "Forskrift om endring i forskrift om faglig ansvarsfordeling mv. etter kulturminneloven.",
+  "lovdata": "https://lovdata.no/dokument/LTI/forskrift/2004-01-16-218",
+  "foreslatt": {
+   "klasse": "blandet",
+   "grunnlag": "Tittelen har endringsform, men kilden har eget innhold (11 ledd), første: kapittel-1-ledd-1.",
+   "i_kraft": "ja",
+   "endrer_antall": 1
+  }
+ },
+ {
+  "id": "U22",
+  "rettskilde": "LTI/forskrift/2004-10-29-1411",
+  "tittel": "Vedtak om endring av navn på Arkitekthøgskolen i Oslo til Arkitektur- og designhøgskolen i Oslo.",
+  "lovdata": "https://lovdata.no/dokument/LTI/forskrift/2004-10-29-1411",
+  "foreslatt": {
+   "klasse": "blandet",
+   "grunnlag": "Tittelen har endringsform, men kilden har eget innhold (1 ledd), første: ledd-1.",
+   "i_kraft": "ja",
+   "endrer_antall": 0
+  }
+ },
+ {
+  "id": "U23",
+  "rettskilde": "DEL/forskrift/1989-03-17-167",
+  "tittel": "Delvis ikrafttredelse av lov av 10. juni 1988 nr. 39 om forsikringsvirksomhet. Delegering av myndighet.",
+  "lovdata": "https://lovdata.no/dokument/DEL/forskrift/1989-03-17-167",
+  "foreslatt": {
+   "klasse": "blandet",
+   "grunnlag": "Tittelen har ikrafttredelsesform, men kilden har eget innhold (1 ledd), første: kapittel-2-ledd-1.",
+   "i_kraft": "ja",
+   "endrer_antall": 0
+  }
+ },
+ {
+  "id": "U24",
+  "rettskilde": "SF/forskrift/2007-03-02-232",
+  "tittel": "Forskrift om konsesjonsordning for fiske utenfor norsk fiskerijurisdiksjon",
+  "lovdata": "https://lovdata.no/dokument/SF/forskrift/2007-03-02-232",
+  "foreslatt": {
+   "klasse": "selvstendig",
+   "grunnlag": "Eget innhold (22 ledd), tittelen har ikke endrings-, opphevings- eller ikrafttredelsesform.",
+   "i_kraft": "ja",
+   "endrer_antall": 0
+  }
+ },
+ {
+  "id": "U25",
+  "rettskilde": "SF/forskrift/2023-06-29-1162",
+  "tittel": "Overgangsregler til lov 20. juni 2023 nr. 80 om endringer i konkurranseloven (søksmålskompetanse for Konkurransetilsynet)",
+  "lovdata": "https://lovdata.no/dokument/SF/forskrift/2023-06-29-1162",
+  "foreslatt": {
+   "klasse": "selvstendig",
+   "grunnlag": "Eget innhold (1 ledd), tittelen har ikke endrings-, opphevings- eller ikrafttredelsesform.",
+   "i_kraft": "ja",
+   "endrer_antall": 0
+  }
+ },
+ {
+  "id": "U26",
+  "rettskilde": "NL/lov/1959-12-18-1",
+  "tittel": "Lov om mortifikasjon av skuldbrev m.v. [mortifikasjonslova]",
+  "lovdata": "https://lovdata.no/dokument/NL/lov/1959-12-18-1",
+  "foreslatt": {
+   "klasse": "selvstendig",
+   "grunnlag": "Eget innhold (25 ledd), tittelen har ikke endrings-, opphevings- eller ikrafttredelsesform.",
+   "i_kraft": "ja",
+   "endrer_antall": 0
+  }
+ },
+ {
+  "id": "U27",
+  "rettskilde": "DEL/forskrift/1996-11-07-1018",
+  "tittel": "Delegering av myndighet til Kultur- og kirkedepartementet – tilskudd til innvandrerpublikasjoner.",
+  "lovdata": "https://lovdata.no/dokument/DEL/forskrift/1996-11-07-1018",
+  "foreslatt": {
+   "klasse": "selvstendig",
+   "grunnlag": "Eget innhold (1 ledd), tittelen har ikke endrings-, opphevings- eller ikrafttredelsesform.",
+   "i_kraft": "ja",
+   "endrer_antall": 0
+  }
+ },
+ {
+  "id": "U28",
+  "rettskilde": "DEL/forskrift/1984-01-20-213",
+  "tittel": "Ikrafttredelse av § 5 tredje ledd i lov av 3. juni 1983 nr. 50 om endringer i lov av 31. mai 1974 nr. 19 om konsesjon og om forkjøpsrett for det offentlige ved erverv av fast eiendom (konsesjonsloven). Delegering av myndighet.",
+  "lovdata": "https://lovdata.no/dokument/DEL/forskrift/1984-01-20-213",
+  "foreslatt": {
+   "klasse": "ukjent",
+   "grunnlag": "Endringsform i teksten, men verken tittelen eller hodet (changesToDocuments) sier at kilden endrer andre.",
+   "i_kraft": "ja",
+   "endrer_antall": 0
+  }
+ },
+ {
+  "id": "U29",
+  "rettskilde": "",
+  "tittel": "Vedtak om endring i stortingsvedtak 18. desember 2025 nr. 2755 om engangsavgift på motorvogner mv. for 2026",
+  "lovdata": null,
+  "foreslatt": {
+   "klasse": "ukjent",
+   "grunnlag": "Rå Lovdata-tekst mangler (bare AKN, der endringsinstruksene ikke er med).",
+   "i_kraft": "ja",
+   "endrer_antall": 0
+  }
+ },
+ {
+  "id": "U30",
+  "rettskilde": "",
+  "tittel": "Forskrift om autorisasjon mv. for utøvelse av lokal flygeinformasjonstjeneste, AFIS og HFIS",
+  "lovdata": null,
+  "foreslatt": {
+   "klasse": "ukjent",
+   "grunnlag": "Rå Lovdata-tekst mangler (bare AKN, der endringsinstruksene ikke er med).",
+   "i_kraft": "ja",
+   "endrer_antall": 0
+  }
+ }
+]

@@ -380,6 +380,12 @@ tekst vi har (konsolidert/kunngjort), disposisjonstypene er Johanns lukkede list
 som sveipene skal lese uten å tolke tittelen på nytt. Regelen (`DisposisjonstypeTjeneste`): `changesToDocuments` har minst ett mål, tittelen
 har endringsform, og ingen organiseringstype. NULL = ikke markert.
 
+**[ENDRET, #446, prosjekteierens avgjørelse 2026-11-25] Vedtaksform og ikraftstatus.** Kolonnene `rettskilder.vedtaksform` (seks klasser),
+`vedtaksform_grunnlag`, `vedtaksform_kunnskapsstatus`, `vedtaksform_regelversjon`, `ikraft_status` og `ikraft_status_grunnlag`, og
+`rettskilde_noder.endringsrolle` (migrasjonen `VedtaksformOgIkraftstatus`). Regelen leser Lovdatas rå HTML ledd for ledd (`Vedtaksform`,
+`VedtaksformTjeneste`, `POST /api/rettskilder/vedtaksform/klassifiser`). `rent_endringsvedtak` beholder navnet, men betyr «uttømt virkning» og
+avledes av vedtaksformen og ikraftstatusen fra #446 PR 2. Se docs/33 §5.22.
+
 **Utvalg [LÅST, #395].** `POST /api/lovdata/lovtidend-import[?skriv=true]` (`LovtidendImportTjeneste`) importerer bare dokumenter der
 tittelen gir en organiseringstype (`Disposisjonstyper.Organiseringstyper`) og ELI-en (dokumenttype + dato + nummer) ikke finnes som
 primærkilde. En referanse-stub forfremmes. Ikrafttredelser holdes utenfor.

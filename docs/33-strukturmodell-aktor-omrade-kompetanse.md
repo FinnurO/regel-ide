@@ -2884,6 +2884,131 @@ etter PR 4 (frø 20261125, stratifisert og om lag proporsjonalt, uten H01–H20)
   - To av de åtte R8-hullene (M10, M16).
 - **Ingen uenighet står igjen.** Forslagene står i `maling-2/sammendrag.md`, men er ikke bygget.
 
+### 5.22 Vedtaksformen: rene endrings-, ikrafttredelses- og opphevingsvedtak (#446 PR 1, bygget 2026-11-26)
+
+[Ny, prosjekteierens avgjørelse 2026-11-25 i #446] Et vedtak som bare endrer, setter i kraft eller opphever andre dokumenter, har uttømt
+virkningen når det er i kraft. Innholdet står da i dokumentet det endret. Markøren fra #395 (`rent_endringsvedtak`, §5.9) leste bare tittelen og
+hodet. Den kunne derfor bare si «ja» eller «vet ikke», og 101 av de 222 som sto som `true`, har eget innhold (for eksempel overgangsregler eller
+«Departementet kan gi overgangsregler»).
+
+**Regelen** (`Vedtaksform`, ren funksjon, regelversjon `446-pr1-v3-2026-11-26`):
+- **Kilden er Lovdatas rå HTML** (`rettskilder.innhold`), ikke nodene. Endringsinstruksene («I lov … gjøres følgende endringer:», «§ 3 skal lyde:»)
+  er `defaultP`, og parseren gjør dem ikke til noder.
+- **Hver enhet får én rolle**, setning for setning: endringsinstruks, sitert tekst, ikrafttredelse, oppheving av et annet dokument eller eget
+  innhold.
+  - Sitert tekst er alt etter en instruks i samme romertallsdel eller paragraf, og alt i Lovdatas markering for endret eller foreslått tekst
+    (`futureLegalArticle`, `document-change`, `change`).
+  - En overskrift «Overgangsregel …» eller «Ikrafttredelse …» utenfor den markeringen avslutter endringsdelen.
+  - En setning er eget innhold når den har en overgangsregel, en delegering eller kompetanse («gis myndighet», «delegeres», «kan gi forskrift»),
+    «gjelder ikke», «fortsatt», «får anvendelse» eller en ikrafttredelse bare i en leddsetning («… når loven trer i kraft, avsluttes»). En
+    hovedsetning om ikrafttredelse («Forskriften trer i kraft når loven trer i kraft») er fortsatt ikrafttredelse.
+  - Ingresser, lister over endrede lover og Lovdatas merknader telles ikke.
+- **Klassene** (`rettskilder.vedtaksform`, CHECK):
+
+| Klasse | Regel | Kunnskapsstatus |
+|---|---|---|
+| `rent_endringsvedtak` | Ingen eget innhold. Minst én instruks eller sitert tekst, eller endringsdelen er innarbeidet hos Lovdata (tittel med endringsform og «Endrer» i hodet) | normalisering |
+| `rent_ikrafttredelsesvedtak` | Ingen eget innhold. Bare ikrafttredelse og oppheving, og tittelen har ikrafttredelsesform | normalisering |
+| `rent_opphevingsvedtak` | Ingen eget innhold. Minst én oppheving av et annet dokument | normalisering |
+| `blandet` | Tittelen har endrings-, opphevings- eller ikrafttredelsesform (eller nevner overgangsregler), men minst ett ledd har eget innhold. Grunnlaget har første ledd (id og sitat) | normalisering |
+| `selvstendig` | Eget innhold, og tittelen har ikke slik form | normalisering |
+| `ukjent` | Rå tekst mangler, ingen operativ tekst, eller formen i teksten og tittelen spriker | uavklart |
+
+- **En ren klasse krever tittelform** (endring, oppheving eller ikrafttredelse). «Endrer» i hodet alene er ikke nok etter måling 1. Et nytt
+  delegeringsvedtak som «endrer» det forrige og opphever det i samme vedtak, har det forrige i «Endrer», men innholdet står bare i det nye vedtaket.
+- «Endring av navn» og «endring av … struktur» er ikke endringsform. Tittelformen «endring av» krever et dokument etter seg.
+
+**Ikraftstatusen** (`rettskilder.ikraft_status`: `ja`, `delvis`, `ikke_i_kraft`, `utlopt`, `ukjent`, med grunnlag i `ikraft_status_grunnlag`):
+- **Kilden er Lovdatas «I kraft fra»** (`ikrafttredelse_raa`).
+  - Et intervall («2004-01-17 – 2004-12-31») som er passert, gir `utlopt`.
+  - Datoer som alle er passert, gir `ja`. Er bare noen passert, blir det `delvis`. Er ingen passert, blir det `ikke_i_kraft`.
+  - En del uten dato («Kongen bestemmer») gir `ukjent`. Feltet er frosset fra kunngjøringen.
+- **Ved `ukjent` følges en ikraftsetting i korpus.** Det må være et rent ikrafttredelsesvedtak som har kilden som hjemmel i hodet, og som setter
+  hele loven i kraft på en dato som er passert. Grunnlaget har dokument-id og sitat.
+- **Kjent begrensning (juristen godtok den i måling 1 og 2):** `ukjent` betyr her «ikke lest», ikke at kilden er uklar.
+  - Fotnoter («Fra … iflg. res. … med unntak av …»), Lovdatas statusfelt og målets endringsmerknader kan si sikkert at bare deler er i kraft.
+    De leses ikke i dag.
+  - Fotnoten har fast form og står i kildens egen HTML. Den er den billigste sikre kilden hvis dette skal bygges senere.
+  - Lovdatas statusfelt «Ikke i kraft» finnes ikke i den rå HTML-en i korpuset.
+  - Utelatelsen endres ikke av dette, fordi både NULL og false gir funn.
+
+**Rollen per ledd** (`rettskilde_noder.endringsrolle`, CHECK: `endringsinstruks`, `sitert_tekst`, `ikrafttredelse`, `oppheving`):
+- Rollen kobles til noden på Lovdatas id (`kilde_id`). Et listepunkt har id-en til listeelementet.
+- Eget innhold lagres ikke. NULL på en node i en klassifisert kilde betyr eget innhold eller ikke koblet.
+- Rollen leses av #429 i PR 2 (prosjekteierens valg A).
+
+**Uttømt virkning** (`Vedtaksform.UttomtVirkning`, prosjekteierens valg C) er det `rent_endringsvedtak` skal bety fra PR 2. Kolonnenavnet
+beholdes (valg D).
+
+| Verdi | Når |
+|---|---|
+| `true` | Ren form, og ikraftstatusen er `ja` eller `utlopt` |
+| `false` | `blandet` eller `selvstendig`, eller ren form der det er sikkert at vedtaket ikke er helt i kraft (`delvis`, `ikke_i_kraft`) |
+| NULL | `ukjent` eller ikke vurdert, eller ren form der ikraftstatusen er `ukjent` |
+
+**Tjenesten og endepunktet:**
+- Tjenesten er `VedtaksformTjeneste`, og endepunktet er `POST /api/rettskilder/vedtaksform/klassifiser`.
+- Populasjonen er den samme som for disposisjonstypene: gjeldende, primære og delte lover og forskrifter.
+- Uten parametere tørrkjøres endepunktet. Med `?skriv=true` lagres resultatet. `?medRader=true` tar med hver kilde, og `?medEnheter=true` tar i tillegg
+  med rollen per lest enhet.
+- PR 1 skriver ikke `rent_endringsvedtak`.
+- Tjenesten er idempotent: i kopien endret andre kjøring 0 kilder og 0 noder.
+
+**Kjørt i en kopi av den delte basen** (`regelide_446`, 2026-11-26), 6 680 kilder:
+
+| Prefiks | Rent endring | Rent ikrafttredelse | Rent oppheving | Blandet | Selvstendig | Ukjent |
+|---|---|---|---|---|---|---|
+| DEL | 4 | 5 | 0 | 159 | 1 247 | 9 |
+| INS | 0 | 0 | 0 | 3 | 180 | 2 |
+| LTI | 310 | 18 | 52 | 62 | 347 | 20 |
+| NL | 30 | 0 | 0 | 78 | 649 | 1 |
+| SF | 43 | 1 | 0 | 27 | 3 321 | 3 |
+| STV | 1 | 1 | 0 | 0 | 82 | 0 |
+| uten dokument-id | 1 | 0 | 0 | 0 | 0 | 24 |
+| **Sum** | **389** | **25** | **52** | **329** | **5 826** | **59** |
+
+- **Overgangen fra markøren fra #395:**
+  - Av de 222 med `true` blir 116 rent endringsvedtak, 3 rent opphevingsvedtak, 101 blandet, 1 selvstendig og 1 ukjent.
+  - Av de 6 458 med NULL blir 347 rene.
+- **Ikraftstatusen:** ja 6 299, delvis 30, ikke i kraft 18, utløpt 22 og ukjent 311. En ikraftsetting i korpus ble fulgt for 8 kilder.
+- **Uttømt virkning:** true 406, false 6 174, NULL 100.
+- **Roller per ledd:** endringsinstruks 2 030, sitert tekst 27 436, ikrafttredelse 6 093 og oppheving 952. Av disse er 20 061 koblet til noder.
+- **DEL/forskrift/1999-06-25-711** er blandet. Grunnlaget er § 1 andre ledd: «Revisorloven kapittel 4 og 5 gjelder ikke for …».
+
+**Presisjonen** (Wilson 95 %; bare lesing mot den delte basen). Filene ligger i `data/fasit/strukturmodell/juristrunde-446/`.
+
+| Måling | Utvalg | Rene | Merknad |
+|---|---|---|---|
+| Fase 1 | 30, stratifisert per klasse | 16/16 (0,81–1,00) | Totalt 25/30 |
+| Måling 1 | 45 rene, stratifisert etter prefiks og tittelsignal, frø 20261126 | 39/45 (0,74–0,94) | Laget med bare hodesignal: 6/10 |
+| **Måling 2** | **45 nye rene, frø 20261127, uten kildene fra fase 1 og måling 1** | **44/45 (0,884–0,996)** | Endring 34/34 (0,90–1,00), ikrafttredelse 4/4 (0,51–1,00), oppheving 6/7 (0,49–0,97) |
+
+- **Kravet:** prosjekteieren krevde nedre grense minst 0,85 for de rene klassene samlet (valg E). Måling 2 når kravet med 0,884.
+- **Per klasse** er utvalgene for ikrafttredelses- og opphevingsvedtak for små til å nå kravet hver for seg. Det er 25 og 52 slike kilder i hele
+  populasjonen.
+- **Feilen i måling 2** er N40 (NL/lov/2019-12-13-83). En overgangsregel med «når loven trer i kraft» i en leddsetning ble lest som ikrafttredelse.
+  - Feilen er rettet etter målingen.
+  - Ingen annen kilde i populasjonen endret klasse av rettingen. De fem lignende kandidatene juristen fant ved tekstsøk, er alle blandet.
+  - Presisjonen er regnet som målt, før rettingen.
+- **Rettingene etter måling 1:** tittelform kreves (M01, M03, M05 og M08), overgangsoverskriften avslutter endringsdelen (M40), og en tittel med
+  overgangsregler gir blandet (M29).
+- **Ingen uenighet står igjen.** I runde 2 godtok juristen svarene på innvendingene om ikraftstatusen.
+- **Ført til prosjekteieren under #438:** om en kilde som bare er blandet på grunn av en overgangsregel som har løpt ut (M29, M40, N40), skal regnes
+  som uttømt.
+
+**Prosjekteierens avgjørelser 2026-11-25** (Johann, på spørsmålene i fase 1 av #446):
+- **A.** Rollen per ledd bygges nå, og #429 hopper over sitert tekst og endringsinstrukser i kilder som er i kraft (PR 2). Juristen fastholdt at
+  #446 ellers ville gjort #429 dårligere (D10).
+- **B.** Navnevedtak og andre engangsvedtak hører til #438.
+- **C.** `false` brukes bare når det er sikkert at vedtaket ikke er i kraft. NULL brukes når ikrafttredelsen er ukjent.
+- **D.** Kolonnenavnet `rent_endringsvedtak` beholdes, med betydningen «uttømt virkning».
+- **E.** Nedre Wilson-grense 0,85 for de rene klassene på et nytt utvalg, og ingen uenighet med juristen igjen, før noe skrives til den delte basen.
+
+**Ikke i PR 1:**
+- Koblingen til #472, #429 og sveipeutvalget, og avledningen av `rent_endringsvedtak` (PR 2).
+- Fotnoter og målets endringsmerknader i ikraftstatusen.
+- De 24 kildene uten rå tekst. Juristen fant at én av dem er opphevet hos Lovdata (fase 1, D11).
+
 ### 5.6 Konvertering av eksisterende data
 
 | Fra | Til | Automatisk? |
