@@ -78,6 +78,7 @@ public class StatsradOrdlydsreglerTests
     [InlineData("under utførelsen av deres gjøremål utenfor [statsrådet].")]
     [InlineData("til avholdelse av beslutningsdyktig [statsråd].")]
     [InlineData("Protokollen føres særskilt for hvert [statsråd].")]
+    [InlineData("at riket til enhver tid har et [statsråd], en statsminister")] // juristmålingen PR 2 (t2): bare «et» kan være møtet
     [InlineData("Bestemmelsene gjelder ikke [statsråd] i egenskap av regjeringsmedlem.")]
     public void Slutning(string tekst) => Assert.Null(Les(tekst));
 

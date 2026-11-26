@@ -23,7 +23,8 @@ public sealed record StatsradTreff(string? Lesning, string Regel, string Grunnla
 /// beslutte (Grl. §§ 13 og 41; suksesjonsforskriften §§ 5 og 6, juristrunden q5): da er det slutning. Uten beslutningsord: slutning.</item>
 /// <item><b>Tittel foran et navn</b> («Statsråd Kallmyr har ansvaret», «fra statsråd Jan Christian Vestre»): rollen. Ingen kant avledes av
 /// disse (juristrunden q4, prosjekteieren 2026-11-25).</item>
-/// <item><b>Intetkjønn foran</b> («det samlede statsråd», «sitt statsråd», «et statsråd»): organet statsrådet.</item>
+/// <item><b>Intetkjønn foran</b> («det samlede statsråd», «sitt statsråd»): organet statsrådet. [ENDRET, juristmålingen PR 2 (t2)] Bare «et»
+/// («et statsråd») er slutning: det kan også være møtet.</item>
 /// <item><b>Møtet</b> («avholdelse av statsråd», «hvert statsråd», «forberedende statsråd», «fra statsråd»): slutning (organet eller møtet).</item>
 /// <item><b>Rolleord eller sideordning</b> foran («en», «den», «vedkommende», «ansvarlig(e)», «hovedansvarlig», «foredragende», «den enkelte»,
 /// «hver enkelt», «annen», «som», «vært», «til»; «statsminister eller», «embetsverk og»): rollen.</item>
@@ -71,6 +72,7 @@ public static class StatsradOrdlydsregler
         @"(?<![\p{L}\p{N}-])(?:en|den|vedkommende|ansvarlig|ansvarlige|hovedansvarlig|foredragende|enkelte|hver\s+enkelt|annen|som|vært|til)\s+$", I);
     private static readonly Regex Sideordning = new(@"(?<![\p{L}\p{N}-])(?:statsminister|embetsverk)\s+(?:eller|og)\s+$", I);
     private static readonly Regex TittelNavn = new(@"^\s+(?!Kongen\b|Stortinget\b)\p{Lu}\p{Ll}", RegexOptions.CultureInvariant);
+    private static readonly Regex OrganForan = new(@"(?<![\p{L}\p{N}-])(?:det\s+samlede|sitt)\s+$", I);
     private static readonly Regex Lovtittel = new(@"(?<![\p{L}])(?:lov|forskrift)\s[^;]{0,60}?om\s+pensjonsordning\s+for\s+$", I);
 
     /// <summary>
@@ -106,11 +108,13 @@ public static class StatsradOrdlydsregler
             if (titler.Any(t => t is not null && KrigTittel.IsMatch(t))) return null;
             var setning = Setning(tekst, start, slutt);
             return Beslutningsord.Match(setning) is { Success: true } b
-                ? new(Forekomstlesninger.KongenIStatsrad, KongenIStatsrad, $"«{b.Value}» … i {ord}")
+                ? new(Forekomstlesninger.KongenIStatsrad, KongenIStatsrad, $"{b.Value} … i {ord}")
                 : null;
         }
         if (form == "statsråd" && TittelNavn.IsMatch(etter)) return new(Forekomstlesninger.RolleStatsrad, RolleTittel, $"{ord}{Utdrag(etter, 20)}");
-        if (sperre == Ordsperrer.Intetkjonn) return new(Forekomstlesninger.Statsradet, OrganIntetkjonn, Utdrag(foran, ord));
+        // [ENDRET, juristmålingen PR 2 (t2)] Bare «det samlede» og «sitt» er organet. Bare «et» kan også være møtet («på et statsråd 12. mai»),
+        // så det er slutning (sperret for rollen som før).
+        if (sperre == Ordsperrer.Intetkjonn) return OrganForan.IsMatch(foran) ? new(Forekomstlesninger.Statsradet, OrganIntetkjonn, Utdrag(foran, ord)) : null;
         if (sperre == Ordsperrer.Motet) return null;
         if (Sideordning.Match(foran) is { Success: true } so) return new(Forekomstlesninger.RolleStatsrad, RolleSideordning, $"{so.Value.Trim()} {ord}");
         if (Rolleord.Match(foran) is { Success: true } ro) return new(Forekomstlesninger.RolleStatsrad, RolleRolleord, $"{ro.Value.Trim()} {ord}");

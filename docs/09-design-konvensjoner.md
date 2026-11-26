@@ -1619,6 +1619,11 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
 - **Kaldsjekket på nytt 2026-11-20** etter Johanns avgjørelser på PR #489, i en ny kopi (samme porter): hjemmelkortet for statsrådet viser Grl. § 12
   første ledd (fortolkning, oppretting), «Organtilhørighet» har «har medlemmer fra statsråd» (lenke til rollebegrepet), og Grl. § 72 tredje ledd
   nr. 1 viser «Forekomst: rollen statsråd» → statsråd (rollebegrepet). Ingen ny komponent. Kopien er slettet.
+- **[Ny, Refs #486 PR 2, 2026-11-26] To nye lesninger for tagg per forekomst av «statsråd»** (docs/33 §5.19.3): «Forekomst: beslutningsformen
+  Kongen i statsråd («i statsråd»)» og «Forekomst: organet statsrådet» (`FOREKOMSTLESNING_TEKST` i `GeneriskKilde.tsx`, samme ord som
+  `Forekomstlesninger.Tekst`). Samme kjede, merker og farger som over; ingen ny komponent. Kaldsjekket gjennom API-et
+  (`/api/rettskilder/{id}/generiske-tagger` gir lesningen, lesningsteksten og referenten), ikke i nettleseren: API-ets CORS tillater bare web
+  på 5173 og 5373, og økta hadde web på 5573.
 
 ## 58. Funnet «Hjemmel opphevet» og premissporten «Ny hjemmel» (issue #472 PR 2, Johanns avgjørelser 2026-11-18 og 2026-11-20)
 

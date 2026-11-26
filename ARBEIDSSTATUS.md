@@ -64,7 +64,7 @@ dokumentasjon (primaer|sekundaer), begge påkrevd uten hjemmel og NULL med.
 | Sak | Gren | Status | Verifisert hvordan |
 |---|---|---|---|
 | PR 1: ordsperren for «statsråd» og «statsrådet» (fire brukssteder, målingen), docs/33 §5.19.2 | `statsrad-ordsperre` | **PR åpen, venter på prosjekteieren (§19). Ikke flettet.** Ingen migrasjon, ingen skriving | `OrdsperreTests`, `AktorkoreglerTests`, `BegrepsforekomstTjenesteTests`, `StatsradOrdsperreLasterTests` lokalt. Kopien `regelide_statsrad` (API 5587): «statsråd» 265 av 364 sperret, «statsrådet» 14 av 47; «staten», aktørkøen og «regjeringen» identiske før og etter |
-| PR 2: tagg per forekomst for «statsråd» etter ordlydsregler (§5.19.3) | `statsrad-tagger` (på PR 1) | Under arbeid | — |
+| PR 2: tagg per forekomst for «statsråd» etter ordlydsregler (§5.19.3) | `statsrad-tagger` (på PR 1) | **PR åpen, venter på prosjekteieren (§19). Ikke flettet.** Migrasjonen `StatsradLesninger` (bare CHECK) og skrivingen (`POST /api/statsrad?skriv=true`) er IKKE kjørt mot delt `regelide`; hovedøkta kjører dem etter fletting | `StatsradOrdlydsreglerTests`, `StatsradTjenesteTests`, `RegjeringenTjenesteTests` lokalt, tsc -b. Kopien `regelide_statsrad` (ren pg_dump, API 5587): 278 forekomstbindinger, ny kjøring bare `finnes`, «staten», «regjeringen» og aktørkøen identiske før og etter; juristmåling 2 runder (20 kort, ingen uenighet). UI-merkene kaldsjekket via API, ikke i nettleseren (CORS tillater bare 5173/5373) |
 
 ## Standardregel for «fylkeskommunen» #470 (startet 2026-11-17)
 

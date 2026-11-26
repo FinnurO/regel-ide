@@ -2576,7 +2576,7 @@ Grl. § 72 tredje ledd nr. 1 lenker til rollebegrepet «statsråd». Kopien er s
 står utagget som hull; plikten i «legge fram for Stortinget» er fortsatt slutning. **Ikke avgjort:** hvem plikten ligger hos (slutning til da), og
 om «statsråd» trenger en ordsperre.
 
-[ENDRET, 2026-11-25] Prosjekteieren avgjorde ordsperren for «statsråd» og «statsrådet»: §5.19.2.
+[ENDRET, 2026-11-25] Prosjekteieren avgjorde ordsperren for «statsråd» og «statsrådet» (§5.19.2) og tagg per forekomst (§5.19.3).
 
 #### 5.19.2 «statsråd»: ordsperre (Refs #486, PR 1, bygget 2026-11-25)
 
@@ -2633,6 +2633,65 @@ utvidelsen bare den ene overskriften, og målingen av «staten» er identisk fø
 Før og etter i samme kopi: «staten» identisk (2 511 / 2 271, sperret 579 med konvensjonstekst 81, gjelder 1 932), aktørkøen identisk (1 211
 ventende, 188 navn, samme fordeling per rute), og tørrkjøringen for «regjeringen» identisk (98 regeltagger, 170 slutninger). Ingen tagger eller
 bindinger er endret (12 tagger på «Kongen i statsråd», 25 forekomstbindinger med `rolle_statsrad`): PR 1 skriver ingenting.
+
+#### 5.19.3 «statsråd»: tagg per forekomst (Refs #486, PR 2, bygget 2026-11-26)
+
+**Hvorfor.** Prosjekteieren valgte 2026-11-25 alternativ (b): sperre (§5.19.2) og positiv tagg per forekomst, etter mønsteret fra «regjeringen»
+(§5.19.1) og med juristens tre vilkår for tagger og bindinger.
+
+**Modellen.** «statsråd» blir en **generisk navneform** (grunn `generisk`, ingen aktør), som «regjeringen», og hver forekomst av ordet (alle
+bøyninger, `StatsradOrdlydsregler.Ordet`) får en tagg og en forekomstbinding med lesning, som `maskinelt_foreslatt`. Rollebegrepet «statsråd» og
+navneformen «statsrådet» for organet står uendret. Også forekomstene av «statsrådet» tagges mot den generiske navneformen: en tagg mot organets
+navneform ville koblet forekomsten til organet straks, uten vurdering. Forekomstene i «Kongen i statsråd» tagges ikke (aktørens navneform), og
+rene endringsvedtak tagges ikke (som sveipene; juristmålingen t3). To nye lesninger (migrasjonen `StatsradLesninger`, bare CHECK):
+`kongen_i_statsrad` (referent Kongen i statsråd) og `statsradet` (referent organet statsrådet).
+
+**Ordlydsreglene** (`StatsradOrdlydsregler`, kode, ikke data), prøvd i denne rekkefølgen:
+
+| Regel | Kode | Lesning | Hjemmel, kunnskapsstatus |
+|---|---|---|---|
+| «Kongen i statsråd(s)» | `dekket:kongen_i_statsrad` | ikke tagget | navneformen |
+| konvensjonstekst | `generisk:konvensjonstekst` | generisk konvensjonsstat | noden, fortolkning |
+| «i statsråd» med beslutningsord (behandl-, vedta-, avgj-, beslutt-, truffet, fattet, oppnevn-, utnevn-, resolusjon), ikke i en kilde om krig | `kongen:i_statsrad` | Kongen i statsråd | Grl. § 28 første ledd (og § 30 annet ledd i begrunnelsen), fortolkning |
+| tittel foran navn («Statsråd Kallmyr») | `rolle:tittel_navn` | rollen; ingen kant avledes | noden, tekstfunn |
+| «det samlede» / «sitt» foran | `organ:intetkjonn` | organet | Grl. § 12 første ledd, fortolkning |
+| sideordning med «statsminister»/«embetsverk», rolleord foran | `rolle:sideordning`, `rolle:rolleord` | rollen | noden, tekstfunn |
+| «statsrådet(s)», ikke «i/utenfor statsrådet» | `organ:statsradet` | organet | noden, tekstfunn |
+| bestemt form og flertall | `rolle:bestemt_flertall` | rollen | noden, tekstfunn |
+| «lov/forskrift … om pensjonsordning for statsråder» | `ikke_aktor:lovtittel` | ikke aktør | noden, tekstfunn |
+
+Alt annet er `slutning` (kunnskapsstatus uavklart, ingen referent, grunnen i kommentaren): møtet («hvert statsråd», «avholdelse av statsråd»),
+bare «et statsråd» (juristmålingen t2), «i statsråd» i en kilde om krig (suksesjonsforskriften §§ 5 og 6: kongen kan være borte, Grl. §§ 13 og 41),
+og «i statsrådet» og «utenfor statsrådet» (møtet).
+
+**Skrivingen** (`POST /api/statsrad[?skriv=true][&medForekomster=false]`): tørrkjøring er standard og idempotent, som for «regjeringen». Krever
+statsrådet og rollebegrepet (`POST /api/regjeringen?skriv=true`) og Kongen i statsråd; mangler en, får lesningen ingen binding, og det står som hull.
+
+**Målt 2026-11-26 i kopien `regelide_statsrad`** (ny pg_dump av den delte basen, migrasjonen kjørt i kopien, API 5587):
+
+| | Forekomster |
+|---|---:|
+| Alle forekomster av ordet (uten sammensetninger) | 529 |
+| i rene endringsvedtak (ikke tagget) | 8 |
+| i «Kongen i statsråd» (ikke tagget) | 241 |
+| Rollen statsråd (tittel 71, rolleord 24, sideordning 2, bestemt form og flertall 82) | 179 |
+| Organet statsrådet («statsrådet» 53, «det samlede»/«sitt» 3) | 56 |
+| Kongen i statsråd | 11 |
+| Ikke aktør (lovtittel) | 9 |
+| Generisk konvensjonsstat | 1 |
+| Slutning | 24 |
+| **Tagget med forekomstbinding** | **278** (2 uten eier: Instruks for KRU, Vedtak om ASDs forskriftsverk; hull) |
+
+- Flertydig hvis regeltaggene godkjennes og slutningene ikke (vilkår 2): 13 forekomster i 13 noder. 0 kollisjoner med andre tagger.
+- Tørrkjøringen og første skriving gav de samme tallene; andre skriving bare `finnes`. Tagger 1 158 → 1 436 og bindinger 257 → 535 (+278).
+- Før og etter skrivingen i samme kopi: «staten» identisk, tørrkjøringen for «regjeringen» identisk (rapporten viser nå også de to nye lesningene
+  med 0), aktørkøen identisk (1 211 ventende, 188 navn, samme fordeling per rute).
+
+**Juristmålingen** (`data/fasit/strukturmodell/statsrad/maling-pr2/`, CLAUDE.md §23): 20 av 285 forekomstbindinger i første skriving,
+stratifisert per regel (frø 48602). Runde 1: 17 holder, 3 innvendinger (lav, samme årsak: begrunnelsen for Kongen i statsråd skulle vise til
+Grl. § 30 annet ledd, ikke bare § 28), ingen feil lesning, referent eller kunnskapsstatus; juristen leste alle 285 og fant ingen motbeksempler.
+Svar b1–b5: § 30 annet ledd i begrunnelsen; bare «et» blir slutning (t2); rene endringsvedtak tagges ikke (t3, 7 bindinger færre); ingen
+kanter avledes; tallene fra en ren kopi. Runde 2: juristen godtar alle. **Ingen uenighet står igjen.**
 
 ### 5.20 Hjemmelsstatus: statusen per hjemmel og maskinregelen (#472 PR 1, bygget 2026-11-20)
 

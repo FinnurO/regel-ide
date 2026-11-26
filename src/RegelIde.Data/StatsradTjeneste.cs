@@ -11,9 +11,10 @@ public sealed record StatsradForekomst(
     Guid RettskildeId, string Rettskilde, string Eid, int Start, string Ord, string Utdrag, string? Lesning, string? Regel, string? Grunnlag,
     string? Slutningsgrunn, string Tagg, Guid? TaggId, string Binding, Guid? BindingId, bool FlertydigHvisGodkjent);
 
-/// <summary>[Ny, Refs #486 PR 2] Fordelingen: per lesning og per regel, forekomstene i «Kongen i statsråd» (ikke tagget), og vilkår 2.</summary>
+/// <summary>[Ny, Refs #486 PR 2] Fordelingen: per lesning og per regel, forekomstene i «Kongen i statsråd» og i rene endringsvedtak (ikke tagget,
+/// og ikke med i <see cref="Forekomster"/> for endringsvedtakene), og vilkår 2.</summary>
 public sealed record StatsradFordeling(
-    int Forekomster, int Noder, int Rettskilder, int IKongenIStatsrad, IReadOnlyDictionary<string, int> PerLesning, IReadOnlyDictionary<string, int> PerRegel,
+    int Forekomster, int Noder, int Rettskilder, int IKongenIStatsrad, int IRentEndringsvedtak, IReadOnlyDictionary<string, int> PerLesning, IReadOnlyDictionary<string, int> PerRegel,
     int FlertydigeForekomsterHvisGodkjent, int FlertydigeNoderHvisGodkjent, int Tagget, int TaggUtenEier, int TaggKolliderer);
 
 /// <summary>[Ny, Refs #486 PR 2] Svaret på <c>POST /api/statsrad[?skriv=true]</c>. Tallene er de skrivingen gir, også i tørrkjøringen.</summary>
@@ -161,7 +162,7 @@ public sealed class StatsradTjeneste(RegelIdeDbContext db, AktoridentitetTjenest
             or Forekomstlesninger.Statsradet or Forekomstlesninger.KongenIStatsrad);
         var fordeling = new StatsradFordeling(
             rader.Count, rader.Select(r => (r.RettskildeId, r.Eid)).Distinct().Count(), rader.Select(r => r.RettskildeId).Distinct().Count(),
-            rader.Count(r => r.Lesning is null),
+            rader.Count(r => r.Lesning is null), IEndringsvedtak,
             lesninger.ToDictionary(l => l, l => rader.Count(r => r.Lesning == l)),
             StatsradOrdlydsregler.Regler.ToDictionary(k => k, k => rader.Count(r => r.Regel == k)),
             merket.Count, flertydigeNoder,
@@ -244,6 +245,9 @@ public sealed class StatsradTjeneste(RegelIdeDbContext db, AktoridentitetTjenest
         return new(hva, "opprettet", nf.Id, null);
     }
 
+    /// <summary>Forekomstene i rene endringsvedtak, som ikke tagges (satt av <see cref="ForekomsterAsync"/>).</summary>
+    private int IEndringsvedtak;
+
     private sealed record Forekomst(Guid RettskildeId, string Tittel, string? Kortnavn, Guid NodeId, string Eid, string Tekst, int Start, int Slutt);
 
     /// <summary>Forekomstene: hele ord (<see cref="StatsradOrdlydsregler.Ordet"/>) i gjeldende, ikke opphevede noder i gjeldende rettskilder — samme
@@ -254,9 +258,12 @@ public sealed class StatsradTjeneste(RegelIdeDbContext db, AktoridentitetTjenest
         var noder = await db.RettskildeNoder
             .Where(n => n.Entitetsstatus == "gjeldende" && !n.Opphevet && n.Tekst != null && n.Tekst.ToLower().Contains(Term))
             .Join(db.Rettskilder.Where(r => r.Entitetsstatus == "gjeldende"), n => n.RettskildeId, r => r.Id,
-                (n, r) => new { r.Id, r.Tittel, r.Kortnavn, NodeId = n.Id, n.Eid, n.Tekst, n.Sorteringsrekkefolge })
+                (n, r) => new { r.Id, r.Tittel, r.Kortnavn, NodeId = n.Id, n.Eid, n.Tekst, n.Sorteringsrekkefolge, r.RentEndringsvedtak })
             .ToListAsync(ct);
-        return noder.OrderBy(n => n.Kortnavn ?? n.Tittel, StringComparer.Ordinal).ThenBy(n => n.Id).ThenBy(n => n.Sorteringsrekkefolge)
+        // [Ny, juristmålingen PR 2 (t3)] Et rent endringsvedtak gjentar teksten i loven det endrer (og den kan være endret senere). Det tagges ikke,
+        // som sveipene (Sveipeutvalg); forekomstene telles i rapporten.
+        IEndringsvedtak = noder.Where(n => n.RentEndringsvedtak == true).Sum(n => StatsradOrdlydsregler.Ordet.Matches(n.Tekst!).Count);
+        return noder.Where(n => n.RentEndringsvedtak != true).OrderBy(n => n.Kortnavn ?? n.Tittel, StringComparer.Ordinal).ThenBy(n => n.Id).ThenBy(n => n.Sorteringsrekkefolge)
             .SelectMany(n => StatsradOrdlydsregler.Ordet.Matches(n.Tekst!)
                 .Select(m => new Forekomst(n.Id, n.Tittel, n.Kortnavn, n.NodeId, n.Eid, n.Tekst!, m.Index, m.Index + m.Length)))
             .ToList();
@@ -277,8 +284,9 @@ public sealed class StatsradTjeneste(RegelIdeDbContext db, AktoridentitetTjenest
         {
             (Forekomstlesninger.KongenIStatsrad, _) => new(navneformId, f.RettskildeId, referent, HjemmelRettskildeId: grl28.RettskildeId, HjemmelEid: Grl28Eid,
                 Kunnskapsstatus: Strukturkanter.Fortolkning, Tolkningsargumenter: ["ordlyd", "kontekst_system"],
-                Begrunnelse: $"Beslutningsformen Kongen i statsråd: «{treff!.Grunnlag}». Saker avgjøres i statsråd av kongen (Grunnloven § 28 første ledd: «… i "
-                             + $"overensstemmelse med den beslutning som er tatt i statsrådet», og «unntas fra behandling i statsråd»). Regel «i statsråd» (Refs #486). {sitat}"),
+                Begrunnelse: $"Beslutningsformen Kongen i statsråd: «{treff!.Grunnlag}». Saker av viktighet behandles i statsråd (Grunnloven § 28 første ledd: «… i "
+                             + $"overensstemmelse med den beslutning som er tatt i statsrådet», og «unntas fra behandling i statsråd»), og det er kongen som "
+                             + $"beslutter der (§ 30 annet ledd: «det er denne forbeholdt å fatte beslutning»). Regel «i statsråd» (Refs #486). {sitat}"),
             (Forekomstlesninger.Statsradet, StatsradOrdlydsregler.OrganIntetkjonn) => new(navneformId, f.RettskildeId, referent,
                 HjemmelRettskildeId: grl12.RettskildeId, HjemmelEid: RegjeringenTjeneste.Grl12Eid,
                 Kunnskapsstatus: Strukturkanter.Fortolkning, Tolkningsargumenter: ["ordlyd", "kontekst_system"],

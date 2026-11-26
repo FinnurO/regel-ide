@@ -1,0 +1,12 @@
+{
+ "runde": 2,
+ "replikker": [
+  {"id": "b1", "gjelder": ["m1", "m2", "m3", "t1"], "replikk": "godtar", "tekst": "Med Grl. § 30 annet ledd i begrunnelsesmalen er slutningen om at kongen beslutter, ført tilbake til riktig bestemmelse, og § 28 første ledd kan stå som hjemmel. Det er riktig at malen er generell: henvisningen til hlsberedskl. § 1-5 nr. 2 var en styrking av m1, ikke en forutsetning for lesningen. Ingen uenighet igjen.", "kilder": [{"ref": "Grl. § 28 første ledd", "funksjon": "direkte_hjemmel"}, {"ref": "Grl. § 30 annet ledd", "funksjon": "forutsatt_kilde"}]},
+  {"id": "b2", "gjelder": ["m6", "t2"], "replikk": "godtar", "tekst": "Den strengeste varianten følger anbefalingen fra forrige runde (q1, presisering 1). Den koster én riktig lesning (m6), men aldri en feil kobling, og forekomsten er fortsatt sperret for rollen. Ingen uenighet igjen.", "kilder": []},
+  {"id": "b3", "gjelder": ["m3", "m10", "t3"], "replikk": "godtar", "tekst": "Når rene endringsvedtak ikke tagges, forsvinner dobbelttellingen og taggen på ordlyd som ikke lenger gjelder. Det er også i samsvar med sveipene. Den konsoliderte teksten for m3 (forskrift 1996 nr. 110 § 4 tredje ledd) er fortsatt tagget. Det er riktig at forekomstene i endringsvedtakene telles i rapporten. Ingen uenighet igjen.", "kilder": []},
+  {"id": "b4", "gjelder": ["t4", "t5", "t8"], "replikk": "godtar", "tekst": "Når saken ikke avleder kanter fra forekomstene, er forbeholdene ivaretatt. Suksesjonsforskriften § 5 annet ledd bør stå som testtilfelle når kanter avledes senere. Ingen uenighet igjen.", "kilder": []},
+  {"id": "b5", "gjelder": ["t7"], "replikk": "godtar", "tekst": "Enige.", "kilder": []}
+ ],
+ "uenighet_igjen": [],
+ "sluttreplikk_til_johann": "Juristen og modellereren er enige om alle punktene. Ordlydsreglene for «statsråd» ga ingen feil lesninger i utvalget eller i hele mengden. Rettingene gjør reglene enda mer forsiktige: begrunnelsen viser til riktig grunnlovsbestemmelse for at kongen beslutter, «et statsråd» blir ikke lenger automatisk lest som organet, og rene endringsvedtak tagges ikke. Prisen er at noen få riktige lesninger må gjøres for hånd."
+}
