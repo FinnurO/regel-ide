@@ -1,0 +1,3324 @@
+{
+ "sak": "#472 måling 3 (#501, PR 5: videreføring med kortnavnet fra tittelen til den opphevede loven)",
+ "dato": "2026-11-25",
+ "grunnlag": "Kopien regelide_501 (bare SELECT) etter at PR 5 er kjørt: hjemmelsstatus 472-pr5-2026-11-25 skrevet, funnregelen kjørt med skriv og oppfrisk. Før: 264 funn oppdaget. Etter: 241 oppdaget, 23 forklart bort (samlet status videreført). Utvalget står i utvalg.json.",
+ "klasser": {
+  "riktig": "Endret kort: utfallet etter PR 5 holder (hjemmelen er videreført av den koblede overgangsregelen, så funnet skal ikke stå). Kontrollkort: funnet holder som i måling 2 (opphevet uten funnet videreføring, riktig undertype), og regelen har ikke oversett en videreføring med kortnavnet.",
+  "feil": "Endret kort: funnet burde ha stått (overgangsregelen dekker ikke forskriften, eller kortnavnet peker ikke på loven). Kontrollkort: påstanden eller undertypen er feil.",
+  "usikker": "kan ikke avgjøres fra kildene"
+ },
+ "feilarsaker": [
+  "kortnavnet",
+  "dekningen",
+  "videreforingsformen",
+  "populasjonen",
+  "tekstlesingen",
+  "rollen",
+  "annet"
+ ],
+ "kort": [
+  {
+   "id": "E01",
+   "utvalg": "endret",
+   "funn_id": "3905c13a-e466-4527-b093-8b82a27c4eb3",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2011/05/15/537/nor",
+   "prefiks": "SF",
+   "forskrift": {
+    "dokument_id": "SF/forskrift/2011-05-15-537",
+    "tittel": "Forskrift om kommunale og fylkeskommunale viltfond og fellingsavgift for elg og hjort",
+    "lovdatas_hjemmelstekst": "Hjemmel: Fastsatt av Direktoratet for naturforvaltning 15. mai 2011 med hjemmel i lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven) § 40, § 43 og § 48.\nTilføyd hjemmel: Lov 20. juni 2025 nr. 102 om jakt, fangst og felling av vilt mv. (viltressursloven) § 9.\nEndret ved forskrifter 21 des 2020 nr. 3044 (i kraft 1 jan 2021), 26 juni 2026 nr. 1380 (i kraft 1 juli 2026, bl.a. hjemmel).\nRettet 30.04.2021 (departementstilhørighet).",
+    "ikrafttredelse": "2011-06-01",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "hjemmelsstatus_etter_pr5": [
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1981/05/29/38/nor/§40",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2025-06-20-102",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61",
+     "opphevet_av_sitat": "Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.",
+     "lest_i_lovtidend": true,
+     "videreforing_kilde": "NL/lov/2025-06-20-102",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+     "videreforing_form": "V4",
+     "videreforing_dekning": "dekket",
+     "videreforing_sitat": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.",
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1981/05/29/38/nor/§43",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2025-06-20-102",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61",
+     "opphevet_av_sitat": "Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.",
+     "lest_i_lovtidend": true,
+     "videreforing_kilde": "NL/lov/2025-06-20-102",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+     "videreforing_form": "V4",
+     "videreforing_dekning": "dekket",
+     "videreforing_sitat": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.",
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1981/05/29/38/nor/§48",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2025-06-20-102",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61",
+     "opphevet_av_sitat": "Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.",
+     "lest_i_lovtidend": true,
+     "videreforing_kilde": "NL/lov/2025-06-20-102",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+     "videreforing_form": "V4",
+     "videreforing_dekning": "dekket",
+     "videreforing_sitat": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.",
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§9",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/2025/06/20/102/nor",
+     "i_korpus": "NL/lov/2025-06-20-102",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    }
+   ],
+   "kortnavn": [
+    {
+     "eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "kortnavn_lest": "viltloven",
+     "grunn": "entydig",
+     "titler_i_korpus": [
+      {
+       "kilde": "DEL/forskrift/2019-09-13-1124",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2009-12-22-1774",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2009-12-22-1775",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2011-03-01-206",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2013-03-15-284",
+       "sitat": "lov 29. mai 1981 nr. 38 om viltet (viltloven)"
+      }
+     ],
+     "andre_lover_med_samme_navn": [],
+     "opphevende_kilde_nevner_kortnavnet": [
+      {
+       "eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+       "tekst": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft."
+      }
+     ]
+    }
+   ],
+   "for_pr5": {
+    "status": "oppdaget",
+    "undertype": "blandede_hjemler",
+    "tittel": "Blandede hjemler, én opphevet uten funnet videreføring: Forskrift om kommunale viltfond m.m. (FOR-2011-05-15-537)",
+    "pastand": "Lovdata viser «Forskrift om kommunale viltfond m.m.» (FOR-2011-05-15-537) som gjeldende. Minst én hjemmel som teller, er opphevet uten funnet videreføring, mens andre hjemler bærer. Hvilken del av forskriften som står uten hjemmel, er ikke avgjort. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1981-05-29-38 § 40, § 43 og § 48 er opphevet av LOV-2025-06-20-102 § 61 (lest i den kunngjorte teksten i Norsk Lovtidend): «Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.»\n- Ikke kontrollert: Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.\n- LOV-2025-06-20-102 § 9 er aktiv (rolle materiell).\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446)."
+   },
+   "etter_pr5": {
+    "status": "forklart_bort",
+    "begrunnelse": "Forklart bort av maskinregelen monster:hjemmel-opphevet (regelversjon 472-pr4-2026-11-24, #472 PR 4, prosjekteierens avgjørelse 2026-11-24 etter måling 1). Den samlede hjemmelsstatusen er nå «viderefort» (hjemmelsstatus 472-pr5-2026-11-25), og den gir ikke funn."
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "feilarsak": null,
+    "grunn": "Viltressursloven § 61 andre ledd: «Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.» Hjemmelstekstene i korpus siterer lov 29. mai 1981 nr. 38 med tittelen «om jakt og fangst av vilt (viltloven)», og ingen annen lov i korpus heter viltloven. Riktig. Forskriften er gitt i medhold av viltloven, og § 61 andre ledd viderefører forskrifter uten forbehold og uten frist. Dekningen er «dekket». Utfallet (videreført, funnet forklart bort) holder.",
+    "kontrollert_mot": [
+     "NL/lov/2025-06-20-102 §61 (korpus)",
+     "Hjemmelstekstene i korpus (kortnavn.titler_i_korpus)"
+    ]
+   }
+  },
+  {
+   "id": "E02",
+   "utvalg": "endret",
+   "funn_id": "647a1bdd-984f-43e4-887c-eb703850090e",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2017/04/26/519/nor",
+   "prefiks": "SF",
+   "forskrift": {
+    "dokument_id": "SF/forskrift/2017-04-26-519",
+    "tittel": "Forskrift om forvaltning av bever",
+    "lovdatas_hjemmelstekst": "Hjemmel: Fastsatt av Miljødirektoratet 26. april 2017 med hjemmel i lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven) § 9, § 16, § 26 nr. 10 og § 50, jf. delegeringsvedtak 2. april 1982 nr. 592.\nTilføyd hjemmel: Lov 20. juni 2025 nr. 102 om jakt, fangst og felling av vilt mv. (viltressursloven) § 44.\nEndret ved forskrift 26 juni 2026 nr. 1380 (i kraft 1 juli 2026, bl.a. hjemmel).\nRettet 30.04.2021 (departementstilhørighet).",
+    "ikrafttredelse": "2017-05-15",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "hjemmelsstatus_etter_pr5": [
+    {
+     "hjemmel": "https://lovdata.no/eli/forskrift/1982/04/02/592/nor",
+     "hjemmel_eli": "https://lovdata.no/eli/forskrift/1982/04/02/592/nor",
+     "i_korpus": "DEL/forskrift/1982-04-02-592",
+     "rolle": "kompetanseledd",
+     "rolle_regel": "delegeringsvedtak",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1981/05/29/38/nor/§16",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2025-06-20-102",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61",
+     "opphevet_av_sitat": "Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.",
+     "lest_i_lovtidend": true,
+     "videreforing_kilde": "NL/lov/2025-06-20-102",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+     "videreforing_form": "V4",
+     "videreforing_dekning": "dekket",
+     "videreforing_sitat": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.",
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1981/05/29/38/nor/§26",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2025-06-20-102",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61",
+     "opphevet_av_sitat": "Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.",
+     "lest_i_lovtidend": true,
+     "videreforing_kilde": "NL/lov/2025-06-20-102",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+     "videreforing_form": "V4",
+     "videreforing_dekning": "dekket",
+     "videreforing_sitat": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.",
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1981/05/29/38/nor/§50",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2025-06-20-102",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61",
+     "opphevet_av_sitat": "Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.",
+     "lest_i_lovtidend": true,
+     "videreforing_kilde": "NL/lov/2025-06-20-102",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+     "videreforing_form": "V4",
+     "videreforing_dekning": "dekket",
+     "videreforing_sitat": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.",
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1981/05/29/38/nor/§9",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2025-06-20-102",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61",
+     "opphevet_av_sitat": "Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.",
+     "lest_i_lovtidend": true,
+     "videreforing_kilde": "NL/lov/2025-06-20-102",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+     "videreforing_form": "V4",
+     "videreforing_dekning": "dekket",
+     "videreforing_sitat": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.",
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§44",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/2025/06/20/102/nor",
+     "i_korpus": "NL/lov/2025-06-20-102",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    }
+   ],
+   "kortnavn": [
+    {
+     "eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "kortnavn_lest": "viltloven",
+     "grunn": "entydig",
+     "titler_i_korpus": [
+      {
+       "kilde": "DEL/forskrift/2019-09-13-1124",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2009-12-22-1774",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2009-12-22-1775",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2011-03-01-206",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2013-03-15-284",
+       "sitat": "lov 29. mai 1981 nr. 38 om viltet (viltloven)"
+      }
+     ],
+     "andre_lover_med_samme_navn": [],
+     "opphevende_kilde_nevner_kortnavnet": [
+      {
+       "eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+       "tekst": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft."
+      }
+     ]
+    }
+   ],
+   "for_pr5": {
+    "status": "oppdaget",
+    "undertype": "blandede_hjemler",
+    "tittel": "Blandede hjemler, én opphevet uten funnet videreføring: Forskrift om forvaltning av bever (FOR-2017-04-26-519)",
+    "pastand": "Lovdata viser «Forskrift om forvaltning av bever» (FOR-2017-04-26-519) som gjeldende. Minst én hjemmel som teller, er opphevet uten funnet videreføring, mens andre hjemler bærer. Hvilken del av forskriften som står uten hjemmel, er ikke avgjort. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1981-05-29-38 § 9, § 16, § 26 og § 50 er opphevet av LOV-2025-06-20-102 § 61 (lest i den kunngjorte teksten i Norsk Lovtidend): «Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.»\n- Ikke kontrollert: Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.\n- LOV-2025-06-20-102 § 44 er aktiv (rolle materiell).\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446)."
+   },
+   "etter_pr5": {
+    "status": "forklart_bort",
+    "begrunnelse": "Forklart bort av maskinregelen monster:hjemmel-opphevet (regelversjon 472-pr4-2026-11-24, #472 PR 4, prosjekteierens avgjørelse 2026-11-24 etter måling 1). Den samlede hjemmelsstatusen er nå «viderefort» (hjemmelsstatus 472-pr5-2026-11-25), og den gir ikke funn."
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "feilarsak": null,
+    "grunn": "Viltressursloven § 61 andre ledd: «Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.» Hjemmelstekstene i korpus siterer lov 29. mai 1981 nr. 38 med tittelen «om jakt og fangst av vilt (viltloven)», og ingen annen lov i korpus heter viltloven. Riktig. Forskriften er gitt i medhold av viltloven, og § 61 andre ledd viderefører forskrifter uten forbehold og uten frist. Dekningen er «dekket». Utfallet (videreført, funnet forklart bort) holder.",
+    "kontrollert_mot": [
+     "NL/lov/2025-06-20-102 §61 (korpus)",
+     "Hjemmelstekstene i korpus (kortnavn.titler_i_korpus)"
+    ]
+   }
+  },
+  {
+   "id": "E03",
+   "utvalg": "endret",
+   "funn_id": "935ea7ff-00ad-4add-bb5d-00d16d56e3d5",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2005/03/18/242/nor",
+   "prefiks": "SF",
+   "forskrift": {
+    "dokument_id": "SF/forskrift/2005-03-18-242",
+    "tittel": "Forskrift om forvaltning av rovvilt",
+    "lovdatas_hjemmelstekst": "Hjemmel: Fastsatt ved kgl.res. 18. mars 2005 med hjemmel i lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven) § 4, § 6, § 9, § 12, § 14, § 14a, § 26 nr. 3, 4 og 6, § 35 og § 50. Fremmet av Miljøverndepartementet (nå Klima- og miljødepartementet).\nTilføyd hjemmel: Lov 19. juni 2009 nr. 100 om forvaltning av naturens mangfold (naturmangfoldloven) § 17, § 18, § 77. Lov 20. juni 2025 nr. 102 om jakt, fangst og felling av vilt mv. (viltressursloven) §§ 6, 10, 19, 22, 27, 45, 46, 47, 48, 51, 54 og 55.\nEndret ved forskrifter 21 juni 2005 nr. 681, 21 feb 2006 nr. 231, 28 aug 2008 nr. 965, 16 des 2008 nr. 1373, 17 sep 2010 nr. 1277, 24 sep 2010 nr. 1300, 6 juli 2011 nr. 748, 14 sep 2011 nr. 934, 29 mai 2012 nr. 468, 2 mai 2013 nr. 431, 19 des 2013 nr. 1757, 20 juni 2016 nr. 725, 14 feb 2017 nr. 180, 6 juni 2017 nr. 705, 7 mars 2019 nr. 252, 12 okt 2020 nr. 2036, 29 jan 2021 nr. 274, 14 des 2020 nr. 3367 (i kraft 10 sep 2021), 17 aug 2022 nr. 1452, 18 des 2023 nr. 2258 (i kraft 1 jan 2024), 28 mai 2026 nr. 939, 26 juni 2026 nr. 1380 (i kraft 1 juli 2026, bl.a. hjemmel).\nRettet: 31.08.2005 (ortografisk feil § 9, § 10, § 13, kommentarer), 14.10.2009 (kommentarer til § 11 første ledd), 15.11.2013 (kommentarer til § 5 annet og tredje ledd), 09.02.2017 (kommentarer til § 3 første ledd), 19.06.2017 (kommentarer til § 9 tredje ledd og 9a), 23.05.2018 (kommentarer til § 10 syvende ledd), 02.02.2021 (tegnsetting i lister tilpasset universell utforming), 12.04.2023 (kommentarer til § 9 og § 9a).",
+    "ikrafttredelse": "2005-04-01",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "hjemmelsstatus_etter_pr5": [
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1981/05/29/38/nor/§26",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2025-06-20-102",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61",
+     "opphevet_av_sitat": "Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.",
+     "lest_i_lovtidend": true,
+     "videreforing_kilde": "NL/lov/2025-06-20-102",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+     "videreforing_form": "V4",
+     "videreforing_dekning": "dekket",
+     "videreforing_sitat": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.",
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1981/05/29/38/nor/§35",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2025-06-20-102",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61",
+     "opphevet_av_sitat": "Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.",
+     "lest_i_lovtidend": true,
+     "videreforing_kilde": "NL/lov/2025-06-20-102",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+     "videreforing_form": "V4",
+     "videreforing_dekning": "dekket",
+     "videreforing_sitat": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.",
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1981/05/29/38/nor/§4",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2025-06-20-102",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61",
+     "opphevet_av_sitat": "Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.",
+     "lest_i_lovtidend": true,
+     "videreforing_kilde": "NL/lov/2025-06-20-102",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+     "videreforing_form": "V4",
+     "videreforing_dekning": "dekket",
+     "videreforing_sitat": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.",
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1981/05/29/38/nor/§50",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2025-06-20-102",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61",
+     "opphevet_av_sitat": "Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.",
+     "lest_i_lovtidend": true,
+     "videreforing_kilde": "NL/lov/2025-06-20-102",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+     "videreforing_form": "V4",
+     "videreforing_dekning": "dekket",
+     "videreforing_sitat": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.",
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1981/05/29/38/nor/§6",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2025-06-20-102",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61",
+     "opphevet_av_sitat": "Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.",
+     "lest_i_lovtidend": true,
+     "videreforing_kilde": "NL/lov/2025-06-20-102",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+     "videreforing_form": "V4",
+     "videreforing_dekning": "dekket",
+     "videreforing_sitat": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.",
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1981/05/29/38/nor/§9",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2025-06-20-102",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61",
+     "opphevet_av_sitat": "Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.",
+     "lest_i_lovtidend": true,
+     "videreforing_kilde": "NL/lov/2025-06-20-102",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+     "videreforing_form": "V4",
+     "videreforing_dekning": "dekket",
+     "videreforing_sitat": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.",
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2009/06/19/100/nor/§17",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/2009/06/19/100/nor",
+     "i_korpus": "NL/lov/2009-06-19-100",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2009/06/19/100/nor/§18",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/2009/06/19/100/nor",
+     "i_korpus": "NL/lov/2009-06-19-100",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2009/06/19/100/nor/§77",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/2009/06/19/100/nor",
+     "i_korpus": "NL/lov/2009-06-19-100",
+     "rolle": "overgangsgrunnlag",
+     "rolle_regel": "overgangsparagraf",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§10",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/2025/06/20/102/nor",
+     "i_korpus": "NL/lov/2025-06-20-102",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§19",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/2025/06/20/102/nor",
+     "i_korpus": "NL/lov/2025-06-20-102",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§22",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/2025/06/20/102/nor",
+     "i_korpus": "NL/lov/2025-06-20-102",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§27",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/2025/06/20/102/nor",
+     "i_korpus": "NL/lov/2025-06-20-102",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§45",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/2025/06/20/102/nor",
+     "i_korpus": "NL/lov/2025-06-20-102",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§46",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/2025/06/20/102/nor",
+     "i_korpus": "NL/lov/2025-06-20-102",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§47",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/2025/06/20/102/nor",
+     "i_korpus": "NL/lov/2025-06-20-102",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§48",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/2025/06/20/102/nor",
+     "i_korpus": "NL/lov/2025-06-20-102",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§51",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/2025/06/20/102/nor",
+     "i_korpus": "NL/lov/2025-06-20-102",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§54",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/2025/06/20/102/nor",
+     "i_korpus": "NL/lov/2025-06-20-102",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§55",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/2025/06/20/102/nor",
+     "i_korpus": "NL/lov/2025-06-20-102",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§6",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/2025/06/20/102/nor",
+     "i_korpus": "NL/lov/2025-06-20-102",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    }
+   ],
+   "kortnavn": [
+    {
+     "eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "kortnavn_lest": "viltloven",
+     "grunn": "entydig",
+     "titler_i_korpus": [
+      {
+       "kilde": "DEL/forskrift/2019-09-13-1124",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2009-12-22-1774",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2009-12-22-1775",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2011-03-01-206",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2013-03-15-284",
+       "sitat": "lov 29. mai 1981 nr. 38 om viltet (viltloven)"
+      }
+     ],
+     "andre_lover_med_samme_navn": [],
+     "opphevende_kilde_nevner_kortnavnet": [
+      {
+       "eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+       "tekst": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft."
+      }
+     ]
+    }
+   ],
+   "for_pr5": {
+    "status": "oppdaget",
+    "undertype": "blandede_hjemler",
+    "tittel": "Blandede hjemler, én opphevet uten funnet videreføring: Rovviltforskriften (FOR-2005-03-18-242)",
+    "pastand": "Lovdata viser «Rovviltforskriften» (FOR-2005-03-18-242) som gjeldende. Minst én hjemmel som teller, er opphevet uten funnet videreføring, mens andre hjemler bærer. Hvilken del av forskriften som står uten hjemmel, er ikke avgjort. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1981-05-29-38 § 4, § 6, § 9, § 26, § 35 og § 50 er opphevet av LOV-2025-06-20-102 § 61 (lest i den kunngjorte teksten i Norsk Lovtidend): «Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.»\n- Ikke kontrollert: Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.\n- LOV-2009-06-19-100 § 17 og § 18 er aktiv (rolle materiell).\n- LOV-2025-06-20-102 § 6, § 10, § 19, § 22, § 27, § 45, § 46, § 47, § 48, § 51, § 54 og § 55 er aktiv (rolle materiell).\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446)."
+   },
+   "etter_pr5": {
+    "status": "forklart_bort",
+    "begrunnelse": "Forklart bort av maskinregelen monster:hjemmel-opphevet (regelversjon 472-pr4-2026-11-24, #472 PR 4, prosjekteierens avgjørelse 2026-11-24 etter måling 1). Den samlede hjemmelsstatusen er nå «viderefort» (hjemmelsstatus 472-pr5-2026-11-25), og den gir ikke funn."
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "feilarsak": null,
+    "grunn": "Viltressursloven § 61 andre ledd: «Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.» Hjemmelstekstene i korpus siterer lov 29. mai 1981 nr. 38 med tittelen «om jakt og fangst av vilt (viltloven)», og ingen annen lov i korpus heter viltloven. Riktig. Forskriften er gitt i medhold av viltloven, og § 61 andre ledd viderefører forskrifter uten forbehold og uten frist. Dekningen er «dekket». Utfallet (videreført, funnet forklart bort) holder.",
+    "kontrollert_mot": [
+     "NL/lov/2025-06-20-102 §61 (korpus)",
+     "Hjemmelstekstene i korpus (kortnavn.titler_i_korpus)"
+    ]
+   }
+  },
+  {
+   "id": "E04",
+   "utvalg": "endret",
+   "funn_id": "63aceebf-8bc6-4298-a88d-6844b90e75d4",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2007/08/20/987/nor",
+   "prefiks": "SF",
+   "forskrift": {
+    "dokument_id": "SF/forskrift/2007-08-20-987",
+    "tittel": "Forskrift om jakt, felling, fangst og fiske på statsgrunn utenfor statsallmenning",
+    "lovdatas_hjemmelstekst": "Hjemmel: Fastsatt av Direktoratet for naturforvaltning 20. august 2007 med hjemmel i lov 15. mai 1992 nr. 47 om laksefisk og innlandsfisk m.v. § 22, lov 29. mai 1981 nr. 38 om viltet § 31, § 26 pkt. 3 og 4 og § 50 og delegeringsvedtak 26. april 2007 nr. 474.\nTilføyd hjemmel: Lov 20. juni 2025 nr. 102 om jakt, fangst og felling av vilt mv. (viltressursloven) § 37.\nEndret ved forskrifter 24 sep 2007 nr. 1078, 7 juni 2013 nr. 589, 18 juni 2025 nr. 1070, 26 juni 2026 nr. 1380 (i kraft 1 juli 2026, bl.a. hjemmel).\nRettet 30.04.2021 (departementstilhørighet).",
+    "ikrafttredelse": "2007-09-01",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "hjemmelsstatus_etter_pr5": [
+    {
+     "hjemmel": "https://lovdata.no/eli/forskrift/2007/04/26/474/nor",
+     "hjemmel_eli": "https://lovdata.no/eli/forskrift/2007/04/26/474/nor",
+     "i_korpus": "DEL/forskrift/2007-04-26-474",
+     "rolle": "kompetanseledd",
+     "rolle_regel": "delegeringsvedtak",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1981/05/29/38/nor/§26",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2025-06-20-102",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61",
+     "opphevet_av_sitat": "Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.",
+     "lest_i_lovtidend": true,
+     "videreforing_kilde": "NL/lov/2025-06-20-102",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+     "videreforing_form": "V4",
+     "videreforing_dekning": "dekket",
+     "videreforing_sitat": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.",
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1981/05/29/38/nor/§31",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2025-06-20-102",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61",
+     "opphevet_av_sitat": "Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.",
+     "lest_i_lovtidend": true,
+     "videreforing_kilde": "NL/lov/2025-06-20-102",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+     "videreforing_form": "V4",
+     "videreforing_dekning": "dekket",
+     "videreforing_sitat": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.",
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1981/05/29/38/nor/§50",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2025-06-20-102",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61",
+     "opphevet_av_sitat": "Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.",
+     "lest_i_lovtidend": true,
+     "videreforing_kilde": "NL/lov/2025-06-20-102",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+     "videreforing_form": "V4",
+     "videreforing_dekning": "dekket",
+     "videreforing_sitat": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.",
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1992/05/15/47/nor/§22",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1992/05/15/47/nor",
+     "i_korpus": "NL/lov/1992-05-15-47",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§37",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/2025/06/20/102/nor",
+     "i_korpus": "NL/lov/2025-06-20-102",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    }
+   ],
+   "kortnavn": [
+    {
+     "eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "kortnavn_lest": "viltloven",
+     "grunn": "entydig",
+     "titler_i_korpus": [
+      {
+       "kilde": "DEL/forskrift/2019-09-13-1124",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2009-12-22-1774",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2009-12-22-1775",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2011-03-01-206",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2013-03-15-284",
+       "sitat": "lov 29. mai 1981 nr. 38 om viltet (viltloven)"
+      }
+     ],
+     "andre_lover_med_samme_navn": [],
+     "opphevende_kilde_nevner_kortnavnet": [
+      {
+       "eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+       "tekst": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft."
+      }
+     ]
+    }
+   ],
+   "for_pr5": {
+    "status": "oppdaget",
+    "undertype": "blandede_hjemler",
+    "tittel": "Blandede hjemler, én opphevet uten funnet videreføring: Forskrift om jakt og fangst mv. på statsgrunn (FOR-2007-08-20-987)",
+    "pastand": "Lovdata viser «Forskrift om jakt og fangst mv. på statsgrunn» (FOR-2007-08-20-987) som gjeldende. Minst én hjemmel som teller, er opphevet uten funnet videreføring, mens andre hjemler bærer. Hvilken del av forskriften som står uten hjemmel, er ikke avgjort. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1981-05-29-38 § 26, § 31 og § 50 er opphevet av LOV-2025-06-20-102 § 61 (lest i den kunngjorte teksten i Norsk Lovtidend): «Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.»\n- Ikke kontrollert: Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.\n- LOV-1992-05-15-47 § 22 er aktiv (rolle materiell).\n- LOV-2025-06-20-102 § 37 er aktiv (rolle materiell).\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446)."
+   },
+   "etter_pr5": {
+    "status": "forklart_bort",
+    "begrunnelse": "Forklart bort av maskinregelen monster:hjemmel-opphevet (regelversjon 472-pr4-2026-11-24, #472 PR 4, prosjekteierens avgjørelse 2026-11-24 etter måling 1). Den samlede hjemmelsstatusen er nå «viderefort» (hjemmelsstatus 472-pr5-2026-11-25), og den gir ikke funn."
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "feilarsak": null,
+    "grunn": "Viltressursloven § 61 andre ledd: «Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.» Hjemmelstekstene i korpus siterer lov 29. mai 1981 nr. 38 med tittelen «om jakt og fangst av vilt (viltloven)», og ingen annen lov i korpus heter viltloven. Riktig. Forskriften er gitt i medhold av viltloven, og § 61 andre ledd viderefører forskrifter uten forbehold og uten frist. Dekningen er «dekket». Utfallet (videreført, funnet forklart bort) holder.",
+    "kontrollert_mot": [
+     "NL/lov/2025-06-20-102 §61 (korpus)",
+     "Hjemmelstekstene i korpus (kortnavn.titler_i_korpus)"
+    ]
+   }
+  },
+  {
+   "id": "E05",
+   "utvalg": "endret",
+   "funn_id": "3d5b0892-bdae-437c-aafc-efdedfd65a7a",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2022/01/21/128/nor",
+   "prefiks": "SF",
+   "forskrift": {
+    "dokument_id": "SF/forskrift/2022-01-21-128",
+    "tittel": "Forskrift om jakt- og fangsttider samt sanking av egg og dun for jaktsesongene fra og med 1. april 2022 til og med 31. mars 2028",
+    "lovdatas_hjemmelstekst": "Hjemmel: Fastsatt av Miljødirektoratet 21. januar 2022 med hjemmel i lov 19. juni 2009 nr. 100 om forvaltning av naturens mangfold (naturmangfoldloven) § 15 og § 16 og lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven) § 9, § 24 og § 44, jf. delegeringsvedtak 30. april 2001 nr. 1670, delegeringsvedtak 15. mars 2013 nr. 283 og delegeringsvedtak 2. april 1982 nr. 592.\nTilføyd hjemmel: Lov 20. juni 2025 nr. 102 om jakt, fangst og felling av vilt mv. (viltressursloven) §§ 10, 11 og 25.\nEndret ved forskrifter 3 juni 2022 nr. 980, 5 april 2024 nr. 568, 26 juni 2026 nr. 1379 (i kraft 1 juli 2026), 26 juni 2026 nr. 1380 (i kraft 1 juli 2026, bl.a. hjemmel).",
+    "ikrafttredelse": "2022-04-01",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "hjemmelsstatus_etter_pr5": [
+    {
+     "hjemmel": "https://lovdata.no/eli/forskrift/1982/04/02/592/nor",
+     "hjemmel_eli": "https://lovdata.no/eli/forskrift/1982/04/02/592/nor",
+     "i_korpus": "DEL/forskrift/1982-04-02-592",
+     "rolle": "kompetanseledd",
+     "rolle_regel": "delegeringsvedtak",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/forskrift/2001/04/30/1670/nor",
+     "hjemmel_eli": "https://lovdata.no/eli/forskrift/2001/04/30/1670/nor",
+     "i_korpus": "DEL/forskrift/2001-04-30-1670",
+     "rolle": "kompetanseledd",
+     "rolle_regel": "delegeringsvedtak",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/forskrift/2013/03/15/283/nor",
+     "hjemmel_eli": "https://lovdata.no/eli/forskrift/2013/03/15/283/nor",
+     "i_korpus": "DEL/forskrift/2013-03-15-283",
+     "rolle": "kompetanseledd",
+     "rolle_regel": "delegeringsvedtak",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1981/05/29/38/nor/§24",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2025-06-20-102",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61",
+     "opphevet_av_sitat": "Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.",
+     "lest_i_lovtidend": true,
+     "videreforing_kilde": "NL/lov/2025-06-20-102",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+     "videreforing_form": "V4",
+     "videreforing_dekning": "dekket",
+     "videreforing_sitat": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.",
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1981/05/29/38/nor/§44",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2025-06-20-102",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61",
+     "opphevet_av_sitat": "Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.",
+     "lest_i_lovtidend": true,
+     "videreforing_kilde": "NL/lov/2025-06-20-102",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+     "videreforing_form": "V4",
+     "videreforing_dekning": "dekket",
+     "videreforing_sitat": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.",
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1981/05/29/38/nor/§9",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2025-06-20-102",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61",
+     "opphevet_av_sitat": "Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.",
+     "lest_i_lovtidend": true,
+     "videreforing_kilde": "NL/lov/2025-06-20-102",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+     "videreforing_form": "V4",
+     "videreforing_dekning": "dekket",
+     "videreforing_sitat": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.",
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2009/06/19/100/nor/§15",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/2009/06/19/100/nor",
+     "i_korpus": "NL/lov/2009-06-19-100",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2009/06/19/100/nor/§16",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/2009/06/19/100/nor",
+     "i_korpus": "NL/lov/2009-06-19-100",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§10",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/2025/06/20/102/nor",
+     "i_korpus": "NL/lov/2025-06-20-102",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§11",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/2025/06/20/102/nor",
+     "i_korpus": "NL/lov/2025-06-20-102",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§25",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/2025/06/20/102/nor",
+     "i_korpus": "NL/lov/2025-06-20-102",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    }
+   ],
+   "kortnavn": [
+    {
+     "eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "kortnavn_lest": "viltloven",
+     "grunn": "entydig",
+     "titler_i_korpus": [
+      {
+       "kilde": "DEL/forskrift/2019-09-13-1124",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2009-12-22-1774",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2009-12-22-1775",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2011-03-01-206",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2013-03-15-284",
+       "sitat": "lov 29. mai 1981 nr. 38 om viltet (viltloven)"
+      }
+     ],
+     "andre_lover_med_samme_navn": [],
+     "opphevende_kilde_nevner_kortnavnet": [
+      {
+       "eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+       "tekst": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft."
+      }
+     ]
+    }
+   ],
+   "for_pr5": {
+    "status": "oppdaget",
+    "undertype": "blandede_hjemler",
+    "tittel": "Blandede hjemler, én opphevet uten funnet videreføring: Forskrift om jakt- og fangsttider samt sanking av egg og dun for jaktsesongene fra og med 1. april 2022 til og med 31. mars 2028 (FOR-2022-01-21-128)",
+    "pastand": "Lovdata viser «Forskrift om jakt- og fangsttider samt sanking av egg og dun for jaktsesongene fra og med 1. april 2022 til og med 31. mars 2028» (FOR-2022-01-21-128) som gjeldende. Minst én hjemmel som teller, er opphevet uten funnet videreføring, mens andre hjemler bærer. Hvilken del av forskriften som står uten hjemmel, er ikke avgjort. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1981-05-29-38 § 9, § 24 og § 44 er opphevet av LOV-2025-06-20-102 § 61 (lest i den kunngjorte teksten i Norsk Lovtidend): «Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.»\n- Ikke kontrollert: Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.\n- LOV-2009-06-19-100 § 15 og § 16 er aktiv (rolle materiell).\n- LOV-2025-06-20-102 § 10, § 11 og § 25 er aktiv (rolle materiell).\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446)."
+   },
+   "etter_pr5": {
+    "status": "forklart_bort",
+    "begrunnelse": "Forklart bort av maskinregelen monster:hjemmel-opphevet (regelversjon 472-pr4-2026-11-24, #472 PR 4, prosjekteierens avgjørelse 2026-11-24 etter måling 1). Den samlede hjemmelsstatusen er nå «viderefort» (hjemmelsstatus 472-pr5-2026-11-25), og den gir ikke funn."
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "feilarsak": null,
+    "grunn": "Viltressursloven § 61 andre ledd: «Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.» Hjemmelstekstene i korpus siterer lov 29. mai 1981 nr. 38 med tittelen «om jakt og fangst av vilt (viltloven)», og ingen annen lov i korpus heter viltloven. Riktig. Forskriften er gitt i medhold av viltloven, og § 61 andre ledd viderefører forskrifter uten forbehold og uten frist. Dekningen er «dekket». Utfallet (videreført, funnet forklart bort) holder.",
+    "kontrollert_mot": [
+     "NL/lov/2025-06-20-102 §61 (korpus)",
+     "Hjemmelstekstene i korpus (kortnavn.titler_i_korpus)"
+    ]
+   }
+  },
+  {
+   "id": "E06",
+   "utvalg": "endret",
+   "funn_id": "b58db607-8a07-4f8d-86f0-5207f44394c9",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2016/01/08/12/nor",
+   "prefiks": "SF",
+   "forskrift": {
+    "dokument_id": "SF/forskrift/2016-01-08-12",
+    "tittel": "Forskrift om forvaltning av hjortevilt",
+    "lovdatas_hjemmelstekst": "Hjemmel: Fastsatt av Miljødirektoratet 8. januar 2016 med hjemmel i lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven) § 9, § 16, § 17, § 18, § 26 nr. 3 og 10 og § 50, jf. delegeringsvedtak 2. april 1982 nr. 592.\nTilføyd hjemmel: Lov 20. juni 2025 nr. 102 om jakt, fangst og felling av vilt mv. (viltressursloven) § 42.\nEndret ved forskrifter 12 april 2019 nr. 499, 21 des 2020 nr. 3044 (i kraft 1 jan 2021), 18 juni 2025 nr. 1070, 26 juni 2026 nr. 1380 (i kraft 1 juli 2026, bl.a. hjemmel).\nRettet 06.01.2022 (§ 24 overskriften).",
+    "ikrafttredelse": "2016-01-08",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "hjemmelsstatus_etter_pr5": [
+    {
+     "hjemmel": "https://lovdata.no/eli/forskrift/1982/04/02/592/nor",
+     "hjemmel_eli": "https://lovdata.no/eli/forskrift/1982/04/02/592/nor",
+     "i_korpus": "DEL/forskrift/1982-04-02-592",
+     "rolle": "kompetanseledd",
+     "rolle_regel": "delegeringsvedtak",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1981/05/29/38/nor/§16",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2025-06-20-102",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61",
+     "opphevet_av_sitat": "Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.",
+     "lest_i_lovtidend": true,
+     "videreforing_kilde": "NL/lov/2025-06-20-102",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+     "videreforing_form": "V4",
+     "videreforing_dekning": "dekket",
+     "videreforing_sitat": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.",
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1981/05/29/38/nor/§17",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2025-06-20-102",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61",
+     "opphevet_av_sitat": "Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.",
+     "lest_i_lovtidend": true,
+     "videreforing_kilde": "NL/lov/2025-06-20-102",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+     "videreforing_form": "V4",
+     "videreforing_dekning": "dekket",
+     "videreforing_sitat": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.",
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1981/05/29/38/nor/§18",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2025-06-20-102",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61",
+     "opphevet_av_sitat": "Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.",
+     "lest_i_lovtidend": true,
+     "videreforing_kilde": "NL/lov/2025-06-20-102",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+     "videreforing_form": "V4",
+     "videreforing_dekning": "dekket",
+     "videreforing_sitat": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.",
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1981/05/29/38/nor/§26",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2025-06-20-102",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61",
+     "opphevet_av_sitat": "Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.",
+     "lest_i_lovtidend": true,
+     "videreforing_kilde": "NL/lov/2025-06-20-102",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+     "videreforing_form": "V4",
+     "videreforing_dekning": "dekket",
+     "videreforing_sitat": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.",
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1981/05/29/38/nor/§50",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2025-06-20-102",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61",
+     "opphevet_av_sitat": "Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.",
+     "lest_i_lovtidend": true,
+     "videreforing_kilde": "NL/lov/2025-06-20-102",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+     "videreforing_form": "V4",
+     "videreforing_dekning": "dekket",
+     "videreforing_sitat": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.",
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1981/05/29/38/nor/§9",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2025-06-20-102",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61",
+     "opphevet_av_sitat": "Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.",
+     "lest_i_lovtidend": true,
+     "videreforing_kilde": "NL/lov/2025-06-20-102",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+     "videreforing_form": "V4",
+     "videreforing_dekning": "dekket",
+     "videreforing_sitat": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.",
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§42",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/2025/06/20/102/nor",
+     "i_korpus": "NL/lov/2025-06-20-102",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    }
+   ],
+   "kortnavn": [
+    {
+     "eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "kortnavn_lest": "viltloven",
+     "grunn": "entydig",
+     "titler_i_korpus": [
+      {
+       "kilde": "DEL/forskrift/2019-09-13-1124",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2009-12-22-1774",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2009-12-22-1775",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2011-03-01-206",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2013-03-15-284",
+       "sitat": "lov 29. mai 1981 nr. 38 om viltet (viltloven)"
+      }
+     ],
+     "andre_lover_med_samme_navn": [],
+     "opphevende_kilde_nevner_kortnavnet": [
+      {
+       "eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+       "tekst": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft."
+      }
+     ]
+    }
+   ],
+   "for_pr5": {
+    "status": "oppdaget",
+    "undertype": "blandede_hjemler",
+    "tittel": "Blandede hjemler, én opphevet uten funnet videreføring: Forskrift om forvaltning av hjortevilt (FOR-2016-01-08-12)",
+    "pastand": "Lovdata viser «Forskrift om forvaltning av hjortevilt» (FOR-2016-01-08-12) som gjeldende. Minst én hjemmel som teller, er opphevet uten funnet videreføring, mens andre hjemler bærer. Hvilken del av forskriften som står uten hjemmel, er ikke avgjort. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1981-05-29-38 § 9, § 16, § 17, § 18, § 26 og § 50 er opphevet av LOV-2025-06-20-102 § 61 (lest i den kunngjorte teksten i Norsk Lovtidend): «Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.»\n- Ikke kontrollert: Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.\n- LOV-2025-06-20-102 § 42 er aktiv (rolle materiell).\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446)."
+   },
+   "etter_pr5": {
+    "status": "forklart_bort",
+    "begrunnelse": "Forklart bort av maskinregelen monster:hjemmel-opphevet (regelversjon 472-pr4-2026-11-24, #472 PR 4, prosjekteierens avgjørelse 2026-11-24 etter måling 1). Den samlede hjemmelsstatusen er nå «viderefort» (hjemmelsstatus 472-pr5-2026-11-25), og den gir ikke funn."
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "feilarsak": null,
+    "grunn": "Viltressursloven § 61 andre ledd: «Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.» Hjemmelstekstene i korpus siterer lov 29. mai 1981 nr. 38 med tittelen «om jakt og fangst av vilt (viltloven)», og ingen annen lov i korpus heter viltloven. Riktig. Forskriften er gitt i medhold av viltloven, og § 61 andre ledd viderefører forskrifter uten forbehold og uten frist. Dekningen er «dekket». Utfallet (videreført, funnet forklart bort) holder.",
+    "kontrollert_mot": [
+     "NL/lov/2025-06-20-102 §61 (korpus)",
+     "Hjemmelstekstene i korpus (kortnavn.titler_i_korpus)"
+    ]
+   }
+  },
+  {
+   "id": "E07",
+   "utvalg": "endret",
+   "funn_id": "0f6ed301-4a12-400f-9c3a-c5c467de4990",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2015/06/19/716/nor",
+   "prefiks": "SF",
+   "forskrift": {
+    "dokument_id": "SF/forskrift/2015-06-19-716",
+    "tittel": "Forskrift om fremmede organismer",
+    "lovdatas_hjemmelstekst": "Hjemmel: Fastsatt ved kgl.res. 19. juni 2015 med hjemmel i lov 19. juni 2009 nr. 100 om forvaltning av naturens mangfold (naturmangfoldloven) § 2, § 28, § 29, § 30, § 31, § 32, § 66, § 72a og § 72b, lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven) § 7 og lov 27. februar 1930 nr. 2 om Jan Mayen § 2. Fremmet av Klima- og miljødepartementet.\nTilføyd hjemmel: Delegeringsvedtak 15. juni 2018 nr. 891, delegeringsvedtak 8. januar 2021 nr. 65.\nEndret ved forskrifter 18 des 2015 nr. 1584, 11 mai 2017 nr. 566, 23 nov 2018 nr. 1758, 18 des 2020 nr. 3156 (i kraft 1 jan 2021), 14 des 2020 nr. 3367 (i kraft 10 sep 2021), 13 nov 2024 nr. 2826 (i kraft 1 jan 2025).\nRettelser: 29.09.2016 (Vedlegg V, overskriften), 03.04.2018 (hjemmel), 06.01.2021 (tegnsetting i lister tilpasset universell utforming).",
+    "ikrafttredelse": "2016-01-01",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "hjemmelsstatus_etter_pr5": [
+    {
+     "hjemmel": "https://lovdata.no/eli/forskrift/2018/06/15/891/nor",
+     "hjemmel_eli": "https://lovdata.no/eli/forskrift/2018/06/15/891/nor",
+     "i_korpus": "LTI/forskrift/2018-06-15-891",
+     "rolle": "kompetanseledd",
+     "rolle_regel": "jf_vedtak",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/forskrift/2021/01/08/65/nor",
+     "hjemmel_eli": "https://lovdata.no/eli/forskrift/2021/01/08/65/nor",
+     "i_korpus": "LTI/forskrift/2021-01-08-65",
+     "rolle": "kompetanseledd",
+     "rolle_regel": "jf_vedtak",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1930/02/27/2/nor/§2",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1930/02/27/2/nor",
+     "i_korpus": "NL/lov/1930-02-27-2",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1981/05/29/38/nor/§7",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2025-06-20-102",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61",
+     "opphevet_av_sitat": "Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.",
+     "lest_i_lovtidend": true,
+     "videreforing_kilde": "NL/lov/2025-06-20-102",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+     "videreforing_form": "V4",
+     "videreforing_dekning": "dekket",
+     "videreforing_sitat": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.",
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2009/06/19/100/nor/§2",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/2009/06/19/100/nor",
+     "i_korpus": "NL/lov/2009-06-19-100",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2009/06/19/100/nor/§28",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/2009/06/19/100/nor",
+     "i_korpus": "NL/lov/2009-06-19-100",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2009/06/19/100/nor/§29",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/2009/06/19/100/nor",
+     "i_korpus": "NL/lov/2009-06-19-100",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2009/06/19/100/nor/§30",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/2009/06/19/100/nor",
+     "i_korpus": "NL/lov/2009-06-19-100",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2009/06/19/100/nor/§31",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/2009/06/19/100/nor",
+     "i_korpus": "NL/lov/2009-06-19-100",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2009/06/19/100/nor/§32",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/2009/06/19/100/nor",
+     "i_korpus": "NL/lov/2009-06-19-100",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2009/06/19/100/nor/§66",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/2009/06/19/100/nor",
+     "i_korpus": "NL/lov/2009-06-19-100",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2009/06/19/100/nor/§72a",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/2009/06/19/100/nor",
+     "i_korpus": "NL/lov/2009-06-19-100",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2009/06/19/100/nor/§72b",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/2009/06/19/100/nor",
+     "i_korpus": "NL/lov/2009-06-19-100",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    }
+   ],
+   "kortnavn": [
+    {
+     "eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "kortnavn_lest": "viltloven",
+     "grunn": "entydig",
+     "titler_i_korpus": [
+      {
+       "kilde": "DEL/forskrift/2019-09-13-1124",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2009-12-22-1774",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2009-12-22-1775",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2011-03-01-206",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2013-03-15-284",
+       "sitat": "lov 29. mai 1981 nr. 38 om viltet (viltloven)"
+      }
+     ],
+     "andre_lover_med_samme_navn": [],
+     "opphevende_kilde_nevner_kortnavnet": [
+      {
+       "eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+       "tekst": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft."
+      }
+     ]
+    }
+   ],
+   "for_pr5": {
+    "status": "oppdaget",
+    "undertype": "blandede_hjemler",
+    "tittel": "Blandede hjemler, én opphevet uten funnet videreføring: Forskrift om fremmede organismer (FOR-2015-06-19-716)",
+    "pastand": "Lovdata viser «Forskrift om fremmede organismer» (FOR-2015-06-19-716) som gjeldende. Minst én hjemmel som teller, er opphevet uten funnet videreføring, mens andre hjemler bærer. Hvilken del av forskriften som står uten hjemmel, er ikke avgjort. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1930-02-27-2 § 2 er aktiv (rolle materiell).\n- LOV-1981-05-29-38 § 7 er opphevet av LOV-2025-06-20-102 § 61 (lest i den kunngjorte teksten i Norsk Lovtidend): «Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.»\n- Ikke kontrollert: Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.\n- LOV-2009-06-19-100 § 2, § 28, § 29, § 30, § 31, § 32, § 66, § 72a og § 72b er aktiv (rolle materiell).\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446)."
+   },
+   "etter_pr5": {
+    "status": "forklart_bort",
+    "begrunnelse": "Forklart bort av maskinregelen monster:hjemmel-opphevet (regelversjon 472-pr4-2026-11-24, #472 PR 4, prosjekteierens avgjørelse 2026-11-24 etter måling 1). Den samlede hjemmelsstatusen er nå «viderefort» (hjemmelsstatus 472-pr5-2026-11-25), og den gir ikke funn."
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "feilarsak": null,
+    "grunn": "Viltressursloven § 61 andre ledd: «Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.» Hjemmelstekstene i korpus siterer lov 29. mai 1981 nr. 38 med tittelen «om jakt og fangst av vilt (viltloven)», og ingen annen lov i korpus heter viltloven. Riktig. Forskriften er gitt i medhold av viltloven, og § 61 andre ledd viderefører forskrifter uten forbehold og uten frist. Dekningen er «dekket». Utfallet (videreført, funnet forklart bort) holder.",
+    "kontrollert_mot": [
+     "NL/lov/2025-06-20-102 §61 (korpus)",
+     "Hjemmelstekstene i korpus (kortnavn.titler_i_korpus)"
+    ]
+   }
+  },
+  {
+   "id": "E08",
+   "utvalg": "endret",
+   "funn_id": "31ff6cec-f595-4759-9830-f058917f87be",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/1996/10/25/1008/nor",
+   "prefiks": "DEL",
+   "forskrift": {
+    "dokument_id": "DEL/forskrift/1996-10-25-1008",
+    "tittel": "Opprettelse av Statens naturoppsyn og delegering av myndighet til Klima- og miljødepartementet",
+    "lovdatas_hjemmelstekst": "Hjemmel: Fastsatt ved kgl.res. 25. oktober 1996 med hjemmel i lov av 21. juni 1996 nr. 38 om statlig naturoppsyn § 1, lov av 19. juni 1970 nr. 63 om naturvern § 4, § 6, § 10, § 12 og § 21, lov av 29. mai 1981 nr. 38 om viltet § 7 annet ledd og lov av 9. juni 1978 nr. 50 om kulturminner § 20. Fremmet av Miljøverndepartementet (nå Klima- og miljødepartementet).\nEndret ved forskrift 19 des 2013 nr. 1757.",
+    "ikrafttredelse": "1996-10-25",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "hjemmelsstatus_etter_pr5": [
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1970/06/19/63/nor/§10",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1970/06/19/63/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2009-06-19-100",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2009/06/19/100/nor/§78/ledd-17",
+     "opphevet_av_sitat": "Lov 19. juni 1970 nr. 63 om naturvern oppheves.",
+     "lest_i_lovtidend": true,
+     "videreforing_kilde": "NL/lov/2009-06-19-100",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2009/06/19/100/nor/§77/ledd-1",
+     "videreforing_form": "V3",
+     "videreforing_dekning": "dekket",
+     "videreforing_sitat": "Beslutninger om delegering av myndighet, forskrifter eller enkeltvedtak med hjemmel i bestemmelser som oppheves eller endres ved denne loven, står fortsatt ved lag inntil Kongen bestemmer annet. §§ 47 og 48 gjelder også for eldre vernevedtak. § 34 fjerde ledd og § 36 annet ledd gjelder også for eldre vedtak om oppretting av verneområder.",
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2009-06-19-100 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1970/06/19/63/nor/§12",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1970/06/19/63/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2009-06-19-100",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2009/06/19/100/nor/§78/ledd-17",
+     "opphevet_av_sitat": "Lov 19. juni 1970 nr. 63 om naturvern oppheves.",
+     "lest_i_lovtidend": true,
+     "videreforing_kilde": "NL/lov/2009-06-19-100",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2009/06/19/100/nor/§77/ledd-1",
+     "videreforing_form": "V3",
+     "videreforing_dekning": "dekket",
+     "videreforing_sitat": "Beslutninger om delegering av myndighet, forskrifter eller enkeltvedtak med hjemmel i bestemmelser som oppheves eller endres ved denne loven, står fortsatt ved lag inntil Kongen bestemmer annet. §§ 47 og 48 gjelder også for eldre vernevedtak. § 34 fjerde ledd og § 36 annet ledd gjelder også for eldre vedtak om oppretting av verneområder.",
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2009-06-19-100 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1970/06/19/63/nor/§4",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1970/06/19/63/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2009-06-19-100",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2009/06/19/100/nor/§78/ledd-17",
+     "opphevet_av_sitat": "Lov 19. juni 1970 nr. 63 om naturvern oppheves.",
+     "lest_i_lovtidend": true,
+     "videreforing_kilde": "NL/lov/2009-06-19-100",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2009/06/19/100/nor/§77/ledd-1",
+     "videreforing_form": "V3",
+     "videreforing_dekning": "dekket",
+     "videreforing_sitat": "Beslutninger om delegering av myndighet, forskrifter eller enkeltvedtak med hjemmel i bestemmelser som oppheves eller endres ved denne loven, står fortsatt ved lag inntil Kongen bestemmer annet. §§ 47 og 48 gjelder også for eldre vernevedtak. § 34 fjerde ledd og § 36 annet ledd gjelder også for eldre vedtak om oppretting av verneområder.",
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2009-06-19-100 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1970/06/19/63/nor/§6",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1970/06/19/63/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2009-06-19-100",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2009/06/19/100/nor/§78/ledd-17",
+     "opphevet_av_sitat": "Lov 19. juni 1970 nr. 63 om naturvern oppheves.",
+     "lest_i_lovtidend": true,
+     "videreforing_kilde": "NL/lov/2009-06-19-100",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2009/06/19/100/nor/§77/ledd-1",
+     "videreforing_form": "V3",
+     "videreforing_dekning": "dekket",
+     "videreforing_sitat": "Beslutninger om delegering av myndighet, forskrifter eller enkeltvedtak med hjemmel i bestemmelser som oppheves eller endres ved denne loven, står fortsatt ved lag inntil Kongen bestemmer annet. §§ 47 og 48 gjelder også for eldre vernevedtak. § 34 fjerde ledd og § 36 annet ledd gjelder også for eldre vedtak om oppretting av verneområder.",
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2009-06-19-100 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1978/06/09/50/nor/§20",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1978/06/09/50/nor",
+     "i_korpus": "NL/lov/1978-06-09-50",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1981/05/29/38/nor/§7",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2025-06-20-102",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61",
+     "opphevet_av_sitat": "Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.",
+     "lest_i_lovtidend": true,
+     "videreforing_kilde": "NL/lov/2025-06-20-102",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+     "videreforing_form": "V4",
+     "videreforing_dekning": "dokumenttype_ikke_nevnt",
+     "videreforing_sitat": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.",
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "fortolkning"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1996/06/21/38/nor/§1",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1996/06/21/38/nor",
+     "i_korpus": "NL/lov/1996-06-21-38",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    }
+   ],
+   "kortnavn": [
+    {
+     "eli": "https://lovdata.no/eli/lov/1970/06/19/63/nor",
+     "kortnavn_lest": null,
+     "grunn": "ingen_tittel_med_kortnavn",
+     "titler_i_korpus": [],
+     "andre_lover_med_samme_navn": [],
+     "opphevende_kilde_nevner_kortnavnet": []
+    },
+    {
+     "eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "kortnavn_lest": "viltloven",
+     "grunn": "entydig",
+     "titler_i_korpus": [
+      {
+       "kilde": "DEL/forskrift/2019-09-13-1124",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2009-12-22-1774",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2009-12-22-1775",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2011-03-01-206",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2013-03-15-284",
+       "sitat": "lov 29. mai 1981 nr. 38 om viltet (viltloven)"
+      }
+     ],
+     "andre_lover_med_samme_navn": [],
+     "opphevende_kilde_nevner_kortnavnet": [
+      {
+       "eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+       "tekst": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft."
+      }
+     ]
+    }
+   ],
+   "for_pr5": {
+    "status": "oppdaget",
+    "undertype": "blandede_hjemler",
+    "tittel": "Blandede hjemler, én opphevet uten funnet videreføring: Opprettelse av Statens naturoppsyn, delegering (FOR-1996-10-25-1008)",
+    "pastand": "Lovdata viser «Opprettelse av Statens naturoppsyn, delegering» (FOR-1996-10-25-1008) som gjeldende. Minst én hjemmel som teller, er opphevet uten funnet videreføring, mens andre hjemler bærer. Hvilken del av forskriften som står uten hjemmel, er ikke avgjort. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1970-06-19-63 § 4, § 6, § 10 og § 12 er opphevet, men videreført av LOV-2009-06-19-100 § 77 første ledd (rolle materiell).\n- LOV-1978-06-09-50 § 20 er aktiv (rolle materiell).\n- LOV-1981-05-29-38 § 7 er opphevet av LOV-2025-06-20-102 § 61 (lest i den kunngjorte teksten i Norsk Lovtidend): «Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.»\n- Ikke kontrollert: Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.\n- LOV-1996-06-21-38 § 1 er aktiv (rolle materiell).\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446)."
+   },
+   "etter_pr5": {
+    "status": "forklart_bort",
+    "begrunnelse": "Forklart bort av maskinregelen monster:hjemmel-opphevet (regelversjon 472-pr4-2026-11-24, #472 PR 4, prosjekteierens avgjørelse 2026-11-24 etter måling 1). Den samlede hjemmelsstatusen er nå «viderefort» (hjemmelsstatus 472-pr5-2026-11-25), og den gir ikke funn."
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "feilarsak": null,
+    "grunn": "Viltressursloven § 61 andre ledd: «Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.» Hjemmelstekstene i korpus siterer lov 29. mai 1981 nr. 38 med tittelen «om jakt og fangst av vilt (viltloven)», og ingen annen lov i korpus heter viltloven. Riktig etter gjeldende regel, men svakt. Vedtaket er en delegering, og § 61 andre ledd nevner bare «forskrifter». Dekningen er derfor «dokumenttype_ikke_nevnt» og kunnskapsstatusen fortolkning. Etter PR 4 (AK 2, FOR-1993-12-17-1314) gir en slik videreføring samlet status videreført når ingenting annet faller, så funnet forklares bort. Om en delegering etter viltloven fortsatt har virkning etter at viltressursloven trådte i kraft, er en tolkning. Juristen bør vurdere dette særskilt. Naturvernloven 1970 er videreført (V3) og de andre hjemlene er aktive, så før PR 5 var funnet «blandede».",
+    "kontrollert_mot": [
+     "NL/lov/2025-06-20-102 §61 (korpus)",
+     "Hjemmelstekstene i korpus (kortnavn.titler_i_korpus)"
+    ]
+   }
+  },
+  {
+   "id": "E09",
+   "utvalg": "endret",
+   "funn_id": "2bddd984-7e95-4534-b2ca-9f6f3768429f",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2002/09/13/995/nor",
+   "prefiks": "DEL",
+   "forskrift": {
+    "dokument_id": "DEL/forskrift/2002-09-13-995",
+    "tittel": "Delegering av myndighet til Klima- og miljødepartementet etter lov om viltet § 39.",
+    "lovdatas_hjemmelstekst": "Hjemmel: Fastsatt ved kgl.res. 13. september 2002 med hjemmel i lov av 29. mai 1981 nr. 38 om viltet § 39. Fremmet av Miljøverndepartementet (nå Klima- og miljødepartementet).\nEndret ved forskrift 19 des 2013 nr. 1757.",
+    "ikrafttredelse": "2002-09-13",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "hjemmelsstatus_etter_pr5": [
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1981/05/29/38/nor/§39",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2025-06-20-102",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61",
+     "opphevet_av_sitat": "Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.",
+     "lest_i_lovtidend": true,
+     "videreforing_kilde": "NL/lov/2025-06-20-102",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+     "videreforing_form": "V4",
+     "videreforing_dekning": "dokumenttype_ikke_nevnt",
+     "videreforing_sitat": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.",
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "fortolkning"
+    }
+   ],
+   "kortnavn": [
+    {
+     "eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "kortnavn_lest": "viltloven",
+     "grunn": "entydig",
+     "titler_i_korpus": [
+      {
+       "kilde": "DEL/forskrift/2019-09-13-1124",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2009-12-22-1774",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2009-12-22-1775",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2011-03-01-206",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2013-03-15-284",
+       "sitat": "lov 29. mai 1981 nr. 38 om viltet (viltloven)"
+      }
+     ],
+     "andre_lover_med_samme_navn": [],
+     "opphevende_kilde_nevner_kortnavnet": [
+      {
+       "eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+       "tekst": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft."
+      }
+     ]
+    }
+   ],
+   "for_pr5": {
+    "status": "oppdaget",
+    "undertype": "hjemmel_opphevet",
+    "tittel": "Hjemmel opphevet, videreføring ikke funnet: Delegering til KMD etter viltloven (FOR-2002-09-13-995)",
+    "pastand": "Lovdata viser «Delegering til KMD etter viltloven» (FOR-2002-09-13-995) som gjeldende. Alle hjemlene som teller, er opphevet, og maskinregelen har ikke funnet en overgangsregel som viderefører forskriften. Ikke funnet betyr ikke at den ikke finnes. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1981-05-29-38 § 39 er opphevet av LOV-2025-06-20-102 § 61 (lest i den kunngjorte teksten i Norsk Lovtidend): «Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.»\n- Ikke kontrollert: Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446)."
+   },
+   "etter_pr5": {
+    "status": "forklart_bort",
+    "begrunnelse": "Forklart bort av maskinregelen monster:hjemmel-opphevet (regelversjon 472-pr4-2026-11-24, #472 PR 4, prosjekteierens avgjørelse 2026-11-24 etter måling 1). Den samlede hjemmelsstatusen er nå «viderefort» (hjemmelsstatus 472-pr5-2026-11-25), og den gir ikke funn."
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "feilarsak": null,
+    "grunn": "Viltressursloven § 61 andre ledd: «Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.» Hjemmelstekstene i korpus siterer lov 29. mai 1981 nr. 38 med tittelen «om jakt og fangst av vilt (viltloven)», og ingen annen lov i korpus heter viltloven. Riktig etter gjeldende regel, men svakt. Vedtaket er en delegering, og § 61 andre ledd nevner bare «forskrifter». Dekningen er derfor «dokumenttype_ikke_nevnt» og kunnskapsstatusen fortolkning. Etter PR 4 (AK 2, FOR-1993-12-17-1314) gir en slik videreføring samlet status videreført når ingenting annet faller, så funnet forklares bort. Om en delegering etter viltloven fortsatt har virkning etter at viltressursloven trådte i kraft, er en tolkning. Juristen bør vurdere dette særskilt.",
+    "kontrollert_mot": [
+     "NL/lov/2025-06-20-102 §61 (korpus)",
+     "Hjemmelstekstene i korpus (kortnavn.titler_i_korpus)"
+    ]
+   }
+  },
+  {
+   "id": "E10",
+   "utvalg": "endret",
+   "funn_id": "0be2f5c1-0b80-4eaf-990f-2602a87617ad",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2002/09/19/1915/nor",
+   "prefiks": "DEL",
+   "forskrift": {
+    "dokument_id": "DEL/forskrift/2002-09-19-1915",
+    "tittel": "Delegering av myndighet til Direktoratet for naturforvaltning etter lov om viltet § 39",
+    "lovdatas_hjemmelstekst": "Hjemmel: Fastsatt av Miljøverndepartementet (nå Klima- og miljødepartementet) 19. september 2002 med hjemmel i lov 29. mai 1981 nr. 38 om viltet § 39, jf. delegeringsvedtak 13. september 2002 nr. 995.\nTilføyd hjemmel: Delegering 15 mars 2013 nr. 283 av myndighet til Miljødirektoratet.\nEndret ved forskrift 19 des 2013 nr. 1757.",
+    "ikrafttredelse": "2002-09-19",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "hjemmelsstatus_etter_pr5": [
+    {
+     "hjemmel": "https://lovdata.no/eli/forskrift/2002/09/13/995/nor",
+     "hjemmel_eli": "https://lovdata.no/eli/forskrift/2002/09/13/995/nor",
+     "i_korpus": "DEL/forskrift/2002-09-13-995",
+     "rolle": "kompetanseledd",
+     "rolle_regel": "delegeringsvedtak",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/forskrift/2013/03/15/283/nor",
+     "hjemmel_eli": "https://lovdata.no/eli/forskrift/2013/03/15/283/nor",
+     "i_korpus": "DEL/forskrift/2013-03-15-283",
+     "rolle": "kompetanseledd",
+     "rolle_regel": "delegeringsvedtak",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1981/05/29/38/nor/§39",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2025-06-20-102",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61",
+     "opphevet_av_sitat": "Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.",
+     "lest_i_lovtidend": true,
+     "videreforing_kilde": "NL/lov/2025-06-20-102",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+     "videreforing_form": "V4",
+     "videreforing_dekning": "dokumenttype_ikke_nevnt",
+     "videreforing_sitat": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.",
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "fortolkning"
+    }
+   ],
+   "kortnavn": [
+    {
+     "eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "kortnavn_lest": "viltloven",
+     "grunn": "entydig",
+     "titler_i_korpus": [
+      {
+       "kilde": "DEL/forskrift/2019-09-13-1124",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2009-12-22-1774",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2009-12-22-1775",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2011-03-01-206",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2013-03-15-284",
+       "sitat": "lov 29. mai 1981 nr. 38 om viltet (viltloven)"
+      }
+     ],
+     "andre_lover_med_samme_navn": [],
+     "opphevende_kilde_nevner_kortnavnet": [
+      {
+       "eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+       "tekst": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft."
+      }
+     ]
+    }
+   ],
+   "for_pr5": {
+    "status": "oppdaget",
+    "undertype": "hjemmel_opphevet",
+    "tittel": "Hjemmel opphevet, videreføring ikke funnet: Deleg. til DN etter viltloven (FOR-2002-09-19-1915)",
+    "pastand": "Lovdata viser «Deleg. til DN etter viltloven» (FOR-2002-09-19-1915) som gjeldende. Alle hjemlene som teller, er opphevet, og maskinregelen har ikke funnet en overgangsregel som viderefører forskriften. Ikke funnet betyr ikke at den ikke finnes. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1981-05-29-38 § 39 er opphevet av LOV-2025-06-20-102 § 61 (lest i den kunngjorte teksten i Norsk Lovtidend): «Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.»\n- Ikke kontrollert: Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446)."
+   },
+   "etter_pr5": {
+    "status": "forklart_bort",
+    "begrunnelse": "Forklart bort av maskinregelen monster:hjemmel-opphevet (regelversjon 472-pr4-2026-11-24, #472 PR 4, prosjekteierens avgjørelse 2026-11-24 etter måling 1). Den samlede hjemmelsstatusen er nå «viderefort» (hjemmelsstatus 472-pr5-2026-11-25), og den gir ikke funn."
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "feilarsak": null,
+    "grunn": "Viltressursloven § 61 andre ledd: «Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.» Hjemmelstekstene i korpus siterer lov 29. mai 1981 nr. 38 med tittelen «om jakt og fangst av vilt (viltloven)», og ingen annen lov i korpus heter viltloven. Riktig etter gjeldende regel, men svakt. Vedtaket er en delegering, og § 61 andre ledd nevner bare «forskrifter». Dekningen er derfor «dokumenttype_ikke_nevnt» og kunnskapsstatusen fortolkning. Etter PR 4 (AK 2, FOR-1993-12-17-1314) gir en slik videreføring samlet status videreført når ingenting annet faller, så funnet forklares bort. Om en delegering etter viltloven fortsatt har virkning etter at viltressursloven trådte i kraft, er en tolkning. Juristen bør vurdere dette særskilt.",
+    "kontrollert_mot": [
+     "NL/lov/2025-06-20-102 §61 (korpus)",
+     "Hjemmelstekstene i korpus (kortnavn.titler_i_korpus)"
+    ]
+   }
+  },
+  {
+   "id": "E11",
+   "utvalg": "endret",
+   "funn_id": "86ba4460-0e5f-41c3-bf03-a848066ef7a2",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/1994/07/01/4322/nor",
+   "prefiks": "DEL",
+   "forskrift": {
+    "dokument_id": "DEL/forskrift/1994-07-01-4322",
+    "tittel": "Delegering av myndighet til Direktoratet for naturforvaltning etter lov om viltet § 7 annet ledd",
+    "lovdatas_hjemmelstekst": "Hjemmel: Fastsatt av Miljøverndepartementet (nå Klima- og miljødepartementet) 1. juli 1994 med hjemmel i 29. mai 1981 nr. 38 om viltet § 7 annet ledd.\nTilføyd hjemmel: Delegering 15 mars 2013 nr. 283 av myndighet til Miljødirektoratet.\nEndret ved forskrift 19 des 2013 nr. 1757.",
+    "ikrafttredelse": "2004-06-01",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "hjemmelsstatus_etter_pr5": [
+    {
+     "hjemmel": "https://lovdata.no/eli/forskrift/2013/03/15/283/nor",
+     "hjemmel_eli": "https://lovdata.no/eli/forskrift/2013/03/15/283/nor",
+     "i_korpus": "DEL/forskrift/2013-03-15-283",
+     "rolle": "kompetanseledd",
+     "rolle_regel": "delegeringsvedtak",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1981/05/29/38/nor/§7",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2025-06-20-102",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61",
+     "opphevet_av_sitat": "Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.",
+     "lest_i_lovtidend": true,
+     "videreforing_kilde": "NL/lov/2025-06-20-102",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+     "videreforing_form": "V4",
+     "videreforing_dekning": "dokumenttype_ikke_nevnt",
+     "videreforing_sitat": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.",
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "fortolkning"
+    }
+   ],
+   "kortnavn": [
+    {
+     "eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "kortnavn_lest": "viltloven",
+     "grunn": "entydig",
+     "titler_i_korpus": [
+      {
+       "kilde": "DEL/forskrift/2019-09-13-1124",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2009-12-22-1774",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2009-12-22-1775",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2011-03-01-206",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2013-03-15-284",
+       "sitat": "lov 29. mai 1981 nr. 38 om viltet (viltloven)"
+      }
+     ],
+     "andre_lover_med_samme_navn": [],
+     "opphevende_kilde_nevner_kortnavnet": [
+      {
+       "eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+       "tekst": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft."
+      }
+     ]
+    }
+   ],
+   "for_pr5": {
+    "status": "oppdaget",
+    "undertype": "hjemmel_opphevet",
+    "tittel": "Hjemmel opphevet, videreføring ikke funnet: Delegering til DN etter viltloven (FOR-1994-07-01-4322)",
+    "pastand": "Lovdata viser «Delegering til DN etter viltloven» (FOR-1994-07-01-4322) som gjeldende. Alle hjemlene som teller, er opphevet, og maskinregelen har ikke funnet en overgangsregel som viderefører forskriften. Ikke funnet betyr ikke at den ikke finnes. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1981-05-29-38 § 7 er opphevet av LOV-2025-06-20-102 § 61 (lest i den kunngjorte teksten i Norsk Lovtidend): «Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.»\n- Ikke kontrollert: Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446)."
+   },
+   "etter_pr5": {
+    "status": "forklart_bort",
+    "begrunnelse": "Forklart bort av maskinregelen monster:hjemmel-opphevet (regelversjon 472-pr4-2026-11-24, #472 PR 4, prosjekteierens avgjørelse 2026-11-24 etter måling 1). Den samlede hjemmelsstatusen er nå «viderefort» (hjemmelsstatus 472-pr5-2026-11-25), og den gir ikke funn."
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "feilarsak": null,
+    "grunn": "Viltressursloven § 61 andre ledd: «Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.» Hjemmelstekstene i korpus siterer lov 29. mai 1981 nr. 38 med tittelen «om jakt og fangst av vilt (viltloven)», og ingen annen lov i korpus heter viltloven. Riktig etter gjeldende regel, men svakt. Vedtaket er en delegering, og § 61 andre ledd nevner bare «forskrifter». Dekningen er derfor «dokumenttype_ikke_nevnt» og kunnskapsstatusen fortolkning. Etter PR 4 (AK 2, FOR-1993-12-17-1314) gir en slik videreføring samlet status videreført når ingenting annet faller, så funnet forklares bort. Om en delegering etter viltloven fortsatt har virkning etter at viltressursloven trådte i kraft, er en tolkning. Juristen bør vurdere dette særskilt.",
+    "kontrollert_mot": [
+     "NL/lov/2025-06-20-102 §61 (korpus)",
+     "Hjemmelstekstene i korpus (kortnavn.titler_i_korpus)"
+    ]
+   }
+  },
+  {
+   "id": "E12",
+   "utvalg": "endret",
+   "funn_id": "f61c984b-63f0-4c6b-9a24-588ce756fdf2",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2009/12/22/1775/nor",
+   "prefiks": "LTI",
+   "forskrift": {
+    "dokument_id": "LTI/forskrift/2009-12-22-1775",
+    "tittel": "Forskrift om endring i forskrift om gjennomføringen av bestemmelsene om sammenslåing for å oppnå minsteareal for hjorteviltjakt i viltlovens § 38",
+    "lovdatas_hjemmelstekst": "Hjemmel: Fastsatt av Direktoratet for naturforvaltning 22. desember 2009 med hjemmel i lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven) § 38 fjerde ledd.",
+    "ikrafttredelse": "2009-12-22",
+    "rent_endringsvedtak": null,
+    "kildeform": "kunngjort"
+   },
+   "hjemmelsstatus_etter_pr5": [
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1981/05/29/38/nor/§38",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2025-06-20-102",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61",
+     "opphevet_av_sitat": "Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.",
+     "lest_i_lovtidend": true,
+     "videreforing_kilde": "NL/lov/2025-06-20-102",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+     "videreforing_form": "V4",
+     "videreforing_dekning": "dekket",
+     "videreforing_sitat": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.",
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "normalisering"
+    }
+   ],
+   "kortnavn": [
+    {
+     "eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "kortnavn_lest": "viltloven",
+     "grunn": "entydig",
+     "titler_i_korpus": [
+      {
+       "kilde": "DEL/forskrift/2019-09-13-1124",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2009-12-22-1774",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2009-12-22-1775",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2011-03-01-206",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2013-03-15-284",
+       "sitat": "lov 29. mai 1981 nr. 38 om viltet (viltloven)"
+      }
+     ],
+     "andre_lover_med_samme_navn": [],
+     "opphevende_kilde_nevner_kortnavnet": [
+      {
+       "eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+       "tekst": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft."
+      }
+     ]
+    }
+   ],
+   "for_pr5": {
+    "status": "oppdaget",
+    "undertype": "hjemmel_opphevet",
+    "tittel": "Hjemmel opphevet, videreføring ikke funnet: Endr. forskrift om sammenslåing av hjorteviltjakt (FOR-2009-12-22-1775)",
+    "pastand": "Korpuset har «Endr. forskrift om sammenslåing av hjorteviltjakt» (FOR-2009-12-22-1775) bare slik det ble kunngjort i Norsk Lovtidend, med status gjeldende. Alle hjemlene som teller, er opphevet, og maskinregelen har ikke funnet en overgangsregel som viderefører forskriften. Ikke funnet betyr ikke at den ikke finnes. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1981-05-29-38 § 38 er opphevet av LOV-2025-06-20-102 § 61 (lest i den kunngjorte teksten i Norsk Lovtidend): «Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.»\n- Ikke kontrollert: Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.\n- Kunngjort versjon, gjeldende status ikke kontrollert: korpuset har bare vedtaket slik det ble kunngjort i Norsk Lovtidend, og Lovdatas ajourførte status er ikke slått opp. Vedtaket kan selv være opphevet ved en kilde som ikke er i korpus.\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446)."
+   },
+   "etter_pr5": {
+    "status": "forklart_bort",
+    "begrunnelse": "Forklart bort av maskinregelen monster:hjemmel-opphevet (regelversjon 472-pr4-2026-11-24, #472 PR 4, prosjekteierens avgjørelse 2026-11-24 etter måling 1). Den samlede hjemmelsstatusen er nå «viderefort» (hjemmelsstatus 472-pr5-2026-11-25), og den gir ikke funn."
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "feilarsak": null,
+    "grunn": "Viltressursloven § 61 andre ledd: «Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.» Hjemmelstekstene i korpus siterer lov 29. mai 1981 nr. 38 med tittelen «om jakt og fangst av vilt (viltloven)», og ingen annen lov i korpus heter viltloven. Riktig. Forskriften er gitt i medhold av viltloven, og § 61 andre ledd viderefører forskrifter uten forbehold og uten frist. Dekningen er «dekket». Utfallet (videreført, funnet forklart bort) holder. Vedtaket er en endringsforskrift (LTI) som ikke er klassifisert (#446).",
+    "kontrollert_mot": [
+     "NL/lov/2025-06-20-102 §61 (korpus)",
+     "Hjemmelstekstene i korpus (kortnavn.titler_i_korpus)"
+    ]
+   }
+  },
+  {
+   "id": "E13",
+   "utvalg": "endret",
+   "funn_id": "aa8968ad-8c1b-42a2-a750-f42645e8293e",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2011/03/01/206/nor",
+   "prefiks": "LTI",
+   "forskrift": {
+    "dokument_id": "LTI/forskrift/2011-03-01-206",
+    "tittel": "Forskrift om endring i forskrift om gjennomføringen av bestemmelsene om sammenslåing av eiendommer til felles viltområde i viltlovens § 37",
+    "lovdatas_hjemmelstekst": "Hjemmel: Fastsatt av Direktoratet for naturforvaltning 1. mars 2011 med hjemmel i lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven) § 37 sjette ledd og § 38.",
+    "ikrafttredelse": "2011-03-01",
+    "rent_endringsvedtak": null,
+    "kildeform": "kunngjort"
+   },
+   "hjemmelsstatus_etter_pr5": [
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1981/05/29/38/nor/§37",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2025-06-20-102",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61",
+     "opphevet_av_sitat": "Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.",
+     "lest_i_lovtidend": true,
+     "videreforing_kilde": "NL/lov/2025-06-20-102",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+     "videreforing_form": "V4",
+     "videreforing_dekning": "dekket",
+     "videreforing_sitat": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.",
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1981/05/29/38/nor/§38",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2025-06-20-102",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61",
+     "opphevet_av_sitat": "Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.",
+     "lest_i_lovtidend": true,
+     "videreforing_kilde": "NL/lov/2025-06-20-102",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+     "videreforing_form": "V4",
+     "videreforing_dekning": "dekket",
+     "videreforing_sitat": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.",
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "normalisering"
+    }
+   ],
+   "kortnavn": [
+    {
+     "eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "kortnavn_lest": "viltloven",
+     "grunn": "entydig",
+     "titler_i_korpus": [
+      {
+       "kilde": "DEL/forskrift/2019-09-13-1124",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2009-12-22-1774",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2009-12-22-1775",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2011-03-01-206",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2013-03-15-284",
+       "sitat": "lov 29. mai 1981 nr. 38 om viltet (viltloven)"
+      }
+     ],
+     "andre_lover_med_samme_navn": [],
+     "opphevende_kilde_nevner_kortnavnet": [
+      {
+       "eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+       "tekst": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft."
+      }
+     ]
+    }
+   ],
+   "for_pr5": {
+    "status": "oppdaget",
+    "undertype": "hjemmel_opphevet",
+    "tittel": "Hjemmel opphevet, videreføring ikke funnet: Endr. i forskrift om felles viltområde (FOR-2011-03-01-206)",
+    "pastand": "Korpuset har «Endr. i forskrift om felles viltområde» (FOR-2011-03-01-206) bare slik det ble kunngjort i Norsk Lovtidend, med status gjeldende. Alle hjemlene som teller, er opphevet, og maskinregelen har ikke funnet en overgangsregel som viderefører forskriften. Ikke funnet betyr ikke at den ikke finnes. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1981-05-29-38 § 37 og § 38 er opphevet av LOV-2025-06-20-102 § 61 (lest i den kunngjorte teksten i Norsk Lovtidend): «Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.»\n- Ikke kontrollert: Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.\n- Kunngjort versjon, gjeldende status ikke kontrollert: korpuset har bare vedtaket slik det ble kunngjort i Norsk Lovtidend, og Lovdatas ajourførte status er ikke slått opp. Vedtaket kan selv være opphevet ved en kilde som ikke er i korpus.\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446)."
+   },
+   "etter_pr5": {
+    "status": "forklart_bort",
+    "begrunnelse": "Forklart bort av maskinregelen monster:hjemmel-opphevet (regelversjon 472-pr4-2026-11-24, #472 PR 4, prosjekteierens avgjørelse 2026-11-24 etter måling 1). Den samlede hjemmelsstatusen er nå «viderefort» (hjemmelsstatus 472-pr5-2026-11-25), og den gir ikke funn."
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "feilarsak": null,
+    "grunn": "Viltressursloven § 61 andre ledd: «Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.» Hjemmelstekstene i korpus siterer lov 29. mai 1981 nr. 38 med tittelen «om jakt og fangst av vilt (viltloven)», og ingen annen lov i korpus heter viltloven. Riktig. Forskriften er gitt i medhold av viltloven, og § 61 andre ledd viderefører forskrifter uten forbehold og uten frist. Dekningen er «dekket». Utfallet (videreført, funnet forklart bort) holder. Vedtaket er en endringsforskrift (LTI) som ikke er klassifisert (#446).",
+    "kontrollert_mot": [
+     "NL/lov/2025-06-20-102 §61 (korpus)",
+     "Hjemmelstekstene i korpus (kortnavn.titler_i_korpus)"
+    ]
+   }
+  },
+  {
+   "id": "E14",
+   "utvalg": "endret",
+   "funn_id": "e72bcb8d-ba68-4b30-aa45-302617faada5",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2005/03/21/247/nor",
+   "prefiks": "SF",
+   "forskrift": {
+    "dokument_id": "SF/forskrift/2005-03-21-247",
+    "tittel": "Forskrift om registrering og merking av eldre preparater av dødt vilt.",
+    "lovdatas_hjemmelstekst": "Hjemmel: Fastsatt av Direktoratet for naturforvaltning (nå Miljødirektoratet) 21. mars 2005 med hjemmel i lov 29. mai 1981 nr. 38 § 48a, § 49 og § 49a og forskrift 18. juni 2004 nr. 913 om ivaretakelse av dødt vilt § 8 femte ledd og § 16.\nEndret ved forskrift 15 aug 2006 nr. 978",
+    "ikrafttredelse": "2005-03-21",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "hjemmelsstatus_etter_pr5": [
+    {
+     "hjemmel": "https://lovdata.no/eli/forskrift/2004/06/18/913/nor/§16",
+     "hjemmel_eli": "https://lovdata.no/eli/forskrift/2004/06/18/913/nor",
+     "rolle": "kompetanseledd",
+     "rolle_regel": "forskrift_som_hjemmel",
+     "status": "erstattet",
+     "bevistrinn": "E1",
+     "opphevet_av": "SF/forskrift/2020-04-01-565",
+     "opphevet_av_eid": "https://lovdata.no/eli/forskrift/2020/04/01/565/nor/§8-4/ledd-2/punkt-4",
+     "opphevet_av_sitat": "Fra samme tidspunkt oppheves følgende forskrifter: Forskrift 18. juni 2004 nr. 913 om ivaretakelse av dødt vilt.",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "fortolkning"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/forskrift/2004/06/18/913/nor/§8",
+     "hjemmel_eli": "https://lovdata.no/eli/forskrift/2004/06/18/913/nor",
+     "rolle": "kompetanseledd",
+     "rolle_regel": "forskrift_som_hjemmel",
+     "status": "erstattet",
+     "bevistrinn": "E1",
+     "opphevet_av": "SF/forskrift/2020-04-01-565",
+     "opphevet_av_eid": "https://lovdata.no/eli/forskrift/2020/04/01/565/nor/§8-4/ledd-2/punkt-4",
+     "opphevet_av_sitat": "Fra samme tidspunkt oppheves følgende forskrifter: Forskrift 18. juni 2004 nr. 913 om ivaretakelse av dødt vilt.",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "fortolkning"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1981/05/29/38/nor/§48a",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2025-06-20-102",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61",
+     "opphevet_av_sitat": "Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.",
+     "lest_i_lovtidend": true,
+     "videreforing_kilde": "NL/lov/2025-06-20-102",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+     "videreforing_form": "V4",
+     "videreforing_dekning": "dekket",
+     "videreforing_sitat": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.",
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1981/05/29/38/nor/§49",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2025-06-20-102",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61",
+     "opphevet_av_sitat": "Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.",
+     "lest_i_lovtidend": true,
+     "videreforing_kilde": "NL/lov/2025-06-20-102",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+     "videreforing_form": "V4",
+     "videreforing_dekning": "dekket",
+     "videreforing_sitat": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.",
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1981/05/29/38/nor/§49a",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2025-06-20-102",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61",
+     "opphevet_av_sitat": "Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.",
+     "lest_i_lovtidend": true,
+     "videreforing_kilde": "NL/lov/2025-06-20-102",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+     "videreforing_form": "V4",
+     "videreforing_dekning": "dekket",
+     "videreforing_sitat": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.",
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "normalisering"
+    }
+   ],
+   "kortnavn": [
+    {
+     "eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "kortnavn_lest": "viltloven",
+     "grunn": "entydig",
+     "titler_i_korpus": [
+      {
+       "kilde": "DEL/forskrift/2019-09-13-1124",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2009-12-22-1774",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2009-12-22-1775",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2011-03-01-206",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2013-03-15-284",
+       "sitat": "lov 29. mai 1981 nr. 38 om viltet (viltloven)"
+      }
+     ],
+     "andre_lover_med_samme_navn": [],
+     "opphevende_kilde_nevner_kortnavnet": [
+      {
+       "eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+       "tekst": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft."
+      }
+     ]
+    }
+   ],
+   "for_pr5": {
+    "status": "oppdaget",
+    "undertype": "hjemmel_opphevet",
+    "tittel": "Hjemmel opphevet, videreføring ikke funnet: Forskrift om registrering av dødt vilt (FOR-2005-03-21-247)",
+    "pastand": "Lovdata viser «Forskrift om registrering av dødt vilt» (FOR-2005-03-21-247) som gjeldende. Alle hjemlene som teller, er opphevet, og maskinregelen har ikke funnet en overgangsregel som viderefører forskriften. Ikke funnet betyr ikke at den ikke finnes. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1981-05-29-38 § 48a, § 49 og § 49a er opphevet av LOV-2025-06-20-102 § 61 (lest i den kunngjorte teksten i Norsk Lovtidend): «Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.»\n- Ikke kontrollert: Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446)."
+   },
+   "etter_pr5": {
+    "status": "forklart_bort",
+    "begrunnelse": "Forklart bort av maskinregelen monster:hjemmel-opphevet (regelversjon 472-pr4-2026-11-24, #472 PR 4, prosjekteierens avgjørelse 2026-11-24 etter måling 1). Den samlede hjemmelsstatusen er nå «viderefort» (hjemmelsstatus 472-pr5-2026-11-25), og den gir ikke funn."
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "feilarsak": null,
+    "grunn": "Viltressursloven § 61 andre ledd: «Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.» Hjemmelstekstene i korpus siterer lov 29. mai 1981 nr. 38 med tittelen «om jakt og fangst av vilt (viltloven)», og ingen annen lov i korpus heter viltloven. Riktig. Forskriften er gitt i medhold av viltloven, og § 61 andre ledd viderefører forskrifter uten forbehold og uten frist. Dekningen er «dekket». Utfallet (videreført, funnet forklart bort) holder. Forskrift 2004 nr. 913 er erstattet (kompetanseledd); det endrer ikke utfallet.",
+    "kontrollert_mot": [
+     "NL/lov/2025-06-20-102 §61 (korpus)",
+     "Hjemmelstekstene i korpus (kortnavn.titler_i_korpus)"
+    ]
+   }
+  },
+  {
+   "id": "E15",
+   "utvalg": "endret",
+   "funn_id": "501d8823-0eba-476c-9023-355c4bb747d9",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2013/03/15/283/nor",
+   "prefiks": "DEL",
+   "forskrift": {
+    "dokument_id": "DEL/forskrift/2013-03-15-283",
+    "tittel": "Delegering av myndighet til Miljødirektoratet",
+    "lovdatas_hjemmelstekst": "Hjemmel: Fastsatt ved kgl.res. 15. mars 2013. Fremmet av Miljøverndepartementet.\nEndret ved forskrift 22 mai 2026 nr. 870 (i kraft 1 juni 2026, delegering etter oreigningslova opphevet).",
+    "ikrafttredelse": "2013-07-01",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "hjemmelsstatus_etter_pr5": [
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1957/06/28/16/nor",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1957/06/28/16/nor",
+     "i_korpus": "NL/lov/1957-06-28-16",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1975/06/06/31/nor",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1975/06/06/31/nor",
+     "i_korpus": "NL/lov/1975-06-06-31",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1976/06/11/79/nor",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1976/06/11/79/nor",
+     "i_korpus": "NL/lov/1976-06-11-79",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2025-06-20-102",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61",
+     "opphevet_av_sitat": "Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.",
+     "lest_i_lovtidend": true,
+     "videreforing_kilde": "NL/lov/2025-06-20-102",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+     "videreforing_form": "V4",
+     "videreforing_dekning": "dokumenttype_ikke_nevnt",
+     "videreforing_sitat": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.",
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "fortolkning"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1992/05/15/47/nor",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1992/05/15/47/nor",
+     "i_korpus": "NL/lov/1992-05-15-47",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2009/06/19/100/nor",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/2009/06/19/100/nor",
+     "i_korpus": "NL/lov/2009-06-19-100",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    }
+   ],
+   "kortnavn": [
+    {
+     "eli": "https://lovdata.no/eli/lov/1981/05/29/38/nor",
+     "kortnavn_lest": "viltloven",
+     "grunn": "entydig",
+     "titler_i_korpus": [
+      {
+       "kilde": "DEL/forskrift/2019-09-13-1124",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2009-12-22-1774",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2009-12-22-1775",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2011-03-01-206",
+       "sitat": "lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2013-03-15-284",
+       "sitat": "lov 29. mai 1981 nr. 38 om viltet (viltloven)"
+      }
+     ],
+     "andre_lover_med_samme_navn": [],
+     "opphevende_kilde_nevner_kortnavnet": [
+      {
+       "eid": "https://lovdata.no/eli/lov/2025/06/20/102/nor/§61/ledd-2",
+       "tekst": "Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft."
+      }
+     ]
+    }
+   ],
+   "for_pr5": {
+    "status": "oppdaget",
+    "undertype": "uavklart",
+    "tittel": "Hjemmel opphevet, de andre hjemlene ikke vurdert: Deleg. til Miljødirektoratet etter tidl. delegeringer (FOR-2013-03-15-283)",
+    "pastand": "Lovdata viser «Deleg. til Miljødirektoratet etter tidl. delegeringer» (FOR-2013-03-15-283) som gjeldende. Minst én hjemmel som teller, er opphevet uten funnet videreføring. De andre hjemlene kan bære forskriften, men det er ikke vurdert: rollen deres er ikke avklart, eller videreføringen nevner ikke denne typen vedtak. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1957-06-28-16 er aktiv (rollen er ikke vurdert).\n- LOV-1975-06-06-31 er aktiv (rollen er ikke vurdert).\n- LOV-1976-06-11-79 er aktiv (rollen er ikke vurdert).\n- LOV-1981-05-29-38 er opphevet av LOV-2025-06-20-102 § 61 (lest i den kunngjorte teksten i Norsk Lovtidend): «Fra samme tid oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.»\n- Ikke kontrollert: Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2025-06-20-102 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.\n- LOV-1992-05-15-47 er aktiv (rollen er ikke vurdert).\n- LOV-2009-06-19-100 er aktiv (rollen er ikke vurdert).\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446)."
+   },
+   "etter_pr5": {
+    "status": "forklart_bort",
+    "begrunnelse": "Forklart bort av maskinregelen monster:hjemmel-opphevet (regelversjon 472-pr4-2026-11-24, #472 PR 4, prosjekteierens avgjørelse 2026-11-24 etter måling 1). Den samlede hjemmelsstatusen er nå «viderefort» (hjemmelsstatus 472-pr5-2026-11-25), og den gir ikke funn."
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "feilarsak": null,
+    "grunn": "Viltressursloven § 61 andre ledd: «Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.» Hjemmelstekstene i korpus siterer lov 29. mai 1981 nr. 38 med tittelen «om jakt og fangst av vilt (viltloven)», og ingen annen lov i korpus heter viltloven. Riktig etter gjeldende regel, men svakt. Vedtaket er en delegering, og § 61 andre ledd nevner bare «forskrifter». Dekningen er derfor «dokumenttype_ikke_nevnt» og kunnskapsstatusen fortolkning. Etter PR 4 (AK 2, FOR-1993-12-17-1314) gir en slik videreføring samlet status videreført når ingenting annet faller, så funnet forklares bort. Om en delegering etter viltloven fortsatt har virkning etter at viltressursloven trådte i kraft, er en tolkning. Juristen bør vurdere dette særskilt. Hjemmelen har rolle NULL (ingen hjemmelstekst ut over kgl.res.).",
+    "kontrollert_mot": [
+     "NL/lov/2025-06-20-102 §61 (korpus)",
+     "Hjemmelstekstene i korpus (kortnavn.titler_i_korpus)"
+    ]
+   }
+  },
+  {
+   "id": "K01",
+   "utvalg": "kontroll",
+   "funn_id": "846a801e-f94a-4ded-bb6d-a4914c864bf1",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2018/04/16/852/nor",
+   "prefiks": "LTI",
+   "forskrift": {
+    "dokument_id": "LTI/forskrift/2018-04-16-852",
+    "tittel": "Delegering av myndighet til Kirkerådet til å foreta endringer i kirkevalgreglene på bakgrunn av Kirkemøtets føringer",
+    "lovdatas_hjemmelstekst": "Hjemmel: Fastsatt av Kirkemøtet 16. april 2018 med hjemmel i lov 7. juni 1996 nr. 31 om Den norske kirke (kirkeloven) § 6 tredje ledd og § 23 annet ledd.",
+    "ikrafttredelse": "2018-04-16",
+    "rent_endringsvedtak": null,
+    "kildeform": "kunngjort"
+   },
+   "hjemmelsstatus_etter_pr5": [
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1996/06/07/31/nor/§23",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1996/06/07/31/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "opphevet",
+     "bevistrinn": "E1",
+     "opphevet_av": "NL/lov/2020-04-24-31",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2020/04/24/31/nor/§24/ledd-4",
+     "opphevet_av_sitat": "Lov 7. juni 1996 nr. 31 om Den norske kirke oppheves.",
+     "lest_i_lovtidend": false,
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2020-04-24-31 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "tekstfunn"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1996/06/07/31/nor/§6",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1996/06/07/31/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "opphevet",
+     "bevistrinn": "E1",
+     "opphevet_av": "NL/lov/2020-04-24-31",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2020/04/24/31/nor/§24/ledd-4",
+     "opphevet_av_sitat": "Lov 7. juni 1996 nr. 31 om Den norske kirke oppheves.",
+     "lest_i_lovtidend": false,
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2020-04-24-31 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "tekstfunn"
+    }
+   ],
+   "kortnavn": [
+    {
+     "eli": "https://lovdata.no/eli/lov/1996/06/07/31/nor",
+     "kortnavn_lest": "kirkeloven",
+     "grunn": "entydig",
+     "titler_i_korpus": [
+      {
+       "kilde": "LTI/forskrift/2001-09-14-1081",
+       "sitat": "lov av 7. juni 1996 nr. 31 om Den norske kirke (kirkeloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2008-05-15-461",
+       "sitat": "lov 7. juni 1996 nr. 31 om Den norske kirke (kirkeloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2012-06-08-505",
+       "sitat": "lov 7. juni 1996 nr. 31 om Den norske kirke (kirkeloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2013-09-26-1779",
+       "sitat": "lov 7. juni 1996 nr. 31 om Den norske kirke (kirkeloven)"
+      },
+      {
+       "kilde": "LTI/forskrift/2013-12-13-1453",
+       "sitat": "lov 7. juni 1996 nr. 31 om Den norske kirke (kirkeloven)"
+      }
+     ],
+     "andre_lover_med_samme_navn": [],
+     "opphevende_kilde_nevner_kortnavnet": []
+    }
+   ],
+   "foreslatt": {
+    "status": "oppdaget",
+    "undertype": "hjemmel_opphevet",
+    "tittel": "Hjemmel opphevet, videreføring ikke funnet: Deleg. av myndighet til Kirkerådet (FOR-2018-04-16-852)",
+    "pastand": "Korpuset har «Deleg. av myndighet til Kirkerådet» (FOR-2018-04-16-852) bare slik det ble kunngjort i Norsk Lovtidend, med status gjeldende. Alle hjemlene som teller, er opphevet, og maskinregelen har ikke funnet en overgangsregel som viderefører forskriften. Ikke funnet betyr ikke at den ikke finnes. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1996-06-07-31 § 6 og § 23 er opphevet av LOV-2020-04-24-31 § 24 fjerde ledd: «Lov 7. juni 1996 nr. 31 om Den norske kirke oppheves.»\n- Ikke kontrollert: Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2020-04-24-31 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.\n- Kunngjort versjon, gjeldende status ikke kontrollert: korpuset har bare vedtaket slik det ble kunngjort i Norsk Lovtidend, og Lovdatas ajourførte status er ikke slått opp. Vedtaket kan selv være opphevet ved en kilde som ikke er i korpus.\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446).",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-2018-04-16-852 Deleg. av myndighet til Kirkerådet",
+      "merknad": "forskriften",
+      "eid": null,
+      "nodetekst": null
+     },
+     {
+      "rolle": "opphevende_bestemmelse",
+      "etikett": "LOV-2020-04-24-31 § 24 fjerde ledd",
+      "merknad": "opphever LOV-1996-06-07-31",
+      "eid": "https://lovdata.no/eli/lov/2020/04/24/31/nor/§24/ledd-4",
+      "nodetekst": "3. Lov 7. juni 1996 nr. 31 om Den norske kirke oppheves."
+     }
+    ]
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "feilarsak": null,
+    "grunn": "Riktig etter kontrollen av kortnavnet. Regelen leser kortnavnet «kirkeloven» som entydig, men den opphevende loven har ingen videreføringssetning med kortnavnet (se opphevende_kilde_nevner_kortnavnet). Påstanden og undertypen er som i måling 2; de er ikke vurdert på nytt ut over dette.",
+    "kontrollert_mot": [
+     "Den opphevende kilden i korpus (noder som nevner kortnavnet)"
+    ]
+   }
+  },
+  {
+   "id": "K02",
+   "utvalg": "kontroll",
+   "funn_id": "7b07d117-0a81-471a-a909-0baf24f6bd63",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/1997/12/09/1264/nor",
+   "prefiks": "DEL",
+   "forskrift": {
+    "dokument_id": "DEL/forskrift/1997-12-09-1264",
+    "tittel": "Delegering av Finansdepartementets myndighet til Skattedirektoratet etter lov av 13. juni 1980 nr. 24 om ligningsforvaltning (ligningsloven) § 5-2 og kgl.res. av 3. februar 1989 nr. 74 til å gi forskrift vedrørende bokføring og inntektslegitimasjon for frisører mv.",
+    "lovdatas_hjemmelstekst": "Fastsatt av Finans- og tolldepartementet 9. desember 1997 med hjemmel i lov av 13. juni 1980 nr. 24 om ligningsforvaltning (ligningsloven) § 5-2 og kgl.res. av 3. februar 1989 nr. 74 om delegering av myndighet etter lov om ligningsforvaltning til Finans- og tolldepartementet.",
+    "ikrafttredelse": "1997-12-09",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "hjemmelsstatus_etter_pr5": [
+    {
+     "hjemmel": "https://lovdata.no/eli/forskrift/1989/02/03/74/nor",
+     "hjemmel_eli": "https://lovdata.no/eli/forskrift/1989/02/03/74/nor",
+     "i_korpus": "DEL/forskrift/1989-02-03-74",
+     "rolle": "kompetanseledd",
+     "rolle_regel": "delegeringsvedtak",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1980/06/13/24/nor/§5-2",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1980/06/13/24/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "opphevet",
+     "bevistrinn": "E1",
+     "opphevet_av": "NL/lov/2016-05-27-14",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2016/05/27/14/nor/§16-1/ledd-2",
+     "opphevet_av_sitat": "Fra samme tidspunkt oppheves lov 13. juni 1980 nr. 24 om ligningsforvaltning (ligningsloven).",
+     "lest_i_lovtidend": false,
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2016-05-27-14 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "tekstfunn"
+    }
+   ],
+   "kortnavn": [
+    {
+     "eli": "https://lovdata.no/eli/lov/1980/06/13/24/nor",
+     "kortnavn_lest": "ligningsloven",
+     "grunn": "entydig",
+     "titler_i_korpus": [
+      {
+       "kilde": "DEL/forskrift/1982-01-22-1998",
+       "sitat": "lov av 13. juni 1980 nr. 24 om ligningsforvaltning (ligningsloven)"
+      },
+      {
+       "kilde": "DEL/forskrift/1989-02-03-74",
+       "sitat": "lov av 13. juni 1980 nr. 24 om ligningsforvaltning (ligningsloven)"
+      },
+      {
+       "kilde": "DEL/forskrift/1994-11-28-1064",
+       "sitat": "lov 13. juni 1980 nr. 24 om ligningsforvaltning (ligningsloven)"
+      },
+      {
+       "kilde": "DEL/forskrift/1995-12-13-1089",
+       "sitat": "lov 13. juni 1980 nr. 24 om ligningsforvaltning (ligningsloven)"
+      },
+      {
+       "kilde": "DEL/forskrift/1996-01-25-106",
+       "sitat": "lov 13. juni 1980 nr. 24 om ligningsforvaltning (ligningsloven)"
+      }
+     ],
+     "andre_lover_med_samme_navn": [],
+     "opphevende_kilde_nevner_kortnavnet": [
+      {
+       "eid": "https://lovdata.no/eli/lov/2016/05/27/14/nor/§2-10/ledd-1/punkt-3",
+       "tekst": "enhver som i løpet av de ti siste årene er straffet for overtredelse av denne loven, ligningsloven, merverdiavgiftsloven, skattebetalingsloven, innkrevingsloven, straffeloven §§ 378 til 380 og 406, regnskapsloven eller bokføringsloven"
+      },
+      {
+       "eid": "https://lovdata.no/eli/lov/2016/05/27/14/nor/§16-1/ledd-2",
+       "tekst": "Fra samme tidspunkt oppheves lov 13. juni 1980 nr. 24 om ligningsforvaltning (ligningsloven)."
+      },
+      {
+       "eid": "https://lovdata.no/eli/lov/2016/05/27/14/nor/§16-2/ledd-1",
+       "tekst": "(1) § 12-6 gjelder for skattefastsettinger som tas opp til endring etter tidspunktet for lovens ikrafttredelse. Skattemyndighetene kan likevel ikke endre fastsettinger for skattleggingsperiodene 2012 til 2014 til ugunst for den skattepliktige dersom det ikke ville ha vært adgang til å endre fastsettingen etter fristreglene i ligningsloven."
+      }
+     ]
+    }
+   ],
+   "foreslatt": {
+    "status": "oppdaget",
+    "undertype": "hjemmel_opphevet",
+    "tittel": "Hjemmel opphevet, videreføring ikke funnet: Delegering til SKD etter ligningsloven (FOR-1997-12-09-1264)",
+    "pastand": "Lovdata viser «Delegering til SKD etter ligningsloven» (FOR-1997-12-09-1264) som gjeldende. Alle hjemlene som teller, er opphevet, og maskinregelen har ikke funnet en overgangsregel som viderefører forskriften. Ikke funnet betyr ikke at den ikke finnes. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1980-06-13-24 § 5-2 er opphevet av LOV-2016-05-27-14 § 16-1 andre ledd: «Fra samme tidspunkt oppheves lov 13. juni 1980 nr. 24 om ligningsforvaltning (ligningsloven).»\n- Ikke kontrollert: Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2016-05-27-14 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446).",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-1997-12-09-1264 Delegering til SKD etter ligningsloven",
+      "merknad": "forskriften",
+      "eid": null,
+      "nodetekst": null
+     },
+     {
+      "rolle": "opphevende_bestemmelse",
+      "etikett": "LOV-2016-05-27-14 § 16-1 andre ledd",
+      "merknad": "opphever LOV-1980-06-13-24",
+      "eid": "https://lovdata.no/eli/lov/2016/05/27/14/nor/§16-1/ledd-2",
+      "nodetekst": "Fra samme tidspunkt oppheves lov 13. juni 1980 nr. 24 om ligningsforvaltning (ligningsloven)."
+     }
+    ]
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "feilarsak": null,
+    "grunn": "Riktig etter kontrollen av kortnavnet. Regelen leser kortnavnet «ligningsloven» som entydig, men den opphevende loven har ingen videreføringssetning med kortnavnet (se opphevende_kilde_nevner_kortnavnet). Påstanden og undertypen er som i måling 2; de er ikke vurdert på nytt ut over dette.",
+    "kontrollert_mot": [
+     "Den opphevende kilden i korpus (noder som nevner kortnavnet)"
+    ]
+   }
+  },
+  {
+   "id": "K03",
+   "utvalg": "kontroll",
+   "funn_id": "bc1838fd-d948-4664-9c07-69aeac9b853a",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2007/12/05/1356/nor",
+   "prefiks": "DEL",
+   "forskrift": {
+    "dokument_id": "DEL/forskrift/2007-12-05-1356",
+    "tittel": "Delegering av myndighet til å fastsette retningslinjer til utfylling og gjennomføring av dokumentasjonsplikten etter ligningsloven § 4-12 nr. 2, 5 og 6",
+    "lovdatas_hjemmelstekst": "Hjemmel: Fastsatt av Finansdepartementet 5. desember 2007 med hjemmel i lov 13. juni 1980 nr. 24 om ligningsforvaltning (ligningsloven) § 4-12 nr. 7.\nEndret ved vedtak 15 des 2009 nr. 1522.",
+    "ikrafttredelse": "2008-01-01",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "hjemmelsstatus_etter_pr5": [
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1980/06/13/24/nor/§4-12",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1980/06/13/24/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "opphevet",
+     "bevistrinn": "E1",
+     "opphevet_av": "NL/lov/2016-05-27-14",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2016/05/27/14/nor/§16-1/ledd-2",
+     "opphevet_av_sitat": "Fra samme tidspunkt oppheves lov 13. juni 1980 nr. 24 om ligningsforvaltning (ligningsloven).",
+     "lest_i_lovtidend": false,
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2016-05-27-14 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "tekstfunn"
+    }
+   ],
+   "kortnavn": [
+    {
+     "eli": "https://lovdata.no/eli/lov/1980/06/13/24/nor",
+     "kortnavn_lest": "ligningsloven",
+     "grunn": "entydig",
+     "titler_i_korpus": [
+      {
+       "kilde": "DEL/forskrift/1982-01-22-1998",
+       "sitat": "lov av 13. juni 1980 nr. 24 om ligningsforvaltning (ligningsloven)"
+      },
+      {
+       "kilde": "DEL/forskrift/1989-02-03-74",
+       "sitat": "lov av 13. juni 1980 nr. 24 om ligningsforvaltning (ligningsloven)"
+      },
+      {
+       "kilde": "DEL/forskrift/1994-11-28-1064",
+       "sitat": "lov 13. juni 1980 nr. 24 om ligningsforvaltning (ligningsloven)"
+      },
+      {
+       "kilde": "DEL/forskrift/1995-12-13-1089",
+       "sitat": "lov 13. juni 1980 nr. 24 om ligningsforvaltning (ligningsloven)"
+      },
+      {
+       "kilde": "DEL/forskrift/1996-01-25-106",
+       "sitat": "lov 13. juni 1980 nr. 24 om ligningsforvaltning (ligningsloven)"
+      }
+     ],
+     "andre_lover_med_samme_navn": [],
+     "opphevende_kilde_nevner_kortnavnet": [
+      {
+       "eid": "https://lovdata.no/eli/lov/2016/05/27/14/nor/§2-10/ledd-1/punkt-3",
+       "tekst": "enhver som i løpet av de ti siste årene er straffet for overtredelse av denne loven, ligningsloven, merverdiavgiftsloven, skattebetalingsloven, innkrevingsloven, straffeloven §§ 378 til 380 og 406, regnskapsloven eller bokføringsloven"
+      },
+      {
+       "eid": "https://lovdata.no/eli/lov/2016/05/27/14/nor/§16-1/ledd-2",
+       "tekst": "Fra samme tidspunkt oppheves lov 13. juni 1980 nr. 24 om ligningsforvaltning (ligningsloven)."
+      },
+      {
+       "eid": "https://lovdata.no/eli/lov/2016/05/27/14/nor/§16-2/ledd-1",
+       "tekst": "(1) § 12-6 gjelder for skattefastsettinger som tas opp til endring etter tidspunktet for lovens ikrafttredelse. Skattemyndighetene kan likevel ikke endre fastsettinger for skattleggingsperiodene 2012 til 2014 til ugunst for den skattepliktige dersom det ikke ville ha vært adgang til å endre fastsettingen etter fristreglene i ligningsloven."
+      }
+     ]
+    }
+   ],
+   "foreslatt": {
+    "status": "oppdaget",
+    "undertype": "hjemmel_opphevet",
+    "tittel": "Hjemmel opphevet, videreføring ikke funnet: Deleg. til Skattedir. etter ligningsloven (FOR-2007-12-05-1356)",
+    "pastand": "Lovdata viser «Deleg. til Skattedir. etter ligningsloven» (FOR-2007-12-05-1356) som gjeldende. Alle hjemlene som teller, er opphevet, og maskinregelen har ikke funnet en overgangsregel som viderefører forskriften. Ikke funnet betyr ikke at den ikke finnes. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1980-06-13-24 § 4-12 er opphevet av LOV-2016-05-27-14 § 16-1 andre ledd: «Fra samme tidspunkt oppheves lov 13. juni 1980 nr. 24 om ligningsforvaltning (ligningsloven).»\n- Ikke kontrollert: Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2016-05-27-14 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446).",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-2007-12-05-1356 Deleg. til Skattedir. etter ligningsloven",
+      "merknad": "forskriften",
+      "eid": null,
+      "nodetekst": null
+     },
+     {
+      "rolle": "opphevende_bestemmelse",
+      "etikett": "LOV-2016-05-27-14 § 16-1 andre ledd",
+      "merknad": "opphever LOV-1980-06-13-24",
+      "eid": "https://lovdata.no/eli/lov/2016/05/27/14/nor/§16-1/ledd-2",
+      "nodetekst": "Fra samme tidspunkt oppheves lov 13. juni 1980 nr. 24 om ligningsforvaltning (ligningsloven)."
+     }
+    ]
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "feilarsak": null,
+    "grunn": "Riktig etter kontrollen av kortnavnet. Regelen leser kortnavnet «ligningsloven» som entydig, men den opphevende loven har ingen videreføringssetning med kortnavnet (se opphevende_kilde_nevner_kortnavnet). Påstanden og undertypen er som i måling 2; de er ikke vurdert på nytt ut over dette.",
+    "kontrollert_mot": [
+     "Den opphevende kilden i korpus (noder som nevner kortnavnet)"
+    ]
+   }
+  },
+  {
+   "id": "K04",
+   "utvalg": "kontroll",
+   "funn_id": "ed7e98c4-2675-4edf-97cc-a6973ca830c1",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2008/06/06/543/nor",
+   "prefiks": "DEL",
+   "forskrift": {
+    "dokument_id": "DEL/forskrift/2008-06-06-543",
+    "tittel": "Delegering av myndighet til Nærings- og handelsdepartementet etter omstillingslova § 7 og § 8",
+    "lovdatas_hjemmelstekst": "Hjemmel: Fastsatt ved kgl.res. 6. juni 2008 med hjemmel i lov 6. juni 2008 nr. 38 om meldeplikt ved nedlegging av næringsverksemd (omstillingslova) § 7 og § 8. Fremmet av Nærings- og handelsdepartementet.",
+    "ikrafttredelse": "2008-07-01",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "hjemmelsstatus_etter_pr5": [
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2008/06/06/38/nor/§7",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/2008/06/06/38/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "opphevet",
+     "bevistrinn": "E1",
+     "opphevet_av": "NL/lov/2019-12-13-83",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2019/12/13/83/nor/§1/ledd-1",
+     "opphevet_av_sitat": "Lov 6. juni 2008 nr. 38 om meldeplikt ved nedlegging av næringsverksemd oppheves.",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "tekstfunn"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2008/06/06/38/nor/§8",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/2008/06/06/38/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "opphevet",
+     "bevistrinn": "E1",
+     "opphevet_av": "NL/lov/2019-12-13-83",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2019/12/13/83/nor/§1/ledd-1",
+     "opphevet_av_sitat": "Lov 6. juni 2008 nr. 38 om meldeplikt ved nedlegging av næringsverksemd oppheves.",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "tekstfunn"
+    }
+   ],
+   "kortnavn": [
+    {
+     "eli": "https://lovdata.no/eli/lov/2008/06/06/38/nor",
+     "kortnavn_lest": "omstillingsloven",
+     "grunn": "entydig",
+     "titler_i_korpus": [
+      {
+       "kilde": "DEL/forskrift/2008-06-06-543",
+       "sitat": "lov 6. juni 2008 nr. 38 om meldeplikt ved nedlegging av næringsverksemd (omstillingslova)"
+      },
+      {
+       "kilde": "SF/forskrift/2008-06-24-713",
+       "sitat": "lov 6. juni 2008 nr. 38 om meldeplikt ved nedlegging av næringsverksemd (omstillingslova)"
+      }
+     ],
+     "andre_lover_med_samme_navn": [],
+     "opphevende_kilde_nevner_kortnavnet": []
+    }
+   ],
+   "foreslatt": {
+    "status": "oppdaget",
+    "undertype": "hjemmel_opphevet",
+    "tittel": "Hjemmel opphevet, videreføring ikke funnet: Deleg. til NHD etter omstillingslova (FOR-2008-06-06-543)",
+    "pastand": "Lovdata viser «Deleg. til NHD etter omstillingslova» (FOR-2008-06-06-543) som gjeldende. Alle hjemlene som teller, er opphevet, og maskinregelen har ikke funnet en overgangsregel som viderefører forskriften. Ikke funnet betyr ikke at den ikke finnes. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-2008-06-06-38 § 7 og § 8 er opphevet av LOV-2019-12-13-83 § 1 første ledd: «Lov 6. juni 2008 nr. 38 om meldeplikt ved nedlegging av næringsverksemd oppheves.»\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446).",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-2008-06-06-543 Deleg. til NHD etter omstillingslova",
+      "merknad": "forskriften",
+      "eid": null,
+      "nodetekst": null
+     },
+     {
+      "rolle": "opphevende_bestemmelse",
+      "etikett": "LOV-2019-12-13-83 § 1 første ledd",
+      "merknad": "opphever LOV-2008-06-06-38",
+      "eid": "https://lovdata.no/eli/lov/2019/12/13/83/nor/§1/ledd-1",
+      "nodetekst": "Lov 6. juni 2008 nr. 38 om meldeplikt ved nedlegging av næringsverksemd oppheves."
+     }
+    ]
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "feilarsak": null,
+    "grunn": "Riktig etter kontrollen av kortnavnet. Regelen leser kortnavnet «omstillingsloven» som entydig, men den opphevende loven har ingen videreføringssetning med kortnavnet (se opphevende_kilde_nevner_kortnavnet). Påstanden og undertypen er som i måling 2; de er ikke vurdert på nytt ut over dette.",
+    "kontrollert_mot": [
+     "Den opphevende kilden i korpus (noder som nevner kortnavnet)"
+    ]
+   }
+  },
+  {
+   "id": "K05",
+   "utvalg": "kontroll",
+   "funn_id": "73c30c60-f5fb-4fe6-8289-0546a1831251",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2009/11/27/1406/nor",
+   "prefiks": "DEL",
+   "forskrift": {
+    "dokument_id": "DEL/forskrift/2009-11-27-1406",
+    "tittel": "Delegering av Kongens myndighet etter lov 24. mai 1985 nr. 28 om Norges Bank og pengevesenet § 30a tredje ledd siste punktum til Finansdepartementet.",
+    "lovdatas_hjemmelstekst": "Hjemmel: Fastsatt ved Kronprinsreg.res. 27. november 2009 med hjemmel i lov 24. mai 1985 nr. 28 om Norges Bank og pengevesenet mv. (sentralbankloven) § 30a. Fremmet av Finansdepartementet.",
+    "ikrafttredelse": "2009-11-27",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "hjemmelsstatus_etter_pr5": [
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1985/05/24/28/nor/§30a",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1985/05/24/28/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "opphevet",
+     "bevistrinn": "E1",
+     "opphevet_av": "NL/lov/2019-06-21-31",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2019/06/21/31/nor/§6-2/ledd-2",
+     "opphevet_av_sitat": "Lov 24. mai 1985 nr. 28 om Norges Bank og pengevesenet mv. oppheves.",
+     "lest_i_lovtidend": false,
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2019-06-21-31 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "tekstfunn"
+    }
+   ],
+   "kortnavn": [
+    {
+     "eli": "https://lovdata.no/eli/lov/1985/05/24/28/nor",
+     "kortnavn_lest": null,
+     "grunn": "kortnavnet_brukes_om_flere_lover",
+     "titler_i_korpus": [
+      {
+       "kilde": "DEL/forskrift/1994-03-25-233",
+       "sitat": "lov av 24. mai 1985 nr. 28 om Norges Bank og pengevesenet (sentralbankloven)"
+      },
+      {
+       "kilde": "DEL/forskrift/2003-06-20-730",
+       "sitat": "lov av 24. mai 1985 nr. 28 om Norges Bank og pengevesenet (sentralbankloven)"
+      },
+      {
+       "kilde": "DEL/forskrift/2007-03-16-273",
+       "sitat": "lov 24. mai 1985 nr. 28 om Norges Bank og pengevesenet mv. (sentralbankloven)"
+      },
+      {
+       "kilde": "DEL/forskrift/2009-11-27-1406",
+       "sitat": "lov 24. mai 1985 nr. 28 om Norges Bank og pengevesenet mv. (sentralbankloven)"
+      },
+      {
+       "kilde": "DEL/forskrift/2010-06-04-784",
+       "sitat": "lov 24. mai 1985 nr. 28 om Norges Bank og pengevesenet mv. (sentralbankloven)"
+      }
+     ],
+     "andre_lover_med_samme_navn": [
+      {
+       "kilde": "https://lovdata.no/eli/lov/2019/06/21/31/nor",
+       "tittel": "Lov om Norges Bank og pengevesenet mv. (sentralbankloven)",
+       "kortnavn": "Sentralbankloven"
+      },
+      {
+       "kilde": "https://lovdata.no/eli/lov/2019/06/21/31/nor",
+       "tittel": "Lov om Norges Bank og pengevesenet mv. (sentralbankloven)",
+       "kortnavn": "Sentralbankloven"
+      },
+      {
+       "kilde": "https://lovdata.no/eli/lov/2019/06/21/31/nor",
+       "tittel": "Lov om Norges Bank og pengevesenet mv. (sentralbankloven)",
+       "kortnavn": "Sentralbankloven"
+      },
+      {
+       "kilde": "https://lovdata.no/eli/lov/2019/06/21/31/nor",
+       "tittel": "Lov om Norges Bank og pengevesenet mv. (sentralbankloven)",
+       "kortnavn": "Sentralbankloven"
+      },
+      {
+       "kilde": "https://lovdata.no/eli/lov/2019/06/21/31/nor",
+       "tittel": "Lov om Norges Bank og pengevesenet mv. (sentralbankloven)",
+       "kortnavn": "Sentralbankloven"
+      },
+      {
+       "kilde": "NL/lov/2019-06-21-31",
+       "tittel": "Lov om Norges Bank og pengevesenet mv. (sentralbankloven)",
+       "kortnavn": "Sentralbankloven"
+      }
+     ],
+     "opphevende_kilde_nevner_kortnavnet": []
+    }
+   ],
+   "foreslatt": {
+    "status": "oppdaget",
+    "undertype": "hjemmel_opphevet",
+    "tittel": "Hjemmel opphevet, videreføring ikke funnet: Deleg. til FIN etter sentralbankloven § 30a (FOR-2009-11-27-1406)",
+    "pastand": "Lovdata viser «Deleg. til FIN etter sentralbankloven § 30a» (FOR-2009-11-27-1406) som gjeldende. Alle hjemlene som teller, er opphevet, og maskinregelen har ikke funnet en overgangsregel som viderefører forskriften. Ikke funnet betyr ikke at den ikke finnes. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1985-05-24-28 § 30a er opphevet av LOV-2019-06-21-31 § 6-2 andre ledd: «Lov 24. mai 1985 nr. 28 om Norges Bank og pengevesenet mv. oppheves.»\n- Ikke kontrollert: Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2019-06-21-31 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446).",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-2009-11-27-1406 Deleg. til FIN etter sentralbankloven § 30a",
+      "merknad": "forskriften",
+      "eid": null,
+      "nodetekst": null
+     },
+     {
+      "rolle": "opphevende_bestemmelse",
+      "etikett": "LOV-2019-06-21-31 § 6-2 andre ledd",
+      "merknad": "opphever LOV-1985-05-24-28",
+      "eid": "https://lovdata.no/eli/lov/2019/06/21/31/nor/§6-2/ledd-2",
+      "nodetekst": "1. Lov 24. mai 1985 nr. 28 om Norges Bank og pengevesenet mv. oppheves."
+     }
+    ]
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "feilarsak": null,
+    "grunn": "Riktig etter kontrollen av kortnavnet. Kortnavnet brukes også om den nye loven (samme kortnavn i begge titlene), så regelen gir ikke svar. Den opphevende loven har ingen setning som viderefører med kortnavnet alene. Påstanden og undertypen er som i måling 2; de er ikke vurdert på nytt ut over dette.",
+    "kontrollert_mot": [
+     "Den opphevende kilden i korpus (noder som nevner kortnavnet)"
+    ]
+   }
+  },
+  {
+   "id": "K06",
+   "utvalg": "kontroll",
+   "funn_id": "d7f037b1-5169-44b2-ab44-7fa3a0da3241",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2017/04/05/450/nor",
+   "prefiks": "SF",
+   "forskrift": {
+    "dokument_id": "SF/forskrift/2017-04-05-450",
+    "tittel": "Forskrift om tilbaketrekking av betalingsmidler",
+    "lovdatas_hjemmelstekst": "Hjemmel: Fastsatt av Norges Bank 5. april 2017 med hjemmel i lov 24. mai 1985 nr. 28 om Norges Bank og pengevesenet mv. (sentralbankloven) § 15 første ledd.\nTilføyd hjemmel: Lov 21 juni 2019 nr. 31 om Norges Bank og pengevesenet mv. (sentralbankloven) § 3-6.\nRettet 30.08.2021 (tilbakeført til gjeldende regelverk, tilføyd hjemmel).",
+    "ikrafttredelse": "2017-05-30",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "hjemmelsstatus_etter_pr5": [
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1985/05/24/28/nor/§15",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1985/05/24/28/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "opphevet",
+     "bevistrinn": "E1",
+     "opphevet_av": "NL/lov/2019-06-21-31",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2019/06/21/31/nor/§6-2/ledd-2",
+     "opphevet_av_sitat": "Lov 24. mai 1985 nr. 28 om Norges Bank og pengevesenet mv. oppheves.",
+     "lest_i_lovtidend": false,
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2019-06-21-31 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "tekstfunn"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2019/06/21/31/nor/§3-6",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/2019/06/21/31/nor",
+     "i_korpus": "NL/lov/2019-06-21-31",
+     "status": "aktiv",
+     "lest_i_lovtidend": false,
+     "kunnskapsstatus": "normalisering"
+    }
+   ],
+   "kortnavn": [
+    {
+     "eli": "https://lovdata.no/eli/lov/1985/05/24/28/nor",
+     "kortnavn_lest": null,
+     "grunn": "kortnavnet_brukes_om_flere_lover",
+     "titler_i_korpus": [
+      {
+       "kilde": "DEL/forskrift/1994-03-25-233",
+       "sitat": "lov av 24. mai 1985 nr. 28 om Norges Bank og pengevesenet (sentralbankloven)"
+      },
+      {
+       "kilde": "DEL/forskrift/2003-06-20-730",
+       "sitat": "lov av 24. mai 1985 nr. 28 om Norges Bank og pengevesenet (sentralbankloven)"
+      },
+      {
+       "kilde": "DEL/forskrift/2007-03-16-273",
+       "sitat": "lov 24. mai 1985 nr. 28 om Norges Bank og pengevesenet mv. (sentralbankloven)"
+      },
+      {
+       "kilde": "DEL/forskrift/2009-11-27-1406",
+       "sitat": "lov 24. mai 1985 nr. 28 om Norges Bank og pengevesenet mv. (sentralbankloven)"
+      },
+      {
+       "kilde": "DEL/forskrift/2010-06-04-784",
+       "sitat": "lov 24. mai 1985 nr. 28 om Norges Bank og pengevesenet mv. (sentralbankloven)"
+      }
+     ],
+     "andre_lover_med_samme_navn": [
+      {
+       "kilde": "https://lovdata.no/eli/lov/2019/06/21/31/nor",
+       "tittel": "Lov om Norges Bank og pengevesenet mv. (sentralbankloven)",
+       "kortnavn": "Sentralbankloven"
+      },
+      {
+       "kilde": "https://lovdata.no/eli/lov/2019/06/21/31/nor",
+       "tittel": "Lov om Norges Bank og pengevesenet mv. (sentralbankloven)",
+       "kortnavn": "Sentralbankloven"
+      },
+      {
+       "kilde": "https://lovdata.no/eli/lov/2019/06/21/31/nor",
+       "tittel": "Lov om Norges Bank og pengevesenet mv. (sentralbankloven)",
+       "kortnavn": "Sentralbankloven"
+      },
+      {
+       "kilde": "https://lovdata.no/eli/lov/2019/06/21/31/nor",
+       "tittel": "Lov om Norges Bank og pengevesenet mv. (sentralbankloven)",
+       "kortnavn": "Sentralbankloven"
+      },
+      {
+       "kilde": "https://lovdata.no/eli/lov/2019/06/21/31/nor",
+       "tittel": "Lov om Norges Bank og pengevesenet mv. (sentralbankloven)",
+       "kortnavn": "Sentralbankloven"
+      },
+      {
+       "kilde": "NL/lov/2019-06-21-31",
+       "tittel": "Lov om Norges Bank og pengevesenet mv. (sentralbankloven)",
+       "kortnavn": "Sentralbankloven"
+      }
+     ],
+     "opphevende_kilde_nevner_kortnavnet": []
+    }
+   ],
+   "foreslatt": {
+    "status": "oppdaget",
+    "undertype": "uavklart",
+    "tittel": "Hjemmel opphevet, de andre hjemlene ikke vurdert: Forskrift om tilbaketrekking av betalingsmidler (FOR-2017-04-05-450)",
+    "pastand": "Lovdata viser «Forskrift om tilbaketrekking av betalingsmidler» (FOR-2017-04-05-450) som gjeldende. Minst én hjemmel som teller, er opphevet uten funnet videreføring. De andre hjemlene kan bære forskriften, men det er ikke vurdert: rollen deres er ikke avklart, eller videreføringen nevner ikke denne typen vedtak. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1985-05-24-28 § 15 er opphevet av LOV-2019-06-21-31 § 6-2 andre ledd: «Lov 24. mai 1985 nr. 28 om Norges Bank og pengevesenet mv. oppheves.»\n- Ikke kontrollert: Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2019-06-21-31 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.\n- LOV-2019-06-21-31 § 3-6 er aktiv (rollen er ikke vurdert).\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446).",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-2017-04-05-450 Forskrift om tilbaketrekking av betalingsmidler",
+      "merknad": "forskriften",
+      "eid": null,
+      "nodetekst": null
+     },
+     {
+      "rolle": "opphevende_bestemmelse",
+      "etikett": "LOV-2019-06-21-31 § 6-2 andre ledd",
+      "merknad": "opphever LOV-1985-05-24-28",
+      "eid": "https://lovdata.no/eli/lov/2019/06/21/31/nor/§6-2/ledd-2",
+      "nodetekst": "1. Lov 24. mai 1985 nr. 28 om Norges Bank og pengevesenet mv. oppheves."
+     }
+    ]
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "feilarsak": null,
+    "grunn": "Riktig etter kontrollen av kortnavnet. Kortnavnet brukes også om den nye loven (samme kortnavn i begge titlene), så regelen gir ikke svar. Den opphevende loven har ingen setning som viderefører med kortnavnet alene. Påstanden og undertypen er som i måling 2; de er ikke vurdert på nytt ut over dette.",
+    "kontrollert_mot": [
+     "Den opphevende kilden i korpus (noder som nevner kortnavnet)"
+    ]
+   }
+  },
+  {
+   "id": "K07",
+   "utvalg": "kontroll",
+   "funn_id": "6ab1d7a6-8c11-4392-b0a9-f683ac1fa4bc",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/1999/06/25/706/nor",
+   "prefiks": "DEL",
+   "forskrift": {
+    "dokument_id": "DEL/forskrift/1999-06-25-706",
+    "tittel": "Delegering av myndighet til Finans- og tolldepartementet etter lov om revisjon og revisorer (revisorloven).",
+    "lovdatas_hjemmelstekst": "Fastsatt ved kgl.res. 25. juni 1999 med hjemmel i lov av 15. januar 1999 nr. 2 om revisjon og revisorer (revisorloven). Fremmet av Finans- og tolldepartementet.",
+    "ikrafttredelse": "1999-06-25",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "hjemmelsstatus_etter_pr5": [
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1999/01/15/2/nor",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1999/01/15/2/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "opphevet",
+     "bevistrinn": "E1",
+     "opphevet_av": "NL/lov/2020-11-20-128",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2020/11/20/128/nor/§16-1/ledd-2",
+     "opphevet_av_sitat": "(2) Lov 15. januar 1999 nr. 2 om revisjon og revisorer oppheves fra den tiden loven trer i kraft.",
+     "lest_i_lovtidend": false,
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2020-11-20-128 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "tekstfunn"
+    }
+   ],
+   "kortnavn": [
+    {
+     "eli": "https://lovdata.no/eli/lov/1999/01/15/2/nor",
+     "kortnavn_lest": null,
+     "grunn": "kortnavnet_brukes_om_flere_lover",
+     "titler_i_korpus": [
+      {
+       "kilde": "DEL/forskrift/1999-01-15-21",
+       "sitat": "lov av 15. januar 1999 nr. 2 om revisjon og revisorer (revisorloven)"
+      },
+      {
+       "kilde": "DEL/forskrift/1999-06-25-706",
+       "sitat": "lov av 15. januar 1999 nr. 2 om revisjon og revisorer (revisorloven)"
+      },
+      {
+       "kilde": "DEL/forskrift/2005-03-04-202",
+       "sitat": "lov 15. januar 1999 nr. 2 om revisjon og revisorer (revisorloven)"
+      },
+      {
+       "kilde": "DEL/forskrift/2006-06-30-773",
+       "sitat": "loven), lov 15. januar 1999 nr. 2 om revisjon og revisorer (revisorloven)"
+      }
+     ],
+     "andre_lover_med_samme_navn": [
+      {
+       "kilde": "https://lovdata.no/eli/lov/2020/11/20/128/nor",
+       "tittel": "Lov om revisjon og revisorer (revisorloven)",
+       "kortnavn": "Revisorloven"
+      },
+      {
+       "kilde": "https://lovdata.no/eli/lov/2020/11/20/128/nor",
+       "tittel": "Lov om revisjon og revisorer (revisorloven)",
+       "kortnavn": "Revisorloven"
+      },
+      {
+       "kilde": "https://lovdata.no/eli/lov/2020/11/20/128/nor",
+       "tittel": "Lov om revisjon og revisorer (revisorloven)",
+       "kortnavn": "Revisorloven"
+      },
+      {
+       "kilde": "https://lovdata.no/eli/lov/2020/11/20/128/nor",
+       "tittel": "Lov om revisjon og revisorer (revisorloven)",
+       "kortnavn": "Revisorloven"
+      },
+      {
+       "kilde": "https://lovdata.no/eli/lov/2020/11/20/128/nor",
+       "tittel": "Lov om revisjon og revisorer (revisorloven)",
+       "kortnavn": "Revisorloven"
+      },
+      {
+       "kilde": "NL/lov/2020-11-20-128",
+       "tittel": "Lov om revisjon og revisorer (revisorloven)",
+       "kortnavn": "Revisorloven"
+      }
+     ],
+     "opphevende_kilde_nevner_kortnavnet": [
+      {
+       "eid": "https://lovdata.no/eli/lov/2020/11/20/128/nor/§1-2/ledd-4/punkt-4",
+       "tekst": "avtale når uttalelsen kun er ment til bruk for oppdragsgiveren og det ikke fremkommer av uttalelsen at revisorloven ikke gjelder for oppdraget."
+      }
+     ]
+    }
+   ],
+   "foreslatt": {
+    "status": "oppdaget",
+    "undertype": "hjemmel_opphevet",
+    "tittel": "Hjemmel opphevet, videreføring ikke funnet: Delegering til FIN etter revisorloven (FOR-1999-06-25-706)",
+    "pastand": "Lovdata viser «Delegering til FIN etter revisorloven» (FOR-1999-06-25-706) som gjeldende. Alle hjemlene som teller, er opphevet, og maskinregelen har ikke funnet en overgangsregel som viderefører forskriften. Ikke funnet betyr ikke at den ikke finnes. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1999-01-15-2 er opphevet av LOV-2020-11-20-128 § 16-1 andre ledd: «(2) Lov 15. januar 1999 nr. 2 om revisjon og revisorer oppheves fra den tiden loven trer i kraft.»\n- Ikke kontrollert: Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2020-11-20-128 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446).",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-1999-06-25-706 Delegering til FIN etter revisorloven",
+      "merknad": "forskriften",
+      "eid": null,
+      "nodetekst": null
+     },
+     {
+      "rolle": "opphevende_bestemmelse",
+      "etikett": "LOV-2020-11-20-128 § 16-1 andre ledd",
+      "merknad": "opphever LOV-1999-01-15-2",
+      "eid": "https://lovdata.no/eli/lov/2020/11/20/128/nor/§16-1/ledd-2",
+      "nodetekst": "(2) Lov 15. januar 1999 nr. 2 om revisjon og revisorer oppheves fra den tiden loven trer i kraft."
+     }
+    ]
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "feilarsak": null,
+    "grunn": "Riktig etter kontrollen av kortnavnet. Kortnavnet brukes også om den nye loven (samme kortnavn i begge titlene), så regelen gir ikke svar. Den opphevende loven har ingen setning som viderefører med kortnavnet alene. Påstanden og undertypen er som i måling 2; de er ikke vurdert på nytt ut over dette.",
+    "kontrollert_mot": [
+     "Den opphevende kilden i korpus (noder som nevner kortnavnet)"
+    ]
+   }
+  },
+  {
+   "id": "K08",
+   "utvalg": "kontroll",
+   "funn_id": "7676bfcf-fa9f-4222-93c0-90eaad723b8b",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/1990/02/13/1228/nor",
+   "prefiks": "DEL",
+   "forskrift": {
+    "dokument_id": "DEL/forskrift/1990-02-13-1228",
+    "tittel": "Delegering av myndighet til Statistisk sentralbyrå etter statistikkloven § 2-1 og § 2-2.",
+    "lovdatas_hjemmelstekst": "Fastsatt av Finans- og tolldepartementet 13. februar 1990 med hjemmel i lov av 16. juni 1989 nr. 54 om offisiell statistikk og Statistisk Sentralbyrå (statistikkloven) § 2-1 og § 2-2, jf. kgl.res. av 16. juni 1989 nr. 387.",
+    "ikrafttredelse": "1990-02-13",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "hjemmelsstatus_etter_pr5": [
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1989/06/16/54/nor/§2-1",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1989/06/16/54/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "opphevet",
+     "bevistrinn": "E1",
+     "opphevet_av": "NL/lov/2019-06-21-32",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2019/06/21/32/nor/§22/ledd-1",
+     "opphevet_av_sitat": "Fra samme tid oppheves lov 16. juni 1989 nr. 54 om offisiell statistikk og Statistisk Sentralbyrå.",
+     "lest_i_lovtidend": false,
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2019-06-21-32 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "tekstfunn"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1989/06/16/54/nor/§2-2",
+     "hjemmel_eli": "https://lovdata.no/eli/lov/1989/06/16/54/nor",
+     "rolle": "materiell",
+     "rolle_regel": "med_hjemmel_i",
+     "status": "opphevet",
+     "bevistrinn": "E1",
+     "opphevet_av": "NL/lov/2019-06-21-32",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2019/06/21/32/nor/§22/ledd-1",
+     "opphevet_av_sitat": "Fra samme tid oppheves lov 16. juni 1989 nr. 54 om offisiell statistikk og Statistisk Sentralbyrå.",
+     "lest_i_lovtidend": false,
+     "premissmangel": "Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2019-06-21-32 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.",
+     "kunnskapsstatus": "tekstfunn"
+    }
+   ],
+   "kortnavn": [
+    {
+     "eli": "https://lovdata.no/eli/lov/1989/06/16/54/nor",
+     "kortnavn_lest": null,
+     "grunn": "kortnavnet_brukes_om_flere_lover",
+     "titler_i_korpus": [
+      {
+       "kilde": "DEL/forskrift/1990-02-13-1228",
+       "sitat": "lov av 16. juni 1989 nr. 54 om offisiell statistikk og Statistisk Sentralbyrå (statistikkloven)"
+      }
+     ],
+     "andre_lover_med_samme_navn": [
+      {
+       "kilde": "NL/lov/2019-06-21-32",
+       "tittel": "Lov om offisiell statistikk og Statistisk sentralbyrå (statistikkloven)",
+       "kortnavn": "Statistikkloven"
+      }
+     ],
+     "opphevende_kilde_nevner_kortnavnet": []
+    }
+   ],
+   "foreslatt": {
+    "status": "oppdaget",
+    "undertype": "hjemmel_opphevet",
+    "tittel": "Hjemmel opphevet, videreføring ikke funnet: Delegering til SSB etter statistikkloven (FOR-1990-02-13-1228)",
+    "pastand": "Lovdata viser «Delegering til SSB etter statistikkloven» (FOR-1990-02-13-1228) som gjeldende. Alle hjemlene som teller, er opphevet, og maskinregelen har ikke funnet en overgangsregel som viderefører forskriften. Ikke funnet betyr ikke at den ikke finnes. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1989-06-16-54 § 2-1 og § 2-2 er opphevet av LOV-2019-06-21-32 § 22 første ledd: «Fra samme tid oppheves lov 16. juni 1989 nr. 54 om offisiell statistikk og Statistisk Sentralbyrå.»\n- Ikke kontrollert: Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2019-06-21-32 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446).",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-1990-02-13-1228 Delegering til SSB etter statistikkloven",
+      "merknad": "forskriften",
+      "eid": null,
+      "nodetekst": null
+     },
+     {
+      "rolle": "opphevende_bestemmelse",
+      "etikett": "LOV-2019-06-21-32 § 22 første ledd",
+      "merknad": "opphever LOV-1989-06-16-54",
+      "eid": "https://lovdata.no/eli/lov/2019/06/21/32/nor/§22/ledd-1",
+      "nodetekst": "(1) Loven trer i kraft fra den tiden Kongen bestemmer. Fra samme tid oppheves lov 16. juni 1989 nr. 54 om offisiell statistikk og Statistisk Sentralbyrå. Kongen kan sette i kraft de ulike bestemmelsene i loven til forskjellig tid."
+     }
+    ]
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "feilarsak": null,
+    "grunn": "Riktig etter kontrollen av kortnavnet. Kortnavnet brukes også om den nye loven (samme kortnavn i begge titlene), så regelen gir ikke svar. Den opphevende loven har ingen setning som viderefører med kortnavnet alene. Påstanden og undertypen er som i måling 2; de er ikke vurdert på nytt ut over dette.",
+    "kontrollert_mot": [
+     "Den opphevende kilden i korpus (noder som nevner kortnavnet)"
+    ]
+   }
+  }
+ ]
+}

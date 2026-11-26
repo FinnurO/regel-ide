@@ -1,0 +1,248 @@
+{
+  "_kilde": "Juristrunden for docs/35 (#495, #498), 2026-11-25. Én runde; alle fem innvendinger godtatt, se docs/35 §5.",
+  "inndata": {
+    "kontekst": "Forslag til retting av docs/profil/04-mappingnotat.md §2 (kildelaget: ELI og Akoma Ntoso) etter undersøkelsen av sak #495 (varig elementidentitet) og #498 (GDPR-teksten: underledd og punktbokstaver). Kortene er forslag til tekst og modellvalg om identifikatorer for lovtekstelementer, ikke klassifisering av lovtekst. Vurder om de er riktige mot standardene (AKN Naming Convention, AKN-skjemaet, ELI, HTML4EU), mot hvordan norsk lov og EU-rett siteres, og mot det som faktisk er målt. Les: docs/profil/04-mappingnotat.md §2 (gjeldende tekst, særlig avsnittet «Funnet ved verifiseringen» og listen over den doble nøkkelen), docs/08-byggesteg1-teknisk-design.md §1.2, §1.2.1 og §2.1, docs/profil/09-ruml-vurdering.md §4.1 (raden «Vår eId»), docs/profil/10-html4eu-vurdering.md §2.2, §2.3 og §5, gh issue view 495 og 498 (-R FinnurO/regel-ide), src/RegelIde.Kildekonvertering/LovdataIdentifikatorer.cs. Målte fakta (2026-11-25, delt base, bare SELECT): (1) eId bygges i hver versjon av §-nummer og ledd-/punkt-løpenummer; hver ny versjon får nye node-rader med ny GUID; erstatter_node_id er tom for alle lov/forskrift-noder. (2) Tollavgiftsforskriften (FOR-2022-10-27-1938) § 4-1-1 første ledd: i versjonen konsolidert 2026-09-01 er avtalen med Kosovo satt inn som punkt 21; eId …/punkt-21 var Libanon og er nå Kosovo, og alle punkt fra 21 har ny eId. (3) Mellom lagrede versjoner: 45 noder i 6 av 46 verk med ny konsolidering har fått ny eId; 2 981 noder i 190 verk har fått ny eId bare fordi parseren er endret. (4) 1 617 ledd har trykt nummer ulikt løpenummeret (skatteloven § 10-5: «(6)» har eId ledd-7); 3 272 punkt har trykt bokstav/tall ulikt løpenummeret. (5) Lovdatas egne id-attributter er posisjonsstier og flytter seg på samme måte. Endringslovene har maskinlesbare instrukser (data-move-part m.fl.) med adresser som §3-3/ledd/4 og §9d/ledd/1/bokstav/d. (6) Koblinger: begreper.lovreferanse_eid (187 rader) lagrer bare eId og slås opp i gjeldende versjon. Strukturkanter, bindinger og funn peker på en bestemt node og flagges «hjemmel endret» når innholdet under samme eId er endret. Tagger flyttes etter sitat. (7) GDPR art. 6 nr. 1 i personopplysningsloven: kilde-HTML-en har <ol type=\"a\"> med <li data-name=\"a.\">, og andre underledd («Nr. 1 bokstav f) får ikke anvendelse …») som eget <article class=\"legalP\"> etter lista. Dagens parser gir det underleddet eId …/a6/ledd-1/avslutning (node_type avslutning, AKN wrapUp, #361). Punktene lagres som punkt-1 … punkt-6 med nummer \"1\" … \"6\".",
+    "kort": [
+      {
+        "id": "J1",
+        "type": "tekst",
+        "foreslatt": {
+          "erstatter": "Avsnittet «Funnet ved verifiseringen» i 04 §2",
+          "ny_tekst": "Funnet ved verifiseringen (rettet etter #495, docs/35): AKN har selv en dobbel nøkkel [AKN-NC §5.3, §5.5.2]. eId er uttrykksnivå og skal endres når et element omnummereres. wId er verksnivå, endres aldri og bygges med samme syntaks fra «master expression». Vår eId bygges på nytt i hver versjon av §-nummer og ledd- og punktindeks (docs/08 §1.2). Den oppfører seg derfor som AKN sin eId: settes et ledd eller punkt inn, får de neste ny eId, og den gamle eId-en går til et annet element (målt i docs/35 §2.1). Regelen i docs/08 om at eId ikke endres, betyr at vi ikke skriver om en eId som er lagret. Den betyr ikke at eId-en følger elementet. Vi har i dag ingen wId. Ved eksport skriver vi en avledet AKN-eId per versjon og utelater wId til vi har en varig elementidentitet (#495)."
+        }
+      },
+      {
+        "id": "J2",
+        "type": "tekst",
+        "foreslatt": {
+          "erstatter": "Listen over den doble nøkkelen i 04 §2 (i dag: «vår eId som stabil intern identitet (docs/08 §1.2.1)»)",
+          "ny_liste": [
+            "vår eId som adresse i én versjon (AKN eId-rollen), ikke som varig identitet",
+            "en varig elementidentitet i wId-rollen, som må lages (#495)",
+            "en avledet AKN-eId etter navnekonvensjonen",
+            "uttrykks-ID med @dato og versjonskjede"
+          ]
+        }
+      },
+      {
+        "id": "J3",
+        "type": "anbefaling",
+        "foreslatt": {
+          "valg": "A nå (rett påstanden i 04 §2) og B som egen byggesak: en varig ID per node som føres videre til ny versjon etter samme eId og hash, så unik hash, så sitat, så Lovdatas endringsinstrukser; det som ikke kan føres entydig, får ny ID og legges til gjennomgang hos et menneske. Eksporten bruker den som wId/GUID. Koblinger som bare lagrer eId (begreper.lovreferanse_eid m.fl.), flyttes til den varige ID-en.",
+          "forkastet": [
+            "C: gjøre eId-en selv varig (et element beholder eId-en når det omnummereres)",
+            "D: vente på offisiell seksjons-ELI fra Lovdata eller ELI-underinndelinger versjon 3"
+          ]
+        }
+      },
+      {
+        "id": "J4",
+        "type": "modellvalg",
+        "foreslatt": {
+          "punktbokstav": "Den trykte etiketten fra <li data-name> lagres uten tegnsetting i rettskilde_noder.nummer (a, b, 11a), og data-numerator i nummer for ledd. eId-en forblir punkt-N (løpenummer). Mangler etiketten, beholdes løpenummeret og merkes ikke som trykt. AKN <num> får etiketten, og eksporten bygger AKN-eId (point_f) og HTML4EU-ID (pnt_f) av den. Visningen skriver «bokstav a» eller «nr. 1» etter listas type.",
+          "sitat_som_skal_kunne_slås_opp": "personopplysningsloven artikkel 6 nr. 1 bokstav f"
+        }
+      },
+      {
+        "id": "J5",
+        "type": "modellvalg",
+        "foreslatt": {
+          "eu_underledd": "Andre underledd i et nummerert EU-ledd (GDPR art. 6 nr. 1 annet ledd) beholdes som avslutningsnode (…/ledd-1/avslutning, AKN wrapUp) som #361 bestemte. I eksport til HTML4EU blir leddet med lista par_1/sub_1 og avslutning N blir par_1/sub_(N+1) når kilden har et eget legalP, og closing-part (wrp) når kilden har p.leddfortsettelse. Det innføres ikke et eget underleddsnivå i eId-en.",
+          "terminologi": "I EØS-norsk heter EU sin paragraph «nr.» og subparagraph «ledd»; vår node_type Ledd svarer i EU-tekst til «nr.»."
+        }
+      }
+    ]
+  },
+  "utfordringer": [
+    {
+      "id": "J1",
+      "dom": "innvending",
+      "gjelder": "raden",
+      "alvor": "middels",
+      "innvending": "Hovedretningen er riktig: vår eId er ikke varig, og påstanden om wId-rollen må ut. Tre ting holder likevel ikke. (1) «Utelater wId» er ikke nøytralt. AKN-NC §5.5.2 sier at et dokument uten wId antas å være master-uttrykket, med wId lik eId. Et uttrykk som ikke er master, MÅ ha wId så snart den avviker fra eId. Eksporterer vi tollavgiftsforskriften versjon 3 uten wId, sier eksporten at Kosovo (punkt 21) er det samme elementet som Libanon var i versjon 2. Det er nettopp den falske identiteten saken skal hindre. Etter §5.5.3.5 brukes dessuten wId til å navigere når kilden er eldre enn målet. (2) «Oppfører seg som AKN sin eId» er for snilt. AKN-eId tar nummeret fra <num> (§5.4.3), mens vår eId bruker løpenummer: 1 617 ledd og 3 272 punkt har et trykt nummer som er ulikt. Vår eId endres også innenfor samme uttrykk når bare parseren endres (2 981 noder). En AKN-eId skal være stabil innenfor ett uttrykk. Vår eId er altså en intern adresse i én lagret versjon, ikke en AKN-eId. (3) Setningen om hva docs/08-regelen «betyr», er en omtolkning. Den presenteres som om den sto i teksten [slutning skjult som tekstfunn]. docs/08 §1.2.1 sier uttrykkelig at eid er en «permanente identitet» som «endres aldri etter opprettelse», i motsetning til Lovdatas id, som «kan endre seg». Målingen viser at begge flytter seg likt. Teksten bør si at §1.2.1 er feil som påstand om identitet og må rettes, ikke at den har betydd noe annet hele tiden. Mindre: §5.5.3 (wId-tilfellene, særlig 5.5.3.4 omnummerering og 5.5.3.5 navigasjon) er den mest treffende hjemmelen og bør nevnes.",
+      "retting": {
+        "ny_tekst": "Funnet ved verifiseringen (rettet etter #495, docs/35): AKN har selv en dobbel nøkkel [AKN-NC §5.3, §5.5.2, §5.5.3]. eId er uttrykksnivå. Den tar nummeret fra <num> (§5.4.3) og oppdateres når elementets plass i strukturen endres i et nytt uttrykk. wId er verksnivå, endres aldri og har samme syntaks: den er eId-en elementet har i master-uttrykket, eller i et tenkt «Ur-Expression» når det ikke finnes noe master-uttrykk. Mangler wId, antas dokumentet å være master-uttrykket, og wId er lik eId. Et uttrykk som ikke er master, skal ha wId der den avviker fra eId (§5.5.2). Vår eId er ingen av delene. Den bygges i hver lagrede versjon av §-nummeret og løpenummeret til ledd og punkt (docs/08 §1.2), ikke av det trykte nummeret. Den endres også når bare parseren endres (docs/35 §2.1). Den er en intern adresse i én lagret versjon. docs/08 §1.2.1 («endres aldri etter opprettelse») holder bare i den svake formen: en lagret eId skrives ikke om. Som påstand om varig identitet er den feil og rettes. Vi har i dag ingen wId. Ved eksport skriver vi en AKN-eId per versjon, avledet av det trykte nummeret. Til vi har en varig elementidentitet (#495), skriver vi aldri flere versjoner av samme verk uten wId. Etter §5.5.2 ville det si at elementer med samme eId er det samme elementet. Eksport av en enkelt versjon merkes som ikke-konform på wId."
+      },
+      "ny_rad": null,
+      "implementeringsstatus": null,
+      "kilder": [
+        {
+          "ref": "AKN-NC 1.0 §5.3 (eId oppdateres når elementets strukturelle rolle endres; wId «never changes»)",
+          "funksjon": "direkte_hjemmel"
+        },
+        {
+          "ref": "AKN-NC 1.0 §5.5.2 (mangler wId: dokumentet antas å være master-uttrykket, wId = eId; et uttrykk som ikke er master, «NEED» wId når de avviker)",
+          "funksjon": "direkte_hjemmel"
+        },
+        {
+          "ref": "AKN-NC 1.0 §5.5.3.4 og §5.5.3.5 (omnummerering; wId brukes til navigasjon når kilden er eldre enn målet)",
+          "funksjon": "direkte_hjemmel"
+        },
+        {
+          "ref": "AKN-NC 1.0 §5.4.3 (nummeret tas fra <num>)",
+          "funksjon": "direkte_hjemmel"
+        },
+        {
+          "ref": "docs/08 §1.2.1 (eid «permanente identitet. Endres aldri etter opprettelse»)",
+          "funksjon": "forutsatt_kilde"
+        },
+        {
+          "ref": "docs/35 §2.1 (45 og 2 981 noder med ny eId; 1 617 ledd og 3 272 punkt med trykt nummer ulikt løpenummeret)",
+          "funksjon": "forutsatt_kilde"
+        }
+      ]
+    },
+    {
+      "id": "J2",
+      "dom": "innvending",
+      "gjelder": "raden",
+      "alvor": "middels",
+      "innvending": "Listen blander to ting i «wId-rollen». Etter AKN-NC er wId ikke en fri, varig nøkkel. Den har eId-syntaksen og er eId-en elementet har i master- eller Ur-uttrykket (§5.3, §5.5.2, eksemplet i §5.5.3.4: wId=\"art_2\", eId=\"art_3\"). En varig intern ID, for eksempel en GUID, kan ikke skrives som wId. Den svarer til AKN sitt GUID-attributt (fritt format, §5.3) og til RUML sitt GUID-anker (docs/profil/09 §4.1). Listen må derfor ha to punkter: den varige interne ID-en, og en avledet AKN-wId som bygges av den. Første kule bør heller ikke si «AKN eId-rollen». Vår eId bygges av løpenummer og av parseren, mens AKN-eId bygges av <num> (se J1). Henvisningen til docs/08 §1.2.1 er riktig fjernet, men §1.2.1 står fortsatt med påstanden om permanent identitet og må rettes i samme omgang.",
+      "retting": {
+        "ny_liste": [
+          "vår eId som intern adresse i én lagret versjon (løpenummer, avhengig av parseren), verken AKN-eId eller varig identitet",
+          "en varig intern element-ID (GUID-rollen i AKN og RUML-ankeret), som må lages (#495)",
+          "en avledet AKN-eId per versjon etter navnekonvensjonen, med nummeret fra den trykte etiketten (<num>)",
+          "en avledet AKN-wId: den AKN-eId-en elementet hadde i det valgte master- eller Ur-uttrykket, skrevet der den avviker fra eId (AKN-NC §5.5.2); den avledes av den varige ID-en, aldri av vår eId",
+          "uttrykks-ID med @dato og versjonskjede"
+        ]
+      },
+      "ny_rad": null,
+      "implementeringsstatus": null,
+      "kilder": [
+        {
+          "ref": "AKN-NC 1.0 §5.3 (wId samme syntaks; GUID «has no required syntax»)",
+          "funksjon": "direkte_hjemmel"
+        },
+        {
+          "ref": "AKN-NC 1.0 §5.5.2 og §5.5.3.4",
+          "funksjon": "direkte_hjemmel"
+        },
+        {
+          "ref": "docs/profil/09-ruml-vurdering.md §4.1, raden «Vår eId» (GUID kan ikke avledes av eId)",
+          "funksjon": "forutsatt_kilde"
+        },
+        {
+          "ref": "docs/08 §1.2.1",
+          "funksjon": "forutsatt_kilde"
+        }
+      ]
+    },
+    {
+      "id": "J3",
+      "dom": "innvending",
+      "gjelder": "raden",
+      "alvor": "middels",
+      "innvending": "Valget holder: A nå og B som byggesak, og C og D er riktig forkastet. C bryter AKN-NC §5.4.3, fordi eId skal følge <num>. D gir bare adresser. Fire ting bør rettes. (1) «Eksporten bruker den som wId/GUID» går ikke. Den varige ID-en kan være GUID og RUML-anker, men wId må ha eId-syntaks fra master- eller Ur-uttrykket. wId må derfor avledes: AKN-eId-en elementet hadde i det uttrykket vi velger som Ur-uttrykk. Det valget må dokumenteres og låses, fordi den delte basen ikke har originalvedtaket, bare konsolideringer fra august og september 2026. Innsatte elementer trenger en wId som ikke kolliderer. I AKN sitt eget eksempel (§5.5.3.4) har den innsatte artikkelen ingen wId, og da blir wId lik eId, art_2. Det kolliderer med wId=\"art_2\" på den gamle artikkelen. For oss betyr det at Kosovo ellers får samme wId som Libanon. (2) Bevisrekkefølgen. Endringsinstruksen (data-move-part m.fl.) er endringsvedtaket selv, altså lovgivers egen angivelse av hva som flyttes. Der den finnes, bør den gå foran hash og sitat og kunne overstyre dem, ikke komme sist. Strider en heuristikk mot den, går saken til gjennomgang hos et menneske. (3) «Samme eId og hash» som første trinn er trygt bare når hashen er unik i paragrafen. Korte standardtekster som «(Opphevet)» kan ha samme eId og hash og likevel være et annet element. docs/35 M1 brukte selv en grense på 60 tegn og unik hash. (4) Når en kobling som bare har eId (begreper.lovreferanse_eid m.fl.), flyttes til den varige ID-en, må den også flagges når innholdet er endret, slik strukturkantene gjør. Et ledd som er endret ved lov, er fortsatt det samme elementet, men et begrep som er definert der, kan ha fått nytt innhold.",
+      "retting": {
+        "valg": "A nå (rett påstanden i 04 §2 og docs/08 §1.2.1) og B som egen byggesak: en varig intern ID per node som føres videre til ny versjon. Rekkefølgen er (1) Lovdatas endringsinstruks der den finnes for elementet; den går foran og kan overstyre resten, (2) samme eId og hash når hashen er unik i paragrafen og teksten ikke er en standardtekst, (3) unik hash, (4) sitat. Det som ikke kan føres entydig, eller der et trinn strider mot en endringsinstruks, får ny ID og legges til gjennomgang hos et menneske. Eksporten bruker den varige ID-en som GUID og RUML-anker. AKN-wId avledes som AKN-eId-en i et dokumentert og låst Ur-uttrykk (første lagrede versjon), og innsatte elementer får en wId som ikke kolliderer. Koblinger som bare lagrer eId (begreper.lovreferanse_eid, vilkar, kodelister), flyttes til den varige ID-en og flagges som «hjemmel endret» når innholdet under elementet er endret."
+      },
+      "ny_rad": null,
+      "implementeringsstatus": null,
+      "kilder": [
+        {
+          "ref": "AKN-NC 1.0 §5.3 og §5.5.2 (wId-syntaks, master- og Ur-uttrykk)",
+          "funksjon": "direkte_hjemmel"
+        },
+        {
+          "ref": "AKN-NC 1.0 §5.5.3.4 (innsatt artikkel 2 uten wId; gammel artikkel 2 får wId=\"art_2\", eId=\"art_3\")",
+          "funksjon": "direkte_hjemmel"
+        },
+        {
+          "ref": "AKN-NC 1.0 §5.4.3 (eId-nummer fra <num>; gjelder alternativ C)",
+          "funksjon": "direkte_hjemmel"
+        },
+        {
+          "ref": "docs/35 §2.3 (data-move-part, data-change-part i endringslovene) og §2.4 (begreper.lovreferanse_eid)",
+          "funksjon": "forutsatt_kilde"
+        },
+        {
+          "ref": "docs/08 §2.1 og HjemmelEndretFlagg (flagging av strukturkanter)",
+          "funksjon": "forutsatt_kilde"
+        }
+      ]
+    },
+    {
+      "id": "J4",
+      "dom": "innvending",
+      "gjelder": "raden",
+      "alvor": "lav",
+      "innvending": "Hovedvalget holder: etiketten lagres i nummer, eId-en blir stående, og AKN- og HTML4EU-ID-en bygges av etiketten (AKN-NC §5.4.3). Det som mangler: (1) Sitatet er ikke slik lovgiver siterer. Personopplysningsloven § 5 og § 8 skriver selv «personvernforordningen artikkel 6 nr. 1 bokstav a/e», og etter EØS-norsk kan det også hete «artikkel 6 nr. 1 første ledd bokstav f». Oppslaget må ta forordningens navn og bruke personopplysningsloven som vert. (2) Visningsregelen har bare to former. Romertall under bokstav siteres oftest «bokstav a) i)» (290 forekomster i korpuset mot 27 med «bokstav a punkt i»). Streklister uten etikett siteres med ordenstall, «første strekpunkt». (3) Et nummerert ledd (numberedLegalP) er «sjette ledd» i norsk lov (skatteloven § 10-5, trykt «(6)»), men «nr. 1» i en EØS-rettsakt. Klassen alene avgjør ikke visningen; dokumentets art må med. Dagens visning bygger ordenstall av ledd-nummer. (4) «Merkes ikke som trykt» krever et felt som ikke finnes (rettskilde_noder har bare nummer), så påstanden i docs/35 om «ingen migrasjon» holder ikke helt. (5) AKN <num> bør ha den trykte formen («f)», «a.»). §5.4.3 forutsetter at tegnsettingen fjernes når eId-en bygges, ikke i <num>. (6) Lovdatas presisering i hjemmelsfeltet (ledd/4, ledd/3/bokstav/a) og endringsinstruksene bruker trykt nummer og bokstav. LosPresiseringAsync gjør «ledd/N» om til eId ledd-N (løpenummer). Det treffer feil ledd der løpenummeret avviker (1 617 ledd), og «bokstav-a» vil aldri treffe en eId. Oppslaget må gå via forelder, nodetype og nummer.",
+      "retting": {
+        "punktbokstav": "Den trykte etiketten fra <li data-name> lagres uten tegnsetting i rettskilde_noder.nummer (a, b, 11a), og data-numerator i nummer for ledd. Et eget felt sier om nummeret er trykt eller et løpenummer (ny kolonne). eId-en forblir punkt-N. AKN <num> får den trykte formen («f)», «a.»). Eksporten bygger AKN-eId (point_f) og HTML4EU-ID (pnt_f) av etiketten uten tegnsetting. Visningen bruker listas type og dokumentets art: bokstavliste «bokstav a», talliste «nr. 1», romertall under bokstav «bokstav a) i)», strekliste uten etikett «første strekpunkt». Et nummerert ledd vises som «sjette ledd» i norsk lov og «nr. 1» i en EØS-rettsakt. Oppslag fra sitat, fra Lovdatas presisering (ledd/N/bokstav/x) og fra endringsinstruksene går via forelder, nodetype og nummer, ikke via eId.",
+        "sitat_som_skal_kunne_slås_opp": "personvernforordningen artikkel 6 nr. 1 bokstav f (også «artikkel 6 nr. 1 første ledd bokstav f» og «GDPR art. 6 nr. 1 bokstav f»), slått opp i forordningsteksten slik den står i personopplysningsloven"
+      },
+      "ny_rad": null,
+      "implementeringsstatus": null,
+      "kilder": [
+        {
+          "ref": "Personopplysningsloven (LOV-2018-06-15-38) § 5 og § 8, lagret kilde-HTML: «personvernforordningen artikkel 6 nr. 1 bokstav a/e»",
+          "funksjon": "direkte_hjemmel"
+        },
+        {
+          "ref": "AKN-NC 1.0 §5.4.3 (nummeret fra <num>, uten tegnsetting i eId)",
+          "funksjon": "direkte_hjemmel"
+        },
+        {
+          "ref": "Korpuset (SELECT, gjeldende noder): «bokstav x) i)» 290, «bokstav x punkt i» 27",
+          "funksjon": "forutsatt_kilde"
+        },
+        {
+          "ref": "Skatteloven § 10-5 i basen: trykt «(6)» = ledd-7, punktene a–d lagret som 1–4",
+          "funksjon": "forutsatt_kilde"
+        },
+        {
+          "ref": "src/RegelIde.Data/RettskildeImportTjeneste.cs LosPresiseringAsync (ledd/N → ledd-N)",
+          "funksjon": "forutsatt_kilde"
+        },
+        {
+          "ref": "rettskilde_noder (skjemaet): ingen kolonne for om nummeret er trykt",
+          "funksjon": "forutsatt_kilde"
+        }
+      ]
+    },
+    {
+      "id": "J5",
+      "dom": "innvending",
+      "gjelder": "raden",
+      "alvor": "middels",
+      "innvending": "(1) Regelen dekker bare underledd ETTER en liste. Et underledd uten liste foran blir limt inn i leddteksten og får ingen node. Eksempel: GDPR art. 8 nr. 1 annet ledd («For disse formål kan medlemsstatene ved lov fastsette en lavere aldersgrense …»). Det er grunnlaget for personopplysningsloven § 5 om 13-årsgrensen [slutning], og loven viser selv til «personvernforordningen artikkel 8 nr. 1». I basen står underleddet limt inn i a8/ledd-1, og dagens parser går gjennom det nestede legalP-et som om det ikke var der. Engangsmåling på lagret HTML: 1 793 nestede <article class=\"legalP\"> uten liste foran, i 169 av 712 dokumenter med numberedLegalP. Etter en liste er tallet 299. (2) Underledd og avslutning er ikke det samme. Et eget legalP etter lista er i EU-teksten et selvstendig underledd («Nr. 1 bokstav f) får ikke anvendelse …»), ikke avslutningsord til lista. Skal det skrives som wrapUp i AKN, mens HTML4EU får sub_2, sier de to eksportene ulike ting om samme tekst. AKN har <subparagraph> (subpara). (3) Eksporten kan ikke «velge uten å gjette» med mindre noden lagrer hvilken form kilden hadde. AknXmlSkriver arbeider fra nodene, og node_type avslutning er lik for begge formene. (4) Regelen avslutning N → sub_(N+1) forutsetter at hver avslutning er et eget underledd. Den holder ikke når teksten etter lista innleder en ny liste. HTML4EU-avslutningen hører hjemme under underleddet med lista (par_1/sub_1/wrp). (5) Terminologien er riktig for nummererte paragraphs: korpuset har 93 forekomster av «artikkel N nr. N første/annet ledd». Men nummererte punkter heter også «nr.» (artikkel 4 nr. 7), og unummererte EU-paragraphs heter «ledd». Ledd svarer derfor til «nr.» bare når kilden er et numberedLegalP i en EØS-rettsakt. En egen node underledd-N for N ≥ 2 endrer ingen punkt-eId, fordi første underledd er leddet selv. Argumentet i docs/35 om at punktenes eId endres, rammer bare et fullt underleddsnivå. Dette endrer #361 for EU-formen og må avgjøres av prosjekteieren før den delte basen konverteres på nytt.",
+      "retting": {
+        "eu_underledd": "Et eget underledd i kilden (<article class=\"legalP\"> nestet i et numberedLegalP) blir en egen node, node_type underledd, med eId {ledd-eId}/underledd-N der N ≥ 2. Det gjelder både etter en liste og uten liste foran (GDPR art. 8 nr. 1 annet ledd). Første underledd er leddet selv, så punktenes eId endres ikke. Avslutningsnoden fra #361 (AKN wrapUp) beholdes for p.leddfortsettelse og løs tekst etter lista. AKN: underledd blir <subparagraph> (subpara_N), avslutning blir wrapUp. HTML4EU: ledd med liste blir par_X/sub_1, underledd-N blir par_X/sub_N, avslutning blir par_X/sub_1/wrp. Avgjøres før den delte basen konverteres på nytt; endrer #361 for EU-formen.",
+        "terminologi": "I EØS-norsk heter en nummerert EU-paragraph «nr.», og en subparagraph eller unummerert paragraph «ledd» (artikkel 6 nr. 1 første ledd). Nummererte punkter heter også «nr.» (artikkel 4 nr. 7), og bokstavpunkter heter «bokstav». Vår node_type Ledd svarer til «nr.» bare når kilden er et numberedLegalP i en EØS-rettsakt."
+      },
+      "ny_rad": null,
+      "implementeringsstatus": null,
+      "kilder": [
+        {
+          "ref": "Personopplysningsloven, lagret kilde-HTML, gdpr/a8 nummer-1 med nestet legalP «For disse formål kan medlemsstatene …»; rettskilde_noder a8/ledd-1 med underleddet limt inn",
+          "funksjon": "direkte_hjemmel"
+        },
+        {
+          "ref": "Personopplysningsloven § 5 (aldersgrense 13 år, viser til personvernforordningen artikkel 8 nr. 1)",
+          "funksjon": "forutsatt_kilde"
+        },
+        {
+          "ref": "Personopplysningsloven, gdpr/a6 nummer-1 og nummer-3: legalP etter <ol type=\"a\">",
+          "funksjon": "direkte_hjemmel"
+        },
+        {
+          "ref": "docs/profil/10-html4eu-vurdering.md §2.2 (ledd → underledd → innledning + punkter; closing-part …/sub_1/wrp)",
+          "funksjon": "forutsatt_kilde"
+        },
+        {
+          "ref": "AKN-NC 1.0 §5.4.2 (subparagraph → subpara; wrapUp → wrapup)",
+          "funksjon": "direkte_hjemmel"
+        },
+        {
+          "ref": "docs/08 §1.2 (#361: nestet ledd etter lista blir avslutning)",
+          "funksjon": "forutsatt_kilde"
+        },
+        {
+          "ref": "Korpuset (SELECT): «artikkel N nr. N første/annet/tredje ledd» 93 forekomster; engangsskanning av 712 dokumenter med numberedLegalP",
+          "funksjon": "forutsatt_kilde"
+        }
+      ]
+    }
+  ]
+}

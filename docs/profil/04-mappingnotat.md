@@ -92,13 +92,16 @@ Primærkildene (kortnøkler):
 | Intern inkonsistens | docs/15 §9.2 (Bergen-retningslinjer) bruker AKN-formen `kap_1` / `kap_4__para_7` | – | Vi har to eId-konvensjoner i dokumentasjonen |
 
 **Hovedpoenget:** ELI-forankringen på verksnivå er solid. eId-konvensjonen er en *egen utvidelse* som ligger nær ELI-tenkningen, men bryter med AKN NC. Skal regel-ide bli en referanseimplementasjon for en norsk standard, trenger vi en **dobbel nøkkel**:
-- vår eId som stabil intern identitet (docs/08 §1.2.1),
-- en avledet AKN-eId etter navnekonvensjonen,
-- og uttrykks-ID med `@dato` og versjonskjede.
+[ENDRET, #495, 2026-11-25: listen og avsnittet under er rettet etter docs/35 §4.1, prosjekteierens avgjørelse 2026-11-25. Tidligere tekst: «vår eId som stabil intern identitet» og at vår eId har AKN sin `wId`-rolle.]
+- vår eId som intern adresse i én lagret versjon (løpenummer, avhengig av parseren), verken AKN-`eId` eller varig identitet,
+- en varig intern element-ID (`GUID`-rollen i AKN og RUML-ankeret), som må lages (#495, #509),
+- en avledet AKN-`eId` per versjon etter navnekonvensjonen, med nummeret fra den trykte etiketten (`<num>`),
+- en avledet AKN-`wId`: den AKN-`eId`-en elementet hadde i det valgte master- eller grunnuttrykket, skrevet der den avviker fra `eId` (AKN-NC §5.5.2). Den avledes av den varige ID-en, aldri av vår eId,
+- uttrykks-ID med `@dato` og versjonskjede.
 
-**Funnet ved verifiseringen:** AKN har selv en dobbel nøkkel [AKN-NC §5.3, §5.5.2]. `eId` er uttrykksnivå og *skal* endres når et element omnummereres. `wId` er verksnivå, endres aldri og bygges med samme syntaks fra «master expression». Vår regel om at eId aldri endres (docs/08) gir altså vår eId samme rolle som AKN sin `wId`, men under navnet til AKN sin `eId`. Ved eksport bør vi derfor skrive en avledet AKN-`eId` per versjon, og en `wId` avledet fra vår stabile ID.
+**Funnet ved verifiseringen (rettet etter #495, docs/35):** AKN har selv en dobbel nøkkel [AKN-NC §5.3, §5.5.2, §5.5.3]. `eId` er uttrykksnivå. Den tar nummeret fra `<num>` (§5.4.3) og oppdateres når elementets plass i strukturen endres i et nytt uttrykk. `wId` er verksnivå, endres aldri og har samme syntaks: den er `eId`-en elementet har i master-uttrykket, eller i et tenkt «Ur-Expression» når det ikke finnes noe master-uttrykk. Mangler `wId`, antas dokumentet å være master-uttrykket, og `wId` er lik `eId`. Et uttrykk som ikke er master, skal ha `wId` der den avviker fra `eId` (§5.5.2). Vår eId er ingen av delene. Den bygges i hver lagrede versjon av §-nummeret og løpenummeret til ledd og punkt (docs/08 §1.2), ikke av det trykte nummeret. Den endres også når bare parseren endres (docs/35 §2.1). Den er en intern adresse i én lagret versjon. docs/08 §1.2.1 («endres aldri etter opprettelse») holder bare i den svake formen: en lagret eId skrives ikke om. Som påstand om varig identitet er den feil og rettes. Vi har i dag ingen `wId`. Ved eksport skriver vi en AKN-`eId` per versjon, avledet av det trykte nummeret. Til vi har en varig elementidentitet (#495), skriver vi aldri flere versjoner av samme verk uten `wId`. Etter §5.5.2 ville det si at elementer med samme `eId` er det samme elementet. Eksport av en enkelt versjon merkes som ikke-konform på `wId`.
 
-Å endre eksisterende eId-er bryter docs/08 sin regel om at eId ikke endres, og bør ikke gjøres.
+Å endre eksisterende eId-er bryter docs/08 sin regel om at eId ikke endres, og bør ikke gjøres. [Tillegg, #495, 2026-11-25] Parseren endrer likevel eId-er i praksis (2 981 noder i 190 verk der bare parseren var endret, docs/35 §2.1).
 
 ---
 
@@ -173,7 +176,7 @@ Forklaring av samsvarskolonnen: **lik** · **delvis** · **mangler hos dem** (vi
 | Kompetansefamilier ordnet etter disposisjon | Norsk lære: personell, materiell og prosessuell kompetanse. LKIF har ingen familie | Middels: jurister vil spørre etter tredelingen | **Map:** legg tredelingen som egen akse på typen (som `fvl_kategori`). Ingen ombygging |
 | Rolle avgrenset per paragraf | LKIF og LegalRuleML har ikke avgrensning | Lav | **Norsk utvidelse** (funn 7) |
 | A har_ansvarsomrade (aktør → område) | LegalRuleML `Jurisdiction` gjelder normen (område eller saksfelt der en Authority utøver makt). `eli:jurisdiction` gjelder hvor dokumentet kommer fra [LRML §4.3.3; ELI] | Middels: samme ord, tre betydninger | **Map** og ikke bruk ordet «jurisdiksjon» om A. Vurder om koden `har_jurisdiksjon` bør hete noe annet |
-| eId-format | AKN NC: `eId` er uttrykksnivå og endres ved omnummerering. `wId` er verksnivå og endres aldri [AKN-NC §5.3] | Høy hvis vi skal være referanseimplementasjon | **Map:** behold vår eId (den har rollen til AKN sin `wId`), og avled AKN-`eId` per versjon og `wId` ved eksport |
+| eId-format | AKN NC: `eId` er uttrykksnivå og endres ved omnummerering. `wId` er verksnivå og endres aldri [AKN-NC §5.3] | Høy hvis vi skal være referanseimplementasjon | **Map** [ENDRET, #495, 2026-11-25]: vår eId er en intern adresse i én lagret versjon, ikke `wId`. Avled AKN-`eId` per versjon fra det trykte nummeret. `wId` avledes av en varig intern ID som må lages (#509) |
 | Uttrykks-ID uten @dato | AKN: uten versjon betyr IRI-en «gjeldende versjon» [AKN-NC §4.6.1]. Lovdata-ELI: `point in time` og `no/nb/nn` [Lovdata-ELI] | Høy for tidsspørsmål | **Juster** (nye importer). Tidligere data får en avledet ID |
 | Tekstfunn vs. slutning | Ingen standard | – | **Norsk utvidelse**, og et salgspunkt. Hold det atskilt fra defeasibility |
 | Unntak som node | LegalRuleML Override | Middels ved unntak fra unntak (energiloven har det, docs/33 funn 6) | **Juster senere** (docs/10, kandidat 4): legg til en overstyringsrelasjon ved siden av noden |
@@ -185,7 +188,7 @@ Forklaring av samsvarskolonnen: **lik** · **delvis** · **mangler hos dem** (vi
 1. **Hvilket nivå skal standarden gjelde?** Strukturlaget (hvem har kompetanse og plikt overfor hvem), regellaget (vilkår og rettsfølge) eller begge? Krysstabellen viser at strukturlaget er der vi har mest som er nytt.
 2. **Hohfeld som grunnmodell:** skal K og P eksporteres eksplisitt som UFO-L power og duty, med korrelatene utledet? Eller skal vi bare dokumentere en mapping?
 3. **Polaritet:** skal den ene negative flagget deles i to, disability–immunity (ugyldig) og prohibition (ulovlig), eller skal det utledes ved eksport? Etter verifiseringen er skillet to-delt, ikke tre-delt.
-4. **eId:** godtar du en dobbel nøkkel, der vi beholder vår eId (i AKN-rollen `wId`) og avleder en AKN NC-`eId`? Og skal avslutningsnoden i #361 få AKN-navnet (`wrapUp`, eId-ledd `wrapup`) fra starten?
+4. **eId:** godtar du en dobbel nøkkel, der vi beholder vår eId (i AKN-rollen `wId`) og avleder en AKN NC-`eId`? [ENDRET, #495, 2026-11-25: forutsetningen holdt ikke. Vår eId er ikke varig og kan ikke ha `wId`-rollen. Prosjekteieren valgte 2026-11-25 en varig intern ID som egen byggesak (#509), se docs/35.] Og skal avslutningsnoden i #361 få AKN-navnet (`wrapUp`, eId-ledd `wrapup`) fra starten?
 5. **Versjonering:** skal uttrykks-ID-en få `@konsolideringsdato`, slik at «hvilken rett gjaldt på dato D» blir mulig? Det er en forutsetning for lex posterior og overgangsregler.
 6. **Kompetanselæren:** skal tredelingen i personell, materiell og prosessuell kompetanse inn som egen akse på K-typene?
 7. **Rettskildefaktorer og vekt:** skal standarden ha en typet liste over faktorer med vekt (utvidet KL-RETTSKILDEVEKT), eller holder bevisrekkefølgen til klassifisering?
