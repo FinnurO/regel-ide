@@ -66,12 +66,13 @@ public sealed record HjemmelOpphevetRapport(
 /// uavklarte hjemler, arves som ukjent (Johann 2026-11-20).
 /// </para>
 /// <para>
-/// <b>Uttømt virkning gir ikke funn</b> (#446): <c>rent_endringsvedtak = true</c>. Rene ikrafttredelsesvedtak har ingen egen markør ennå;
-/// disposisjonstypen fra tittelen er ikke nok (den treffer også overgangsregler), så de telles for seg og venter på #446.
+/// <b>Uttømt virkning gir ikke funn</b> (#446): <c>rent_endringsvedtak = true</c>. [ENDRET, #446 PR 2] Kolonnen er «uttømt virkning» fra
+/// <see cref="VedtaksformTjeneste"/>: ren vedtaksform (endring, ikrafttredelse eller oppheving) og i kraft. Er et mål i «Endrer» utenfor korpus, står
+/// funnet med premissmangelen «Mål utenfor korpus» (<see cref="FunnTjeneste.MalUtenforKorpusMangelStart"/>).
 /// <b>NULL i #446-kolonnen</b> er én bryter (<see cref="KonfignokkelIkkeKlassifisertGirFunn"/>), standard PÅ etter prosjekteierens avgjørelse
 /// 2026-11-24 (tolkning B): NULL gir funn med premissmangelen «Uttømt virkning ikke klassifisert», så det ikke kan godkjennes før #446 er gjort.
-/// Kolonnen settes aldri til <c>false</c> (<see cref="DisposisjonstypeTjeneste"/>), så tolkningen i fase 1 (bryteren av) gir 0 funn. Rapporten viser
-/// alltid begge tolkningene.
+/// [ENDRET, #446 PR 2] Kolonnen settes nå også til <c>false</c> (blandet, selvstendig, eller ren og sikkert ikke i kraft); NULL er ukjent form eller
+/// ukjent ikraftstatus. Rapporten viser alltid begge tolkningene.
 /// </para>
 /// <para>
 /// <b>Premissporten</b> (<see cref="FunnTjeneste.MuligBortfaltVises"/>): funnet vises ikke som «mulig bortfalt» før vurderingspunktet
