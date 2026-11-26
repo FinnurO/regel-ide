@@ -2942,16 +2942,68 @@ kontrollfunn som fortsatt står, der en lov som faller, har kortnavn i tittelen 
 - **Kortnavnet selv ga ingen feil.** Der det er tvetydig (sentralbankloven, revisorloven, statistikkloven), finnes ingen videreføring som går tapt.
 - **Ingen uenighet står igjen.**
 
-**Spørsmål til prosjekteieren (ikke bygget):** skal en videreføring med dekningen «dokumenttype ikke nevnt» bære når ingenting faller?
-- **(a) Svak:** nei, når alle premissene som bærer, er ikke vurdert (rolle NULL eller bare slik videreføring): samlet status uavklart, samme vilkår
-  som H14. AK2 er uendret (den har en vurdert, aktiv premiss). Om lag 178 forskrifter endres (DEL 160, INS 13, LTI 4, SF 1; direkte premisser,
-  uten rekursjon). E08 tettes ikke.
-- **(b) Sterk:** en slik videreføring regnes ikke som videreføring, og hjemmelen faller. Om lag 194 forskrifter endres, også AK2, som blir blandede
-  hjemler.
+**Spørsmålet til prosjekteieren etter måling 3:** skal en videreføring med dekningen «dokumenttype ikke nevnt» bære når ingenting faller? To
+alternativer: (a) svak, samlet status uavklart når alle premissene som bærer, ikke er vurdert; (b) sterk, videreføringen teller ikke, og hjemmelen
+faller (AK2 blir blandede hjemler). [LØST, prosjekteierens avgjørelse 2026-11-25: alternativ (a)]
 
-**Mot den delte basen etter fletting** (skal godkjennes av prosjekteieren): `POST /api/hjemmelsstatus/maskinregel?skriv=true` (ventet 73 endrede
-statuser), så `POST /api/funn/maskinregel/hjemmel-opphevet?skriv=true&oppfrisk=true` (ventet 23 forklart bort, 241 oppdaget), og en ny kjøring av
-begge (ventet 0). #429 trenger ingen ny kjøring.
+[ENDRET, prosjekteierens avgjørelse 2026-11-25] **En videreføring som ikke nevner vedtakstypen, bærer ikke alene, heller ikke når ingenting
+faller.** Når ingen premiss faller, minst én bare bærer ved en videreføring med dekningen «dokumenttype ikke nevnt», og ingen premiss som bærer, er
+vurdert (rolle NULL, eller bare slik videreføring), er samlet status **uavklart**, ikke videreført
+(`Hjemmelsstatus.BaererBareUvurdertVidereforing`). Det er samme vilkår som H14 bruker når noe faller.
+- **AK2 er uendret:** FOR-1993-12-17-1314 er fortsatt videreført, fordi lov 11. juni 1993 nr. 66 er aktiv og har rollen materiell.
+- **E08 tettes ikke:** DEL/forskrift/1996-10-25-1008 har andre hjemler som bærer og er vurdert, så den er fortsatt videreført og forklart bort.
+  Juristen pekte på dette i replikken i måling 3.
+- Uten en slik videreføring endres ingenting: en forskrift med bare aktive hjemler med rolle NULL er fortsatt aktiv.
+- **Påstanden:** når ingenting faller, heter funnet «Hjemmel opphevet, videreføringen nevner ikke vedtakstypen». Påstanden sier at hjemmelen er
+  videreført av en overgangsregel som ikke nevner denne typen vedtak, og at det ikke er vurdert om den dekker vedtaket. Den sier ikke at noe er
+  opphevet uten funnet videreføring.
+- Regelversjonen for funnregelen er `472-pr5-2026-11-25`. Testene er `H14_…` i `HjemmelOpphevetRettingerTests` og
+  `E09_Et_delegeringsvedtak_som_bare_videreføres_som_forskrift_er_uavklart_og_gir_funn` i `HjemmelKortnavnTests`.
+
+**Kaldkjørt i en ny kopi** (`regelide_501b`, API på 5387, 2026-11-25), med kortnavnet og avgjørelsen (a). Før er master (de lagrede radene og
+funnene i kopien).
+
+| | Før (master, PR 4) | Etter (PR 5 med (a)) |
+|---|---|---|
+| Hjemmelsrader med endret status | — | 73, alle til viltloven 1981 (som i første kaldkjøring). Ny kjøring: 0 |
+| Samlet: videreført / uavklart | 471 / 12 | 317 / 189 |
+| Samlet: hjemmel opphevet / blandede | 211 / 58 | 201 / 45. Aktiv 4 136, ukjent 697 og utløpt 10 er uendret |
+| **Funn (oppdaget)** | **264**: hjemmel opphevet 191, blandede 50, uavklart 12, utløpt 10, gjenstandsløs 1 | **411**: hjemmel opphevet 181, uavklart 181, blandede 38, utløpt 10, gjenstandsløs 1 |
+| Nye funn | — | **163**, alle uavklart (DEL 150, INS 11, LTI 1, SF 1). Forskriftene var videreført og ga ikke funn |
+| Forklart bort (samlet videreført) | — | **16** av de 23 med viltressursloven: blandede 12 (SF 11, DEL 1 = E08), hjemmel opphevet 4 (LTI 3, SF 1) |
+| Endret undertype | — | 6 hjemmel opphevet → uavklart (DEL-vedtakene etter viltloven, blant dem E09–E11). Oppfrisket 7 (også E15) |
+| Ny kjøring | — | 0 nye, 0 forklares bort, 0 oppfriskes, 416 finnes |
+| #429 (utgåtte aktører, tørrkjørt) | 767 par | Uendret, 0 endrede rader |
+
+- 416 foreslås, 411 står som oppdaget. **Fem funn som PR 4 forklarte bort, ville nå vært uavklart:** DEL/forskrift/1996-12-09-1097,
+  DEL/forskrift/1997-09-12-1549, INS/forskrift/2003-03-13-292, INS/forskrift/2003-05-08-594 og LTI/forskrift/2005-01-07-89. Maskinregelen
+  gjenåpner aldri et funn som er forklart bort, så de står som forklart bort. Fire av dem telles som «endret undertype» ved hver kjøring. Om de
+  skal gjenåpnes for hånd, er et spørsmål til prosjekteieren.
+
+[Merknad, #472] **Måling 3 lest på nytt etter avgjørelsen** (`maling-3/b/status-etter-avgjorelsen.json`). E09–E11 og E15 står som uavklart og er
+riktige. E08, E12 og E13 er fortsatt feil. Endret 12/15, 0,80 (0,55–0,93); uten #446 0,92 (0,67–0,99). Kontroll 7/8. Totalt 19/23, 0,83 (0,63–0,93).
+
+[Merknad, #472] **Målt 2026-11-25 (måling 3b, de nye funnene, én runde).** Avgjørelsen ga 163 nye funn, så prosjekteieren ba om én runde. Utvalget
+er 16 av de 163 (DEL 12, INS 2, LTI 1, SF 1, frø 20261127). Filene ligger i `data/fasit/strukturmodell/juristrunde-472/maling-3/b/`.
+- **Presisjon:** **0,69 (0,44–0,86)**, 11/16. DEL 10/12, INS 1/2, LTI 0/1, SF 0/1. Vektet etter lagene om lag 0,80. Ingen usikre.
+- **For delegeringsvedtak er «uavklart» riktig.**
+- **Feilene (5):**
+  - enkeltvedtak i INS og SF som overgangsregelen dekker, fordi den nevner enkeltvedtak (N14, N16). Regelen leser vedtakstypen av basen, ikke av
+    innholdet. Juristen anslår om lag 8 av de 12 INS- og SF-funnene;
+  - en endringslovs egen myndighet, der hjemmelsteksten ikke nevner delen (N05, END-hullet fra PR 4);
+  - et vedtak som er opphevet utenfor korpus (N15);
+  - en ordning som ikke finnes i den nye loven, så undertypen burde vært hjemmel opphevet (N09).
+- **Ingen uenighet står igjen.**
+- **Spørsmål til prosjekteieren (ikke bygget):** skal et SF- eller INS-vedtak som er et enkeltvedtak (tillatelse, godkjenning eller status til en
+  navngitt part), regnes som dekket når overgangsregelen nevner enkeltvedtak? Det krever at vedtaket leses.
+
+**Mot den delte basen etter fletting** (skal godkjennes av prosjekteieren):
+1. `POST /api/hjemmelsstatus/maskinregel?skriv=true`: ventet 73 endrede statuser.
+2. `POST /api/funn/maskinregel/hjemmel-opphevet?skriv=true&oppfrisk=true`: ventet 163 nye, 16 forklart bort, 7 oppfrisket (6 med endret
+   undertype), 411 oppdaget.
+3. En ny kjøring av begge: ventet 0 endrede statuser, 0 nye, 0 forklares bort og 0 oppfriskes.
+
+#429 trenger ingen ny kjøring.
 
 ### 5.6 Konvertering av eksisterende data
 
