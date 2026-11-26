@@ -4360,14 +4360,15 @@ app.MapPost("/api/regjeringen", async (bool? skriv, bool? medForekomster, HttpRe
         "?medForekomster=false utelater lista per forekomst.");
 
 // [Ny, issue #463] Målingen av ordsperren over hele korpuset (bare lesing): forekomstene før og etter at bindestrek rett foran sluttet å være
-// ordgrense, og hvor mange hver grunn sperrer. Bare «staten» har en sperre i dag.
+// ordgrense, og hvor mange hver grunn sperrer. [ENDRET, Refs #486] Også «statsråd» (ikke rollen) og «statsrådet» (ikke organet).
 app.MapGet("/api/ordsperre/maling", async (string? term, RegelIdeDbContext db, CancellationToken ct) =>
         Ordsperrer.HarSperre(term ?? Ordsperrer.Staten)
             ? Results.Ok(await OrdsperreMaling.MalAsync(db, term ?? Ordsperrer.Staten, ct))
-            : Results.BadRequest(new { feil = $"«{term}» har ingen ordsperre. Bare «{Ordsperrer.Staten}» har det." }))
+            : Results.BadRequest(new { feil = $"«{term}» har ingen ordsperre. Bare {string.Join(", ", Ordsperrer.Termer.Select(t => $"«{t}»"))} har det." }))
     .WithOpenApi()
     .WithName("OrdsperreMaling")
-    .WithSummary("Issue #463 — ordsperren for «staten» målt over korpuset: forekomster med gammel og ny ordgrense, sperret per grunn, og det som gjelder.");
+    .WithSummary("Issue #463 og Refs #486 — ordsperren for «staten», «statsråd» eller «statsrådet» (?term=) målt over korpuset: forekomster med gammel " +
+        "og ny ordgrense, sperret per grunn, og det som gjelder.");
 
 // [FJERNET, issue #311] VirksomhetRelasjon-endepunktene (GET/POST /api/virksomheter/{id}/relasjoner,
 // POST /api/virksomhet-relasjoner/{id}/godkjenn, DELETE /api/virksomhet-relasjoner/{id}). Relasjoner er

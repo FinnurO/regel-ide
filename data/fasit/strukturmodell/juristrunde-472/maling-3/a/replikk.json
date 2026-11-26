@@ -1,0 +1,145 @@
+[
+ {
+  "id": "E08",
+  "replikk": "presiserer",
+  "tekst": "Jeg godtar svaret og at rettingen går til prosjekteieren. Presisering om AK2: den trenger ikke å endres av rettingen jeg foreslo. DEL/forskrift/1993-12-17-1314 har tre hjemmelsrader i kopien: konkurranseloven 1993 § 7-2 (videreført, V1, dokumenttype_ikke_nevnt), lov 11. juni 1993 nr. 66 § 1 (materiell, aktiv) og forskrift 1993 nr. 1023 (kompetanseledd). Forslaget var: «Står bare slike igjen, er samlet status uavklart.» I AK2 står det også en vurdert, aktiv premiss (lov 1993 nr. 66), så den samlede statusen blir den samme som før. Regelen kan formuleres slik: når ingenting faller og alle premissene som bærer, er ikke vurdert (rolle NULL eller bare videreført med dokumenttype_ikke_nevnt), er samlet status uavklart. Det er samme vilkår som H14 bruker når noe faller, så asymmetrien forsvinner uten at AK2 endres. E09, E10 og E11 blir da uavklart, E15 blir uavklart, og E08 blir videreført eller blandede ut fra formuleringen; kap. I, II og IV bærer der. Av de 239 forskriftene med en slik videreføring er 215 DEL, 14 INS, 9 LTI og 1 SF. Det bør telles hvor mange som bare har slike premisser, før prosjekteieren avgjør. Faglig mener jeg fortsatt at E09–E11 er hjemmel opphevet (myndigheten etter viltloven §§ 7 og 39 finnes ikke, og det er gitt nye delegeringer), men uavklart er et forsvarlig svar fra en maskinregel som ikke fortolker. Jeg fastholder ikke dette. For E08 særskilt: kap. I (naturoppsynsloven), II (naturvernloven via naturmangfoldloven § 77, V3 dekket) og IV (kulturminneloven) bærer og er vurdert. Den svake varianten over fanger derfor ikke E08: statusen blir fortsatt videreført, og funnet kommer ikke tilbake. Bare en sterk variant gjør det: en videreføring med dokumenttype_ikke_nevnt regnes ikke som videreføring, så hjemmelen faller, og E08 blir blandede hjemler som før PR 5. Den sterke varianten endrer AK2 til blandede hjemler (konkurranseloven 1993 faller, lov 1993 nr. 66 bærer). Spørsmålet til prosjekteieren bør derfor ha to alternativer: (a) svak, som tetter E09–E11 og E15 uten å endre AK2, men ikke E08; (b) sterk, som tetter alle fem, men gjør AK2 til blandede. E08 står som feil inntil prosjekteieren har valgt.",
+  "kilder": [
+   {
+    "ref": "hjemmelsstatus i regelide_501 for DEL/forskrift/1993-12-17-1314 (tre rader, én aktiv materiell)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "src/RegelIde.Data/Hjemmelsstatus.cs BaererVurdert og HjemmelsstatusSamlet",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "hjemmelsstatus i regelide_501: forskrifter med dokumenttype_ikke_nevnt per prefiks (DEL 215, INS 14, LTI 9, SF 1)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "E09",
+  "replikk": "presiserer",
+  "tekst": "Jeg godtar svaret og at rettingen går til prosjekteieren. Presisering om AK2: den trenger ikke å endres av rettingen jeg foreslo. DEL/forskrift/1993-12-17-1314 har tre hjemmelsrader i kopien: konkurranseloven 1993 § 7-2 (videreført, V1, dokumenttype_ikke_nevnt), lov 11. juni 1993 nr. 66 § 1 (materiell, aktiv) og forskrift 1993 nr. 1023 (kompetanseledd). Forslaget var: «Står bare slike igjen, er samlet status uavklart.» I AK2 står det også en vurdert, aktiv premiss (lov 1993 nr. 66), så den samlede statusen blir den samme som før. Regelen kan formuleres slik: når ingenting faller og alle premissene som bærer, er ikke vurdert (rolle NULL eller bare videreført med dokumenttype_ikke_nevnt), er samlet status uavklart. Det er samme vilkår som H14 bruker når noe faller, så asymmetrien forsvinner uten at AK2 endres. E09, E10 og E11 blir da uavklart, E15 blir uavklart, og E08 blir videreført eller blandede ut fra formuleringen; kap. I, II og IV bærer der. Av de 239 forskriftene med en slik videreføring er 215 DEL, 14 INS, 9 LTI og 1 SF. Det bør telles hvor mange som bare har slike premisser, før prosjekteieren avgjør. Faglig mener jeg fortsatt at E09–E11 er hjemmel opphevet (myndigheten etter viltloven §§ 7 og 39 finnes ikke, og det er gitt nye delegeringer), men uavklart er et forsvarlig svar fra en maskinregel som ikke fortolker. Jeg fastholder ikke dette.",
+  "kilder": [
+   {
+    "ref": "hjemmelsstatus i regelide_501 for DEL/forskrift/1993-12-17-1314 (tre rader, én aktiv materiell)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "src/RegelIde.Data/Hjemmelsstatus.cs BaererVurdert og HjemmelsstatusSamlet",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "hjemmelsstatus i regelide_501: forskrifter med dokumenttype_ikke_nevnt per prefiks (DEL 215, INS 14, LTI 9, SF 1)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "E10",
+  "replikk": "presiserer",
+  "tekst": "Jeg godtar svaret og at rettingen går til prosjekteieren. Presisering om AK2: den trenger ikke å endres av rettingen jeg foreslo. DEL/forskrift/1993-12-17-1314 har tre hjemmelsrader i kopien: konkurranseloven 1993 § 7-2 (videreført, V1, dokumenttype_ikke_nevnt), lov 11. juni 1993 nr. 66 § 1 (materiell, aktiv) og forskrift 1993 nr. 1023 (kompetanseledd). Forslaget var: «Står bare slike igjen, er samlet status uavklart.» I AK2 står det også en vurdert, aktiv premiss (lov 1993 nr. 66), så den samlede statusen blir den samme som før. Regelen kan formuleres slik: når ingenting faller og alle premissene som bærer, er ikke vurdert (rolle NULL eller bare videreført med dokumenttype_ikke_nevnt), er samlet status uavklart. Det er samme vilkår som H14 bruker når noe faller, så asymmetrien forsvinner uten at AK2 endres. E09, E10 og E11 blir da uavklart, E15 blir uavklart, og E08 blir videreført eller blandede ut fra formuleringen; kap. I, II og IV bærer der. Av de 239 forskriftene med en slik videreføring er 215 DEL, 14 INS, 9 LTI og 1 SF. Det bør telles hvor mange som bare har slike premisser, før prosjekteieren avgjør. Faglig mener jeg fortsatt at E09–E11 er hjemmel opphevet (myndigheten etter viltloven §§ 7 og 39 finnes ikke, og det er gitt nye delegeringer), men uavklart er et forsvarlig svar fra en maskinregel som ikke fortolker. Jeg fastholder ikke dette.",
+  "kilder": [
+   {
+    "ref": "hjemmelsstatus i regelide_501 for DEL/forskrift/1993-12-17-1314 (tre rader, én aktiv materiell)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "src/RegelIde.Data/Hjemmelsstatus.cs BaererVurdert og HjemmelsstatusSamlet",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "hjemmelsstatus i regelide_501: forskrifter med dokumenttype_ikke_nevnt per prefiks (DEL 215, INS 14, LTI 9, SF 1)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "E11",
+  "replikk": "presiserer",
+  "tekst": "Jeg godtar svaret og at rettingen går til prosjekteieren. Presisering om AK2: den trenger ikke å endres av rettingen jeg foreslo. DEL/forskrift/1993-12-17-1314 har tre hjemmelsrader i kopien: konkurranseloven 1993 § 7-2 (videreført, V1, dokumenttype_ikke_nevnt), lov 11. juni 1993 nr. 66 § 1 (materiell, aktiv) og forskrift 1993 nr. 1023 (kompetanseledd). Forslaget var: «Står bare slike igjen, er samlet status uavklart.» I AK2 står det også en vurdert, aktiv premiss (lov 1993 nr. 66), så den samlede statusen blir den samme som før. Regelen kan formuleres slik: når ingenting faller og alle premissene som bærer, er ikke vurdert (rolle NULL eller bare videreført med dokumenttype_ikke_nevnt), er samlet status uavklart. Det er samme vilkår som H14 bruker når noe faller, så asymmetrien forsvinner uten at AK2 endres. E09, E10 og E11 blir da uavklart, E15 blir uavklart, og E08 blir videreført eller blandede ut fra formuleringen; kap. I, II og IV bærer der. Av de 239 forskriftene med en slik videreføring er 215 DEL, 14 INS, 9 LTI og 1 SF. Det bør telles hvor mange som bare har slike premisser, før prosjekteieren avgjør. Faglig mener jeg fortsatt at E09–E11 er hjemmel opphevet (myndigheten etter viltloven §§ 7 og 39 finnes ikke, og det er gitt nye delegeringer), men uavklart er et forsvarlig svar fra en maskinregel som ikke fortolker. Jeg fastholder ikke dette.",
+  "kilder": [
+   {
+    "ref": "hjemmelsstatus i regelide_501 for DEL/forskrift/1993-12-17-1314 (tre rader, én aktiv materiell)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "src/RegelIde.Data/Hjemmelsstatus.cs BaererVurdert og HjemmelsstatusSamlet",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "hjemmelsstatus i regelide_501: forskrifter med dokumenttype_ikke_nevnt per prefiks (DEL 215, INS 14, LTI 9, SF 1)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "E15",
+  "replikk": "presiserer",
+  "tekst": "Jeg godtar svaret og at rettingen går til prosjekteieren. Presisering om AK2: den trenger ikke å endres av rettingen jeg foreslo. DEL/forskrift/1993-12-17-1314 har tre hjemmelsrader i kopien: konkurranseloven 1993 § 7-2 (videreført, V1, dokumenttype_ikke_nevnt), lov 11. juni 1993 nr. 66 § 1 (materiell, aktiv) og forskrift 1993 nr. 1023 (kompetanseledd). Forslaget var: «Står bare slike igjen, er samlet status uavklart.» I AK2 står det også en vurdert, aktiv premiss (lov 1993 nr. 66), så den samlede statusen blir den samme som før. Regelen kan formuleres slik: når ingenting faller og alle premissene som bærer, er ikke vurdert (rolle NULL eller bare videreført med dokumenttype_ikke_nevnt), er samlet status uavklart. Det er samme vilkår som H14 bruker når noe faller, så asymmetrien forsvinner uten at AK2 endres. E09, E10 og E11 blir da uavklart, E15 blir uavklart, og E08 blir videreført eller blandede ut fra formuleringen; kap. I, II og IV bærer der. Av de 239 forskriftene med en slik videreføring er 215 DEL, 14 INS, 9 LTI og 1 SF. Det bør telles hvor mange som bare har slike premisser, før prosjekteieren avgjør. Faglig mener jeg fortsatt at E09–E11 er hjemmel opphevet (myndigheten etter viltloven §§ 7 og 39 finnes ikke, og det er gitt nye delegeringer), men uavklart er et forsvarlig svar fra en maskinregel som ikke fortolker. Jeg fastholder ikke dette.",
+  "kilder": [
+   {
+    "ref": "hjemmelsstatus i regelide_501 for DEL/forskrift/1993-12-17-1314 (tre rader, én aktiv materiell)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "src/RegelIde.Data/Hjemmelsstatus.cs BaererVurdert og HjemmelsstatusSamlet",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "hjemmelsstatus i regelide_501: forskrifter med dokumenttype_ikke_nevnt per prefiks (DEL 215, INS 14, LTI 9, SF 1)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "E12",
+  "replikk": "godtar",
+  "tekst": "Godtatt. Feilen gjelder #446 og den særskilte opphevingen i 2026 nr. 1158 kap. II, ikke kortnavnet. Det er riktig å føre den som feilmønster. I målingen kan E12 og E13 telles «uten #446», som M08 og M09 i måling 2.",
+  "kilder": [
+   {
+    "ref": "SF/forskrift/2026-06-22-1158 kap-II (korpus)",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "E13",
+  "replikk": "godtar",
+  "tekst": "Godtatt. Feilen gjelder #446 og den særskilte opphevingen i 2026 nr. 1158 kap. II, ikke kortnavnet. Det er riktig å føre den som feilmønster. I målingen kan E12 og E13 telles «uten #446», som M08 og M09 i måling 2.",
+  "kilder": [
+   {
+    "ref": "SF/forskrift/2026-06-22-1158 kap-II (korpus)",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "K01",
+  "replikk": "godtar",
+  "tekst": "Godtatt. Det er riktig at feilårsaken er populasjonen (R8, #502), og at V2a-hullet (kortnavnet, og søk i forskrifter uten «overgang» i tittelen) blir en egen sak som måles for seg. Det bør stå i den saken at kirkeordningen § 44 er et eksempel der overgangsregelen står i en forskrift fra et annet organ (Kirkemøtet) enn det som opphevet loven (Stortinget).",
+  "kilder": [
+   {
+    "ref": "SF/forskrift/2019-03-30-2307 §44 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "LTI/forskrift/2021-11-14-3414 kap-I (korpus)",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "E01",
+  "replikk": "godtar",
+  "tekst": "Godtatt som merknad. Ledd-nummeret er en feil i korpusdataene og gir ingen klassefeil. Hvis påstanden i et funn noen gang siterer leddet, bør den bruke Lovdatas nummerering (tredje ledd), eller sitere teksten uten leddnummer.",
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/NL/lov/2025-06-20-102 § 61",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ }
+]

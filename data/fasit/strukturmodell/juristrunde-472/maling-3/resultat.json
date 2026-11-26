@@ -1,0 +1,307 @@
+{
+ "sak": "#472 måling 3 (#501, PR 5)",
+ "dato": "2026-11-25",
+ "merknad": "Klassen etter to juristrunder, målt i kopien regelide_501 etter PR 5, før noe er skrevet mot den delte basen. Presisjon = riktig/(riktig+feil), Wilson 95 %. Ingen usikre. Ingen uenighet står igjen.",
+ "resultat": {
+  "totalt": {
+   "riktig": 15,
+   "n": 23,
+   "presisjon": 0.65,
+   "wilson95": [
+    0.45,
+    0.81
+   ]
+  },
+  "endret": {
+   "riktig": 8,
+   "n": 15,
+   "presisjon": 0.53,
+   "wilson95": [
+    0.3,
+    0.75
+   ]
+  },
+  "endret_uten_446": {
+   "riktig": 8,
+   "n": 13,
+   "presisjon": 0.62,
+   "wilson95": [
+    0.36,
+    0.82
+   ]
+  },
+  "kontroll": {
+   "riktig": 7,
+   "n": 8,
+   "presisjon": 0.88,
+   "wilson95": [
+    0.53,
+    0.98
+   ]
+  },
+  "endret_per_prefiks": {
+   "SF": {
+    "riktig": 8,
+    "n": 8,
+    "presisjon": 1.0,
+    "wilson95": [
+     0.68,
+     1
+    ]
+   },
+   "DEL": {
+    "riktig": 0,
+    "n": 5,
+    "presisjon": 0.0,
+    "wilson95": [
+     0,
+     0.43
+    ]
+   },
+   "LTI": {
+    "riktig": 0,
+    "n": 2,
+    "presisjon": 0.0,
+    "wilson95": [
+     0,
+     0.66
+    ]
+   }
+  },
+  "kontroll_per_lag": {
+   "kortnavn_entydig": {
+    "riktig": 3,
+    "n": 4,
+    "presisjon": 0.75,
+    "wilson95": [
+     0.3,
+     0.95
+    ]
+   },
+   "kortnavn_brukes_om_flere_lover": {
+    "riktig": 4,
+    "n": 4,
+    "presisjon": 1.0,
+    "wilson95": [
+     0.51,
+     1
+    ]
+   }
+  },
+  "usikre": [],
+  "anslag_for_alle_23_endrede": {
+   "riktig": 12,
+   "n": 23,
+   "merknad": "Lest av radene, ikke målt kort for kort: SF 12 (dekket, som E01–E07, E14 og M13), DEL 8 (alle har dekningen dokumenttype_ikke_nevnt, som E08–E11 og E15), LTI 3 (endringsforskrifter, som E12 og E13)."
+  }
+ },
+ "kort": [
+  {
+   "id": "E01",
+   "utvalg": "endret",
+   "forskrift": "SF/forskrift/2011-05-15-537",
+   "prefiks": "SF",
+   "klasse": "riktig",
+   "feilarsak": null,
+   "modellerer_runde1": "riktig"
+  },
+  {
+   "id": "E02",
+   "utvalg": "endret",
+   "forskrift": "SF/forskrift/2017-04-26-519",
+   "prefiks": "SF",
+   "klasse": "riktig",
+   "feilarsak": null,
+   "modellerer_runde1": "riktig"
+  },
+  {
+   "id": "E03",
+   "utvalg": "endret",
+   "forskrift": "SF/forskrift/2005-03-18-242",
+   "prefiks": "SF",
+   "klasse": "riktig",
+   "feilarsak": null,
+   "modellerer_runde1": "riktig"
+  },
+  {
+   "id": "E04",
+   "utvalg": "endret",
+   "forskrift": "SF/forskrift/2007-08-20-987",
+   "prefiks": "SF",
+   "klasse": "riktig",
+   "feilarsak": null,
+   "modellerer_runde1": "riktig"
+  },
+  {
+   "id": "E05",
+   "utvalg": "endret",
+   "forskrift": "SF/forskrift/2022-01-21-128",
+   "prefiks": "SF",
+   "klasse": "riktig",
+   "feilarsak": null,
+   "modellerer_runde1": "riktig"
+  },
+  {
+   "id": "E06",
+   "utvalg": "endret",
+   "forskrift": "SF/forskrift/2016-01-08-12",
+   "prefiks": "SF",
+   "klasse": "riktig",
+   "feilarsak": null,
+   "modellerer_runde1": "riktig"
+  },
+  {
+   "id": "E07",
+   "utvalg": "endret",
+   "forskrift": "SF/forskrift/2015-06-19-716",
+   "prefiks": "SF",
+   "klasse": "riktig",
+   "feilarsak": null,
+   "modellerer_runde1": "riktig"
+  },
+  {
+   "id": "E08",
+   "utvalg": "endret",
+   "forskrift": "DEL/forskrift/1996-10-25-1008",
+   "prefiks": "DEL",
+   "klasse": "feil",
+   "feilarsak": "dekningen",
+   "modellerer_runde1": "riktig"
+  },
+  {
+   "id": "E09",
+   "utvalg": "endret",
+   "forskrift": "DEL/forskrift/2002-09-13-995",
+   "prefiks": "DEL",
+   "klasse": "feil",
+   "feilarsak": "dekningen",
+   "modellerer_runde1": "riktig"
+  },
+  {
+   "id": "E10",
+   "utvalg": "endret",
+   "forskrift": "DEL/forskrift/2002-09-19-1915",
+   "prefiks": "DEL",
+   "klasse": "feil",
+   "feilarsak": "dekningen",
+   "modellerer_runde1": "riktig"
+  },
+  {
+   "id": "E11",
+   "utvalg": "endret",
+   "forskrift": "DEL/forskrift/1994-07-01-4322",
+   "prefiks": "DEL",
+   "klasse": "feil",
+   "feilarsak": "dekningen",
+   "modellerer_runde1": "riktig"
+  },
+  {
+   "id": "E12",
+   "utvalg": "endret",
+   "forskrift": "LTI/forskrift/2009-12-22-1775",
+   "prefiks": "LTI",
+   "klasse": "feil",
+   "feilarsak": "annet",
+   "modellerer_runde1": "riktig"
+  },
+  {
+   "id": "E13",
+   "utvalg": "endret",
+   "forskrift": "LTI/forskrift/2011-03-01-206",
+   "prefiks": "LTI",
+   "klasse": "feil",
+   "feilarsak": "annet",
+   "modellerer_runde1": "riktig"
+  },
+  {
+   "id": "E14",
+   "utvalg": "endret",
+   "forskrift": "SF/forskrift/2005-03-21-247",
+   "prefiks": "SF",
+   "klasse": "riktig",
+   "feilarsak": null,
+   "modellerer_runde1": "riktig"
+  },
+  {
+   "id": "E15",
+   "utvalg": "endret",
+   "forskrift": "DEL/forskrift/2013-03-15-283",
+   "prefiks": "DEL",
+   "klasse": "feil",
+   "feilarsak": "dekningen",
+   "modellerer_runde1": "riktig"
+  },
+  {
+   "id": "K01",
+   "utvalg": "kontroll",
+   "forskrift": "LTI/forskrift/2018-04-16-852",
+   "prefiks": "LTI",
+   "klasse": "feil",
+   "feilarsak": "populasjonen",
+   "modellerer_runde1": "riktig"
+  },
+  {
+   "id": "K02",
+   "utvalg": "kontroll",
+   "forskrift": "DEL/forskrift/1997-12-09-1264",
+   "prefiks": "DEL",
+   "klasse": "riktig",
+   "feilarsak": null,
+   "modellerer_runde1": "riktig"
+  },
+  {
+   "id": "K03",
+   "utvalg": "kontroll",
+   "forskrift": "DEL/forskrift/2007-12-05-1356",
+   "prefiks": "DEL",
+   "klasse": "riktig",
+   "feilarsak": null,
+   "modellerer_runde1": "riktig"
+  },
+  {
+   "id": "K04",
+   "utvalg": "kontroll",
+   "forskrift": "DEL/forskrift/2008-06-06-543",
+   "prefiks": "DEL",
+   "klasse": "riktig",
+   "feilarsak": null,
+   "modellerer_runde1": "riktig"
+  },
+  {
+   "id": "K05",
+   "utvalg": "kontroll",
+   "forskrift": "DEL/forskrift/2009-11-27-1406",
+   "prefiks": "DEL",
+   "klasse": "riktig",
+   "feilarsak": null,
+   "modellerer_runde1": "riktig"
+  },
+  {
+   "id": "K06",
+   "utvalg": "kontroll",
+   "forskrift": "SF/forskrift/2017-04-05-450",
+   "prefiks": "SF",
+   "klasse": "riktig",
+   "feilarsak": null,
+   "modellerer_runde1": "riktig"
+  },
+  {
+   "id": "K07",
+   "utvalg": "kontroll",
+   "forskrift": "DEL/forskrift/1999-06-25-706",
+   "prefiks": "DEL",
+   "klasse": "riktig",
+   "feilarsak": null,
+   "modellerer_runde1": "riktig"
+  },
+  {
+   "id": "K08",
+   "utvalg": "kontroll",
+   "forskrift": "DEL/forskrift/1990-02-13-1228",
+   "prefiks": "DEL",
+   "klasse": "riktig",
+   "feilarsak": null,
+   "modellerer_runde1": "riktig"
+  }
+ ]
+}

@@ -325,6 +325,14 @@ public sealed class VirksomhetOgGruppeKiOppdagelseTjeneste(
         // område, bøyningsform av et av dem), blir ikke en ny navnekandidat. Grunnen står i utfallet, så den ikke forsvinner stille. Rolle- og
         // relasjonsforsøkene under kjøres som før: de slår opp den kjente aktøren selv.
         var ruting = Aktorkoregler.Ruter(rutingstabell, faktiskTekst, rettskildeId);
+        // [Ny, Refs #486, prosjekteierens avgjørelse 2026-11-25] Ordsperren: en sperret forekomst («statsråd» i «vedtak i statsråd») betyr ikke det
+        // kjente ordet (rollen), og rutes til aktørkøen, så et menneske avgjør.
+        if (ruting.Rute != Aktorkoruter.Aktorko && Ordsperrer.HarSperre(faktiskTekst)
+            && Ordsperrer.Vurder(faktiskTekst, tekst, idx, idx + faktiskTekst.Length,
+                (await Ordsperrer.KonvensjonsnoderAsync(db, [rettskildeNode.Id], ct)).Count > 0) is not null)
+        {
+            ruting = new Rutingssvar(Aktorkoruter.Aktorko, Aktorkoregler.Normaliser(faktiskTekst), []);
+        }
         var aktorkoRute = ruting.Rute;
         if (ruting.Rute != Aktorkoruter.Aktorko)
         {

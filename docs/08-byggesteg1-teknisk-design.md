@@ -123,6 +123,8 @@ ikke får ny versjon ved resynk.
 Skillet mellom `eid` (kanonisk, ELI-forankret, endres aldri) og Lovdatas HTML-`id` (kildesystemets egen, kan endre seg) generaliseres til et navngitt, gjennomgående prinsipp for **alle** entiteter regel-IDE henter fra en ekstern kilde, ikke bare rettskilde-noder:
 
 - **`canonical_id`** (i skjemaet: `eid`) — regel-IDEs egen, permanente identitet. Endres aldri etter opprettelse.
+
+  [ENDRET, #495, 2026-11-25] Dette holder bare i den svake formen: en lagret eId skrives ikke om. Som påstand om varig identitet over versjoner er det feil. eId bygges i hver lagrede versjon av §-nummeret og løpenummeret til ledd og punkt, og den endres når en bestemmelse omnummereres eller parseren endres (docs/35 §2.1). Den er en intern adresse i én lagret versjon. En varig elementidentitet på tvers av versjoner finnes ikke ennå (#495, #509).
 - **`source_id`** (i skjemaet: `kilde_id` + `kildesystem`) — identiteten i det systemet dataen kom fra (Lovdata i dag; Domstol.no for presedens, regjeringen.no for enkelte dokumenttyper senere). Kan endre seg uten at det påvirker `canonical_id`.
 
 Dette er allerede anvendt for rettskilde-noder (§2); prinsippet gjelder tilsvarende når presedens (Domstol.no) eller andre eksterne kilder legges til senere byggesteg — `kilde_id`-kolonnen utvides da med et `kildesystem`-felt (se §2) i stedet for at hver entitetstype finner opp sitt eget mønster.

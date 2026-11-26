@@ -1,0 +1,639 @@
+[
+ {
+  "id": "E01",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Forskriften er gitt i medhold av viltloven §§ 40, 43 og 48 og er en forskrift. Viltressursloven § 61 (Lovdata tredje ledd, korpus ledd-2) viderefører den etter ordlyden. «Viltloven» peker entydig på lov 1981 nr. 38: ingen annen lov i korpus har kortnavnet, og fem kilder siterer tittelen med det. Forskriften har i tillegg fått tilføyd hjemmel i viltressursloven § 9 (forskrift 26. juni 2026 nr. 1380), så den bærer også på den nye loven.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "NL/lov/2025-06-20-102 §61 ledd-2 (korpus): «Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.»",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/NL/lov/2025-06-20-102 § 61 (fire ledd; videreføringen er tredje ledd, opphevingen andre ledd; i kraft 1.7.2026 etter res. 20. juni 2025 nr. 1105)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "Lovdatas hjemmelsfelt i kortet: «Tilføyd hjemmel: … viltressursloven …», endret ved forskrift 26. juni 2026 nr. 1380",
+    "funksjon": "forutsatt_kilde"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "E02",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Forskrift gitt av Miljødirektoratet i medhold av viltloven §§ 9, 16, 26 og 50. § 61 viderefører den. Tilføyd hjemmel i viltressursloven § 44 (forskrift 2026 nr. 1380). Delegeringsvedtaket 1982 nr. 592 står som kompetanseledd og teller ikke når det finnes materielle hjemler, så det påvirker ikke utfallet. Merknad uten betydning for klassen: 1982-592 er selv en delegering etter viltloven og har samme svakhet som E09–E11, men den står som «aktiv» fordi raden bare speiler at vedtaket er gjeldende i korpus [slutning].",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "NL/lov/2025-06-20-102 §61 ledd-2 (korpus): «Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.»",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/NL/lov/2025-06-20-102 § 61 (fire ledd; videreføringen er tredje ledd, opphevingen andre ledd; i kraft 1.7.2026 etter res. 20. juni 2025 nr. 1105)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "Lovdatas hjemmelsfelt i kortet: «Tilføyd hjemmel: … viltressursloven …», endret ved forskrift 26. juni 2026 nr. 1380",
+    "funksjon": "forutsatt_kilde"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "E03",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Rovviltforskriften er gitt ved kgl.res. i medhold av viltloven og er en forskrift. § 61 viderefører den, og den har tilføyd hjemmel i viltressursloven (12 paragrafer) og naturmangfoldloven. Utfallet «ikke funn» er riktig.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "NL/lov/2025-06-20-102 §61 ledd-2 (korpus): «Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.»",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/NL/lov/2025-06-20-102 § 61 (fire ledd; videreføringen er tredje ledd, opphevingen andre ledd; i kraft 1.7.2026 etter res. 20. juni 2025 nr. 1105)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "Lovdatas hjemmelsfelt i kortet: «Tilføyd hjemmel: … viltressursloven …», endret ved forskrift 26. juni 2026 nr. 1380",
+    "funksjon": "forutsatt_kilde"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "E04",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Forskriften er gitt i medhold av viltloven §§ 26, 31 og 50 og lakse- og innlandsfiskloven § 22, med delegeringsvedtak 2007 nr. 474. Viltlovsdelen er en forskrift, og § 61 viderefører den. Tilføyd hjemmel i viltressursloven § 37. Hjemmelsteksten skriver «lov … om viltet» uten kortnavn, men koblingen går på ELI, ikke på ordformen, så det betyr ikke noe her.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "NL/lov/2025-06-20-102 §61 ledd-2 (korpus): «Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.»",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/NL/lov/2025-06-20-102 § 61 (fire ledd; videreføringen er tredje ledd, opphevingen andre ledd; i kraft 1.7.2026 etter res. 20. juni 2025 nr. 1105)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "Lovdatas hjemmelsfelt i kortet: «Tilføyd hjemmel: … viltressursloven …», endret ved forskrift 26. juni 2026 nr. 1380",
+    "funksjon": "forutsatt_kilde"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "E05",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Jakttidsforskriften er gitt i medhold av naturmangfoldloven §§ 15–16 og viltloven §§ 9, 24 og 44. § 61 viderefører viltlovsdelen. Tilføyd hjemmel i viltressursloven §§ 10, 11 og 25, og tabellen i § 2 viser allerede til viltressursloven § 34. Utfallet er riktig.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "NL/lov/2025-06-20-102 §61 ledd-2 (korpus): «Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.»",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/NL/lov/2025-06-20-102 § 61 (fire ledd; videreføringen er tredje ledd, opphevingen andre ledd; i kraft 1.7.2026 etter res. 20. juni 2025 nr. 1105)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "Lovdatas hjemmelsfelt i kortet: «Tilføyd hjemmel: … viltressursloven …», endret ved forskrift 26. juni 2026 nr. 1380",
+    "funksjon": "forutsatt_kilde"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "E06",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Hjorteviltforskriften er gitt av Miljødirektoratet i medhold av viltloven og er en forskrift. § 61 viderefører den. Tilføyd hjemmel i viltressursloven § 42.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "NL/lov/2025-06-20-102 §61 ledd-2 (korpus): «Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.»",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/NL/lov/2025-06-20-102 § 61 (fire ledd; videreføringen er tredje ledd, opphevingen andre ledd; i kraft 1.7.2026 etter res. 20. juni 2025 nr. 1105)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "Lovdatas hjemmelsfelt i kortet: «Tilføyd hjemmel: … viltressursloven …», endret ved forskrift 26. juni 2026 nr. 1380",
+    "funksjon": "forutsatt_kilde"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "E07",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Forskrift om fremmede organismer er gitt ved kgl.res. med hjemmel i blant annet viltloven § 7. Den er en forskrift, og § 61 viderefører viltlovsdelen. De andre hjemlene (naturmangfoldloven, Jan Mayen-loven) er aktive. Ingen tilføyd hjemmel i viltressursloven står i hjemmelsfeltet i kortet, men det endrer ikke utfallet: § 61 gjelder uten tidsfrist.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "NL/lov/2025-06-20-102 §61 ledd-2 (korpus): «Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.»",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/NL/lov/2025-06-20-102 § 61 (fire ledd; videreføringen er tredje ledd, opphevingen andre ledd; i kraft 1.7.2026 etter res. 20. juni 2025 nr. 1105)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "E08",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Funnet burde ha stått som blandede hjemler, slik det sto før PR 5. Viltloven er hjemmel bare for kap. III i resolusjonen: «Kongens myndighet» etter viltloven § 7 annet ledd til å endre hvem som har ansvaret for forvaltningen av områder med biotopvern, delegeres til departementet (Lovdata). Det er en delegering av myndighet, ikke en forskrift i fvl. § 2 første ledd bokstav c sin forstand. § 61 nevner bare «forskrifter», og regelen satte selv dekningen til dokumenttype_ikke_nevnt. At den likevel gir videreført, skyldes at H14-regelen bare slår inn når noe faller: her faller ingenting, så en videreføring som ikke dekker vedtakstypen bærer alene. Videre: når § 7 er opphevet, finnes det ingen myndighet etter § 7 å utøve, og regjeringen har laget nye delegeringer etter viltressursloven (2026 nr. 1153, 1378, 1550) [slutning]. Motargument: forskrift 19. desember 2013 nr. 1757 fører 1996-1008 opp under «forskrifter» (kap. I), ikke under «delegeringsvedtak» (kap. II). Det er en navneendringsliste, ikke en klassifisering, og kap. III er uansett en ren delegering.",
+  "retting": {
+   "status": "oppdaget",
+   "undertype": "blandede_hjemler"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "NL/lov/2025-06-20-102 §61 ledd-2 (korpus): «Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.»",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/DEL/forskrift/1996-10-25-1008 kap. III (hjemmel viltloven § 7 annet ledd; delegering av Kongens myndighet)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "LTI/forskrift/2013-12-19-1757 kap-I ledd-1 punkt-46 (korpus)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "DEL/forskrift/2026-06-19-1153, DEL/forskrift/2026-06-25-1378 og DEL/forskrift/2026-07-13-1550 (korpus): nye delegeringer av Kongens og departementets myndighet etter viltressursloven",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "src/RegelIde.Data/Hjemmelsstatus.cs BaererVurdert og HjemmelsstatusSamlet (faller.Count == 0 gir videreført uansett dekning); docs/33 §5.21 punkt 5",
+    "funksjon": "forutsatt_kilde"
+   }
+  ],
+  "klasse": "feil",
+  "feilarsak": "dekningen"
+ },
+ {
+  "id": "E09",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "hoy",
+  "innvending": "Funnet burde ha stått. Vedtaket 13. september 2002 nr. 995 er et delegeringsvedtak: Kongens myndighet etter viltloven § 39 (regler om jegerprøven) delegeres til departementet, og myndigheten til å oppheve jegerprøveforskriften 1985 nr. 2246. Det er ikke en forskrift, og § 61 viderefører bare «forskrifter». Regelen satte selv dekningen til dokumenttype_ikke_nevnt, men fordi ingen premiss «faller», gir samlet status videreført (H14-regelen slår bare inn når noe faller). Svaret blir det motsatte av det kildene viser: myndigheten etter viltloven § 39 finnes ikke etter 1. juli 2026, og regjeringen har gitt nye delegeringer etter viltressursloven (2026 nr. 1153 for Kongens myndighet, nr. 1378 og 1550 for departementets) [slutning: de nye delegeringene viser at de gamle ikke er ment å leve videre]. Overgangsforskriften 2026 nr. 1158 kap. I viderefører «forvaltningsvedtak … med varighet», som etter sammenhengen sikter til enkeltvedtak og tillatelser, ikke delegeringer [slutning]. Lovdata viser vedtaket som gjeldende, og det er nettopp det funnet skal peke på.",
+  "retting": {
+   "status": "oppdaget",
+   "undertype": "hjemmel_opphevet"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "NL/lov/2025-06-20-102 §61 ledd-2 (korpus): «Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.»",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/DEL/forskrift/2002-09-13-995 (gjeldende, ingen merknad om oppheving)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/NLO/lov/1981-05-29-38 § 39 (Kongen kan gi regler om jegerprøve)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "DEL/forskrift/2026-06-19-1153, DEL/forskrift/2026-06-25-1378 og DEL/forskrift/2026-07-13-1550 (korpus): nye delegeringer av Kongens og departementets myndighet etter viltressursloven",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "SF/forskrift/2026-06-22-1158 kap-I ledd-1 og ledd-2 (korpus): videreføring av «forvaltningsvedtak … med varighet» og vedtak etter viltloven §§ 37 og 38",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "src/RegelIde.Data/Hjemmelsstatus.cs BaererVurdert og HjemmelsstatusSamlet (faller.Count == 0 gir videreført uansett dekning); docs/33 §5.21 punkt 5",
+    "funksjon": "forutsatt_kilde"
+   }
+  ],
+  "klasse": "feil",
+  "feilarsak": "dekningen"
+ },
+ {
+  "id": "E10",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "hoy",
+  "innvending": "Funnet burde ha stått. Vedtaket 19. september 2002 nr. 1915 er et delegeringsvedtak: departementet delegerer myndigheten etter viltloven § 39 videre til direktoratet, jf. 2002 nr. 995. Det er ikke en forskrift, og § 61 viderefører bare «forskrifter». Regelen satte selv dekningen til dokumenttype_ikke_nevnt, men fordi ingen premiss «faller», gir samlet status videreført (H14-regelen slår bare inn når noe faller). Svaret blir det motsatte av det kildene viser: myndigheten etter viltloven § 39 finnes ikke etter 1. juli 2026, og regjeringen har gitt nye delegeringer etter viltressursloven (2026 nr. 1153 for Kongens myndighet, nr. 1378 og 1550 for departementets) [slutning: de nye delegeringene viser at de gamle ikke er ment å leve videre]. Overgangsforskriften 2026 nr. 1158 kap. I viderefører «forvaltningsvedtak … med varighet», som etter sammenhengen sikter til enkeltvedtak og tillatelser, ikke delegeringer [slutning]. Lovdata viser vedtaket som gjeldende, og det er nettopp det funnet skal peke på.",
+  "retting": {
+   "status": "oppdaget",
+   "undertype": "hjemmel_opphevet"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "NL/lov/2025-06-20-102 §61 ledd-2 (korpus): «Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.»",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/DEL/forskrift/2002-09-19-1915 (gjeldende, ingen merknad om oppheving)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/NLO/lov/1981-05-29-38 § 39 (Kongen kan gi regler om jegerprøve)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "DEL/forskrift/2026-06-19-1153, DEL/forskrift/2026-06-25-1378 og DEL/forskrift/2026-07-13-1550 (korpus): nye delegeringer av Kongens og departementets myndighet etter viltressursloven",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "SF/forskrift/2026-06-22-1158 kap-I ledd-1 og ledd-2 (korpus): videreføring av «forvaltningsvedtak … med varighet» og vedtak etter viltloven §§ 37 og 38",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "src/RegelIde.Data/Hjemmelsstatus.cs BaererVurdert og HjemmelsstatusSamlet (faller.Count == 0 gir videreført uansett dekning); docs/33 §5.21 punkt 5",
+    "funksjon": "forutsatt_kilde"
+   }
+  ],
+  "klasse": "feil",
+  "feilarsak": "dekningen"
+ },
+ {
+  "id": "E11",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "hoy",
+  "innvending": "Som E09. Vedtaket 1. juli 1994 nr. 4322 delegerer myndighet etter viltloven § 7 annet ledd til direktoratet. Det er en delegering, ikke en forskrift, og § 61 dekker den ikke etter ordlyden (dekningen er dokumenttype_ikke_nevnt). Delegeringsvedtaket 2013 nr. 283 står som kompetanseledd og teller ikke som premiss. Myndigheten etter § 7 finnes ikke etter 1. juli 2026, og de nye delegeringene etter viltressursloven (2026 nr. 1153, 1550) erstatter den [slutning]. Funnet «hjemmel opphevet» burde ha stått.",
+  "retting": {
+   "status": "oppdaget",
+   "undertype": "hjemmel_opphevet"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "NL/lov/2025-06-20-102 §61 ledd-2 (korpus): «Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.»",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "LTI/forskrift/2013-12-19-1757 kap-II ledd-1 punkt-34 (korpus; vedtaket står under «delegeringsvedtak»)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "DEL/forskrift/2026-06-19-1153, DEL/forskrift/2026-06-25-1378 og DEL/forskrift/2026-07-13-1550 (korpus): nye delegeringer av Kongens og departementets myndighet etter viltressursloven",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "src/RegelIde.Data/Hjemmelsstatus.cs BaererVurdert og HjemmelsstatusSamlet (faller.Count == 0 gir videreført uansett dekning); docs/33 §5.21 punkt 5",
+    "funksjon": "forutsatt_kilde"
+   }
+  ],
+  "klasse": "feil",
+  "feilarsak": "dekningen"
+ },
+ {
+  "id": "E12",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Statusen videreført er feil, selv om utfallet (ingen funn) er ufarlig. Vedtaket er en ren endringsforskrift til forskrift 24. oktober 1984 nr. 1879 (minsteareal for hjorteviltjakt, viltloven § 38). Den forskriften er opphevet fra 1. juli 2026 ved overgangsforskriften 2026 nr. 1158 kap. II (punkt-2), samme dag som viltloven falt. En endringsforskrift har ikke noe eget innhold etter at den er innarbeidet; den generelle videreføringen i § 61 kan ikke holde liv i endringer til en forskrift som er særskilt opphevet [slutning]. Regelen leser altså en generell videreføring og overser en særskilt oppheving i en kilde i korpus. Etter måling 2 (M08, M09) teller et rent endringsvedtak med opphevet hjemmel som riktig (#446); funnet burde derfor ha stått, merket #446. Når #446 klassifiserer vedtaket som rent endringsvedtak, faller det ut av riktig grunn.",
+  "retting": {
+   "status": "oppdaget",
+   "undertype": "hjemmel_opphevet"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "SF/forskrift/2026-06-22-1158 kap-II ledd-1 punkt-2 og kap-III (korpus; i kraft 1. juli 2026)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "LTI/forskrift/2009-12-22-1775 kap-I ledd-1 (korpus)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "NL/lov/2025-06-20-102 §61 ledd-2 (korpus): «Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.»",
+    "funksjon": "direkte_hjemmel"
+   }
+  ],
+  "klasse": "feil",
+  "feilarsak": "annet"
+ },
+ {
+  "id": "E13",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Statusen videreført er feil, selv om utfallet (ingen funn) er ufarlig. Vedtaket er en ren endringsforskrift til forskrift 24. oktober 1984 nr. 1878 (felles viltområde, viltloven § 37). Den forskriften er opphevet fra 1. juli 2026 ved overgangsforskriften 2026 nr. 1158 kap. II (punkt-1), samme dag som viltloven falt. En endringsforskrift har ikke noe eget innhold etter at den er innarbeidet; den generelle videreføringen i § 61 kan ikke holde liv i endringer til en forskrift som er særskilt opphevet [slutning]. Regelen leser altså en generell videreføring og overser en særskilt oppheving i en kilde i korpus. Etter måling 2 (M08, M09) teller et rent endringsvedtak med opphevet hjemmel som riktig (#446); funnet burde derfor ha stått, merket #446. Når #446 klassifiserer vedtaket som rent endringsvedtak, faller det ut av riktig grunn.",
+  "retting": {
+   "status": "oppdaget",
+   "undertype": "hjemmel_opphevet"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "SF/forskrift/2026-06-22-1158 kap-II ledd-1 punkt-1 og kap-III (korpus; i kraft 1. juli 2026)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "LTI/forskrift/2011-03-01-206 kap-I ledd-1 (korpus)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "NL/lov/2025-06-20-102 §61 ledd-2 (korpus): «Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.»",
+    "funksjon": "direkte_hjemmel"
+   }
+  ],
+  "klasse": "feil",
+  "feilarsak": "annet"
+ },
+ {
+  "id": "E14",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Forskriften er gitt av direktoratet i medhold av viltloven §§ 48a, 49 og 49a og forskrift 2004 nr. 913 §§ 8 og 16. § 61 viderefører viltlovsdelen, og 2004-913 er erstattet av 2020 nr. 565 (kompetanseledd, teller ikke). Lovdata viser forskriften uten oppheving. Merknad: fristen for registrering og merking var 31. desember 2007, så forskriften har langt på vei uttømt virkningen [slutning], men den er ikke et rent endringsvedtak.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "NL/lov/2025-06-20-102 §61 ledd-2 (korpus): «Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.»",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/NL/lov/2025-06-20-102 § 61 (fire ledd; videreføringen er tredje ledd, opphevingen andre ledd; i kraft 1.7.2026 etter res. 20. juni 2025 nr. 1105)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/SF/forskrift/2005-03-21-247",
+    "funksjon": "forutsatt_kilde"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "E15",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Funnet burde ha stått som uavklart, slik det sto før PR 5. Kgl.res. 15. mars 2013 overfører delegert myndighet etter flere lover til Miljødirektoratet. Viltlovsdelen er en delegering, ikke en forskrift, og § 61 dekker den ikke (dekningen er dokumenttype_ikke_nevnt). De andre lovene er aktive, men alle radene har rolle NULL, så ingen premiss er vurdert. Etter H14-regelen gir det uavklart når noe faller. Her faller ingenting fordi viltloven regnes som videreført, og da blir samlet status videreført. Viltlovsdelen er i realiteten avløst av departementets nye delegering til Miljødirektoratet etter viltressursloven (2026 nr. 1550) [slutning]. Feilen gjelder bare en del av vedtaket, derfor middels.",
+  "retting": {
+   "status": "oppdaget",
+   "undertype": "uavklart"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "NL/lov/2025-06-20-102 §61 ledd-2 (korpus): «Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.»",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "DEL/forskrift/2026-06-19-1153, DEL/forskrift/2026-06-25-1378 og DEL/forskrift/2026-07-13-1550 (korpus): nye delegeringer av Kongens og departementets myndighet etter viltressursloven",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "src/RegelIde.Data/Hjemmelsstatus.cs BaererVurdert og HjemmelsstatusSamlet (faller.Count == 0 gir videreført uansett dekning); docs/33 §5.21 punkt 5",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "Lovdatas hjemmelsfelt i kortet: endret ved forskrift 22. mai 2026 nr. 870 (delegering etter oreigningslova opphevet); viltlovsdelen ikke rørt",
+    "funksjon": "forutsatt_kilde"
+   }
+  ],
+  "klasse": "feil",
+  "feilarsak": "dekningen"
+ },
+ {
+  "id": "K01",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "hoy",
+  "innvending": "Funnet holder ikke. Vedtaket er selv opphevet i en kilde i korpus: LTI/forskrift/2021-11-14-3414 kap. I: «Delegering 16. april 2018 nr. 852 av myndighet til Kirkerådet … oppheves.» (i kraft straks). Opphevingssetningen begynner med «Delegering <dato> nr. … av», som er en av de kjente R8-hullene (docs/33 §5.21). Funnet skulle vært forklart bort fordi forskriften er opphevet. I tillegg har regelen oversett en videreføring som bruker kortnavnet: Kirkeordning for Den norske kirke (SF/forskrift/2019-03-30-2307) § 44: «Forskrifter og andre bestemmelser gitt av Kirkemøtet eller annet kirkelig organ i medhold av kirkeloven gjelder også etter at kirkeordningen har trådt i kraft.» Vedtaket er gitt av Kirkemøtet etter kirkeloven § 6 og § 23, og «andre bestemmelser» dekker det. «Kirkeloven» er entydig i korpus. Regelen finner den ikke av to grunner: V2a søker bare i lover og i forskrifter med «overgang» i tittelen, og V2a godtar ikke kortnavnet (bare dato og nummer). Begge deler betyr at videreføringen ville vært funnet bare om begge hull var tettet. Hovedfeilen er likevel populasjonen: vedtaket er opphevet.",
+  "retting": {
+   "status": "forklart_bort"
+  },
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "LTI/forskrift/2021-11-14-3414 kap-I ledd-1, kap-II ledd-1 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "SF/forskrift/2019-03-30-2307 §44 ledd-1 og §45 (korpus; i kraft 1. januar 2021)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "NL/lov/2020-04-24-31 §23, §24 ledd-4 (korpus; ingen videreføring i loven)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "src/RegelIde.Data/HjemmelsstatusRegel.cs linje 310–322 (V2a-kandidater) og Hjemmelstekstlesing.Videreforinger (V2a bruker VidereforingV2 med dato og nummer)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ],
+  "klasse": "feil",
+  "feilarsak": "populasjonen"
+ },
+ {
+  "id": "K02",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Skatteforvaltningsloven § 16-1 andre ledd opphever ligningsloven. § 16-2 har overgangsregler bare for endringsfrister og tilleggsskatt, og en hjemmel for overgangsforskrift. De tre stedene der loven bruker kortnavnet «ligningsloven» (§ 2-10, § 16-1, § 16-2), er ikke videreføringer. Søk i korpus på «ligningsloven» og «1980 nr. 24» sammen med et videreføringsord gir ingen videreføring av vedtak eller forskrifter. Vedtaket 9. desember 1997 nr. 1264 er ikke nevnt i noen annen kilde i korpus, og Lovdata viser det uten oppheving. Kgl.res. 1989 nr. 74 er kompetanseledd og teller ikke. Riktig undertype.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "NL/lov/2016-05-27-14 §16-1, §16-2 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/DEL/forskrift/1997-12-09-1264",
+    "funksjon": "forutsatt_kilde"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "K03",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Samme opphevende lov som K02, uten videreføring. Vedtaket 5. desember 2007 nr. 1356 er nevnt i korpus bare i endringsvedtaket 2009 nr. 1522, som ikke opphever det. Lovdata viser det uten oppheving. Dokumentasjonsplikten er videreført i skatteforvaltningsloven, men det er en ny hjemmel, ikke en videreføring av delegeringen.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "NL/lov/2016-05-27-14 §16-1, §16-2 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "LTI/forskrift/2009-12-15-1522 kap-I ledd-1 (korpus)",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/DEL/forskrift/2007-12-05-1356",
+    "funksjon": "forutsatt_kilde"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "K04",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Lov 13. desember 2019 nr. 83 opphever omstillingslova (§ 1) og har bare en regel om meldinger under behandling (§ 2). Ingen kilde i korpus nevner kortnavnet eller loven med et videreføringsord. Lovdata viser vedtaket uten oppheving. Liten merknad: kortnavnet er lest som «omstillingsloven», mens tittelen har nynorsk «omstillingslova». Kortnavnformer prøver begge, så det har ingen virkning.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "NL/lov/2019-12-13-83 §1–§3 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/DEL/forskrift/2008-06-06-543",
+    "funksjon": "forutsatt_kilde"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "K05",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder, som M01 i måling 2. Sentralbankloven 2019 § 6-1 har bare en hjemmel for overgangsbestemmelser, og § 6-2 nr. 1 opphever loven fra 1985. Kortnavnet «sentralbankloven» brukes om begge lovene, så regelen gir riktig nok ikke svar. Et søk i hele korpuset på «sentralbankloven» sammen med et videreføringsord gir bare SF/forskrift/2020-01-16-53 § 7, som ikke er en videreføring. Regelen har ikke oversett noe.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "NL/lov/2019-06-21-31 §6-1, §6-2 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "data/fasit/strukturmodell/juristrunde-472/maling-2/a/utfordringer.json M01",
+    "funksjon": "forutsatt_kilde"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "K06",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Funnet er svakt, som i måling 2: forskriften har fått tilføyd hjemmel i sentralbankloven 2019 § 3-6, men raden har rolle NULL fordi hjemmelsfeltet skriver «Lov 21 juni 2019» uten punktum. Det gir uavklart der det etter innholdet skulle vært blandede hjemler. Påstanden sier at de andre hjemlene ikke er vurdert, og det er sant. Ingen videreføring med kortnavnet finnes (se K05).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "NL/lov/2019-06-21-31 §6-1, §6-2 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "data/fasit/strukturmodell/juristrunde-472/maling-2/sammendrag.md (M17, rolle NULL ved dato uten punktum)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "K07",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder, som M07 i måling 2. Revisorloven 2020 § 16-2 har overgangsregler bare for godkjenninger og etterutdanning, og en hjemmel for overgangsregler. Kortnavnet brukes om begge lovene. Det eneste stedet den nye loven bruker «revisorloven», er § 1-2 (virkeområde), som ikke er en videreføring. Søk i korpus på kortnavnet og «1999 nr. 2» gir ingen videreføring.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "NL/lov/2020-11-20-128 §16-1, §16-2 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/forskrift/1999-06-25-706 (måling 2, M07)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "K08",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Statistikkloven 2019 § 22 første ledd opphever loven fra 1989, og andre ledd gir bare en hjemmel for overgangsbestemmelser. Kortnavnet brukes om begge lovene. Det eneste treffet på «statistikkloven» med et videreføringsord i korpus er trossamfunnsloven § 4 femte ledd, som ikke er en videreføring. Lovdata viser vedtaket uten oppheving. Kgl.res. 1989 nr. 387 (jf.-henvisningen) har ingen rad, men ville vært kompetanseledd og telt ikke.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "NL/lov/2019-06-21-32 §22 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/DEL/forskrift/1990-02-13-1228",
+    "funksjon": "forutsatt_kilde"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ }
+]
