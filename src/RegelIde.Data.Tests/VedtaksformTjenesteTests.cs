@@ -71,7 +71,10 @@ public class VedtaksformTjenesteTests(EmbeddedPostgresFixture fixture)
         Assert.Equal(Vedtaksform.Regelversjon, lagret.VedtaksformRegelversjon);
         Assert.Equal(Vedtaksform.IkraftJa, lagret.IkraftStatus);
         Assert.Contains(ikraftsetting.DokumentId!, lagret.IkraftStatusGrunnlag);
-        Assert.Null(lagret.RentEndringsvedtak); // PR 1 skriver ikke markøren
+        // [ENDRET, #446 PR 2] Markøren er avledet: ren form og i kraft → uttømt virkning.
+        Assert.True(lagret.RentEndringsvedtak);
+        Assert.Contains("vedtaksform rent_endringsvedtak, ikraftstatus ja", lagret.RentEndringsvedtakGrunnlag);
+        Assert.Contains(lov.Id, await Sveipeutvalg.StandardUtelattAsync(db));
 
         var roller = await db.RettskildeNoder.AsNoTracking().Where(x => x.RettskildeId == lov.Id).ToDictionaryAsync(x => x.KildeId, x => x.Endringsrolle);
         Assert.Equal(Vedtaksform.RolleEndringsinstruks, roller["kapittel-1-ledd-1"]);

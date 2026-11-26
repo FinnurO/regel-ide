@@ -16,7 +16,7 @@ public sealed record VedtaksformRapport(
     IReadOnlyDictionary<string, IReadOnlyDictionary<string, int>> PerPrefiks, IReadOnlyDictionary<string, int> PerIkraftStatus,
     IReadOnlyDictionary<string, int> ReneEtterIkraftStatus, int IkraftFulgtIKorpus, IReadOnlyDictionary<string, int> Overgang,
     IReadOnlyDictionary<string, int> UttomtVirkning, IReadOnlyDictionary<string, int> NoderPerRolle, int KilderEndret, int NoderEndret,
-    IReadOnlyList<VedtaksformRad> Rader);
+    IReadOnlyList<VedtaksformRad> Rader, IReadOnlyDictionary<string, int>? MarkorEndring = null, int ReneMedMalUtenforKorpus = 0);
 
 /// <summary>
 /// [Ny, issue #446 PR 1, prosjekteierens avgjørelse 2026-11-25] Setter vedtaksformen (<see cref="RettskildeEntitet.Vedtaksform"/>), ikraftstatusen
@@ -28,8 +28,10 @@ public sealed record VedtaksformRapport(
 /// som setter HELE loven i kraft på en passert dato (<see cref="Vedtaksform.HelIkraftsetting"/>). Ellers står den som ukjent — ingen gjetting.
 /// </para>
 /// <para>
-/// <b>PR 1 skriver ikke <c>rent_endringsvedtak</c>.</b> Rapporten viser hva den avledede verdien (<see cref="Vedtaksform.UttomtVirkning"/>) ville
-/// blitt; koblingen til #472, #429 og sveipeutvalget er PR 2. Idempotent: en ny kjøring endrer ingenting. Tørrkjøring er standard.
+/// [ENDRET, #446 PR 2, prosjekteierens avgjørelse 2026-11-25 (C, D)] <b>Skriver også <c>rent_endringsvedtak</c></b>, avledet som «uttømt virkning»
+/// (<see cref="Vedtaksform.UttomtVirkning"/>), med grunnlaget i <c>rent_endringsvedtak_grunnlag</c>. <see cref="DisposisjonstypeTjeneste"/> skriver
+/// den ikke lenger. <see cref="VedtaksformRapport.MarkorEndring"/> teller overgangene «før → etter». Idempotent: en ny kjøring endrer ingenting.
+/// Tørrkjøring er standard.
 /// </para>
 /// </summary>
 public sealed partial class VedtaksformTjeneste(RegelIdeDbContext db)
@@ -48,7 +50,7 @@ public sealed partial class VedtaksformTjeneste(RegelIdeDbContext db)
             .Where(r => rettskildeId == null || r.Id == rettskildeId)
             .Select(r => new
             {
-                r.Id, r.DokumentId, r.Tittel, r.IkrafttredelseRaa, r.Ikrafttredelse, r.RentEndringsvedtak,
+                r.Id, r.DokumentId, r.Tittel, r.IkrafttredelseRaa, r.Ikrafttredelse, r.RentEndringsvedtak, r.RentEndringsvedtakGrunnlag,
                 r.Vedtaksform, r.VedtaksformGrunnlag, r.VedtaksformKunnskapsstatus, r.VedtaksformRegelversjon, r.IkraftStatus, r.IkraftStatusGrunnlag,
             })
             .ToListAsync(ct);
@@ -133,6 +135,8 @@ public sealed partial class VedtaksformTjeneste(RegelIdeDbContext db)
         var uttomt = new Dictionary<string, int> { ["true"] = 0, ["false"] = 0, ["null"] = 0 };
         var noderPerRolle = Vedtaksform.LagredeRoller.ToDictionary(r => r, _ => 0);
         var rader = new List<VedtaksformRad>();
+        var markorEndring = new SortedDictionary<string, int>(StringComparer.Ordinal);
+        var malUtenfor = await MalUtenforKorpusAsync(db, kilder.Where(k => Vedtaksform.Rene.Contains(resultat[k.Id].Klasse)).Select(k => k.Id).ToList(), ct);
         int kilderEndret = 0, noderEndret = 0;
         foreach (var k in kilder)
         {
@@ -156,8 +160,13 @@ public sealed partial class VedtaksformTjeneste(RegelIdeDbContext db)
                     medEnheter ? r.Enheter : null));
             }
 
+            var markorGrunnlag = MarkorGrunnlag(r.Klasse, status, u);
+            var markorFor = k.RentEndringsvedtak switch { true => "true", false => "false", null => "NULL" };
+            var markorEtter = u switch { true => "true", false => "false", null => "NULL" };
+            if (markorFor != markorEtter) markorEndring[$"{markorFor} → {markorEtter}"] = markorEndring.GetValueOrDefault($"{markorFor} → {markorEtter}") + 1;
             var endret = k.Vedtaksform != r.Klasse || k.VedtaksformGrunnlag != r.Grunnlag || k.VedtaksformKunnskapsstatus != r.Kunnskapsstatus
-                         || k.VedtaksformRegelversjon != Vedtaksform.Regelversjon || k.IkraftStatus != status || k.IkraftStatusGrunnlag != ikraftGrunnlag;
+                         || k.VedtaksformRegelversjon != Vedtaksform.Regelversjon || k.IkraftStatus != status || k.IkraftStatusGrunnlag != ikraftGrunnlag
+                         || k.RentEndringsvedtak != u || k.RentEndringsvedtakGrunnlag != markorGrunnlag;
             if (endret) kilderEndret++;
             if (!skriv) continue;
             if (endret)
@@ -168,14 +177,37 @@ public sealed partial class VedtaksformTjeneste(RegelIdeDbContext db)
                     .SetProperty(x => x.VedtaksformKunnskapsstatus, r.Kunnskapsstatus)
                     .SetProperty(x => x.VedtaksformRegelversjon, Vedtaksform.Regelversjon)
                     .SetProperty(x => x.IkraftStatus, status)
-                    .SetProperty(x => x.IkraftStatusGrunnlag, ikraftGrunnlag), ct);
+                    .SetProperty(x => x.IkraftStatusGrunnlag, ikraftGrunnlag)
+                    .SetProperty(x => x.RentEndringsvedtak, u)
+                    .SetProperty(x => x.RentEndringsvedtakGrunnlag, markorGrunnlag), ct);
             }
             noderEndret += await SkrivNoderollerAsync(k.Id, roller, ct);
         }
 
         return new VedtaksformRapport(skriv, Vedtaksform.Regelversjon, kilder.Count, perKlasse,
             perPrefiks.ToDictionary(p => p.Key, p => (IReadOnlyDictionary<string, int>)p.Value), perIkraft, reneIkraftStatus, fulgt, overgang, uttomt,
-            noderPerRolle, kilderEndret, noderEndret, rader);
+            noderPerRolle, kilderEndret, noderEndret, rader, markorEndring, malUtenfor.Count);
+    }
+
+    /// <summary>[Ny, #446 PR 2] Grunnlaget for <c>rent_endringsvedtak</c> («uttømt virkning»), lesbart for et menneske.</summary>
+    public static string MarkorGrunnlag(string klasse, string ikraftStatus, bool? uttomt) =>
+        $"Uttømt virkning (#446, {Vedtaksform.Regelversjon}): vedtaksform {klasse}, ikraftstatus {ikraftStatus} → "
+        + (uttomt switch { true => "true", false => "false", null => "ikke avgjort (NULL)" }) + ".";
+
+    /// <summary>[Ny, #446 PR 2, AK 7, juristrunden D14] Målene i Lovdatas «Endrer» (changesToDocuments) som ikke er en gjeldende primærkilde i korpus,
+    /// per rettskilde (ELI-ene). Et rent vedtak med slike mål utelates ikke stille av #472 og #429: funnet står med premissmangelen
+    /// <see cref="FunnTjeneste.MalUtenforKorpusMangelStart"/>, fordi teksten i målet ikke kan kontrolleres.</summary>
+    public static async Task<Dictionary<Guid, List<string>>> MalUtenforKorpusAsync(RegelIdeDbContext db, IReadOnlyCollection<Guid> rettskildeIder,
+        CancellationToken ct = default)
+    {
+        if (rettskildeIder.Count == 0) return [];
+        var rader = await db.RettskildeEndringer.AsNoTracking().Where(e => rettskildeIder.Contains(e.RettskildeId))
+            .Join(db.Rettskilder.IgnoreQueryFilters(), e => e.EndringRettskildeId, m => m.Id,
+                (e, m) => new { e.RettskildeId, e.EndringEid, m.Importrolle, m.Entitetsstatus })
+            .ToListAsync(ct);
+        return rader.Where(x => !(x.Importrolle == "primaer" && x.Entitetsstatus == "gjeldende"))
+            .GroupBy(x => x.RettskildeId)
+            .ToDictionary(g => g.Key, g => g.Select(x => x.EndringEid).Distinct(StringComparer.Ordinal).OrderBy(x => x, StringComparer.Ordinal).ToList());
     }
 
     /// <summary>Rollene per node, nøkkel = Lovdatas id slik noden har den (<c>kilde_id</c>). Et punkt i en liste har id-en til listeelementet

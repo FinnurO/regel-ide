@@ -250,7 +250,11 @@ public sealed record UtgattAktorRapport(
     int HoldtTilbakeMenGjenapnet = 0,
     int R8OverstyrtAvAvvistKildefeil = 0,
     int KjedeForgrenet = 0,
-    int EtterfolgerkanterKoblet = 0);
+    int EtterfolgerkanterKoblet = 0,
+    int NodetreffSitertEndringstekst = 0,
+    int NodetreffRentMenMalUtenforKorpus = 0,
+    int ForklaresBortUttomtVirkning = 0,
+    int ForklartBortUttomtVirkningSatt = 0);
 
 /// <summary>
 /// [Ny, #429 PR 2, Johanns avgjørelser 2026-10-30 og 2026-10-31] <b>Maskinregelen for funn om utgåtte aktører</b>
@@ -407,7 +411,7 @@ public sealed class UtgattAktorFunnregel(RegelIdeDbContext db, FunnTjeneste funn
         // ---- 3. Tekstforekomstene, én spørring per navn (50 i den delte basen 2026-10-31) ----
         // Én spørring per TERM, ikke per navneform: samme term kan være navneform flere ganger (for samme aktør, eller for to aktører når
         // den er tvetydig). Da telles forekomsten én gang, og funnet peker på alle navneformene med den termen.
-        var treff = new List<(Guid Rk, Guid NodeId, string Eid, int Rekkefolge, Guid? Forelder, string Tekst, string Term, IReadOnlyList<Guid> BegrepIder, Guid Vid, string Quote)>();
+        var treff = new List<(Guid Rk, Guid NodeId, string Eid, int Rekkefolge, Guid? Forelder, string Tekst, string Term, IReadOnlyList<Guid> BegrepIder, Guid Vid, string Quote, string? Rolle)>();
         foreach (var nf in sokes.GroupBy(b => b.Term, StringComparer.Ordinal))
         {
             var term = nf.Key;
@@ -416,19 +420,19 @@ public sealed class UtgattAktorFunnregel(RegelIdeDbContext db, FunnTjeneste funn
             var noder = await db.RettskildeNoder.AsNoTracking()
                 .Where(n => n.Entitetsstatus == "gjeldende" && !n.Opphevet && !n.ErMerknad && Bladnoder.Contains(n.NodeType)
                             && n.Tekst != null && n.Tekst.Contains(term) && rkQuery.Any(r => r.Id == n.RettskildeId))
-                .Select(n => new { n.Id, n.RettskildeId, n.Eid, n.Sorteringsrekkefolge, n.ParentNodeId, n.Tekst })
+                .Select(n => new { n.Id, n.RettskildeId, n.Eid, n.Sorteringsrekkefolge, n.ParentNodeId, n.Tekst, n.Endringsrolle })
                 .ToListAsync(ct);
             var rx = Ordregex(term);
             foreach (var n in noder)
             {
                 var m = rx.Match(n.Tekst!);
-                if (m.Success) treff.Add((n.RettskildeId, n.Id, n.Eid, n.Sorteringsrekkefolge, n.ParentNodeId, n.Tekst!, term, begrepIder, vid, m.Value));
+                if (m.Success) treff.Add((n.RettskildeId, n.Id, n.Eid, n.Sorteringsrekkefolge, n.ParentNodeId, n.Tekst!, term, begrepIder, vid, m.Value, n.Endringsrolle));
             }
         }
 
         var rkIder = treff.Select(x => x.Rk).Distinct().ToList();
         var rettskilder = await db.Rettskilder.AsNoTracking().Where(r => rkIder.Contains(r.Id))
-            .Select(r => new { r.Id, r.Eli, r.DokumentId, r.Tittel, r.Kortnavn, r.RentEndringsvedtak, r.AnsvarligDepartement })
+            .Select(r => new { r.Id, r.Eli, r.DokumentId, r.Tittel, r.Kortnavn, r.RentEndringsvedtak, r.AnsvarligDepartement, r.IkraftStatus })
             .ToDictionaryAsync(r => r.Id, ct);
         var livslopstyper = Disposisjonstyper.Livslopstyper.ToList();
         var organisering = (await db.RettskildeDisposisjonstyper.AsNoTracking()
@@ -507,14 +511,35 @@ public sealed class UtgattAktorFunnregel(RegelIdeDbContext db, FunnTjeneste funn
             .Concat(Gruppe(vid) == GruppeA ? [Navn(vid)] : []).Where(n => n != "ukjent aktør").Distinct(StringComparer.OrdinalIgnoreCase).ToList();
 
         // ---- 5. Klassifisering per forekomst ----
-        int nOrg = 0, nRent = 0, nTvetydig = 0, nUtenEli = 0;
+        int nOrg = 0, nRent = 0, nTvetydig = 0, nUtenEli = 0, nSitert = 0, nRentMalUtenfor = 0;
+        // [Ny, #446 PR 2, AK 7] Et rent vedtak der et mål i «Endrer» ikke er i korpus, utelates ikke stille (premissmangel i FunnTjeneste).
+        var malUtenforKorpus = await VedtaksformTjeneste.MalUtenforKorpusAsync(db,
+            rettskilder.Values.Where(r => r.RentEndringsvedtak == true).Select(r => r.Id).ToList(), ct);
+        // [Ny, #446 PR 2] Parene som utelates fordi kilden har uttømt virkning, eller fordi alle forekomstene er sitert endringstekst. Lagrede
+        // funn for dem forklares bort maskinelt under (de blir aldri kandidater).
+        var uttomtPar = new Dictionary<(Guid Rk, Guid Vid), string>();
         var tvetydigePar = new HashSet<(Guid, string)>();
         var kandidater = new List<Nodetreff>();
         foreach (var x in treff)
         {
             var rk = rettskilder[x.Rk];
             if (organisering.Contains(x.Rk)) { nOrg++; continue; }
-            if (rk.RentEndringsvedtak == true) { nRent++; continue; }
+            if (rk.RentEndringsvedtak == true && !malUtenforKorpus.ContainsKey(x.Rk))
+            {
+                nRent++;
+                uttomtPar.TryAdd((x.Rk, x.Vid), "kilden har uttømt virkning (#446: ren vedtaksform og i kraft)");
+                continue;
+            }
+            if (rk.RentEndringsvedtak == true) nRentMalUtenfor++;
+            // [Ny, #446 PR 2, prosjekteierens avgjørelse 2026-11-25 (A)] Sitert endringstekst og endringsinstrukser er historiske når kilden er i
+            // kraft: navnet står i målvedtaket, ikke i endringsvedtaket. Gjelder også blandede og selvstendige kilder (juristrunden D10).
+            if (x.Rolle is Vedtaksform.RolleSitertTekst or Vedtaksform.RolleEndringsinstruks
+                && rk.IkraftStatus is Vedtaksform.IkraftJa or Vedtaksform.IkraftUtlopt)
+            {
+                nSitert++;
+                uttomtPar.TryAdd((x.Rk, x.Vid), "alle forekomstene står i sitert endringstekst i en kilde som er i kraft (#446)");
+                continue;
+            }
             if (tvetydige.Contains(x.Term)) { nTvetydig++; tvetydigePar.Add((x.Rk, x.Term)); continue; }
             if (rk.Eli is null) { nUtenEli++; continue; }
             var forelder = x.Forelder is { } fid ? forelderTekst.GetValueOrDefault(fid) : null;
@@ -604,6 +629,23 @@ public sealed class UtgattAktorFunnregel(RegelIdeDbContext db, FunnTjeneste funn
         int avgiverformel = 0, avgiverMinstEn = 0, gjenapnetHoldtTilbake = 0, kjedeForgrenet = 0, kanterKoblet = 0;
         var kildefeilIder = new Dictionary<Guid, Guid>();
         var rader = new List<UtgattAktorRad>();
+
+        // [Ny, #446 PR 2] Lagrede funn (oppdaget, ikke gjenåpnet) for par som nå utelates fordi kilden har uttømt virkning eller forekomstene er
+        // sitert endringstekst, og som ikke lenger er kandidater: forklares bort maskinelt, slettes ikke. Et funn et menneske har vurdert eller
+        // gjenåpnet, røres ikke.
+        var kandidatPar = par.Select(p => p.Key).ToHashSet();
+        int forklaresBortUttomt = 0, forklartBortUttomtSatt = 0;
+        foreach (var ((rkId, vid), grunn) in uttomtPar.Where(p => !kandidatPar.Contains(p.Key)))
+        {
+            var rkU = rettskilder[rkId];
+            if (rkU.Eli is null || !nokler.TryGetValue(Nokkel(rkU.Eli, vid), out var lagret)) continue;
+            if (lagret.Status != Funn.Oppdaget || lagret.GjenapnetTidspunkt is not null) continue;
+            forklaresBortUttomt++;
+            if (!skriv) continue;
+            var begrunnelse = $"Forklart bort av maskinregelen {OppdagelsesKilde} (#446 PR 2, prosjekteierens avgjørelse 2026-11-25): {grunn}. "
+                + $"«{rkU.Kortnavn ?? rkU.Tittel}» ({Dokumentreferanse(rkU.DokumentId) ?? EliKort(rkU.Eli)}).";
+            if (await funnTjeneste.ForklarBortMaskineltAsync(lagret.Id, begrunnelse, OppdagelsesKilde, bruker, ct)) forklartBortUttomtSatt++;
+        }
 
         foreach (var (key, forekomster) in par)
         {
@@ -751,7 +793,8 @@ public sealed class UtgattAktorFunnregel(RegelIdeDbContext db, FunnTjeneste funn
             foreslatt + ikkeForeslatt, ikkeForeslatt, ikkeForeslattPerRegel, noderPerRegel, foreslatt, foreslattPerGruppe, ikkeForeslattPerGruppe,
             iEndring, medMal, nye, finnes, finnesForklartBort, medRader ? rader : null,
             perGruppe, perRegel, opphevetAvAnnen.Count, kildefeilNye, forklaresBort, forklartBortSatt, vurdertIkkeRort, premissmangel, malOpphevet,
-            oppfriskes, oppfrisket, avgiverformel, avgiverMinstEn, gjenapnetHoldtTilbake, r8Overstyrt, kjedeForgrenet, kanterKoblet);
+            oppfriskes, oppfrisket, avgiverformel, avgiverMinstEn, gjenapnetHoldtTilbake, r8Overstyrt, kjedeForgrenet, kanterKoblet,
+            nSitert, nRentMalUtenfor, forklaresBortUttomt, forklartBortUttomtSatt);
     }
 
     /// <summary>«LTI/forskrift/2002-03-13-266» → «forskrift/2002-03-13-266», formen Lovdata bruker i <c>sist_endret_ved</c>.</summary>

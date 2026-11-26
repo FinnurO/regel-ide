@@ -19,6 +19,8 @@ public sealed record HjemmelOpphevetTolkning(int Funn, IReadOnlyDictionary<strin
 /// <c>POST /api/hjemmelsstatus/maskinregel?skriv=true</c> først.</param>
 /// <param name="Kandidater">Forskrifter med en undertype før regelen om uttømt virkning.</param>
 /// <param name="UtelattRentEndringsvedtak">#446-kolonnen er <c>true</c>: uttømt virkning, ingen funn.</param>
+/// <param name="RentMenMalUtenforKorpus">[Ny, #446 PR 2, AK 7] #446-kolonnen er <c>true</c>, men et mål i «Endrer» er utenfor korpus: funnet står med
+/// premissmangelen «Mål utenfor korpus».</param>
 /// <param name="IkrafttredelseEnesteDisposisjonstype">Kandidater der ikrafttredelse er den eneste disposisjonstypen (fra tittelen). Telles, men
 /// utelates IKKE: tittelregelen treffer også «Forskrift om ikrafttredelse av og overgangsregler til …» (DEL/forskrift/1999-06-25-711), som ikke har
 /// uttømt virkningen. Om ikrafttredelsesvedtak har uttømt virkning, avgjøres av #446.</param>
@@ -51,7 +53,7 @@ public sealed record HjemmelOpphevetRapport(
     int HoldtAvPremissporten, int MuligBortfaltVises, int UtenGrunnlag, IReadOnlyList<HjemmelOpphevetRad>? Rader,
     int ForskriftenOpphevet = 0, IReadOnlyDictionary<string, int>? ForskriftenOpphevetPerPrefiks = null, int KunngjortIkkeKontrollert = 0,
     int ForklaresBort = 0, IReadOnlyDictionary<string, int>? ForklaresBortPerGrunn = null, int ForklartBortSatt = 0, int VurdertIkkeRort = 0,
-    int Oppfriskes = 0, int Oppfrisket = 0, IReadOnlyDictionary<string, int>? ForeslattPerPrefiks = null);
+    int Oppfriskes = 0, int Oppfrisket = 0, IReadOnlyDictionary<string, int>? ForeslattPerPrefiks = null, int RentMenMalUtenforKorpus = 0);
 
 /// <summary>
 /// [Ny, #472 PR 2, Johanns avgjørelser 2026-11-18 og 2026-11-20] <b>Maskinregelen for «Hjemmel opphevet»</b> (<c>monster:hjemmel-opphevet</c>):
@@ -163,6 +165,14 @@ public sealed class HjemmelOpphevetFunnregel(RegelIdeDbContext db, FunnTjeneste 
         var opphevetSelv = await Opphevingskontroll.OpphevetAvAnnenKildeAsync(db,
             kandidatIder.Select(id => (id, kilder[id].Eli!)).ToList(), ct);
 
+        // [Ny, #446 PR 2, AK 7] Et rent vedtak der et mål i «Endrer» ikke er i korpus, utelates ikke stille: funnet står med premissmangelen
+        // «Mål utenfor korpus» (FunnTjeneste), fordi teksten i målet ikke kan kontrolleres.
+        var rentIder = kandidatIder.Where(id => kilder[id].RentEndringsvedtak == true).ToList();
+        var rentGrunnlag = await db.Rettskilder.AsNoTracking().Where(r => rentIder.Contains(r.Id))
+            .Select(r => new { r.Id, r.RentEndringsvedtakGrunnlag }).ToDictionaryAsync(r => r.Id, r => r.RentEndringsvedtakGrunnlag, ct);
+        var malUtenfor = await VedtaksformTjeneste.MalUtenforKorpusAsync(db,
+            kandidatIder.Where(id => kilder[id].RentEndringsvedtak == true).ToList(), ct);
+
         var nokler = await db.Funn.AsNoTracking().Where(f => f.EksternNokkel != null && f.EksternNokkel.StartsWith(NokkelPrefiks))
             .Include(f => f.Vurderingspunkter)
             .ToDictionaryAsync(f => f.EksternNokkel!, ct);
@@ -174,7 +184,7 @@ public sealed class HjemmelOpphevetFunnregel(RegelIdeDbContext db, FunnTjeneste 
         var foreslattPrefiks = new List<string>();
         var opphevetPrefiks = new List<string>();
         var bortGrunner = new List<string>();
-        int rent = 0, ikraft = 0, ikkeKlassifisert = 0, nye = 0, finnes = 0, finnesBort = 0, undertypeEndret = 0, holdt = 0, vises = 0;
+        int rent = 0, rentMalUtenfor = 0, ikraft = 0, ikkeKlassifisert = 0, nye = 0, finnes = 0, finnesBort = 0, undertypeEndret = 0, holdt = 0, vises = 0;
         int kunngjort = 0, forklaresBort = 0, forklartBortSatt = 0, vurdertIkkeRort = 0, oppfriskes = 0, oppfrisket = 0;
         var behandledeNokler = new HashSet<string>(StringComparer.Ordinal);
         var radliste = new List<HjemmelOpphevetRad>();
@@ -207,11 +217,20 @@ public sealed class HjemmelOpphevetFunnregel(RegelIdeDbContext db, FunnTjeneste 
                     opphevetPrefiks.Add(prefiks);
                     bevis = $"Forskriften er selv opphevet av {o.Etikett} (eId {o.Eid}): «{Opphevingskontroll.Kort(o.Sitat)}». Samme lesing som R8 i #429.";
                 }
+                else if (f.RentEndringsvedtak == true && malUtenfor.ContainsKey(id))
+                {
+                    // [Ny, #446 PR 2, AK 7] Ren og i kraft, men et mål er utenfor korpus: funnet står, med premissmangel.
+                    rentMalUtenfor++;
+                    tellerA.Add((undertype, prefiks));
+                    tellerB.Add((undertype, prefiks));
+                    utfall = UtfallForeslatt;
+                }
                 else if (f.RentEndringsvedtak == true)
                 {
                     utfall = UtfallRentEndringsvedtak;
                     rent++;
-                    bevis = "Forskriften er klassifisert som et rent endringsvedtak (#446) og har uttømt virkningen.";
+                    // [ENDRET, #446 PR 2] «Uttømt virkning» er nå avledet av vedtaksformen og ikraftstatusen.
+                    bevis = $"Forskriften har uttømt virkningen (#446): {rentGrunnlag.GetValueOrDefault(id) ?? "ren vedtaksform og i kraft"}";
                 }
                 else if (f.RentEndringsvedtak is null)
                 {
@@ -321,7 +340,7 @@ public sealed class HjemmelOpphevetFunnregel(RegelIdeDbContext db, FunnTjeneste 
             foreslattUndertyper.Count, Tell(foreslattUndertyper), nye, finnes, finnesBort, undertypeEndret, holdt, vises, utenGrunnlag,
             medRader ? radliste : null,
             opphevetPrefiks.Count, Tell(opphevetPrefiks), kunngjort, forklaresBort, Tell(bortGrunner), forklartBortSatt, vurdertIkkeRort,
-            oppfriskes, oppfrisket, Tell(foreslattPrefiks));
+            oppfriskes, oppfrisket, Tell(foreslattPrefiks), rentMalUtenfor);
     }
 
     /// <summary>Undertypen for en samlet status, eller null når forskriften ikke gir funn (aktiv, videreført, ukjent uten gjenstandsløs).</summary>
