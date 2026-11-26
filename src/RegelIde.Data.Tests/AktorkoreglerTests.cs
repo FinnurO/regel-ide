@@ -612,4 +612,37 @@ public class AktorkoreglerTests
         Assert.Equal(forventet, AktorsveipRad.BlirNavnekandidat(status, rute));
         Assert.Equal(status == Aktorstatus.Generisk && rute == Aktorkoruter.Generisk, AktorsveipRad.ErGeneriskOrdUtenBinding(status, rute));
     }
+
+    /// <summary>[Ny, Refs #486] «Går ‹statsråd› i ‹vedtak i statsråd› til rollen statsråd?» Nei: ordsperren slår til, og forekomsten rutes til
+    /// aktørkøen, så et menneske avgjør. «en statsråd» går til rollen som før.</summary>
+    [Fact]
+    public void Sperret_statsrad_rutes_til_koen_ikke_til_rollen()
+    {
+        var rolle = Guid.NewGuid();
+        var t = Tabell();
+        var begreper = t.Begreper.ToDictionary(x => x.Key, x => x.Value);
+        begreper["statsråd"] = [new("statsråd", Nodetyper.Rolle, "statsråd", null, rolle, null, null)];
+        var tabell = new Rutingstabell(t.Generiske, t.Aktorer, begreper, t.HjemmelLover);
+
+        static KoForekomst Les(string tekst)
+        {
+            var start = tekst.IndexOf("statsråd", StringComparison.Ordinal);
+            var f = new KoForekomst(Guid.NewGuid(), "statsråd", Barnehageloven, "https://test/§1/ledd-1", start, start + "statsråd".Length, "gruppe", null, null);
+            return Aktorkoregler.MedOrdsperre(f, tekst, iKonvensjonstekst: false);
+        }
+
+        var vedtak = Les("det ikke er tid til å treffe vedtak i statsråd, kan statsministeren");
+        Assert.Equal(Ordsperrer.IForan, vedtak.Ordsperre);
+        var svar = Aktorkoregler.Ruter(tabell, vedtak);
+        Assert.Equal((Aktorkoruter.Aktorko, "statsråd"), (svar.Rute, svar.Normalisert));
+        Assert.Empty(svar.Treff);
+
+        var rollen = Les("Er en statsråd funksjonsudyktig");
+        Assert.Null(rollen.Ordsperre);
+        Assert.Equal(Aktorkoruter.KjentBegrep, Aktorkoregler.Ruter(tabell, rollen).Rute);
+
+        // Vakten: teksten er endret, så posisjonen stemmer ikke lenger. Da settes ingen sperre (ingen gjetting).
+        var f = new KoForekomst(Guid.NewGuid(), "statsråd", Barnehageloven, "https://test/§1/ledd-1", 30, 38, "gruppe", null, null);
+        Assert.Null(Aktorkoregler.MedOrdsperre(f, "en helt annen tekst uten ordet her i det hele tatt", false).Ordsperre);
+    }
 }

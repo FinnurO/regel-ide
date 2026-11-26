@@ -158,6 +158,35 @@ public class BegrepsforekomstTjenesteTests
         Assert.Equal("gjeldende", tagg.Entitetsstatus);
     }
 
+    /// <summary>[Ny, Refs #486] «Tagges ‹statsråd› i ‹Kongen i statsråd› mot begrepet når en definisjon av ‹statsråd› godkjennes?» Nei:
+    /// ordsperren slår til («i» rett foran), og bindestrek rett foran er ikke ordgrense. «en statsråd» i samme kilde tagges.</summary>
+    [Fact]
+    public async Task Godkjenn_tagger_ikke_sperrede_forekomster_av_statsrad()
+    {
+        await using var db = _fixture.NyDbContext();
+        var (rettskildeId, node) = await OpprettSyntetiskRettskildeAsync(db);
+        node.Tekst = "statsråd: medlem av statsrådet";
+        var andre = new RettskildeNodeEntitet
+        {
+            Id = Guid.NewGuid(), RettskildeId = rettskildeId, Eid = node.Eid.Replace("punkt-1", "punkt-2"), KildeId = "punkt-2", NodeType = "punkt",
+            Tekst = "Kongen i statsråd avgjør. Er en statsråd forhindret, gjelder nærings-statsråd ikke.",
+        };
+        db.RettskildeNoder.Add(andre);
+        var virksomhet = new Virksomhet { Id = Guid.NewGuid(), Navn = $"Test-virksomhet-{Guid.NewGuid():N}" };
+        db.Virksomheter.Add(virksomhet);
+        await db.SaveChangesAsync();
+
+        var kø = NyTjeneste(db);
+        var forekomst = await kø.OpprettEllerFinnAsync(
+            rettskildeId, node.Eid, "statsråd", "statsråd", "medlem av statsrådet",
+            "eksplisitt_liste", "M1", "hoy", "hele_dokumentet", null, 0, "statsråd".Length, "sveip");
+        await kø.GodkjennAsync(forekomst.Id, virksomhet.Id, "Kari Jurist");
+
+        var tagger = await db.TekstTagger.Where(t => t.RettskildeId == rettskildeId && t.NodeEid == andre.Eid).ToListAsync();
+        var tagg = Assert.Single(tagger);
+        Assert.Equal(andre.Tekst.IndexOf("en statsråd", StringComparison.Ordinal) + 3, tagg.StartOffset);
+    }
+
     [Fact]
     public async Task Godkjenn_kaster_hvis_noden_er_endret_siden_sveipet()
     {

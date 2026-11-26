@@ -2423,7 +2423,7 @@ territorielt (svalbardloven og Jan Mayen-loven), ikke navnet på staten.
 
 Sperren brukes i taggingen (`SikreTreffAsync`: en sperret forekomst tagges ikke og telles som `Ordsperre`) og i lasteren (alle forekomstene i
 noden sperret → årsaken `aktor_ordsperre`, ingen kobling). Aktørkøens ruting bruker den ikke: «Staten yter …» (hol. § 11-5) er den ene
-forekomsten i køen, og den gjelder. Målingen: `GET /api/ordsperre/maling?term=staten`.
+forekomsten i køen, og den gjelder. Målingen: `GET /api/ordsperre/maling?term=staten`. [ENDRET, Refs #486, 2026-11-25] Rutingen bruker nå sperren (en sperret forekomst går til aktørkøen, §5.19.2); for «staten» endret det ingenting i køen.
 
 **Målt 2026-11-17 i kopien `regelide_norge` av den delte basen, «staten der/hvor/hvis» og summene målt på nytt 2026-11-20 i `regelide_norge2`
 etter Johanns avgjørelse om «hvis»** (korpuset er det samme; gjeldende, ikke opphevede noder i gjeldende
@@ -2581,6 +2581,64 @@ Grl. § 72 tredje ledd nr. 1 lenker til rollebegrepet «statsråd». Kopien er s
 **Avgjort av Johann 2026-11-20 (PR #489):** hjemmelen § 12 første ledd som oppretting; rollebegrepet «statsråd»; de 14 forekomstene uten eier
 står utagget som hull; plikten i «legge fram for Stortinget» er fortsatt slutning. **Ikke avgjort:** hvem plikten ligger hos (slutning til da), og
 om «statsråd» trenger en ordsperre.
+
+[ENDRET, 2026-11-25] Prosjekteieren avgjorde ordsperren for «statsråd» og «statsrådet»: §5.19.2.
+
+#### 5.19.2 «statsråd»: ordsperre (Refs #486, PR 1, bygget 2026-11-25)
+
+**Hvorfor.** Ordet «statsråd» betyr tre ting: organet statsrådet, møtet der Kongen i statsråd beslutter, og rollen statsråd. Rollebegrepet
+«statsråd» og navneformen «statsrådet» for organet finnes (§5.19.1). Uten sperre kan en forekomst om organet eller møtet kobles til rollen, og
+«i statsrådet» om møtet kobles til organet. Prosjekteieren ga klarsignal 2026-11-25 etter juristrunden i `data/fasit/strukturmodell/statsrad/`
+(to runder, ingen uenighet igjen), og valgte samme dag sperre (PR 1) og positiv tagg per forekomst (PR 2, §5.19.3).
+
+**Sperren** (`Ordsperrer`, kode, ikke data, samme mønster som «staten» i §5.19). For **«statsråd»** sier den når ordet IKKE betyr rollen:
+
+| Grunn | Kode | Eksempel |
+|---|---|---|
+| «i» rett foran | `i_foran` | «Kongen i statsråd», «vedtak i statsråd», «behandling i statsråd» |
+| intetkjønn foran | `intetkjonn` | «det samlede statsråd» (Grl. § 15), «sitt statsråd» (§ 21), «et statsråd» |
+| møtet | `motet` | «avholdelse av (beslutningsdyktig) statsråd», «et beslutningsdyktig statsråd», «hvert statsråd», «forberedende statsråd», «trekkes fra statsråd»; «fra» bare uten et navn etter («fra statsråd Jan Christian Vestre» er rollen) |
+| konvensjonstekst | `konvensjonstekst` | «vedkommende statsråd … i virksomhetslandet» (nordisk miljøvernkonvensjon art. 11) |
+
+For **«statsrådet»** sier den når ordet IKKE betyr organet: «i statsrådet» (`i_foran`, men ikke «sete i statsrådet») og «utenfor statsrådet»
+(`utenfor_foran`, Grl. § 14), som er møtet der Kongen i statsråd beslutter (Grl. §§ 20, 28, 30), og konvensjonstekst. Kjent pris (juristrunden,
+a2): Regjeringsinstruksen § 1 («I statsrådet, som består av …») og Grl. § 27 («nærværende i statsrådet») sperres selv om de kan leses som
+organet. Sperren er konservativ: den gir ingen tagg og ingen kobling, aldri en feil kobling. Sammensetninger («statsrådsprotokollen»,
+«fagstatsråds») er ikke treff, og bindestrek rett foran er ikke ordgrense (`AktoridentitetTjeneste.HeleOrd`).
+
+**Konvensjonsoverskriften** (`Ordsperrer.ErKonvensjonsoverskrift`) treffer nå også et sammensatt ord på «konvensjon» fulgt av av/om/mellom/til
+(«Miljøvernkonvensjon av 19. februar 1974, mellom Danmark, Finland, Norge og Sverige»). Regelen er felles med «staten»; i korpuset treffer
+utvidelsen bare den ene overskriften, og målingen av «staten» er identisk før og etter (under).
+
+**Fire brukssteder:**
+1. **Taggingen av aktører** (`SikreTreffAsync`): som før, nå også for «statsrådet» (en sperret forekomst tagges ikke og telles som `Ordsperre`).
+2. **Lasteren** (`StrukturforslagTjeneste`): sperren gjelder nå også når referenten er et begrep, ikke bare en aktør. En aktør med tekstformen
+   «statsråd» i et ledd der alle forekomstene er sperret («vedtak i statsråd»), gir årsaken `aktor_ordsperre` og ingen kobling til rollen.
+3. **Rutingen** (prosjekteierens avgjørelse 2026-11-25): en sperret forekomst rutes til aktørkøen, så et menneske avgjør, og ikke til det
+   kjente ordet (rollen). Det gjelder aktørkøen (`KoForekomst.Ordsperre`, `Aktorkoregler.MedOrdsperre`) og begge sveipene
+   (mønstersveipet og KI-sveipet). Det gjelder alle ord med sperre, også «staten».
+4. **Taggingen av begrepsforekomster** (`BegrepsforekomstTjeneste`, de andre forekomstene i kilden når en definisjon godkjennes): samme
+   ordgrense som aktørtaggingen (før ``, som regnet bindestrek som ordgrense) og ordsperren.
+
+**Målingen:** `GET /api/ordsperre/maling?term=statsråd` (og `statsrådet`, `staten`).
+
+**Målt 2026-11-25 i kopien `regelide_statsrad`** (pg_dump av den delte basen; API 5587):
+
+| | «statsråd» | «statsrådet» |
+|---|---:|---:|
+| Forekomster (hele ord) | 364 i 304 noder, 127 kilder | 47 i 40 noder, 4 kilder |
+| Bindestrek rett foran | 0 | 0 |
+| «i» rett foran | 254 | 13 |
+| «utenfor» | | 1 |
+| intetkjønn | 4 | |
+| møtet | 6 | |
+| konvensjonstekst | 1 | 0 |
+| **Sperret** | **265** | **14** |
+| Gjelder | 99 (rollen) | 33 (organet) |
+
+Før og etter i samme kopi: «staten» identisk (2 511 / 2 271, sperret 579 med konvensjonstekst 81, gjelder 1 932), aktørkøen identisk (1 211
+ventende, 188 navn, samme fordeling per rute), og tørrkjøringen for «regjeringen» identisk (98 regeltagger, 170 slutninger). Ingen tagger eller
+bindinger er endret (12 tagger på «Kongen i statsråd», 25 forekomstbindinger med `rolle_statsrad`): PR 1 skriver ingenting.
 
 ### 5.20 Hjemmelsstatus: statusen per hjemmel og maskinregelen (#472 PR 1, bygget 2026-11-20)
 
@@ -2891,7 +2949,128 @@ etter PR 4 (frø 20261125, stratifisert og om lag proporsjonalt, uten H01–H20)
     viltloven gjelder også …», gjelder 23 av de 264 funnene (M13).
   - Opphevingen gis virkning bare for nye tilfeller (lov 2013 nr. 110 om arveavgiftsloven, M04 og M06). Ingen undertype passer.
   - To av de åtte R8-hullene (M10, M16).
-- **Ingen uenighet står igjen.** Forslagene står i `maling-2/sammendrag.md`, men er ikke bygget.
+- **Ingen uenighet står igjen.** Forslagene står i `maling-2/sammendrag.md`, men er ikke bygget. [Merknad, #501] Det første er bygget, se under.
+
+[ENDRET, #501 (#472 PR 5), prosjekteierens klarsignal 2026-11-25] **Videreføringen med lovens kortnavn fra tittelen.** Viltressursloven § 61
+andre ledd sier «Forskrifter gitt i medhold av viltloven gjelder også etter at loven her har trådt i kraft.» Opphevingssetningen («Fra samme tid
+oppheves lov 29. mai 1981 nr. 38 om jakt og fangst av vilt.») nevner ikke kortnavnet, og V4 leste før bare kortnavn som den opphevende loven selv
+bruker om målet. Nå leses kortnavnet også fra tittelen til den opphevede loven. Testene står i `HjemmelKortnavnTests`.
+- **Hvor tittelen leses** (`Kortnavnregister`, i `Hjemmelstekstlesing.cs`): lovens egen tittel og kortnavn-feltet når loven er i korpus, og
+  titlene hjemmelstekstene siterer («med hjemmel i lov 29. mai 1981 nr. 38 om jakt og fangst av vilt (viltloven) § 26»). En opphevet lov er i
+  korpus bare som en referanse-stub med ELI-en som tittel, så det er i hjemmelstekstene tittelen står. En sitert tittel godtas bare når teksten
+  mellom nummeret og parentesen er tom eller begynner med «om», «til», «for» og lignende, og ikke nevner en annen dato, et nummer, en paragraf,
+  «jf.» eller en endring. Ellers kan parentesen høre til en annen lov («lov … om endringer i lov … (folketrygdloven)»).
+- **Bare når det er entydig:** alle kildene gir loven samme kortnavn (bokmål og nynorsk regnes som samme navn), og ingen annen lov har det.
+  Straffeloven 1902 og 2005 heter begge «straffeloven», så en setning om «straffeloven» kobles ikke til den gamle. Er det ikke entydig, gis det
+  ikke noe kortnavn, og videreføringen leses som før. Det gjettes ikke (§8).
+- **Hvor det godtas:** som mål i V4, etter kortnavnene den opphevende loven selv bruker, så et treff som fantes før, er uendret. V1 og V2 krever
+  fortsatt dato og nummer, og V3 har ikke noe mål. Et treff med kortnavnet er derfor alltid V4, med kunnskapsstatus normalisering: at kortnavnet
+  peker på loven, er lest av tittelen, ikke av setningen.
+- **Delt med #429:** hjemmelsstatusen og R9 laster registeret på samme måte (`Kortnavnregister.LastAsync`) og sender kortnavnet til
+  `Hjemmelstekstlesing.Videreforinger`. Rapporten fra hjemmelsstatusen teller lesingen per opphevet lov (`kortnavnFraTittel`, og med
+  `?medRader=true` lista `kortnavnPerLov`).
+- **Ikke lest:** kortnavn som bare står i lovtekst (nodene), og titler utenfor korpus. Regelversjonen for hjemmelsstatusen er
+  `472-pr5-2026-11-25`. Funnregelen er ikke endret.
+
+**Kaldkjørt i en kopi av den delte basen** (`regelide_501`, API på 5387, 2026-11-25). Før er de lagrede radene i kopien (master, PR 4). For #429
+er master-koden tørrkjørt i samme kopi. Deretter er PR 5 kjørt: hjemmelsstatus `?skriv=true`, funnregelen `?skriv=true&oppfrisk=true` to ganger, og
+maskinregelen for utgåtte aktører tørrkjørt.
+
+| | Før (PR 4) | Etter (PR 5) |
+|---|---|---|
+| Hjemmelsrader med endret status | — | **73 av 25 011**, alle til viltloven 1981: opphevet → videreført (V4). 62 dekket (normalisering), 11 dokumenttype ikke nevnt (fortolkning) |
+| Status per hjemmel: opphevet / videreført | 644 / 1 371 | 571 / 1 444. De andre statusene er uendret |
+| V4 | 33 | 106 |
+| Opphevede lover med en lest oppheving | 136 | kortnavnet entydig 18, brukes om flere lover 32, ingen tittel med kortnavn 86. Bare viltloven gir et nytt treff |
+| Samlet: videreført / hjemmel opphevet / blandede / uavklart | 471 / 211 / 58 / 12 | 495 / 201 / 45 / 11. Aktiv, ukjent og utløpt er uendret |
+| **Funn (oppdaget)** | **264** | **241**: hjemmel opphevet 181, blandede 38, uavklart 11, utløpt 10, gjenstandsløs 1; DEL 113, SF 65, LTI 58, INS 4, STV 1 |
+| Forklart bort (samlet status videreført) | — | **23, alle de 23 med viltressursloven som opphevende lov**: blandede 12 (SF 11, DEL 1), hjemmel opphevet 10 (DEL 6, LTI 3, SF 1), uavklart 1 (DEL) |
+| Nye funn / endret undertype | — | 0 / 0 |
+| Ny kjøring | — | 0 nye, 0 forklares bort, 0 oppfriskes, 241 finnes |
+| #429 (utgåtte aktører, tørrkjørt) | 767 par, 619 foreslått, 118 R9-mangler | Uendret, 0 endrede rader |
+
+#429 endres ikke fordi R9 ikke finner opphevingen av viltloven: den konsoliderte viltressursloven har ikke opphevingssetningen, som bare står i
+Lovtidend, og R9 leser ikke Lovtidend. Lesingen er den samme, og testen `R9_viser_videreforingen_med_kortnavnet_fra_tittelen…` holder det fast.
+
+[Merknad, #472] **Målt 2026-11-25 (måling 3, i kopi, før skriving mot delt base).** Målt på 15 av de 22 endrede funnene (uten M13) og 8
+kontrollfunn som fortsatt står, der en lov som faller, har kortnavn i tittelen (frø 20261126), med to runder etter CLAUDE.md §23. Filene ligger i
+`data/fasit/strukturmodell/juristrunde-472/maling-3/`.
+- **Presisjon:** totalt **0,65 (0,45–0,81)**, 15/23. Endret **0,53 (0,30–0,75)**, 8/15; uten #446 0,62 (0,36–0,82). Kontroll **0,88
+  (0,53–0,98)**, 7/8. Ingen usikre.
+- **Per prefiks (endret):** SF 8/8, DEL 0/5, LTI 0/2. Lest av radene er om lag 12 av alle 23 riktige: de 12 SF-forskriftene.
+- **Feilene (8):**
+  - **Delegeringsvedtak regnes som videreført** (5). Paragraf 61 viderefører bare «forskrifter», og dekningen blir «dokumenttype ikke nevnt».
+    Når ingenting annet faller, blir samlet status likevel videreført, fordi `BaererVurdert` (H14) bare slår inn når noe faller. Ikke bygget, se
+    spørsmålet under.
+  - **En særskilt oppheving blir oversett** (2, E12 og E13). Endringsforskrifter til forskrifter som ble opphevet ved forskrift 2026 nr. 1158 kap. II.
+    Gjelder #446, ikke kortnavnet.
+  - **K01:** vedtaket er selv opphevet (R8-hullet «Delegering ‹dato› … av …», #502). Kirkeordningen § 44 viderefører dessuten med kortnavnet
+    («i medhold av kirkeloven»), men V2a søker bare i forskrifter med «overgang» i tittelen og krever dato og nummer. Egen sak.
+- **Kortnavnet selv ga ingen feil.** Der det er tvetydig (sentralbankloven, revisorloven, statistikkloven), finnes ingen videreføring som går tapt.
+- **Ingen uenighet står igjen.**
+
+**Spørsmålet til prosjekteieren etter måling 3:** skal en videreføring med dekningen «dokumenttype ikke nevnt» bære når ingenting faller? To
+alternativer: (a) svak, samlet status uavklart når alle premissene som bærer, ikke er vurdert; (b) sterk, videreføringen teller ikke, og hjemmelen
+faller (AK2 blir blandede hjemler). [LØST, prosjekteierens avgjørelse 2026-11-25: alternativ (a)]
+
+[ENDRET, prosjekteierens avgjørelse 2026-11-25] **En videreføring som ikke nevner vedtakstypen, bærer ikke alene, heller ikke når ingenting
+faller.** Når ingen premiss faller, minst én bare bærer ved en videreføring med dekningen «dokumenttype ikke nevnt», og ingen premiss som bærer, er
+vurdert (rolle NULL, eller bare slik videreføring), er samlet status **uavklart**, ikke videreført
+(`Hjemmelsstatus.BaererBareUvurdertVidereforing`). Det er samme vilkår som H14 bruker når noe faller.
+- **AK2 er uendret:** FOR-1993-12-17-1314 er fortsatt videreført, fordi lov 11. juni 1993 nr. 66 er aktiv og har rollen materiell.
+- **E08 tettes ikke:** DEL/forskrift/1996-10-25-1008 har andre hjemler som bærer og er vurdert, så den er fortsatt videreført og forklart bort.
+  Juristen pekte på dette i replikken i måling 3.
+- Uten en slik videreføring endres ingenting: en forskrift med bare aktive hjemler med rolle NULL er fortsatt aktiv.
+- **Påstanden:** når ingenting faller, heter funnet «Hjemmel opphevet, videreføringen nevner ikke vedtakstypen». Påstanden sier at hjemmelen er
+  videreført av en overgangsregel som ikke nevner denne typen vedtak, og at det ikke er vurdert om den dekker vedtaket. Den sier ikke at noe er
+  opphevet uten funnet videreføring.
+- Regelversjonen for funnregelen er `472-pr5-2026-11-25`. Testene er `H14_…` i `HjemmelOpphevetRettingerTests` og
+  `E09_Et_delegeringsvedtak_som_bare_videreføres_som_forskrift_er_uavklart_og_gir_funn` i `HjemmelKortnavnTests`.
+
+**Kaldkjørt i en ny kopi** (`regelide_501b`, API på 5387, 2026-11-25), med kortnavnet og avgjørelsen (a). Før er master (de lagrede radene og
+funnene i kopien).
+
+| | Før (master, PR 4) | Etter (PR 5 med (a)) |
+|---|---|---|
+| Hjemmelsrader med endret status | — | 73, alle til viltloven 1981 (som i første kaldkjøring). Ny kjøring: 0 |
+| Samlet: videreført / uavklart | 471 / 12 | 317 / 189 |
+| Samlet: hjemmel opphevet / blandede | 211 / 58 | 201 / 45. Aktiv 4 136, ukjent 697 og utløpt 10 er uendret |
+| **Funn (oppdaget)** | **264**: hjemmel opphevet 191, blandede 50, uavklart 12, utløpt 10, gjenstandsløs 1 | **411**: hjemmel opphevet 181, uavklart 181, blandede 38, utløpt 10, gjenstandsløs 1 |
+| Nye funn | — | **163**, alle uavklart (DEL 150, INS 11, LTI 1, SF 1). Forskriftene var videreført og ga ikke funn |
+| Forklart bort (samlet videreført) | — | **16** av de 23 med viltressursloven: blandede 12 (SF 11, DEL 1 = E08), hjemmel opphevet 4 (LTI 3, SF 1) |
+| Endret undertype | — | 6 hjemmel opphevet → uavklart (DEL-vedtakene etter viltloven, blant dem E09–E11). Oppfrisket 7 (også E15) |
+| Ny kjøring | — | 0 nye, 0 forklares bort, 0 oppfriskes, 416 finnes |
+| #429 (utgåtte aktører, tørrkjørt) | 767 par | Uendret, 0 endrede rader |
+
+- 416 foreslås, 411 står som oppdaget. **Fem funn som PR 4 forklarte bort, ville nå vært uavklart:** DEL/forskrift/1996-12-09-1097,
+  DEL/forskrift/1997-09-12-1549, INS/forskrift/2003-03-13-292, INS/forskrift/2003-05-08-594 og LTI/forskrift/2005-01-07-89. Maskinregelen
+  gjenåpner aldri et funn som er forklart bort, så de står som forklart bort. Fire av dem telles som «endret undertype» ved hver kjøring. Om de
+  skal gjenåpnes for hånd, er et spørsmål til prosjekteieren.
+
+[Merknad, #472] **Måling 3 lest på nytt etter avgjørelsen** (`maling-3/b/status-etter-avgjorelsen.json`). E09–E11 og E15 står som uavklart og er
+riktige. E08, E12 og E13 er fortsatt feil. Endret 12/15, 0,80 (0,55–0,93); uten #446 0,92 (0,67–0,99). Kontroll 7/8. Totalt 19/23, 0,83 (0,63–0,93).
+
+[Merknad, #472] **Målt 2026-11-25 (måling 3b, de nye funnene, én runde).** Avgjørelsen ga 163 nye funn, så prosjekteieren ba om én runde. Utvalget
+er 16 av de 163 (DEL 12, INS 2, LTI 1, SF 1, frø 20261127). Filene ligger i `data/fasit/strukturmodell/juristrunde-472/maling-3/b/`.
+- **Presisjon:** **0,69 (0,44–0,86)**, 11/16. DEL 10/12, INS 1/2, LTI 0/1, SF 0/1. Vektet etter lagene om lag 0,80. Ingen usikre.
+- **For delegeringsvedtak er «uavklart» riktig.**
+- **Feilene (5):**
+  - enkeltvedtak i INS og SF som overgangsregelen dekker, fordi den nevner enkeltvedtak (N14, N16). Regelen leser vedtakstypen av basen, ikke av
+    innholdet. Juristen anslår om lag 8 av de 12 INS- og SF-funnene;
+  - en endringslovs egen myndighet, der hjemmelsteksten ikke nevner delen (N05, END-hullet fra PR 4);
+  - et vedtak som er opphevet utenfor korpus (N15);
+  - en ordning som ikke finnes i den nye loven, så undertypen burde vært hjemmel opphevet (N09).
+- **Ingen uenighet står igjen.**
+- **Spørsmål til prosjekteieren (ikke bygget):** skal et SF- eller INS-vedtak som er et enkeltvedtak (tillatelse, godkjenning eller status til en
+  navngitt part), regnes som dekket når overgangsregelen nevner enkeltvedtak? Det krever at vedtaket leses.
+
+**Mot den delte basen etter fletting** (skal godkjennes av prosjekteieren):
+1. `POST /api/hjemmelsstatus/maskinregel?skriv=true`: ventet 73 endrede statuser.
+2. `POST /api/funn/maskinregel/hjemmel-opphevet?skriv=true&oppfrisk=true`: ventet 163 nye, 16 forklart bort, 7 oppfrisket (6 med endret
+   undertype), 411 oppdaget.
+3. En ny kjøring av begge: ventet 0 endrede statuser, 0 nye, 0 forklares bort og 0 oppfriskes.
+
+#429 trenger ingen ny kjøring.
 
 ### 5.22 Vedtaksformen: rene endrings-, ikrafttredelses- og opphevingsvedtak (#446 PR 1, bygget 2026-11-26)
 

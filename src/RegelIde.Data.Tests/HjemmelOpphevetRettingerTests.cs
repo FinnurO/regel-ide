@@ -260,8 +260,25 @@ public class HjemmelOpphevetRettingerTests(EmbeddedPostgresFixture fixture)
         // Dekket videreføring bærer: blandede hjemler som før.
         Assert.Equal(Hjemmelsstatus.SamletBlandede, HjemmelsstatusSamlet.Beregn(id, _ => [Opphevet(), Videreført(Hjemmelsstatus.Dekket)]).Status);
 
-        // Når ingenting faller, endrer det ingenting: FOR-1993-12-17-1314 er videreført (fase 1 AK 2, «så langt de passer»).
-        Assert.Equal(Hjemmelsstatus.SamletViderefort, HjemmelsstatusSamlet.Beregn(id, _ => [Videreført(Hjemmelsstatus.DokumenttypeIkkeNevnt)]).Status);
+        // Når ingenting faller og en annen premiss bærer og er vurdert: FOR-1993-12-17-1314 er videreført (fase 1 AK 2, «så langt de passer»;
+        // lov 11. juni 1993 nr. 66 om pristiltak er aktiv).
+        HjemmelPremiss Aktiv(string? rolle = Hjemmelsstatus.Materiell) =>
+            new(Guid.NewGuid(), "pristiltaksloven", rolle, Hjemmelsstatus.Aktiv, Strukturkanter.Normalisering, null);
+        Assert.Equal(Hjemmelsstatus.SamletViderefort,
+            HjemmelsstatusSamlet.Beregn(id, _ => [Videreført(Hjemmelsstatus.DokumenttypeIkkeNevnt), Aktiv()]).Status);
+        // [ENDRET, #501, prosjekteierens avgjørelse 2026-11-25, alternativ (a)] Alene bærer den ikke, heller ikke når ingenting faller: uavklart
+        // (DEL/forskrift/2002-09-13-995, delegering etter viltloven § 39, videreført bare av «forskrifter» i viltressursloven § 61, måling 3 E09).
+        var e09 = HjemmelsstatusSamlet.Beregn(id, _ => [Videreført(Hjemmelsstatus.DokumenttypeIkkeNevnt)]);
+        Assert.Equal(Hjemmelsstatus.SamletUavklart, e09.Status);
+        Assert.Equal(HjemmelOpphevetFunnregel.UndertypeUavklart, HjemmelOpphevetFunnregel.Undertype(e09));
+        // E15: de andre som bærer, har rolle NULL (ikke vurdert): uavklart.
+        Assert.Equal(Hjemmelsstatus.SamletUavklart,
+            HjemmelsstatusSamlet.Beregn(id, _ => [Videreført(Hjemmelsstatus.DokumenttypeIkkeNevnt) with { Rolle = null }, Aktiv(null), Aktiv(null)]).Status);
+        // Uten en slik videreføring endres ingenting: bare aktive hjemler med rolle NULL er fortsatt aktiv.
+        Assert.Equal(Hjemmelsstatus.SamletAktiv, HjemmelsstatusSamlet.Beregn(id, _ => [Aktiv(null)]).Status);
+        // E08 (DEL/forskrift/1996-10-25-1008): andre hjemler bærer og er vurdert, så alternativ (a) gir fortsatt videreført.
+        Assert.Equal(Hjemmelsstatus.SamletViderefort, HjemmelsstatusSamlet.Beregn(id, _ =>
+            [Videreført(Hjemmelsstatus.DokumenttypeIkkeNevnt), Videreført(Hjemmelsstatus.Dekket), Aktiv()]).Status);
     }
 
     [Fact]

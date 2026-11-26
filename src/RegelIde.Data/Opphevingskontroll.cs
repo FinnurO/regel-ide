@@ -388,11 +388,14 @@ public static class Opphevingskontroll
         // (Hjemmelstekstlesing.Videreforinger), ikke bare i nodene med et oppheve-ord eller «medhold»: V2 godtar også «gitt etter» og
         // «fastsatt etter», og V3 den generiske formen («regler som blir opphevet», uhl. 2024 § 17-3). V2a (en annen lov) er ikke med: R9
         // leser den opphevende loven.
+        // [ENDRET, #501 (#472 PR 5)] Kortnavnet fra tittelen til den opphevede loven godtas som mål i V4 når det er entydig, med samme
+        // register som hjemmelsstatusen (Kortnavnregister.LastAsync).
         var egne = await AlleNoderAsync(db, funnet.Values.Select(f => f.N.RettskildeId).Distinct().ToList(), ct);
+        var kortnavn = funnet.Count > 0 ? await Kortnavnregister.LastAsync(db, ct) : Kortnavnregister.Tomt;
         var opphevet = new Dictionary<string, (Oppheving O, Oppheving? V)>(StringComparer.Ordinal);
         foreach (var (eli, (m, n, s)) in funnet)
         {
-            var v = Hjemmelstekstlesing.Videreforinger(egne.GetValueOrDefault(n.RettskildeId) ?? [], x => x.Tekst, m)
+            var v = Hjemmelstekstlesing.Videreforinger(egne.GetValueOrDefault(n.RettskildeId) ?? [], x => x.Tekst, m, null, kortnavn.Entydig(eli))
                 .Select(x => ((string Form, Kandidatnode Node, string Sitat)?)x).FirstOrDefault();
             opphevet[eli] = (new Oppheving(n.RettskildeId, n.DokumentId, n.Eli, n.Tittel, n.Eid, s),
                 v is { } vv ? new Oppheving(vv.Node.RettskildeId, vv.Node.DokumentId, vv.Node.Eli, vv.Node.Tittel, vv.Node.Eid, vv.Sitat) : null);

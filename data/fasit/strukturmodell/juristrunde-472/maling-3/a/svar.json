@@ -1,0 +1,120 @@
+[
+ {
+  "id": "E08",
+  "svar": "aksepter",
+  "tekst": "Godtatt. Paragraf 61 viderefører bare «forskrifter», og regelen satte selv dekningen dokumenttype_ikke_nevnt. Når ingen annen premiss faller, gir den samlede statusen likevel «videreført», fordi regelen fra PR 4 (BaererVurdert) bare slår inn når noe faller. Klassen blir feil, med feilårsak dekningen. Rettingen er ikke bygget her. Den endrer prosjekteierens valg «Når ingenting faller, endrer den ingenting» og AK2: FOR-1993-12-17-1314 har også dokumenttype_ikke_nevnt (konkurranseloven 2004 § 49, V1). I kopien har 239 forskrifter minst én slik videreføring. Det stilles som spørsmål til prosjekteieren: skal en videreføring med dokumenttype_ikke_nevnt gi «uavklart» også når ingenting faller?",
+  "kilder": [
+   {
+    "ref": "NL/lov/2025-06-20-102 §61 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "src/RegelIde.Data/Hjemmelsstatus.cs BaererVurdert (PR 4)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "E09",
+  "svar": "aksepter",
+  "tekst": "Godtatt. Paragraf 61 viderefører bare «forskrifter», og regelen satte selv dekningen dokumenttype_ikke_nevnt. Når ingen annen premiss faller, gir den samlede statusen likevel «videreført», fordi regelen fra PR 4 (BaererVurdert) bare slår inn når noe faller. Klassen blir feil, med feilårsak dekningen. Rettingen er ikke bygget her. Den endrer prosjekteierens valg «Når ingenting faller, endrer den ingenting» og AK2: FOR-1993-12-17-1314 har også dokumenttype_ikke_nevnt (konkurranseloven 2004 § 49, V1). I kopien har 239 forskrifter minst én slik videreføring. Det stilles som spørsmål til prosjekteieren: skal en videreføring med dokumenttype_ikke_nevnt gi «uavklart» også når ingenting faller?",
+  "kilder": [
+   {
+    "ref": "NL/lov/2025-06-20-102 §61 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "src/RegelIde.Data/Hjemmelsstatus.cs BaererVurdert (PR 4)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "E10",
+  "svar": "aksepter",
+  "tekst": "Godtatt. Paragraf 61 viderefører bare «forskrifter», og regelen satte selv dekningen dokumenttype_ikke_nevnt. Når ingen annen premiss faller, gir den samlede statusen likevel «videreført», fordi regelen fra PR 4 (BaererVurdert) bare slår inn når noe faller. Klassen blir feil, med feilårsak dekningen. Rettingen er ikke bygget her. Den endrer prosjekteierens valg «Når ingenting faller, endrer den ingenting» og AK2: FOR-1993-12-17-1314 har også dokumenttype_ikke_nevnt (konkurranseloven 2004 § 49, V1). I kopien har 239 forskrifter minst én slik videreføring. Det stilles som spørsmål til prosjekteieren: skal en videreføring med dokumenttype_ikke_nevnt gi «uavklart» også når ingenting faller?",
+  "kilder": [
+   {
+    "ref": "NL/lov/2025-06-20-102 §61 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "src/RegelIde.Data/Hjemmelsstatus.cs BaererVurdert (PR 4)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "E11",
+  "svar": "aksepter",
+  "tekst": "Godtatt. Paragraf 61 viderefører bare «forskrifter», og regelen satte selv dekningen dokumenttype_ikke_nevnt. Når ingen annen premiss faller, gir den samlede statusen likevel «videreført», fordi regelen fra PR 4 (BaererVurdert) bare slår inn når noe faller. Klassen blir feil, med feilårsak dekningen. Rettingen er ikke bygget her. Den endrer prosjekteierens valg «Når ingenting faller, endrer den ingenting» og AK2: FOR-1993-12-17-1314 har også dokumenttype_ikke_nevnt (konkurranseloven 2004 § 49, V1). I kopien har 239 forskrifter minst én slik videreføring. Det stilles som spørsmål til prosjekteieren: skal en videreføring med dokumenttype_ikke_nevnt gi «uavklart» også når ingenting faller?",
+  "kilder": [
+   {
+    "ref": "NL/lov/2025-06-20-102 §61 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "src/RegelIde.Data/Hjemmelsstatus.cs BaererVurdert (PR 4)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "E15",
+  "svar": "aksepter",
+  "tekst": "Godtatt. Paragraf 61 viderefører bare «forskrifter», og regelen satte selv dekningen dokumenttype_ikke_nevnt. Når ingen annen premiss faller, gir den samlede statusen likevel «videreført», fordi regelen fra PR 4 (BaererVurdert) bare slår inn når noe faller. Klassen blir feil, med feilårsak dekningen. Rettingen er ikke bygget her. Den endrer prosjekteierens valg «Når ingenting faller, endrer den ingenting» og AK2: FOR-1993-12-17-1314 har også dokumenttype_ikke_nevnt (konkurranseloven 2004 § 49, V1). I kopien har 239 forskrifter minst én slik videreføring. Det stilles som spørsmål til prosjekteieren: skal en videreføring med dokumenttype_ikke_nevnt gi «uavklart» også når ingenting faller?",
+  "kilder": [
+   {
+    "ref": "NL/lov/2025-06-20-102 §61 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "src/RegelIde.Data/Hjemmelsstatus.cs BaererVurdert (PR 4)",
+    "funksjon": "forutsatt_kilde"
+   }
+  ]
+ },
+ {
+  "id": "E12",
+  "svar": "aksepter",
+  "tekst": "Godtatt. Vedtaket er en ren endringsforskrift, og forskriften den endrer, er opphevet ved 2026 nr. 1158 kap. II. Regelen leser den generelle videreføringen i § 61 og stopper der. Utfallet (ikke funn) er ufarlig, men statusen «videreført» er feil, og etter måling 2 (M08, M09) skulle funnet stått med premissmangelen #446. Klassen blir feil, med feilårsak annet. Feilen ligger utenfor kortnavnet: den gjelder #446 og opphevingen av forskriften som endres. Den føres som feilmønster, ikke bygget.",
+  "kilder": [
+   {
+    "ref": "SF/forskrift/2026-06-22-1158 kap. II (korpus)",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "E13",
+  "svar": "aksepter",
+  "tekst": "Godtatt. Vedtaket er en ren endringsforskrift, og forskriften den endrer, er opphevet ved 2026 nr. 1158 kap. II. Regelen leser den generelle videreføringen i § 61 og stopper der. Utfallet (ikke funn) er ufarlig, men statusen «videreført» er feil, og etter måling 2 (M08, M09) skulle funnet stått med premissmangelen #446. Klassen blir feil, med feilårsak annet. Feilen ligger utenfor kortnavnet: den gjelder #446 og opphevingen av forskriften som endres. Den føres som feilmønster, ikke bygget.",
+  "kilder": [
+   {
+    "ref": "SF/forskrift/2026-06-22-1158 kap. II (korpus)",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "K01",
+  "svar": "aksepter",
+  "tekst": "Godtatt på begge punkter. (1) Vedtaket er opphevet ved LTI/forskrift/2021-11-14-3414 kap. I. R8 leser ikke formen «Delegering ‹dato› … av …», som er et av de kjente R8-hullene (#502). (2) Kirkeordningen § 44 viderefører «Forskrifter og andre bestemmelser gitt av Kirkemøtet … i medhold av kirkeloven». Den finnes ikke fordi V2a bare søker i lover og i forskrifter med «overgang» i tittelen, og fordi V2a krever dato og nummer. Klassen blir feil, med feilårsak populasjonen. At V2a også skal godta kortnavnet og søke i flere forskrifter, er en egen sak; den er ikke bygget, fordi den utvider søket utover den opphevende loven og må måles for seg.",
+  "kilder": [
+   {
+    "ref": "LTI/forskrift/2021-11-14-3414 kap. I (korpus)",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "SF/forskrift/2019-03-30-2307 § 44 (korpus)",
+    "funksjon": "direkte_hjemmel"
+   }
+  ]
+ },
+ {
+  "id": "E01",
+  "svar": "merknad",
+  "tekst": "Om ledd-nummeret (gjelder alle E-kortene): Korpusversjonen av § 61 mangler opphevingsleddet, som bare står i den kunngjorte teksten. Det som i korpus er §61/ledd-2, er tredje ledd på Lovdata. Sitatet er riktig. Det er en feil i korpusdataene, ikke i regelen, og den gir ingen klassefeil. Godtatt som merknad.",
+  "kilder": []
+ }
+]

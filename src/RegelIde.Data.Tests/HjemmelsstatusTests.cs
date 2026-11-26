@@ -373,7 +373,7 @@ public class HjemmelsstatusTests(EmbeddedPostgresFixture fixture)
 
     // ---- EN med Lovtidend (Johanns avgjørelse 2026-11-18 (3)) --------------------------------------------------------------------
 
-    private sealed class FalskKunngjort(Dictionary<string, IReadOnlyList<KunngjortNode>> tekster) : IKunngjortTekstkilde
+    internal sealed class FalskKunngjort(Dictionary<string, IReadOnlyList<KunngjortNode>> tekster) : IKunngjortTekstkilde
     {
         public List<string> Etterspurt { get; } = [];
 

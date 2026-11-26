@@ -90,7 +90,7 @@ public sealed class HjemmelOpphevetFunnregel(RegelIdeDbContext db, FunnTjeneste 
     public const string NokkelPrefiks = "hjemmel-opphevet:";
     /// <summary>[ENDRET, #472 PR 4, prosjekteierens avgjørelse 2026-11-24 etter måling 1] Forskriften selv opphevet (R8), kunngjorte versjoner,
     /// forklart bort og oppfrisket.</summary>
-    public const string Regelversjon = "472-pr4-2026-11-24";
+    public const string Regelversjon = "472-pr5-2026-11-25";
 
     /// <summary>[Bryter] Om en forskrift der #446-kolonnen <c>rent_endringsvedtak</c> er NULL, gir funn. Standard <see cref="StandardIkkeKlassifisertGirFunn"/>.
     /// Se klassekommentaren.</summary>
@@ -452,10 +452,14 @@ public sealed class HjemmelOpphevetFunnregel(RegelIdeDbContext db, FunnTjeneste 
         Dictionary<Guid, List<HjemmelsstatusEntitet>> perF)
     {
         var referanse = Referanse(f);
+        // [Ny, #501, prosjekteierens avgjørelse 2026-11-25] Uavklart uten at noe faller: hjemlene er opphevet, men videreført av en overgangsregel
+        // som ikke nevner denne typen vedtak («forskrifter» om et delegeringsvedtak). Da er ingen hjemmel opphevet uten funnet videreføring.
+        var ingenFaller = undertype == UndertypeUavklart && !s.Premisser.Any(p => p.Teller && Hjemmelsstatus.Faller(p.Status));
         var navn = undertype switch
         {
             UndertypeHjemmelOpphevet => "Hjemmel opphevet, videreføring ikke funnet",
             UndertypeBlandede => "Blandede hjemler, én opphevet uten funnet videreføring",
+            UndertypeUavklart when ingenFaller => "Hjemmel opphevet, videreføringen nevner ikke vedtakstypen",
             UndertypeUavklart => "Hjemmel opphevet, de andre hjemlene ikke vurdert",
             UndertypeVidereforingUtlopt => "Videreføringen av hjemmelen er utløpt",
             _ => "Gjenstandsløs: loven vedtaket handler om, er opphevet",
@@ -466,6 +470,8 @@ public sealed class HjemmelOpphevetFunnregel(RegelIdeDbContext db, FunnTjeneste 
                 + "Ikke funnet betyr ikke at den ikke finnes.",
             UndertypeBlandede => "Minst én hjemmel som teller, er opphevet uten funnet videreføring, mens andre hjemler bærer. Hvilken del av forskriften "
                 + "som står uten hjemmel, er ikke avgjort.",
+            UndertypeUavklart when ingenFaller => "Hjemmelen er opphevet, men videreført av en overgangsregel som ikke nevner denne typen vedtak. "
+                + "Om videreføringen dekker vedtaket, er ikke vurdert, og ingen annen hjemmel som bærer, er vurdert.",
             // [ENDRET, #472 PR 4, H15 og H14] «De andre hjemlene er gjeldende» var unøyaktig når en av dem er opphevet og videreført.
             UndertypeUavklart => "Minst én hjemmel som teller, er opphevet uten funnet videreføring. De andre hjemlene kan bære forskriften, men det er "
                 + "ikke vurdert: rollen deres er ikke avklart, eller videreføringen nevner ikke denne typen vedtak.",

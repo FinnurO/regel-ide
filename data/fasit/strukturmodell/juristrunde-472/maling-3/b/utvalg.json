@@ -1,0 +1,153 @@
+{
+ "frø": 20261127,
+ "metode": "Lag = prefiks. Sortert på ekstern_nokkel og stokket med random.Random(frø) i fast lagrekkefølge (KVOTE); de n første.",
+ "populasjon": {
+  "nye_funn": 163,
+  "per_prefiks": {
+   "DEL": 150,
+   "INS": 11,
+   "SF": 1,
+   "LTI": 1
+  },
+  "per_undertype": {
+   "uavklart": 163
+  },
+  "database": "regelide_501b"
+ },
+ "kvote": {
+  "DEL": 12,
+  "INS": 2,
+  "LTI": 1,
+  "SF": 1
+ },
+ "utvalg": [
+  {
+   "id": "5e196c64-6955-4eb8-872f-ba00e0d6a28d",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/1999/05/07/434/nor",
+   "undertype": "uavklart",
+   "dokument_id": "DEL/forskrift/1999-05-07-434",
+   "prefiks": "DEL",
+   "kort": "N01"
+  },
+  {
+   "id": "990daa2d-734a-4118-8409-f6487d450181",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2004/02/06/307/nor",
+   "undertype": "uavklart",
+   "dokument_id": "DEL/forskrift/2004-02-06-307",
+   "prefiks": "DEL",
+   "kort": "N02"
+  },
+  {
+   "id": "c7665148-311d-4885-8721-940286e083c4",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/1995/02/24/184/nor",
+   "undertype": "uavklart",
+   "dokument_id": "DEL/forskrift/1995-02-24-184",
+   "prefiks": "DEL",
+   "kort": "N03"
+  },
+  {
+   "id": "d0c7b356-b815-4355-abb5-81b1ed1939a1",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/1986/01/17/42/nor",
+   "undertype": "uavklart",
+   "dokument_id": "DEL/forskrift/1986-01-17-42",
+   "prefiks": "DEL",
+   "kort": "N04"
+  },
+  {
+   "id": "049f2f7b-0eb3-4df9-a92c-91b526b0dcf3",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2001/06/15/656/nor",
+   "undertype": "uavklart",
+   "dokument_id": "DEL/forskrift/2001-06-15-656",
+   "prefiks": "DEL",
+   "kort": "N05"
+  },
+  {
+   "id": "ca09377a-e04d-4ea9-ba1d-e3e142a55df2",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/1961/09/22/8559/nor",
+   "undertype": "uavklart",
+   "dokument_id": "DEL/forskrift/1961-09-22-8559",
+   "prefiks": "DEL",
+   "kort": "N06"
+  },
+  {
+   "id": "f79c5634-801e-497f-94e0-d67b2201d958",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/1984/05/25/1156/nor",
+   "undertype": "uavklart",
+   "dokument_id": "DEL/forskrift/1984-05-25-1156",
+   "prefiks": "DEL",
+   "kort": "N07"
+  },
+  {
+   "id": "c0f7914c-041a-46a2-b9bb-3277341dd731",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2003/06/26/886/nor",
+   "undertype": "uavklart",
+   "dokument_id": "DEL/forskrift/2003-06-26-886",
+   "prefiks": "DEL",
+   "kort": "N08"
+  },
+  {
+   "id": "994231ea-775a-4868-9136-ec8462853b42",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2014/04/11/541/nor",
+   "undertype": "uavklart",
+   "dokument_id": "DEL/forskrift/2014-04-11-541",
+   "prefiks": "DEL",
+   "kort": "N09"
+  },
+  {
+   "id": "1dc20c78-5b5b-47b1-a870-98e80f23f3cd",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2002/06/28/658/nor",
+   "undertype": "uavklart",
+   "dokument_id": "DEL/forskrift/2002-06-28-658",
+   "prefiks": "DEL",
+   "kort": "N10"
+  },
+  {
+   "id": "f7da5d93-6631-4880-a510-601580e4c857",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2004/02/16/427/nor",
+   "undertype": "uavklart",
+   "dokument_id": "DEL/forskrift/2004-02-16-427",
+   "prefiks": "DEL",
+   "kort": "N11"
+  },
+  {
+   "id": "c633a7ce-a7e7-491f-9897-68ebabc3b87c",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2013/05/13/472/nor",
+   "undertype": "uavklart",
+   "dokument_id": "DEL/forskrift/2013-05-13-472",
+   "prefiks": "DEL",
+   "kort": "N12"
+  },
+  {
+   "id": "907d55cd-70f2-42b1-a36e-8aa794e62bd2",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2001/02/01/1702/nor",
+   "undertype": "uavklart",
+   "dokument_id": "INS/forskrift/2001-02-01-1702",
+   "prefiks": "INS",
+   "kort": "N13"
+  },
+  {
+   "id": "d7f808b2-058a-4fc1-b28c-71c7a9722e09",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2011/06/24/650/nor",
+   "undertype": "uavklart",
+   "dokument_id": "INS/forskrift/2011-06-24-650",
+   "prefiks": "INS",
+   "kort": "N14"
+  },
+  {
+   "id": "e001f51a-22fc-462b-a93a-64703ebb41ff",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2004/06/21/921/nor",
+   "undertype": "uavklart",
+   "dokument_id": "LTI/forskrift/2004-06-21-921",
+   "prefiks": "LTI",
+   "kort": "N15"
+  },
+  {
+   "id": "70d3d86b-ecc4-4a1e-b19d-725825304996",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2001/08/31/1074/nor",
+   "undertype": "uavklart",
+   "dokument_id": "SF/forskrift/2001-08-31-1074",
+   "prefiks": "SF",
+   "kort": "N16"
+  }
+ ]
+}

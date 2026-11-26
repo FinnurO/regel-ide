@@ -1,0 +1,337 @@
+{
+ "forslag": {
+  "formål": "Ordsperre for ordet «statsråd» (Refs #486/#489). Rollebegrepet «statsråd» (Grl. § 15 første ledd, tekstfunn) og organet statsrådet (navneform «statsrådet», Grl. § 12 første ledd) finnes. Organet Kongen i statsråd finnes med navneformene «Kongen i statsråd» og «Kongen». Sperren skal hindre at en forekomst som betyr organet eller beslutningsformen, kobles til rollen, og omvendt. Alt er forslag.",
+  "korpus": "537 ordforekomster som inneholder «statsråd» i gjeldende, ikke opphevede noder i gjeldende rettskilder (144 kilder, 413 noder).",
+  "regel_per_form": [
+   {
+    "form": "statsråd / statsråds etter «Kongen i» (også Kronprinsen/Regenten)",
+    "antall": 242,
+    "forslag": "organet Kongen i statsråd (navneformen). Sperret for rollen."
+   },
+   {
+    "form": "statsråd etter «i» ellers («vedtak i statsråd», «behandling i statsråd», «oppnevninger i statsråd»)",
+    "antall": 14,
+    "forslag": "beslutningsformen Kongen i statsråd. Sperret for rollen. Ingen positiv tagg i denne saken (bare sperre)."
+   },
+   {
+    "form": "statsråd med intetkjønn foran («det samlede statsråd», «sitt statsråd», «et statsråd», «hvert statsråd»)",
+    "antall": 5,
+    "forslag": "organet (statsrådet), sperret for rollen"
+   },
+   {
+    "form": "statsråd som møtet («avholdelse av (beslutningsdyktig) statsråd», «et beslutningsdyktig statsråd», «trekkes fra statsråd», «forberedende statsråd»)",
+    "antall": 5,
+    "forslag": "sperret for rollen; hvilket organ er slutning"
+   },
+   {
+    "form": "statsrådet / statsrådets",
+    "antall": 67,
+    "forslag": "organet statsrådet (navneformen gjelder, ingen sperre). Delt: «medlem av statsrådet»/«statsrådets medlemmer» 31, «i statsrådet» 18, øvrige 18"
+   },
+   {
+    "form": "statsråd med rolleord foran («en», «den», «vedkommende», «ansvarlig(e)», «hovedansvarlig», «foredragende», «den enkelte», «hver enkelt», «annen», «som», «vært»)",
+    "antall": 27,
+    "forslag": "rollen statsråd"
+   },
+   {
+    "form": "Statsråd/statsråd + personnavn («Statsråd Astrup har ansvaret for …»)",
+    "antall": 71,
+    "forslag": "rollen statsråd (personen som har rollen)"
+   },
+   {
+    "form": "statsråden, statsrådens, statsråder, statsrådene, statsrådenes",
+    "antall": 95,
+    "forslag": "rollen statsråd"
+   },
+   {
+    "form": "sammensetninger (statsrådsprotokoll(en/er), fagstatsråds); bindestrek foran er ikke ordgrense",
+    "antall": 8,
+    "forslag": "ikke treff"
+   },
+   {
+    "form": "resten («statsminister eller statsråd», «mellom embetsverk og statsråd», «gjelder ikke statsråd i egenskap av regjeringsmedlem»)",
+    "antall": 3,
+    "forslag": "slutning (et menneske avgjør)"
+   }
+  ]
+ },
+ "utvalg": [
+  {
+   "id": "s1",
+   "rettskilde": "Utlendingsloven – utlendl",
+   "eid": "https://lovdata.no/eli/lov/2008/05/15/35/nor/§129/ledd-3",
+   "form": "statsråd",
+   "regel": "«Kongen i statsråd»",
+   "foreslatt_lesning": "organ Kongen i statsråd",
+   "hele_leddet": "Dersom departementet har gitt instruks om oppholdsstatus for utlending som har fått innreisetillatelse etter § 35, skal klage over avgjørelsen behandles av Kongen i statsråd."
+  },
+  {
+   "id": "s2",
+   "rettskilde": "Valgloven",
+   "eid": "https://lovdata.no/eli/lov/2023/06/16/62/nor/§18-2/ledd-3",
+   "form": "statsråd",
+   "regel": "«Kongen i statsråd»",
+   "foreslatt_lesning": "organ Kongen i statsråd",
+   "hele_leddet": "(3) Hvis det har skjedd noe ekstraordinært som har hindret en vesentlig del av velgerne fra å stemme, kan Kongen i statsråd bestemme at det skal holdes omvalg. Et vedtak om å holde omvalg kan fattes bare så langt det er nødvendig for å sikre velgerne mulighet til å stemme."
+  },
+  {
+   "id": "s3",
+   "rettskilde": "Bildeprogramloven",
+   "eid": "https://lovdata.no/eli/lov/2015/02/06/7/nor/§17/ledd-3",
+   "form": "statsråd",
+   "regel": "«Kongen i statsråd»",
+   "foreslatt_lesning": "organ Kongen i statsråd",
+   "hele_leddet": "I saker av prinsipiell eller stor samfunnsmessig betydning kan Kongen i statsråd omgjøre Medietilsynets eller Medieklagenemndas vedtak etter reglene i forvaltningsloven § 35 annet, tredje og femte ledd."
+  },
+  {
+   "id": "s4",
+   "rettskilde": "Helseregisterloven – hregl",
+   "eid": "https://lovdata.no/eli/lov/2014/06/20/43/nor/§10/ledd-1",
+   "form": "statsråd",
+   "regel": "«Kongen i statsråd»",
+   "foreslatt_lesning": "organ Kongen i statsråd",
+   "hele_leddet": "Kongen i statsråd kan i samsvar med vilkårene i § 8 gi forskrift om behandling av opplysninger i helseregistre der navn, fødselsnummer eller andre personidentifiserende kjennetegn skal kunne behandles uten samtykke fra den registrerte. Slike forskrifter kan gis dersom"
+  },
+  {
+   "id": "s5",
+   "rettskilde": "Grunnloven (bokmål) – Grl.",
+   "eid": "https://lovdata.no/eli/lov/1814/05/17/nor/§28/ledd-1",
+   "form": "statsråd",
+   "regel": "«i statsråd» (beslutningsformen)",
+   "foreslatt_lesning": "organ Kongen i statsråd",
+   "hele_leddet": "Innstillinger om embetsutnevnelser og andre saker av viktighet skal foredras i statsrådet av det medlem til hvis fag de hører, og sakene skal ekspederes av ham eller henne i overensstemmelse med den beslutning som er tatt i statsrådet. Dog kan egentlige militære kommandosaker, i den utstrekning som kongen bestemmer, unntas fra behandling i statsråd."
+  },
+  {
+   "id": "s6",
+   "rettskilde": "Midlertidig suksesjon for regjeringens medlemmer når riket er i krig eller krig truer m.m.",
+   "eid": "https://lovdata.no/eli/forskrift/2017/01/27/2538/nor/§5/ledd-2",
+   "form": "statsråd",
+   "regel": "«i statsråd» (beslutningsformen)",
+   "foreslatt_lesning": "organ Kongen i statsråd",
+   "hele_leddet": "Statsrådet skal formalisere fungeringen som statsråd gjennom vedtak i statsråd. Dersom halvparten eller mindre enn halvparten av regjeringens ordinære medlemmer er til stede, skal prosedyren i Grunnloven § 29 annet ledd følges."
+  },
+  {
+   "id": "s7",
+   "rettskilde": "Endr. i forskrift om kjønnsrepresentasjon",
+   "eid": "kap-I/ledd-5",
+   "form": "statsråd",
+   "regel": "«i statsråd» (beslutningsformen)",
+   "foreslatt_lesning": "organ Kongen i statsråd",
+   "hele_leddet": "Ved oppnevninger i statsråd skal det, dersom utvalget ikke tilfredsstiller lovens krav om kjønnsrepresentasjon, opplyses at utvalgets sammensetning er godkjent av Barne- og familiedepartementet."
+  },
+  {
+   "id": "s8",
+   "rettskilde": "Midlertidig suksesjon for regjeringens medlemmer når riket er i krig eller krig truer m.m.",
+   "eid": "https://lovdata.no/eli/forskrift/2017/01/27/2538/nor/§1/ledd-1",
+   "form": "statsråd",
+   "regel": "møtet («avholdelse av», «beslutningsdyktig», «fra», «forberedende»)",
+   "foreslatt_lesning": "slutning (organ, møtet)",
+   "hele_leddet": "Formålet med disse reglene om midlertidig suksesjon er å påse at det foreligger et umiddelbart tilgjengelig regelverk å basere seg på inntil et beslutningsdyktig statsråd skulle bestemme noe annet, for på den måten å unngå uklarhet om at riket til enhver tid har et statsråd, en statsminister og departementssjefer som er funksjonsdyktige i situasjoner som nevnt i § 2 første ledd."
+  },
+  {
+   "id": "s9",
+   "rettskilde": "Grunnloven (bokmål) – Grl.",
+   "eid": "https://lovdata.no/eli/lov/1814/05/17/nor/§22/ledd-1",
+   "form": "statsrådets",
+   "regel": "«medlem av statsrådet», «statsrådets medlemmer»",
+   "foreslatt_lesning": "organ statsrådet",
+   "hele_leddet": "Statsministeren og statsrådets øvrige medlemmer samt statssekretærene kan uten foregående dom avskjediges av kongen etter at han har hørt statsrådets betenkning derom. Det samme gjelder for de embetsmenn som er ansatt ved statsrådets kontorer eller ved diplomatiet eller konsulatvesenet, sivile overøvrighetspersoner, sjefer for regimenter og andre militære korps, kommandanter på festninger og høystbefalende på krigsskip. Hvorvidt pensjon bør tilstås de således avskjedigede embetsmenn, avgjøres av det neste storting. I mellomtiden nyter de to tredjedeler av sin tidligere gasje."
+  },
+  {
+   "id": "s10",
+   "rettskilde": "Grunnloven (bokmål) – Grl.",
+   "eid": "https://lovdata.no/eli/lov/1814/05/17/nor/§13/ledd-2",
+   "form": "statsrådet",
+   "regel": "«medlem av statsrådet», «statsrådets medlemmer»",
+   "foreslatt_lesning": "organ statsrådet",
+   "hele_leddet": "Forretningene avgjøres ved stemmegivning, hvorved i tilfelle av stemmelikhet statsministeren eller i dennes fravær det første av de tilstedeværende medlemmer av statsrådet har to stemmer."
+  },
+  {
+   "id": "s11",
+   "rettskilde": "Ansvarlighetsloven – riksrl",
+   "eid": "https://lovdata.no/eli/lov/1932/02/05/1/nor/§15/ledd-2",
+   "form": "statsrådet",
+   "regel": "«medlem av statsrådet», «statsrådets medlemmer»",
+   "foreslatt_lesning": "organ statsrådet",
+   "hele_leddet": "På samme måte straffes det medlem av statsrådet som, etter at Stortinget har truffet beslutning om mistillit, overskrider sin bemyndigelse ifølge Grunnlovens § 15 tredje ledd."
+  },
+  {
+   "id": "s12",
+   "rettskilde": "Regjeringsinstruksen",
+   "eid": "https://lovdata.no/eli/lov/1909/03/23/nor/§4/ledd-2",
+   "form": "statsrådet",
+   "regel": "«i statsrådet» (forumet)",
+   "foreslatt_lesning": "organ statsrådet",
+   "hele_leddet": "2. Den foredragende statsråd bør som regel ha med sig i statsrådet en referatliste over de saker som skal foredrages samt så mange avskrifter av listen som til bruk under saksbehandlingen i statsrådet anses nødvendig. Han avmerker på stedet i sin referatliste de saker som er avgjort."
+  },
+  {
+   "id": "s13",
+   "rettskilde": "Grunnloven (bokmål) – Grl.",
+   "eid": "https://lovdata.no/eli/lov/1814/05/17/nor/§27/ledd-1",
+   "form": "statsrådet",
+   "regel": "«i statsrådet» (forumet)",
+   "foreslatt_lesning": "organ statsrådet",
+   "hele_leddet": "Alle statsrådets medlemmer skal, når de ikke har lovlig forfall, være nærværende i statsrådet. Ingen beslutning må tas der når ikke over halvdelen av antall medlemmer er til stede."
+  },
+  {
+   "id": "s14",
+   "rettskilde": "Grunnloven (bokmål) – Grl.",
+   "eid": "https://lovdata.no/eli/lov/1814/05/17/nor/§41/ledd-1",
+   "form": "statsrådet",
+   "regel": "navneformen «statsrådet», øvrige",
+   "foreslatt_lesning": "organ statsrådet",
+   "hele_leddet": "Er kongen fraværende fra riket uten å være i felt, eller er han så syk at han ikke kan ivareta regjeringen, skal den som er nærmest arveberettiget til tronen, forestå regjeringen som kongemaktens midlertidige utøver, så fremt han eller hun har oppnådd den for kongen fastsatte myndighetsalder. I motsatt fall forestår statsrådet bestyrelsen av riket."
+  },
+  {
+   "id": "s15",
+   "rettskilde": "Grunnloven (bokmål) – Grl.",
+   "eid": "https://lovdata.no/eli/lov/1814/05/17/nor/§86/ledd-1",
+   "form": "statsrådets",
+   "regel": "navneformen «statsrådet», øvrige",
+   "foreslatt_lesning": "organ statsrådet",
+   "hele_leddet": "Riksretten dømmer i første og siste instans i de saker som Stortinget anlegger mot statsrådets, Høyesteretts eller Stortingets medlemmer for straffbart eller annet rettsstridig forhold når de har brutt sine konstitusjonelle plikter."
+  },
+  {
+   "id": "s16",
+   "rettskilde": "Grunnloven (bokmål) – Grl.",
+   "eid": "https://lovdata.no/eli/lov/1814/05/17/nor/§15/ledd-1",
+   "form": "statsråd",
+   "regel": "nøytrum foran («det samlede», «sitt», «et», «hvert»)",
+   "foreslatt_lesning": "organ statsrådet",
+   "hele_leddet": "Enhver som er medlem av statsrådet, har plikt til å innlevere sin avskjedssøknad etter at Stortinget har fattet beslutning om mistillit til vedkommende statsråd alene eller til det samlede statsråd."
+  },
+  {
+   "id": "s17",
+   "rettskilde": "Midlertidig suksesjon for regjeringens medlemmer når riket er i krig eller krig truer m.m.",
+   "eid": "https://lovdata.no/eli/forskrift/2017/01/27/2538/nor/§1/ledd-1",
+   "form": "statsråd",
+   "regel": "nøytrum foran («det samlede», «sitt», «et», «hvert»)",
+   "foreslatt_lesning": "organ statsrådet",
+   "hele_leddet": "Formålet med disse reglene om midlertidig suksesjon er å påse at det foreligger et umiddelbart tilgjengelig regelverk å basere seg på inntil et beslutningsdyktig statsråd skulle bestemme noe annet, for på den måten å unngå uklarhet om at riket til enhver tid har et statsråd, en statsminister og departementssjefer som er funksjonsdyktige i situasjoner som nevnt i § 2 første ledd."
+  },
+  {
+   "id": "s18",
+   "rettskilde": "Stortings- og regjeringspensjonsloven",
+   "eid": "https://lovdata.no/eli/lov/2011/12/16/60/nor/§5-3/ledd-2/punkt-2",
+   "form": "statsråder",
+   "regel": "bestemt form/flertall",
+   "foreslatt_lesning": "rollen statsråd",
+   "hele_leddet": "har en samlet medlemstid i ordningen på minst tre år, der opptjeningstid etter de tidligere lovene om pensjonsordninger for stortingsrepresentanter og statsråder også regnes med, og"
+  },
+  {
+   "id": "s19",
+   "rettskilde": "Endr. i Stortingets forretningsorden",
+   "eid": "kap-I/ledd-7",
+   "form": "Statsrådens",
+   "regel": "bestemt form/flertall",
+   "foreslatt_lesning": "rollen statsråd",
+   "hele_leddet": "Spørsmål eller anmodninger til ansvarlig statsråd som ledd i saksforberedelsen skal normalt sendes av saksordfører eller leder på vegne av komiteen. Statsrådens svar skal gjøres tilgjengelig for komiteens medlemmer."
+  },
+  {
+   "id": "s20",
+   "rettskilde": "Endr. i Stortingets forretningsorden",
+   "eid": "kap-I/ledd-13",
+   "form": "statsrådens",
+   "regel": "bestemt form/flertall",
+   "foreslatt_lesning": "rollen statsråd",
+   "hele_leddet": "Med mindre det fremstår som klart at et representantforslag ikke vil imøtekommes, skal statsråden gis anledning til å uttale seg om forslaget før realitetsinnstilling avgis. For øvrig kan en tredjedel av komiteens medlemmer kreve at det sendes brev til en statsråd med anmodning om statsrådens uttalelse om et representantforslag. Saksordfører eller leder skal stå som avsender av henvendelsen på vegne av komiteen. Statsrådens svar skal gjøres tilgjengelig for komiteens medlemmer."
+  },
+  {
+   "id": "s21",
+   "rettskilde": "Stortings- og regjeringspensjonsloven",
+   "eid": "https://lovdata.no/eli/lov/2011/12/16/60/nor/§4-2/ledd-1",
+   "form": "statsråder",
+   "regel": "bestemt form/flertall",
+   "foreslatt_lesning": "rollen statsråd",
+   "hele_leddet": "Opptjeningstiden etter kapitlet her beregnes etter bestemmelsene om pensjonsgivende tid i tidligere lov 14. desember 1951 nr. 11 om pensjonsordning for statsråder."
+  },
+  {
+   "id": "s22",
+   "rettskilde": "Instruks om Riksrevisjonens virksomhet",
+   "eid": "https://lovdata.no/eli/forskrift/2004/03/11/700/nor/§15/ledd-1/punkt-2",
+   "form": "statsrådens",
+   "regel": "bestemt form/flertall",
+   "foreslatt_lesning": "rollen statsråd",
+   "hele_leddet": "resultatet av kontrollen med forvaltningen foregående år av statens interesser i selskaper m.m. Riksrevisjonen skal også rapportere til Stortinget mulige bemerkninger til statsrådens myndighetsutøvelse overfor Norges Bank,"
+  },
+  {
+   "id": "s23",
+   "rettskilde": "Stortingets forretningsorden",
+   "eid": "https://lovdata.no/eli/forskrift/2012/06/07/518/nor/§24/ledd-3",
+   "form": "statsråd",
+   "regel": "rolleord foran («en», «vedkommende», «ansvarlig» …)",
+   "foreslatt_lesning": "rollen statsråd",
+   "hele_leddet": "Spørsmål eller anmodninger til ansvarlig statsråd som ledd i saksforberedelsen skal normalt sendes av saksordfører eller leder på vegne av komiteen. Statsrådens svar skal gjøres tilgjengelig for komiteens medlemmer. Senest en uke før innstillingen skal avgis, kan saksordfører kreve at komiteen stiller bestemte skriftlige spørsmål til vedkommende regjeringsmedlem om en sak som er under behandling i komiteen."
+  },
+  {
+   "id": "s24",
+   "rettskilde": "Samfunnssikkerhetsinstruksen",
+   "eid": "kap-VIII/ledd-1",
+   "form": "statsråd",
+   "regel": "rolleord foran («en», «vedkommende», «ansvarlig» …)",
+   "foreslatt_lesning": "rollen statsråd",
+   "hele_leddet": "Regjeringen har det øverste ansvar for beredskapen i Norge, herunder det overordnede politiske ansvaret for både styringen og håndteringen av kriser som oppstår. Den enkelte statsråd har det konstitusjonelle ansvaret på sitt område, innenfor de lover og bevilgninger Stortinget har gitt. Den enkelte statsråd beholder sitt konstitusjonelle ansvar også i en krisesituasjon."
+  },
+  {
+   "id": "s25",
+   "rettskilde": "Reglement for kontrollhøringer",
+   "eid": "https://lovdata.no/eli/forskrift/2001/06/11/4957/nor/§5/ledd-2",
+   "form": "statsråd",
+   "regel": "rolleord foran («en», «vedkommende», «ansvarlig» …)",
+   "foreslatt_lesning": "rollen statsråd",
+   "hele_leddet": "(2) Embets- og tjenestemenn i de ytre etater kan anmodes direkte om å møte til høring. I slike tilfeller skal den ansvarlige statsråd varsles og gis adgang til å være til stede. Spørsmål stilles direkte til den inviterte, men statsråden skal gis adgang til å supplere forklaringen."
+  },
+  {
+   "id": "s26",
+   "rettskilde": "Endr. i departementsstrukturen og i ansvarsfordelingen mellom departementene",
+   "eid": "https://lovdata.no/eli/forskrift/2019/05/03/560/nor/punkt-2",
+   "form": "Statsråd",
+   "regel": "tittel foran navn («statsråd Kallmyr»)",
+   "foreslatt_lesning": "rollen statsråd",
+   "hele_leddet": "Kommunal- og moderniseringsdepartementet ledes av to konstitusjonelt ansvarlige statsråder. Kommunal- og moderniseringsdepartementet overtar ansvaret for arbeidet med elektronisk kommunikasjon fra Samferdselsdepartementet og ansvaret for IKT-relaterte oppgaver fra Nærings- og fiskeridepartementet. Statsråd Astrup har ansvaret for IT-politikk, elektronisk kommunikasjon og personvern i Kommunal- og moderniseringsdepartementet. Ansvaret for samordning av regjeringens IT-politikk innebærer å identifisere sektorovergripende utfordringer og å initiere, koordinere og følge opp tverrgående tiltak. Ansvaret omfatter også samordning av digitaliseringen i offentlig sektor. Statsråd Astrup har også et særskilt ansvar for å arbeide for en styrket og mer helhetlig tilnærming til informasjonssikkerhet i statsforvaltningen. Statsråd Astrup har ansvaret for Kommunal- og moderniseringsdepartementets etatsstyring av Direktoratet for forvaltning og IKT (Difi), Nasjonal kommunikasjonsmyndighet (Nkom) og Datatilsynet. Statsråd Astrup har videre etatsstyringsansvaret for Personvernnemnda. Statsråd Mæland har ansvaret for alle andre ansvarsområder som hører under Kommunal- og moderniseringsdepartementet. Statsråd Mæland har også det administrative ansvaret for Kommunal- og moderniseringsdepartementet, herunder ansvaret for lønns- og driftsbudsjettet for hele departementet."
+  },
+  {
+   "id": "s27",
+   "rettskilde": "Endr. i departementsstrukturen og i ansvarsfordelingen mellom departementene",
+   "eid": "https://lovdata.no/eli/forskrift/2018/04/27/638/nor/punkt-2",
+   "form": "Statsråd",
+   "regel": "tittel foran navn («statsråd Kallmyr»)",
+   "foreslatt_lesning": "rollen statsråd",
+   "hele_leddet": "Helse- og omsorgsdepartementet ledes av to konstitusjonelt ansvarlige statsråder: Statsråd Michaelsen har ansvaret for lovverk knyttet til saksområdet kommunale omsorgstjenester. Dette omfatter i hovedsak lovverk knyttet til den kommunale omsorgstjenesten, blant annet helse- og omsorgstjenester i institusjoner som nevnt i forskrift 16. desember 2011 nr. 1254 om kommunal helse- og omsorgsinstitusjon § 1 første ledd bokstav a, c og d (barneboliger, aldershjem og sykehjem), kommunale helse- og omsorgstjenester i hjemmet (hjemmesykepleie), personlig assistanse (blant annet praktisk bistand, opplæring og støttekontakt), brukerstyrt personlig assistanse (BPA) og støtte til pårørende. Statsråd Michaelsens ansvar omfatter ikke lovverk knyttet til kommunale helse- og omsorgstjenester som tilbys som følge av rusmiddelproblemer og psykisk sykdom eller lidelse, og lovverk om kommunale helse- og omsorgstjenester til mennesker som har vært utsatt for vold eller seksuelle overgrep. Videre har statsråd Michaelsen ansvaret for lover knyttet til folkehelseområdet, med unntak for legemidler, medisinsk utstyr og arbeidet knyttet til rusreformen. Folkehelseområdet omfatter blant annet sosial ulikhet i helse, fysisk aktivitet, psykisk helse, helsefremmende og forebyggende arbeid, ernæring og mattrygghet, drikkevann, kosmetikk, alkohol-, narkotika- og tobakksforebygging, smittevern, strålevern, atomsikkerhet og miljørettet helsevern. Statsråd Michaelsen har ansvaret for etatsstyringen av Strålevernet og Folkehelseinstituttet samt eierstyring av Vinmonopolet. Statsråd Michaelsen har også ansvaret for Helse- og omsorgsdepartementets faglige etatsstyring av Mattilsynet. Statsråd Høie har ansvaret for alle andre lover som hører under Helse- og omsorgsdepartementet. Statsråd Høie har også det administrative ansvaret for Helse- og omsorgsdepartementet, herunder ansvaret for lønns- og driftsbudsjettet for hele departementet."
+  },
+  {
+   "id": "s28",
+   "rettskilde": "Endr. i departementsstrukturen og i ansvarsfordelingen mellom departementene",
+   "eid": "https://lovdata.no/eli/forskrift/2019/05/03/560/nor/punkt-3",
+   "form": "Statsråd",
+   "regel": "tittel foran navn («statsråd Kallmyr»)",
+   "foreslatt_lesning": "rollen statsråd",
+   "hele_leddet": "Justis- og beredskapsdepartementet ledes av to konstitusjonelt ansvarlige statsråder. Justis- og beredskapsdepartementet overtar ansvaret for sikkerhetsloven og det administrative ansvaret for Nasjonal sikkerhetsmyndighet (NSM) fra Forsvarsdepartementet. Statsråd Tybring-Gjedde har ansvaret for departementets saker knyttet til polarområdene (Arktis med Svalbard og Antarktis). Statsråd Tybring-Gjedde har også ansvaret for departementets oppgaver knyttet til etatsstyringen av Sysselmannen på Svalbard, men likevel slik at sysselmannens funksjon som politimester tilligger statsråd Kallmyrs ansvarsområde. Statsråd Tybring-Gjedde har et særlig ansvar for koordineringen av regjeringens svalbardpolitikk og sentraladministrasjonens behandling av polarsaker. Statsråd Tybring-Gjedde er ansvarlig for utarbeidelsen av Svalbardbudsjettet og er regjeringens kontaktpunkt overfor Longyearbyen lokalstyre. Statsråd Tybring-Gjedde har ansvaret for samfunnssikkerhet i sivil sektor på nasjonalt nivå, Justis- og beredskapsdepartementets samordningsrolle innen samfunnssikkerhet og for digital sikkerhet i sivil sektor, forebyggende sikkerhet i sivil sektor, den offentlig organiserte redningstjenesten, nød- og beredskapskommunikasjon og redningshelikoptertjenesten. Statsråd Kallmyr har ansvaret for forebyggende nasjonal sikkerhet som er direkte knyttet til ansvarsområder som tilligger Politiets sikkerhetstjeneste (PST), politiet og Riksadvokaten, herunder etterforskning og påtale mv. Statsråd Tybring-Gjedde har etatsstyringsansvaret for følgende underlagte virksomheter: Direktoratet for samfunnssikkerhet og beredskap, Hovedredningssentralene, Sivil klareringsmyndighet og NSM. Etatsstyringsansvaret for Justis- og beredskapsdepartementets øvrige underlagte og tilknyttede virksomheter tilligger statsråd Kallmyr. Statsråd Kallmyr og statsråd Tybring-Gjedde har ansvaret for departementets samlede beredskap og krisehåndteringen i justissektoren. Ansvarsplasseringen ved krisehåndtering følger den samme ansvarsdelingen som ellers gjelder mellom statsråd Kallmyr og statsråd Tybring-Gjedde. Dersom håndteringen krever involvering av kapasiteter som til daglig er underlagt begge statsrådene, er hovedansvarlig statsråd for håndtering av krisen den som er konstitusjonelt ansvarlig for den delen av sektoren som leder håndteringen. Det konstitusjonelle ansvaret endres ikke ved utpeking av hovedansvarlig statsråd. Beslutning om tiltak beskrevet i Nasjonalt beredskapssystem er fordelt mellom statsråd Kallmyr og statsråd Tybring-Gjedde. Ved anmodninger om bistand fra Forsvaret utøver statsråd Kallmyr alminnelig styringsrett i Justis- og beredskapsdepartementet. For alle andre ansvarsområder som hører under Justis- og beredskapsdepartementet har statsråd Kallmyr ansvaret. Statsråd Kallmyr har også det administrative ansvaret for Justis- og beredskapsdepartementet, herunder ansvaret for lønns- og driftsbudsjettet for hele departementet."
+  },
+  {
+   "id": "s29",
+   "rettskilde": "Midlertidig suksesjon for regjeringens medlemmer når riket er i krig eller krig truer m.m.",
+   "eid": "https://lovdata.no/eli/forskrift/2017/01/27/2538/nor/§2/ledd-2",
+   "form": "statsråd",
+   "regel": "ingen regel",
+   "foreslatt_lesning": "slutning",
+   "hele_leddet": "En person som befinner seg i fiendtlig område eller område som er okkupert av en fiende, kan ikke tre inn som statsminister eller statsråd etter regelverket her."
+  },
+  {
+   "id": "s30",
+   "rettskilde": "Regjeringsinstruksen",
+   "eid": "https://lovdata.no/eli/lov/1909/03/23/nor/§7/ledd-2/punkt-5",
+   "form": "statsrådsprotokollen",
+   "regel": "ikke treff",
+   "foreslatt_lesning": "sammensetning",
+   "hele_leddet": "Å avgi til ethvert departement, ethvert for sitt vedkommende, meddelse om de beslutninger som er fattet av Kongen eller den Midlertidige Regjering samt, såfremt beslutningen avviker fra vedkommende departements innstilling, grunnene for den trufne avgjørelse overensstemmende med hvad der i så henseende er tilført statsrådsprotokollen."
+  }
+ ],
+ "sporsmal": [
+  "q1: Holder skillet mellom ubestemt «statsråd» som organ/beslutningsform (etter «i», intetkjønn, møtet) og som rolle (hankjønn/rolleord, tittel, bestemt form og flertall)?",
+  "q2: «i statsrådet» (18, mest Grunnloven §§ 20, 27, 28, 30, 31): er ordet her organet statsrådet, eller forumet der Kongen i statsråd beslutter? Er det riktig at navneformen «statsrådet» gjelder?",
+  "q3: «medlem av statsrådet» / «statsrådets medlemmer» (31): ordet peker på organet, frasen på rollen. For «regjeringen» ble «medlem av regjeringen» tagget som rollen statsråd (#486 regel 4). Bør «statsrådet» i disse frasene også få lesningen rollen, eller er organet riktig for selve ordet?",
+  "q4: «Statsråd + personnavn» (71, departementsstruktur-forskriftene): er rollen riktig lesning, eller er dette en person/tittel som ikke skal kobles til rollebegrepet?",
+  "q5: Er de 14 «i statsråd» uten «Kongen» riktig lest som beslutningsformen Kongen i statsråd?"
+ ]
+}
