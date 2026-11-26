@@ -225,18 +225,25 @@ public sealed class BegrepsforekomstTjeneste(
         BegrepsforekomstEntitet forekomst, BegrepEntitet begrep, Guid virksomhetId, string behandletAv, CancellationToken ct)
     {
         const int kontekstLengde = 30; // samme kontekstvindu som selve definisjonstaggen over.
-        var mønster = new Regex(@"\b" + Regex.Escape(forekomst.Begrep) + @"\b", RegexOptions.IgnoreCase);
+        // [ENDRET, Refs #486] Samme ordgrense som aktørtaggingen (AktoridentitetTjeneste.HeleOrd): bindestrek rett foran er ikke ordgrense
+        // («EØS-staten»). Før: \b, som regnet bindestrek som ordgrense.
+        var mønster = AktoridentitetTjeneste.HeleOrd(forekomst.Begrep, RegexOptions.IgnoreCase);
 
         var noder = await db.RettskildeNoder
             .Where(n => n.RettskildeId == forekomst.RettskildeId && n.Tekst != null
                         && !n.Opphevet && n.Entitetsstatus == "gjeldende")
             .ToListAsync(ct);
+        // [Ny, Refs #486] Ordsperren: «statsråd» i «Kongen i statsråd» eller «vedtak i statsråd» er ikke rollen og tagges ikke mot begrepet.
+        // Konvensjonstekst slås opp bare når termen har en sperre.
+        var konvensjon = Ordsperrer.HarSperre(forekomst.Begrep)
+            ? await Ordsperrer.KonvensjonsnoderAsync(db, noder.Select(n => n.Id).ToList(), ct) : [];
 
         foreach (var node in noder)
         {
             var tekst = node.Tekst!;
             foreach (Match m in mønster.Matches(tekst))
             {
+                if (Ordsperrer.Vurder(forekomst.Begrep, tekst, m.Index, m.Index + m.Length, konvensjon.Contains(node.Id)) is not null) continue;
                 // Selve definisjonsforekomsten er allerede tagget over — ikke dupliser den.
                 if (node.Eid == forekomst.NodeEid && m.Index == forekomst.StartOffset && m.Index + m.Length == forekomst.EndOffset)
                 {

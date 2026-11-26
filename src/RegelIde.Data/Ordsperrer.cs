@@ -28,19 +28,62 @@ namespace RegelIde.Data;
 /// <para>
 /// <b>Kode, ikke data</b> (samme valg som standardreglene i #394 og forleddssperren i #440): lista er lukket, og en ny sperre er et vedtak.
 /// </para>
+/// <para>
+/// [Ny, Refs #486, prosjekteierens klarsignal 2026-11-25, juristrunden i <c>data/fasit/strukturmodell/statsrad/</c>] <b>«statsråd» og
+/// «statsrådet»</b>. Ordet betyr organet statsrådet, møtet der Kongen i statsråd beslutter, eller rollen statsråd. Rollebegrepet «statsråd»
+/// (#489) og navneformen «statsrådet» for organet finnes; uten sperre kan en forekomst om organet eller møtet kobles til rollen, og «i
+/// statsrådet» om møtet kobles til organet. Sperren for <b>«statsråd»</b> (ordet betyr ikke rollen) gjelder IKKE:
+/// <list type="bullet">
+/// <item><b>«i» rett foran</b> («Kongen i statsråd», «vedtak i statsråd»): organet Kongen i statsråd eller beslutningsformen.</item>
+/// <item><b>Intetkjønn foran</b> («et», «det», «sitt», «det samlede»): organet. Rollen er hankjønn («en statsråd», «den ansvarlige statsråd»).</item>
+/// <item><b>Møtet</b> («avholdelse av (beslutningsdyktig) statsråd», «et beslutningsdyktig statsråd», «hvert statsråd», «forberedende
+/// statsråd», «trekkes fra statsråd»). «fra» bare når ikke et navn følger («fra statsråd Jan Christian Vestre» er rollen).</item>
+/// <item><b>Konvensjonstekst</b>, som for «staten» («vedkommende statsråd … i virksomhetslandet»: en annen stats statsråd).</item>
+/// </list>
+/// Sperren for <b>«statsrådet»</b> (ordet betyr ikke organet) gjelder <b>«i statsrådet»</b> og <b>«utenfor statsrådet»</b>, som er møtet der
+/// Kongen i statsråd beslutter (Grl. §§ 20, 28, 30), men IKKE «sete i statsrådet» (medlemskap, organet). Kjent pris (juristrunden, a2): Regjeringsinstruksen
+/// § 1 («I statsrådet, som består av …») og Grl. § 27 («nærværende i statsrådet») sperres selv om de kan leses som organet; sperren er
+/// konservativ og gir ingen feil kobling. Konvensjonstekst sperrer også («statsrådet» er regjeringen i Finland).
+/// Sammensetninger («statsrådsprotokollen», «fagstatsråds») er ikke treff, og bindestrek rett foran er ikke ordgrense (som for «staten»).
+/// </para>
 /// </summary>
 public static class Ordsperrer
 {
-    /// <summary>Navneformen som har en ordsperre i dag.</summary>
+    /// <summary>Navneformen «staten» (#463).</summary>
     public const string Staten = "staten";
+
+    /// <summary>[Ny, Refs #486] Rollebegrepets term. Sperren sier når ordet IKKE betyr rollen.</summary>
+    public const string Statsrad = "statsråd";
+
+    /// <summary>[Ny, Refs #486] Navneformen for organet statsrådet. Sperren sier når ordet IKKE betyr organet.</summary>
+    public const string Statsradet = "statsrådet";
+
+    /// <summary>[Ny, Refs #486] Termene som har en ordsperre.</summary>
+    public static readonly string[] Termer = [Staten, Statsrad, Statsradet];
 
     public const string BindestrekForan = "bindestrek_foran";
     public const string DenAdjektiv = "den_adjektiv";
     public const string DerHvorHvis = "der_hvor_hvis";
     public const string Konvensjonstekst = "konvensjonstekst";
+    /// <summary>[Ny, Refs #486] «i» rett foran: «Kongen i statsråd», «vedtak i statsråd», «i statsrådet» (ikke «sete i statsrådet»).</summary>
+    public const string IForan = "i_foran";
+    /// <summary>[Ny, Refs #486] «utenfor statsrådet» (Grl. § 14): møtet.</summary>
+    public const string UtenforForan = "utenfor_foran";
+    /// <summary>[Ny, Refs #486] Intetkjønn foran «statsråd»: «det samlede statsråd», «sitt statsråd», «et statsråd».</summary>
+    public const string Intetkjonn = "intetkjonn";
+    /// <summary>[Ny, Refs #486] Møtet: «avholdelse av statsråd», «hvert statsråd», «forberedende statsråd», «fra statsråd».</summary>
+    public const string Motet = "motet";
 
-    /// <summary>Grunnene, i den rekkefølgen de prøves (en forekomst telles under den første som slår til).</summary>
+    /// <summary>Grunnene for «staten», i den rekkefølgen de prøves (en forekomst telles under den første som slår til).</summary>
     public static readonly string[] Grunner = [BindestrekForan, DenAdjektiv, DerHvorHvis, Konvensjonstekst];
+
+    /// <summary>[Ny, Refs #486] Grunnene per term, i den rekkefølgen <see cref="Vurder"/> prøver dem.</summary>
+    public static IReadOnlyList<string> GrunnerFor(string term) => Normaliser(term) switch
+    {
+        Statsrad => [BindestrekForan, IForan, Intetkjonn, Motet, Konvensjonstekst],
+        Statsradet => [BindestrekForan, IForan, UtenforForan, Konvensjonstekst],
+        _ => Grunner,
+    };
 
     public static string Tekst(string grunn) => grunn switch
     {
@@ -48,11 +91,18 @@ public static class Ordsperrer
         DenAdjektiv => "«den (adj.) staten» (ikke «den norske staten»)",
         DerHvorHvis => "«staten der/hvor/hvis»",
         Konvensjonstekst => "konvensjonstekst",
+        IForan => "«i» rett foran («Kongen i statsråd», «vedtak i statsråd», «i statsrådet»; ikke «sete i statsrådet»)",
+        UtenforForan => "«utenfor statsrådet» (møtet)",
+        Intetkjonn => "intetkjønn foran («det samlede statsråd», «sitt statsråd»): organet, ikke rollen",
+        Motet => "møtet («avholdelse av statsråd», «hvert statsråd», «forberedende statsråd», «fra statsråd»)",
         _ => grunn,
     };
 
-    /// <summary>Om navneformen (eller registernavnet) har en ordsperre.</summary>
-    public static bool HarSperre(string? term) => term is not null && string.Equals(term.Trim(), Staten, StringComparison.OrdinalIgnoreCase);
+    private static string Normaliser(string? term) => (term ?? "").Trim().ToLowerInvariant();
+
+    /// <summary>Om navneformen (eller registernavnet, eller rollebegrepets term) har en ordsperre. [ENDRET, Refs #486] Også «statsråd» og
+    /// «statsrådet».</summary>
+    public static bool HarSperre(string? term) => term is not null && Termer.Contains(Normaliser(term));
 
     private static readonly Regex DenForan = new(@"(?:^|[^\p{L}\p{N}])den((?:\s+\p{Ll}+)?\s+\p{Ll}+e)?\s+$",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -92,6 +142,12 @@ public static class Ordsperrer
     {
         if (!HarSperre(term) || start < 0 || slutt > tekst.Length || slutt <= start) return null;
         if (start > 0 && tekst[start - 1] == '-') return BindestrekForan;
+        // [Ny, Refs #486] «statsråd» og «statsrådet» har egne grunner.
+        switch (Normaliser(term))
+        {
+            case Statsrad: return VurderStatsrad(tekst, start, slutt, iKonvensjonstekst);
+            case Statsradet: return VurderStatsradet(tekst, start, iKonvensjonstekst);
+        }
         var foran = tekst[..start];
         var m = DenForan.Match(foran);
         if (m.Success)
@@ -106,6 +162,35 @@ public static class Ordsperrer
         return null;
     }
 
+    private const RegexOptions IC = RegexOptions.IgnoreCase | RegexOptions.CultureInvariant;
+    private static readonly Regex IForanRegex = new(@"(?<![\p{L}\p{N}-])i\s+$", IC);
+    private static readonly Regex SeteIForan = new(@"(?<![\p{L}\p{N}-])sete\s+i\s+$", IC);
+    private static readonly Regex UtenforForanRegex = new(@"(?<![\p{L}\p{N}-])utenfor\s+$", IC);
+    private static readonly Regex IntetkjonnForan = new(@"(?<![\p{L}\p{N}-])(?:et|det|sitt)(?:\s+samlede)?\s+$", IC);
+    private static readonly Regex MotetForan = new(
+        @"(?<![\p{L}\p{N}-])(?:avholdelse\s+av(?:\s+beslutningsdyktig)?|(?:et\s+)?beslutningsdyktig|hvert|forberedende|fra)\s+$", IC);
+    /// <summary>Et navn etter ordet («statsråd Kallmyr», «fra statsråd Jan Christian Vestre»): tittelen foran en person, altså rollen.</summary>
+    private static readonly Regex NavnEtter = new(@"^\s+\p{Lu}\p{Ll}", RegexOptions.CultureInvariant);
+
+    /// <summary>[Ny, Refs #486] Sperren for rollebegrepet «statsråd»: grunnen til at ordet IKKE betyr rollen her, eller null.</summary>
+    private static string? VurderStatsrad(string tekst, int start, int slutt, bool iKonvensjonstekst)
+    {
+        var foran = tekst[..start];
+        if (IForanRegex.IsMatch(foran)) return IForan;
+        if (IntetkjonnForan.IsMatch(foran)) return Intetkjonn;
+        if (MotetForan.IsMatch(foran) && !NavnEtter.IsMatch(tekst[slutt..])) return Motet;
+        return iKonvensjonstekst ? Konvensjonstekst : null;
+    }
+
+    /// <summary>[Ny, Refs #486] Sperren for navneformen «statsrådet»: grunnen til at ordet IKKE betyr organet her, eller null.</summary>
+    private static string? VurderStatsradet(string tekst, int start, bool iKonvensjonstekst)
+    {
+        var foran = tekst[..start];
+        if (IForanRegex.IsMatch(foran) && !SeteIForan.IsMatch(foran)) return IForan;
+        if (UtenforForanRegex.IsMatch(foran)) return UtenforForan;
+        return iKonvensjonstekst ? Konvensjonstekst : null;
+    }
+
     /// <summary>
     /// En overskrift (eller rettskildetittel) som ER en konvensjonstekst: den begynner (etter et valgfritt «Vedlegg N.», et årstall og «Den»
     /// eller «Nordisk/Europeisk/Internasjonal») med konvensjon, overenskomst, avtale, traktat, pakt eller protokoll fulgt av om/av/mellom/til
@@ -118,7 +203,9 @@ public static class Ordsperrer
 
     private static readonly Regex Konvensjonsoverskrift = new(
         @"^(vedlegg\s+[\p{L}\p{N}.]+\.?\s*)?(\d{4}[\s-]*)?(den\s+)?((nordisk|europeisk|internasjonal|internasjonale)\s+)?"
-        + @"((konvensjon|overenskomst|avtale|traktat|pakt|protokoll)(en)?\s+(om|av|mellom|mellem|til)(?![\p{L}\p{N}])"
+        // [ENDRET, Refs #486, juristrunden om «statsråd» (a5)] Også et sammensatt ord på «konvensjon» («Miljøvernkonvensjon av 19. februar 1974,
+        // mellom Danmark, Finland, Norge og Sverige»). Målt i korpuset 2026-11-25: treffer bare den ene overskriften.
+        + @"(([\p{L}]*konvensjon|overenskomst|avtale|traktat|pakt|protokoll)(en)?\s+(om|av|mellom|mellem|til)(?![\p{L}\p{N}])"
         + @"|[\p{L}\p{N}-]+-konvensjonen(?![\p{L}\p{N}])"
         + @"|eøs-avtalen\s+(vedlegg|protokoll))",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
@@ -192,7 +279,8 @@ public sealed record OrdsperreMaling(
             Grunn: Ordsperrer.Vurder(term, t.Node.Tekst!, t.Index, t.Slutt, konvensjon.Contains(t.Node.Id)))).ToList();
         var denne = new Regex(@"(?:^|[^\p{L}\p{N}])denne\s+$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
         var gjelder = vurdert.Where(v => v.Grunn is null).ToList();
-        var grunner = Ordsperrer.Grunner.Select(g =>
+        // [ENDRET, Refs #486] Grunnene for termen («statsråd» og «statsrådet» har egne).
+        var grunner = Ordsperrer.GrunnerFor(term).Select(g =>
         {
             var rader = vurdert.Where(v => v.Grunn == g).ToList();
             return new OrdsperreGrunn(g, Ordsperrer.Tekst(g), rader.Count, rader.Select(r => r.Node.RettskildeId).Distinct().Count(),

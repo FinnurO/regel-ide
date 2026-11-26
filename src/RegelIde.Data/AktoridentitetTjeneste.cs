@@ -163,8 +163,9 @@ public sealed class AktoridentitetTjeneste(RegelIdeDbContext db, TekstTaggTjenes
     /// <summary>Hele ord: ingen bokstav eller siffer rett foran eller etter. [ENDRET, issue #463, 2026-11-17] Heller ikke <b>bindestrek rett
     /// foran</b>: «EØS-staten» er siste ledd i et sammensatt ord, ikke ordet «staten», og «Nord-Norge» er ikke «Norge». Før regnet regexen
     /// bindestrek som ordgrense. Målt 2026-11-17 i en kopi av den delte basen: 240 av 2 511 forekomster av «staten» hadde bindestrek rett
-    /// foran (docs/33 §5.19). Bindestrek rett ETTER er fortsatt ordgrense («Arbeids- og velferdsetaten» er to ord i teksten).</summary>
-    private static Regex HeleOrd(string s, RegexOptions ekstra = RegexOptions.None) =>
+    /// foran (docs/33 §5.19). Bindestrek rett ETTER er fortsatt ordgrense («Arbeids- og velferdsetaten» er to ord i teksten).
+    /// [ENDRET, Refs #486] Intern, så begrepsforekomst-taggingen (<see cref="BegrepsforekomstTjeneste"/>) bruker samme ordgrense.</summary>
+    internal static Regex HeleOrd(string s, RegexOptions ekstra = RegexOptions.None) =>
         new($@"(?<![\p{{L}}\p{{N}}-]){Regex.Escape(s)}(?![\p{{L}}\p{{N}}])", RegexOptions.CultureInvariant | ekstra);
 
     /// <summary>Hjemmelen for forslaget: rettskilden med flest forekomster (en lov foran en forskrift ved likt antall), første forekomst.</summary>
