@@ -181,6 +181,27 @@ public class VedtaksformTests
             "Ikraftsetjing og overgangsreglar til lov av 4. juli 2003 nr. 84 om frittståande skolar (friskolelova).", html, 0).Klasse);
     }
 
+
+    [Fact]
+    public void Overgangsregel_med_ikrafttredelse_i_leddsetning_er_eget_innhold_N40()
+    {
+        // NL/lov/2019-12-13-83 § 2 «Meldinger under behandling».
+        var html = Html("<article class=\"legalArticle\" id=\"paragraf-1\"><h2>§ 1</h2><article class=\"legalP\" id=\"paragraf-1-ledd-1\">Lov 20. juni 2003 nr. 43 "
+            + "om omstilling oppheves.</article></article><article class=\"legalArticle\" id=\"paragraf-2\"><h2>§ 2</h2><article class=\"legalP\" id=\"paragraf-2-ledd-1\">"
+            + "Meldinger som er mottatt eller er under behandling i fylkeskommunen når loven trer i kraft, avsluttes.</article></article>"
+            + "<article class=\"legalArticle\" id=\"paragraf-3\"><h2>§ 3</h2><article class=\"legalP\" id=\"paragraf-3-ledd-1\">Loven trer i kraft 1. januar 2020.</article></article>");
+        var r = Vedtaksform.Klassifiser("Lov om opphevelse av omstillingslova", html, 1);
+        Assert.Equal(Vedtaksform.Blandet, r.Klasse);
+        Assert.Equal("paragraf-2-ledd-1", r.BevisHtmlId);
+    }
+
+    [Fact]
+    public void Ikrafttredelse_samtidig_med_loven_er_fortsatt_ikrafttredelse()
+    {
+        var html = Html("<article class=\"legalP\" id=\"ledd-1\">Forskriften trer i kraft når loven trer i kraft.</article>");
+        Assert.Equal(Vedtaksform.RentIkrafttredelsesvedtak, Vedtaksform.Klassifiser("Forskrift om ikrafttredelse av forskrift om noe", html, 0).Klasse);
+    }
+
     [Theory]
     [InlineData("Vedtak om endring av navn på Arkitekthøgskolen i Oslo til Arkitektur- og designhøgskolen i Oslo.", false)]
     [InlineData("Forskrift om endring av landbruksfagskulane sin struktur og plass i skulesystemet", false)]

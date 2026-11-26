@@ -38,7 +38,7 @@ public sealed record VedtaksformResultat(
 /// </summary>
 public static partial class Vedtaksform
 {
-    public const string Regelversjon = "446-pr1-v2-2026-11-25";
+    public const string Regelversjon = "446-pr1-v3-2026-11-26";
 
     public const string RentEndringsvedtak = "rent_endringsvedtak";
     public const string RentIkrafttredelsesvedtak = "rent_ikrafttredelsesvedtak";
@@ -103,6 +103,13 @@ public static partial class Vedtaksform
         + @"\bsom er (inngått|fremmet|startet|innvilget|reist)|\bgis myndighet\b|\bf[åa]r myndighet\b|\bdelegeres\b|\bdelegerer\b|\btillegges\b|\blegges til\b|"
         + @"\bbemyndig\w*|\bf[åa]r (ikke )?anvendelse\b|\bkan (fastsette|endre|oppheve|gjøre|treffe)\b|\bå oppheve\b", F)]
     private static partial Regex EgetInnholdISetning();
+    // [ENDRET etter måling 2 i PR 1, N40] Ikrafttredelsen i en leddsetning er ikke hovedutsagnet: «Meldinger som er under behandling når loven
+    // trer i kraft, avsluttes» er en overgangsregel. Men «Forskriften trer i kraft når loven trer i kraft» er ikrafttredelse (hovedsetningen først).
+    [GeneratedRegex(@"\b(når|før|etter at|da|inntil|innen)\s+(\S+\s+){1,3}?(trer|trådte|tek|tok)\s+(likevel\s+)?i\s*kraft\b", F)]
+    private static partial Regex IkraftILeddsetning();
+    [GeneratedRegex(@"^(Loven|Lova|Forskriften|Forskrifta|Endringen(e)?|Endringa|Endringane|Vedtaket|Instruksen|Delegeringen|Denne \w+|Lov\b.{0,300}?|Forskrift\b.{0,300}?|"
+        + @"§[^.]{0,80}?|Kapittel[^.]{0,80}?|Del [IVX]+[^.]{0,80}?)\s+(trer|tek|gjelder|gjeld|skal gjelde|settes|setjast|tar til)\b", F)]
+    private static partial Regex IkraftIHovedsetning();
     [GeneratedRegex(@"\bkan\b.{0,25}\b(sette|setje)\b.{0,80}\bi\s*kraft|\bkan bestemme at\b.{0,120}\b(trer|tre) i kraft", F)]
     private static partial Regex KanSetteIKraft();
     [GeneratedRegex(@"^(Fastsatt|Fastsett|Fastsette|Hjemmel:|Kongelig resolusjon|Kgl\.? ?res|Statsråd|Foredratt|Vedtatt|Vedteke|Gitt ved|Gjeve ved|"
@@ -335,7 +342,7 @@ public static partial class Vedtaksform
     /// <summary>Rollen til én setning. <paramref name="iEndringsdel"/>: svake instrukser («Ny § 5») teller bare inne i en endringsdel.</summary>
     internal static string SetningRolle(string s, bool iEndringsdel)
     {
-        var egetInnhold = EgetInnholdISetning().IsMatch(s);
+        var egetInnhold = EgetInnholdISetning().IsMatch(s) || (IkraftILeddsetning().IsMatch(s) && !IkraftIHovedsetning().IsMatch(s.TrimStart()));
         if (SterkInstruks().IsMatch(s) || InstruksMedDokument().IsMatch(s)) return RolleEndringsinstruks;
         if (iEndringsdel && SvakInstruks().IsMatch(s) && !egetInnhold) return RolleEndringsinstruks;
         if (Ikraft().IsMatch(s)) return egetInnhold && !KanSetteIKraft().IsMatch(s) ? RolleEgetInnhold : RolleIkrafttredelse;
