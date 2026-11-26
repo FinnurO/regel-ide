@@ -62,6 +62,7 @@ builder.Services.AddScoped<OmgjoringTjeneste>(); // [Ny, issue #386]
 builder.Services.AddScoped<KlassemedlemskapTjeneste>(); // [Ny, issue #384] utledet medlemskap («kommune» fra områderegisteret)
 builder.Services.AddScoped<KlasseoppsettTjeneste>(); // [Ny, issue #442] klassene fylkeskommune og departement som forslag (skrives bare på kall)
 builder.Services.AddScoped<RegjeringenTjeneste>(); // [Ny, issue #486] Statsrådet og tagg per forekomst av «regjeringen», som forslag (skrives bare på kall)
+builder.Services.AddScoped<StatsradTjeneste>(); // [Ny, Refs #486 PR 2] Tagg per forekomst av «statsråd», som forslag (skrives bare på kall)
 builder.Services.AddScoped<NorgeStatenTjeneste>(); // [Ny, issue #463] Norge (rike), staten og departementene som organer for staten, som forslag (skrives bare på kall)
 builder.Services.AddScoped<RegelIde.Data.Strukturkonvertering.KiStrukturkonverterer>();
 // [Ny, issue #312 «områderegister»] «Gitt kommune X → fylke, tingrett, lagdømme, statsforvalter, RHF» (AC5).
@@ -4357,6 +4358,31 @@ app.MapPost("/api/regjeringen", async (bool? skriv, bool? medForekomster, HttpRe
         "en tagg per forekomst med forekomstbinding etter ordlydsreglene (fremmed stat, generisk konvensjonsstat, ikke aktør, rollen statsråd, funksjonen, " +
         "«Regjeringens res.» = Kongen i statsråd); resten som slutning uten referent. Alt som forslag. ?skriv=true skriver; uten er det en tørrkjøring. " +
         "?medForekomster=false utelater lista per forekomst.");
+
+// [Ny, Refs #486 PR 2, prosjekteierens avgjørelse 2026-11-25] En tagg per forekomst av «statsråd» (alle bøyninger) etter ordlydsreglene: Kongen i
+// statsråd («vedtak i statsråd»), organet statsrådet, rollen statsråd, ikke aktør (lovtittel), generisk konvensjonsstat; resten som slutning.
+// Tørrkjøring er standard, alt nytt er forslag, og en ny kjøring skriver ingenting. Krever statsrådet og rollebegrepet fra POST /api/regjeringen.
+// Kjøres av hovedøkta etter fletting.
+app.MapPost("/api/statsrad", async (bool? skriv, bool? medForekomster, HttpRequest request, RegelIdeDbContext db, StatsradTjeneste tjeneste,
+        CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var r = await tjeneste.KjorAsync(skriv ?? false, bruker.Navn, ct);
+            return Results.Ok(medForekomster == false ? r with { Forekomster = [] } : r);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Results.Conflict(new { feil = ex.Message });
+        }
+    })
+    .WithOpenApi()
+    .WithName("Statsrad")
+    .WithSummary("Refs #486 — den generiske navneformen «statsråd» og en tagg per forekomst med forekomstbinding etter ordlydsreglene (Kongen i statsråd, " +
+        "organet statsrådet, rollen statsråd, ikke aktør, generisk konvensjonsstat); resten som slutning uten referent. Alt som forslag. ?skriv=true " +
+        "skriver; uten er det en tørrkjøring. ?medForekomster=false utelater lista per forekomst.");
 
 // [Ny, issue #463] Målingen av ordsperren over hele korpuset (bare lesing): forekomstene før og etter at bindestrek rett foran sluttet å være
 // ordgrense, og hvor mange hver grunn sperrer. [ENDRET, Refs #486] Også «statsråd» (ikke rollen) og «statsrådet» (ikke organet).

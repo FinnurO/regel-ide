@@ -2837,9 +2837,10 @@ export interface GeneriskTaggOppslag {
   /** [Ny, issue #486] Et forslag for denne forekomsten som ikke er vurdert ennå (ordlydsregel eller slutning). Brukes ikke i svaret. */
   forekomstforslag?: Forekomstforslag | null;
 }
-/** [Ny, issue #486] Lesningene en tagg per forekomst kan ha (lukket liste, `Forekomstlesninger` i Data). */
+/** [Ny, issue #486] Lesningene en tagg per forekomst kan ha (lukket liste, `Forekomstlesninger` i Data). [ENDRET, Refs #486 PR 2]
+ * + `kongen_i_statsrad` og `statsradet` (tagg per forekomst av «statsråd»). */
 export type Forekomstlesning = 'fremmed_stat' | 'generisk_konvensjonsstat' | 'ikke_aktor' | 'rolle_statsrad' | 'funksjon'
-  | 'regjeringens_resolusjon' | 'slutning';
+  | 'regjeringens_resolusjon' | 'slutning' | 'kongen_i_statsrad' | 'statsradet';
 /** [Ny, issue #486] Et forslag til hva én forekomst er. «slutning» har ingen referent. */
 export interface Forekomstforslag {
   bindingId: string; lesning: Forekomstlesning | null; lesningTekst: string; referent: StrukturnodeDto | null; status: Godkjenning;

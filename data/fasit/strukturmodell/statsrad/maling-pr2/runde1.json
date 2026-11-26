@@ -1,0 +1,311 @@
+{
+ "runde": 1,
+ "maling": "statsrad PR 2 (Refs #486), utvalg frø 48602, 20 kort",
+ "kort": [
+  {
+   "id": "m1",
+   "dom": "innvending",
+   "gjelder": "raden",
+   "alvor": "lav",
+   "innvending": "Lesningen, referenten og kunnskapsstatusen holder. «Det ble i statsråd 16. april 2010 vedtatt at fullmaktene … kommer til anvendelse» er en kongelig resolusjon. Noden henviser selv til hlsberedskl. § 1-5 nr. 2, og den sier «etter beslutning av Kongen» (trinn 4, intern henvisning). Svakheten ligger i begrunnelsen. Den sier «Saker avgjøres i statsråd av kongen» og viser til Grl. § 28 første ledd, men § 28 sier bare at sakene foredras i statsrådet og ekspederes etter «den beslutning som er tatt i statsrådet». At det er kongen som beslutter, står i Grl. § 30 annet ledd («det er denne forbeholdt å fatte beslutning etter sitt eget omdømme»). Slik begrunnelsen er skrevet, ser «av kongen» ut som et tekstfunn i § 28, men det er en slutning fra § 28 sammen med § 30 annet ledd. Hjemmelen § 28 første ledd kan bli stående. Begrunnelsen bør nevne § 30 annet ledd, og her også den interne henvisningen.",
+   "retting": {
+    "begrunnelse": "Beslutningsformen Kongen i statsråd: «vedtatt … i statsråd». Saker av viktighet foredras og avgjøres i statsrådet (Grl. § 28 første ledd: «… i overensstemmelse med den beslutning som er tatt i statsrådet»), og det er kongen som beslutter (Grl. § 30 annet ledd: «det er denne forbeholdt å fatte beslutning»). Noden viser selv til hlsberedskl. § 1-5 nr. 2 («etter beslutning av Kongen»). Regel «i statsråd» (Refs #486)."
+   },
+   "ny_rad": null,
+   "kilder": [
+    {"ref": "Grl. § 28 første ledd (korpusets tekst)", "funksjon": "direkte_hjemmel"},
+    {"ref": "Grl. § 30 annet ledd (korpusets tekst)", "funksjon": "forutsatt_kilde"},
+    {"ref": "Helseberedskapsloven § 1-5 første ledd nr. 2 (LOV-2000-06-23-56), korpusets tekst: «etter beslutning av Kongen»", "funksjon": "forutsatt_kilde"}
+   ]
+  },
+  {
+   "id": "m2",
+   "dom": "innvending",
+   "gjelder": "raden",
+   "alvor": "lav",
+   "innvending": "Lesningen holder. «vedtak fattet i statsråd» er en avgrensning av klageretten til Sivilombudet. Den tilsvarer sivilombudsloven § 4 annet ledd nr. 3 («avgjørelser truffet i statsråd», som også er tagget kongen_i_statsrad) og viser til Kongen i statsråd som vedtaksorgan. Referenten er riktig, og fortolkning er riktig kunnskapsstatus. Forekomsten beskriver en gruppe vedtak og gir ingen kompetansekant, og taggen bør ikke brukes til å avlede noen. Begrunnelsen har samme svakhet som m1: «av kongen» er tillagt § 28 første ledd, men følger av § 30 annet ledd.",
+   "retting": {
+    "begrunnelse": "Beslutningsformen Kongen i statsråd: «vedtak fattet i statsråd». Saker av viktighet foredras og avgjøres i statsrådet (Grl. § 28 første ledd), og det er kongen som beslutter (Grl. § 30 annet ledd: «det er denne forbeholdt å fatte beslutning»). Samme avgrensning som sivilombudsloven § 4 annet ledd nr. 3. Regel «i statsråd» (Refs #486)."
+   },
+   "ny_rad": null,
+   "kilder": [
+    {"ref": "Grl. § 28 første ledd", "funksjon": "direkte_hjemmel"},
+    {"ref": "Grl. § 30 annet ledd", "funksjon": "forutsatt_kilde"},
+    {"ref": "Sivilombudsloven § 4 annet ledd nr. 3 (LOV-2021-06-18-121), korpusets tekst", "funksjon": "forutsatt_kilde"}
+   ]
+  },
+  {
+   "id": "m3",
+   "dom": "innvending",
+   "gjelder": "raden",
+   "alvor": "lav",
+   "innvending": "Lesningen holder. «Ved oppnevninger i statsråd» betyr oppnevning ved kongelig resolusjon, altså Kongen i statsråd, og fortolkning er riktig kunnskapsstatus. Begrunnelsen har samme svakhet som m1 («av kongen» er tillagt § 28, men følger av § 30 annet ledd). Merk også: samme tekst står i endringsforskriften (kap-I/ledd-5), som er rent endringsvedtak og også er tagget kongen_i_statsrad. Den forekomsten er dobbelttelt (se tverrgående).",
+   "retting": {
+    "begrunnelse": "Beslutningsformen Kongen i statsråd: «oppnevninger i statsråd». Saker av viktighet foredras og avgjøres i statsrådet (Grl. § 28 første ledd), og det er kongen som beslutter (Grl. § 30 annet ledd: «det er denne forbeholdt å fatte beslutning»). Regel «i statsråd» (Refs #486)."
+   },
+   "ny_rad": null,
+   "kilder": [
+    {"ref": "Grl. § 28 første ledd", "funksjon": "direkte_hjemmel"},
+    {"ref": "Grl. § 30 annet ledd", "funksjon": "forutsatt_kilde"}
+   ]
+  },
+  {
+   "id": "m4",
+   "dom": "holder",
+   "gjelder": "raden",
+   "alvor": null,
+   "innvending": "Holder. «statsråd Kallmyr» er tittelen foran navnet, altså rollen (tekstfunn i noden). Leddet sier selv «to konstitusjonelt ansvarlige statsråder». Forbeholdet fra forrige runde (q4, a7) er tatt inn: ingen kant fra rollebegrepet. Ansvaret som fordeles, ligger hos den navngitte personen eller ministerposten.",
+   "retting": null,
+   "ny_rad": null,
+   "kilder": [
+    {"ref": "FOR-2019-05-03-560 punkt 3", "funksjon": "direkte_hjemmel"},
+    {"ref": "data/fasit/strukturmodell/statsrad/runde2.json a7", "funksjon": "forutsatt_kilde"}
+   ]
+  },
+  {
+   "id": "m5",
+   "dom": "holder",
+   "gjelder": "raden",
+   "alvor": null,
+   "innvending": "Holder, av samme grunn som m4. «Statsråd Astrup har også et særskilt ansvar» er tittel og navn, altså rollen, uten kant.",
+   "retting": null,
+   "ny_rad": null,
+   "kilder": [
+    {"ref": "FOR-2019-05-03-560 punkt 2", "funksjon": "direkte_hjemmel"}
+   ]
+  },
+  {
+   "id": "m6",
+   "dom": "holder",
+   "gjelder": "raden",
+   "alvor": null,
+   "innvending": "Holder. «riket til enhver tid har et statsråd, en statsminister og departementssjefer»: statsråd står ved siden av statsminister og departementssjefer som en institusjon riket skal ha. Det er rådet etter Grl. § 12 første ledd («et råd»), ikke møtet og ikke rollen, og fortolkning er riktig. Samme ledd har også «inntil et beslutningsdyktig statsråd skulle bestemme», som riktig står som slutning, så noden blir flertydig etter vilkår 2. Merknad om regelen: «et» i intetkjønnsregelen skiller ikke organet fra møtet (se tverrgående). I dette kortet treffer den riktig.",
+   "retting": null,
+   "ny_rad": null,
+   "kilder": [
+    {"ref": "Grl. § 12 første ledd", "funksjon": "direkte_hjemmel"},
+    {"ref": "FOR-2017-01-27-2538 § 1 første ledd", "funksjon": "forutsatt_kilde"}
+   ]
+  },
+  {
+   "id": "m7",
+   "dom": "holder",
+   "gjelder": "raden",
+   "alvor": null,
+   "innvending": "Holder. «innstillinger som … utgår fra det samlede statsråd» betyr kollegiet som avgir innstilling, altså organet. Formen er den samme som «det samlede statsråd» i Grl. § 15 første ledd, som også er tagget som organet. Fortolkning med Grl. § 12 første ledd er riktig.",
+   "retting": null,
+   "ny_rad": null,
+   "kilder": [
+    {"ref": "Regjeringsinstruksen § 4 nr. 3", "funksjon": "direkte_hjemmel"},
+    {"ref": "Grl. § 12 første ledd, § 15 første ledd", "funksjon": "forutsatt_kilde"}
+   ]
+  },
+  {
+   "id": "m8",
+   "dom": "holder",
+   "gjelder": "raden",
+   "alvor": null,
+   "innvending": "Holder. «den ansvarlige statsråd skal varsles» er hankjønn med rolleord foran, altså medlemmet (rollen). Neste punktum i samme ledd sier «statsråden». Tekstfunn i noden.",
+   "retting": null,
+   "ny_rad": null,
+   "kilder": [
+    {"ref": "Reglement for kontrollhøringer § 5 annet ledd", "funksjon": "direkte_hjemmel"}
+   ]
+  },
+  {
+   "id": "m9",
+   "dom": "holder",
+   "gjelder": "raden",
+   "alvor": null,
+   "innvending": "Holder. «Den enkelte statsråd har det konstitusjonelle ansvaret på sitt område» er rollen. Det er det individuelle ministeransvaret (jf. Grl. § 15 første ledd «vedkommende statsråd alene»). Noden har også «Regjeringen har det øverste ansvar» (slutning fra #486) og blir flertydig, men det gjelder ikke denne forekomsten.",
+   "retting": null,
+   "ny_rad": null,
+   "kilder": [
+    {"ref": "Samfunnssikkerhetsinstruksen kap. VIII første ledd", "funksjon": "direkte_hjemmel"}
+   ]
+  },
+  {
+   "id": "m10",
+   "dom": "holder",
+   "gjelder": "raden",
+   "alvor": null,
+   "innvending": "Lesningen holder. «sendes brev til en statsråd med anmodning om statsrådens uttalelse» er hankjønn med «en» foran, altså rollen. Merknad: rettskilden er et rent endringsvedtak (rent_endringsvedtak = true i korpuset), og ordlyden er senere endret. Den konsoliderte Stortingets forretningsorden § 30 første ledd sier nå «sendes anmodning om statsrådens uttalelse». Uttrykket «en statsråd» finnes ikke lenger i gjeldende tekst. Om endringsvedtak skal tagges i det hele tatt, er et spørsmål om regelen, ikke om kortet (se tverrgående).",
+   "retting": null,
+   "ny_rad": null,
+   "kilder": [
+    {"ref": "Endr. i Stortingets forretningsorden kap. I (rent endringsvedtak)", "funksjon": "direkte_hjemmel"},
+    {"ref": "Stortingets forretningsorden (FOR-2012-06-07-518) § 30 første ledd, konsolidert tekst i korpuset", "funksjon": "forutsatt_kilde"}
+   ]
+  },
+  {
+   "id": "m11",
+   "dom": "holder",
+   "gjelder": "raden",
+   "alvor": null,
+   "innvending": "Holder. «lojalitetsforpliktelser … mellom embetsverk og statsråd» sideordner statsråd med embetsverket i departementet, altså personen som leder departementet (rollen). Dette var s29 i forrige runde, og regelen er begrenset til de navngitte sideordningsordene, slik a4 forutsatte.",
+   "retting": null,
+   "ny_rad": null,
+   "kilder": [
+    {"ref": "Reglement for kontrollhøringer § 5 tredje ledd", "funksjon": "direkte_hjemmel"}
+   ]
+  },
+  {
+   "id": "m12",
+   "dom": "holder",
+   "gjelder": "raden",
+   "alvor": null,
+   "innvending": "Holder. «fungerer departementsråden som medlem av statsrådet og departementssjef»: «medlem av statsrådet» nevner organet, og frasen viser til rollen (q3 og j3: G har_medlemmer). Ordet er organets navneform (tekstfunn).",
+   "retting": null,
+   "ny_rad": null,
+   "kilder": [
+    {"ref": "FOR-2017-01-27-2538 § 5 første ledd", "funksjon": "direkte_hjemmel"}
+   ]
+  },
+  {
+   "id": "m13",
+   "dom": "holder",
+   "gjelder": "raden",
+   "alvor": null,
+   "innvending": "Holder. «ha sete i statsrådet» gjelder medlemskap, og etter q2 (a) er det organet. Unntaket «sete i» fra møtesperren slår riktig til.",
+   "retting": null,
+   "ny_rad": null,
+   "kilder": [
+    {"ref": "Grl. § 12 tredje ledd", "funksjon": "direkte_hjemmel"}
+   ]
+  },
+  {
+   "id": "m14",
+   "dom": "holder",
+   "gjelder": "raden",
+   "alvor": null,
+   "innvending": "Holder. «statsrådets sedvanlige medlemmer» viser til organet (ordet), mens frasen viser til rollen (q3). Tekstfunn.",
+   "retting": null,
+   "ny_rad": null,
+   "kilder": [
+    {"ref": "Grl. § 12 annet ledd", "funksjon": "direkte_hjemmel"}
+   ]
+  },
+  {
+   "id": "m15",
+   "dom": "holder",
+   "gjelder": "raden",
+   "alvor": null,
+   "innvending": "Holder. «som medlem av Statsrådet» viser til organet. Stor forbokstav er ansvarlighetslovens gamle skrivemåte og endrer ikke referenten.",
+   "retting": null,
+   "ny_rad": null,
+   "kilder": [
+    {"ref": "Ansvarlighetsloven § 11 første ledd", "funksjon": "direkte_hjemmel"}
+   ]
+  },
+  {
+   "id": "m16",
+   "dom": "holder",
+   "gjelder": "raden",
+   "alvor": null,
+   "innvending": "Holder. «statsrådenes personlige politiske rådgivere» er flertall av rollen. Den første forekomsten i samme ledd («statsrådets medlemmer») er riktig tagget som organet, så her står organ og rolle side om side, slik de skal.",
+   "retting": null,
+   "ny_rad": null,
+   "kilder": [
+    {"ref": "Domstolloven § 71 første ledd nr. 2", "funksjon": "direkte_hjemmel"}
+   ]
+  },
+  {
+   "id": "m17",
+   "dom": "holder",
+   "gjelder": "raden",
+   "alvor": null,
+   "innvending": "Holder. «revidere om statsråden ivaretar statens eierinteresser» er bestemt form om den statsråden som forvalter eierskapet, altså rollen. En senere kant fra Riksrevisjonen til rollen (revisjon av statsrådens eierstyring) har dekning i samme ledd. Det ligger utenfor denne taggen.",
+   "retting": null,
+   "ny_rad": null,
+   "kilder": [
+    {"ref": "Riksrevisjonsloven § 5-2 første ledd", "funksjon": "direkte_hjemmel"}
+   ]
+  },
+  {
+   "id": "m18",
+   "dom": "holder",
+   "gjelder": "raden",
+   "alvor": null,
+   "innvending": "Holder. «to konstitusjonelt ansvarlige statsråder» er flertall av rollen. Ingen kant fra den personbundne fordelingen i resten av leddet (q4).",
+   "retting": null,
+   "ny_rad": null,
+   "kilder": [
+    {"ref": "FOR-2013-12-13-1455 punkt 2", "funksjon": "direkte_hjemmel"}
+   ]
+  },
+  {
+   "id": "m19",
+   "dom": "holder",
+   "gjelder": "raden",
+   "alvor": null,
+   "innvending": "Holder. «tidligere lov 14. desember 1951 nr. 11 om pensjonsordning for statsråder» er en lovtittel, ikke en aktør, slik det ble avgjort i s21 og a3. Tekstfunn. Merk at «pensjonsordningen for statsråder» uten lovtittel (forskrift 1996 nr. 683 § 1) riktig nok ikke treffes av tittelregelen og står som rollen.",
+   "retting": null,
+   "ny_rad": null,
+   "kilder": [
+    {"ref": "Stortings- og regjeringspensjonsloven § 4-5 annet ledd", "funksjon": "direkte_hjemmel"}
+   ]
+  },
+  {
+   "id": "m20",
+   "dom": "holder",
+   "gjelder": "raden",
+   "alvor": null,
+   "innvending": "Holder. «vedkommende statsråd eller departement (ministerium) i virksomhetslandet» viser til hvilken som helst kontraherende stat, også Norge. Det er generisk konvensjonsstat uten referent. Regelen slår til på overskriften (konvensjonstekst), men ordlyden «i virksomhetslandet» bærer lesningen alene. Fortolkning er riktig, fordi det å lese ordet som ikke bundet til Norge er en slutning. Det samsvarer med regel 2 for «regjeringen» i #486, der den generiske konvensjonsstaten også er fortolkning.",
+   "retting": null,
+   "ny_rad": null,
+   "kilder": [
+    {"ref": "Lov om nordisk miljøvernkonvensjon (LOV-1976-04-09-21) art. 11 første ledd", "funksjon": "direkte_hjemmel"}
+   ]
+  }
+ ],
+ "tverrgaende": [
+  {
+   "id": "t1",
+   "tema": "Begrunnelsen for Kongen i statsråd",
+   "alvor": "lav",
+   "tekst": "Alle 12 kongen_i_statsrad-tagger har samme begrunnelse: «Saker avgjøres i statsråd av kongen (Grunnloven § 28 første ledd: …)». Sitatene fra § 28 er korrekte, men ingen av dem sier at kongen beslutter. Det står i Grl. § 30 annet ledd («Men det er denne forbeholdt å fatte beslutning etter sitt eget omdømme»), som forrige runde også brukte (s5, s12). Kunnskapsstatusen fortolkning er riktig, og hjemmelen § 28 første ledd kan bli stående. Malen for begrunnelsen og tolkningsargumentene bør nevne § 30 annet ledd, så slutningen ikke ser ut som et sitat. Dette er én rettelse i regelen, ikke tolv."
+  },
+  {
+   "id": "t2",
+   "tema": "«et» i intetkjønnsregelen og rekkefølgen mot møtet",
+   "alvor": "lav",
+   "tekst": "I forrige runde (q1 presisering 1) anbefalte juristen å sette organet bare for «det samlede» og «sitt», fordi intetkjønn ikke skiller organet fra møtet («hvert statsråd», «et beslutningsdyktig statsråd»). Forslaget tar med «et» og prøver intetkjønn før møtet. I korpuset gir det ett treff (m6), og det er riktig. Med ny tekst («på et statsråd 12. mai», «et ekstraordinært statsråd», «i et statsråd») vil «et» rett foran gi organet der møtet er ment. Forslag: prøv møtet før intetkjønn, eller la «et» bare gjelde når ordet ikke har en preposisjon to ord foran eller en dato etter. Det er ikke noe motbeksempel i dagens korpus, så dette er forebyggende."
+  },
+  {
+   "id": "t3",
+   "tema": "Tagger i rene endringsvedtak",
+   "alvor": "lav",
+   "tekst": "7 av forekomstbindingene står i rettskilder med rent_endringsvedtak = true: 6 med rolle_statsrad i «Endringer i Stortingets forretningsorden» (kort m10) og 1 med kongen_i_statsrad i «Forskrift om endring i forskrift om representasjon av begge kjønn …» kap-I/ledd-5 (samme tekst som m3). Det gir dobbelttelling under «Mest omtalt i». I minst ett tilfelle viser taggen også en ordlyd som ikke lenger gjelder: forretningsordenen § 30 første ledd sier nå «sendes anmodning om statsrådens uttalelse», ikke «brev til en statsråd». Taggingen for «regjeringen» (#486) har ingen tagger i rene endringsvedtak. Kontroller om rene endringsvedtak skal hoppes over, eller om dette er et bevisst valg som skal skrives ned i §5.19."
+  },
+  {
+   "id": "t4",
+   "tema": "«Statsrådet» som subjekt for «vedtak i statsråd» (suksesjonsforskriften § 5 annet ledd)",
+   "alvor": "lav",
+   "tekst": "«Statsrådet skal formalisere fungeringen som statsråd gjennom vedtak i statsråd» er tagget slik: organet (tekstfunn), rollen («som statsråd») og slutning («vedtak i statsråd», kilde om krig). Lesningen av hvert ord er forsvarlig. Men leddet viser at organregelen ikke kan brukes til å avlede en P- eller K-kant fra statsrådet uten videre. Den formelle beslutningen treffes i statsråd, og hvem som treffer den, er nettopp det forrige runde lot stå som slutning (s6, q5). Når kanter senere avledes av forekomstbindinger, bør dette leddet være et testtilfelle. Unntaket for kilder om krig er ellers riktig gjennomført. Kostnaden er at § 6 første ledd («ikke er tid til å treffe vedtak i statsråd») også blir slutning, selv om det der bare er den vanlige beslutningsformen. Det er en akseptabel, konservativ pris."
+  },
+  {
+   "id": "t5",
+   "tema": "Ordet er organet, frasen noe annet («statsrådets protokoller», «statsrådets kontorer»)",
+   "alvor": null,
+   "tekst": "Organregelen gir tekstfunn for «statsrådets protokoller» (Grl. § 75 bokstav f, Stortingets forretningsorden § 14 nr. 8) og «statsrådets kontorer» (Grl. §§ 22, 62, 72). Protokollene føres i møtet (Grl. § 30 første ledd «I statsrådet føres protokoll»), og kontorene er departementene [slutning]. Ordet er organet, slik det ble avgjort i a8, så taggene står. Ingen eierskaps- eller arbeidsgiverkant må avledes av frasen. Dette er en opplysning, ikke en innvending."
+  },
+  {
+   "id": "t6",
+   "tema": "Kontroll av reglene mot hele mengden",
+   "alvor": null,
+   "tekst": "Jeg har lest alle 285 forekomstbindingene i kopien (12 Kongen i statsråd, 57 organet, 184 rollen, 8 ikke aktør, 1 konvensjon, 23 slutning). Jeg fant ingen forekomst der lesningen er feil. Alle 12 «i statsråd» med beslutningsord er beslutningsformen. LDO-loven § 14 («utnevning av dommere i statsråd») og Lovtidend-rundskrivet («Saker som vedtas i statsråd») holder også. De 57 organtaggene står i Grl., regjeringsinstruksen, ansvarlighetsloven, suksesjonsforskriften, domstolloven, riksrevisjonsloven og forretningsordenen, og alle er medlemskap, sammensetning eller organet som handler (Grl. §§ 13, 32, 39–41). Ingen er «i statsrådet» om møtet. Rolletaggene med bestemt form og flertall (85) og rolleord (26) er alle medlemmet eller ministeren. Ingen er en fremmed stats statsråd. Slutningene (23) er møtet, «i statsrådet» om forumet, krigsunntaket og kontrollantforskriften (godtatt i a4)."
+  },
+  {
+   "id": "t7",
+   "tema": "Tallene i forslaget",
+   "alvor": "lav",
+   "tekst": "Forslaget sier «285 forekomstbindinger (kongen 12, organet 57, rollen 185, ikke aktør 9, konvensjon 1, slutning 23)», men delsummene blir 287. Kopien har 285 bindinger med rollen 184 og ikke aktør 8. De to forekomstene uten eier har lesning, men ingen binding, og de er regnet med i delsummene. Tallene bør skrives som 285 + 2 uten eier, eller delsummene bør rettes til 184 og 8."
+  },
+  {
+   "id": "t8",
+   "tema": "Hjemmel og kunnskapsstatus for rolletaggene",
+   "alvor": null,
+   "tekst": "Rolletaggene for «statsråd» er tekstfunn med noden som hjemmel. Rolletaggene for «regjeringen» (#486 regel 4) er fortolkning med Grl. § 15 første ledd. Forskjellen er riktig: «statsråd» er selve rolleordet, mens «regjeringen» bare viser til medlemmene ved metonymi. Begrunnelsen kaller § 15 første ledd «rollebegrepets hjemmel», men det er ikke hjemmelen for taggen. Slik det står, er det klart nok."
+  }
+ ]
+}
