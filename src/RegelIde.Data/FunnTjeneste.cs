@@ -385,7 +385,36 @@ public sealed class FunnTjeneste(RegelIdeDbContext db)
     {
         var ut = await PremissmanglerUtgattAktorAsync(funn, ct);
         await LeggTilPremissmanglerHjemmelOpphevetAsync(funn, ut, ct);
+        await LeggTilMalUtenforKorpusAsync(funn, ut, ct);
         return ut;
+    }
+
+    /// <summary>[Ny, #446 PR 2, AK 7] Premissmangelen når kilden har uttømt virkning, men et mål i «Endrer» ikke er i korpus. Starter alltid slik.</summary>
+    public const string MalUtenforKorpusMangelStart = "Mål utenfor korpus";
+
+    /// <summary>
+    /// [Ny, #446 PR 2, AK 7, juristrunden D14] Funn fra #429 og #472 i en kilde som har uttømt virkning (<c>rent_endringsvedtak = true</c>), men der minst ett
+    /// mål i Lovdatas «Endrer» ikke er en gjeldende primærkilde i korpus. Maskinreglene utelater ikke slike kilder stille: teksten i målet kan ikke
+    /// kontrolleres, så funnet står med denne mangelen til juristen har vurdert målet.
+    /// </summary>
+    private async Task LeggTilMalUtenforKorpusAsync(IReadOnlyCollection<FunnEntitet> funn, Dictionary<Guid, List<string>> ut, CancellationToken ct)
+    {
+        var aktuelle = funn.Where(f => f.Kategori is Funn.UtgattAktor or Funn.HjemmelOpphevet).ToList();
+        var kildeIder = aktuelle.SelectMany(f => f.Koblinger).Where(k => k.Rolle == Funn.GjelderBestemmelse && k.RettskildeId != null)
+            .Select(k => k.RettskildeId!.Value).Distinct().ToList();
+        if (kildeIder.Count == 0) return;
+        var rene = await db.Rettskilder.AsNoTracking().Where(r => kildeIder.Contains(r.Id) && r.RentEndringsvedtak == true).Select(r => r.Id).ToListAsync(ct);
+        var malUtenfor = await VedtaksformTjeneste.MalUtenforKorpusAsync(db, rene, ct);
+        foreach (var f in aktuelle)
+        {
+            var kilde = f.Koblinger.Where(k => k.Rolle == Funn.GjelderBestemmelse && k.RettskildeId != null).Select(k => k.RettskildeId!.Value)
+                .FirstOrDefault(malUtenfor.ContainsKey);
+            if (kilde == Guid.Empty) continue;
+            var mal = malUtenfor[kilde];
+            ut[f.Id].Add($"{MalUtenforKorpusMangelStart} (#446): kilden har uttømt virkning (et rent endrings-, ikrafttredelses- eller opphevingsvedtak), men "
+                + $"{(mal.Count == 1 ? "målet" : $"{mal.Count} mål")} i «Endrer» er ikke i korpus ({string.Join(", ", mal.Take(3))}{(mal.Count > 3 ? " …" : "")}). "
+                + "Om teksten der er riktig, er ikke kontrollert. Juristen vurderer målet.");
+        }
     }
 
     private async Task<Dictionary<Guid, List<string>>> PremissmanglerUtgattAktorAsync(IReadOnlyCollection<FunnEntitet> funn, CancellationToken ct)
@@ -505,8 +534,10 @@ public sealed class FunnTjeneste(RegelIdeDbContext db)
             }
             if (forskrift == Guid.Empty || !forskrifter.TryGetValue(forskrift, out var fr) || fr.RentEndringsvedtak is null)
             {
+                // [ENDRET, #446 PR 2] NULL betyr nå at #446 ga ukjent form, eller ren form med ukjent ikraftstatus.
                 mangler.Add($"{UttomtVirkningMangelStart} (#446): det er ikke avgjort om forskriften er et rent endrings-, opphevings- eller "
-                    + "ikrafttredelsesvedtak. Et slikt vedtak har uttømt virkningen og gir ikke funn.");
+                    + "ikrafttredelsesvedtak som er i kraft (formen er ukjent, eller ikrafttredelsen er ikke lest). Et slikt vedtak har uttømt virkningen "
+                    + "og gir ikke funn.");
             }
         }
     }

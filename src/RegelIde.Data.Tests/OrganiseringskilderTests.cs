@@ -174,18 +174,21 @@ public class OrganiseringskilderTests(EmbeddedPostgresFixture fixture)
         Assert.Equal(0, r4.Skriving.OpprettetNye + r4.Skriving.RessortNye + r4.Skriving.AvviklerNye + r4.Skriving.EtterfolgerNye);
         Assert.False(await db.Strukturkanter.AnyAsync(k => k.HjemmelRettskildeId == nyVersjon.RettskildeId));
 
-        // ---- Markøren for rene endringsvedtak (Johanns avgjørelse 6): hodet sier at kilden endrer et annet dokument, OG tittelen har
-        // endringsform, OG ingen organiseringstype. Sveipene hopper over den uten å lese tittelen.
+        // ---- [ENDRET, #446 PR 2] Markøren for rene endringsvedtak settes ikke lenger av disposisjonsklassifiseringen, men av VedtaksformTjeneste
+        // («uttømt virkning», lest ledd for ledd). Fixturen har tittel med endringsform, men organiseringsinnhold: blandet, ikke ren.
         var endring = html.Replace("FOR-2004-10-01-1304", "FOR-2004-10-03-9997").Replace("2004-10-01-1304", "2004-10-03-9997")
             .Replace("<dd class=\"title\">Omorganisering av departementsstrukturen fra 1. oktober 2004.</dd>",
                 "<dd class=\"title\">Forskrift om endring i forskrift om noe.</dd>");
         var endringId = await new RettskildeImportTjeneste(db).ImporterAsync(RegelIde.Kildekonvertering.LovdataKonverterer.Konverter(endring));
         var rapportEndring = await klassifiserer.KlassifiserAsync(skriv: true, rettskildeId: endringId);
-        Assert.Equal(1, rapportEndring.ReneEndringsvedtak);
+        Assert.Equal(0, rapportEndring.ReneEndringsvedtak);
+        Assert.Null((await db.Rettskilder.AsNoTracking().SingleAsync(r => r.Id == endringId)).RentEndringsvedtak);
+        await new VedtaksformTjeneste(db).KlassifiserAsync(skriv: true, endringId);
         var endringKilde = await db.Rettskilder.AsNoTracking().SingleAsync(r => r.Id == endringId);
-        Assert.True(endringKilde.RentEndringsvedtak);
-        Assert.Contains("changesToDocuments", endringKilde.RentEndringsvedtakGrunnlag);
-        Assert.Contains(endringId, await Sveipeutvalg.StandardUtelattAsync(db));
+        Assert.Equal(Vedtaksform.Blandet, endringKilde.Vedtaksform);
+        Assert.False(endringKilde.RentEndringsvedtak);
+        Assert.Contains("Uttømt virkning (#446", endringKilde.RentEndringsvedtakGrunnlag);
+        Assert.DoesNotContain(endringId, await Sveipeutvalg.StandardUtelattAsync(db));
         Assert.DoesNotContain(id, await Sveipeutvalg.StandardUtelattAsync(db));
     }
 }

@@ -386,7 +386,7 @@ har endringsform, og ingen organiseringstype. NULL = ikke markert.
 `vedtaksform_grunnlag`, `vedtaksform_kunnskapsstatus`, `vedtaksform_regelversjon`, `ikraft_status` og `ikraft_status_grunnlag`, og
 `rettskilde_noder.endringsrolle` (migrasjonen `VedtaksformOgIkraftstatus`). Regelen leser Lovdatas rå HTML ledd for ledd (`Vedtaksform`,
 `VedtaksformTjeneste`, `POST /api/rettskilder/vedtaksform/klassifiser`). `rent_endringsvedtak` beholder navnet, men betyr «uttømt virkning» og
-avledes av vedtaksformen og ikraftstatusen fra #446 PR 2. Se docs/33 §5.22.
+avledes av vedtaksformen og ikraftstatusen (#446 PR 2, `VedtaksformTjeneste`). Se docs/33 §5.22.
 
 **Utvalg [LÅST, #395].** `POST /api/lovdata/lovtidend-import[?skriv=true]` (`LovtidendImportTjeneste`) importerer bare dokumenter der
 tittelen gir en organiseringstype (`Disposisjonstyper.Organiseringstyper`) og ELI-en (dokumenttype + dato + nummer) ikke finnes som
