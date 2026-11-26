@@ -1,0 +1,189 @@
+{
+ "sak": "#472 måling 3b",
+ "dato": "2026-11-25",
+ "merknad": "Én runde med juristen (prosjekteierens oppdrag). Modellereren godtok alle fem innvendingene, så ingen uenighet står igjen.",
+ "resultat": {
+  "totalt": {
+   "riktig": 11,
+   "n": 16,
+   "presisjon": 0.69,
+   "wilson95": [
+    0.44,
+    0.86
+   ]
+  },
+  "per_prefiks": {
+   "DEL": {
+    "riktig": 10,
+    "n": 12,
+    "presisjon": 0.83,
+    "wilson95": [
+     0.55,
+     0.95
+    ]
+   },
+   "INS": {
+    "riktig": 1,
+    "n": 2,
+    "presisjon": 0.5,
+    "wilson95": [
+     0.09,
+     0.91
+    ]
+   },
+   "LTI": {
+    "riktig": 0,
+    "n": 1,
+    "presisjon": 0.0,
+    "wilson95": [
+     0,
+     0.79
+    ]
+   },
+   "SF": {
+    "riktig": 0,
+    "n": 1,
+    "presisjon": 0.0,
+    "wilson95": [
+     0,
+     0.79
+    ]
+   }
+  },
+  "usikre": [],
+  "vektet_etter_lagene": {
+   "presisjon": 0.8,
+   "merknad": "DEL 150, INS 11, LTI 1, SF 1, vektet med presisjonen i laget."
+  }
+ },
+ "kort": [
+  {
+   "id": "N01",
+   "forskrift": "DEL/forskrift/1999-05-07-434",
+   "prefiks": "DEL",
+   "klasse": "riktig",
+   "feilarsak": null,
+   "modellerer_runde1": "riktig"
+  },
+  {
+   "id": "N02",
+   "forskrift": "DEL/forskrift/2004-02-06-307",
+   "prefiks": "DEL",
+   "klasse": "riktig",
+   "feilarsak": null,
+   "modellerer_runde1": "riktig"
+  },
+  {
+   "id": "N03",
+   "forskrift": "DEL/forskrift/1995-02-24-184",
+   "prefiks": "DEL",
+   "klasse": "riktig",
+   "feilarsak": null,
+   "modellerer_runde1": "riktig"
+  },
+  {
+   "id": "N04",
+   "forskrift": "DEL/forskrift/1986-01-17-42",
+   "prefiks": "DEL",
+   "klasse": "riktig",
+   "feilarsak": null,
+   "modellerer_runde1": "riktig"
+  },
+  {
+   "id": "N05",
+   "forskrift": "DEL/forskrift/2001-06-15-656",
+   "prefiks": "DEL",
+   "klasse": "feil",
+   "feilarsak": "tekstlesingen",
+   "modellerer_runde1": "riktig"
+  },
+  {
+   "id": "N06",
+   "forskrift": "DEL/forskrift/1961-09-22-8559",
+   "prefiks": "DEL",
+   "klasse": "riktig",
+   "feilarsak": null,
+   "modellerer_runde1": "riktig"
+  },
+  {
+   "id": "N07",
+   "forskrift": "DEL/forskrift/1984-05-25-1156",
+   "prefiks": "DEL",
+   "klasse": "riktig",
+   "feilarsak": null,
+   "modellerer_runde1": "riktig"
+  },
+  {
+   "id": "N08",
+   "forskrift": "DEL/forskrift/2003-06-26-886",
+   "prefiks": "DEL",
+   "klasse": "riktig",
+   "feilarsak": null,
+   "modellerer_runde1": "riktig"
+  },
+  {
+   "id": "N09",
+   "forskrift": "DEL/forskrift/2014-04-11-541",
+   "prefiks": "DEL",
+   "klasse": "feil",
+   "feilarsak": "dekningen",
+   "modellerer_runde1": "riktig"
+  },
+  {
+   "id": "N10",
+   "forskrift": "DEL/forskrift/2002-06-28-658",
+   "prefiks": "DEL",
+   "klasse": "riktig",
+   "feilarsak": null,
+   "modellerer_runde1": "riktig"
+  },
+  {
+   "id": "N11",
+   "forskrift": "DEL/forskrift/2004-02-16-427",
+   "prefiks": "DEL",
+   "klasse": "riktig",
+   "feilarsak": null,
+   "modellerer_runde1": "riktig"
+  },
+  {
+   "id": "N12",
+   "forskrift": "DEL/forskrift/2013-05-13-472",
+   "prefiks": "DEL",
+   "klasse": "riktig",
+   "feilarsak": null,
+   "modellerer_runde1": "riktig"
+  },
+  {
+   "id": "N13",
+   "forskrift": "INS/forskrift/2001-02-01-1702",
+   "prefiks": "INS",
+   "klasse": "riktig",
+   "feilarsak": null,
+   "modellerer_runde1": "riktig"
+  },
+  {
+   "id": "N14",
+   "forskrift": "INS/forskrift/2011-06-24-650",
+   "prefiks": "INS",
+   "klasse": "feil",
+   "feilarsak": "dekningen",
+   "modellerer_runde1": "feil"
+  },
+  {
+   "id": "N15",
+   "forskrift": "LTI/forskrift/2004-06-21-921",
+   "prefiks": "LTI",
+   "klasse": "feil",
+   "feilarsak": "populasjonen",
+   "modellerer_runde1": "riktig"
+  },
+  {
+   "id": "N16",
+   "forskrift": "SF/forskrift/2001-08-31-1074",
+   "prefiks": "SF",
+   "klasse": "feil",
+   "feilarsak": "dekningen",
+   "modellerer_runde1": "feil"
+  }
+ ]
+}

@@ -1,0 +1,1044 @@
+{
+ "sak": "#472 måling 3b (#501: nye funn etter prosjekteierens avgjørelse 2026-11-25, alternativ (a))",
+ "dato": "2026-11-25",
+ "grunnlag": "Kopien regelide_501b (bare SELECT) etter PR 5 med alternativ (a): 163 nye funn, alle undertype uavklart. Utvalget står i utvalg.json.",
+ "klasser": {
+  "riktig": "«Uavklart» er et riktig svar: hjemmelen er opphevet, overgangsregelen som er koblet, nevner ikke vedtakstypen, og om den dekker vedtaket, er et reelt spørsmål. Påstanden er riktig.",
+  "feil": "Vedtaket er klart dekket av overgangsregelen (videreført), klart ikke dekket (hjemmel opphevet), eller påstanden er feil på et annet punkt (for eksempel at vedtaket selv er opphevet).",
+  "usikker": "kan ikke avgjøres fra kildene"
+ },
+ "feilarsaker": [
+  "dekningen",
+  "populasjonen",
+  "tekstlesingen",
+  "rollen",
+  "videreforingsformen",
+  "pastanden",
+  "annet"
+ ],
+ "kort": [
+  {
+   "id": "N01",
+   "funn_id": "5e196c64-6955-4eb8-872f-ba00e0d6a28d",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/1999/05/07/434/nor",
+   "undertype": "uavklart",
+   "prefiks": "DEL",
+   "forskrift": {
+    "dokument_id": "DEL/forskrift/1999-05-07-434",
+    "tittel": "Delegering av myndighet til Finans- og tolldepartementet etter lov om finansinstitusjoner og finansieringsvirksomhet § 2-2 annet ledd nr. 6.",
+    "lovdatas_hjemmelstekst": "Fastsatt ved kgl.res. 7. mai 1999 med hjemmel i lov av 10. juni 1988 nr. 40 om finansinstitusjoner og finansieringsvirksomhet § 2-2 annet ledd nr. 6. Fremmet av Finans- og tolldepartementet.",
+    "ikrafttredelse": "1999-05-07",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "foreslatt": {
+    "tittel": "Hjemmel opphevet, videreføringen nevner ikke vedtakstypen: Delegering av myndighet etter finansieringsloven (FOR-1999-05-07-434)",
+    "pastand": "Lovdata viser «Delegering av myndighet etter finansieringsloven» (FOR-1999-05-07-434) som gjeldende. Hjemmelen er opphevet, men videreført av en overgangsregel som ikke nevner denne typen vedtak. Om videreføringen dekker vedtaket, er ikke vurdert, og ingen annen hjemmel som bærer, er vurdert. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1988-06-10-40 § 2-2 er opphevet, men videreført av LOV-2015-04-10-17 § 23-2 andre ledd (rolle materiell, og videreføringen nevner ikke denne typen vedtak, så om den dekker forskriften, er ikke vurdert).\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446).",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-1999-05-07-434 Delegering av myndighet etter finansieringsloven",
+      "merknad": "forskriften",
+      "eid": null
+     },
+     {
+      "rolle": "videreforingsbestemmelse",
+      "etikett": "LOV-2015-04-10-17 § 23-2 andre ledd",
+      "merknad": "viderefører forskrifter gitt etter LOV-1988-06-10-40",
+      "eid": "https://lovdata.no/eli/lov/2015/04/10/17/nor/§23-2/ledd-2"
+     }
+    ],
+    "hjemmelsstatus": [
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1988/06/10/40/nor/§2-2",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "viderefort",
+      "bevistrinn": "E1",
+      "opphevet_av": "NL/lov/2015-04-10-17",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2015/04/10/17/nor/§23-3/ledd-4",
+      "opphevet_av_sitat": "Lov 10. juni 1988 nr. 40 om finansieringsvirksomhet og finansinstitusjoner oppheves.",
+      "videreforing_kilde": "NL/lov/2015-04-10-17",
+      "videreforing_eid": "https://lovdata.no/eli/lov/2015/04/10/17/nor/§23-2/ledd-2",
+      "videreforing_form": "V1",
+      "videreforing_dekning": "dokumenttype_ikke_nevnt",
+      "videreforing_sitat": "(2) Forskrifter gitt med hjemmel i lov 24. mai 1961 nr. 1 om sparebanker, lov 24. mai 1961 nr. 2 om forretningsbanker og lov 10. juni 1988 nr. 40 om finansieringsvirksomhet og finansinstitusjoner gjelder også etter at loven her har trådt i kraft.",
+      "kunnskapsstatus": "fortolkning"
+     }
+    ]
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "feilarsak": null,
+    "grunn": "Riktig. Vedtaket er en delegering, og overgangsregelen nevner ikke delegeringer. Om den dekker vedtaket, er fortolkning, og ingen annen premiss som bærer, er vurdert. «Uavklart» er svaret etter prosjekteierens avgjørelse 2026-11-25 (a)."
+   }
+  },
+  {
+   "id": "N02",
+   "funn_id": "990daa2d-734a-4118-8409-f6487d450181",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2004/02/06/307/nor",
+   "undertype": "uavklart",
+   "prefiks": "DEL",
+   "forskrift": {
+    "dokument_id": "DEL/forskrift/2004-02-06-307",
+    "tittel": "Delegering av myndighet til Fiskeridepartementet og Landbruksdepartementet etter lov om dyrevern § 22 og § 27.",
+    "lovdatas_hjemmelstekst": "Fastsatt ved Kronprinsreg.res. 6. februar 2004 med hjemmel i lov av 20. desember 1974 nr. 73 om dyrevern § 22 og § 27. Fremmet av Landbruksdepartementet.",
+    "ikrafttredelse": "2004-02-06",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "foreslatt": {
+    "tittel": "Hjemmel opphevet, videreføringen nevner ikke vedtakstypen: Delegering til FID og LD etter dyrevernloven (FOR-2004-02-06-307)",
+    "pastand": "Lovdata viser «Delegering til FID og LD etter dyrevernloven» (FOR-2004-02-06-307) som gjeldende. Hjemmelen er opphevet, men videreført av en overgangsregel som ikke nevner denne typen vedtak. Om videreføringen dekker vedtaket, er ikke vurdert, og ingen annen hjemmel som bærer, er vurdert. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1974-12-20-73 § 22 og § 27 er opphevet, men videreført av LOV-2009-06-19-97 § 40 andre ledd (rolle materiell, og videreføringen nevner ikke denne typen vedtak, så om den dekker forskriften, er ikke vurdert).\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446).",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-2004-02-06-307 Delegering til FID og LD etter dyrevernloven",
+      "merknad": "forskriften",
+      "eid": null
+     },
+     {
+      "rolle": "videreforingsbestemmelse",
+      "etikett": "LOV-2009-06-19-97 § 40 andre ledd",
+      "merknad": "viderefører forskrifter gitt etter LOV-1974-12-20-73",
+      "eid": "https://lovdata.no/eli/lov/2009/06/19/97/nor/§40/ledd-2"
+     }
+    ],
+    "hjemmelsstatus": [
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1974/12/20/73/nor/§22",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "viderefort",
+      "bevistrinn": "E1",
+      "opphevet_av": "NL/lov/2009-06-19-97",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2009/06/19/97/nor/§40/ledd-1",
+      "opphevet_av_sitat": "Fra samme tidspunkt oppheves lov 20. desember 1974 nr. 73 om dyrevern samt lov 19. april 2002 nr. 11 om endringer i lov 20. desember 1974 nr. 73 om dyrevern.",
+      "videreforing_kilde": "NL/lov/2009-06-19-97",
+      "videreforing_eid": "https://lovdata.no/eli/lov/2009/06/19/97/nor/§40/ledd-2",
+      "videreforing_form": "V1",
+      "videreforing_dekning": "dokumenttype_ikke_nevnt",
+      "videreforing_sitat": "Forskrifter eller enkeltvedtak gitt i eller i medhold av lov 20. desember 1974 nr. 73 om dyrevern gjelder fortsatt inntil de blir opphevet.",
+      "kunnskapsstatus": "fortolkning"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1974/12/20/73/nor/§27",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "viderefort",
+      "bevistrinn": "E1",
+      "opphevet_av": "NL/lov/2009-06-19-97",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2009/06/19/97/nor/§40/ledd-1",
+      "opphevet_av_sitat": "Fra samme tidspunkt oppheves lov 20. desember 1974 nr. 73 om dyrevern samt lov 19. april 2002 nr. 11 om endringer i lov 20. desember 1974 nr. 73 om dyrevern.",
+      "videreforing_kilde": "NL/lov/2009-06-19-97",
+      "videreforing_eid": "https://lovdata.no/eli/lov/2009/06/19/97/nor/§40/ledd-2",
+      "videreforing_form": "V1",
+      "videreforing_dekning": "dokumenttype_ikke_nevnt",
+      "videreforing_sitat": "Forskrifter eller enkeltvedtak gitt i eller i medhold av lov 20. desember 1974 nr. 73 om dyrevern gjelder fortsatt inntil de blir opphevet.",
+      "kunnskapsstatus": "fortolkning"
+     }
+    ]
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "feilarsak": null,
+    "grunn": "Riktig. Vedtaket er en delegering, og overgangsregelen nevner ikke delegeringer. Om den dekker vedtaket, er fortolkning, og ingen annen premiss som bærer, er vurdert. «Uavklart» er svaret etter prosjekteierens avgjørelse 2026-11-25 (a)."
+   }
+  },
+  {
+   "id": "N03",
+   "funn_id": "c7665148-311d-4885-8721-940286e083c4",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/1995/02/24/184/nor",
+   "undertype": "uavklart",
+   "prefiks": "DEL",
+   "forskrift": {
+    "dokument_id": "DEL/forskrift/1995-02-24-184",
+    "tittel": "Ikrafttredelse av lov 24. februar 1995 nr. 11 om lotterier m.v. Delegering av myndighet og overgangsbestemmelser.",
+    "lovdatas_hjemmelstekst": "Fastsatt ved kgl.res. 24. februar 1995. Fremmet av Justis- og politidepartementet.",
+    "ikrafttredelse": "1995-02-24",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "foreslatt": {
+    "tittel": "Hjemmel opphevet, videreføringen nevner ikke vedtakstypen: Ikrafttr. av lotteriloven. Delegering (FOR-1995-02-24-184)",
+    "pastand": "Lovdata viser «Ikrafttr. av lotteriloven. Delegering» (FOR-1995-02-24-184) som gjeldende. Hjemmelen er opphevet, men videreført av en overgangsregel som ikke nevner denne typen vedtak. Om videreføringen dekker vedtaket, er ikke vurdert, og ingen annen hjemmel som bærer, er vurdert. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1995-02-24-11 er opphevet, men videreført av LOV-2022-03-18-12 § 38 andre ledd (rollen er ikke vurdert, og videreføringen nevner ikke denne typen vedtak, så om den dekker forskriften, er ikke vurdert).\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446).",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-1995-02-24-184 Ikrafttr. av lotteriloven. Delegering",
+      "merknad": "forskriften",
+      "eid": null
+     },
+     {
+      "rolle": "videreforingsbestemmelse",
+      "etikett": "LOV-2022-03-18-12 § 38 andre ledd",
+      "merknad": "viderefører forskrifter gitt etter LOV-1995-02-24-11",
+      "eid": "https://lovdata.no/eli/lov/2022/03/18/12/nor/§38/ledd-2"
+     }
+    ],
+    "hjemmelsstatus": [
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1995/02/24/11/nor",
+      "status": "viderefort",
+      "bevistrinn": "E1",
+      "opphevet_av": "NL/lov/2022-03-18-12",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2022/03/18/12/nor/§38/ledd-1/punkt-3",
+      "opphevet_av_sitat": "Fra samme tid oppheves følgende lover: lov 24. februar 1995 nr. 11 om lotterier m.v.",
+      "videreforing_kilde": "NL/lov/2022-03-18-12",
+      "videreforing_eid": "https://lovdata.no/eli/lov/2022/03/18/12/nor/§38/ledd-2",
+      "videreforing_form": "V3",
+      "videreforing_dekning": "dokumenttype_ikke_nevnt",
+      "videreforing_sitat": "Forskrifter fastsatt med hjemmel i lovene nevnt i første ledd gjelder også etter at denne loven trer i kraft.",
+      "kunnskapsstatus": "fortolkning"
+     }
+    ]
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "feilarsak": null,
+    "grunn": "Riktig. Vedtaket er en delegering, og overgangsregelen nevner ikke delegeringer. Om den dekker vedtaket, er fortolkning, og ingen annen premiss som bærer, er vurdert. «Uavklart» er svaret etter prosjekteierens avgjørelse 2026-11-25 (a). Vedtaket er også et ikrafttredelsesvedtak (#446 ikke klassifisert)."
+   }
+  },
+  {
+   "id": "N04",
+   "funn_id": "d0c7b356-b815-4355-abb5-81b1ed1939a1",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/1986/01/17/42/nor",
+   "undertype": "uavklart",
+   "prefiks": "DEL",
+   "forskrift": {
+    "dokument_id": "DEL/forskrift/1986-01-17-42",
+    "tittel": "Forskrift om overføring av myndighet til Nærings- og handelsdepartementet etter lov om Statskontrol med Skibes Sjødygtighed m.v.",
+    "lovdatas_hjemmelstekst": "Fastsatt ved kgl.res. av 17. januar 1986. Fremmet av Handels- og skipsfartsdepartementet. Endret ved kgl.res. av 20. desember 1996 nr. 1156. Fremmet av Nærings- og energidepartementet.",
+    "ikrafttredelse": "1986-03-07",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "foreslatt": {
+    "tittel": "Hjemmel opphevet, videreføringen nevner ikke vedtakstypen: Delegering til NHD etter sjødyktighetsloven (FOR-1986-01-17-42)",
+    "pastand": "Lovdata viser «Delegering til NHD etter sjødyktighetsloven» (FOR-1986-01-17-42) som gjeldende. Hjemmelen er opphevet, men videreført av en overgangsregel som ikke nevner denne typen vedtak. Om videreføringen dekker vedtaket, er ikke vurdert, og ingen annen hjemmel som bærer, er vurdert. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1903-06-09-7 § 2 og § 3 er opphevet, men videreført av LOV-2007-02-16-9 § 73 første ledd (rollen er ikke vurdert, og videreføringen nevner ikke denne typen vedtak, så om den dekker forskriften, er ikke vurdert).\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446).",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-1986-01-17-42 Delegering til NHD etter sjødyktighetsloven",
+      "merknad": "forskriften",
+      "eid": null
+     },
+     {
+      "rolle": "videreforingsbestemmelse",
+      "etikett": "LOV-2007-02-16-9 § 73 første ledd",
+      "merknad": "viderefører forskrifter gitt etter LOV-1903-06-09-7",
+      "eid": "https://lovdata.no/eli/lov/2007/02/16/9/nor/§73/ledd-1"
+     }
+    ],
+    "hjemmelsstatus": [
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1903/06/09/7/nor/§2",
+      "status": "viderefort",
+      "bevistrinn": "EN_LTI",
+      "opphevet_av": "NL/lov/2007-02-16-9",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2007/02/16/9/nor/§74/ledd-1/punkt-1",
+      "opphevet_av_sitat": "Fra den tid loven trer i kraft oppheves følgende lover: lov 9. juni 1903 nr. 7 om Statskontrol med Skibes Sjødygtighed m.v.",
+      "videreforing_kilde": "NL/lov/2007-02-16-9",
+      "videreforing_eid": "https://lovdata.no/eli/lov/2007/02/16/9/nor/§73/ledd-1",
+      "videreforing_form": "V3",
+      "videreforing_dekning": "dokumenttype_ikke_nevnt",
+      "videreforing_sitat": "Forskrifter gitt i medhold av lover og bestemmelser som oppheves, jf. § 74, skal gjelde inntil annet er bestemt.",
+      "kunnskapsstatus": "fortolkning"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1903/06/09/7/nor/§3",
+      "status": "viderefort",
+      "bevistrinn": "EN_LTI",
+      "opphevet_av": "NL/lov/2007-02-16-9",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2007/02/16/9/nor/§74/ledd-1/punkt-1",
+      "opphevet_av_sitat": "Fra den tid loven trer i kraft oppheves følgende lover: lov 9. juni 1903 nr. 7 om Statskontrol med Skibes Sjødygtighed m.v.",
+      "videreforing_kilde": "NL/lov/2007-02-16-9",
+      "videreforing_eid": "https://lovdata.no/eli/lov/2007/02/16/9/nor/§73/ledd-1",
+      "videreforing_form": "V3",
+      "videreforing_dekning": "dokumenttype_ikke_nevnt",
+      "videreforing_sitat": "Forskrifter gitt i medhold av lover og bestemmelser som oppheves, jf. § 74, skal gjelde inntil annet er bestemt.",
+      "kunnskapsstatus": "fortolkning"
+     }
+    ]
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "feilarsak": null,
+    "grunn": "Riktig. Vedtaket er en delegering, og overgangsregelen nevner ikke delegeringer. Om den dekker vedtaket, er fortolkning, og ingen annen premiss som bærer, er vurdert. «Uavklart» er svaret etter prosjekteierens avgjørelse 2026-11-25 (a)."
+   }
+  },
+  {
+   "id": "N05",
+   "funn_id": "049f2f7b-0eb3-4df9-a92c-91b526b0dcf3",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2001/06/15/656/nor",
+   "undertype": "uavklart",
+   "prefiks": "DEL",
+   "forskrift": {
+    "dokument_id": "DEL/forskrift/2001-06-15-656",
+    "tittel": "Delegering av myndighet til Finansdepartementet etter lov av 15. juni 2001 nr. 43 om endringer i lov 19. juni 1997 nr. 79 om verdipapirhandel (tiltak mot ulovlig innsidehandel mv.).",
+    "lovdatas_hjemmelstekst": "Fastsatt ved kgl.res. 15. juni 2001 med hjemmel i lov av 15. juni 2001 nr. 43 om endringer i lov 19. juni 1997 nr. 79 om verdipapirhandel (tiltak mot ulovlig innsidehandel mv.). Fremmet av Finansdepartementet.",
+    "ikrafttredelse": "2001-06-15",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "foreslatt": {
+    "tittel": "Hjemmel opphevet, videreføringen nevner ikke vedtakstypen: Deleg. til FIN etter lov 2001:43 (FOR-2001-06-15-656)",
+    "pastand": "Lovdata viser «Deleg. til FIN etter lov 2001:43» (FOR-2001-06-15-656) som gjeldende. Hjemmelen er opphevet, men videreført av en overgangsregel som ikke nevner denne typen vedtak. Om videreføringen dekker vedtaket, er ikke vurdert, og ingen annen hjemmel som bærer, er vurdert. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-2001-06-15-43 er opphevet, men videreført av LOV-2007-06-29-75 § 22-2 femte ledd (rolle materiell, og videreføringen nevner ikke denne typen vedtak, så om den dekker forskriften, er ikke vurdert).\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446).",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-2001-06-15-656 Deleg. til FIN etter lov 2001:43",
+      "merknad": "forskriften",
+      "eid": null
+     },
+     {
+      "rolle": "videreforingsbestemmelse",
+      "etikett": "LOV-2007-06-29-75 § 22-2 femte ledd",
+      "merknad": "viderefører forskrifter gitt etter LOV-2001-06-15-43",
+      "eid": "https://lovdata.no/eli/lov/2007/06/29/75/nor/§22-2/ledd-5"
+     }
+    ],
+    "hjemmelsstatus": [
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/2001/06/15/43/nor",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "viderefort",
+      "bevistrinn": "EN_LTI",
+      "opphevet_av": "NL/lov/2007-06-29-75",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2007/06/29/75/nor/§19-1/ledd-2",
+      "opphevet_av_sitat": "Lov 19. juni 1997 nr. 79 om verdipapirhandel (verdipapirhandelloven) oppheves.",
+      "videreforing_kilde": "NL/lov/2007-06-29-75",
+      "videreforing_eid": "https://lovdata.no/eli/lov/2007/06/29/75/nor/§22-2/ledd-5",
+      "videreforing_form": "V1",
+      "videreforing_dekning": "dokumenttype_ikke_nevnt",
+      "videreforing_sitat": "(5) Forskrifter gitt i medhold av henholdsvis lov 19. juni 1997 nr. 79 om verdipapirhandel, lov 29. juni 2007 nr. 74 om regulerte markeder og i medhold av opphevede eller endrede bestemmelser i loven her, videreføres og gjelder inntil noe annet er bestemt.",
+      "kunnskapsstatus": "fortolkning"
+     }
+    ]
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "feilarsak": null,
+    "grunn": "Riktig. Vedtaket er en delegering, og overgangsregelen nevner ikke delegeringer. Om den dekker vedtaket, er fortolkning, og ingen annen premiss som bærer, er vurdert. «Uavklart» er svaret etter prosjekteierens avgjørelse 2026-11-25 (a)."
+   }
+  },
+  {
+   "id": "N06",
+   "funn_id": "ca09377a-e04d-4ea9-ba1d-e3e142a55df2",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/1961/09/22/8559/nor",
+   "undertype": "uavklart",
+   "prefiks": "DEL",
+   "forskrift": {
+    "dokument_id": "DEL/forskrift/1961-09-22-8559",
+    "tittel": "Forskrift om ikrafttredelse av banklovgivningen. Delegasjon.",
+    "lovdatas_hjemmelstekst": null,
+    "ikrafttredelse": null,
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "foreslatt": {
+    "tittel": "Hjemmel opphevet, videreføringen nevner ikke vedtakstypen: Delegering etter banklovgivningen (FOR-1961-09-22-8559)",
+    "pastand": "Lovdata viser «Delegering etter banklovgivningen» (FOR-1961-09-22-8559) som gjeldende. Hjemmelen er opphevet, men videreført av en overgangsregel som ikke nevner denne typen vedtak. Om videreføringen dekker vedtaket, er ikke vurdert, og ingen annen hjemmel som bærer, er vurdert. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1961-05-24-1 § 60 er opphevet, men videreført av LOV-2015-04-10-17 § 23-2 andre ledd (rollen er ikke vurdert, og videreføringen nevner ikke denne typen vedtak, så om den dekker forskriften, er ikke vurdert).\n- LOV-1961-05-24-2 § 44 er opphevet, men videreført av LOV-2015-04-10-17 § 23-2 andre ledd (rollen er ikke vurdert, og videreføringen nevner ikke denne typen vedtak, så om den dekker forskriften, er ikke vurdert).\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446).",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-1961-09-22-8559 Delegering etter banklovgivningen",
+      "merknad": "forskriften",
+      "eid": null
+     },
+     {
+      "rolle": "videreforingsbestemmelse",
+      "etikett": "LOV-2015-04-10-17 § 23-2 andre ledd",
+      "merknad": "viderefører forskrifter gitt etter LOV-1961-05-24-1",
+      "eid": "https://lovdata.no/eli/lov/2015/04/10/17/nor/§23-2/ledd-2"
+     }
+    ],
+    "hjemmelsstatus": [
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1961/05/24/1/nor/§60",
+      "status": "viderefort",
+      "bevistrinn": "E1",
+      "opphevet_av": "NL/lov/2015-04-10-17",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2015/04/10/17/nor/§23-3/ledd-2",
+      "opphevet_av_sitat": "Lov 24. mai 1961 nr. 1 om sparebanker oppheves.",
+      "videreforing_kilde": "NL/lov/2015-04-10-17",
+      "videreforing_eid": "https://lovdata.no/eli/lov/2015/04/10/17/nor/§23-2/ledd-2",
+      "videreforing_form": "V1",
+      "videreforing_dekning": "dokumenttype_ikke_nevnt",
+      "videreforing_sitat": "(2) Forskrifter gitt med hjemmel i lov 24. mai 1961 nr. 1 om sparebanker, lov 24. mai 1961 nr. 2 om forretningsbanker og lov 10. juni 1988 nr. 40 om finansieringsvirksomhet og finansinstitusjoner gjelder også etter at loven her har trådt i kraft.",
+      "kunnskapsstatus": "fortolkning"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1961/05/24/2/nor/§44",
+      "status": "viderefort",
+      "bevistrinn": "E1",
+      "opphevet_av": "NL/lov/2015-04-10-17",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2015/04/10/17/nor/§23-3/ledd-3",
+      "opphevet_av_sitat": "Lov 24. mai 1961 nr. 2 om forretningsbanker oppheves.",
+      "videreforing_kilde": "NL/lov/2015-04-10-17",
+      "videreforing_eid": "https://lovdata.no/eli/lov/2015/04/10/17/nor/§23-2/ledd-2",
+      "videreforing_form": "V1",
+      "videreforing_dekning": "dokumenttype_ikke_nevnt",
+      "videreforing_sitat": "(2) Forskrifter gitt med hjemmel i lov 24. mai 1961 nr. 1 om sparebanker, lov 24. mai 1961 nr. 2 om forretningsbanker og lov 10. juni 1988 nr. 40 om finansieringsvirksomhet og finansinstitusjoner gjelder også etter at loven her har trådt i kraft.",
+      "kunnskapsstatus": "fortolkning"
+     }
+    ]
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "feilarsak": null,
+    "grunn": "Riktig. Vedtaket er en delegering, og overgangsregelen nevner ikke delegeringer. Om den dekker vedtaket, er fortolkning, og ingen annen premiss som bærer, er vurdert. «Uavklart» er svaret etter prosjekteierens avgjørelse 2026-11-25 (a)."
+   }
+  },
+  {
+   "id": "N07",
+   "funn_id": "f79c5634-801e-497f-94e0-d67b2201d958",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/1984/05/25/1156/nor",
+   "undertype": "uavklart",
+   "prefiks": "DEL",
+   "forskrift": {
+    "dokument_id": "DEL/forskrift/1984-05-25-1156",
+    "tittel": "Delegering av myndighet etter lov av 25. mai 1984 nr. 31 om endringer i lov 9. juni 1903 nr. 7 om Statskontrol med Skibes Sjødygtighed m.v.",
+    "lovdatas_hjemmelstekst": "Fastsatt ved kgl.res. av 25. mai 1984. Fremmet av Handels- og skipsfartsdepartementet. Endret ved kgl.res. 20. desember 1996 nr. 1156. Fremmet av Nærings- og energidepartementet.",
+    "ikrafttredelse": "1984-05-25",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "foreslatt": {
+    "tittel": "Hjemmel opphevet, videreføringen nevner ikke vedtakstypen: Delegering til NHD etter sjødygtighedsloven (FOR-1984-05-25-1156)",
+    "pastand": "Lovdata viser «Delegering til NHD etter sjødygtighedsloven» (FOR-1984-05-25-1156) som gjeldende. Hjemmelen er opphevet, men videreført av en overgangsregel som ikke nevner denne typen vedtak. Om videreføringen dekker vedtaket, er ikke vurdert, og ingen annen hjemmel som bærer, er vurdert. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1903-06-09-7 § 9a er opphevet, men videreført av LOV-2007-02-16-9 § 73 første ledd (rollen er ikke vurdert, og videreføringen nevner ikke denne typen vedtak, så om den dekker forskriften, er ikke vurdert).\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446).",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-1984-05-25-1156 Delegering til NHD etter sjødygtighedsloven",
+      "merknad": "forskriften",
+      "eid": null
+     },
+     {
+      "rolle": "videreforingsbestemmelse",
+      "etikett": "LOV-2007-02-16-9 § 73 første ledd",
+      "merknad": "viderefører forskrifter gitt etter LOV-1903-06-09-7",
+      "eid": "https://lovdata.no/eli/lov/2007/02/16/9/nor/§73/ledd-1"
+     }
+    ],
+    "hjemmelsstatus": [
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1903/06/09/7/nor/§9a",
+      "status": "viderefort",
+      "bevistrinn": "EN_LTI",
+      "opphevet_av": "NL/lov/2007-02-16-9",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2007/02/16/9/nor/§74/ledd-1/punkt-1",
+      "opphevet_av_sitat": "Fra den tid loven trer i kraft oppheves følgende lover: lov 9. juni 1903 nr. 7 om Statskontrol med Skibes Sjødygtighed m.v.",
+      "videreforing_kilde": "NL/lov/2007-02-16-9",
+      "videreforing_eid": "https://lovdata.no/eli/lov/2007/02/16/9/nor/§73/ledd-1",
+      "videreforing_form": "V3",
+      "videreforing_dekning": "dokumenttype_ikke_nevnt",
+      "videreforing_sitat": "Forskrifter gitt i medhold av lover og bestemmelser som oppheves, jf. § 74, skal gjelde inntil annet er bestemt.",
+      "kunnskapsstatus": "fortolkning"
+     }
+    ]
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "feilarsak": null,
+    "grunn": "Riktig. Vedtaket er en delegering, og overgangsregelen nevner ikke delegeringer. Om den dekker vedtaket, er fortolkning, og ingen annen premiss som bærer, er vurdert. «Uavklart» er svaret etter prosjekteierens avgjørelse 2026-11-25 (a)."
+   }
+  },
+  {
+   "id": "N08",
+   "funn_id": "c0f7914c-041a-46a2-b9bb-3277341dd731",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2003/06/26/886/nor",
+   "undertype": "uavklart",
+   "prefiks": "DEL",
+   "forskrift": {
+    "dokument_id": "DEL/forskrift/2003-06-26-886",
+    "tittel": "Delegering av myndighet til Direktoratet for arbeidstilsynet etter lov om arbeidervern og arbeidsmiljø m.v. § 2 nr. 7.",
+    "lovdatas_hjemmelstekst": "Fastsatt av Arbeids- og administrasjonsdepartementet 26. juni 2003 med hjemmel i lov av 4. februar 1977 nr. 4 om arbeidervern og arbeidsmiljø m.v. § 2 nr. 7, jf. delegeringsvedtak av 30. juli 1992 nr. 590.",
+    "ikrafttredelse": "2003-06-26",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "foreslatt": {
+    "tittel": "Hjemmel opphevet, videreføringen nevner ikke vedtakstypen: Delegering til DAT etter aml. § 2 nr. 7 (FOR-2003-06-26-886)",
+    "pastand": "Lovdata viser «Delegering til DAT etter aml. § 2 nr. 7» (FOR-2003-06-26-886) som gjeldende. Hjemmelen er opphevet, men videreført av en overgangsregel som ikke nevner denne typen vedtak. Om videreføringen dekker vedtaket, er ikke vurdert, og ingen annen hjemmel som bærer, er vurdert. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1977-02-04-4 § 2 er opphevet, men videreført av LOV-2005-06-17-62 § 20-2 første ledd (rolle materiell, og videreføringen nevner ikke denne typen vedtak, så om den dekker forskriften, er ikke vurdert).\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446).",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-2003-06-26-886 Delegering til DAT etter aml. § 2 nr. 7",
+      "merknad": "forskriften",
+      "eid": null
+     },
+     {
+      "rolle": "videreforingsbestemmelse",
+      "etikett": "LOV-2005-06-17-62 § 20-2 første ledd",
+      "merknad": "viderefører forskrifter gitt etter LOV-1977-02-04-4",
+      "eid": "https://lovdata.no/eli/lov/2005/06/17/62/nor/§20-2/ledd-1"
+     }
+    ],
+    "hjemmelsstatus": [
+     {
+      "hjemmel": "https://lovdata.no/eli/forskrift/1992/07/30/590/nor",
+      "i_korpus": "DEL/forskrift/1992-07-30-590",
+      "rolle": "kompetanseledd",
+      "rolle_regel": "delegeringsvedtak",
+      "status": "aktiv",
+      "kunnskapsstatus": "normalisering"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1977/02/04/4/nor/§2",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "viderefort",
+      "bevistrinn": "EN_LTI",
+      "opphevet_av": "NL/lov/2005-06-17-62",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2005/06/17/62/nor/§20-3/ledd-2",
+      "opphevet_av_sitat": "Lov 4. februar 1977 nr. 4 om arbeidervern og arbeidsmiljø m.v. oppheves.",
+      "videreforing_kilde": "NL/lov/2005-06-17-62",
+      "videreforing_eid": "https://lovdata.no/eli/lov/2005/06/17/62/nor/§20-2/ledd-1",
+      "videreforing_form": "V1",
+      "videreforing_dekning": "dokumenttype_ikke_nevnt",
+      "videreforing_sitat": "Forskrifter gitt i medhold av lov 4. februar 1977 nr. 4 om arbeidervern og arbeidsmiljø mv. skal gjelde inntil annet er bestemt.",
+      "kunnskapsstatus": "fortolkning"
+     }
+    ]
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "feilarsak": null,
+    "grunn": "Riktig. Vedtaket er en delegering, og overgangsregelen nevner ikke delegeringer. Om den dekker vedtaket, er fortolkning, og ingen annen premiss som bærer, er vurdert. «Uavklart» er svaret etter prosjekteierens avgjørelse 2026-11-25 (a)."
+   }
+  },
+  {
+   "id": "N09",
+   "funn_id": "994231ea-775a-4868-9136-ec8462853b42",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2014/04/11/541/nor",
+   "undertype": "uavklart",
+   "prefiks": "DEL",
+   "forskrift": {
+    "dokument_id": "DEL/forskrift/2014-04-11-541",
+    "tittel": "Delegering av myndighet til å begjære påtale til Statens kartverk etter straffeloven § 79 fjerde ledd",
+    "lovdatas_hjemmelstekst": "Hjemmel: Fastsatt av Kommunal- og moderniseringsdepartementet 11. april 2014 med hjemmel i Alminnelig borgerlig straffelov (Straffeloven) 22. mai 1902 nr. 10 § 79 fjerde ledd og omorganiseringsvedtak 13. desember 2013 nr. 1455 pkt. 12.",
+    "ikrafttredelse": "2014-04-11",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "foreslatt": {
+    "tittel": "Hjemmel opphevet, videreføringen nevner ikke vedtakstypen: Delegering til Kartverket etter straffeloven (FOR-2014-04-11-541)",
+    "pastand": "Lovdata viser «Delegering til Kartverket etter straffeloven» (FOR-2014-04-11-541) som gjeldende. Hjemmelen er opphevet, men videreført av en overgangsregel som ikke nevner denne typen vedtak. Om videreføringen dekker vedtaket, er ikke vurdert, og ingen annen hjemmel som bærer, er vurdert. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1902-05-22-10 § 79 er opphevet, men videreført av LOV-2005-05-20-28 § 411 første ledd (rolle materiell, og videreføringen nevner ikke denne typen vedtak, så om den dekker forskriften, er ikke vurdert).\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446).",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-2014-04-11-541 Delegering til Kartverket etter straffeloven",
+      "merknad": "forskriften",
+      "eid": null
+     },
+     {
+      "rolle": "videreforingsbestemmelse",
+      "etikett": "LOV-2005-05-20-28 § 411 første ledd",
+      "merknad": "viderefører forskrifter gitt etter LOV-1902-05-22-10",
+      "eid": "https://lovdata.no/eli/lov/2005/05/20/28/nor/§411/ledd-1"
+     }
+    ],
+    "hjemmelsstatus": [
+     {
+      "hjemmel": "https://lovdata.no/eli/forskrift/2013/12/13/1455/nor",
+      "i_korpus": "DEL/forskrift/2013-12-13-1455",
+      "rolle": "kompetanseledd",
+      "rolle_regel": "delegeringsvedtak",
+      "status": "aktiv",
+      "kunnskapsstatus": "normalisering"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1902/05/22/10/nor/§79",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "viderefort",
+      "bevistrinn": "E1",
+      "opphevet_av": "NL/lov/2005-05-20-28",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2005/05/20/28/nor/§411/ledd-1",
+      "opphevet_av_sitat": "Fra samme tid oppheves straffeloven 22. mai 1902 nr. 10.",
+      "videreforing_kilde": "NL/lov/2005-05-20-28",
+      "videreforing_eid": "https://lovdata.no/eli/lov/2005/05/20/28/nor/§411/ledd-1",
+      "videreforing_form": "V4",
+      "videreforing_dekning": "dokumenttype_ikke_nevnt",
+      "videreforing_sitat": "Forskrifter gitt i medhold av straffeloven 1902 gjelder også etter at loven her har trådt i kraft.",
+      "kunnskapsstatus": "fortolkning"
+     }
+    ]
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "feilarsak": null,
+    "grunn": "Riktig. Vedtaket er en delegering, og overgangsregelen nevner ikke delegeringer. Om den dekker vedtaket, er fortolkning, og ingen annen premiss som bærer, er vurdert. «Uavklart» er svaret etter prosjekteierens avgjørelse 2026-11-25 (a)."
+   }
+  },
+  {
+   "id": "N10",
+   "funn_id": "1dc20c78-5b5b-47b1-a870-98e80f23f3cd",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2002/06/28/658/nor",
+   "undertype": "uavklart",
+   "prefiks": "DEL",
+   "forskrift": {
+    "dokument_id": "DEL/forskrift/2002-06-28-658",
+    "tittel": "Delegering av myndighet til Nærings- og handelsdepartementet etter lov om arbeidstiden og hviletiden på skip § 15 første ledd andre punktum.",
+    "lovdatas_hjemmelstekst": "Fastsatt ved kgl.res. 28. juni 2002 med hjemmel i lov av 3. juni 1977 nr. 50 om arbeidstiden og hviletiden på skip § 15 første ledd andre punktum. Fremmet av Nærings- og handelsdepartementet.",
+    "ikrafttredelse": "2002-06-28",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "foreslatt": {
+    "tittel": "Hjemmel opphevet, videreføringen nevner ikke vedtakstypen: Deleg. til NHD etter lov om arbeidstiden på skip (FOR-2002-06-28-658)",
+    "pastand": "Lovdata viser «Deleg. til NHD etter lov om arbeidstiden på skip» (FOR-2002-06-28-658) som gjeldende. Hjemmelen er opphevet, men videreført av en overgangsregel som ikke nevner denne typen vedtak. Om videreføringen dekker vedtaket, er ikke vurdert, og ingen annen hjemmel som bærer, er vurdert. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1977-06-03-50 § 15 er opphevet, men videreført av LOV-2007-02-16-9 § 73 første ledd (rolle materiell, og videreføringen nevner ikke denne typen vedtak, så om den dekker forskriften, er ikke vurdert).\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446).",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-2002-06-28-658 Deleg. til NHD etter lov om arbeidstiden på skip",
+      "merknad": "forskriften",
+      "eid": null
+     },
+     {
+      "rolle": "videreforingsbestemmelse",
+      "etikett": "LOV-2007-02-16-9 § 73 første ledd",
+      "merknad": "viderefører forskrifter gitt etter LOV-1977-06-03-50",
+      "eid": "https://lovdata.no/eli/lov/2007/02/16/9/nor/§73/ledd-1"
+     }
+    ],
+    "hjemmelsstatus": [
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1977/06/03/50/nor/§15",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "viderefort",
+      "bevistrinn": "EN_LTI",
+      "opphevet_av": "NL/lov/2007-02-16-9",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2007/02/16/9/nor/§74/ledd-1/punkt-5",
+      "opphevet_av_sitat": "Fra den tid loven trer i kraft oppheves følgende lover: lov av 3. juni 1977 nr. 50 om arbeidstiden og hviletiden på skip.",
+      "videreforing_kilde": "NL/lov/2007-02-16-9",
+      "videreforing_eid": "https://lovdata.no/eli/lov/2007/02/16/9/nor/§73/ledd-1",
+      "videreforing_form": "V3",
+      "videreforing_dekning": "dokumenttype_ikke_nevnt",
+      "videreforing_sitat": "Forskrifter gitt i medhold av lover og bestemmelser som oppheves, jf. § 74, skal gjelde inntil annet er bestemt.",
+      "kunnskapsstatus": "fortolkning"
+     }
+    ]
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "feilarsak": null,
+    "grunn": "Riktig. Vedtaket er en delegering, og overgangsregelen nevner ikke delegeringer. Om den dekker vedtaket, er fortolkning, og ingen annen premiss som bærer, er vurdert. «Uavklart» er svaret etter prosjekteierens avgjørelse 2026-11-25 (a)."
+   }
+  },
+  {
+   "id": "N11",
+   "funn_id": "f7da5d93-6631-4880-a510-601580e4c857",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2004/02/16/427/nor",
+   "undertype": "uavklart",
+   "prefiks": "DEL",
+   "forskrift": {
+    "dokument_id": "DEL/forskrift/2004-02-16-427",
+    "tittel": "Delegering av myndighet til Post- og teletilsynet etter ekomloven § 1-4.",
+    "lovdatas_hjemmelstekst": "Fastsatt av Samferdselsdepartementet 16. februar 2004 med hjemmel i lov 4. juli 2003 nr. 83 om elektronisk kommunikasjon (ekomloven) § 1-4, jf. Kronprinsreg.res. 4. juli 2003 nr. 881 pkt. 3 og 4.\nRettet 04.01.2024 (departementstilhørighet).",
+    "ikrafttredelse": "2004-02-16",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "foreslatt": {
+    "tittel": "Hjemmel opphevet, videreføringen nevner ikke vedtakstypen: Deleg. til PT etter ekomloven (FOR-2004-02-16-427)",
+    "pastand": "Lovdata viser «Deleg. til PT etter ekomloven» (FOR-2004-02-16-427) som gjeldende. Hjemmelen er opphevet, men videreført av en overgangsregel som ikke nevner denne typen vedtak. Om videreføringen dekker vedtaket, er ikke vurdert, og ingen annen hjemmel som bærer, er vurdert. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-2003-07-04-83 § 1-4 er opphevet, men videreført av LOV-2024-12-13-76 § 18-2 første ledd (rolle materiell, og videreføringen nevner ikke denne typen vedtak, så om den dekker forskriften, er ikke vurdert).\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446).",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-2004-02-16-427 Deleg. til PT etter ekomloven",
+      "merknad": "forskriften",
+      "eid": null
+     },
+     {
+      "rolle": "videreforingsbestemmelse",
+      "etikett": "LOV-2024-12-13-76 § 18-2 første ledd",
+      "merknad": "viderefører forskrifter gitt etter LOV-2003-07-04-83",
+      "eid": "https://lovdata.no/eli/lov/2024/12/13/76/nor/§18-2/ledd-1"
+     }
+    ],
+    "hjemmelsstatus": [
+     {
+      "hjemmel": "https://lovdata.no/eli/forskrift/2003/07/04/881/nor",
+      "rolle": "kompetanseledd",
+      "rolle_regel": "jf_vedtak",
+      "status": "opphevet",
+      "bevistrinn": "E1",
+      "opphevet_av": "LTI/forskrift/2013-05-07-454",
+      "opphevet_av_eid": "kap-II/ledd-2",
+      "opphevet_av_sitat": "Fra samme tidspunkt oppheves Kronprinsregentens resolusjon 4. juli 2003 nr. 881.",
+      "kunnskapsstatus": "tekstfunn"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/2003/07/04/83/nor/§1-4",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "viderefort",
+      "bevistrinn": "E1",
+      "opphevet_av": "NL/lov/2024-12-13-76",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2024/12/13/76/nor/§18-1/ledd-2",
+      "opphevet_av_sitat": "Fra den tid loven trer i kraft, oppheves lov 4. juli 2003 nr. 83 om elektronisk kommunikasjon.",
+      "videreforing_kilde": "NL/lov/2024-12-13-76",
+      "videreforing_eid": "https://lovdata.no/eli/lov/2024/12/13/76/nor/§18-2/ledd-1",
+      "videreforing_form": "V1",
+      "videreforing_dekning": "dokumenttype_ikke_nevnt",
+      "videreforing_sitat": "Enkeltvedtak og forskrift med hjemmel i lov 4. juli 2003 nr. 83 om elektronisk kommunikasjon eller eldre lover på området for elektronisk kommunikasjon som er i kraft ved denne lovs ikrafttredelse, skal fortsatt gjelde.",
+      "kunnskapsstatus": "fortolkning"
+     }
+    ]
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "feilarsak": null,
+    "grunn": "Riktig. Overgangsregelen nevner «enkeltvedtak og forskrift», ikke delegeringer. edtaket er en delegering, og overgangsregelen nevner ikke delegeringer. Om den dekker vedtaket, er fortolkning, og ingen annen premiss som bærer, er vurdert. «Uavklart» er svaret etter prosjekteierens avgjørelse 2026-11-25 (a)."
+   }
+  },
+  {
+   "id": "N12",
+   "funn_id": "c633a7ce-a7e7-491f-9897-68ebabc3b87c",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2013/05/13/472/nor",
+   "undertype": "uavklart",
+   "prefiks": "DEL",
+   "forskrift": {
+    "dokument_id": "DEL/forskrift/2013-05-13-472",
+    "tittel": "Delegering av myndighet til Post- og teletilsynet etter ekomloven § 2-7, § 2-8 og § 2-9",
+    "lovdatas_hjemmelstekst": "Hjemmel: Fastsatt av Samferdselsdepartementet 13. mai 2013 med hjemmel i lov 4. juli 2003 nr. 83 om elektronisk kommunikasjon (ekomloven) § 1-4, jf. delegeringsvedtak 7. mai 2013 nr. 454.\nRettet 04.01.2024 (departementstilhørighet).",
+    "ikrafttredelse": "2013-05-13",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "foreslatt": {
+    "tittel": "Hjemmel opphevet, videreføringen nevner ikke vedtakstypen: Deleg. til NKOM etter ekomloven (FOR-2013-05-13-472)",
+    "pastand": "Lovdata viser «Deleg. til NKOM etter ekomloven» (FOR-2013-05-13-472) som gjeldende. Hjemmelen er opphevet, men videreført av en overgangsregel som ikke nevner denne typen vedtak. Om videreføringen dekker vedtaket, er ikke vurdert, og ingen annen hjemmel som bærer, er vurdert. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-2003-07-04-83 § 1-4, § 2-7, § 2-8 og § 2-9 er opphevet, men videreført av LOV-2024-12-13-76 § 18-2 første ledd (rolle materiell, og videreføringen nevner ikke denne typen vedtak, så om den dekker forskriften, er ikke vurdert).\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446).",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-2013-05-13-472 Deleg. til NKOM etter ekomloven",
+      "merknad": "forskriften",
+      "eid": null
+     },
+     {
+      "rolle": "videreforingsbestemmelse",
+      "etikett": "LOV-2024-12-13-76 § 18-2 første ledd",
+      "merknad": "viderefører forskrifter gitt etter LOV-2003-07-04-83",
+      "eid": "https://lovdata.no/eli/lov/2024/12/13/76/nor/§18-2/ledd-1"
+     }
+    ],
+    "hjemmelsstatus": [
+     {
+      "hjemmel": "https://lovdata.no/eli/forskrift/2013/05/07/454/nor",
+      "i_korpus": "LTI/forskrift/2013-05-07-454",
+      "rolle": "kompetanseledd",
+      "rolle_regel": "jf_vedtak",
+      "status": "aktiv",
+      "kunnskapsstatus": "normalisering"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/2003/07/04/83/nor/§1-4",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "viderefort",
+      "bevistrinn": "E1",
+      "opphevet_av": "NL/lov/2024-12-13-76",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2024/12/13/76/nor/§18-1/ledd-2",
+      "opphevet_av_sitat": "Fra den tid loven trer i kraft, oppheves lov 4. juli 2003 nr. 83 om elektronisk kommunikasjon.",
+      "videreforing_kilde": "NL/lov/2024-12-13-76",
+      "videreforing_eid": "https://lovdata.no/eli/lov/2024/12/13/76/nor/§18-2/ledd-1",
+      "videreforing_form": "V1",
+      "videreforing_dekning": "dokumenttype_ikke_nevnt",
+      "videreforing_sitat": "Enkeltvedtak og forskrift med hjemmel i lov 4. juli 2003 nr. 83 om elektronisk kommunikasjon eller eldre lover på området for elektronisk kommunikasjon som er i kraft ved denne lovs ikrafttredelse, skal fortsatt gjelde.",
+      "kunnskapsstatus": "fortolkning"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/2003/07/04/83/nor/§2-7",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "viderefort",
+      "bevistrinn": "E1",
+      "opphevet_av": "NL/lov/2024-12-13-76",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2024/12/13/76/nor/§18-1/ledd-2",
+      "opphevet_av_sitat": "Fra den tid loven trer i kraft, oppheves lov 4. juli 2003 nr. 83 om elektronisk kommunikasjon.",
+      "videreforing_kilde": "NL/lov/2024-12-13-76",
+      "videreforing_eid": "https://lovdata.no/eli/lov/2024/12/13/76/nor/§18-2/ledd-1",
+      "videreforing_form": "V1",
+      "videreforing_dekning": "dokumenttype_ikke_nevnt",
+      "videreforing_sitat": "Enkeltvedtak og forskrift med hjemmel i lov 4. juli 2003 nr. 83 om elektronisk kommunikasjon eller eldre lover på området for elektronisk kommunikasjon som er i kraft ved denne lovs ikrafttredelse, skal fortsatt gjelde.",
+      "kunnskapsstatus": "fortolkning"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/2003/07/04/83/nor/§2-8",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "viderefort",
+      "bevistrinn": "E1",
+      "opphevet_av": "NL/lov/2024-12-13-76",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2024/12/13/76/nor/§18-1/ledd-2",
+      "opphevet_av_sitat": "Fra den tid loven trer i kraft, oppheves lov 4. juli 2003 nr. 83 om elektronisk kommunikasjon.",
+      "videreforing_kilde": "NL/lov/2024-12-13-76",
+      "videreforing_eid": "https://lovdata.no/eli/lov/2024/12/13/76/nor/§18-2/ledd-1",
+      "videreforing_form": "V1",
+      "videreforing_dekning": "dokumenttype_ikke_nevnt",
+      "videreforing_sitat": "Enkeltvedtak og forskrift med hjemmel i lov 4. juli 2003 nr. 83 om elektronisk kommunikasjon eller eldre lover på området for elektronisk kommunikasjon som er i kraft ved denne lovs ikrafttredelse, skal fortsatt gjelde.",
+      "kunnskapsstatus": "fortolkning"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/2003/07/04/83/nor/§2-9",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "viderefort",
+      "bevistrinn": "E1",
+      "opphevet_av": "NL/lov/2024-12-13-76",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2024/12/13/76/nor/§18-1/ledd-2",
+      "opphevet_av_sitat": "Fra den tid loven trer i kraft, oppheves lov 4. juli 2003 nr. 83 om elektronisk kommunikasjon.",
+      "videreforing_kilde": "NL/lov/2024-12-13-76",
+      "videreforing_eid": "https://lovdata.no/eli/lov/2024/12/13/76/nor/§18-2/ledd-1",
+      "videreforing_form": "V1",
+      "videreforing_dekning": "dokumenttype_ikke_nevnt",
+      "videreforing_sitat": "Enkeltvedtak og forskrift med hjemmel i lov 4. juli 2003 nr. 83 om elektronisk kommunikasjon eller eldre lover på området for elektronisk kommunikasjon som er i kraft ved denne lovs ikrafttredelse, skal fortsatt gjelde.",
+      "kunnskapsstatus": "fortolkning"
+     }
+    ]
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "feilarsak": null,
+    "grunn": "Riktig. Overgangsregelen nevner «enkeltvedtak og forskrift», ikke delegeringer. edtaket er en delegering, og overgangsregelen nevner ikke delegeringer. Om den dekker vedtaket, er fortolkning, og ingen annen premiss som bærer, er vurdert. «Uavklart» er svaret etter prosjekteierens avgjørelse 2026-11-25 (a)."
+   }
+  },
+  {
+   "id": "N13",
+   "funn_id": "907d55cd-70f2-42b1-a36e-8aa794e62bd2",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2001/02/01/1702/nor",
+   "undertype": "uavklart",
+   "prefiks": "INS",
+   "forskrift": {
+    "dokument_id": "INS/forskrift/2001-02-01-1702",
+    "tittel": "Instruks til Statens dyrehelsetilsyn – distriktsveterinæren om tilsyn og kontroll ved innførsel og utførsel av levende dyr, annet avlsmateriale, animalsk avfall og produkter av animalsk opprinnelse innen EØS.",
+    "lovdatas_hjemmelstekst": "Fastsatt av Statens dyrehelsetilsyn – Sentralforvaltningen 1. februar 2001 med hjemmel i lov av 8. juni 1962 nr. 4 om dyrehelse (husdyrloven), jf. forskrift av 31. desember 1998 nr. 1484 om tilsyn og kontroll ved innførsel og utførsel av levende dyr, annet avlsmateriale, animalsk avfall og produkter av animalsk opprinnelse innen EØS, og ved innførsel av levende dyr fra land utenfor EØS.\nEØS-henvisninger: Jf. EØS-avtalen vedlegg I kap. I (direktiv 90/425/EØF, vedtak 94/338/EF, vedtak 94/339/EF og direktiv 89/662/EØF).\nEndret ved vedtak 18 mai 2003 nr. 688.",
+    "ikrafttredelse": "2001-02-01",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "foreslatt": {
+    "tittel": "Hjemmel opphevet, videreføringen nevner ikke vedtakstypen: Instruks om kontroll av dyr m.v. fra EØS (FOR-2001-02-01-1702)",
+    "pastand": "Lovdata viser «Instruks om kontroll av dyr m.v. fra EØS» (FOR-2001-02-01-1702) som gjeldende. Hjemmelen er opphevet, men videreført av en overgangsregel som ikke nevner denne typen vedtak. Om videreføringen dekker vedtaket, er ikke vurdert, og ingen annen hjemmel som bærer, er vurdert. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1962-06-08-4 er opphevet, men videreført av LOV-2003-12-19-124 § 36 andre ledd (rolle materiell, og videreføringen nevner ikke denne typen vedtak, så om den dekker forskriften, er ikke vurdert).\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446).",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-2001-02-01-1702 Instruks om kontroll av dyr m.v. fra EØS",
+      "merknad": "forskriften",
+      "eid": null
+     },
+     {
+      "rolle": "videreforingsbestemmelse",
+      "etikett": "LOV-2003-12-19-124 § 36 andre ledd",
+      "merknad": "viderefører forskrifter gitt etter LOV-1962-06-08-4",
+      "eid": "https://lovdata.no/eli/lov/2003/12/19/124/nor/§36/ledd-2"
+     }
+    ],
+    "hjemmelsstatus": [
+     {
+      "hjemmel": "https://lovdata.no/eli/forskrift/1998/12/31/1484/nor",
+      "i_korpus": "SF/forskrift/1998-12-31-1484",
+      "rolle": "kompetanseledd",
+      "rolle_regel": "jf_vedtak",
+      "status": "aktiv",
+      "kunnskapsstatus": "normalisering"
+     },
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1962/06/08/4/nor",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "viderefort",
+      "bevistrinn": "EN_LTI",
+      "opphevet_av": "NL/lov/2003-12-19-124",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2003/12/19/124/nor/§34/ledd-1/punkt-3",
+      "opphevet_av_sitat": "Følgende lover oppheves: Lov 8. juni 1962 nr. 4 om dyrehelse (husdyrloven)",
+      "videreforing_kilde": "NL/lov/2003-12-19-124",
+      "videreforing_eid": "https://lovdata.no/eli/lov/2003/12/19/124/nor/§36/ledd-2",
+      "videreforing_form": "V3",
+      "videreforing_dekning": "dokumenttype_ikke_nevnt",
+      "videreforing_sitat": "Forskrift eller enkeltvedtak gitt i eller i medhold av lovbestemmelser som blir opphevet eller endret etter §§ 34 eller 35, gjelder fortsatt inntil de blir opphevet.",
+      "kunnskapsstatus": "fortolkning"
+     }
+    ]
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "feilarsak": null,
+    "grunn": "Riktig. Vedtaket er en instruks, og overgangsregelen nevner ikke instrukser. Om den dekker instruksen, er fortolkning. «Uavklart» er svaret etter avgjørelsen (a)."
+   }
+  },
+  {
+   "id": "N14",
+   "funn_id": "d7f808b2-058a-4fc1-b28c-71c7a9722e09",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2011/06/24/650/nor",
+   "undertype": "uavklart",
+   "prefiks": "INS",
+   "forskrift": {
+    "dokument_id": "INS/forskrift/2011-06-24-650",
+    "tittel": "Lovisenberg diakonale høgskole status som høgskole",
+    "lovdatas_hjemmelstekst": "Hjemmel: Fastsatt ved kgl.res. 24. juni 2011 med hjemmel i lov 1. april 2005 nr. 15 om universiteter og høyskoler (universitets- og høyskoleloven) § 1-2 annet ledd. Fremmet av Kunnskapsdepartementet.",
+    "ikrafttredelse": "2011-07-01",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "foreslatt": {
+    "tittel": "Hjemmel opphevet, videreføringen nevner ikke vedtakstypen: Forskrift om høgskolestatus for LDH (FOR-2011-06-24-650)",
+    "pastand": "Lovdata viser «Forskrift om høgskolestatus for LDH» (FOR-2011-06-24-650) som gjeldende. Hjemmelen er opphevet, men videreført av en overgangsregel som ikke nevner denne typen vedtak. Om videreføringen dekker vedtaket, er ikke vurdert, og ingen annen hjemmel som bærer, er vurdert. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-2005-04-01-15 § 1-2 er opphevet, men videreført av LOV-2024-03-08-9 § 17-3 første ledd (rolle materiell, og videreføringen nevner ikke denne typen vedtak, så om den dekker forskriften, er ikke vurdert).\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446).",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-2011-06-24-650 Forskrift om høgskolestatus for LDH",
+      "merknad": "forskriften",
+      "eid": null
+     },
+     {
+      "rolle": "videreforingsbestemmelse",
+      "etikett": "LOV-2024-03-08-9 § 17-3 første ledd",
+      "merknad": "viderefører forskrifter gitt etter LOV-2005-04-01-15",
+      "eid": "https://lovdata.no/eli/lov/2024/03/08/9/nor/§17-3/ledd-1"
+     }
+    ],
+    "hjemmelsstatus": [
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/2005/04/01/15/nor/§1-2",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "viderefort",
+      "bevistrinn": "EN_LTI",
+      "opphevet_av": "NL/lov/2024-03-08-9",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2024/03/08/9/nor/§17-2",
+      "opphevet_av_sitat": "Samtidig oppheves lov 1. april 2005 nr. 15 om universiteter og høyskoler.",
+      "videreforing_kilde": "NL/lov/2024-03-08-9",
+      "videreforing_eid": "https://lovdata.no/eli/lov/2024/03/08/9/nor/§17-3/ledd-1",
+      "videreforing_form": "V3",
+      "videreforing_dekning": "dokumenttype_ikke_nevnt",
+      "videreforing_sitat": "Forskrifter og enkeltvedtak som er fastsatt med hjemmel i regler som blir opphevet eller endret med denne loven, gjelder til departementet fastsetter noe annet.",
+      "kunnskapsstatus": "fortolkning"
+     }
+    ]
+   },
+   "vurdering": {
+    "klasse": "feil",
+    "feilarsak": "dekningen",
+    "grunn": "Trolig feil. Vedtaket (status som høgskole) er et enkeltvedtak, selv om det ligger i INS, og overgangsregelen nevner «enkeltvedtak». Regelen bestemmer vedtakstypen av prefikset og tittelen, ikke av innholdet, så dekningen blir «dokumenttype ikke nevnt»."
+   }
+  },
+  {
+   "id": "N15",
+   "funn_id": "e001f51a-22fc-462b-a93a-64703ebb41ff",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2004/06/21/921/nor",
+   "undertype": "uavklart",
+   "prefiks": "LTI",
+   "forskrift": {
+    "dokument_id": "LTI/forskrift/2004-06-21-921",
+    "tittel": "Instruks for Sivilforsvarets distriktssjefer og om inndeling av Sivilforsvarets distrikter.",
+    "lovdatas_hjemmelstekst": "Fastsatt av Justis- og politidepartementet 21. juni 2004 med hjemmel i lov 17. juli 1953 nr. 9 om sivilforsvaret § 8.",
+    "ikrafttredelse": "2004-06-21",
+    "rent_endringsvedtak": null,
+    "kildeform": "kunngjort"
+   },
+   "foreslatt": {
+    "tittel": "Hjemmel opphevet, videreføringen nevner ikke vedtakstypen: Instruks for Sivilforsvarets distriktssjefer (FOR-2004-06-21-921)",
+    "pastand": "Korpuset har «Instruks for Sivilforsvarets distriktssjefer» (FOR-2004-06-21-921) bare slik det ble kunngjort i Norsk Lovtidend, med status gjeldende. Hjemmelen er opphevet, men videreført av en overgangsregel som ikke nevner denne typen vedtak. Om videreføringen dekker vedtaket, er ikke vurdert, og ingen annen hjemmel som bærer, er vurdert. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1953-07-17-9 § 8 er opphevet, men videreført av LOV-2010-06-25-45 § 39 første ledd (rolle materiell, og videreføringen nevner ikke denne typen vedtak, så om den dekker forskriften, er ikke vurdert).\n- Kunngjort versjon, gjeldende status ikke kontrollert: korpuset har bare vedtaket slik det ble kunngjort i Norsk Lovtidend, og Lovdatas ajourførte status er ikke slått opp. Vedtaket kan selv være opphevet ved en kilde som ikke er i korpus.\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446).",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-2004-06-21-921 Instruks for Sivilforsvarets distriktssjefer",
+      "merknad": "forskriften",
+      "eid": null
+     },
+     {
+      "rolle": "videreforingsbestemmelse",
+      "etikett": "LOV-2010-06-25-45 § 39 første ledd",
+      "merknad": "viderefører forskrifter gitt etter LOV-1953-07-17-9",
+      "eid": "https://lovdata.no/eli/lov/2010/06/25/45/nor/§39/ledd-1"
+     }
+    ],
+    "hjemmelsstatus": [
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1953/07/17/9/nor/§8",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "viderefort",
+      "bevistrinn": "E1",
+      "opphevet_av": "NL/lov/2010-06-25-45",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2010/06/25/45/nor/§40/ledd-2",
+      "opphevet_av_sitat": "Fra samme dato oppheves lov 17. juli 1953 nr. 9 om kommunal beredskapsplikt, sivile beskyttelsestiltak og Sivilforsvaret.",
+      "videreforing_kilde": "NL/lov/2010-06-25-45",
+      "videreforing_eid": "https://lovdata.no/eli/lov/2010/06/25/45/nor/§39/ledd-1",
+      "videreforing_form": "V1",
+      "videreforing_dekning": "dokumenttype_ikke_nevnt",
+      "videreforing_sitat": "Forskrifter gitt med hjemmel i lov 17. juli 1953 nr. 9 om kommunal beredskapsplikt, sivile beskyttelsestiltak og Sivilforsvaret gjelder også etter at loven her har trådt i kraft.",
+      "kunnskapsstatus": "fortolkning"
+     }
+    ]
+   },
+   "vurdering": {
+    "klasse": "riktig",
+    "feilarsak": null,
+    "grunn": "Riktig. Vedtaket er en instruks, og overgangsregelen nevner ikke instrukser. Om den dekker instruksen, er fortolkning. «Uavklart» er svaret etter avgjørelsen (a)."
+   }
+  },
+  {
+   "id": "N16",
+   "funn_id": "70d3d86b-ecc4-4a1e-b19d-725825304996",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2001/08/31/1074/nor",
+   "undertype": "uavklart",
+   "prefiks": "SF",
+   "forskrift": {
+    "dokument_id": "SF/forskrift/2001-08-31-1074",
+    "tittel": "Tillatelse for Posten Norge BA til å utgi og godta bruk av frimerker og andre frankeringsmidler der Norge eller Noreg forekommer.",
+    "lovdatas_hjemmelstekst": "Fastsatt ved kgl.res. 31. august 2001 med hjemmel i lov av 29. november 1996 nr. 73 om formidling av landsdekkende postsendinger (postloven) § 7. Fremmet av Samferdselsdepartementet.",
+    "ikrafttredelse": "2001-10-01",
+    "rent_endringsvedtak": null,
+    "kildeform": "konsolidert"
+   },
+   "foreslatt": {
+    "tittel": "Hjemmel opphevet, videreføringen nevner ikke vedtakstypen: Tillatelse for Posten til å utgi frimerker mv. (FOR-2001-08-31-1074)",
+    "pastand": "Lovdata viser «Tillatelse for Posten til å utgi frimerker mv.» (FOR-2001-08-31-1074) som gjeldende. Hjemmelen er opphevet, men videreført av en overgangsregel som ikke nevner denne typen vedtak. Om videreføringen dekker vedtaket, er ikke vurdert, og ingen annen hjemmel som bærer, er vurdert. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1996-11-29-73 § 7 er opphevet, men videreført av LOV-2015-09-04-91 § 57 fjerde ledd (rolle materiell, og videreføringen nevner ikke denne typen vedtak, så om den dekker forskriften, er ikke vurdert).\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446).",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-2001-08-31-1074 Tillatelse for Posten til å utgi frimerker mv.",
+      "merknad": "forskriften",
+      "eid": null
+     },
+     {
+      "rolle": "videreforingsbestemmelse",
+      "etikett": "LOV-2015-09-04-91 § 57 fjerde ledd",
+      "merknad": "viderefører forskrifter gitt etter LOV-1996-11-29-73",
+      "eid": "https://lovdata.no/eli/lov/2015/09/04/91/nor/§57/ledd-4"
+     }
+    ],
+    "hjemmelsstatus": [
+     {
+      "hjemmel": "https://lovdata.no/eli/lov/1996/11/29/73/nor/§7",
+      "rolle": "materiell",
+      "rolle_regel": "med_hjemmel_i",
+      "status": "viderefort",
+      "bevistrinn": "E1",
+      "opphevet_av": "NL/lov/2015-09-04-91",
+      "opphevet_av_eid": "https://lovdata.no/eli/lov/2015/09/04/91/nor/§56/ledd-2",
+      "opphevet_av_sitat": "Fra den tid loven trer i kraft oppheves lov 29. november 1996 nr. 73 om formidling av landsdekkende postsendinger.",
+      "videreforing_kilde": "NL/lov/2015-09-04-91",
+      "videreforing_eid": "https://lovdata.no/eli/lov/2015/09/04/91/nor/§57/ledd-4",
+      "videreforing_form": "V1",
+      "videreforing_dekning": "dokumenttype_ikke_nevnt",
+      "videreforing_sitat": "Enkeltvedtak med hjemmel i lov 29. november 1996 nr. 73 om formidling av landsdekkende postsendinger som er i kraft ved denne lovs ikrafttredelse, skal fortsatt gjelde.",
+      "kunnskapsstatus": "fortolkning"
+     }
+    ]
+   },
+   "vurdering": {
+    "klasse": "feil",
+    "feilarsak": "dekningen",
+    "grunn": "Trolig feil. Vedtaket er en tillatelse (enkeltvedtak), selv om det ligger i SF, og overgangsregelen viderefører «enkeltvedtak». Regelen leser SF som forskrift, så dekningen blir «dokumenttype ikke nevnt»."
+   }
+  }
+ ]
+}

@@ -1,0 +1,290 @@
+{
+ "frø": 20261126,
+ "metode": "Endret: lag = (undertype før PR 5, prefiks), sortert på ekstern_nokkel og stokket med random.Random(frø) i fast lagrekkefølge; de n første. Kontroll: lag = kortnavnets lesing for en lov som faller (entydig / brukes om flere lover), samme metode. Uten tilbakelegging.",
+ "populasjon": {
+  "endret": 23,
+  "endret_uten_M13": 22,
+  "kontroll_entydig": 66,
+  "kontroll_tvetydig": 73,
+  "oppdaget_etter": 241,
+  "database": "regelide_501",
+  "regelversjon": "hjemmelsstatus 472-pr5-2026-11-25, funnregel 472-pr4-2026-11-24"
+ },
+ "kvote": {
+  "endret": {
+   "blandede_hjemler": {
+    "SF": 7,
+    "DEL": 1
+   },
+   "hjemmel_opphevet": {
+    "DEL": 3,
+    "LTI": 2,
+    "SF": 1
+   },
+   "uavklart": {
+    "DEL": 1
+   }
+  },
+  "kontroll": {
+   "entydig": 4,
+   "kortnavnet_brukes_om_flere_lover": 4
+  }
+ },
+ "utvalg": [
+  {
+   "id": "3905c13a-e466-4527-b093-8b82a27c4eb3",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2011/05/15/537/nor",
+   "undertype": "blandede_hjemler",
+   "dokument_id": "SF/forskrift/2011-05-15-537",
+   "prefiks": "SF",
+   "utvalg": "endret",
+   "kort": "E01"
+  },
+  {
+   "id": "647a1bdd-984f-43e4-887c-eb703850090e",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2017/04/26/519/nor",
+   "undertype": "blandede_hjemler",
+   "dokument_id": "SF/forskrift/2017-04-26-519",
+   "prefiks": "SF",
+   "utvalg": "endret",
+   "kort": "E02"
+  },
+  {
+   "id": "935ea7ff-00ad-4add-bb5d-00d16d56e3d5",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2005/03/18/242/nor",
+   "undertype": "blandede_hjemler",
+   "dokument_id": "SF/forskrift/2005-03-18-242",
+   "prefiks": "SF",
+   "utvalg": "endret",
+   "kort": "E03"
+  },
+  {
+   "id": "63aceebf-8bc6-4298-a88d-6844b90e75d4",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2007/08/20/987/nor",
+   "undertype": "blandede_hjemler",
+   "dokument_id": "SF/forskrift/2007-08-20-987",
+   "prefiks": "SF",
+   "utvalg": "endret",
+   "kort": "E04"
+  },
+  {
+   "id": "3d5b0892-bdae-437c-aafc-efdedfd65a7a",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2022/01/21/128/nor",
+   "undertype": "blandede_hjemler",
+   "dokument_id": "SF/forskrift/2022-01-21-128",
+   "prefiks": "SF",
+   "utvalg": "endret",
+   "kort": "E05"
+  },
+  {
+   "id": "b58db607-8a07-4f8d-86f0-5207f44394c9",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2016/01/08/12/nor",
+   "undertype": "blandede_hjemler",
+   "dokument_id": "SF/forskrift/2016-01-08-12",
+   "prefiks": "SF",
+   "utvalg": "endret",
+   "kort": "E06"
+  },
+  {
+   "id": "0f6ed301-4a12-400f-9c3a-c5c467de4990",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2015/06/19/716/nor",
+   "undertype": "blandede_hjemler",
+   "dokument_id": "SF/forskrift/2015-06-19-716",
+   "prefiks": "SF",
+   "utvalg": "endret",
+   "kort": "E07"
+  },
+  {
+   "id": "31ff6cec-f595-4759-9830-f058917f87be",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/1996/10/25/1008/nor",
+   "undertype": "blandede_hjemler",
+   "dokument_id": "DEL/forskrift/1996-10-25-1008",
+   "prefiks": "DEL",
+   "utvalg": "endret",
+   "kort": "E08"
+  },
+  {
+   "id": "2bddd984-7e95-4534-b2ca-9f6f3768429f",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2002/09/13/995/nor",
+   "undertype": "hjemmel_opphevet",
+   "dokument_id": "DEL/forskrift/2002-09-13-995",
+   "prefiks": "DEL",
+   "utvalg": "endret",
+   "kort": "E09"
+  },
+  {
+   "id": "0be2f5c1-0b80-4eaf-990f-2602a87617ad",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2002/09/19/1915/nor",
+   "undertype": "hjemmel_opphevet",
+   "dokument_id": "DEL/forskrift/2002-09-19-1915",
+   "prefiks": "DEL",
+   "utvalg": "endret",
+   "kort": "E10"
+  },
+  {
+   "id": "86ba4460-0e5f-41c3-bf03-a848066ef7a2",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/1994/07/01/4322/nor",
+   "undertype": "hjemmel_opphevet",
+   "dokument_id": "DEL/forskrift/1994-07-01-4322",
+   "prefiks": "DEL",
+   "utvalg": "endret",
+   "kort": "E11"
+  },
+  {
+   "id": "f61c984b-63f0-4c6b-9a24-588ce756fdf2",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2009/12/22/1775/nor",
+   "undertype": "hjemmel_opphevet",
+   "dokument_id": "LTI/forskrift/2009-12-22-1775",
+   "prefiks": "LTI",
+   "utvalg": "endret",
+   "kort": "E12"
+  },
+  {
+   "id": "aa8968ad-8c1b-42a2-a750-f42645e8293e",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2011/03/01/206/nor",
+   "undertype": "hjemmel_opphevet",
+   "dokument_id": "LTI/forskrift/2011-03-01-206",
+   "prefiks": "LTI",
+   "utvalg": "endret",
+   "kort": "E13"
+  },
+  {
+   "id": "e72bcb8d-ba68-4b30-aa45-302617faada5",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2005/03/21/247/nor",
+   "undertype": "hjemmel_opphevet",
+   "dokument_id": "SF/forskrift/2005-03-21-247",
+   "prefiks": "SF",
+   "utvalg": "endret",
+   "kort": "E14"
+  },
+  {
+   "id": "501d8823-0eba-476c-9023-355c4bb747d9",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2013/03/15/283/nor",
+   "undertype": "uavklart",
+   "dokument_id": "DEL/forskrift/2013-03-15-283",
+   "prefiks": "DEL",
+   "utvalg": "endret",
+   "kort": "E15"
+  },
+  {
+   "id": "846a801e-f94a-4ded-bb6d-a4914c864bf1",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2018/04/16/852/nor",
+   "undertype": "hjemmel_opphevet",
+   "dokument_id": "LTI/forskrift/2018-04-16-852",
+   "prefiks": "LTI",
+   "hjemmel_eli": "https://lovdata.no/eli/lov/1996/06/07/31/nor",
+   "kortnavn": {
+    "eli": "https://lovdata.no/eli/lov/1996/06/07/31/nor",
+    "kortnavn": "kirkeloven",
+    "grunn": "entydig"
+   },
+   "utvalg": "kontroll",
+   "kort": "K01"
+  },
+  {
+   "id": "7b07d117-0a81-471a-a909-0baf24f6bd63",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/1997/12/09/1264/nor",
+   "undertype": "hjemmel_opphevet",
+   "dokument_id": "DEL/forskrift/1997-12-09-1264",
+   "prefiks": "DEL",
+   "hjemmel_eli": "https://lovdata.no/eli/lov/1980/06/13/24/nor",
+   "kortnavn": {
+    "eli": "https://lovdata.no/eli/lov/1980/06/13/24/nor",
+    "kortnavn": "ligningsloven",
+    "grunn": "entydig"
+   },
+   "utvalg": "kontroll",
+   "kort": "K02"
+  },
+  {
+   "id": "bc1838fd-d948-4664-9c07-69aeac9b853a",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2007/12/05/1356/nor",
+   "undertype": "hjemmel_opphevet",
+   "dokument_id": "DEL/forskrift/2007-12-05-1356",
+   "prefiks": "DEL",
+   "hjemmel_eli": "https://lovdata.no/eli/lov/1980/06/13/24/nor",
+   "kortnavn": {
+    "eli": "https://lovdata.no/eli/lov/1980/06/13/24/nor",
+    "kortnavn": "ligningsloven",
+    "grunn": "entydig"
+   },
+   "utvalg": "kontroll",
+   "kort": "K03"
+  },
+  {
+   "id": "ed7e98c4-2675-4edf-97cc-a6973ca830c1",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2008/06/06/543/nor",
+   "undertype": "hjemmel_opphevet",
+   "dokument_id": "DEL/forskrift/2008-06-06-543",
+   "prefiks": "DEL",
+   "hjemmel_eli": "https://lovdata.no/eli/lov/2008/06/06/38/nor",
+   "kortnavn": {
+    "eli": "https://lovdata.no/eli/lov/2008/06/06/38/nor",
+    "kortnavn": "omstillingsloven",
+    "grunn": "entydig"
+   },
+   "utvalg": "kontroll",
+   "kort": "K04"
+  },
+  {
+   "id": "73c30c60-f5fb-4fe6-8289-0546a1831251",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2009/11/27/1406/nor",
+   "undertype": "hjemmel_opphevet",
+   "dokument_id": "DEL/forskrift/2009-11-27-1406",
+   "prefiks": "DEL",
+   "hjemmel_eli": "https://lovdata.no/eli/lov/1985/05/24/28/nor",
+   "kortnavn": {
+    "eli": "https://lovdata.no/eli/lov/1985/05/24/28/nor",
+    "kortnavn": null,
+    "grunn": "kortnavnet_brukes_om_flere_lover"
+   },
+   "utvalg": "kontroll",
+   "kort": "K05"
+  },
+  {
+   "id": "d7f037b1-5169-44b2-ab44-7fa3a0da3241",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/2017/04/05/450/nor",
+   "undertype": "uavklart",
+   "dokument_id": "SF/forskrift/2017-04-05-450",
+   "prefiks": "SF",
+   "hjemmel_eli": "https://lovdata.no/eli/lov/1985/05/24/28/nor",
+   "kortnavn": {
+    "eli": "https://lovdata.no/eli/lov/1985/05/24/28/nor",
+    "kortnavn": null,
+    "grunn": "kortnavnet_brukes_om_flere_lover"
+   },
+   "utvalg": "kontroll",
+   "kort": "K06"
+  },
+  {
+   "id": "6ab1d7a6-8c11-4392-b0a9-f683ac1fa4bc",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/1999/06/25/706/nor",
+   "undertype": "hjemmel_opphevet",
+   "dokument_id": "DEL/forskrift/1999-06-25-706",
+   "prefiks": "DEL",
+   "hjemmel_eli": "https://lovdata.no/eli/lov/1999/01/15/2/nor",
+   "kortnavn": {
+    "eli": "https://lovdata.no/eli/lov/1999/01/15/2/nor",
+    "kortnavn": null,
+    "grunn": "kortnavnet_brukes_om_flere_lover"
+   },
+   "utvalg": "kontroll",
+   "kort": "K07"
+  },
+  {
+   "id": "7676bfcf-fa9f-4222-93c0-90eaad723b8b",
+   "ekstern_nokkel": "hjemmel-opphevet:forskrift/1990/02/13/1228/nor",
+   "undertype": "hjemmel_opphevet",
+   "dokument_id": "DEL/forskrift/1990-02-13-1228",
+   "prefiks": "DEL",
+   "hjemmel_eli": "https://lovdata.no/eli/lov/1989/06/16/54/nor",
+   "kortnavn": {
+    "eli": "https://lovdata.no/eli/lov/1989/06/16/54/nor",
+    "kortnavn": null,
+    "grunn": "kortnavnet_brukes_om_flere_lover"
+   },
+   "utvalg": "kontroll",
+   "kort": "K08"
+  }
+ ]
+}

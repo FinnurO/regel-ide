@@ -1,0 +1,32 @@
+[
+ {
+  "id": "N14",
+  "svar": "aksepter",
+  "tekst": "Godtatt, som modellereren også satte i runde 1. Regelen leser vedtakstypen av basen (INS = instruks), ikke av innholdet. Statusvedtaket er et enkeltvedtak, og uhl. 2024 § 17-3 nevner enkeltvedtak. Rettingen er ikke bygget; den stilles som spørsmål til prosjekteieren.",
+  "kilder": []
+ },
+ {
+  "id": "N16",
+  "svar": "aksepter",
+  "tekst": "Godtatt, som i runde 1. Tillatelsen er et enkeltvedtak i SF, og postloven 2015 § 57 fjerde ledd nevner enkeltvedtak. Samme retting som N14, ikke bygget.",
+  "kilder": []
+ },
+ {
+  "id": "N05",
+  "svar": "aksepter",
+  "tekst": "Godtatt. Hjemmelen er endringslovens egen myndighet (ikrafttredelse og overgang), men hjemmelsteksten nevner ikke delen, så EndringslovensEgenDel (PR 4, H18) slår ikke inn, og endringsloven følges til hovedloven. Feilen fantes før PR 5; avgjørelsen (a) gjør bare at den blir et funn. Føres som feilmønster, ikke bygget.",
+  "kilder": []
+ },
+ {
+  "id": "N15",
+  "svar": "aksepter",
+  "tekst": "Godtatt. Opphevingen (forskrift 20. mai 2022 nr. 874) er ikke i korpus, og premissmangelen for kunngjort versjon står i påstanden. Feilen gjelder populasjonen, som LTI-feilene i måling 1.",
+  "kilder": []
+ },
+ {
+  "id": "N09",
+  "svar": "aksepter",
+  "tekst": "Godtatt. Funnet står, men undertypen burde vært hjemmel opphevet, fordi ordningen i straffeloven 1902 § 79 fjerde ledd ikke finnes i ny lov [juristens slutning]. Det kan ikke leses maskinelt uten å fortolke den nye loven, så uavklart er det regelen kan gi. Klassen blir feil etter klassene i inndata.",
+  "kilder": []
+ }
+]
