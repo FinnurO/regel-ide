@@ -86,3 +86,13 @@ dokumentasjon (primaer|sekundaer), begge påkrevd uten hjemmel og NULL med.
 | Unntak i aktørsveipet for generisk ord uten binding (Johann 2026-10-31, valg 2) + juristrunden på hjemmelregelen (`data/fasit/strukturmodell/juristrunde-440/`) | `aktorsveip-generisk-lenke` | **PR åpen, venter på Johann (§19). Ikke merget.** Ingen migrasjon, ingenting skrevet til delt `regelide` (juristrunden: bare GET og SELECT) | Data-filtrert (AktorkoreglerTests, GeneriskNavneformTjenesteTests, StrukturforslagTjenesteTests, FasitimportTests), tsc -b --force, vitest |
 | PR 2, skriving (godkjenning i én transaksjon) | — | Juristrunden ligger i PR-en over; regelen presiseres etter Johanns svar på uenigheten | — |
 | Forhåndsklassifiseringen i køen med «Godta forslaget», og `/godkjenn` utvidet med filas hjemmel og navn (Johann 2026-11-05) (docs/33 §5.16.2, docs/09 §54) | `aktorko-forhandsvisning` | **PR #466 åpen, venter på Johann (§19). Ikke merget.** Master (#467) flettet inn. Ingen migrasjon, ingenting skrevet til delt `regelide` | Data-filtrert (AktorkoForhand*, AktorkoSkrivTjeneste, Aktorkoregler), tsc -b, vitest, kaldsjekk i kopien `regelide_forhand2` (slettet): «bostedskommune» med hjemmel, Udir, «den kommunen»; 28 av 62 én knapp + godkjenningsnivå |
+
+## «Til vurdering» som startside #517 (startet 2026-11-27)
+
+Johanns avgjørelser 2026-11-27: startside «/», fast og begrunnet rekkefølge, departementene som «Start her», teller på menylenken for det som er klart, eldre køer lukket. AK er de ni spørsmålene i #517.
+
+| PR | Gren | Status | Verifisert hvordan |
+|---|---|---|---|
+| PR 1: `GET /api/til-vurdering` (`TilVurderingTjeneste`), bare tellinger | `vurderingsguide` | **PR åpen, venter på Johann (§19).** Ingen migrasjon, ingenting skrevet til delt `regelide` | `TilVurderingTjenesteTests` (8) og `TilVurderingEndepunktTests` + Helsesjekk + Aktørkø lokalt. Kaldt mot kopien `regelide_tilvurdering` (API 5587): 0,4 s varm, 1,5 s første kall; tallene som i kartleggingen (25 aktører/582 funn, 52 etterfølgere/312 funn, aktørkø 188/57 klare) |
+| PR 2: siden og menylenken, `tilVurdering.ts` med vitest, docs/09 §59 | `vurderingsguide-side` | Under arbeid | — |
+| PR 3: filtrerte lenker inn i køene | `vurderingsguide-lenker` | Ikke startet | — |
