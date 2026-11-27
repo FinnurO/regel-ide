@@ -1,0 +1,27 @@
+[
+ {
+  "id": "V02",
+  "replikk": "godtar",
+  "begrunnelse": "Rettingen er riktig: når dekningen bare bygger på at vedtaket er lest som enkeltvedtak, er kunnskapsstatusen nå fortolkning. For V01, V03 og V04 er det strengere enn nødvendig, fordi uhl. 2024 § 17-3 også nevner forskrifter, men det er forsvarlig."
+ },
+ {
+  "id": "V05",
+  "replikk": "presiserer",
+  "begrunnelse": "Utfallet godtas: TONO-vedtaket leses ikke lenger som enkeltvedtak, og treffene er nå V01–V04. Rettingen ser bare på tittelen, ikke på innholdet. At tittelen sier «Forskrift», avgjør ikke vedtakstypen rettslig, for det er innholdet som avgjør (fvl. § 2) [slutning]. Hullet i vilkår 3 står derfor fortsatt for vedtak med en annen tittel, fordi `Generell` bare fanger overskriftene Formål, Virkeområde og «Denne forskrift gjelder», ikke en generell materiell regel. Rettingen kan bare fjerne treff, så den gir ikke feil dekning. Begrensningen bør likevel stå i docs/33."
+ },
+ {
+  "id": "merknad-vedtak",
+  "replikk": "godtar",
+  "begrunnelse": "Mønsteret `\b(enkelt)?vedtak(et|ene|a)?\b` dekker bøyningene på bokmål og nynorsk og utelukker «vedtaksmyndighet» og «vedtakskompetanse». Det er riktig å føre i docs/33 at regelen om «vedtak» alene ikke er målt."
+ },
+ {
+  "id": "merknad-statlig",
+  "replikk": "godtar",
+  "begrunnelse": "Det er nok at begrensningen står som kjent begrensning i docs/33. Ingen kilde i korpuset faller feil nå, og feilen ville bare gitt et treff for mye eller for lite i nye kilder. Når korpuset utvides, bør regelen slå opp organet i virksomhetskatalogen i stedet for å kjenne det på navnet."
+ },
+ {
+  "id": "K01",
+  "replikk": "godtar",
+  "begrunnelse": "Enig i at dette gjelder populasjonen og hjemmelsopplysningen (#472), ikke #514."
+ }
+]

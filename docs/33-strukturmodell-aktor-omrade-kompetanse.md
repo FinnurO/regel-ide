@@ -3215,8 +3215,10 @@ fusjonen HiO/HiAk og navneendringen for KHiB), som står som uavklart.
 
 **Målt 2026-11-27 (måling 4 del 2, to runder, i kopien).** Alle 5 treffene fra første versjon og 12 kontrollvedtak. Treffene etter rettingene er
 4/4 riktige, **1,00 (Wilson 95 % 0,51–1,00)**. Før rettingen var det 4/5, 0,80 (0,38–0,96): TONO-vedtaket (SF/forskrift/1971-06-25-3800) har også en
-generell regel og er nå utelatt (vilkår 2). Kontroll 12/12, 1,00 (0,76–1,00). Rettet etter runde 1: kunnskapsstatusen (fortolkning), TONO, og
-«vedtaksmyndighet». Filene står i `data/fasit/strukturmodell/juristrunde-472/maling-4/514/`.
+generell regel og er nå utelatt (vilkår 2). Kontroll (med TONO) 13/13, 1,00 (0,77–1,00). Totalt 17/17, 1,00 (0,82–1,00). Rettet etter runde 1:
+kunnskapsstatusen (fortolkning), TONO, og «vedtaksmyndighet». Ingen uenighet står igjen. Kjent begrensning (juristens presisering i runde 2): vilkår 3
+fanger ikke en generell regel som ikke står under en overskrift; rettingen for TONO ser bare på tittelen. Rettingen kan bare fjerne treff. En ny
+kaldkjøring med rettingene ga de samme fire treffene og funnene, og 0 i andre kjøring. Filene står i `data/fasit/strukturmodell/juristrunde-472/maling-4/514/`.
 
 ### 5.22 Vedtaksformen: rene endrings-, ikrafttredelses- og opphevingsvedtak (#446 PR 1, bygget 2026-11-26)
 

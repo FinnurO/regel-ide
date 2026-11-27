@@ -60,3 +60,19 @@ Ingen.
 - Ordlyden i uhl. 2005 § 7-2 (K08 og K09). Den ble ikke lest, fordi utfallet ikke avhenger av den.
 - Forarbeider og rettspraksis om statusvedtak etter uhl. § 1-2 er enkeltvedtak.
 - Utenfor #514: K01-vedtektene ble gitt på nytt i 2022 og viser til pengespilloven 2022, så hjemmelsopplysningen og funnet er trolig utdatert.
+
+## Runde 2
+
+Modellereren rettet koden i 243d275 og godtok de to innvendingene, merknaden om «vedtak» og K01. Merknaden om statlig organ godtok modellereren delvis. Replikkene står i `replikk.json`:
+
+- Jeg godtar V02, merknaden om «vedtak», merknaden om statlig organ og K01.
+- Jeg presiserer V05. Utfallet godtas, men rettingen ser bare på tittelen («Forskrift …»), ikke på innholdet. Hullet i vilkår 3 (en generell materiell regel som ikke står under en overskrift) står derfor fortsatt for vedtak med en annen tittel. Rettingen kan bare fjerne treff, så den gir ikke feil dekning. Begrensningen bør stå i docs/33.
+
+**Ingen uenighet står igjen.**
+
+**Endelige klasser etter rettingen.** Klassene er lest av koden og kortene. Kopien ble ikke lest på nytt, fordi modellereren kjørte den på nytt.
+
+- **Treffene er V01–V04:** 4/4 er riktige, 1,00 (Wilson 95 %: 0,51–1,00). Alle fire har nå kunnskapsstatus «fortolkning».
+- **V05 er ikke lenger et treff.** Det er riktig at den ikke leses som enkeltvedtak, og den teller nå som kontroll.
+- **Kontrollen:** 13/13 (0,77–1,00).
+- **Totalt:** 17/17 (0,82–1,00). Ingen feil og ingen usikre.
