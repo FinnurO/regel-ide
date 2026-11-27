@@ -19,6 +19,32 @@ export interface Hjemmelgruppe {
   kanter: StrukturkantDto[];
 }
 
+/**
+ * [Ny, issue #517 PR 3] Filteret fra lenkene på «Til vurdering»: `?type=etterfolger` (typekoden) og `?hjemmel=id,id` (hjemmelens rettskilde,
+ * pilotens kilder). Tomt filter gir alle forslagene.
+ */
+export interface Forslagsfilter {
+  type: string | null;
+  hjemler: string[];
+}
+
+export function forslagsfilterFra(parametre: URLSearchParams): Forslagsfilter {
+  const type = parametre.get('type')?.trim() || null;
+  const hjemler = (parametre.get('hjemmel') ?? '').split(',').map((x) => x.trim()).filter((x) => x.length > 0);
+  return { type, hjemler };
+}
+
+export function filtrerForslag<T extends Pick<StrukturkantDto, 'typekode' | 'hjemmelRettskildeId'>>(kanter: T[], f: Forslagsfilter): T[] {
+  if (!f.type && f.hjemler.length === 0) return kanter;
+  const hjemler = new Set(f.hjemler);
+  return kanter.filter((k) => (!f.type || k.typekode === f.type)
+    && (hjemler.size === 0 || (k.hjemmelRettskildeId !== null && hjemler.has(k.hjemmelRettskildeId))));
+}
+
+/** «Godkjenn alle N» og «Avvis alle N» i en hjemmelgruppe virker på alle forslagene med hjemmelen i API-et. Med et typefilter er gruppen bare
+ *  en del av dem, så knappene står ikke: tallet på knappen ville ikke vært det knappen gjør. Et hjemmelfilter tar med hele grupper. */
+export const gruppehandlingerTillatt = (f: Forslagsfilter) => !f.type;
+
 /** Forslagene gruppert per hjemmel (rettskilde), flest først; kanter uten hjemmel i korpus samles sist. */
 export function grupperPerHjemmel(kanter: StrukturkantDto[]): Hjemmelgruppe[] {
   const grupper = new Map<string, Hjemmelgruppe>();

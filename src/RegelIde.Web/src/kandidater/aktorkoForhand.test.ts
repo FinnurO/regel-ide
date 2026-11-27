@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { AktorkoDetalj, AktorkoForhandsklassifisering } from '../api/types';
 import { forhandTolkningsargumenter, godkjenningMangler, tilForesporsel } from './aktorkoGodkjenning';
 import {
-  erBareSikreAktorer, godkjenningFraForslag, handlingstekst, juristlinje, koblingFraForslag, passerForhandsfilter, relasjonstekst, skrivemateFor,
+  erBareSikreAktorer, godkjenningFraForslag, handlingsfilterFra, passerHandlingsfilter, handlingstekst, juristlinje, koblingFraForslag, passerForhandsfilter, relasjonstekst, skrivemateFor,
 } from './aktorkoForhand';
 
 const eid = 'https://lovdata.no/eli/forskrift/2017/06/22/1050/nor/§2/ledd-1';
@@ -119,5 +119,23 @@ describe('forhåndsklassifiseringen i aktørkøen (#440)', () => {
     expect(relasjonstekst('ukjent_kode')).toBe('ukjent kode');
     expect(juristlinje(rolle)).toBe('Innvending (alvor: lav) → modellereren: aksepter.');
     expect(juristlinje({ ...rolle, juristdom: 'ikke_vurdert (Johanns avgjørelse: venter)' })).toContain('venter på modellvalg');
+  });
+});
+
+describe('[#517 PR 3] filteret på handling fra «Til vurdering»', () => {
+  const kort = (handling: string) => ({ nr: 1, type: 'aktor', sikkerhet: 'hoy', handling, utdatert: null }) as never;
+  it('godkjenn er bare godkjenn; andre er omtale, ikke en aktør, koble og ta med; venter og uten er i ingen av dem', () => {
+    expect(passerHandlingsfilter(kort('godkjenn'), 'godkjenn')).toBe(true);
+    expect(passerHandlingsfilter(kort('generisk_omtale'), 'godkjenn')).toBe(false);
+    for (const h of ['generisk_omtale', 'ikke_aktor', 'koble', 'ta_med']) expect(passerHandlingsfilter(kort(h), 'andre')).toBe(true);
+    expect(passerHandlingsfilter(kort('venter'), 'andre')).toBe(false);
+    expect(passerHandlingsfilter(kort('venter'), 'godkjenn')).toBe(false);
+    expect(passerHandlingsfilter(null, 'andre')).toBe(false);
+    expect(passerHandlingsfilter(null, 'alle')).toBe(true);
+  });
+  it('en ukjent verdi i lenken gir ingen filter', () => {
+    expect(handlingsfilterFra('godkjenn')).toBe('godkjenn');
+    expect(handlingsfilterFra('tull')).toBe('alle');
+    expect(handlingsfilterFra(null)).toBe('alle');
   });
 });

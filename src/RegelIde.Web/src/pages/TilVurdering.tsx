@@ -6,7 +6,7 @@ import { Metatekst } from '../entitet/Metatekst';
 import type { Navneformgrunn, TilVurderingDto } from '../api/types';
 import { NavneformgrunnTag } from '../virksomhet/Navneformgrunn';
 import {
-  byggTilVurdering, startHerDepartementer, tidPerElement, tidTotalt, type Blokkering, type EnkelRad, type KoRad,
+  aktorLenke, byggTilVurdering, startHerDepartementer, tidPerElement, tidTotalt, type Blokkering, type EnkelRad, type KoRad,
 } from '../tilvurdering/tilVurdering';
 
 /**
@@ -48,7 +48,7 @@ function Departementliste({ tv, antall }: { tv: TilVurderingDto; antall?: number
       <Table.Body>
         {aktorer.map((a) => (
           <Table.Row key={a.virksomhetId}>
-            <Table.Cell><Link asChild><RouterLink to={`/virksomheter/${a.virksomhetId}`}>{a.navn}</RouterLink></Link></Table.Cell>
+            <Table.Cell><Link asChild><RouterLink to={aktorLenke(a.virksomhetId)}>{a.navn}</RouterLink></Link></Table.Cell>
             <Table.Cell>
               {a.navneformer.map((n) => (
                 <span key={n.begrepId} style={{ display: 'inline-flex', gap: '0.25rem', alignItems: 'center', marginRight: '0.5rem' }}>
@@ -79,14 +79,14 @@ function StartHerKort({ tv, rad }: { tv: TilVurderingDto; rad: KoRad }) {
           Navneformene er foreslått av maskinen og ikke vurdert. De holder igjen {tall(s.funn)} av de {tall(s.iAlt)} funnene om utgåtte aktører.
           Navnet og hjemmelen står på aktørsiden, så du bekrefter et faktum om navnehistorikken, ikke en tolkning.
         </Paragraph>
-        <Paragraph data-size="sm"><strong>Slik gjør du det:</strong> åpne aktøren, gå til fanen Navneformer og trykk «Godkjenn» på navneformen
+        <Paragraph data-size="sm"><strong>Slik gjør du det:</strong> lenken åpner aktøren på fanen Navneformer. Trykk «Godkjenn» på navneformen
           som er forslag.</Paragraph>
         <Paragraph data-size="sm"><strong>Låser opp:</strong> «Navneform ikke faglig vurdert» forsvinner fra {tall(s.funn)} funn.</Paragraph>
         <Departementliste tv={tv} antall={s.aktorer.length} />
         {forste && (
           <div style={{ marginTop: '0.75rem' }}>
             <Button data-size="sm" asChild>
-              <RouterLink to={`/virksomheter/${forste.virksomhetId}`}>Åpne {forste.navn}</RouterLink>
+              <RouterLink to={aktorLenke(forste.virksomhetId)}>Åpne {forste.navn}</RouterLink>
             </Button>
           </div>
         )}

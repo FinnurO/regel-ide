@@ -20,7 +20,7 @@ import { ForhandKort, ForhandRadmerker } from '../kandidater/AktorkoForhandKort'
 import { ForhandRelasjonsliste, OpprettedeNavnsRelasjoner } from '../kandidater/ForhandRelasjoner';
 import {
   FORHANDSTYPE_TEKST, SIKKERHET_TEKST, erBareSikreAktorer, forhandBegrunnelse, godkjenningFraForslag, koblingFraForslag, passerForhandsfilter,
-  type Sikkerhetsfilter, type Typefilter,
+  type Sikkerhetsfilter, type Typefilter, HANDLINGSFILTER_TEKST, handlingsfilterFra, passerHandlingsfilter,
 } from '../kandidater/aktorkoForhand';
 import type { Forhandssikkerhet, Forhandstype } from '../api/types';
 
@@ -437,6 +437,8 @@ function Navnerad({ rad, kvittering, onBehandlet, onGrupperingEndret }: {
 export default function AktorKo() {
   const [sokeparametre, setSokeparametre] = useSearchParams();
   const rettskildeFilter = sokeparametre.get('rettskildeId');
+  // [Ny, issue #517 PR 3] `?handling=godkjenn|andre` fra lenkene på «Til vurdering». Vises som en Chip som kan fjernes, som rettskildefilteret.
+  const handlingsfilter = handlingsfilterFra(sokeparametre.get('handling'));
   const [liste, setListe] = useState<AktorkoListe | null>(null);
   const [fordeling, setFordeling] = useState<AktorkoFordeling | null>(null);
   const [feil, setFeil] = useState<string | null>(null);
@@ -470,8 +472,9 @@ export default function AktorKo() {
     return iRettskilden.filter((r) =>
       (filter === 'alle' || (filter === 'flere' && r.forekomster > 1) || (filter === 'hjemmel' && r.hjemmelforslag > 0))
       && passerForhandsfilter(r.forhand, typefilter, sikkerhetsfilter)
+      && passerHandlingsfilter(r.forhand, handlingsfilter)
       && (!q || r.navn.toLowerCase().includes(q) || r.varianter.some((v) => v.normalisert.includes(q))));
-  }, [iRettskilden, sok, filter, typefilter, sikkerhetsfilter]);
+  }, [iRettskilden, sok, filter, typefilter, sikkerhetsfilter, handlingsfilter]);
   const paginering = usePaginering(synlige);
 
   const antall: Record<Filter, number> = {
@@ -530,6 +533,12 @@ export default function AktorKo() {
           <Chip.Radio data-size="sm" name="aktorko-filter" checked={filter === 'hjemmel'} onChange={() => setFilter('hjemmel')}>
             Har hjemmelforslag {tall(antall.hjemmel)}
           </Chip.Radio>
+          {handlingsfilter !== 'alle' && (
+            <Chip.Removable data-size="sm" aria-label="Fjern filteret på forslagets handling"
+              onClick={() => { sokeparametre.delete('handling'); setSokeparametre(sokeparametre); }}>
+              {HANDLINGSFILTER_TEKST[handlingsfilter]} ({tall(iRettskilden.filter((r) => passerHandlingsfilter(r.forhand, handlingsfilter)).length)})
+            </Chip.Removable>
+          )}
           {rettskildeFilter && (
             <Chip.Removable data-size="sm" aria-label="Fjern rettskildefilteret"
               onClick={() => { sokeparametre.delete('rettskildeId'); setSokeparametre(sokeparametre); }}>

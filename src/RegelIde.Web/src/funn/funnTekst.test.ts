@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  MANGELFILTER, passerMangelfilter,
   delITekstblokker, delPremissmangler, etterfolgerlinje, kategoriMerketekst, lovdataLenke, utenEtterfolgerpunkt,
 } from './funnTekst';
 
@@ -66,5 +67,15 @@ describe('delPremissmangler og kategoriMerketekst (#472 PR 2)', () => {
     expect(kategoriMerketekst('Hjemmel opphevet', 'hjemmel_opphevet', 'Videreføring ikke funnet')).toBe('Hjemmel opphevet: videreføring ikke funnet');
     expect(kategoriMerketekst('Hjemmel opphevet', 'gjenstandslos', 'Gjenstandsløs')).toBe('Gjenstandsløs');
     expect(kategoriMerketekst('Mulig motstrid', null, null)).toBe('Mulig motstrid');
+  });
+});
+
+describe('[#517 PR 3] filteret på premissmangel fra «Til vurdering»', () => {
+  it('kunngjort treffer mangelen «Kunngjort versjon»; en ukjent nøkkel og ingen nøkkel gir alle', () => {
+    const kunngjort = [`${MANGELFILTER.kunngjort.start}: korpuset har bare forskriften slik den ble kunngjort …`];
+    expect(passerMangelfilter(kunngjort, 'kunngjort')).toBe(true);
+    expect(passerMangelfilter(['Ny hjemmel ikke vurdert: …'], 'kunngjort')).toBe(false);
+    expect(passerMangelfilter([], 'tull')).toBe(true);
+    expect(passerMangelfilter(null, null)).toBe(true);
   });
 });
