@@ -144,8 +144,10 @@ public sealed class TilVurderingTjeneste(RegelIdeDbContext db, AktorkoTjeneste a
             return sett.Count;
         }).ToList();
 
+        // [ENDRET, #517 PR 3] Alle ventende etterfølgerkanter, også faglig vurdert: det er dem forslagskøen viser med filteret «etterfølger»
+        // (AK 1, samme tall i guiden og køen). En faglig vurdert kant holder ikke igjen funn; den venter bare på godkjenning.
         var forslag = await db.Strukturkanter.AsNoTracking()
-            .Where(k => k.Typekode == "etterfolger" && Forslag.Contains(k.Status)).Select(k => new { k.Id, k.Status }).ToListAsync(ct);
+            .Where(k => k.Typekode == "etterfolger" && Strukturkanter.Ventende.Contains(k.Status)).Select(k => new { k.Id, k.Status }).ToListAsync(ct);
         var manuelle = forslag.Where(k => k.Status == Strukturkanter.ManueltForeslatt).Select(k => k.Id).ToHashSet();
 
         return (
@@ -257,7 +259,7 @@ public sealed record TilVurderingNavneform(Guid BegrepId, string Term, string? N
 public sealed record TilVurderingAktorko(
     int AntallNavn, int Forekomster, int Klare, int TrengerSted, IReadOnlyDictionary<string, int> PerHandling, int RelasjonerVenterPaNavn, int PilotNavn);
 
-/// <param name="Forslag">Etterfølgerkanter som er forslag (maskinelt eller manuelt).</param>
+/// <param name="Forslag">Etterfølgerkanter som venter i forslagskøen (maskinelt eller manuelt foreslått, eller faglig vurdert).</param>
 /// <param name="FunnMedEtterfolgermangel">Funn (oppdaget, utgått aktør) med en etterfølgerkant som ikke er vurdert.</param>
 /// <param name="FunnManuelle">Av dem: funn som peker på en av de manuelt foreslåtte kantene.</param>
 public sealed record TilVurderingEtterfolgere(int Forslag, int Manuelle, int FunnMedEtterfolgermangel, int FunnManuelle);

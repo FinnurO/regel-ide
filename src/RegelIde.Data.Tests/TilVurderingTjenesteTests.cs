@@ -54,8 +54,8 @@ public class TilVurderingTjenesteTests(EmbeddedPostgresFixture fixture)
         Assert.True(tv.Departementer.FunnKumulativt.Zip(tv.Departementer.FunnKumulativt.Skip(1)).All(p => p.First <= p.Second));
         Assert.True(tv.Departementer.FunnKumulativt.Last() <= tv.Departementer.FunnMedNavneformmangel);
         Assert.Equal(tv.Departementer.Aktorer[0].Funn, tv.Departementer.FunnKumulativt[0]);
-        Assert.Equal(await db.Strukturkanter.CountAsync(k => k.Typekode == "etterfolger"
-            && (k.Status == Strukturkanter.MaskineltForeslatt || k.Status == Strukturkanter.ManueltForeslatt)), tv.Etterfolgere.Forslag);
+        Assert.Equal(await db.Strukturkanter.CountAsync(k => k.Typekode == "etterfolger" && Strukturkanter.Ventende.Contains(k.Status)),
+            tv.Etterfolgere.Forslag);
     }
 
     [Fact]
