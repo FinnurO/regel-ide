@@ -1941,6 +1941,50 @@ hjemmelsstatusen på samme tekst. Målvedtaket leser fortsatt bare nodenes egen 
 - Tall: gjenværende 623 → 619, holdt tilbake 144 → 148, kildefeil 46 → 48 kilder. R9 er uendret (106).
 - `?skriv=true` ga 2 nye kildefeil og 4 funn forklart bort av maskinregelen. En ny kjøring ga 0 på alt.
 
+**[ENDRET, #502, prosjekteierens avgjørelse 2026-11-27] Flere former for hel oppheving.** Hvitelisten fra #429 PR 4 (1a) leste åtte hele
+opphevinger av LTI-vedtak som delvise (§5.21, «LTI»). Tre former er lagt til (`Opphevingskontroll.EtterMalet`, `EtterVerbet`). Testene står i
+`R8FlereFormerTests`, én per form og én per avvisning.
+- **«av» + det som delegeres, rett etter nummeret:** «Delegering 29. juni 2001 nr. 721 av myndighet til Forsvarsdepartementet …», «… nr. 1192 av
+  departementets myndighet …», «… nr. 1093 av utøvelsen av …». Bare myndighet, mynde, kompetanse, fullmakt og utøvelse, også med en eier foran.
+- **Utstederen etter «fra»:** «Samtidig oppheves instruks 18. mars 2017 nr. 357 fra Mattilsynet …». Bare et navn med stor bokstav, så «fra og med § 3»
+  er fortsatt delvis.
+- **En dato rett etter verbet**, når setningen slutter der: «… oppheves 1. januar 2019.» Datoen må være passert. En dato som ikke er passert, gir
+  ingen hel oppheving («oppheves 31. desember 2026», SF/forskrift/2026-03-23-454 § 25). En dato som følges av noe annet («oppheves 1. januar 2006
+  med virkning for regnskapsår påbegynt …»), er fortsatt delvis.
+
+Datoen var det eneste som stoppet noen feil lesinger før. Derfor er vakten (`Hjemmelstekstlesing.MalErObjekt`) og lesingen strammet inn samtidig:
+- det som oppheves, er gitt i medhold av målet («Tillatelser gitt med hjemmel i forskrift …», «forskrifter gitt i medhold av lov …»): `tillatelse`,
+  `løyve`, `konsesjon`, `hjemmel` og `medhold` står nå blant ordene for et annet dokument;
+- regler «i» målet («Reglane om røyrleggjarfaget i lov 19. juni 1970 nr. 59 …», `DelIMalet`). «regler» som dokumenttype («oppheves regler 6. januar
+  1995 nr. 18 om …») godtas fortsatt;
+- en annen setning i samme tekst avgrenser opphevingen («Delegeringen oppheves for saker der stevning er inngitt etter 31. desember 2016.»,
+  `Hjemmelstekstlesing.Begrenset`). [LÅST] «Opphevelsen gis virkning for …» (arveavgiftsloven, M04 og M06) er ikke med. Den hører til #503.
+
+**Sveipet** (alle par av node og mål i gjeldende primærkilder, 4 357, i kopien `regelide_502`, lest før og etter): 56 går fra avvist til godtatt, 9
+fra godtatt til avvist (alle var feil godtatt før), og 11 fra avvist til avvist av vakten. Alle er lest. Ingen setning som ble avvist før, er
+godtatt ved en feil. Lista står i `data/fasit/strukturmodell/juristrunde-472/maling-4/502/r8-setninger.tsv`. Regelversjonen for hjemmelsstatusen er
+`502-2026-11-27`.
+
+**Kaldkjørt i kopien** (`regelide_502`, pg_dump av den delte basen, API på 5387, 2026-11-27): hjemmelsstatus, «Hjemmel opphevet» og «Utgått aktør»
+med `?skriv=true&oppfrisk=true`, og en ny kjøring.
+
+| | Før (master) | Etter (#502) |
+|---|---|---|
+| Hjemmelsrader med endret status | — | 2: privatskulelova 1985 ukjent → opphevet (E2), skiltforskriftene 1980 ukjent → erstattet (E1) |
+| #472, oppdaget | 404 | **397**: 8 forklart bort (forskriften selv opphevet, R8), 1 nytt (SF/forskrift/2003-02-13-224, privatskulelova) |
+| #472, forskriften selv opphevet (R8) | 24 | 32 |
+| #429, oppdaget | 592 | **591**: 1 forklart bort (LTI/forskrift/2014-09-11-1192) |
+| #429, kildefeil (R8) | 48 kilder | 49 |
+| Ny kjøring | — | 0 endrede statuser, 0 nye, 0 forklares bort, 0 kildefeil |
+
+De åtte er nøyaktig de åtte fra §5.21: LTI/forskrift/2001-06-29-721, 2003-06-27-802, 2004-02-12-1221, 2003-07-04-900, 2005-09-26-1093,
+2014-09-11-1192, 2017-03-18-357 og 2018-04-16-852.
+
+**Målt 2026-11-27 (måling 4 del 1, to runder, i kopien).** 11 endrede utfall og 11 kontrollsetninger fra sveipet. Presisjon **1,00 (0,85–1,00)**,
+21/21 og én usikker (E11, «erstattet» bygger på den eldre tildelingsregelen, ikke på #502). Ingen uenighet står igjen. Oppfølging som ikke er bygget:
+datosjekken bør gi «ikke i kraft ennå» og også gjelde «fra ‹dato›», og kjøredatoen må oppgis i målinger; beviset for «erstattet» (E11); passiv form
+med tittel gir ikke E1; dokumenter uten nummer i lister. Filene står i `data/fasit/strukturmodell/juristrunde-472/maling-4/502/`.
+
 **Ikke i PR 1:** statsrådsembeter og organiseringsvedtak som har uttømt virkningen (#438).
 
 ### 5.16 Aktørkøen: ruting, gruppering og hjemmelforslag (#440 PR 1, bygget 2026-10-31)
@@ -2988,7 +3032,8 @@ hjemler eller hjemler med rolle NULL (punkt 1 i §5.20).
   - en tittel som begynner med «av»: «Delegering 29. juni 2001 nr. 721 av myndighet til Forsvarsdepartementet etter sikkerhetsloven § 12 … oppheves
     1. januar 2019.» (DEL/forskrift/2018-12-20-2052);
   - en dato rett etter verbet: «oppheves 1. januar 2019».
-- Rettingen hører til R8 og endrer også #429. Den er stilt som spørsmål, ikke bygget.
+- Rettingen hører til R8 og endrer også #429. Den er stilt som spørsmål, ikke bygget. [LØST, #502, prosjekteierens avgjørelse 2026-11-27] Bygget.
+  De åtte forklares bort, se #502 i §5.15.
 
 **H01–H20 etter rettingene:**
 - De elleve riktige (H01–H06, H10, H11, H12, H17, H19) står uendret.

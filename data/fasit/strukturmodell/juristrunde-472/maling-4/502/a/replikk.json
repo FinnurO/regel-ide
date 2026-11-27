@@ -1,0 +1,22 @@
+[
+ {
+  "id": "E11",
+  "replikk": "godtar",
+  "begrunnelse": "Enig i at kortet klasses som usikker og holdes utenfor presisjonen for #502. Feilen ligger i den eldre tildelingsregelen, ikke i opphevingslesingen. Oppfølgingen bør nevne begge punktene: beviset (§ 28 første ledd i stedet for trolig § 26 nr. 1) og at FOR-2005-11-09-1278 kap. II lot vedtaket gjelde bare «fram til 1. juni 2006»."
+ },
+ {
+  "id": "merknad-3",
+  "replikk": "presiserer",
+  "begrunnelse": "Jeg godtar prinsippet: en oppheving som ikke virker ennå, er ikke en oppheving, og det er samme lesing som ikraftstatusen i #446. Jeg godtar også at inkonsekvensen med «fra ‹dato›» og «med virkning fra ‹dato›» er eldre enn #502. Presiseringen gjelder sporbarheten. Når samme tekst og regelversjon kan gi ulikt svar etter kjøredatoen, må målinger og fasit oppgi kjøredatoen (beregnet_tidspunkt finnes allerede på hjemmelsstatusen). Oppfølgingen bør si hvilken vei det skal gå: datosjekken bør også gjelde «fra ‹dato›», og en framtidig dato bør gi «ikke i kraft ennå», ikke «delvis». En oppheving som ikke virker ennå, er hel, bare ikke virksom ennå."
+ },
+ {
+  "id": "merknad-4",
+  "replikk": "godtar",
+  "begrunnelse": "Begrensningen gjaldt også «om»-titlene før #502, den er ikke observert i sveipet, og det er tatt et bevisst valg om ikke å lese tittelen. Det holder å føre den som kjent begrensning i docs/33."
+ },
+ {
+  "id": "merknad-5",
+  "replikk": "godtar",
+  "begrunnelse": "Svaret for E09 er det samme. Det holder å føre det som kjent begrensning."
+ }
+]
