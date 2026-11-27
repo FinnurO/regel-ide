@@ -279,6 +279,7 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
                 ParentNodeId = parentNodeId,
                 NodeType = n.NodeType.TilDbVerdi(),
                 Nummer = n.Nummer,
+                NummerKilde = n.NummerKilde, // [Ny, issue #508]
                 Overskrift = n.Overskrift,
                 Tekst = n.Tekst,
                 TekstHash = n.TekstHash,

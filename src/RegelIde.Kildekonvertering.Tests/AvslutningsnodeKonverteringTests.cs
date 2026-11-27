@@ -143,11 +143,12 @@ public class AvslutningsnodeKonverteringTests
     }
 
     [Fact]
-    public void Nestet_ledd_etter_liste_i_numberedLegalP_havner_i_avslutningen()
+    public void Nestet_ledd_etter_liste_i_numberedLegalP_blir_underledd()
     {
         // Formen fra 343 numberedLegalP i bulken, f.eks. nl-19250807-000 (Svalbard-bergverksordningen)
         // § 2 post 1: «… under følgende betingelser:» + liste + <article class="legalP"> med neste ledd.
-        // Det nestede leddet var limt inn i leddteksten før; nå står det etter punktene.
+        // [ENDRET, issue #508, prosjekteierens avgjørelse 2026-11-25] Var en avslutning etter #361; et selvstendig nestet ledd er ikke
+        // avslutningsord til lista, og blir nå underledd-2 (AKN <subparagraph>). Avslutningen gjelder fortsatt leddfortsettelse og løs tekst.
         var r = Konverter(
             "<article class=\"numberedLegalP\" data-numerator=\"1\" id=\"kapittel-11-paragraf-3-nummer-1\">1. Vilkår:" +
             Liste("kapittel-11-paragraf-3-nummer-1", "første", "andre") +
@@ -155,7 +156,10 @@ public class AvslutningsnodeKonverteringTests
         var leddEid = $"{Avslutningsutdrag.ParagrafEid}/ledd-1";
 
         Assert.Equal("1. Vilkår:", r.Noder.Single(n => n.Eid == leddEid).Tekst);
-        Assert.Equal("Gebyret beregnes særskilt.", r.Noder.Single(n => n.Eid == $"{leddEid}/avslutning").Tekst);
+        var underledd = r.Noder.Single(n => n.Eid == $"{leddEid}/underledd-2");
+        Assert.Equal(NodeType.Underledd, underledd.NodeType);
+        Assert.Equal("Gebyret beregnes særskilt.", underledd.Tekst);
+        Assert.DoesNotContain(r.Noder, n => n.NodeType == NodeType.Avslutning);
     }
 
     [Fact]

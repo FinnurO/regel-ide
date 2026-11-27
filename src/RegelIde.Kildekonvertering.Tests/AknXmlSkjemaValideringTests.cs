@@ -168,4 +168,23 @@ public class AknXmlSkjemaValideringTests
         var feil = Valider(resultat.AknXml);
         Assert.True(feil.Count == 0, $"{feil.Count} skjemafeil ({beskrivelse}):\n{string.Join("\n", feil)}");
     }
+
+    /// <summary>
+    /// [Ny, issue #508] Underledd (&lt;subparagraph&gt; uten &lt;num&gt;, etter leddets punkter og avslutning) og overskrift på et nummerert ledd
+    /// (&lt;heading&gt;) valideres mot det ekte skjemaet, i de ekte utdragene fixture-testene bruker.
+    /// </summary>
+    [Theory]
+    [InlineData("ferieloven-LOV-1988-04-29-21-utdrag-5-9.html")]
+    [InlineData("permitteringslonnsloven-LOV-1988-05-06-22-utdrag-1-6.html")]
+    [InlineData("sjotransport-LOV-1992-12-04-121-utdrag-sttl3-a3-a5.html")]
+    [InlineData("skatteloven-LOV-1999-03-26-14-utdrag-10-5.html")]
+    [InlineData("tollavgiftsforskriften-FOR-2022-10-27-1938-utdrag-4-1-1.html")]
+    [InlineData("forskrift-FOR-2015-12-18-1824-utdrag-5-11.html")]
+    [InlineData("lov-1999-06-18-40-utdrag-7.html")]
+    public void AknXml_med_underledd_og_overskrift_validerer_mot_skjemaet(string fil)
+    {
+        var resultat = LovdataKonverterer.Konverter(Testdata.LesUtdrag(fil), new DateOnly(2026, 11, 27));
+        var feil = Valider(resultat.AknXml);
+        Assert.True(feil.Count == 0, $"{feil.Count} skjemafeil ({fil}):\n{string.Join("\n", feil)}");
+    }
 }

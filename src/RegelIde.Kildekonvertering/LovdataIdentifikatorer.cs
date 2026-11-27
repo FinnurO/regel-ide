@@ -74,6 +74,14 @@ public static partial class LovdataIdentifikatorer
         avslutningIndeks == 1 ? $"{forelderEid}/avslutning" : $"{forelderEid}/avslutning-{avslutningIndeks}";
 
     /// <summary>
+    /// [Ny, issue #508, prosjekteierens avgjørelse 2026-11-25] Underledd-eId: <c>{ledd-eId}/underledd-N</c>, N fra 2. Første underledd er
+    /// leddet selv, så ingen eksisterende eId endres (docs/35 §3.3).
+    /// </summary>
+    public static string UnderleddEid(string leddEid, int underleddIndeks) =>
+        underleddIndeks >= 2 ? $"{leddEid}/underledd-{underleddIndeks}"
+            : throw new ArgumentOutOfRangeException(nameof(underleddIndeks), "Første underledd er leddet selv (N >= 2).");
+
+    /// <summary>
     /// tekst_hash presis definisjon, §3.4: SHA-256 av normalisert tekst.
     /// Normalisering (i rekkefølge): (1) tagger fjernet — inkl. interne &lt;a&gt;-referanser,
     /// som kun bidrar med sin synlige tekst (kalleren gir oss allerede ren tekst via

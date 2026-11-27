@@ -870,8 +870,14 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
         b.Entity<RettskildeNodeEntitet>(e =>
         {
             // [ENDRET, issue #446 PR 1] + CHECK for endringsrollen.
-            e.ToTable("rettskilde_noder", t => t.HasCheckConstraint("ck_rettskilde_noder_endringsrolle",
-                "endringsrolle IS NULL OR endringsrolle IN ('endringsinstruks', 'sitert_tekst', 'ikrafttredelse', 'oppheving')"));
+            // [ENDRET, issue #508] + CHECK for nummerkilden.
+            e.ToTable("rettskilde_noder", t =>
+            {
+                t.HasCheckConstraint("ck_rettskilde_noder_endringsrolle",
+                    "endringsrolle IS NULL OR endringsrolle IN ('endringsinstruks', 'sitert_tekst', 'ikrafttredelse', 'oppheving')");
+                t.HasCheckConstraint("ck_rettskilde_noder_nummer_kilde",
+                    "nummer_kilde IS NULL OR nummer_kilde IN ('bokstav', 'tall', 'romertall', 'trykt', 'strek', 'lopenummer')");
+            });
             e.HasKey(x => x.Id).HasName("rettskilde_noder_pkey");
             e.Property(x => x.RettskildeId).HasColumnName("rettskilde_id");
             e.Property(x => x.Eid).HasColumnName("eid");
@@ -881,6 +887,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.ParentNodeId).HasColumnName("parent_node_id");
             e.Property(x => x.NodeType).HasColumnName("node_type");
             e.Property(x => x.Nummer).HasColumnName("nummer");
+            e.Property(x => x.NummerKilde).HasColumnName("nummer_kilde");
             e.Property(x => x.Overskrift).HasColumnName("overskrift");
             e.Property(x => x.Tekst).HasColumnName("tekst");
             e.Property(x => x.TekstHash).HasColumnName("tekst_hash");

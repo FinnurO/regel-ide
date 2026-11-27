@@ -7,7 +7,22 @@ namespace RegelIde.Kildekonvertering;
 
 public sealed record ParseResultat(
     RettskildeMetadata Metadata, IReadOnlyList<RettskildeNode> Noder, IReadOnlyList<RettskildeReferanse> Referanser,
-    IReadOnlyList<RettskildeHjemmel> Hjemler, IReadOnlyList<RettskildeEndring> Endringer);
+    IReadOnlyList<RettskildeHjemmel> Hjemler, IReadOnlyList<RettskildeEndring> Endringer,
+    IReadOnlyList<Gjennomgangspunkt>? Gjennomgang = null);
+
+/// <summary>
+/// [Ny, issue #508] Et sted i kilden der parseren har fulgt en regel, men der et menneske bør se på resultatet. Lagres ikke; samlekjøringen
+/// (#508 PR 3) lister dem. <see cref="Art"/> er en av konstantene under.
+/// </summary>
+public sealed record Gjennomgangspunkt(string Eid, string Art, string Utdrag)
+{
+    /// <summary>Kursiv tekst foran det første nestede leddet som ikke er en overskrift etter regelen (juristrunden J2).</summary>
+    public const string KursivSomIkkeErOverskrift = "kursiv_som_ikke_er_overskrift";
+    /// <summary>En overskrift etter regelen som ikke står i kursiv (juristrunden J2).</summary>
+    public const string OverskriftUtenKursiv = "overskrift_uten_kursiv";
+    /// <summary>En punktliste som bare står i løpende tekst («a) … b) …» uten &lt;ol&gt;). Ingen noder lages (CLAUDE.md §8, #508 AK3).</summary>
+    public const string LøpendePunktliste = "lopende_punktliste";
+}
 
 /// <summary>
 /// Steg 3-6 i konverteringspipelinen (docs/08-byggesteg1-teknisk-design.md §3.1): parse HTML til DOM,
@@ -18,7 +33,11 @@ public sealed record ParseResultat(
 public static partial class LovdataHtmlParser
 {
     /// <summary>Konteksten en løpetekst-node trenger for å avgjøre om en kryssreferanse er intern og for å avlede eId på målet (§1.2/§3.1 steg 6).</summary>
-    private sealed record ReferanseKontekst(string EgenDatokode, string EgenLovEli);
+    private sealed record ReferanseKontekst(string EgenDatokode, string EgenLovEli)
+    {
+        /// <summary>[Ny, issue #508] Tilfeller parseren har avgjort etter en regel, men som skal ses av et menneske.</summary>
+        public List<Gjennomgangspunkt> Gjennomgang { get; } = [];
+    }
 
     public static ParseResultat Parse(string kildeHtml)
     {
@@ -147,7 +166,8 @@ public static partial class LovdataHtmlParser
 
         foreach (var child in body.ChildNodes) HåndterDokumentBarn(child);
 
-        return new ParseResultat(metadata, noder, referanser, hjemler, endringer);
+        LeggTilLøpendePunktlister(noder, kontekst.Gjennomgang);
+        return new ParseResultat(metadata, noder, referanser, hjemler, endringer, kontekst.Gjennomgang);
     }
 
     private sealed class SorteringsTeller
@@ -1334,7 +1354,96 @@ public static partial class LovdataHtmlParser
         // [ENDRET, avslutningsnode-runden, 2026-10-09, issue #361] Punktene og avslutningen lages nå inne
         // i LeggTilLeddEllerPunktNode (via LeggTilNodeMedLister), i dokumentrekkefølge, i stedet for et
         // eget ParseChildPunkter-kall etterpå.
-        LeggTilLeddEllerPunktNode(legalP, eid, parentEid, NodeType.Ledd, kontekst, noder, referanser, sortering, leddIndeks.ToString());
+        LeggTilLeddEllerPunktNode(legalP, eid, parentEid, NodeType.Ledd, kontekst, noder, referanser, sortering, leddIndeks.ToString(),
+            etikett: LeddEtikett(legalP, leddIndeks));
+    }
+
+    // ---------- [Ny, issue #508] Punktlister i løpende tekst ----------
+
+    [GeneratedRegex(@"(?:^|[:;,.]\s+|\s)(?:a\)\s+\S.{10,}?\sb\)|(?:1|i)\)\s+\S.{10,}?\s(?:2|ii)\))\s+\S")]
+    private static partial Regex LøpendePunktlisteMønster();
+    [GeneratedRegex(@"(?:bokstav(?:ene)?\s+a\)|(?:nr\.|nummer|bokstav [a-z])\s+(?:1|i)\))", RegexOptions.IgnoreCase)]
+    private static partial Regex SiteringAvPunktMønster();
+
+    /// <summary>
+    /// [Ny, issue #508 AK3, juristrunden J6] Noder der teksten har en punktliste som bare står i løpende tekst («i form av: a) … b) …,
+    /// eller en kombinasjon»), uten &lt;ol&gt;/&lt;li&gt; i kilden. Ingen noder lages: grensene mellom punktene står ikke i kilden, og et
+    /// eksempel mangler bokstav på tredje alternativ. De listes for gjennomgang. Tabeller («|») og formler («\(») er holdt utenfor, og
+    /// en sitering av en bokstav («bokstav a) og b)») teller ikke. Målt i den delte basen 2026-11-27: 29 noder med «a) … b)» og 38 med
+    /// «1) … 2)» eller «i) … ii)».
+    /// </summary>
+    private static void LeggTilLøpendePunktlister(List<RettskildeNode> noder, List<Gjennomgangspunkt> gjennomgang)
+    {
+        foreach (var n in noder)
+        {
+            if (n.Tekst is not { Length: > 0 } t || t.Contains(" | ") || t.Contains("\\(")) continue;
+            var m = LøpendePunktlisteMønster().Match(t);
+            if (!m.Success || SiteringAvPunktMønster().IsMatch(t)) continue;
+            gjennomgang.Add(new Gjennomgangspunkt(n.Eid, Gjennomgangspunkt.LøpendePunktliste, t.Substring(Math.Max(0, m.Index - 40), Math.Min(160, t.Length - Math.Max(0, m.Index - 40)))));
+        }
+    }
+
+    // ---------- [Ny, issue #508] Trykt bokstav og nummer ----------
+    //
+    // Før #508 fikk både ledd og punkt løpenummeret som Nummer («1» … «6»), selv om kilden har bokstaven (<li data-name="f.">) og det
+    // trykte leddnummeret (data-numerator). Bokstav f i GDPR art. 6 nr. 1 kunne da ikke slås opp, og et punkt trykt «f.» (lov
+    // 1999-06-18-40 § 7, endringslov der bokstav f, g og i settes inn) het «1». Nummeret er nå etiketten slik den står trykt, uten
+    // tegnsetting. eId-en er uendret (løpenummer, docs/08 §1.2): en bokstav endres også ved omnummerering, og alle punkt-eId-er og
+    // koblinger ville endret seg (docs/35 §3.3, prosjekteierens avgjørelse 2026-11-25). Målt i den delte basen 2026-11-27: 99 526 punkt
+    // og 1 617 ledd får et annet Nummer, ingen eId endres.
+
+    /// <summary>[Ny, issue #508] Nummer, hvor det kommer fra (<see cref="Nummerkilder"/>) og løpenummeret i forelderen.</summary>
+    private sealed record Etikett(string Nummer, string Kilde, string Lopenummer)
+    {
+        public static Etikett Løpenummer(int indeks) => new(indeks.ToString(), Nummerkilder.Lopenummer, indeks.ToString());
+    }
+
+    [GeneratedRegex(@"^[0-9A-Za-zÆØÅæøå]+(?:\.[0-9A-Za-zÆØÅæøå]+)*$")]
+    private static partial Regex EtikettKjerneMønster();
+    [GeneratedRegex(@"^(?:[a-zæøå]|[A-ZÆØÅ])$")]
+    private static partial Regex EnBokstavMønster();
+    [GeneratedRegex(@"^(?:[ivxlcdm]+|[IVXLCDM]+)$")]
+    private static partial Regex RomertallMønster();
+    [GeneratedRegex(@"^[0-9]+(?:\.[0-9]+)*[a-z]?$")]
+    private static partial Regex TallEtikettMønster();
+
+    /// <summary>
+    /// [Ny, issue #508] Ledd: et <c>numberedLegalP</c> har alltid <c>data-numerator</c> (66 106 av 66 106 i den delte basen), og det er det
+    /// trykte nummeret («(6)» → 6, «2.1» → 2.1, «3a.» → 3a). Den trykte formen står først i leddteksten og blir stående der. Alle andre ledd
+    /// har ikke noe trykt nummer: løpenummeret, merket <c>lopenummer</c>.
+    /// </summary>
+    private static Etikett LeddEtikett(HtmlNode legalP, int leddIndeks)
+    {
+        var numerator = legalP.GetAttributeValue("data-numerator", "").Trim();
+        if (!HarKlasse(legalP.GetAttributeValue("class", ""), "numberedLegalP") || numerator.Length == 0) return Etikett.Løpenummer(leddIndeks);
+        var kilde = TallEtikettMønster().IsMatch(numerator) ? Nummerkilder.Tall : Nummerkilder.Trykt;
+        return new Etikett(numerator, kilde, leddIndeks.ToString());
+    }
+
+    /// <summary>
+    /// [Ny, issue #508] Punkt i en liste: etiketten er <c>&lt;li data-name&gt;</c> uten omsluttende tegnsetting («f.» → f, «a)» → a,
+    /// «11a.» → 11a, «.1» → 1 i IMO-konvensjonene, ««6.» → 6 i siterte endringstekster). Arten avgjøres av listas <c>type</c> og etiketten
+    /// sammen: bokstavliste og én bokstav = bokstav (også «i», «v», «x» i en bokstavliste, 1 575 punkt), romertalliste og romertall =
+    /// romertall, talliste og tall = tall. Strider de mot hverandre (tall i en ul uten type, «ee» i en bokstavliste, «1.1»), er arten
+    /// <c>trykt</c>: etiketten er trykt, men vi sier ikke hva slags den er (ingen gjetting, CLAUDE.md §8). Strek, kulepunkt og symboler
+    /// («-», «–», «•», «☐») og manglende data-name gir løpenummeret. Juristrunden J1 (2026-11-27): holder.
+    /// </summary>
+    private static Etikett PunktEtikett(HtmlNode? li, HtmlNode? liste, int punktIndeks)
+    {
+        var dataName = (li?.GetAttributeValue("data-name", "") ?? "").Trim();
+        if (dataName.Length == 0) return Etikett.Løpenummer(punktIndeks);
+        var kjerne = dataName.TrimStart('«', '(', '[', '-', '*', ' ').TrimEnd('.', ')', ':', ',', ']', ' ').TrimEnd('.', ',');
+        if (!EtikettKjerneMønster().IsMatch(kjerne))
+            return new Etikett(punktIndeks.ToString(), Nummerkilder.Strek, punktIndeks.ToString());
+        var type = liste?.GetAttributeValue("type", "") ?? "";
+        var kilde = type switch
+        {
+            "a" or "A" when EnBokstavMønster().IsMatch(kjerne) => Nummerkilder.Bokstav,
+            "i" or "I" when RomertallMønster().IsMatch(kjerne) => Nummerkilder.Romertall,
+            "1" when TallEtikettMønster().IsMatch(kjerne) => Nummerkilder.Tall,
+            _ => Nummerkilder.Trykt,
+        };
+        return new Etikett(kjerne, kilde, punktIndeks.ToString());
     }
 
     // [FJERNET, avslutningsnode-runden, 2026-10-09, issue #361] ParseChildPunkter. Den hentet alle
@@ -1361,14 +1470,15 @@ public static partial class LovdataHtmlParser
             var listArticle = li.SelectSingleNode("./article[contains(@class,'listArticle')]")
                 ?? throw new FormatException($"<li> under {parentEid} mangler <article class=\"listArticle\">.");
             punktIndeks++;
-            ParsePunkt(listArticle, parentEid, punktIndeks, kontekst, noder, referanser, sortering);
+            ParsePunkt(listArticle, parentEid, punktIndeks, kontekst, noder, referanser, sortering, PunktEtikett(li, liste, punktIndeks));
         }
     }
 
     private static void ParsePunkt(
         HtmlNode listArticle, string parentEid, int punktIndeks, ReferanseKontekst kontekst,
-        List<RettskildeNode> noder, List<RettskildeReferanse> referanser, SorteringsTeller sortering)
+        List<RettskildeNode> noder, List<RettskildeReferanse> referanser, SorteringsTeller sortering, Etikett? etikett = null)
     {
+        etikett ??= Etikett.Løpenummer(punktIndeks);
         var eid = GjørEidUnik(LovdataIdentifikatorer.PunktEid(parentEid, punktIndeks), noder);
         var kildeId = listArticle.Attributes["id"]?.Value
             ?? throw new FormatException($"Punkt {eid} mangler id-attributt.");
@@ -1403,7 +1513,9 @@ public static partial class LovdataHtmlParser
                 ParentEid = parentEid,
                 KildeId = kildeId,
                 NodeType = NodeType.Punkt,
-                Nummer = punktIndeks.ToString(),
+                Nummer = etikett.Nummer,
+                NummerKilde = etikett.Kilde,
+                Lopenummer = etikett.Lopenummer,
                 Tekst = miscTekst,
                 TekstHash = LovdataIdentifikatorer.BeregnTekstHash(miscTekst),
                 Segmenter = miscSegmenter,
@@ -1423,7 +1535,7 @@ public static partial class LovdataHtmlParser
         // påfølgende legalP i samme punkt (punkt 14 over) — blir en avslutningsnode under punktet, sortert
         // etter underpunktene. Før ble alt limt inn i punktets egen tekst, foran underpunktene i visningen.
         LeggTilNodeMedLister(direkteLegalP, eid, parentEid, NodeType.Punkt, kildeId, punktIndeks.ToString(),
-            kontekst, noder, referanser, sortering);
+            kontekst, noder, referanser, sortering, etikett);
     }
 
     /// <summary>
@@ -1435,7 +1547,7 @@ public static partial class LovdataHtmlParser
     private static void LeggTilLeddEllerPunktNode(
         HtmlNode legalP, string eid, string? parentEid, NodeType nodeType, ReferanseKontekst kontekst,
         List<RettskildeNode> noder, List<RettskildeReferanse> referanser, SorteringsTeller sortering,
-        string? nummer = null, string? kildeIdNårIdMangler = null)
+        string? nummer = null, string? kildeIdNårIdMangler = null, Etikett? etikett = null)
     {
         // kildeIdNårIdMangler brukes KUN av det bekreftede "defaultP-som-ledd"-tilfellet i
         // HåndterParagrafBarn (se der) — et ekte, substansielt ledd Lovdata av ukjent årsak ikke har
@@ -1445,7 +1557,7 @@ public static partial class LovdataHtmlParser
         var kildeId = legalP.Attributes["id"]?.Value
             ?? kildeIdNårIdMangler
             ?? throw new FormatException($"{nodeType} {eid} mangler id-attributt.");
-        LeggTilNodeMedLister([legalP], eid, parentEid, nodeType, kildeId, nummer, kontekst, noder, referanser, sortering);
+        LeggTilNodeMedLister([legalP], eid, parentEid, nodeType, kildeId, nummer, kontekst, noder, referanser, sortering, etikett);
     }
 
     /// <summary>
@@ -1486,8 +1598,12 @@ public static partial class LovdataHtmlParser
     /// det er ingen rekkefølgefeil å rette (42 tilfeller målt 2026-10-09).
     /// </para>
     /// </summary>
-    private static Listedeling DelVedLister(IReadOnlyList<HtmlNode> containere, ReferanseKontekst kontekst)
+    private static Listedeling DelVedLister(IReadOnlyList<HtmlNode> containere, ReferanseKontekst kontekst) =>
+        DelVedLister(containere.Select(c => (IEnumerable<HtmlNode>)c.ChildNodes).ToList(), kontekst);
+
+    private static Listedeling DelVedLister(IReadOnlyList<IEnumerable<HtmlNode>> barnelister, ReferanseKontekst kontekst)
     {
+        var containere = barnelister;
         var innledning = new List<TekstSegment>();
         var lister = new List<ListeDel>();
         List<TekstSegment> Gjeldende() => lister.Count == 0 ? innledning : lister[^1].Etter;
@@ -1498,7 +1614,7 @@ public static partial class LovdataHtmlParser
             // alkoholforskriften) — bare når det allerede står tekst i bøtta, slik at en avslutning ikke
             // starter med et mellomrom.
             if (i > 0 && Gjeldende().Count > 0) Gjeldende().Add(new TekstSegment(" ", null, false));
-            foreach (var child in containere[i].ChildNodes)
+            foreach (var child in containere[i])
             {
                 if (child.NodeType == HtmlNodeType.Element && child.Name is "ul" or "ol"
                     && child.SelectNodes("./li") is { Count: > 0 })
@@ -1521,9 +1637,22 @@ public static partial class LovdataHtmlParser
     /// </summary>
     private static void LeggTilNodeMedLister(
         IReadOnlyList<HtmlNode> containere, string eid, string? parentEid, NodeType nodeType, string kildeId, string? nummer,
-        ReferanseKontekst kontekst, List<RettskildeNode> noder, List<RettskildeReferanse> referanser, SorteringsTeller sortering)
+        ReferanseKontekst kontekst, List<RettskildeNode> noder, List<RettskildeReferanse> referanser, SorteringsTeller sortering,
+        Etikett? etikett = null)
     {
-        var deling = DelVedLister(containere, kontekst);
+        etikett ??= nummer is null ? null : new Etikett(nummer, Nummerkilder.Lopenummer, nummer);
+        // [Ny, issue #508] Underledd: et nestet legalP direkte i et nummerert ledd blir {ledd}/underledd-N (N fra 2). Se DelIUnderledd.
+        string? overskrift = null;
+        List<List<HtmlNode>>? underledd = null;
+        IReadOnlyList<IEnumerable<HtmlNode>> hovedBarn = containere.Select(c => (IEnumerable<HtmlNode>)c.ChildNodes).ToList();
+        if (nodeType == NodeType.Ledd && containere.Count == 1 && HarKlasse(containere[0].GetAttributeValue("class", ""), "numberedLegalP")
+            && DelIUnderledd(containere[0], eid, kontekst) is { } underleddDeling)
+        {
+            hovedBarn = [underleddDeling.Foran];
+            underledd = underleddDeling.Underledd;
+            overskrift = underleddDeling.Overskrift;
+        }
+        var deling = DelVedLister(hovedBarn, kontekst);
 
         // Uten noen avslutning (bare whitespace etter listene — det vanlige) får noden NØYAKTIG de samme
         // segmentene som før #361: innledningen + ett mellomrom per liste + whitespace-en etter. Teksten
@@ -1550,7 +1679,10 @@ public static partial class LovdataHtmlParser
             ParentEid = parentEid,
             KildeId = kildeId,
             NodeType = nodeType,
-            Nummer = nummer,
+            Nummer = etikett?.Nummer,
+            NummerKilde = etikett?.Kilde,
+            Lopenummer = etikett?.Lopenummer,
+            Overskrift = overskrift,
             Tekst = plainTekst,
             TekstHash = LovdataIdentifikatorer.BeregnTekstHash(plainTekst),
             Segmenter = egneSegmenter,
@@ -1558,6 +1690,138 @@ public static partial class LovdataHtmlParser
         });
         LeggTilReferanser(referanser, eid, egneSegmenter, plainTekst);
 
+        var punktIndeks = 0;
+        foreach (var del in deling.Lister)
+        {
+            ParseEnListe(del.Liste, eid, ref punktIndeks, kontekst, noder, referanser, sortering);
+            LeggTilAvslutning(eid, kildeId, del.Etter, noder, referanser, sortering);
+        }
+
+        if (underledd is null) return;
+        for (var u = 0; u < underledd.Count; u++)
+        {
+            var n = u + 2;
+            var uEid = GjørEidUnik(LovdataIdentifikatorer.UnderleddEid(eid, n), noder);
+            var nestet = underledd[u][0];
+            var uKildeId = nestet.Attributes["id"]?.Value ?? $"{kildeId}-underledd-{n}";
+            var uDeling = DelVedLister([nestet.ChildNodes.Concat(underledd[u].Skip(1)).ToList()], kontekst);
+            LeggTilDelt(uDeling, uEid, eid, NodeType.Underledd, uKildeId, Etikett.Løpenummer(n),
+                kontekst, noder, referanser, sortering);
+        }
+    }
+
+    /// <summary>Et nummerert ledd delt i teksten foran det første underleddet og underleddene (hvert med søsknene etter seg).</summary>
+    private sealed record UnderleddDeling(List<HtmlNode> Foran, List<List<HtmlNode>> Underledd, string? Overskrift);
+
+    [GeneratedRegex(@"^\s*\*?(?:\(\s*[0-9]+[a-z]?(?:\.[0-9]+)*\s*\)|[0-9]+[a-z]?(?:\.[0-9]+)*\s*[.)]?)\s*")]
+    private static partial Regex TryktLeddnummerMønster();
+
+    /// <summary>
+    /// [Ny, issue #508, prosjekteierens avgjørelse 2026-11-25, juristrunden J2 2026-11-27] Deler et <c>numberedLegalP</c> med nestede
+    /// <c>&lt;article class="legalP"&gt;</c> i underledd. Null når det ikke har noen.
+    ///
+    /// <para>
+    /// <b>Hovedregelen:</b> leddets egen tekst foran det første nestede leddet er første underledd (selve leddet), og hvert nestet ledd er
+    /// underledd 2, 3 … (GDPR art. 8 nr. 1: «1. Dersom …» + «For disse formål kan medlemsstatene …» = annet ledd i nr. 1). Gjelder både
+    /// uten liste foran (art. 8 nr. 1) og etter en liste (art. 6 nr. 1, der #361 ga en avslutning). Målt i den delte basen 2026-11-27:
+    /// 1 468 nummererte ledd har nestede ledd (1 106 med egen tekst foran, 247 med tekst og liste, 115 med bare nummer og overskrift).
+    /// Ingen nestede ledd står direkte i et vanlig legalP.
+    /// </para>
+    ///
+    /// <para>
+    /// <b>Overskriftsunntaket:</b> står det etter det trykte nummeret bare en overskrift («(4) <i>(Tilleggsfritid …)</i>» i ferieloven § 5,
+    /// «(2) (Permittering)» i permitteringslønnsloven § 1, «Produktbeskriving»), er det første nestede leddet leddets første ledd. Da peker
+    /// lovens egen henvisning «nr. 4 annet ledd» (ferieloven § 5 sjette ledd) på underledd-2, og «etter første ledd» i permitteringslønnsloven
+    /// § 1 nr. 2 på leddets egen tekst. Overskriften blir leddets <c>Overskrift</c>, ikke en del av teksten. En overskrift er (juristrunden
+    /// J2, godtatt av prosjekteieren 2026-11-27) kort tekst (høyst <see cref="OverskriftMaksOrd"/> ord) uten avsluttende punktum, kolon,
+    /// semikolon eller komma, og ikke i hakeparentes, med eller uten <c>&lt;i&gt;</c> og med eller uten parentes. Kursiv er ikke
+    /// kriteriet: lov 1992-12-04-121 art. 5 nr. 1 har en hel kursiv setning i hakeparentes som første ledd. Peker kursiv og regelen hver
+    /// sin vei, legges leddet i gjennomgangslisten (<see cref="Gjennomgangspunkt"/>), og regelen avgjør.
+    /// </para>
+    /// </summary>
+    private static UnderleddDeling? DelIUnderledd(HtmlNode nummerertLedd, string leddEid, ReferanseKontekst kontekst)
+    {
+        var barn = nummerertLedd.ChildNodes.ToList();
+        static bool ErNestet(HtmlNode b) =>
+            b.NodeType == HtmlNodeType.Element && b.Name == "article" && ErLeddKlasse(b.GetAttributeValue("class", ""));
+        var første = barn.FindIndex(ErNestet);
+        if (første < 0) return null;
+
+        var foran = barn.Take(første).ToList();
+        var grupper = new List<List<HtmlNode>>();
+        for (var i = første; i < barn.Count; i++)
+        {
+            if (ErNestet(barn[i])) grupper.Add([barn[i]]);
+            else grupper[^1].Add(barn[i]);
+        }
+
+        var harListe = foran.Any(b => b.NodeType == HtmlNodeType.Element && b.Name is "ul" or "ol");
+        var foranTekst = KollapsDobleMellomrom(string.Concat(foran
+            .Where(b => !(b.NodeType == HtmlNodeType.Element && b.Name == "sup"))
+            .Select(b => HtmlEntity.DeEntitize(b.InnerText)))).Trim();
+        var etterNummer = TryktLeddnummerMønster().Replace(foranTekst, "", 1).Trim();
+        if (harListe || etterNummer.Length > 0 && !ErOverskrift(etterNummer))
+        {
+            if (!harListe && foran.Any(b => b.NodeType == HtmlNodeType.Element && b.Name == "i")
+                && KollapsDobleMellomrom(string.Concat(foran.Where(b => b.Name == "i").Select(b => HtmlEntity.DeEntitize(b.InnerText)))).Trim() == etterNummer)
+            {
+                kontekst.Gjennomgang.Add(new Gjennomgangspunkt(leddEid, Gjennomgangspunkt.KursivSomIkkeErOverskrift, etterNummer));
+            }
+            return new UnderleddDeling(foran, grupper, null);
+        }
+
+        // Ingen egen tekst etter nummeret, eller bare en overskrift: det første nestede leddet er leddets første ledd.
+        string? overskrift = null;
+        var leddtekst = foran;
+        if (etterNummer.Length > 0)
+        {
+            overskrift = etterNummer.StartsWith('(') && etterNummer.EndsWith(')') ? etterNummer[1..^1].Trim() : etterNummer;
+            // Bare det trykte nummeret (tekstnoden(e) foran overskriften) blir stående i leddteksten, slik det står først i alle andre
+            // nummererte ledd. Overskriften er et eget element (<i>) eller tekst i parentes etter nummeret.
+            var nummer = TryktLeddnummerMønster().Match(foranTekst).Value;
+            leddtekst = [nummerertLedd.OwnerDocument.CreateTextNode(nummer)];
+            if (!foran.Any(b => b.NodeType == HtmlNodeType.Element && b.Name == "i"))
+            {
+                kontekst.Gjennomgang.Add(new Gjennomgangspunkt(leddEid, Gjennomgangspunkt.OverskriftUtenKursiv, etterNummer));
+            }
+        }
+        leddtekst.AddRange(grupper[0][0].ChildNodes);
+        leddtekst.AddRange(grupper[0].Skip(1));
+        grupper.RemoveAt(0);
+        return new UnderleddDeling(leddtekst, grupper, overskrift);
+    }
+
+    /// <summary>[Ny, issue #508, juristrunden J2] Juristens «kort», satt til 12 ord. Grensen er et valg, ikke målt; tilfellene der kursiv og
+    /// regelen peker hver sin vei, listes i samlekjøringen, og det er der en feil grense vil synes.</summary>
+    private const int OverskriftMaksOrd = 12;
+
+    private static bool ErOverskrift(string tekst) =>
+        !tekst.StartsWith('[') && !tekst.EndsWith(']')
+        && tekst[^1] is not ('.' or ':' or ';' or ',')
+        && tekst.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length <= OverskriftMaksOrd;
+
+    /// <summary>[Ny, issue #508] Som hoveddelen av <see cref="LeggTilNodeMedLister"/>, for et underledd som alt er delt ved listene.</summary>
+    private static void LeggTilDelt(Listedeling deling, string eid, string? parentEid, NodeType nodeType, string kildeId, Etikett etikett,
+        ReferanseKontekst kontekst, List<RettskildeNode> noder, List<RettskildeReferanse> referanser, SorteringsTeller sortering)
+    {
+        var harAvslutning = deling.Lister.Any(l => string.Concat(l.Etter.Select(s => s.Tekst)).Trim().Length > 0);
+        var egneSegmenter = deling.Innledning;
+        if (!harAvslutning && deling.Lister.Count > 0)
+        {
+            egneSegmenter = [.. deling.Innledning];
+            foreach (var del in deling.Lister) { egneSegmenter.Add(new TekstSegment(" ", null, false)); egneSegmenter.AddRange(del.Etter); }
+        }
+        var plainTekst = KollapsDobleMellomrom(string.Concat(egneSegmenter.Select(s => s.Tekst))).Trim();
+        noder.Add(new RettskildeNode
+        {
+            Eid = eid, ParentEid = parentEid, KildeId = kildeId, NodeType = nodeType,
+            Nummer = etikett.Nummer, NummerKilde = etikett.Kilde, Lopenummer = etikett.Lopenummer,
+            Tekst = plainTekst, TekstHash = LovdataIdentifikatorer.BeregnTekstHash(plainTekst), Segmenter = egneSegmenter,
+            SorteringsRekkefolge = sortering.Neste(),
+        });
+        LeggTilReferanser(referanser, eid, egneSegmenter, plainTekst);
+        // Lister inne i et underledd ble borte helt før #508 (HentSegmenter gjør en nestet liste til ett mellomrom): 550 punkt i 147 nestede
+        // ledd i den delte basen. De blir nå {underledd}/punkt-N.
         var punktIndeks = 0;
         foreach (var del in deling.Lister)
         {

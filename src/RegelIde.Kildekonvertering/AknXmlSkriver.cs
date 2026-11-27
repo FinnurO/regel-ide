@@ -245,9 +245,29 @@ public static class AknXmlSkriver
     /// fra paragrafens fotnoter) som skal limes inn i SLUTTEN av dette leddets &lt;p&gt; — se
     /// begrunnelsen i Paragraf-casen i <see cref="SkrivNoder"/>.
     /// </summary>
-    private static void SkrivLedd(StringBuilder sb, IReadOnlyList<RettskildeNode> alleNoder, RettskildeNode node, string? ekstraInnhold)
+    /// <summary>
+    /// [Ny, issue #508, prosjekteierens avgjørelse 2026-11-27: alternativ B] &lt;num&gt; for ledd og punkt er fortsatt løpenummeret, ikke
+    /// det trykte nummeret som nå står i <see cref="RettskildeNode.Nummer"/>. Importen sammenligner AKN for å avgjøre om en kilde har fått
+    /// ny versjon (RettskildeImportTjeneste); med trykt form ville 3 275 kilder fått ny versjon i stedet for 738, uten at teksten var endret.
+    /// Den trykte formen lages ved eksport, av Nummer. Avviker fra AKN-NC §5.4.3 i den lagrede AKN-en, og det er bevisst.
+    /// </summary>
+    private static string Num(RettskildeNode n) => n.Lopenummer ?? n.Nummer ?? "";
+
+    /// <summary>[Ny, issue #508] &lt;num&gt; (ikke for underledd) og, for et nummerert ledd med overskrift (ferieloven § 5 «(4)
+    /// (Tilleggsfritid …)», se LovdataHtmlParser.DelIUnderledd), &lt;heading&gt;. Ledd uten overskrift skrives nøyaktig som før.</summary>
+    private static void SkrivNumOgOverskrift(StringBuilder sb, RettskildeNode node, string tag)
     {
-        var barn = alleNoder.Where(n => n.ParentEid == node.Eid).OrderBy(n => n.SorteringsRekkefolge).ToList();
+        if (tag != "subparagraph") sb.Append($"<num>{Escape(Num(node))}</num>");
+        if (node.NodeType == NodeType.Ledd && !string.IsNullOrEmpty(node.Overskrift)) sb.Append($"<heading>{Escape(node.Overskrift)}</heading>");
+    }
+
+    /// <param name="tag">[Ny, issue #508] <c>paragraph</c> for et ledd, <c>subparagraph</c> for et underledd. Underledd skrives etter
+    /// leddets egne punkter og avslutning, i dokumentrekkefølge, og har ingen &lt;num&gt; (de er ikke nummerert i kilden).</param>
+    private static void SkrivLedd(StringBuilder sb, IReadOnlyList<RettskildeNode> alleNoder, RettskildeNode node, string? ekstraInnhold, string tag = "paragraph")
+    {
+        var alleBarn = alleNoder.Where(n => n.ParentEid == node.Eid).OrderBy(n => n.SorteringsRekkefolge).ToList();
+        var underledd = alleBarn.Where(n => n.NodeType == NodeType.Underledd).ToList();
+        var barn = alleBarn.Where(n => n.NodeType != NodeType.Underledd).ToList();
         if (barn.Any(n => n.NodeType == NodeType.Avslutning))
         {
             // [Ny, avslutningsnode-runden, 2026-10-09, issue #361] Se SkrivMedListe. Ledd UTEN
@@ -255,24 +275,25 @@ public static class AknXmlSkriver
             // avgjøre om et dokument er endret (RettskildeImportTjeneste), så et nytt format for ALLE
             // ledd med punkter ville gitt ny versjon av tusenvis av dokumenter som ikke har noen
             // avslutning. Bare dokumenter der teksten faktisk endres, skal få ny versjon.
-            SkrivMedListe(sb, alleNoder, "paragraph", node, barn, ekstraInnhold);
+            SkrivMedListe(sb, alleNoder, tag, node, barn, ekstraInnhold);
+            foreach (var u in underledd) SkrivLedd(sb, alleNoder, u, null, "subparagraph");
             return;
         }
 
-        sb.Append($"<paragraph eId=\"{Escape(node.Eid)}\" regelIde:kildeId=\"{Escape(node.KildeId)}\">");
-        sb.Append($"<num>{Escape(node.Nummer ?? "")}</num>");
+        sb.Append($"<{tag} eId=\"{Escape(node.Eid)}\" regelIde:kildeId=\"{Escape(node.KildeId)}\">");
+        SkrivNumOgOverskrift(sb, node, tag);
         sb.Append("<content>").Append("<p>").Append(SkrivSegmenter(node.Segmenter));
         if (ekstraInnhold is not null)
         {
             sb.Append(ekstraInnhold);
         }
         sb.Append("</p>").Append("</content>");
-        sb.Append("</paragraph>");
+        sb.Append($"</{tag}>");
 
         // Punkt-barn (samme ParentEid = dette leddets eId) skrives ikke rekursivt via SkrivNoder her
         // fordi <paragraph> i AKN ikke har et eget "barn-steg" i vårt skjema — de skrives som søsken-
         // <point>-elementer rett etter, som søsken av <paragraph> i den omsluttende <article>.
-        var punktBarn = alleNoder.Where(n => n.ParentEid == node.Eid).OrderBy(n => n.SorteringsRekkefolge).ToList();
+        var punktBarn = barn;
         if (punktBarn.Count > 0)
         {
             sb.Append("<list>");
@@ -282,6 +303,7 @@ public static class AknXmlSkriver
             }
             sb.Append("</list>");
         }
+        foreach (var u in underledd) SkrivLedd(sb, alleNoder, u, null, "subparagraph");
     }
 
     /// <summary>
@@ -300,7 +322,7 @@ public static class AknXmlSkriver
             return;
         }
         sb.Append($"<point eId=\"{Escape(punkt.Eid)}\" regelIde:kildeId=\"{Escape(punkt.KildeId)}\">");
-        sb.Append($"<num>{Escape(punkt.Nummer ?? "")}</num>");
+        sb.Append($"<num>{Escape(Num(punkt))}</num>");
         sb.Append("<content>").Append("<p>").Append(SkrivSegmenter(punkt.Segmenter));
         if (ekstraInnhold is not null) sb.Append(ekstraInnhold);
         sb.Append("</p>").Append("</content>");
@@ -343,7 +365,7 @@ public static class AknXmlSkriver
         IReadOnlyList<RettskildeNode> barn, string? ekstraInnhold)
     {
         sb.Append($"<{tag} eId=\"{Escape(node.Eid)}\" regelIde:kildeId=\"{Escape(node.KildeId)}\">");
-        sb.Append($"<num>{Escape(node.Nummer ?? "")}</num>");
+        SkrivNumOgOverskrift(sb, node, tag);
         sb.Append("<content>").Append("<p>").Append(SkrivSegmenter(node.Segmenter));
         if (ekstraInnhold is not null) sb.Append(ekstraInnhold);
         sb.Append("</p>").Append("</content>");

@@ -95,6 +95,7 @@ Akoma Ntoso (OASIS LegalDocML) krever en FRBR-basert metadatablokk (Work/Express
 | Ledd | `{paragraf-eId}/ledd-1` |
 | Punkt | `{ledd-eId}/punkt-1` |
 | Avslutning (tekst etter en punktliste) | `{ledd-eId}/avslutning`, `/avslutning-2` … — se under |
+| Underledd (nestet ledd i et nummerert ledd) | `{ledd-eId}/underledd-2`, `/underledd-3` … — se under (#508) |
 
 **Avslutning** [Ny, 2026-10-09, issue #361, beslutning Johann]: tekst som står ETTER en punktliste i et ledd
 eller punkt (`<p class="leddfortsettelse">`, løs tekst, eller et nestet ledd etter lista) er en egen node
@@ -106,6 +107,22 @@ innledningen; lovteksten er ordrett og har ingen plassholder der lista sto. Før
 inn i leddteksten («… samt i Første punktum gjelder likevel …», energiloven § 10-2 annet ledd).
 Tabeller gir ikke avslutningsnode: de flates ut på stedet de står, så teksten etter dem står allerede i
 riktig rekkefølge.
+
+**Underledd** [Ny, 2026-11-27, issue #508, prosjekteierens avgjørelse 2026-11-25 og 2026-11-27]: et nestet `<article class="legalP">`
+direkte i et nummerert ledd (`numberedLegalP`) er en egen node med `node_type='underledd'`, eId `{ledd-eId}/underledd-N` med N fra 2.
+Første underledd er leddets egen tekst, så ingen eksisterende eId endres. Gjelder både uten liste foran (GDPR art. 8 nr. 1 annet ledd,
+13-årsgrensen) og etter en liste (art. 6 nr. 1, der #361 ga en avslutning; avslutningen gjelder fortsatt `p.leddfortsettelse` og løs tekst).
+Står det bare trykt nummer og en overskrift foran det første nestede leddet («(4) (Tilleggsfritid …)», ferieloven § 5), er det første
+nestede leddet leddets første ledd, og overskriften lagres i leddets `overskrift`, ikke i teksten. Overskrift er kort tekst (høyst 12 ord)
+uten avsluttende punktum, kolon, semikolon eller komma, og ikke i hakeparentes, med eller uten kursiv (juristrunden J2). Lister i et
+underledd blir `{underledd}/punkt-N`; før #508 forsvant de. AKN: `<subparagraph>` uten `<num>` etter leddets punkter og avslutning.
+
+**Trykt nummer** [Ny, 2026-11-27, issue #508]: `nummer` er den trykte etiketten uten tegnsetting (`<li data-name="f.">` → `f`,
+`data-numerator` → `6`), og den nye kolonnen `nummer_kilde` sier hvor den kommer fra: `bokstav`, `tall`, `romertall`, `trykt` (trykt, men
+listas type og etiketten stemmer ikke) eller `strek`/`lopenummer` (ikke trykt; `nummer` er løpenummeret). eId-en bygges fortsatt av
+løpenummeret. Oppslag fra et sitat eller fra Lovdatas presisering går via forelder, nodetype og `nummer`. AKN `<num>` for ledd og punkt er
+fortsatt løpenummeret (prosjekteierens avgjørelse 2026-11-27, alternativ B), slik at en kilde der bare `nummer` endres, ikke får ny
+versjon. Den trykte formen lages ved eksport, av `nummer`.
 
 **AKN for avslutningen** (#361): `<wrapUp eId="{…}/avslutning">` i den samme `<list>` som punktene. AKN har to
 listekonstruksjoner, verifisert mot `akomantoso30.xsd`: `<list>` (hierarki: `intro?`, `<point>`…, `wrapUp?`) og

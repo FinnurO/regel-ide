@@ -1,5 +1,8 @@
 # Varig elementidentitet og punktbokstaver (undersøkelse for #495 og #498)
 
+*[Tillegg 2026-11-27] #508 bygges etter prosjekteierens avgjørelse 2026-11-27: alternativ B for `<num>`, faglig vurderte kanter listes
+(flyttes i #509), pekerflytting med hashkontroll, og juristens rettinger J2–J5 (se §8).*
+
 *Status: undersøkelse, 2026-11-25. Ingenting er bygget. Prosjekteieren ga klarsignal til undersøkelse, ikke bygging. Notatet endrer ikke
 docs/profil/04; forslaget til ny tekst i §4.1 er innført 2026-11-25.*
 
@@ -394,3 +397,24 @@ PR-en inneholder bare dette notatet.
 - Hvor mange koblinger som peker på de om lag 1 700 leddene som får en underleddsnode.
 - Om den innsatte artikkelen i AKN sitt eksempel (§5.5.3.4) er ment å ha en implisitt `wId` (juristen).
 - Etiketter som «i.» er talt som bokstav; noen kan være romertall.
+
+---
+
+## 8. #508: måling, juristrunde og prosjekteierens avgjørelse (2026-11-27)
+
+Målt med prototypen av parseren på lagret HTML for alle 6 656 gjeldende kilder:
+- **Nummer:** 99 526 punkt og 1 617 ledd får et annet `nummer`. Ingen eId endres.
+- **Nye noder:** 1 973 underledd i 187 dokumenter, 550 punkt i nestede ledd (forsvant før), og nodene fra #361 og #397 som den delte basen
+  ennå ikke har.
+- **Ny versjon:** 738 kilder med `<num>` uendret (B), 3 275 med trykt `<num>` (A).
+- **Presisering:** ingen av de 477 hjemlene med presisering treffer feil ledd i dag; 12 når bokstaven. 10 360 løpetekstreferanser har
+  Lovdatas form (`…/ledd/1`) i `til_eid` og er uløst (egen sak).
+
+**Juristrunden** (én runde, 6 kort): 2 holder (J1, J6), 4 innvendinger (J5 høy, J2 og J4 middels, J3 lav). Rettingene i J2–J5 er tatt inn.
+Gjenstående uenighet: om uendrede, faglig vurderte strukturkanter skal flyttes maskinelt til ny versjon.
+
+**Prosjekteierens avgjørelse 2026-11-27:**
+1. Alternativ B: `<num>` beholder løpenummeret. `nummer` fylles inn på eksisterende noder med logg, og den trykte formen lages ved eksport.
+2. Faglig vurderte kanter listes i #508. Maskinell flytting gjøres i #509.
+3. Alle tre PR-ene bygges, med pekerflyttingen. Løpetekstreferanser, mellomoverskrifter som blir ledd og avslutning midt i en liste blir
+   egne saker.
