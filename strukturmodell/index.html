@@ -53,7 +53,7 @@
 
 <main id="main">
   <div class="wrap page-head">
-    <span class="eyebrow">Innføring · oppdatert 23. november 2026</span>
+    <span class="eyebrow">Innføring · oppdatert 27. november 2026</span>
     <h1>Strukturmodell for forvaltningen</h1>
     <p class="lead">Lovene sier hvem som finnes i forvaltningen, hvordan de henger sammen og hvem som har hvilken myndighet. Men ingen kan lese hele lovverket, så den kunnskapen lever i dag på nettsider og i folks hoder. Strukturmodellen henter den ut av lovteksten og gjør den søkbar, med en lenke tilbake til paragrafen hver opplysning kommer fra.</p>
   </div>
@@ -72,11 +72,15 @@
        (Refs #486, #472). Det varige innholdet fra nyhetsseksjonene står nå i referansedelen, uten å gjentas. Historikken nederst står
        ordrett slik den sto (master d737616), med merke og peker til dagens status (CLAUDE.md §22, REFERAT-regelen).
        Ankerne som andre sider lenker til, er beholdt: #status, #aktorkoen, #hjemmel-for-aktoren, #norge-og-staten, #hjemmelsstatus,
-       #karasjok, #departementet, #nytt-pilot (pilotsiden) og #nytt-arbeidsmaten (pilotsiden og profilen). -->
+       #karasjok, #departementet, #nytt-pilot (pilotsiden) og #nytt-arbeidsmaten (pilotsiden og profilen).
+       [ENDRET, nettside-2026-11-27, 2026-11-27] Status per 27. november, fem linjer i endringsloggen og tre nye anker som forsiden lenker til:
+       #statsrad (under «regjeringen»), #vedtaksform (etter hjemmelsstatus) og #avgrensning (seksjonen «Hva modellen ikke dekker ennå», som
+       før ikke hadde anker). Pekerne «status per …» i historikken, datoen øverst og datoen i bunnteksten følger statusdatoen; teksten i
+       historikken er ellers uendret. Ingen anker er fjernet. -->
   <section class="section" id="innhold">
     <div class="wrap">
       <div class="prose">
-        <p class="struktur-forbehold"><strong>Slik leser du siden.</strong> Først forklares modellen slik den er nå. Hvor langt arbeidet er kommet, står i <a href="#status">Status per 23. november 2026</a>. Etter den kommer en kort <a href="#endringslogg">endringslogg</a>, og nederst <a href="#historikk">historikken</a>: rapporter og tall slik de sto den dagen de ble skrevet.</p>
+        <p class="struktur-forbehold"><strong>Slik leser du siden.</strong> Først forklares modellen slik den er nå. Hvor langt arbeidet er kommet, står i <a href="#status">Status per 27. november 2026</a>. Etter den kommer en kort <a href="#endringslogg">endringslogg</a>, og nederst <a href="#historikk">historikken</a>: rapporter og tall slik de sto den dagen de ble skrevet.</p>
         <p>Arbeidet er også samlet i et <a href="../profil/">forslag til norsk profil for maskinlesbar rett</a>. Der står hvilke internasjonale standarder modellen bygger på, de åtte statusene som viser om et utsagn står i loven eller er en tolkning, og hvilke utvidelser som er bygget i DigRett. Forslaget er ikke vedtatt, og DigRett er utprøvingsarena og kandidatreferanseimplementasjon for det.</p>
       </div>
       <ul class="nytt-innhold" aria-label="Innhold på siden">
@@ -91,12 +95,15 @@
         <li><a href="#karasjok">Karasjok</a></li>
         <li><a href="#departementet">«departementet»</a></li>
         <li><a href="#regjeringen">«regjeringen»</a></li>
+        <li><a href="#statsrad">«statsråd»</a></li>
         <li><a href="#aktorkoen">Aktørkøen</a></li>
         <li><a href="#hjemmel-for-aktoren">Aktørsiden</a></li>
         <li><a href="#hjemmelsstatus">Hjemmelsstatus</a></li>
+        <li><a href="#vedtaksform">Vedtaksform</a></li>
         <li><a href="#funn">Funn</a></li>
         <li><a href="#testet">Testet mot lovene</a></li>
-        <li><a href="#status">Status per 23. november</a></li>
+        <li><a href="#avgrensning">Avgrensning</a></li>
+        <li><a href="#status">Status per 27. november</a></li>
         <li><a href="#endringslogg">Endringslogg</a></li>
         <li><a href="#historikk">Historikk</a></li>
       </ul>
@@ -474,7 +481,8 @@
       </div>
       <div class="prose struktur-etter-tabell">
         <p>Svarene regnes ut når noen spør, og lagres ikke. Standardreglene er bygget i <a href="https://github.com/FinnurO/regel-ide/issues/394" target="_blank" rel="noopener">#394</a> (<a href="https://github.com/FinnurO/regel-ide/pull/398" target="_blank" rel="noopener">#398</a>, <a href="https://github.com/FinnurO/regel-ide/pull/404" target="_blank" rel="noopener">#404</a>).</p>
-        <p>To ord har ingen standardregel. «staten» er navnet på én aktør, men ordet har en sperre (under). «regjeringen» leses for hver forekomst for seg (se <a href="#regjeringen">«regjeringen»</a>).</p>
+        <!-- [ENDRET, nettside-2026-11-27, 2026-11-27] «statsråd» lagt til (#486, PR #510 og #511, docs/33 §5.19.2–5.19.3). -->
+        <p>Tre ord har ingen standardregel. «staten» er navnet på én aktør, men ordet har en sperre (under). «regjeringen» og «statsråd» leses for hver forekomst for seg (se <a href="#regjeringen">«regjeringen»</a> og <a href="#statsrad">«statsråd»</a>).</p>
         <h3>«fylkeskommunen»</h3>
         <ul>
           <li>Regelen gir svar for <strong>1&nbsp;077 forekomster i 175 rettskilder</strong>. Hvilken fylkeskommune det er i en bestemt sak, avgjøres av saken, ikke av teksten.</li>
@@ -505,6 +513,8 @@
       </div>
       <div class="prose struktur-etter-tabell">
         <p>Sperren er en fast regel, og den har en kjent pris: noen få forekomster som gjelder den norske staten, blir også sperret. «denne staten» sperres ikke.</p>
+        <!-- [ENDRET, nettside-2026-11-27, 2026-11-27] Kilde: docs/33 §5.19.2 (PR #510). -->
+        <p>«statsråd» og «statsrådet» har også en sperre. Den står under <a href="#statsrad">«statsråd»</a>.</p>
       </div>
     </div>
   </section>
@@ -692,6 +702,8 @@
           <h3>Disposisjonstype: hva vedtaket gjør</h3>
           <p>Hver kilde får én eller flere typer fra en lukket liste: oppretting, navneendring, nedleggelse, omorganisering, overføring eller ressortfordeling, delegering, instruks, ikrafttredelse og regulering. Vedtaket fra 2004 har seks av dem: oppretting, navneendring, nedleggelse, omorganisering, overføring eller ressortfordeling, og delegering. Typene er satt maskinelt, med kunnskapsstatus normalisering.</p>
           <p>Typene gjør det mulig å velge kilder. Sveipene som leter etter nye aktører og begreper i hele korpuset, hopper som standard over kilder som bare setter noe i kraft, og rene endringsvedtak. De kan tas med når noen ber om det. En kilde uten type tas alltid med.</p>
+          <!-- [ENDRET, nettside-2026-11-27, 2026-11-27] Sveipeutvalget leser vedtaksformen fra #446 PR 2 (PR #513, docs/33 §5.22). -->
+          <p>Fra 26. november avgjøres det av <a href="#vedtaksform">vedtaksformen</a>, som er lest ledd for ledd, og ikke av typen.</p>
         </div>
       </div>
 
@@ -805,7 +817,42 @@
         <p><strong>Hvordan taggen virker sammen med bindingen.</strong> En vurdert tagg for én forekomst går foran bindingen for hele avsnittet. Er bare noen av forekomstene i et avsnitt tagget, er svaret for de andre «flertydig». Ingenting faller da tilbake på en regel for hele rettskilden. Taggene følger teksten når loven lastes på nytt. Kan en tagg ikke flyttes entydig, gjelder den ikke for den nye versjonen.</p>
         <p>I aktørkøen behandles «regjeringen» nå som et generisk ord og står ikke lenger som et ukjent navn.</p>
       </div>
-      <p class="struktur-forbehold"><strong>Forbehold.</strong> Alle taggene er forslag. Ingen er vurdert av et menneske. 14 forekomster i to instrukser er ikke tagget, fordi ingen ansvarlig departement kan eie taggen. De vises som hull, og ingen eier gjettes. Om ordet «statsråd» trenger en sperre som «staten», er ikke avgjort. En juristagent kontrollerte et utvalg på 20 av de 98 regeltaggene i to runder, uten uenighet igjen. Bygget i <a href="https://github.com/FinnurO/regel-ide/issues/486" target="_blank" rel="noopener">#486</a> (<a href="https://github.com/FinnurO/regel-ide/pull/489" target="_blank" rel="noopener">PR #489</a>).</p>
+      <p class="struktur-forbehold"><strong>Forbehold.</strong> Alle taggene er forslag. Ingen er vurdert av et menneske. 14 forekomster i to instrukser er ikke tagget, fordi ingen ansvarlig departement kan eie taggen. De vises som hull, og ingen eier gjettes. <!-- [ENDRET, nettside-2026-11-27, 2026-11-27] Før: «Om ordet «statsråd» trenger en sperre som «staten», er ikke avgjort.» Avgjort 2026-11-25 (docs/33 §5.19.2). -->Ordet «statsråd» har fått en sperre og en lesning for hver forekomst (under). En juristagent kontrollerte et utvalg på 20 av de 98 regeltaggene i to runder, uten uenighet igjen. Bygget i <a href="https://github.com/FinnurO/regel-ide/issues/486" target="_blank" rel="noopener">#486</a> (<a href="https://github.com/FinnurO/regel-ide/pull/489" target="_blank" rel="noopener">PR #489</a>).</p>
+
+      <!-- [Ny, nettside-2026-11-27, 2026-11-27] «statsråd» (Refs #486, PR #510 og #511). Kilder: docs/33 §5.19.2 og §5.19.3, docs/09 §57,
+           PR #511 (juristmålingen). Sitatene fra Grl. § 15 første ledd, § 28 første ledd og § 30 første ledd er kontrollert ordrett mot
+           nodeteksten i den delte basen 2026-11-27 (bare SELECT), og lesningen for hvert eksempel er lest fra navneform_bindinger.
+           Forekomstene per lesning er målt i kopien regelide_statsrad 2026-11-26. At 278 tagger i 39 rettskilder er skrevet i den delte basen
+           26. november, alle maskinelt_foreslatt, er kontrollert 2026-11-27 (bare SELECT). -->
+      <div class="prose struktur-etter-tabell" id="statsrad">
+        <h3>«statsråd»: rollen, organet eller Kongen i statsråd?</h3>
+        <p>Ordet «statsråd» betyr tre ting: rollen statsråd, organet statsrådet og møtet der Kongen i statsråd tar beslutninger. Grunnloven § 15 første ledd bruker både rollen og organet i samme setning:</p>
+      </div>
+      <blockquote class="quote-block struktur-merk">Enhver som er medlem av statsrådet, har plikt til å innlevere sin avskjedssøknad etter at Stortinget har fattet beslutning om mistillit til vedkommende statsråd alene eller til det samlede statsråd.<cite><a href="https://lovdata.no/dokument/NL/lov/1814-05-17/§15" target="_blank" rel="noopener">Grunnloven § 15 første ledd</a></cite></blockquote>
+      <div class="prose struktur-etter-tabell">
+        <p>«medlem av statsrådet» og «det samlede statsråd» er organet. «vedkommende statsråd» er rollen.</p>
+        <p><strong>Først en sperre.</strong> «statsråd» kobles ikke til rollen når det står «i» rett foran («Kongen i statsråd», «behandling i statsråd»), når ordet står om møtet («hvert statsråd»), når det står i intetkjønn («det samlede statsråd», «sitt statsråd»), eller i tekst fra en konvensjon. «i statsrådet» og «utenfor statsrådet» kobles ikke til organet, fordi det er møtet. Sperren gir ingen kobling, aldri en feil kobling. En sperret forekomst går til aktørkøen, så et menneske avgjør.</p>
+        <p><strong>Så en lesning for hver forekomst.</strong> Faste regler for ordlyden gir hver forekomst en tagg, som for «regjeringen». Forekomstene i navnet «Kongen i statsråd» og i rene endringsvedtak (se <a href="#vedtaksform">vedtaksform</a>) tagges ikke.</p>
+      </div>
+      <div class="table-scroll">
+        <table class="ds-table struktur-tabell">
+          <thead>
+            <tr><th scope="col">Lesning</th><th scope="col">Eksempel fra lovteksten</th><th scope="col">Kunnskapsstatus</th><th scope="col">Forekomster</th></tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">Rollen statsråd</th><td>«vedkommende statsråd» (Grunnloven § 15 første ledd), en tittel foran et navn, «statsrådene»</td><td>Tekstfunn</td><td>179</td></tr>
+            <tr><th scope="row">Organet statsrådet</th><td>«medlem av statsrådet» og «det samlede statsråd» (Grunnloven § 15 første ledd)</td><td>Tekstfunn. «det samlede» og «sitt» er fortolkning, med Grunnloven § 12 første ledd</td><td>56</td></tr>
+            <tr><th scope="row">Kongen i statsråd</th><td>«unntas fra behandling i statsråd» (<a href="https://lovdata.no/dokument/NL/lov/1814-05-17/§28" target="_blank" rel="noopener">Grunnloven § 28 første ledd</a>)</td><td>Fortolkning, med Grunnloven § 28 første ledd</td><td>11</td></tr>
+            <tr><th scope="row">Ikke en aktør</th><td>Tittelen på en lov eller forskrift om pensjonsordning for statsråder</td><td>Tekstfunn</td><td>9</td></tr>
+            <tr><th scope="row">Stat i en konvensjon</th><td>Tekst fra en konvensjon</td><td>Fortolkning</td><td>1</td></tr>
+            <tr><th scope="row">Alt annet: slutning</th><td>«I statsrådet føres protokoll …» (<a href="https://lovdata.no/dokument/NL/lov/1814-05-17/§30" target="_blank" rel="noopener">Grunnloven § 30 første ledd</a>): møtet</td><td>Uavklart</td><td>24</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="prose struktur-etter-tabell">
+        <p>Forekomstene er talt i en kopi av databasen 26. november 2026. Samme dag ble 278 tagger i 39 rettskilder skrevet i den delte databasen. 2 forekomster står i vedtak der ingen ansvarlig departement kan eie taggen. De vises som hull, og ingen eier gjettes, som for «regjeringen».</p>
+      </div>
+      <p class="struktur-forbehold"><strong>Forbehold.</strong> Alle taggene er forslag. Ingen er vurdert av et menneske. En juristagent kontrollerte 20 forekomster i to runder, før skrivingen 26. november. Lesningen var riktig i alle 20, og ingen uenighet står igjen. Bygget i <a href="https://github.com/FinnurO/regel-ide/issues/486" target="_blank" rel="noopener">#486</a> (<a href="https://github.com/FinnurO/regel-ide/pull/510" target="_blank" rel="noopener">PR #510</a> og <a href="https://github.com/FinnurO/regel-ide/pull/511" target="_blank" rel="noopener">PR #511</a>).</p>
     </div>
   </section>
 
@@ -938,7 +985,73 @@
         <p>Vedtaket om å delegere myndighet etter konkurranseloven og pristiltaksloven til Konkurransetilsynet (FOR-1993-12-17-1314) har hjemmel både i konkurranseloven fra 1993 og i pristiltaksloven. Konkurranseloven fra 1993 er opphevet. Det betyr likevel ikke at vedtaket har falt bort. Konkurranseloven fra 2004 opphever den gamle loven i § 48, men viderefører i § 49 det som er gitt i medhold av den, «så langt de passer».</p>
         <p>I DigRett står hjemmelen i 1993-loven derfor som videreført, med overgangsregelen som bevis. Statusen er fortolkning, fordi «så langt de passer» må tolkes. Hjemmelen i pristiltaksloven er aktiv.</p>
       </div>
-      <p class="struktur-forbehold"><strong>Forbehold.</strong> Statusen er beregnet for hjemlene i korpuset og vises på rettskildesiden i appen. Forskrifter der hjemmelen er opphevet og ingen videreføring er funnet, blir funn til vurdering. De publiseres først når det er avklart hvilke kunngjorte vedtak som bare endrer andre (<a href="https://github.com/FinnurO/regel-ide/issues/446" target="_blank" rel="noopener">#446</a>), og en jurist har målt hvor presis regelen er. Bygget i <a href="https://github.com/FinnurO/regel-ide/issues/472" target="_blank" rel="noopener">#472</a> (<a href="https://github.com/FinnurO/regel-ide/pull/484" target="_blank" rel="noopener">PR #484</a>).</p>
+      <!-- [Ny, nettside-2026-11-27, 2026-11-27] Funnet og presisjonen (#472 PR 2, 4 og 5: PR #492, #500 og #506). Kilder: docs/33 §5.21
+           (målingene 1, 2, 3 og 3b, avgjørelsene 2026-11-24 og 2026-11-25), docs/09 §58 og kommentaren i #472 2026-11-24. Ingen antall funn
+           publiseres som sikre tall (prosjekteierens avgjørelse); «flere hundre» er kontrollert mot den delte basen 2026-11-27 (bare SELECT). -->
+      <div class="prose struktur-etter-tabell">
+        <h3>Funnet «Hjemmel opphevet, videreføring ikke funnet»</h3>
+        <p>Står en forskrift på en hjemmel som er opphevet, og er ingen videreføring funnet, blir det et funn til vurdering. Funnet er en lesning av premissene, ikke en påstand om at forskriften er opphevet. Lovdata viser forskriften som gjeldende, og at videreføringen ikke er funnet, betyr ikke at den ikke finnes.</p>
+        <p>Funnet har en undertype, med de samme ordene som statusen for hele forskriften: hjemmelen er opphevet, blandede hjemler (minst én faller og minst én bærer), uavklart, videreføringen er utløpt, eller gjenstandsløs (det er gjenstanden og ikke hjemmelen som er opphevet).</p>
+        <p><strong>Premissporten «Ny hjemmel».</strong> Kan forskriften stå på en ny hjemmel som gir samme kompetanse? Det avgjør en jurist. Til det er vurdert, kalles funnet aldri «mulig bortfalt», heller ikke på rettskildesiden i appen. Det som mangler, står synlig på funnet, for eksempel at korpuset bare har vedtaket slik det ble kunngjort i Norsk Lovtidend, så gjeldende status ikke er kontrollert.</p>
+        <h3>Hvor presis er regelen?</h3>
+        <p>En juristagent har kontrollert utvalg av funnene. Presisjonen er andelen funn som var riktige, med usikkerheten i parentes.</p>
+        <ul>
+          <li><strong>Måling 1 (24. november):</strong> 11 av 19 riktige, 0,58 (0,36–0,77). Den største feilkilden var vedtak som korpuset bare har slik de ble kunngjort, men som Lovdata viser som opphevet. Regelen ble rettet.</li>
+          <li><strong>Måling 2 (24. november, etter rettingene):</strong> 15 av 20 riktige, 0,75 (0,53–0,89). Én av feilene var at videreføringen ikke ble lest når overgangsregelen bruker lovens kortnavn, som «viltloven».</li>
+          <li><strong>Måling 3 (25. november, etter regelen om lovens kortnavn):</strong> målt på 15 funn som regelen endret, og 8 kontrollfunn. Prosjekteieren avgjorde samme dag at en overgangsregel som ikke nevner typen vedtak, ikke alene holder forskriften oppe. Statusen blir da uavklart. Etter det var 19 av 23 riktige, 0,83 (0,63–0,93). De nye funnene avgjørelsen ga, ble målt for seg: 11 av 16 riktige, 0,69 (0,44–0,86).</li>
+        </ul>
+        <p>Ingen uenighet med juristagenten står igjen etter noen av målingene.</p>
+      </div>
+      <!-- [ENDRET, nettside-2026-11-27, 2026-11-27] Før: «De publiseres først når det er avklart hvilke kunngjorte vedtak som bare endrer andre
+           (#446), og en jurist har målt hvor presis regelen er.» #446 er flettet 26. november, og presisjonen er målt (over). -->
+      <p class="struktur-forbehold"><strong>Forbehold.</strong> Statusen er beregnet for hjemlene i korpuset og vises på rettskildesiden i appen. Det er flere hundre funn til vurdering (27. november 2026), og ingen av dem er publisert. Hvert funn må vurderes av en jurist, også «Ny hjemmel», og godkjennes før det kan publiseres. Vedtak som bare endrer andre, er skilt ut 26. november (se <a href="#vedtaksform">vedtaksform</a>). Bygget i <a href="https://github.com/FinnurO/regel-ide/issues/472" target="_blank" rel="noopener">#472</a> (<a href="https://github.com/FinnurO/regel-ide/pull/484" target="_blank" rel="noopener">PR #484</a>, <a href="https://github.com/FinnurO/regel-ide/pull/492" target="_blank" rel="noopener">PR #492</a>, <a href="https://github.com/FinnurO/regel-ide/pull/500" target="_blank" rel="noopener">PR #500</a> og <a href="https://github.com/FinnurO/regel-ide/pull/506" target="_blank" rel="noopener">PR #506</a>).</p>
+    </div>
+  </section>
+
+  <!-- [Ny, nettside-2026-11-27, 2026-11-27] Vedtaksformen (#446, PR #512 og #513). Kilder: docs/33 §5.22 og kommentaren i #446 2026-11-26.
+       Antallet per klasse er kontrollert i den delte basen 2026-11-27 (bare SELECT, rettskilder.vedtaksform). Sitatet og klassen for
+       DEL/forskrift/1999-06-25-711 er lest fra vedtaksform_grunnlag i den delte basen samme dag. -->
+  <section class="section" id="vedtaksform">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Vedtaksform</span>
+        <h2>Endrer vedtaket bare andre vedtak?</h2>
+        <p>Mange vedtak gjør ikke noe selv. De endrer en annen lov eller forskrift, setter den i kraft eller opphever den. Når et slikt vedtak er i kraft, er virkningen brukt opp: innholdet står i dokumentet det endret. Et slikt vedtak skal ikke gi funn, og teksten det siterer fra et annet dokument, skal ikke leses som om den var vedtakets egen.</p>
+      </div>
+      <div class="prose">
+        <h3>Lest ledd for ledd</h3>
+        <p>Før ble det avgjort av tittelen og hodet på vedtaket alene. Nå leses teksten setning for setning, og hver del får én rolle: en endringsinstruks («§ 3 skal lyde:»), sitert tekst, ikrafttredelse, oppheving av et annet dokument eller eget innhold. En overgangsregel, en delegering eller «kan gi forskrift» er eget innhold. Et rent vedtak må også ha en tittel som sier at det endrer, opphever eller setter i kraft.</p>
+      </div>
+      <div class="table-scroll">
+        <table class="ds-table struktur-tabell">
+          <thead>
+            <tr><th scope="col">Vedtaksform</th><th scope="col">Hva det betyr</th><th scope="col">Rettskilder</th></tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">Rent endringsvedtak</th><td>Endrer andre dokumenter og har ikke eget innhold</td><td>389</td></tr>
+            <tr><th scope="row">Rent ikrafttredelsesvedtak</th><td>Setter andre i kraft og har ikke eget innhold</td><td>25</td></tr>
+            <tr><th scope="row">Rent opphevingsvedtak</th><td>Opphever andre dokumenter og har ikke eget innhold</td><td>52</td></tr>
+            <tr><th scope="row">Blandet</th><td>Tittelen sier endring, oppheving eller ikrafttredelse, men minst ett ledd har eget innhold</td><td>329</td></tr>
+            <tr><th scope="row">Selvstendig</th><td>Har eget innhold, og tittelen sier ikke endring, oppheving eller ikrafttredelse</td><td>5&nbsp;826</td></tr>
+            <tr><th scope="row">Ukjent</th><td>Teksten mangler, eller teksten og tittelen spriker</td><td>59</td></tr>
+            <tr><th scope="row">I alt</th><td>Gjeldende lover og forskrifter i korpuset, 26. november 2026</td><td>6&nbsp;680</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="prose struktur-etter-tabell">
+        <p><strong>Eksempel på et blandet vedtak.</strong> Forskrift om ikrafttredelse av og overgangsregler til revisorloven fra 1999 har en tittel som sier ikrafttredelse. Men § 1 andre ledd har eget innhold:</p>
+      </div>
+      <blockquote class="quote-block struktur-merk">Revisorloven kapittel 4 og 5 gjelder ikke for revisors revisjon av årsregnskap for regnskapsåret 1998.<cite>DEL/forskrift/1999-06-25-711 § 1 andre ledd</cite></blockquote>
+      <div class="prose struktur-etter-tabell">
+        <p>Vedtaket er derfor blandet, ikke et rent ikrafttredelsesvedtak. Tittelen alene ville gitt feil svar.</p>
+        <h3>Hva vedtaksformen brukes til</h3>
+        <ul>
+          <li><strong>Hjemmelsstatus:</strong> et rent vedtak som er i kraft, gir ikke funn om opphevet hjemmel. Er det ukjent om vedtaket er i kraft, gir det funn, med en premissmangel (se <a href="#hjemmelsstatus">hjemmelsstatus</a>).</li>
+          <li><strong>Funn om utgåtte aktører:</strong> sitert endringstekst og endringsinstrukser hoppes over i vedtak som er i kraft. Et navn i en sitert tekst er et annet dokuments tekst.</li>
+          <li><strong>Sveipene og taggingen:</strong> sveipene som leter etter nye aktører og begreper, og taggingen av <a href="#statsrad">«statsråd»</a>, hopper over rene vedtak.</li>
+        </ul>
+      </div>
+      <p class="struktur-forbehold"><strong>Forbehold.</strong> Vedtaksformen er satt maskinelt, med kunnskapsstatus normalisering, og ingen er vurdert av et menneske. En juristagent kontrollerte 45 nye rene vedtak før skrivingen 26. november: 44 av 45 var riktige (usikkerhet 0,88–1,00). Prosjekteieren krevde en nedre grense på minst 0,85 før noe ble skrevet i den delte databasen. Hver for seg er utvalgene for rene ikrafttredelses- og opphevingsvedtak for små til å nå kravet. Om et vedtak er i kraft, leses foreløpig ikke av fotnotene. Bygget i <a href="https://github.com/FinnurO/regel-ide/issues/446" target="_blank" rel="noopener">#446</a> (<a href="https://github.com/FinnurO/regel-ide/pull/512" target="_blank" rel="noopener">PR #512</a> og <a href="https://github.com/FinnurO/regel-ide/pull/513" target="_blank" rel="noopener">PR #513</a>).</p>
     </div>
   </section>
 
@@ -951,7 +1064,7 @@
         <p>Når modellen finner noe som ser galt ut, for eksempel at en forskrift fortsatt bruker navnet på en aktør som er lagt ned, blir det et funn til vurdering. Et funn er en observasjon, ikke en påstand om at loven er feil. En jurist prøver først å forklare det bort. Bare funn som ikke lar seg forklare bort, og som er godkjent for publisering, blir publisert.</p>
       </div>
       <div class="prose">
-        <p>Metoden, presisjonsmålingene og de publiserte funnene står på <a href="../funn/">Funn til vurdering</a>. Hvor mange funn som venter, står i <a href="#status">status</a>. Funn om forskrifter der hjemmelen er opphevet, kommer først etter <a href="https://github.com/FinnurO/regel-ide/issues/446" target="_blank" rel="noopener">#446</a> (se <a href="#hjemmelsstatus">hjemmelsstatus</a>).</p>
+        <p>Metoden, presisjonsmålingene og de publiserte funnene står på <a href="../funn/">Funn til vurdering</a>. Hvor mange funn som venter, står i <a href="#status">status</a>. <!-- [ENDRET, nettside-2026-11-27, 2026-11-27] Før: «Funn om forskrifter der hjemmelen er opphevet, kommer først etter #446». #446 er flettet 26. november. -->Funn om forskrifter der hjemmelen er opphevet, er til vurdering, og ingen av dem er publisert ennå (se <a href="#hjemmelsstatus">hjemmelsstatus</a>).</p>
       </div>
     </div>
   </section>
@@ -1009,7 +1122,9 @@
     </div>
   </section>
 
-  <section class="section">
+  <!-- [ENDRET, nettside-2026-11-27, 2026-11-27] Ankeret #avgrensning er nytt (forsiden lenker hit), og punktet om varig ID for ledd og punkt
+       er lagt til. Kilde: docs/35 (kortversjonen og §2.1–2.2), PR #507, og rettingen i docs/profil/04 §2 2026-11-25. Byggesaken er #509. -->
+  <section class="section" id="avgrensning">
     <div class="wrap">
       <div class="section-head">
         <span class="kicker">Avgrensning</span>
@@ -1017,6 +1132,7 @@
       </div>
       <div class="prose">
         <ul>
+          <li><strong>En varig ID for et ledd eller punkt.</strong> Adressen DigRett gir et ledd eller punkt (eId), bygges av paragrafnummeret og rekkefølgen i teksten. Den gjelder bare i én lagret versjon og er ikke en varig ID. Settes et punkt inn, får punktene etter det ny adresse. Taggene flyttes etter sitatet når loven lastes på nytt, men ingen kobling flyttes til et ledd som har fått ny adresse. Det er undersøkt i <a href="https://github.com/FinnurO/regel-ide/blob/master/docs/35-varig-elementidentitet-og-punkter.md" target="_blank" rel="noopener">docs/35</a> (25. november 2026), og mappingnotatet i <a href="../profil/">profilforslaget</a> er rettet. En varig ID er en egen sak (<a href="https://github.com/FinnurO/regel-ide/issues/509" target="_blank" rel="noopener">#509</a>).</li>
           <li><strong>Plikter og rettigheter for innbyggere og virksomheter, vilkår, unntak og saksbehandling.</strong> Det er neste lag, som bygger på dette. Pliktene mellom forvaltningens parter er med, men vilkårene og unntakene for dem hører til det laget.</li>
           <li><strong>Klasser som avgjøres av en regel</strong>, for eksempel «organ med tjenestekrets i forvaltningsområdet». Modellen lagrer kriteriet, men avgjør ikke selv hvem som er med. Unntaket er kommune og fylkeskommune: der regnes medlemmene ut fra områdene (se «Hvem er med i en klasse?» over).</li>
           <li><strong>Opplysninger som bare står utenfor lovtekstene</strong>, som helseregionene i vedtektene og statsforvalternes embetsområder i en kongelig resolusjon. De legges inn med kilden oppgitt.</li>
@@ -1033,15 +1149,22 @@
        domstolinndelingen 467 godkjent 2026-10-16; fasiten 350 faglig_vurdert; funn 625 oppdaget (622 utgatt_aktor, 3 uklarhet_hull),
        78 forklart_bort, 1 godkjent_for_publisering; hjemmelsstatus 25 011 rader i 5 649 rettskilder (beregnet 2026-11-20), 1 205 ukjent,
        0 funn om hjemler. Antallet navn i køen (188) regnes ut i API-et og er målt i en kopi 2026-11-20 (docs/33 §5.19.1), ikke i den delte
-       basen. Avgjørelsen 2026-11-20 står fast: ingen funn og ingen antall forskrifter med opphevet hjemmel publiseres før #446. -->
+       basen. Avgjørelsen 2026-11-20 står fast: ingen funn og ingen antall forskrifter med opphevet hjemmel publiseres før #446.
+       [ENDRET, nettside-2026-11-27, 2026-11-27] Kontrollert på nytt mot den delte basen 2026-11-27, bare med SELECT: navnekandidater
+       uendret (1 211 Venter, 54 Godkjent, 4 Avvist); strukturkanter uendret siden 2026-11-20 (siste opprettet 2026-11-20, siste endret
+       2026-11-06), så domstolinndelingen, fasiten (350 faglig_vurdert), pilotkildene og ressortkantene står som før; ingen nye virksomheter
+       siden 23. november. Nytt: forekomstbindinger med lesning 532, alle maskinelt_foreslatt: 254 for «regjeringen» og 278 for «statsråd»
+       (opprettet 2026-11-26, 39 rettskilder). Hjemmelsstatus 25 011 rader i 5 649 rettskilder, sist beregnet 2026-11-26, 1 255 ukjent.
+       Vedtaksform satt for 6 680 rettskilder (2026-11-26). Funn: utgatt_aktor 592 oppdaget og 114 forklart_bort; uklarhet_hull 3 oppdaget;
+       1 godkjent_for_publisering; hjemmel_opphevet bare som «flere hundre» og ingen publisert (prosjekteierens avgjørelse: ikke sikre tall). -->
   <section class="section" id="status">
     <div class="wrap">
       <div class="section-head">
         <span class="kicker">Status</span>
-        <h2>Status per 23. november 2026</h2>
+        <h2>Status per 27. november 2026</h2>
       </div>
       <div class="prose">
-        <p><strong>Bygget og i bruk:</strong> typene og koblingene, med kunnskapsstatus og godkjenning for hvert utsagn. Områderegisteret med fylker, kommuner, domstolinndelingen, statsforvalternes embetsområder og helseregionene. Standardreglene for «kommunen», «statsforvalteren», «fylkeskommunen» og «departementet», og ordsperren for «staten». Klassene kommune, fylkeskommune og departement. Norge, staten og statsrådet, og en lesning for hver forekomst av «regjeringen». Aktørkøen og aktørsiden. Hjemmelsstatus for forskriftene. Funn til vurdering.</p>
+        <p><strong>Bygget og i bruk:</strong> typene og koblingene, med kunnskapsstatus og godkjenning for hvert utsagn. Områderegisteret med fylker, kommuner, domstolinndelingen, statsforvalternes embetsområder og helseregionene. Standardreglene for «kommunen», «statsforvalteren», «fylkeskommunen» og «departementet», og ordsperren for «staten», «statsråd» og «statsrådet». Klassene kommune, fylkeskommune og departement. Norge, staten og statsrådet, og en lesning for hver forekomst av «regjeringen» og «statsråd». Aktørkøen og aktørsiden. Hjemmelsstatus for forskriftene, med funnet «Hjemmel opphevet, videreføring ikke funnet». Vedtaksformen for lover og forskrifter. Funn til vurdering.</p>
         <p><strong>Godkjent av et menneske:</strong> domstolinndelingen, 467 koblinger fra kommune til lagdømme og lagmannsrett (16. oktober 2026).</p>
         <p><strong>Lastet, men ikke vurdert av et menneske:</strong></p>
         <ul>
@@ -1049,9 +1172,10 @@
           <li><strong>Aktørkøen:</strong> 1&nbsp;211 navnekandidater venter, og ingen er behandlet siden oktober. Ingen av navnene er opprettet i den delte databasen. Samlet blir det 188 navn, målt i en kopi av databasen 20. november, etter «regjeringen».</li>
           <li><strong>Piloten på barnehageloven:</strong> ingen forslag er godkjent (<a href="https://github.com/FinnurO/regel-ide/issues/375" target="_blank" rel="noopener">#375</a>).</li>
           <li><strong>Ressortkantene:</strong> 1&nbsp;125 forslag fra departementenes livsløp venter, og 58 er avvist som dubletter. Ingen er godkjent, så ressortfordelingen gir ennå ingen svar for «departementet».</li>
-          <li><strong>Norge, staten og statsrådet:</strong> alle utsagnene er forslag. Det samme gjelder de 254 taggene for «regjeringen» i 95 rettskilder.</li>
-          <li><strong>Hjemmelsstatus:</strong> 25&nbsp;011 hjemler i 5&nbsp;649 rettskilder har fått en status (20. november). 1&nbsp;205 av dem står som ukjent, fordi beviset ikke er funnet. Ingen funn om opphevede hjemler er publisert (<a href="https://github.com/FinnurO/regel-ide/issues/446" target="_blank" rel="noopener">#446</a>).</li>
-          <li><strong>Funn:</strong> 625 funn venter på vurdering, og 622 av dem er maskinfunn om aktører som er utgått. 78 er forklart bort, og 1 er publisert.</li>
+          <li><strong>Norge, staten og statsrådet:</strong> alle utsagnene er forslag. Det samme gjelder de 254 taggene for «regjeringen» i 95 rettskilder, og de 278 taggene for «statsråd» i 39 rettskilder (skrevet 26. november).</li>
+          <li><strong>Hjemmelsstatus:</strong> 25&nbsp;011 hjemler i 5&nbsp;649 rettskilder har fått en status, sist beregnet 26. november. 1&nbsp;255 av dem står som ukjent, fordi beviset ikke er funnet.</li>
+          <li><strong>Vedtaksform:</strong> 6&nbsp;680 rettskilder har fått en vedtaksform (26. november). Den er satt maskinelt og kontrollert av en juristagent på et utvalg, ikke av et menneske.</li>
+          <li><strong>Funn:</strong> 592 maskinfunn om aktører som er utgått, og 3 andre funn, venter på vurdering (27. november). 114 funn om utgåtte aktører er forklart bort. I tillegg er det flere hundre funn om opphevet hjemmel til vurdering, og ingen av dem er publisert. 1 funn er publisert.</li>
         </ul>
         <p><strong>Neste steg:</strong> godkjenne navnene i aktørkøen, slik at pilotens utsagn får en aktør (<a href="https://github.com/FinnurO/regel-ide/issues/440" target="_blank" rel="noopener">#440</a>, <a href="https://github.com/FinnurO/regel-ide/issues/424" target="_blank" rel="noopener">#424</a>). Gå gjennom pilotforslagene og måle presisjon og gjenfinning (<a href="https://github.com/FinnurO/regel-ide/issues/375" target="_blank" rel="noopener">#375</a>). Laste resten av fasiten (<a href="https://github.com/FinnurO/regel-ide/issues/487" target="_blank" rel="noopener">#487</a>), kontrollere den (<a href="https://github.com/FinnurO/regel-ide/issues/309" target="_blank" rel="noopener">#309</a>) og føre beviset (<a href="https://github.com/FinnurO/regel-ide/issues/315" target="_blank" rel="noopener">#315</a>). Navn på områder og Oslo (<a href="https://github.com/FinnurO/regel-ide/issues/464" target="_blank" rel="noopener">#464</a>).</p>
         <p>Beviset er at de fem lovene ligger i modellen, og at <a href="#formalet">spørsmålene modellen skal kunne svare på</a>, besvares fra dataene med lenke til paragrafen. Fasiten kontrolleres av et menneske før tallene låses.</p>
@@ -1075,6 +1199,12 @@
       </div>
       <div class="prose">
         <ul class="nyhet-liste">
+          <!-- [ENDRET, nettside-2026-11-27, 2026-11-27] Fem linjer for 24.–26. november. Datoene er flettedatoene i git log for origin/master. -->
+          <li><strong>26. november:</strong> <a href="#statsrad">«statsråd»</a>: en sperre og en lesning for hver forekomst (<a href="https://github.com/FinnurO/regel-ide/issues/486" target="_blank" rel="noopener">#486</a>, <a href="https://github.com/FinnurO/regel-ide/pull/510" target="_blank" rel="noopener">PR #510</a>, <a href="https://github.com/FinnurO/regel-ide/pull/511" target="_blank" rel="noopener">PR #511</a>).</li>
+          <li><strong>26. november:</strong> <a href="#vedtaksform">vedtaksformen</a>, lest ledd for ledd. Rene endrings-, ikrafttredelses- og opphevingsvedtak gir ikke funn (<a href="https://github.com/FinnurO/regel-ide/issues/446" target="_blank" rel="noopener">#446</a>, <a href="https://github.com/FinnurO/regel-ide/pull/512" target="_blank" rel="noopener">PR #512</a>, <a href="https://github.com/FinnurO/regel-ide/pull/513" target="_blank" rel="noopener">PR #513</a>).</li>
+          <li><strong>26. november:</strong> <a href="#hjemmelsstatus">hjemmelsstatus</a> leser videreføringen også når overgangsregelen bruker lovens kortnavn (<a href="https://github.com/FinnurO/regel-ide/issues/501" target="_blank" rel="noopener">#501</a>, <a href="https://github.com/FinnurO/regel-ide/pull/506" target="_blank" rel="noopener">PR #506</a>).</li>
+          <li><strong>25. november:</strong> <a href="#avgrensning">varig ID for ledd og punkt</a> undersøkt: vår eId er en adresse i én versjon. Mappingnotatet er rettet (<a href="https://github.com/FinnurO/regel-ide/issues/495" target="_blank" rel="noopener">#495</a>, <a href="https://github.com/FinnurO/regel-ide/pull/507" target="_blank" rel="noopener">PR #507</a>).</li>
+          <li><strong>24. november:</strong> funnet <a href="#hjemmelsstatus">«Hjemmel opphevet, videreføring ikke funnet»</a> med undertyper og premissporten «Ny hjemmel», og rettingene etter første måling (<a href="https://github.com/FinnurO/regel-ide/issues/472" target="_blank" rel="noopener">#472</a>, <a href="https://github.com/FinnurO/regel-ide/pull/492" target="_blank" rel="noopener">PR #492</a>, <a href="https://github.com/FinnurO/regel-ide/pull/500" target="_blank" rel="noopener">PR #500</a>).</li>
           <li><strong>20. november:</strong> <a href="#regjeringen">«regjeringen»</a>: statsrådet som organ, rollen statsråd og en lesning for hver forekomst (<a href="https://github.com/FinnurO/regel-ide/issues/486" target="_blank" rel="noopener">#486</a>, <a href="https://github.com/FinnurO/regel-ide/pull/489" target="_blank" rel="noopener">PR #489</a>).</li>
           <li><strong>20. november:</strong> <a href="#hjemmelsstatus">hjemmelsstatus</a> for hver hjemmel (<a href="https://github.com/FinnurO/regel-ide/issues/472" target="_blank" rel="noopener">#472</a>, <a href="https://github.com/FinnurO/regel-ide/pull/484" target="_blank" rel="noopener">PR #484</a>).</li>
           <li><strong>20. november:</strong> <a href="#norge-og-staten">Norge, staten og nivåene</a>, med <a href="#ordsperren">ordsperren</a> for «staten» (<a href="https://github.com/FinnurO/regel-ide/issues/463" target="_blank" rel="noopener">#463</a>, <a href="https://github.com/FinnurO/regel-ide/pull/480" target="_blank" rel="noopener">PR #480</a>).</li>
@@ -1102,7 +1232,7 @@
       <div class="section-head">
         <span class="kicker">Historikk</span>
         <h2>Slik sto det da det ble skrevet</h2>
-        <p>Her står rapporter, debatter og tall slik de ble publisert. De endres ikke i etterkant. Det som gjelder nå, står i referansedelen over og i <a href="#status">status per 23. november 2026</a>.</p>
+        <p>Her står rapporter, debatter og tall slik de ble publisert. De endres ikke i etterkant. Det som gjelder nå, står i referansedelen over og i <a href="#status">status per 27. november 2026</a>.<!-- [ENDRET, nettside-2026-11-27, 2026-11-27] Pekeren følger statusdatoen. --></p>
       </div>
     </div>
   </section>
@@ -1113,7 +1243,7 @@
         <span class="kicker">Historikk · Arbeidsmåten <span class="pill" data-tone="neutral">Historisk · 9. oktober 2026</span></span>
         <h2>En juristagent utfordrer, og mennesket ser bare reell uenighet</h2>
         <p>Modellen er testet mot en fasit: fem lover der hvert utsagn om hvem som gjør hva, er skrevet ned med sitat og lenke til leddet. Fasiten er laget av KI-agenter. Hvert sitat er sjekket mot teksten, men tolkningen må kontrolleres. Spørsmålet er hvordan et menneske kan kontrollere over 1&nbsp;800 utsagn uten å drukne.</p>
-        <p class="struktur-forbehold"><strong>Status nå:</strong> metoden er i bruk og beskrevet under <a href="#konvertering">konverteringen</a>. Se <a href="#status">status per 23. november 2026</a>. Teksten er ordrett fra 9. oktober, bortsett fra at personnavnet er erstattet med rollen «prosjekteieren» (23. november 2026).</p>
+        <p class="struktur-forbehold"><strong>Status nå:</strong> metoden er i bruk og beskrevet under <a href="#konvertering">konverteringen</a>. Se <a href="#status">status per 27. november 2026</a>. Teksten er ordrett fra 9. oktober, bortsett fra at personnavnet er erstattet med rollen «prosjekteieren» (23. november 2026).</p>
       </div>
       <div class="nytt-to-kol">
         <figure class="nytt-figur">
@@ -1205,7 +1335,7 @@
         <span class="kicker">Historikk · Tallene så langt <span class="pill" data-tone="neutral">Historisk · 9. oktober 2026</span></span>
         <h2>Hvor langt vi er kommet</h2>
         <p>Tallene er målt mot fasiten. De endrer seg når fasiten rettes, og er ikke endelige.</p>
-        <p class="struktur-forbehold"><strong>Status nå:</strong> tallene per 16. oktober står under <a href="#testet">testet mot lovene</a>. Se <a href="#status">status per 23. november 2026</a>.</p>
+        <p class="struktur-forbehold"><strong>Status nå:</strong> tallene per 16. oktober står under <a href="#testet">testet mot lovene</a>. Se <a href="#status">status per 27. november 2026</a>.</p>
       </div>
       <div class="stat-row">
         <div class="stat-tile"><span class="n">1&nbsp;809</span><span class="l">utsagn i fasiten for fem lover med tilhørende forskrifter</span></div>
@@ -1228,7 +1358,7 @@
       <div class="section-head">
         <span class="kicker">Historikk · «Ikke gjett» i praksis <span class="pill" data-tone="neutral">Historisk · 9. oktober 2026</span></span>
         <h2>Juristen fant en feil i vår kopi av lovteksten</h2>
-        <p class="struktur-forbehold"><strong>Status nå:</strong> importen er rettet, og <a href="https://github.com/FinnurO/regel-ide/issues/361" target="_blank" rel="noopener">#361</a> står åpen for de to fasitradene. Se <a href="#status">status per 23. november 2026</a>.</p>
+        <p class="struktur-forbehold"><strong>Status nå:</strong> importen er rettet, og <a href="https://github.com/FinnurO/regel-ide/issues/361" target="_blank" rel="noopener">#361</a> står åpen for de to fasitradene. Se <a href="#status">status per 27. november 2026</a>.</p>
       </div>
       <div class="prose">
           <p>I energiloven § 10-2 annet ledd sto det «… samt i Første punktum gjelder likevel …». Listen som skal stå mellom, med avtaleloven, markedsføringsloven og angrerettloven, var borte fra leddteksten. Feilen ble funnet i juristrunden.</p>
@@ -1244,7 +1374,7 @@
         <span class="kicker">Historikk · Etter piloten <span class="pill" data-tone="neutral">Historisk · 31. oktober 2026</span></span>
         <h2>Tre presiseringer fra piloten på barnehageloven</h2>
         <p>Piloten på barnehageloven var første gang modellen ble brukt på en ny lov. Den viste tre steder der modellen eller lasteren måtte bli mer presis. Alle tre er avgjort og bygget. Tallene står på <a href="../pilot-barnehageloven/">pilotsiden</a>.</p>
-        <p class="struktur-forbehold"><strong>Status nå:</strong> de tre presiseringene står under <a href="#nytt-pilot">klassene</a>, <a href="#merknader">koblingene</a> og <a href="#konvertering">konverteringen</a>. Se <a href="#status">status per 23. november 2026</a>.</p>
+        <p class="struktur-forbehold"><strong>Status nå:</strong> de tre presiseringene står under <a href="#nytt-pilot">klassene</a>, <a href="#merknader">koblingene</a> og <a href="#konvertering">konverteringen</a>. Se <a href="#status">status per 27. november 2026</a>.</p>
       </div>
       <div class="prose">
         <p>Alta kommune fikk 97 treff fra pilotkildene 29. oktober, alle merket som forslag.</p>
@@ -1257,7 +1387,7 @@
       <div class="section-head">
         <span class="kicker">Historikk · Aktørkøen i tall <span class="pill" data-tone="neutral">Historisk · 31. oktober–18. november 2026</span></span>
         <h2>Aktørkøen målt fra 31. oktober til 18. november</h2>
-        <p class="struktur-forbehold"><strong>Status nå:</strong> reglene står under <a href="#aktorkoen">aktørkøen</a>. Se <a href="#status">status per 23. november 2026</a>.</p>
+        <p class="struktur-forbehold"><strong>Status nå:</strong> reglene står under <a href="#aktorkoen">aktørkøen</a>. Se <a href="#status">status per 27. november 2026</a>.</p>
       </div>
       <div class="prose">
         <h3>Fra 1&nbsp;211 kandidater til under 200 navn</h3>
@@ -1297,7 +1427,7 @@
       <div class="section-head">
         <span class="kicker">Historikk · Aktørsiden <span class="pill" data-tone="neutral">Historisk · 5. november 2026</span></span>
         <h2>Aktørsiden målt i en testkopi</h2>
-        <p class="struktur-forbehold"><strong>Status nå:</strong> aktørsiden er beskrevet under <a href="#hjemmel-for-aktoren">aktørsiden</a>. Se <a href="#status">status per 23. november 2026</a>.</p>
+        <p class="struktur-forbehold"><strong>Status nå:</strong> aktørsiden er beskrevet under <a href="#hjemmel-for-aktoren">aktørsiden</a>. Se <a href="#status">status per 27. november 2026</a>.</p>
       </div>
       <div class="prose">
         <p>Før sto Kunnskapsdepartementets koblinger i én liste på 449 rader. Nå har hver rettskilde én rad, med antall kompetanser, plikter, oppgaver og andre koblinger, og hvor mange forslag som venter. At Lovdata oppgir departementet som ansvarlig, vises som et merke. Det er en opplysning fra Lovdata, ikke noe lovteksten sier. Alle 65 koblingene telles én gang hver: 50 står i radene og 15 i vedtaket med hjemmelen. For en kommune står det som gjelder via klassen «kommune», for seg, merket som avledet.</p>
@@ -1311,7 +1441,7 @@
       <div class="section-head">
         <span class="kicker">Historikk · Status <span class="pill" data-tone="neutral">Historisk · tidlig oktober 2026</span></span>
         <h2>Status og neste steg, tidlig oktober 2026</h2>
-        <p class="struktur-forbehold"><strong>Status nå:</strong> Se <a href="#status">status per 23. november 2026</a>.</p>
+        <p class="struktur-forbehold"><strong>Status nå:</strong> Se <a href="#status">status per 27. november 2026</a>.</p>
       </div>
       <div class="prose">
         <p class="struktur-forbehold"><strong>Historisk · tidlig oktober 2026.</strong> Slik sto statusen før: Typeinndelingen er på plass, både mønsterkonverteringen og KI-konverteringen er målt, og alle koblingene er samlet i én tabell. Hver kobling har kildetype, og det er merket om kilden er lest i original. Områderegisteret er bygget: alle fylker og kommuner fra Kartverket, tingrettene, lagsognene og lagdømmene fra forskriften, statsforvalternes embetsområder og helseregionene. For en kommune svarer det på hvilket fylke, hvilken tingrett, statsforvalter og hvilket helseforetak den hører til. Plikter mellom partene og ordninger som folketrygden er lagt til. For en kommune viser modellen hvem den har plikt til å samarbeide med eller inngå avtale med. Når loven bare sier «det regionale helseforetaket», viser den klassen og sier tydelig hva som mangler for å finne det konkrete helseforetaket. Avslutning av en stilling speiler nå innsettingen, og ankeinstansen for en tingrett regnes ut gjennom lagsognet og lagdømmet uten å lagres for hvert par. Neste steg er å legge konverteringsresultatet inn som forslag og bruke områdene til å finne riktig motpart når loven sier «statsforvalteren» eller «tingretten». Begge deler er gjort siden (<a href="https://github.com/FinnurO/regel-ide/issues/313" target="_blank" rel="noopener">#313</a>, <a href="https://github.com/FinnurO/regel-ide/issues/394" target="_blank" rel="noopener">#394</a>).</p>
@@ -1350,7 +1480,7 @@
         <li><a href="https://github.com/FinnurO/regel-ide/blob/master/docs/33-strukturmodell-aktor-omrade-kompetanse.md" target="_blank" rel="noopener">Designnotatet (docs/33)</a></li>
       </ul>
     </div>
-    <p class="fine">Hver seksjon sier når tallene er målt, fra 7. oktober til 23. november 2026. Historikken nederst står slik den ble skrevet. Tallene fra fasiten er foreløpige til fasiten er kontrollert (#309).</p>
+    <p class="fine">Hver seksjon sier når tallene er målt, fra 7. oktober til 27. november 2026. Historikken nederst står slik den ble skrevet. Tallene fra fasiten er foreløpige til fasiten er kontrollert (#309).</p>
   </div>
 </footer>
 
