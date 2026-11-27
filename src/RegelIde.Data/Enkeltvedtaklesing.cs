@@ -23,6 +23,7 @@ public sealed record Enkeltvedtaklesning(string Part, string Sitat);
 /// parten også etter tittelen («Tillatelse for Posten Norge BA …», «Lovisenberg diakonale høgskole status som høgskole»).</item>
 /// <item><b>Vedtaket er kort</b> (høyst <see cref="MaksNoder"/> noder med tekst) og har ingen tegn på generelle regler («Formål», «Virkeområde»,
 /// «Denne forskrift gjelder»).</item>
+/// <item><b>Tittelen begynner ikke med «Forskrift»</b> (V05 i måling 4 del 2: TONO-vedtaket har også en generell regel).</item>
 /// <item><b>Parten er ikke et statlig organ</b> («Høgskolen i Molde», «Universitetet i …», «Statens …», «…departementet», «…direktoratet»,
 /// «…tilsynet»). Status og navn for et statlig organ er et organiseringsvedtak (#438), ikke et enkeltvedtak etter fvl. § 2 første ledd bokstav b.</item>
 /// </list>
@@ -60,6 +61,9 @@ public static class Enkeltvedtaklesing
     public static Enkeltvedtaklesning? Les(string tittel, string? kortnavn, IReadOnlyList<string> nodetekster)
     {
         if (nodetekster.Count is 0 or > MaksNoder) return null;
+        // [Ny, juristrunden i måling 4 del 2, V05] En tittel som sier «Forskrift om …», er en forskrift, også når den gir en part en bevilling
+        // («Forskrift om fortsatt bevilling til TONO og NCB …», SF/forskrift/1971-06-25-3800, har også en generell regel om avgiften).
+        if (Regex.IsMatch(tittel, @"^\s*Forskrift(er)?\b", RegexOptions.IgnoreCase)) return null;
         var tekst = Hjemmelstekstlesing.Normaliser(string.Join(" ", nodetekster));
         if (Generell.IsMatch(tekst)) return null;
         foreach (var rx in Operativ)

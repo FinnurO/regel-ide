@@ -661,6 +661,7 @@ public sealed class HjemmelsstatusRegel(RegelIdeDbContext db, IKunngjortTekstkil
         Enkeltvedtaklesning? enkeltvedtak = null)
     {
         string? dekning = null;
+        var dekketSomEnkeltvedtak = false;
         var (kap, par) = Hjemmelstekstlesing.Avgrensning(v.Sitat, mal);
         if (kap.Count + par.Count > 0)
         {
@@ -681,7 +682,14 @@ public sealed class HjemmelsstatusRegel(RegelIdeDbContext db, IKunngjortTekstkil
             // … gjelder til departementet fastsetter noe annet.» (uhl. 2024 § 17-3, N14), «Enkeltvedtak med hjemmel i lov 29. november 1996 nr. 73
             // … skal fortsatt gjelde.» (postloven 2015 § 57 fjerde ledd, N16). «vedtak» alene dekker også enkeltvedtak (fvl. § 2 første ledd
             // bokstav a og b). Regelen kan bare gjøre flere videreføringer dekket: det som var dekket etter prefikset, er fortsatt dekket.
-            if (!dekket && enkeltvedtak is not null && Dokumenttype(f) != "delegering" && typer.Contains("vedtak")) dekket = true;
+            // [ENDRET, juristrunden i måling 4 del 2] Bare ordet «vedtak» eller «enkeltvedtak» (ikke «vedtaksmyndighet»), og dekningen bygger da på
+            // lesingen av vedtakstypen, så kunnskapsstatusen er fortolkning (se under).
+            if (!dekket && enkeltvedtak is not null && Dokumenttype(f) != "delegering"
+                && Regex.IsMatch(v.Sitat, @"\b(enkelt)?vedtak(et|ene|a)?\b", RegexOptions.IgnoreCase))
+            {
+                dekket = true;
+                dekketSomEnkeltvedtak = true;
+            }
             dekning = dekket ? Hjemmelsstatus.Dekket : Hjemmelsstatus.DokumenttypeIkkeNevnt;
         }
         r.VidereforingRettskildeId = v.KildeId;
@@ -694,7 +702,7 @@ public sealed class HjemmelsstatusRegel(RegelIdeDbContext db, IKunngjortTekstkil
         r.VidereforingTidsfrist = Hjemmelstekstlesing.Tidsfrist(v.Sitat);
         r.VidereforingDekning = dekning;
         var ks = v.Form is "V3" or "V4" ? Strukturkanter.Normalisering : v.FraKunngjort ? Strukturkanter.EksterntDokumentert : Strukturkanter.Tekstfunn;
-        if (r.VidereforingForbehold is not null || dekning != Hjemmelsstatus.Dekket) ks = Strukturkanter.Fortolkning;
+        if (r.VidereforingForbehold is not null || dekning != Hjemmelsstatus.Dekket || dekketSomEnkeltvedtak) ks = Strukturkanter.Fortolkning;
         return ks;
     }
 

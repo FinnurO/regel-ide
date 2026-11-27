@@ -43,6 +43,8 @@ public class EnkeltvedtakTests(EmbeddedPostgresFixture fixture)
     [InlineData("Forskrifter om vernepliktige sivilarbeidere.", "Arbeidet utføres ved Dillingøy leir i Moss. Sivilarbeidere gis tillatelse til å bo utenfor leiren.")]
     // Generelle regler, selv om de gir tillatelse (en forskrift med virkeområde).
     [InlineData("Forskrift om tillatelse for Posten Norge BA", "§ 1. Virkeområde. Forskriften gjelder for postsendinger. Posten Norge BA gis tillatelse til å utgi frimerker.")]
+    // En tittel som sier «Forskrift om …» (V05, SF/forskrift/1971-06-25-3800, med en generell regel om avgiften).
+    [InlineData("Forskrift om fortsatt bevilling til TONO og NCB til å drive virksomhet i Norge.", "TONO (Norsk Komponistforenings Internasjonale Musikkbyrå) gis fortsatt bevilling til å drive virksomhet i Norge.")]
     // En instruks uten part og avgjørelse.
     [InlineData("Instruks om grensekontrollstasjoner mv.", "Grensekontrollstasjonene skal føre kontroll med alle forsendelser.")]
     public void Annet_enn_et_enkeltvedtak_til_en_privat_part_er_ikke_et_enkeltvedtak(string tittel, string tekst) =>
@@ -90,6 +92,8 @@ public class EnkeltvedtakTests(EmbeddedPostgresFixture fixture)
         var (samlet, rader) = (await new HjemmelsstatusRegel(db).LesAsync(tillatelse.Id))!.Value;
         var rad = Assert.Single(rader.Values);
         Assert.Equal((Hjemmelsstatus.Viderefort, Hjemmelsstatus.Dekket), (rad.Status, rad.VidereforingDekning));
+        // Dekningen bygger på lesingen av vedtakstypen, så kunnskapsstatusen er fortolkning (juristrunden, V02).
+        Assert.Equal(Strukturkanter.Fortolkning, rad.Kunnskapsstatus);
         Assert.Equal(Hjemmelsstatus.SamletViderefort, samlet.Status);
         var funn = await new HjemmelOpphevetFunnregel(db, new FunnTjeneste(db)).KjorAsync(true, "Test", true, [tillatelse.Id]);
         Assert.Equal(0, funn.Nye);
