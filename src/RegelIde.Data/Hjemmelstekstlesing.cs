@@ -148,8 +148,35 @@ public static class Hjemmelstekstlesing
             utvidet = true;
         }
         if (s is null) return (null, false);
+        // [Ny, #502] En annen setning i samme tekst som avgrenser opphevingen, gjør den delvis (se Begrenset).
+        if (Begrenset(tekst, s)) return (null, false);
         return MalErObjekt(vakt!, m) ? (new Opphevingslesning(s, utvidet), false) : (null, true);
     }
+
+    /// <summary>
+    /// [Ny, #502, prosjekteierens avgjørelse 2026-11-27] <b>En annen setning i samme tekst avgrenser opphevingen.</b> «Fra samme tid oppheves:
+    /// Delegering 18. mars 2010 nr. 425 av myndighet … etter tvisteloven § 2-5. Delegeringen oppheves for saker der stevning er inngitt etter
+    /// 31. desember 2016.» (LTI/forskrift/2016-12-13-1596 kap. II). Den første setningen er hel etter ordlyden, men den neste sier at vedtaket bare
+    /// oppheves for nye saker. Det ble synlig da #502 la «av myndighet» til hvitelisten. Formen er en henvisning tilbake til det som oppheves
+    /// («Delegeringen», «Vedtaket», «Forskriften», «Instruksen», «Resolusjonen») med «oppheves for» eller «gjelder likevel/fortsatt for».
+    /// Opphevingen leses da som delvis, ikke som avvist av vakten.
+    /// <para>[LÅST, #502] Formen «Opphevelsen gis virkning for gaver som ytes 1. januar 2014 eller senere» (lov 13. desember 2013 nr. 110 om
+    /// arveavgiftsloven, M04 og M06 i #472 måling 2) er ikke med. Den hører til #503 («opphevet for nye tilfeller»), som ikke er avgjort, og
+    /// lesingen av den er uendret.</para>
+    /// </summary>
+    public static bool Begrenset(string? tekst, string sitat)
+    {
+        foreach (var s in Setninger(Normaliser(tekst)))
+        {
+            if (s.Trim() != sitat && BegrensningRx.IsMatch(s.Trim())) return true;
+        }
+        return false;
+    }
+
+    private static readonly Regex BegrensningRx = new(
+        @"^(\(\d+\)\s*)?(Delegeringen|Delegasjonen|Vedtaket|Forskriften|Forskrifta|Instruksen|Resolusjonen)\b[^.;]*?"
+        + @"\b(oppheves|blir\s+opphevet|vert\s+oppheva|gjelder\s+(likevel|fortsatt|framleis)|gjeld\s+(likevel|framleis))\s+(bare\s+|kun\s+)?for\b",
+        RegexOptions.CultureInvariant);
 
     /// <summary>
     /// [Ny, #472 PR 3] <b>Opphevingsformelen i noden over</b> (#429 PR 4 (1c), juristrunde 1 S15): slutter forelderen med formelen
@@ -162,7 +189,18 @@ public static class Hjemmelstekstlesing
 
     private static readonly Regex AnnetDokument = new(
         @"\b(forskrift\w*|kgl\.?|kongelig\w*|vedtak\w*|delegering\w*|instruks\w*|resolusjon\w*|henvisning\w*|bestemmelse\w*"
-        + @"|lovbestemmelse\w*|kapit+el|ikrafttred\w*|ikraftsetting\w*|unntak\w*|endring\w*|vedlegg)\b|§", RegexOptions.IgnoreCase);
+        + @"|lovbestemmelse\w*|kapit+el|ikrafttred\w*|ikraftsetting\w*|unntak\w*|endring\w*|vedlegg"
+        // [Ny, #502] Det som oppheves, er noe gitt i medhold av målet: «(1) Tillatelser gitt med hjemmel i forskrift 22. mars 1977 nr. 1 om
+        // eksplosive varer, … oppheves 1. januar 2019.» (SF/forskrift/2017-06-15-844 § 144), «oppheves forskrifter gitt i medhold av lov av 14. juni
+        // 1985 nr. 62» (DEL/forskrift/2002-12-20-1627). Før #502 ble den første avvist bare fordi datoen sto rett etter verbet, og den andre ble
+        // godtatt. «regler» er ikke med: det er dokumenttypen i «oppheves regler 6. januar 1995 nr. 18 om …» (SF/forskrift/2017-08-21-1331).
+        + @"|tillatels\w*|løyve\w*|konsesjon\w*|hjemmel|heimel|medh[oa]ld)\b|§", RegexOptions.IgnoreCase);
+
+    /// <summary>[Ny, #502] Regler eller føresegner «i» målet: «Reglane om røyrleggjarfaget i lov 19. juni 1970 nr. 59 om handverksnæring … blir
+    /// oppheva 1. april 1997.» (DEL/forskrift/1997-03-21-228). Det som oppheves, er en del av målet. Teksten foran målet slutter med «i» og
+    /// eventuelt målets dokumenttype.</summary>
+    private static readonly Regex DelIMalet = new(
+        @"\b(regl\w*|føresegn\w*|bestemmels\w*)\b[^.;:]*?\si\s+((lov|forskrift|kgl\.?\s*res\.?|kongelig\s+resolusjon)\w*\s+)?(av\s+)?$", RegexOptions.IgnoreCase);
 
     /// <summary>
     /// [Ny vakt, #472 fase 1] Målet er det som oppheves, ikke et dokument som nevnes i tittelen til noe annet som oppheves («oppheves forskrift
@@ -190,6 +228,8 @@ public static class Hjemmelstekstlesing
             // Verbet står etter målet: fra setningens start til målet.
             seg = Regex.Replace(s[..mal.Index], @"^(Fra\s+(samme|den)\s+(tid|dag|dato|tidspunkt)[^,]*,?|Samtidig|Fra\s+samme\s+tid)\s*", "");
         }
+        // [Ny, #502] Regler i målet («Reglane om … i lov …»), se DelIMalet.
+        if (DelIMalet.IsMatch(seg)) return false;
         if (MalErObjektPR1(seg)) return true;
         // [Ny, #472 PR 3] De nye formene godtas ikke når et paragrafspenn står etter målet («… nr. 4 om … mv. § 1 til § 9.»,
         // FOR-1978-12-22-4), som PR 1-vakten avviste.
