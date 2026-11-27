@@ -500,8 +500,18 @@ public sealed class RettskildeNodeEntitet
     public required string KildeId { get; set; } // source_id
     public string? OffisiellEli { get; set; } // nullable — §1.2, fylles ut hvis Lovdata publiserer seksjons-ELI
     public Guid? ParentNodeId { get; set; }
-    public required string NodeType { get; set; } // 'kapittel' | 'underinndeling' | 'paragraf' | 'ledd' | 'punkt' | 'avslutning' (#361: tekst etter en punktliste; fri tekst, ingen CHECK)
+    public required string NodeType { get; set; } // 'kapittel' | 'underinndeling' | 'paragraf' | 'ledd' | 'punkt' | 'avslutning' (#361: tekst etter en punktliste) | 'underledd' (#508: nestet ledd i et nummerert ledd); fri tekst, ingen CHECK
+    /// <summary>[ENDRET, issue #508] For Lovdata-noder: den trykte etiketten uten tegnsetting («f», «6», «11a») når <see cref="NummerKilde"/>
+    /// sier at den er trykt, ellers løpenummeret. Før #508 var det alltid løpenummeret.</summary>
     public string? Nummer { get; set; }
+
+    /// <summary>
+    /// [Ny, issue #508, prosjekteierens avgjørelse 2026-11-25] Hvor <see cref="Nummer"/> kommer fra: bokstav, tall, romertall, trykt
+    /// (en trykt etikett), strek eller lopenummer (ikke trykt). Se <see cref="RegelIde.Kildekonvertering.Nummerkilder"/>. Satt for ledd, punkt
+    /// og underledd fra Lovdata. Migrasjonen satte <c>lopenummer</c> på alle eksisterende Lovdata-ledd og -punkt (det var det Nummer var);
+    /// samlekjøringen (#508 PR 3) fyller inn den trykte etiketten med logg (juristrunden J5).
+    /// </summary>
+    public string? NummerKilde { get; set; }
     public string? Overskrift { get; set; }
     public string? Tekst { get; set; } // kun ledd/punkt (bladtekst)
     public string? TekstHash { get; set; }

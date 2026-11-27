@@ -27,6 +27,7 @@ public static class LovdataKonverterer
             Referanser = parsed.Referanser,
             Hjemler = parsed.Hjemler,
             Endringer = parsed.Endringer,
+            Gjennomgang = parsed.Gjennomgang ?? [],
             AknXml = aknXml,
             ImportDato = dato,
             RaaHtml = kildeHtmlUtf8,

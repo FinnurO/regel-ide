@@ -301,7 +301,7 @@ public sealed class UtgattAktorFunnregel(RegelIdeDbContext db, FunnTjeneste funn
     public const string OppdagelsesKilde = "monster:utgatt-aktor";
     public const string NokkelPrefiks = "utgatt-aktor:";
     public const int MinsteTermlengde = 8;
-    private static readonly string[] Bladnoder = ["ledd", "punkt", "avslutning"];
+    private static readonly string[] Bladnoder = ["ledd", "punkt", "avslutning", "underledd"]; // [ENDRET, issue #508] + underledd
 
     /// <summary>[Ny, #429 PR 3, R8] Kildefeiltypen for en kilde som står som gjeldende, men er opphevet av en annen gjeldende kilde i
     /// korpus (LTI-status ikke vedlikeholdt). Fri tekst i <see cref="KildefeilEntitet.Type"/>, som for de andre mekanismene.</summary>

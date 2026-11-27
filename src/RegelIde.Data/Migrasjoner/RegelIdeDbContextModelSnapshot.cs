@@ -3810,6 +3810,10 @@ namespace RegelIde.Data.Migrasjoner
                         .HasColumnType("text")
                         .HasColumnName("nummer");
 
+                    b.Property<string>("NummerKilde")
+                        .HasColumnType("text")
+                        .HasColumnName("nummer_kilde");
+
                     b.Property<string>("OffisiellEli")
                         .HasColumnType("text")
                         .HasColumnName("offisiell_eli");
@@ -3873,6 +3877,8 @@ namespace RegelIde.Data.Migrasjoner
                     b.ToTable("rettskilde_noder", null, t =>
                         {
                             t.HasCheckConstraint("ck_rettskilde_noder_endringsrolle", "endringsrolle IS NULL OR endringsrolle IN ('endringsinstruks', 'sitert_tekst', 'ikrafttredelse', 'oppheving')");
+
+                            t.HasCheckConstraint("ck_rettskilde_noder_nummer_kilde", "nummer_kilde IS NULL OR nummer_kilde IN ('bokstav', 'tall', 'romertall', 'trykt', 'strek', 'lopenummer')");
                         });
                 });
 

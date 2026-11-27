@@ -21,6 +21,30 @@ public enum NodeType
     /// ingen plassholder i leddteksten. Se <see cref="LovdataIdentifikatorer.AvslutningEid"/>.
     /// </summary>
     Avslutning,
+
+    /// <summary>
+    /// [Ny, issue #508, prosjekteierens avgjørelse 2026-11-25 og 2026-11-27] Et nestet <c>&lt;article class="legalP"&gt;</c> direkte i et
+    /// nummerert ledd (<c>numberedLegalP</c>): forordningens «annet ledd» i art. 8 nr. 1 (13-årsgrensen), ferieloven § 5 «nr. 4 annet
+    /// ledd». eId <c>{ledd-eId}/underledd-N</c> med N fra 2: første underledd er leddets egen tekst, så ingen eksisterende eId endres.
+    /// Før #508 ble teksten limt inn i leddet (uten liste foran) eller ble en avslutning (etter en liste, #361). AKN <c>&lt;subparagraph&gt;</c>.
+    /// Se docs/35 §3.3 og docs/08 §1.2.
+    /// </summary>
+    Underledd,
+}
+
+/// <summary>[Ny, issue #508] Lovlige verdier for <see cref="RettskildeNode.NummerKilde"/> (speilet i CHECK-en på rettskilde_noder).</summary>
+public static class Nummerkilder
+{
+    public const string Bokstav = "bokstav";
+    public const string Tall = "tall";
+    public const string Romertall = "romertall";
+    public const string Trykt = "trykt";
+    public const string Strek = "strek";
+    public const string Lopenummer = "lopenummer";
+    public static readonly string[] Alle = [Bokstav, Tall, Romertall, Trykt, Strek, Lopenummer];
+
+    /// <summary>Står nummeret trykt i kilden?</summary>
+    public static bool ErTrykt(string? kilde) => kilde is Bokstav or Tall or Romertall or Trykt;
 }
 
 public static class NodeTypeExtensions
@@ -69,6 +93,21 @@ public sealed record RettskildeNode
     public string? ParentEid { get; init; }
     public required NodeType NodeType { get; init; }
     public string? Nummer { get; init; }
+
+    /// <summary>
+    /// [Ny, issue #508] Hvor <see cref="Nummer"/> kommer fra, for ledd, punkt og underledd (null ellers). En av
+    /// <see cref="Nummerkilder"/>: <c>bokstav</c>, <c>tall</c>, <c>romertall</c> og <c>trykt</c> er en trykt etikett fra kilden
+    /// (<c>&lt;li data-name&gt;</c>, <c>data-numerator</c>); <c>strek</c> og <c>lopenummer</c> betyr at <see cref="Nummer"/> er
+    /// løpenummeret og ikke står trykt. Visningen skal aldri vise et løpenummer som «bokstav» eller «nr.» (juristrunden J4).
+    /// </summary>
+    public string? NummerKilde { get; init; }
+
+    /// <summary>
+    /// [Ny, issue #508, prosjekteierens avgjørelse 2026-11-27: alternativ B] Løpenummeret i forelderen. AKN <c>&lt;num&gt;</c> for ledd og
+    /// punkt skrives fortsatt med det, slik at en kilde der bare <see cref="Nummer"/> endres, ikke får ny AKN og dermed ikke ny versjon
+    /// (738 kilder får ny versjon i stedet for 3 275, docs/35 §8). Den trykte formen lages ved eksport, av <see cref="Nummer"/>.
+    /// </summary>
+    public string? Lopenummer { get; init; }
     public string? Overskrift { get; init; }
 
     /// <summary>Kun for ledd/punkt-noder (bladtekst) — ren tekst, tagger fjernet. Se §2 i teknisk design.</summary>
@@ -261,6 +300,10 @@ public sealed record KonverteringResultat
 
     /// <summary>[Ny, 2026-09-02] Se <see cref="RettskildeEndring"/> — dokumenter DENNE rettskilden endrer.</summary>
     public required IReadOnlyList<RettskildeEndring> Endringer { get; init; }
+
+    /// <summary>[Ny, issue #508] Steder parseren har avgjort etter en regel, men som et menneske bør se (overskriftsunntaket i underledd,
+    /// punktlister i løpende tekst). Lagres ikke; samlekjøringen lister dem.</summary>
+    public IReadOnlyList<Gjennomgangspunkt> Gjennomgang { get; init; } = [];
 
     public required string AknXml { get; init; }
     public required DateOnly ImportDato { get; init; }
