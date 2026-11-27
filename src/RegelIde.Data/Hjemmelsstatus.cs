@@ -18,8 +18,9 @@ public static class Hjemmelsstatus
     /// <summary>Versjonen av regelen. Økes når reglene endres, så en lagret rad viser hvilken regel som satte den.
     /// [ENDRET, #472 PR 4, prosjekteierens avgjørelse 2026-11-24 etter måling 1] Rollen for en forskrift som hjemmel (H15) og endringslovens
     /// egne deler (H18).
-    /// [ENDRET, #502, prosjekteierens avgjørelse 2026-11-27] Flere former for hel oppheving i den delte tekstlesingen.</summary>
-    public const string Regelversjon = "502-2026-11-27";
+    /// [ENDRET, #502, prosjekteierens avgjørelse 2026-11-27] Flere former for hel oppheving i den delte tekstlesingen.
+    /// [ENDRET, #514, prosjekteierens avgjørelse 2026-11-27] Enkeltvedtak som overgangsregelen dekker.</summary>
+    public const string Regelversjon = "514-2026-11-27";
 
     // ---- Rolle (juristrunde 1 R1, godtatt i svaret; runde 2 R1: NULL = ikke vurdert) ----
     /// <summary>Rettsgrunnlaget for innholdet.</summary>

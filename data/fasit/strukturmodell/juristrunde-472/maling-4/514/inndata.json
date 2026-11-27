@@ -1,0 +1,982 @@
+{
+ "sak": "#514 (enkeltvedtak som overgangsregelen dekker), måling 4 del 2",
+ "dato": "2026-11-27",
+ "grunnlag": "Kopien regelide_502 etter kaldkjøringen med #514. Regelen (Enkeltvedtaklesing) leser 5 av de gjeldende primære forskriftene med hjemmel (utenom DEL) som enkeltvedtak. 4 hjemmelsrader går fra «dokumenttype ikke nevnt» til «dekket», og 4 funn forklares bort.",
+ "regelen": "Enkeltvedtak når alle vilkårene holder: (1) innholdet har en operativ setning som gir en navngitt part tillatelse, konsesjon, løyve, dispensasjon, fritak, godkjenning, samtykke, bevilling, autorisasjon, akkreditering eller status som …; (2) partens første ord står i tittelen eller kortnavnet; (3) vedtaket har høyst 8 noder med tekst og ingen generelle regler (Formål, Virkeområde, «Denne forskrift gjelder»); (4) parten er ikke et statlig organ (Høgskolen i …, Universitetet i …, Statens …, …departementet, …direktoratet, …tilsynet). Da er en videreføring dekket når overgangsregelen nevner enkeltvedtak eller vedtak.",
+ "klasser": {
+  "riktig": "V-kort: vedtaket er et enkeltvedtak rettet mot parten, og dekningen og utfallet (videreført, funnet forklart bort) er riktige. K-kort: vedtaket er ikke et enkeltvedtak som overgangsregelen dekker, så det er riktig at det ikke leses som det.",
+  "feil": "lesingen eller utfallet er feil",
+  "usikker": "kan ikke avgjøres fra kildene"
+ },
+ "feilarsaker": [
+  "vedtakstypen",
+  "dekningen",
+  "populasjonen",
+  "tekstlesingen",
+  "pastanden",
+  "annet"
+ ],
+ "kort": [
+  {
+   "id": "V01",
+   "gjelder": "Lest som enkeltvedtak",
+   "lest_part": "Lovisenberg diakonale høgskole",
+   "forskrift": {
+    "id": "b3911514-116c-4ad8-ab0c-544e6f4bbc24",
+    "dokument_id": "INS/forskrift/2011-06-24-650",
+    "tittel": "Lovisenberg diakonale høgskole status som høgskole",
+    "kortnavn": "Forskrift om høgskolestatus for LDH",
+    "annet_om_dokumentet": "Hjemmel: Fastsatt ved kgl.res. 24. juni 2011 med hjemmel i lov 1. april 2005 nr. 15 om universiteter og høyskoler (universitets- og høyskoleloven) § 1-2 annet ledd. Fremmet av Kunnskapsdepartementet.",
+    "ikrafttredelse": "2011-07-01",
+    "rent_endringsvedtak": false,
+    "innhold": [
+     "Med hjemmel i § 1-2 annet ledd i lov 1. april 2005 nr. 15 om universiteter og høyskoler får Lovisenberg diakonale høgskole med virkning fra 1. juli 2011 status som høgskole med fullmakter etter loven § 3-3 annet ledd."
+    ]
+   },
+   "hjemmelsstatus": [
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2005/04/01/15/nor/§1-2",
+     "rolle": "materiell",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2024-03-08-9",
+     "opphevet_av_sitat": "Samtidig oppheves lov 1. april 2005 nr. 15 om universiteter og høyskoler.",
+     "videreforing_kilde": "NL/lov/2024-03-08-9",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2024/03/08/9/nor/§17-3/ledd-1",
+     "videreforing_form": "V3",
+     "videreforing_dekning": "dekket",
+     "videreforing_sitat": "Forskrifter og enkeltvedtak som er fastsatt med hjemmel i regler som blir opphevet eller endret med denne loven, gjelder til departementet fastsetter noe annet."
+    }
+   ],
+   "funn": [
+    {
+     "status": "forklart_bort",
+     "undertype": "uavklart",
+     "tittel": "Hjemmel opphevet, videreføringen nevner ikke vedtakstypen: Forskrift om høgskolestatus for LDH (FOR-2011-06-24-650)",
+     "beskrivelse": "Lovdata viser «Forskrift om høgskolestatus for LDH» (FOR-2011-06-24-650) som gjeldende. Hjemmelen er opphevet, men videreført av en overgangsregel som ikke nevner denne typen vedtak. Om videreføringen dekker vedtaket, er ikke vurdert, og ingen annen hjemmel som bærer, er vurdert. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-2005-04-01-15 § 1-2 er opphevet, men videreført av LOV-2024-03-08-9 § 17-3 første ledd (rolle materiell, og videreføringen nevner ikke denne typen vedtak, så om den dekker forskriften, er ikke vurdert).",
+     "forklart_bort_begrunnelse": "Forklart bort av maskinregelen monster:hjemmel-opphevet (regelversjon 472-pr5-2026-11-25, #472 PR 4, prosjekteierens avgjørelse 2026-11-24 etter måling 1). Den samlede hjemmelsstatusen er nå «viderefort» (hjemmelsstatus 514-2026-11-27), og den gir ikke funn."
+    }
+   ]
+  },
+  {
+   "id": "V02",
+   "gjelder": "Lest som enkeltvedtak",
+   "lest_part": "Posten Norge BA",
+   "forskrift": {
+    "id": "92f4b05d-0545-4337-b810-02ccd3ecf01d",
+    "dokument_id": "SF/forskrift/2001-08-31-1074",
+    "tittel": "Tillatelse for Posten Norge BA til å utgi og godta bruk av frimerker og andre frankeringsmidler der Norge eller Noreg forekommer.",
+    "kortnavn": "Tillatelse for Posten til å utgi frimerker mv.",
+    "annet_om_dokumentet": "Fastsatt ved kgl.res. 31. august 2001 med hjemmel i lov av 29. november 1996 nr. 73 om formidling av landsdekkende postsendinger (postloven) § 7. Fremmet av Samferdselsdepartementet.",
+    "ikrafttredelse": "2001-10-01",
+    "rent_endringsvedtak": false,
+    "innhold": [
+     "Med hjemmel i lov av 29. november 1996 nr. 73 om formidling av landsdekkende postsendinger (postloven) § 7 meddeles Posten Norge BA tillatelse til å utgi og godta bruk av frimerker og andre frankeringsmidler der Norge eller Noreg forekommer. Tillatelsen trer i kraft 1. oktober 2001 og gjelder inntil videre."
+    ]
+   },
+   "hjemmelsstatus": [
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1996/11/29/73/nor/§7",
+     "rolle": "materiell",
+     "status": "viderefort",
+     "bevistrinn": "E1",
+     "opphevet_av": "NL/lov/2015-09-04-91",
+     "opphevet_av_sitat": "Fra den tid loven trer i kraft oppheves lov 29. november 1996 nr. 73 om formidling av landsdekkende postsendinger.",
+     "videreforing_kilde": "NL/lov/2015-09-04-91",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2015/09/04/91/nor/§57/ledd-4",
+     "videreforing_form": "V1",
+     "videreforing_dekning": "dekket",
+     "videreforing_sitat": "Enkeltvedtak med hjemmel i lov 29. november 1996 nr. 73 om formidling av landsdekkende postsendinger som er i kraft ved denne lovs ikrafttredelse, skal fortsatt gjelde."
+    }
+   ],
+   "funn": [
+    {
+     "status": "forklart_bort",
+     "undertype": "uavklart",
+     "tittel": "Hjemmel opphevet, videreføringen nevner ikke vedtakstypen: Tillatelse for Posten til å utgi frimerker mv. (FOR-2001-08-31-1074)",
+     "beskrivelse": "Lovdata viser «Tillatelse for Posten til å utgi frimerker mv.» (FOR-2001-08-31-1074) som gjeldende. Hjemmelen er opphevet, men videreført av en overgangsregel som ikke nevner denne typen vedtak. Om videreføringen dekker vedtaket, er ikke vurdert, og ingen annen hjemmel som bærer, er vurdert. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1996-11-29-73 § 7 er opphevet, men videreført av LOV-2015-09-04-91 § 57 fjerde ledd (rolle materiell, og videreføringen nevner ikke denne typen vedtak, så om den dekker forskriften, er ikke vurdert).",
+     "forklart_bort_begrunnelse": "Forklart bort av maskinregelen monster:hjemmel-opphevet (regelversjon 472-pr5-2026-11-25, #472 PR 4, prosjekteierens avgjørelse 2026-11-24 etter måling 1). Den samlede hjemmelsstatusen er nå «viderefort» (hjemmelsstatus 514-2026-11-27), og den gir ikke funn."
+    }
+   ]
+  },
+  {
+   "id": "V03",
+   "gjelder": "Lest som enkeltvedtak",
+   "lest_part": "Ansgar Teologiske Høgskole",
+   "forskrift": {
+    "id": "24c57fd9-3920-409f-a5a5-c6654bfaf3ee",
+    "dokument_id": "INS/forskrift/2011-06-24-649",
+    "tittel": "Ansgar Teologiske Høgskole status som høgskole",
+    "kortnavn": "Forskrift om høgskolestatus, Ansgar Teologiske Høgskole",
+    "annet_om_dokumentet": "Hjemmel: Fastsatt ved kgl.res. 24. juni 2011 med hjemmel i lov 1. april 2005 nr. 15 om universiteter og høyskoler (universitets- og høyskoleloven) § 1-2 annet ledd. Fremmet av Kunnskapsdepartementet.",
+    "ikrafttredelse": "2011-07-01",
+    "rent_endringsvedtak": false,
+    "innhold": [
+     "Med hjemmel i § 1-2 annet ledd i lov 1. april 2005 nr. 15 om universiteter og høyskoler får Ansgar Teologiske Høgskole med virkning fra 1. juli 2011 status som høgskole med fullmakter etter loven § 3-3 annet ledd."
+    ]
+   },
+   "hjemmelsstatus": [
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2005/04/01/15/nor/§1-2",
+     "rolle": "materiell",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2024-03-08-9",
+     "opphevet_av_sitat": "Samtidig oppheves lov 1. april 2005 nr. 15 om universiteter og høyskoler.",
+     "videreforing_kilde": "NL/lov/2024-03-08-9",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2024/03/08/9/nor/§17-3/ledd-1",
+     "videreforing_form": "V3",
+     "videreforing_dekning": "dekket",
+     "videreforing_sitat": "Forskrifter og enkeltvedtak som er fastsatt med hjemmel i regler som blir opphevet eller endret med denne loven, gjelder til departementet fastsetter noe annet."
+    }
+   ],
+   "funn": [
+    {
+     "status": "forklart_bort",
+     "undertype": "uavklart",
+     "tittel": "Hjemmel opphevet, videreføringen nevner ikke vedtakstypen: Forskrift om høgskolestatus, Ansgar Teologiske Høgskole (FOR-2011-06-24-649)",
+     "beskrivelse": "Lovdata viser «Forskrift om høgskolestatus, Ansgar Teologiske Høgskole» (FOR-2011-06-24-649) som gjeldende. Hjemmelen er opphevet, men videreført av en overgangsregel som ikke nevner denne typen vedtak. Om videreføringen dekker vedtaket, er ikke vurdert, og ingen annen hjemmel som bærer, er vurdert. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-2005-04-01-15 § 1-2 er opphevet, men videreført av LOV-2024-03-08-9 § 17-3 første ledd (rolle materiell, og videreføringen nevner ikke denne typen vedtak, så om den dekker forskriften, er ikke vurdert).",
+     "forklart_bort_begrunnelse": "Forklart bort av maskinregelen monster:hjemmel-opphevet (regelversjon 472-pr5-2026-11-25, #472 PR 4, prosjekteierens avgjørelse 2026-11-24 etter måling 1). Den samlede hjemmelsstatusen er nå «viderefort» (hjemmelsstatus 514-2026-11-27), og den gir ikke funn."
+    }
+   ]
+  },
+  {
+   "id": "V04",
+   "gjelder": "Lest som enkeltvedtak",
+   "lest_part": "Norsk Lærerakademi Bachelor- og masterstudier",
+   "forskrift": {
+    "id": "79abe818-cbcc-4858-8859-3a56a246ca8e",
+    "dokument_id": "INS/forskrift/2007-03-16-304",
+    "tittel": "Vedtak om godkjenning av Norsk Lærerakademi Bachelor- og masterstudier som høyskole.",
+    "kortnavn": "Vedtak om godkjenning av NLA BM som høyskole",
+    "annet_om_dokumentet": "Fastsatt ved kgl.res. 16. mars 2007 med hjemmel i lov 1. april 2005 nr. 15 om universiteter og høyskoler § 1-2. Fremmet av Kunnskapsdepartementet.",
+    "ikrafttredelse": "2007-04-01",
+    "rent_endringsvedtak": false,
+    "innhold": [
+     "Med hjemmel i § 1-2 i lov 1. april 2005 nr. 15 om universiteter og høyskoler fastsettes det at Norsk Lærerakademi Bachelor- og masterstudier med virkning fra 1. april 2007 godkjennes som høyskole med de rettigheter det medfører."
+    ]
+   },
+   "hjemmelsstatus": [
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2005/04/01/15/nor/§1-2",
+     "rolle": "materiell",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2024-03-08-9",
+     "opphevet_av_sitat": "Samtidig oppheves lov 1. april 2005 nr. 15 om universiteter og høyskoler.",
+     "videreforing_kilde": "NL/lov/2024-03-08-9",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2024/03/08/9/nor/§17-3/ledd-1",
+     "videreforing_form": "V3",
+     "videreforing_dekning": "dekket",
+     "videreforing_sitat": "Forskrifter og enkeltvedtak som er fastsatt med hjemmel i regler som blir opphevet eller endret med denne loven, gjelder til departementet fastsetter noe annet."
+    }
+   ],
+   "funn": [
+    {
+     "status": "forklart_bort",
+     "undertype": "uavklart",
+     "tittel": "Hjemmel opphevet, videreføringen nevner ikke vedtakstypen: Vedtak om godkjenning av NLA BM som høyskole (FOR-2007-03-16-304)",
+     "beskrivelse": "Lovdata viser «Vedtak om godkjenning av NLA BM som høyskole» (FOR-2007-03-16-304) som gjeldende. Hjemmelen er opphevet, men videreført av en overgangsregel som ikke nevner denne typen vedtak. Om videreføringen dekker vedtaket, er ikke vurdert, og ingen annen hjemmel som bærer, er vurdert. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-2005-04-01-15 § 1-2 er opphevet, men videreført av LOV-2024-03-08-9 § 17-3 første ledd (rolle materiell, og videreføringen nevner ikke denne typen vedtak, så om den dekker forskriften, er ikke vurdert).",
+     "forklart_bort_begrunnelse": "Forklart bort av maskinregelen monster:hjemmel-opphevet (regelversjon 472-pr5-2026-11-25, #472 PR 4, prosjekteierens avgjørelse 2026-11-24 etter måling 1). Den samlede hjemmelsstatusen er nå «viderefort» (hjemmelsstatus 514-2026-11-27), og den gir ikke funn."
+    }
+   ]
+  },
+  {
+   "id": "V05",
+   "gjelder": "Lest som enkeltvedtak",
+   "lest_part": "TONO (Norsk Komponistforenings Internasjonale Musikkbyrå) fortsatt",
+   "forskrift": {
+    "id": "308d833e-c88a-4dd6-b8b6-219cf243bc83",
+    "dokument_id": "SF/forskrift/1971-06-25-3800",
+    "tittel": "Forskrift om fortsatt bevilling til TONO og NCB til å drive virksomhet i Norge.",
+    "kortnavn": "Forsk. om bevilling til TONO og NCB",
+    "annet_om_dokumentet": "Hjemmel: Fastsatt i henhold til § 3 i lov av 9. april 1965 om avgift til Det norske komponistfond. (Ved res. av 22. desember 1989 nr. 1273 er ansvaret for denne forskrift lagt til Kirke- og kulturdepartementet, nå Kultur- og kirkedepartementet).\nEndret ved forskrift 25 mars 2002 nr. 376.",
+    "ikrafttredelse": "1971-04-01",
+    "rent_endringsvedtak": false,
+    "innhold": [
+     "I henhold til § 3 i lov av 9. april 1965 om avgift til Det norske komponistfond, meddeles TONO (Norsk Komponistforenings Internasjonale Musikkbyrå) fortsatt bevilling til å drive virksomhet i Norge som mellommann ved oppkreving av vederlag til opphavsmenn for lydfesting og offentlig framføring av musikkverk.",
+     "På tilsvarende måte meddeles NCB (Nordisk Copyright Bureau) bevilling til å drive virksomhet som mellommann for lydfesting av musikkverk.",
+     "Bevilling gjelder for et tidsrom av ti år med virkning fra 1. april 1971.",
+     "Kultur- og kirkedepartementet bemyndiges til for framtiden å utøve den bevillingsmyndighet som er bestemt i lovens § 3.",
+     "I samsvar med lovens § 3, første ledd, fastsettes avgiftens maksimumsstørrelse fra 1. april inntil videre til fem prosent av de avgiftspliktiges bruttoomsetning."
+    ]
+   },
+   "hjemmelsstatus": [
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1965/04/09/1/nor/§3",
+     "status": "aktiv"
+    }
+   ],
+   "funn": []
+  },
+  {
+   "id": "K01",
+   "gjelder": "Ikke lest som enkeltvedtak (kontroll)",
+   "forskrift": {
+    "id": "2721346f-557d-456d-bed9-eceab447bef1",
+    "dokument_id": "INS/forskrift/1992-12-11-1266",
+    "tittel": "Vedtekter for Norsk Tipping AS",
+    "kortnavn": null,
+    "annet_om_dokumentet": "Hjemmel: Fastsatt ved kgl.res. 11. desember 1992 med hjemmel i lov av 28. august 1992 nr. 103 om pengespill m.v. § 3 tredje ledd. Fremmet av Kulturdepartementet.\nTilføyd hjemmel: Delegeringsvedtak 5. april 2013 nr. 342.\nEndret ved vedtak 8 april 2005 nr. 303, 16 mars 2007 nr. 303 (vedtektene gjengitt i sin helhet etter endringer), 9 april 2013 nr. 460, 23 april 2015 nr. 517, 6 april 2017 nr. 471, 2 april 2019 nr. 647, 20 april 2021 nr. 1312, 4 mars 2022 nr. 396, 25 nov 2022 nr. 2256 (i kraft 1 jan 2023, vedtektene gitt på nytt i sin helhet).",
+    "ikrafttredelse": "1993-09-20",
+    "rent_endringsvedtak": false,
+    "innhold": [
+     "Selskapets navn er Norsk Tipping AS. Staten eier alle aksjene i selskapet.",
+     "Aksjeloven gjelder for Norsk Tipping AS med unntak av bestemmelsene angitt i pengespilloven § 11 fjerde ledd.",
+     "Selskapet har sitt forretningskontor i Hamar kommune.",
+     "Selskapets formål er å legge til rette for et ansvarlig pengespilltilbud og å forebygge negative konsekvenser av pengespill i samsvar med pengespilloven. Innenfor disse rammene skal selskapet drive effektivt, slik at mest mulig av inntektene fra selskapets pengespill går til formålene nevnt i pengespilloven § 12.",
+     "Selskapets virksomhet skal være knyttet til å tilby pengespill rettet mot det norske markedet.",
+     "Beslutning om iverksettelse av annen virksomhet skal tas i generalforsamling. Virksomhet som drives indirekte gjennom datterselskaper skal ligge innenfor den vedtektsfestede virksomheten til Norsk Tipping AS.",
+     "Aksjekapitalen i selskapet skal være kr 150.000 fordelt på 3 aksjer, hver pålydende kr 50.000.",
+     "Ordinær generalforsamling avholdes hvert år innen utgangen av april måned.",
+     "Generalforsamling avholdes i Oslo kommune eller i Hamar kommune. Den som representerer selskapets aksjer er møteleder.",
+     "På den ordinære generalforsamlingen skal følgende saker behandles:",
+     "Selskapets årsberetning og årsregnskap, med uavhengig revisors beretning.",
+     "Lotteritilsynets rapport om ansvarlig spill og kanalisering i Norsk Tipping.",
+     "Norsk Tippings rapport om effektiv drift.",
+     "Andre saker som etter lov eller vedtekter hører under generalforsamlingen.",
+     "Styret skal forelegge for generalforsamlingen, ordinær eller ekstraordinær, alle saker som antas å være av vesentlig, prinsipiell, politisk eller samfunnsmessig betydning.",
+     "Selskapet skal følge allmennaksjeloven § 6-16a retningslinjer om fastsettelse av lønn og annen godtgjørelse til ledende personer i noterte selskaper, § 6-16b rapport om lønn og annen godtgjørelse til ledende personer i noterte selskaper og forskrift om retningslinjer og rapport om godtgjørelse for ledende personer. Retningslinjer i samsvar med asal. § 6-16a og forskriften skal legges frem for godkjennelse for ordinær generalforsamling. Retningslinjene skal også inneholde en redegjørelse om hvordan «Statens retningslinjer for lederlønn i selskaper med statlig eierandel» er fulgt opp i selskapets eventuelle heleide datterselskaper. Lønnsrapport i samsvar med asal. § 6-16b og forskriften skal senest legges frem for ordinær generalforsamling fra og med 2023.",
+     "Selskapets styre skal ha minst fem medlemmer oppnevnt av generalforsamlingen i tillegg til antall styremedlemmer med varamedlemmer som skal velges av og blant de ansatte i samsvar med aksjeloven § 6-4 med tilhørende forskrift.",
+     "Selskapets firma tegnes av to styremedlemmer i fellesskap.",
+     "Administrerende direktør har selskapets prokura. Styret kan gi prokura til andre ansatte, men bare slik at prokura tegnes av to i fellesskap (fellesprokura).",
+     "Selskapets overskuddslikviditet skal plasseres med lav risiko. Fri likviditet utover 2,5 % av netto spillinntekter foregående år skal overføres til selskapets konto i Norges Bank hver måned. Selskapet kan i unntakstilfeller, og etter forutgående samtykke fra departementet, beholde fri likviditet utover 2,5 % av netto spillinntekter hos sin egen private bankforbindelse."
+    ]
+   },
+   "hjemmelsstatus": [
+    {
+     "hjemmel": "https://lovdata.no/eli/forskrift/2013/04/05/342/nor",
+     "rolle": "kompetanseledd",
+     "status": "aktiv"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1992/08/28/103/nor/§3",
+     "rolle": "materiell",
+     "status": "viderefort",
+     "bevistrinn": "E1",
+     "opphevet_av": "NL/lov/2022-03-18-12",
+     "opphevet_av_sitat": "Fra samme tid oppheves følgende lover: lov 28. august 1992 nr. 103 om pengespill m.v.",
+     "videreforing_kilde": "NL/lov/2022-03-18-12",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2022/03/18/12/nor/§38/ledd-2",
+     "videreforing_form": "V3",
+     "videreforing_dekning": "dokumenttype_ikke_nevnt",
+     "videreforing_sitat": "Forskrifter fastsatt med hjemmel i lovene nevnt i første ledd gjelder også etter at denne loven trer i kraft."
+    }
+   ],
+   "funn": [
+    {
+     "status": "oppdaget",
+     "undertype": "uavklart",
+     "tittel": "Hjemmel opphevet, videreføringen nevner ikke vedtakstypen: Vedtekter for Norsk Tipping AS (FOR-1992-12-11-1266)",
+     "beskrivelse": "Lovdata viser «Vedtekter for Norsk Tipping AS» (FOR-1992-12-11-1266) som gjeldende. Hjemmelen er opphevet, men videreført av en overgangsregel som ikke nevner denne typen vedtak. Om videreføringen dekker vedtaket, er ikke vurdert, og ingen annen hjemmel som bærer, er vurdert. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1992-08-28-103 § 3 er opphevet, men videreført av LOV-2022-03-18-12 § 38 andre ledd (rolle materiell, og videreføringen nevner ikke denne typen vedtak, så om den dekker forskriften, er ikke vurdert)."
+    }
+   ]
+  },
+  {
+   "id": "K02",
+   "gjelder": "Ikke lest som enkeltvedtak (kontroll)",
+   "forskrift": {
+    "id": "a808d6b8-fa20-4382-861b-909bb9ead7cd",
+    "dokument_id": "INS/forskrift/2000-03-21-285",
+    "tittel": "Instruks for Statskontrollen ved Norsk Tipping AS.",
+    "kortnavn": "Instruks for Statskontrollen ved Norsk Tipping",
+    "annet_om_dokumentet": "Fastsatt av Kulturdepartementet 21. mars 2000 med hjemmel i lov av 28. august 1992 nr. 103 om pengespill m.v. § 14.",
+    "ikrafttredelse": "2000-03-21",
+    "rent_endringsvedtak": false,
+    "innhold": [
+     "Statskontrollens oppnevning",
+     "Kulturdepartementet oppnevner en kontrollkomité ved Norsk Tipping AS, jf. § 14 i lov av 28. august 1992 nr. 103 om pengespill m.v.",
+     "Komitéen benevnes Statskontrollen ved Norsk Tipping AS.",
+     "Statskontrollen skal bestå av det antall medlemmer som departementet til enhver tid bestemmer. Oppnevning skjer normalt for en periode på 4 år. Departementet oppnevner ett av medlemmene som Statskontrollens leder.",
+     "Statskontrollens oppgaver",
+     "Statskontrollen skal ivareta spillernes interesser og føre tilsyn med at spillevirksomheten ved Norsk Tipping AS foregår i samsvar med lovgivningen og spillereglene.",
+     "Statskontrollens forhold til departementet",
+     "Statskontrollen er ansvarlig overfor departementet.",
+     "Statskontrollen skal gi melding til departementet dersom den under sin virksomhet oppdager forhold som det er grunn til å innberette. Ved utgangen av hvert år utarbeides en årsberetning som sendes departementet.",
+     "Statskontrollen foretar de økonomiske disposisjoner som er nødvendig for at kontrollarbeidet skal kunne utføres i henhold til instruksen.",
+     "Statskontrollens forhold til Riksrevisjonen",
+     "Riksrevisjonen har på anmodning adgang til protokoller og til å søke nødvendige opplysninger om forhold knyttet til Riksrevisjonens kontroll med Norsk Tipping AS.",
+     "En representant for Riksrevisjonen har sammen med en representant fra departementet adgang til, ved gjennomsyn av Statskontrollens protokoller, å forvisse seg om at kontrollarbeidet blir utført i overensstemmelse med instruksen.",
+     "Statskontrollens forhold til Norsk Tipping AS",
+     "Statskontrollen skal virke som et kontrollorgan uavhengig av Norsk Tipping AS.",
+     "Statskontrollen kan be Norsk Tipping AS om å få utlevert tilstrekkelig informasjon til at Statskontrollen kan gjennomføre en vurdering av Norsk Tipping AS' sikkerhetssystem i forhold til bestemmelsen i pkt. 2.1. Statskontrollen skal påse at dette systemet ikke svekkes. Ved endring i sikkerhetssystemet skal Norsk Tipping AS på forhånd varsle Statskontrollen, som vurderer hvilke konsekvenser endringen eventuelt vil få for sikkerheten.",
+     "Statskontrollen skal ha eget EDB-basert kontrollsystem. Systemet skal være helt uavhengig av selskapets EDB-system ved at:",
+     "systemet utvikles av Statskontrollen selv, eventuelt med bistand fra sikkerhetsklarert personell som er uavhengig av Norsk Tipping AS",
+     "systemet behandles på Statskontrollens egne dedikerte maskiner i Statskontrollens egne lokaler",
+     "systemet kun betjenes av Statskontrollens eget personell",
+     "brukerstøtte og vedlikehold utføres av firmaer som er uavhengig av Norsk Tipping AS.",
+     "Norsk Tipping AS skal ikke ha adgang til noen deler av Statskontrollens EDB-system.",
+     "Statskontrollen kan i kontrolløyemed forlange de opplysninger av Norsk Tipping AS som anses nødvendig.",
+     "Norsk Tipping AS' administrasjon, regnskap mv. er Statskontrollen uvedkommende.",
+     "Statskontrollen tilsetter, instruerer/administrerer og sier opp eget personale etter de regler som gjelder for Norsk Tipping AS' personale.",
+     "Statskontrollens personale må ikke være i et så nært slektsskap som nevnt i forvaltningsloven § 6, pkt. b og c med noen av Norsk Tipping AS' ansatte, kommisjonærer eller Statskontrollens medlemmer, med mindre departementet i det enkelte tilfelle tillater det. Denne bestemmelse gjelder tilsvarende for Statskontrollens medlemmer. Statskontrollens medlemmer og personale kan ikke samtidig ha funksjoner i Norsk Tipping AS.",
+     "Statskontrollen skal tilpasse seg Norsk Tipping AS' effektiviseringsarbeid, men likevel slik at Statskontrollen sikrer seg mot at selskapets kontrollsystem svekkes.",
+     "Statskontrollens protokoller skal være tilgjengelige for Norsk Tipping AS' styre og administrerende direktør i Norsk Tipping AS.",
+     "Statskontrollens utgifter",
+     "Godtgjørelsen til Statskontrollens medlemmer fastsettes av departementet.",
+     "Alle utgifter knyttet til Statskontrollens virksomhet dekkes av Norsk Tipping AS.",
+     "Statskontrollens regninger skal attesteres av Statskontrollens leder og anvises av Norsk Tipping AS.",
+     "Statskontrollens protokoller",
+     "Statskontrollen skal føre protokoll for hvert spill. Protokollen skal inneholde fortegnelse over når de enkelte arbeider er påbegynt og avsluttet, hvilke av Statskontrollens medlemmer som har vært til stede, eventuelle dissenser og andre nødvendige spesifikasjoner om arbeidet.",
+     "Hovedretningslinjer for Statskontrollens arbeid",
+     "Statskontrollen mottar all avtalt og relevant informasjon, herunder datamateriale, om hvert spill for hver spilleomgang fra Norsk Tipping AS, jf. spillereglene for hvert enkelt spill. Informasjon oversendes straks det er mulig og etter avtalt prosedyre, slik at Statskontrollens kontrollaktiviteter kan gjennomføres på en betryggende måte. Datamaterialet oppbevares innelåst i Statskontrollens hvelv til protestfristen er ute. Statskontrollens kontroll av vinnerutvelgelse og premieberegninger foretas ved hjelp av et eget uavhengig EDB-program og sammenlignes med Norsk Tipping AS' vinnerutvelgelse og premieberegninger før utbetaling finner sted. Eventuelle avvik skal fremlegges for Norsk Tipping AS så snart de foreligger og korrigeres så snart som mulig.",
+     "For spill som krever umiddelbar utbetaling av premie eller hvor vinnerutvelgelsen/spillet er av en slik art at det ikke er mulig å avvente en godkjennelse av resultatet, skal resultatet kontrolleres i ettertid. Spillesystemer som er beskrevet i foregående avsnitt skal være godkjent av Statskontrollen før Norsk Tipping AS gjør spillet operativt.",
+     "Innføring av nye spill og vesentlige endringer i eksisterende spill",
+     "ved utvikling av nye spill eller ved endringer i eksisterende spill skal Norsk Tipping AS på et tidlig tidspunkt informere om hvilke sikkerhets- og kontrollmekanismer som er lagt inn i spillet, jf. pkt. 8.2, 2. avsnitt",
+     "Statskontrollen skal vurdere de kontroll- og sikkerhetsmessige konsekvensene i henhold til pkt. 2.1. Eventuelle kommentarer til det systemet som velges, skal oversendes Norsk Tipping AS for innarbeidelse før nytt spill eller endringer i eksisterende spill lanseres",
+     "Statskontrollen skal vurdere behovet for endringer i egne kontrollsystemer og se til at nødvendige endringer blir etablert så tidlig at Statskontrollen kan delta i systemtester før nytt spill eller endringer i eksisterende spill innføres.",
+     "Statskontrollen som ankeinstans",
+     "mottatte protester behandles av Norsk Tipping AS",
+     "hvis Norsk Tipping AS' avgjørelse ikke tas til følge av spilleren, skal saken forelegges Statskontrollen for avgjørelse.",
+     "I sitt kontrollarbeid skal Statskontrollen iaktta følgende:",
+     "Statskontrollens arbeidslokaler skal bare disponeres av Statskontrollens personale og medlemmer",
+     "alt sensitivt materiale skal så lenge det er i Statskontrollens besittelse, oppbevares på betryggende måte",
+     "Statskontrollen skal hindre at uvedkommende får adgang til spilledata som Statskontrollen har i sin besittelse. Datamateriale skal oppbevares på en sikkerhetsmessig forsvarlig måte etter nærmere retningslinjer fra Statskontrollen",
+     "kontrollarbeidet skal innrettes med sikte på å oppnå størst mulig sikkerhet",
+     "minst to av Statskontrollens medlemmer skal foreta de viktigste kontrollene, samt behandle saker hvor det må tas avgjørelser av prinsippiell karakter. Statskontrollen skal kontrollere at alle trekninger foregår på en sikkerhetsmessig forsvarlig måte, og at de er korrekte",
+     "data, informasjon, materiell og annen dokumentasjon som er en forutsetning for gjennomføring av trekninger, skal oppbevares på en slik måte at verken Statskontrollens medlemmer eller ansatte ved Norsk Tipping AS på egenhånd behandler dette.",
+     "Statskontrollens hvelv",
+     "Statskontrollens hvelv skal være låst såvel med nøkkel som med kombinasjonslås. Statskontrollen fastsetter sikkerhetsmessig forsvarlig prosedyre for åpning og lukking av hvelvene. Nøklene oppbevares i egen nøkkelsafe. Kodene til safe og hvelv skal skiftes når Statskontrollens leder bestemmer det.",
+     "Ansatte ved Norsk Tipping AS har bare adgang til Statskontrollens hvelv sammen med to personer fra Statskontrollen, hvor den ene skal være medlem av Statskontrollen.",
+     "Iverksetting av instruksen",
+     "Instruksen trer i kraft straks."
+    ]
+   },
+   "hjemmelsstatus": [
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1992/08/28/103/nor/§14",
+     "rolle": "materiell",
+     "status": "viderefort",
+     "bevistrinn": "E1",
+     "opphevet_av": "NL/lov/2022-03-18-12",
+     "opphevet_av_sitat": "Fra samme tid oppheves følgende lover: lov 28. august 1992 nr. 103 om pengespill m.v.",
+     "videreforing_kilde": "NL/lov/2022-03-18-12",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2022/03/18/12/nor/§38/ledd-2",
+     "videreforing_form": "V3",
+     "videreforing_dekning": "dokumenttype_ikke_nevnt",
+     "videreforing_sitat": "Forskrifter fastsatt med hjemmel i lovene nevnt i første ledd gjelder også etter at denne loven trer i kraft."
+    }
+   ],
+   "funn": [
+    {
+     "status": "oppdaget",
+     "undertype": "uavklart",
+     "tittel": "Hjemmel opphevet, videreføringen nevner ikke vedtakstypen: Instruks for Statskontrollen ved Norsk Tipping (FOR-2000-03-21-285)",
+     "beskrivelse": "Lovdata viser «Instruks for Statskontrollen ved Norsk Tipping» (FOR-2000-03-21-285) som gjeldende. Hjemmelen er opphevet, men videreført av en overgangsregel som ikke nevner denne typen vedtak. Om videreføringen dekker vedtaket, er ikke vurdert, og ingen annen hjemmel som bærer, er vurdert. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1992-08-28-103 § 14 er opphevet, men videreført av LOV-2022-03-18-12 § 38 andre ledd (rolle materiell, og videreføringen nevner ikke denne typen vedtak, så om den dekker forskriften, er ikke vurdert)."
+    }
+   ]
+  },
+  {
+   "id": "K03",
+   "gjelder": "Ikke lest som enkeltvedtak (kontroll)",
+   "forskrift": {
+    "id": "d0335940-c0f2-45c7-bb1d-d4533a45d880",
+    "dokument_id": "INS/forskrift/2001-02-01-1702",
+    "tittel": "Instruks til Statens dyrehelsetilsyn – distriktsveterinæren om tilsyn og kontroll ved innførsel og utførsel av levende dyr, annet avlsmateriale, animalsk avfall og produkter av animalsk opprinnelse innen EØS.",
+    "kortnavn": "Instruks om kontroll av dyr m.v. fra EØS",
+    "annet_om_dokumentet": "Fastsatt av Statens dyrehelsetilsyn – Sentralforvaltningen 1. februar 2001 med hjemmel i lov av 8. juni 1962 nr. 4 om dyrehelse (husdyrloven), jf. forskrift av 31. desember 1998 nr. 1484 om tilsyn og kontroll ved innførsel og utførsel av levende dyr, annet avlsmateriale, animalsk avfall og produkter av animalsk opprinnelse innen EØS, og ved innførsel av levende dyr fra land utenfor EØS.\nEØS-henvisninger: Jf. EØS-avtalen vedlegg I kap. I (direktiv 90/425/EØF, vedtak 94/338/EF, vedtak 94/339/EF og direktiv 89/662/EØF).\nEndret ved vedtak 18 mai 2003 nr. 688.",
+    "ikrafttredelse": "2001-02-01",
+    "rent_endringsvedtak": false,
+    "innhold": [
+     "Formålet med denne instruksen er å sikre tilsyn og kontroll ved innførsel og utførsel av levende dyr, annet avlsmateriale, animalsk avfall og produkter av animalsk opprinnelse.",
+     "Instruksen gjelder tilsyn og kontroll ved innførsel og utførsel av levende dyr, annet avlsmateriale, animalsk avfall og produkter av animalsk opprinnelse innen EØS, slik at dyrehelsemessige og avlsmessige vilkår er oppfylt, jf. forskrift av 31. desember 1998 nr. 1484 og forskrift av 23. desember 1998 nr. 1471.",
+     "I denne instruks forstås med:",
+     "produkter av animalsk opprinnelse; produkter som helt eller delvis stammer fra dyr eller bier, som ikke er næringsmidler, og som er omfattet av særskilt forskrift.",
+     "forsendelse; en mengde levende dyr, annet avlsmateriale, animalsk avfall eller produkter av animalsk opprinnelse, som sendes med samme transportmiddel, med samme rute og bestemmelsessted, og som dekkes av samme helsesertifikat eller annen pålagt dokumentasjon.",
+     "Instruksen gjelder ikke for tilsyn og kontroll ved innførsel og utførsel av:",
+     "kjæledyr i følge med eier eller under ansvar av en privatperson, når innførselen eller utførselen ikke er gjenstand for kommersiell handel.",
+     "levende skjell og skalldyr beregnet til konsum.",
+     "produkter til privat bruk i egen husholdning.",
+     "produkter av animalsk opprinnelse til konsum.",
+     "Statens dyrehelsetilsyn – distriktsveterinæren skal under utøvelsen av kontrollen sørge for at det tas nødvendige smittehygieniske hensyn.",
+     "Instruksen trer i kraft straks og opphever instruks av 11. februar 2000 om tilsyn og kontroll ved innførsel og utførsel av levende dyr, annet avlmateriale og animalsk avfall innen EØS.",
+     "Ved utførsel av levende dyr, annet avlsmateriale, animalsk avfall og produkter av animalsk opprinnelse til et land i EØS skal Statens dyrehelsetilsyn – distriktsveterinæren kontrollere at:",
+     "de krav som stilles i særskilte forskrifter om dyrehelsemessige betingelser for innførsel og utførsel, forskrift av 31. desember 1998 nr. 1484 og forskrift av 23. desember 1998 nr. 1471 er oppfylt.",
+     "de dyrehelsemessige krav som mottakerlandet stiller er oppfylt dersom den aktuelle forsendelsen består av arter/varer som ikke omfattes av EØS-regelverk.",
+     "forsendelsen kommer fra dyrehold som oppfyller eventuelle tilleggskrav som stilles i mottakerlandet på grunnlag av tilleggsgarantier/fristatus som er innvilget.",
+     "forsendelsen er merket slik at den kan identifiseres i henhold til gjeldende bestemmelser og at virksomheten/dyreholdet er registrert slik at opprinnelsen kan spores.",
+     "forsendelsen ikke stammer fra dyrehold eller områder som er pålagt restriksjoner.",
+     "forsendelsen ikke stammer fra dyrehold som kan bli nedslaktet i forbindelse med program for sjukdomsbekjempelse.",
+     "forsendelser som ikke kan omsettes i Norge av dyrehelsemessige årsaker ikke uføres til andre land i EØS.",
+     "forsendelsen følges av gyldig helsesertifikat eller handelsdokument og/eller annen nødvendig dokumentasjon. Dersom forsendelsen skal sendes til flere ulike bestemmelsessteder, skal den deles opp i like mange delforsendelser som det er bestemmelsessteder. Hver enkelt delforsendelse skal følges av nevnte dokumentasjon.",
+     "forsendelser som ikke oppfyller eller ikke omfattes av EØS-regelverk og som skal utføres til et land utenfor EØS gjennom et annet land i EØS, bare utføres dersom de enkelte land i EØS har gitt sin godkjennelse.",
+     "transport av forsendelsen skjer i henhold til bestemmelser om hygiene.",
+     "Utøvelse av kontrollen på avsenderstedet skal utføres like grundig som om forsendelsen skulle gå til eget marked.",
+     "Når det foreligger mistanke om at vilkår for utførsel ikke er oppfylt, skal Statens dyrehelsetilsyn – distriktsveterinæren foreta nødvendige undersøkelser. Dersom mistanken bekreftes, skal distriktsveterinæren treffe nødvendige tiltak, herunder isolering av aktuelt dyrehold/aktuell virksomhet.",
+     "Når helsesertifikat er utstedt og dyr/produkt er klarert for utførsel skal det samme dag sendes ANIMO-melding til offentlig veterinær på mottakerstedet. Meldingen skal sendes via Statens dyrehelsetilsyn – fylkesveterinæren på skjema utarbeidet av Statens dyrehelsetilsyn – Sentralforvaltningen.",
+     "På dyrenes eller produktenes bestemmelsessted og på midlertidige oppsamlingssteder skal Statens dyrehelsetilsyn – distriktsveterinæren foreta stikkprøvekontroll for å undersøke om vilkårene slik de er nedfelt i kapittel II, er oppfylt.",
+     "Stikkprøvekontroll omfatter kontroll med at:",
+     "forsendelsen følges av gyldig helsesertifikat eller handelsdokument og/eller annen pålagt dokumentasjon.",
+     "ved tilfelle av avlasting underveis skal det, når det gjelder produkter, i tillegg påses at det er de originale dokumenter som følger forsendelsen videre, jf. de krav som stilles i særskilte forskrifter om dyrehelsemessige betingelser for innførsel og utførsel. Det skal være samsvar mellom dokumentasjonen og forsendelsen.",
+     "forsendelsen er forskriftsmessig merket.",
+     "levende dyr ikke viser tegn til smittsom sjukdom.",
+     "transporten ikke representerer fare for smittespredning og at krav til transport av levende dyr er oppfylt.",
+     "Statens dyrehelsetilsyn – distriktsveterinæren kan ved stikkprøvekontroll ta ut de prøver som vurderes som nødvendige. Prøvene skal analyseres ved Veterinærinstituttet. Det skal tas ut dobbelt sett med prøver. Ett sett skal analyseres. Det andre settet skal merkes og oppbevares hos Statens dyrehelsetilsyn – distriktsveterinæren i minimum en måned. Prøvene skal tas ut så raskt som mulig og senest to dager etter innførsel. Dersom forsendelsen skal sendes videre, gjelder ytterligere to dagers frist etter ankomst bestemmelsessted. Denne fristen gjelder ikke ved prøveuttak som blir foretatt ved mistanke om uregelmessigheter.",
+     "Statens dyrehelsetilsyn – distriktsveterinæren skal foreta kontroll av produktene under transport når veterinærmyndigheten i transitt- eller bestemmelseslandet har opplysninger som gir grunnlag for mistanke om uregelmessigheter.",
+     "Dersom forsendelsen ikke tilfredsstiller gjeldende krav til dokumentasjon eller helsestatus, eller det påvises sykdom eller smitte som tilsier at innførsel ikke kan skje, eller forsendelsen ikke oppfyller krav i henhold til særskilte forskrifter, kan Statens dyrehelsetilsyn – distriktsveterinæren etter først å ha informert importøren enten:",
+     "sette dyrene i isolasjon, eller holde forsendelsen tilbake til nødvendig dokumentasjon er lagt fram innen nærmere bestemte frister, eller",
+     "med tillatelse fra veterinærmyndighetene i avsenderlandet og forhåndsunderretning til veterinærmyndighetene i eventuelle andre land som forsendelsen må passere, returnere forsendelsen, eller",
+     "benytte produktene til andre formål dersom dyrehelsemessige forhold tilsier det, eller",
+     "avlive dyr eller destruere produkter.",
+     "Dersom vilkårene i punkt 1 ikke er oppfylt innen nærmere bestemte frister eller kontrollen avdekker forekomst av smittestoff som kan forårsake alvorlig sjukdom, zoonose eller andre forhold som kan utgjøre en alvorlig fare for dyr eller mennesker, eller at produktene kommer fra et område som er smittet med en epizootisk dyresjukdom, skal dyrene isoleres, avlives og destrueres. Annet avlsmateriale og animalsk avfall skal destrueres. Produkter skal destrueres eller benyttes til andre formål dersom dyrehelsemessige forhold tilsier det.",
+     "Statens dyrehelsetilsyn – distriktsveterinæren skal bruke databasen Matilda VAM til å holde oversikt over alle importører og meldinger om innførsel. Det skal kontrolleres at meldingene om innførsel inneholder tilstrekkelige og riktige opplysninger, jf. forskrift av 31. desember 1998 nr. 1484 om tilsyn og kontroll ved innførsel og utførsel av levende dyr, annet avlsmateriale, animalsk avfall og produkter av animalsk opprinnelse innen EØS, og ved innførsel av levende dyr fra land utenfor EØS, herunder opplysninger om importør. Hvis importør sender melding om innførsel via faks skal Statens dyrehelsetilsyn – distriktsveterinæren sørge for at meldingene blir registrert i databasen. Alle utførte veterinærkontroller, resultater av gjennomført kontroll, resultat av eventuelle prøveuttak og informasjon i forbindelse med prøveuttaket samt iverksatte tiltak i henhold til gjeldende regelverk skal fortløpende registreres i Matilda VAM.",
+     "Det skal i tillegg til registrering i databasen Matilda VAM straks sendes skriftlig rapport til Statens dyrehelsetilsyn – fylkesveterinæren med kopi til Statens dyrehelsetilsyn – Sentralforvaltningen når det foreligger uregelmessigheter, positive prøvefunn eller det av andre årsaker anses nødvendig. Det skal opplyses om eventuelle tiltak, vedtak som er truffet, begrunnelse for avgjørelsen og vedlegges kopi av saksdokumenter. Følgende informasjon skal følge rapporten:",
+     "kopi av handelsattest eller helsesertifikat, samt ANIMO-melding, og om nødvendig en beskrivelse av dyr i forsendelsen,",
+     "dato for ankomst bestemmelsessted,",
+     "dato for uttak av prøver, samt dato for laboratorieundersøkelse,",
+     "dato for når kontrollen ble utført,",
+     "beskrivelse av resultatet av kontrollen som er utført. Dersom det er tatt ut prøver, skal det følge med en beskrivelse av hvilke tester som er gjennomført, og resultatet av testene. For levende dyr skal det i tillegg følge med en beskrivelse av hvilke dyr det er tatt tester av.",
+     "Dokumentasjon over tilsyn og kontroll med virksomheter som er godkjent for eksport til EØS, herunder inspeksjonsrapporter og godkjenningsdokumenter, skal fortløpende sendes Statens dyrehelsetilsyn – fylkesveterinæren."
+    ]
+   },
+   "hjemmelsstatus": [
+    {
+     "hjemmel": "https://lovdata.no/eli/forskrift/1998/12/31/1484/nor",
+     "rolle": "kompetanseledd",
+     "status": "aktiv"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1962/06/08/4/nor",
+     "rolle": "materiell",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2003-12-19-124",
+     "opphevet_av_sitat": "Følgende lover oppheves: Lov 8. juni 1962 nr. 4 om dyrehelse (husdyrloven)",
+     "videreforing_kilde": "NL/lov/2003-12-19-124",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2003/12/19/124/nor/§36/ledd-2",
+     "videreforing_form": "V3",
+     "videreforing_dekning": "dokumenttype_ikke_nevnt",
+     "videreforing_sitat": "Forskrift eller enkeltvedtak gitt i eller i medhold av lovbestemmelser som blir opphevet eller endret etter §§ 34 eller 35, gjelder fortsatt inntil de blir opphevet."
+    }
+   ],
+   "funn": [
+    {
+     "status": "oppdaget",
+     "undertype": "uavklart",
+     "tittel": "Hjemmel opphevet, videreføringen nevner ikke vedtakstypen: Instruks om kontroll av dyr m.v. fra EØS (FOR-2001-02-01-1702)",
+     "beskrivelse": "Lovdata viser «Instruks om kontroll av dyr m.v. fra EØS» (FOR-2001-02-01-1702) som gjeldende. Hjemmelen er opphevet, men videreført av en overgangsregel som ikke nevner denne typen vedtak. Om videreføringen dekker vedtaket, er ikke vurdert, og ingen annen hjemmel som bærer, er vurdert. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1962-06-08-4 er opphevet, men videreført av LOV-2003-12-19-124 § 36 andre ledd (rolle materiell, og videreføringen nevner ikke denne typen vedtak, så om den dekker forskriften, er ikke vurdert)."
+    }
+   ]
+  },
+  {
+   "id": "K04",
+   "gjelder": "Ikke lest som enkeltvedtak (kontroll)",
+   "forskrift": {
+    "id": "820af4b5-ebcb-41f6-870c-a777fbc0c504",
+    "dokument_id": "INS/forskrift/2001-07-04-820",
+    "tittel": "Instruks til landbrukstilsynet for tilsyn mv. etter fôrvareregelverket – EØS",
+    "kortnavn": "Instruks for tilsyn etter forvareregelverket",
+    "annet_om_dokumentet": "Fastsatt av Landbruksdepartementet 4. juli 2001 med hjemmel i lov av 23. mars 1973 nr. 18 om tilsyn med fôrvarer § 3, jf. EØS-avtalen vedlegg I (direktiv 70/524/EØF, direktiv 82/471/EØF, direktiv 95/53/EF, direktiv 95/69/EF og direktiv 96/25/EF med senere endringer).",
+    "ikrafttredelse": "2001-07-04",
+    "rent_endringsvedtak": false,
+    "innhold": [
+     "1. Tilsyn",
+     "Landbrukstilsynet skal etter fôrvareloven og forskrift om fôrvarer føre tilsyn med tilvirking, innførsel og omsetning av fôrvarer. Tilsynet skal foregå i henhold til denne instruksen.",
+     "Landbrukstilsynet skal sørge for at omsetningen av fôrvarer ikke pålegges andre restriksjoner enn dem som er fastsatt i forskrift om fôrvarer.",
+     "2. Definisjoner",
+     "I denne instruks menes med:",
+     "Dokumentkontroll: kontroll av dokumentene som følger med et produkt, eller av andre opplysninger gitt om produktet.",
+     "Identitetskontroll: visuell kontroll av samsvar mellom dokumenter, merking og produkt.",
+     "Fysisk kontroll: kontroll av selve produktet, herunder eventuell prøvetaking og laboratorieundersøkelse.",
+     "Produkt: enhver fôrvare og ethvert stoff som brukes som fôr.",
+     "Kompetent myndighet: Landbrukstilsynet.",
+     "Markedsføring: oppbevaring av varer med sikte på salg, herunder tilbud eller enhver annen form for overdragelse til tredjemann, mot vederlag eller vederlagsfritt, samt selve salget og andre former for overdragelse. Begrepet «omsetning» brukes synonymt med markedsføring.",
+     "Produsent: enhver enhet som produserer eller framstiller tilsetningsstoffer, premikser framstilt av tilsetningsstoffer, fôrblandinger eller produkter nevnt i direktiv 82/471/EØF og nevnt i kapittel I.1 bokstav a) i vedlegget til direktiv 95/69/EF.",
+     "Forhandler: enhver person, bortsett fra produsenter eller personer som utelukkende produserer fôrblandinger til bruk på egen driftsenhet, som på et mellomliggende nivå mellom produksjon og bruk oppbevarer tilsetningsstoffer, premikser framstilt av tilsetningsstoffer eller ett av produktene nevnt i direktiv 82/471/EØF og nevnt i kapittel I.1 bokstav a) i direktiv 95/69/EF.",
+     "Betegnelsen «virksomhet» brukes som en samlebetegnelse for de to definerte begrepene «produsent» og «forhandler».",
+     "3. Kontroll",
+     "Generelt skal kontroll av fôrvarer foretas:",
+     "regelmessig,",
+     "ved mistanke om brudd på regelverket (manglende samsvar),",
+     "i et omfang som står i forhold til formålet (den fastsatte målsetting), særlig med henblikk på farene og på erfaringene som gjøres.",
+     "Kontrollene skal omfatte alle produksjons- og framstillingstrinn, mellomtrinn før omsetning og selve omsetningen, herunder innførsel og bruk av produktene. Landbrukstilsynet skal velge ut det eller de trinn som er best egnet til den påtenkte kontrollen.",
+     "Kontrollen skal som hovedregel foretas uten forhåndsvarsel. Kontrollen skal også omfatte ulovlig bruk av fôrvarer. Landbrukstilsynet skal ikke frita et produkt fra egnet kontroll fordi det er beregnet på eksport.",
+     "Dersom Landbrukstilsynet stadfester at bruk av en fôrvare medfører risiko for dyrs eller menneskers helse eller miljøet, skal ESA snarest informeres om dette, med begrunnelse for varselet. Vedtak i henhold til fôrvareforskriftens § 38 skal meldes ESA og de andre EØS-landene med begrunnelse for vedtaket.",
+     "Landbrukstilsynet skal sørge for at kontrollene utføres på en måte som sikrer at leveringen av produktene forsinkes minst mulig og kontrollen ikke fører til urimelige hindringer for omsetningen av produktene.",
+     "4. Analyser",
+     "Dersom det tas prøver av produktene med henblikk på analyse, skal Landbrukstilsynet treffe nødvendige tiltak for å sikre at",
+     "de som kontrolleres, har rett til å få utført en ny vurdering,",
+     "offentlig forseglede referanseprøver blir oppbevart.",
+     "Landbrukstilsynet skal utarbeide en liste over laboratorier som har ansvar for å utføre analysene. Laboratoriene skal være utpekt på grunnlag av sine kvalifikasjoner.",
+     "Landbrukstilsynet skal påse at prøvetakingen og analysene utføres i samsvar med reglene i EØS.",
+     "Dersom det i EØS-reglene ikke finnes bestemmelser om prøvetakings- og analysemetoder, skal Landbrukstilsynet treffe nødvendige tiltak for å sikre at kontrollen foretas:",
+     "i samsvar med standarder godkjent av internasjonale organisasjoner,",
+     "i samsvar med vitenskapelig anerkjente nasjonale regler som oppfyller EØS-avtalens generelle prinsipper, dersom nevnte standarder ikke finnes.",
+     "5. Programmer",
+     "Landbrukstilsynet skal utarbeide programmer som fastsetter de nasjonale tiltak som skal iverksettes for å nå målsettingen i direktiv 95/53/EF.",
+     "Programmene skal ta hensyn til norske forhold og spesifisere arten og hyppigheten av kontrollene, som skal foretas regelmessig.",
+     "Innen 1. april hvert år skal Landbrukstilsynet oversende ESA alle relevante opplysninger om gjennomføringen av programmene i løpet av det foregående år, og særlig presisere",
+     "kriteriene som er brukt ved utarbeidingen av programmene,",
+     "antallet og arten av kontroller som er foretatt,",
+     "resultatene av kontrollene, særlig antallet og arten av overtredelser som er fastslått,",
+     "tiltakene som er truffet i de tilfeller der overtredelser er fastslått.",
+     "1. Dokument- og identitetskontroll",
+     "Landbrukstilsynet skal i samarbeid med tollmyndighetene sørge for at det blir foretatt dokumentkontroll av hvert parti og identitetskontroll ved stikkprøver av produkter som innføres til EØS sitt tollområde, for å fastslå produktenes for å avgjøre hvilken tollprosedyre som skal anvendes på dem.",
+     "art,",
+     "opprinnelse,",
+     "geografiske bestemmelsessted,",
+     "2. Kontrolldokument",
+     "Ved innførsel av fôrvarer fra tredjeland via et annet land i EØS-området, skal et kontrolldokument utstedes, jf. § 27 grensekontroll i forskrift om fôrvarer. Kontrolldokumentet skal inneholde opplysninger om hvilke kontroller fôrvarepartiet har gjennomgått. Kontrolldokumentet skal følge varepartiet videre dersom den frie omsetningen av produktene skal skje i et annet land enn Norge, eller at produktene skal frigis i et annet medlemsland enn der frisonen, frilageret eller tollageret ligger. Se vedlegg til kap. 1; Kontrolldokument, og Veileder til utfylling av kontrolldokumentet.",
+     "Når det innføres fôrvarer fra tredjeland til Norge via et annet land i EØS-området, skal kontrolldokumentene oppbevares i minst 18 måneder. Norge sørger for at tollmyndighetene ikke frigir produktene uten at både skjemaet og opplysninger om at kontroller i samsvar med artikkel 5 og 7 i direktiv 95/53/EF er tilfredsstillende utført.",
+     "3. Stikkprøvekontroll",
+     "Landbrukstilsynet kan ved fysisk stikkprøvekontroll undersøke om produktene er i samsvar med forskriften, før de frigis til fri omsetning.",
+     "Dersom kontrollen viser at produktene ikke er i samsvar med lov- og forskriftskrav, skal Landbrukstilsynet forby at de innføres eller frigis til fri omsetning, og påby at de sendes ut igjen av EØS-området. Landbrukstilsynet skal straks underrette ESA og EØS-landene om at Norge har avvist produktene, og angi hvilke overtredelser som er fastslått.",
+     "Som unntak kan Landbrukstilsynet på vilkår gi tillatelse til at produktene enten",
+     "bringes i samsvar med kravene innen en fastsatt frist,",
+     "dekontamineres dersom det er hensiktsmessig,",
+     "behandles på annen passende måte,",
+     "brukes til andre formål eller",
+     "destrueres.",
+     "Landbrukstilsynet skal påse at nevnte tiltak ikke fører til negative virkninger på folkehelsen, dyrehelsen eller miljøet. Kostnadene i forbindelse med tiltakene skal dekkes av den som har fått tillatelsen til ovennevnte tiltak, eller dennes representant.",
+     "ESA skal informeres dersom Landbrukstilsynet har gitt unntak fra merkebestemmelsene ved innførsel av fôrmidler i henhold til fôrvareforskriftens vedlegg 7C pkt. 5.0.",
+     "1. Tiltak",
+     "Landbrukstilsynet skal treffe alle nødvendige tiltak for å sikre at produkter som skal sendes til et annet EØS-land, kontrolleres med samme omtanke som produkter beregnet for omsetning i Norge.",
+     "2. Kontroll på opprinnelsesstedet (varer produsert i Norge)",
+     "Landbrukstilsynet skal foreta kontroll av virksomhetene for å fastslå at de oppfyller lov- og forskriftskrav, og at produkter beregnet på omsetning er i samsvar med regelverket.",
+     "Dersom det er grunn til mistanke om at kravene ikke oppfylles, skal Landbrukstilsynet foreta den nødvendige kontroll, og dersom mistanken bekreftes, skal det treffes egnede tiltak.",
+     "3. Kontroll på bestemmelsesstedet (varer innført til Norge)",
+     "Landbrukstilsynet kan uten å forskjellsbehandle foreta stikkprøvekontroll på bestemmelsesstedet for å kontrollere om produktene som kommer fra et annet EØS-land er i samsvar med lov og forskrift om fôrvarer.",
+     "Dersom den vedkommende myndigheten i transittlandet innen EØS eller Landbrukstilsynet har opplysninger som gir grunn til å anta at det foreligger en overtredelse, kan det dessuten foretas kontroll under transporten av produktene.",
+     "Dersom Landbrukstilsynet ved kontroll i henhold til § 28 i fôrvareforskriften fastslår at produktene ikke er i samsvar med forskriften, skal det treffes egnede tiltak og på vilkår, formelt oppfordre avsenderen, mottakeren eller annen bemyndiget person til å sørge for at produktene enten:",
+     "bringes i samsvar med kravene innen en fastsatt frist,",
+     "dekontamineres dersom det er hensiktsmessig,",
+     "behandles på annen passende måte,",
+     "brukes til andre formål,",
+     "tilbakesendes til opprinnelseslandet etter at vedkommende myndighet i landet der opprinnelsesvirksomheten ligger, er blitt underrettet, eller",
+     "destrueres.",
+     "Kostnadene i forbindelse med nevnte tiltak skal dekkes av avsenderen eller annen berettiget person, herunder eventuelt mottakeren.",
+     "4. Samarbeid i tilfeller der overtredelser fastslås",
+     "Dersom produktene destrueres, brukes til andre formål, sendes tilbake til opprinnelseslandet eller dekontamineres, skal Landbrukstilsynet omgående ta kontakt med det EØS-landet som er avsender. I de øvrige tilfellene kan Landbrukstilsynet ta kontakt med det EØS-landet som er avsender. Avsenderlandet skal treffe nødvendige tiltak og underrette Landbrukstilsynet om hvilken type kontroll som er foretatt, resultatene av denne, hvilke vedtak som er gjort, og begrunnelsen for vedtakene.",
+     "Dersom Landbrukstilsynet frykter for at disse tiltakene ikke er tilstrekkelige, skal en sammen søke å rette opp situasjonen, og kan i den forbindelse eventuelt avlegge felles besøk på stedet.",
+     "Dersom kontrollene avslører gjentatte uregelmessigheter, skal Landbrukstilsynet underrette ESA og de andre EØS-landene.",
+     "Hvis Landbrukstilsynet informerer ESA om at det er nødvendig å sette i verk tiltak ovenfor innførte fôrvarer fra tredjeland i en situasjonen der et problem kan medføre en alvorlig risiko for menneskers eller dyrs helse eller miljøet, og ESA ikke allerede har satt i verk tiltak, kan Landbrukstilsynet sette i verk beskyttelsestiltak. Tiltakene kan bestå i å forby innførsel, eller sette bestemte krav. På anmodning fra mottakslandet i EØS eller på eget initiativ kan ESA alt etter arten av overtredelser som er fastslått,",
+     "sende representanter til den berørte virksomhet i samarbeid med vedkommende medlemsland,",
+     "oppfordre avsenderlandet i EØS til å skjerpe kontrollen av produktene fra den berørte virksomhet.",
+     "I påvente av ESAs konklusjoner skal avsenderlandet i EØS på anmodning fra mottakslandet i EØS skjerpe kontrollen av produktene fra den berørte virksomhet.",
+     "Mottakslandet i EØS kan for sitt vedkommende skjerpe kontrollen av produktene fra samme virksomhet.",
+     "1. Generelle krav",
+     "Godkjenning av antibiotika, koksidiostatika og vekstfremmende stoffer skal knyttes til den som er ansvarlig for omsetning. Tilsetningsstoffer i de andre gruppene skal ikke knyttes til ansvarsholder. Med ansvarlig for omsetning menes den fysiske eller juridiske person som har ansvaret for at tilsetningsstoffet som har fått godkjenning, samsvarer med kravene, og for omsetningen for det.",
+     "2. Forpliktelser som rapportør",
+     "Hvis Landbrukstilsynet opptrer som rapportør, skal det kontrolleres at",
+     "saksmappen er utarbeidet i samsvar med direktiv 87/153/EØF,",
+     "stoffet eller preparatet ifølge de framlagte opplysninger synes å oppfylle godkjenningsvilkårene (fastsatt i artikkel 3a, i direktiv 70/524/EØF).",
+     "Landbrukstilsynet skal som rapportør, på anmodning fra ESA, sørge for at hele eller en del av saksmappen med dokumentasjon oversendes offisielt til medlemmene av Vitenskapskomiteen for fôrvarer (SCAN).",
+     "Landbrukstilsynet skal sørge for at opplysninger som kan krenke den industrielle og kommersielle eiendomsrett behandles fortrolig.",
+     "Følgende skal ikke behandles fortrolig:",
+     "tilsetningsstoffets betegnelse og sammensetning,",
+     "tilsetningsstoffets fysisk-kjemiske og biologiske egenskaper,",
+     "tolkning av farmakologiske, toksikologiske og økotoksikologiske data om tilsetningsstoffet,",
+     "analysemetodene for kontroll av selve tilsetningsstoffet og tilsetningsstoffet i premikser, i fôrblandinger og i fôrvarer,",
+     "metodene for kontroll av restmengder av tilsetningsstoffet eller metabolitter av det i animalske produkter (dette strekpunktet gjelder bare for tilsetningsstoffer).",
+     "3. Søknad om godkjenning",
+     "Den som søker om godkjenning skal via Landbrukstilsynet, oversende ESA en søknad vedlagt saksmappen (med dokumentasjon) med kopi til de andre medlemslandene. Disse skal bekrefte å ha mottatt den så snart som mulig. Denne oversendelsen skal skje senest ett år etter den dato da søkeren innleverte saksmappen til Landbrukstilsynet, med mindre søknaden avslås eller utsettes.",
+     "Landbrukstilsynet skal underrette søkeren, de andre EØS-landene og ESA om årsakene til avslaget eller utsettelsen.",
+     "EØS-landene skal ha en frist på 60 dager fra datoen da saksmappen ble oversendt dem, til å undersøke om saksmappen er utarbeidet i samsvar med direktiv 87/153/EØF og eventuelt oversende ESA og de andre medlemslandene sine skriftlige merknader.",
+     "4. Genmodifiserte organismer",
+     "Når et tilsetningsstoff inneholder eller består av genmodifiserte organismer som definert i artikkel 2 nr. 1 og 2 i direktiv 90/220/EØF av 23. april 1990 om utsetting i miljøet av genetisk modifiserte organismer (sist endret ved direktiv 94/15/EF), skal det foretas en særskilt vurdering av miljørisikoen som fastsatt i nevnte direktiv; følgende dokumenter skal med henblikk på dette inngå i saksmappen som skal framlegges i samsvar med artikkel 4 i direktiv 70/524/EØF for å sikre at prinsippene fastsatt i artikkel 3a overholdes:",
+     "en kopi av ethvert skriftlig samtykke fra kompetente myndigheter til å sette ut i miljøet genmodifiserte organismer til forsknings- og utviklingsformål i henhold til artikkel 6 nr. 4 i direktiv 90/220/EØF, samt resultatene av utsettingen idet det tas hensyn til en eventuell fare for menneskers og dyrs helse og miljøet,",
+     "fullstendig teknisk dokumentasjon med de opplysningene som kreves i henhold til vedlegg II og III til direktiv 90/220/EØF, og en vurdering av miljørisikoen på grunnlag av disse opplysningene; resultatene av samtlige undersøkelser som er foretatt til forsknings- eller utviklingsformål.",
+     "Artikkel 11-18 i direktiv 90/220/EØF får ikke anvendelse for tilsetningsstoffer som består av eller inneholder genmodifiserte organismer.",
+     "5. Fornyelse av godkjenningen etter ti år",
+     "EØS-godkjenningen for tilsetningsstoffene i gruppene «antibiotika», «koksidiostatika» og «vekstfremmende stoffer» som er knyttet til ansvarlig for omsetning, er gyldig i ti år regnet fra den dato da den endelige godkjenningen trer i kraft, og kan fornyes for tiårsperioder.",
+     "Dersom den fornyes, skal innehaveren av godkjenningen, sende ESA en søknad vedlagt en saksmappe som er i samsvar med bestemmelsene om fornyelse av godkjenning for tilsetningsstoffer i direktiv 87/153/EØF. Søknaden og saksmappen skal senest ett år før godkjenningen utløper, sendes til ESA, som skal bekrefte å ha mottatt den så snart som mulig.",
+     "En kopi av søknaden om fornyelse, vedlagt saksmappen, skal av innehaveren av godkjenningen sendes offisielt gjennom Landbrukstilsynet som rapportør, til de andre EØS-landene. Disse skal bekrefte å ha mottatt den så snart som mulig.",
+     "Artikkel 3, 3a, 4, 7 og 7a i direktiv 70/524/EØF får tilsvarende anvendelse for søknader om fornyelse.",
+     "Dersom det av grunner som ligger utenfor godkjenningsinnehaverens kontroll, ikke kan treffes beslutning om søknaden om fornyelse før den dato da godkjenningen utløper, skal godkjenningsperioden for tilsetningsstoffet automatisk forlenges inntil ESA treffer en beslutning.",
+     "6. Distribusjon og bruk av tilsetningsstoffer",
+     "Landbrukstilsynet skal påse at det på fôrvareområdet bare omsettes tilsetningsstoffer som er godkjent i samsvar med fôrvareforskriften, og at de bare kan brukes når de er innblandet i fôrvarer på de vilkår som er fastsatt i forskriften.",
+     "Likevel kan tilsetningsstoffer som tilhører andre grupper enn «antibiotika», «koksidiostatika» og «vekstfremmende stoffer», brukes dersom de gis på annen måte enn innblandet i fôrvarer, forutsatt at denne måten er fastsatt i forskriften. Landbrukstilsynet skal særlig forsikre seg om at tilsetningsstoffene ikke tilsettes fôrmidler og ublandede fôrvarer, med mindre slik bruk er uttrykkelig fastsatt i forskriften.",
+     "7. Registrering",
+     "Når godkjenning blir gitt for tilsetningsstoffer i gruppene «antibiotika», «koksidiostatika» og «vekstfremmende stoffer», skal den som er ansvarlig for markedsføringen, tildeles et godkjenningsnummer, og tilsetningsstoffet skal tildeles et EF-registreringsnummer.",
+     "Andre godkjente tilsetningsstoffer skal tildeles et EF-registreringsnummer.",
+     "8. Monografier og identifikasjonskort",
+     "Landbrukstilsynet skal sørge for at søkeren innleverer en monografi for tilsetningsstoffene som skal knyttes til ansvarlig for omsetning (jf. direktiv 87/153/EØF). Monografien skal brukes til å avgjøre om tilsetningsstoffet som det er søkt godkjenning til omsetning for, er en nyskapning eller en etterlikning, samt undersøke om tilsetningsstoffet som skal omsettes faktisk er det samme som var beskrevet i søknaden som lå til grunn for godkjenningen i EU.",
+     "Landbrukstilsynet skal påse at søkeren framlegger et identifikasjonskort med oversikt over tilsetningsstoffets kjennetegn og egenskaper (jf. direktiv 87/153/EØF).",
+     "9. Opplysninger om produsenter av tilsetningsstoffer",
+     "Landbrukstilsynet skal sørge for at den som er ansvarlig for omsetning av tilsetningsstoffer i gruppene «antibiotika», «koksidiostatika» og «vekstfremmende stoffer» snarest mulig oppgir til ESA navn (eller firmanavn) og adresse (eller forretningskontor) på produsenten de har gitt rett til å framstille tilsetningsstoffet, ev. også dennes representant i EØS dersom produsenten er etablert i et tredjeland.",
+     "10. Sikkerhet og tiltak",
+     "Dersom Landbrukstilsynet får ny informasjon eller ved vurdering av eksisterende informasjon, finner ut at et tilsetningsstoff utgjør en trussel for dyrs eller menneskers helse, kan Landbrukstilsynet midlertidig suspendere eller begrense stoffet. Landbrukstilsynet skal umiddelbart underrette de øvrige EØS-landene og ESA om dette, og begrunne aksjonen.",
+     "11. Kontroll av uønsket samspill (uønskede vekselvirkninger)",
+     "Dersom det oppdages uforutsette, uønskede samspillseffekter mellom tilsetningsstoffer i gruppene «antibiotika», «koksidiostatika» og «vekstfremmende stoffer», og andre tilsetningsstoffer eller veterinærmedisinske preparater, skal Landbrukstilsynet kreve at den som er ansvarlig for omsetning (eller dennes representant i EØS når tilsetningsstoffet kommer fra et tredjeland), innhenter alle relevante opplysninger og videresender disse til Landbrukstilsynet.",
+     "1. Godkjenning av produsenter og forhandlere",
+     "Godkjenning gis for hvert aktivitetsområde i henhold til forskriftens § 4. Landbrukstilsynet kan nekte å godkjenne en virksomhet som håndterer fôrmidler med et for høyt innhold av uønskede stoffer eller produkter.",
+     "2. Søknadsprosedyre for produsenter og forhandlere",
+     "Landbrukstilsynet skal behandle godkjenningssøknader fra nye produsenter og forhandlere innen seks måneder etter at søknadene er innsendt.",
+     "3. Register over godkjente produsenter og forhandlere",
+     "Når det er fastslått at virksomheten tilfredsstiller kravene for godkjenning tildeles den et individuelt godkjenningsnummer som identifiserer og knytter virksomheten til det aktuelle aktivitetsområdet. For hvert aktivitetsområde skal Landbrukstilsynet føre et register over godkjente virksomheter i henhold til vedlegg til kap. 3 mal for register og liste over virksomhetene I.1. Forhandlere som ikke tar direkte fysisk hånd om produktene, kan unntas kontroll på stedet når de avlegger erklæring om sin aktivitet. Landbrukstilsynet plikter å oppdatere registrene iht. bestemte retningslinjer.",
+     "4. Publisering og distribuering av registeret over godkjente produsenter og forhandlere",
+     "Landbrukstilsynet skal publisere listen over godkjente produsenter og forhandlere første gang i november år 2001, og deretter, senest 30. november hvert år, en liste over endringer. Hvert femte år, første gang 2006, skal en oppdatert liste publiseres.",
+     "Hvert år, innen 31. desember, skal listen over godkjente produsenter og forhandlere sendes ESA.",
+     "Hvert år, innen 31. desember, skal Landbrukstilsynet sende EØS-landene en liste over godkjente produsenter og forhandlere i henhold til forskriftens § 4 pkt. 1 og 2. Listen skal også inneholde opplysninger om eventuelle søknader som ikke er ferdigbehandlet. Ved forespørsel skal Landbrukstilsynet oversende en liste over godkjente virksomheter på de andre aktivitetsområdene.",
+     "1. Liste over registrerte produsenter og forhandlere",
+     "For hvert aktivitetsområde skal Landbrukstilsynet føre en liste over registrerte virksomheter som er tildelt et registreringsnummer som identifiserer virksomheten til det aktuelle aktivitetsområdet i henhold til vedlegg til kap. 3 mal for register og liste over virksomhetene I.2. Landbrukstilsynet plikter å oppdatere registrene iht. bestemte retningslinjer.",
+     "2. Distribuering av listen over registrerte produsenter og forhandlere",
+     "Før 31. desember hvert år skal listene over produsenter og forhandlere som inneværende år er registrert, i henhold til forskriftens § 5 pkt. 1, 2 og 3, sendes ESA. Hvert femte år skal en oppdatert liste sendes. Ved forespørsel, skal hele eller deler av listene oversendes de andre EØS-landene.",
+     "1. Tilsetningstoffer godkjent som legemiddel",
+     "Når en virksomhet produserer og/eller håndterer et tilsetningsstoff som allerede er godkjent som et legemiddel iht. veterinærregelverket (direktiv 81/851/EØF) er Landbrukstilsynet ikke forpliktet til å kontrollere kravene for godkjenning, med unntak av pkt. 3.4, 3.5, 3.6.2 og 3.7 i forskriftens vedlegg 13A.",
+     "1. Gebyrets omfang",
+     "Landbrukstilsynet skal sørge for at det innkreves et gebyr til dekning av kostnadene som Landbrukstilsynet måtte ha ved å opptre som rapportør for tilsetningsstoffer som skal ha godkjenning knyttet til den som er ansvarlig for omsetningen, dvs. antibiotika, koksidiostatika, vekstfremmende stoffer (BSA(Brand Specific Approval)-stoffer). Jf. instruksens § 4.2, og § 41 i fôrvareforskriften.",
+     "Landbrukstilsynet skal sørge for at det innkreves et gebyr til dekning av kostnadene i forbindelse med godkjenning av virksomheter. Jf. instruksens § 5.1, og § 41 i fôrvareforskriften.",
+     "Ved beregningen av gebyrene for å opptre som rapportør, eller for godkjenning, skal bare kostnadene nevnt i vedlegg til kap. 4 om innkreving av gebyrer, tas i betraktning.",
+     "2. Refusjon",
+     "Direkte eller indirekte tilbakebetaling fra medlemsstatene av gebyrene som fastlagt her, er forbudt.",
+     "En medlemsstat kan imidlertid bruke faste satser ved vurderingen av enkelttilfeller uten at det skal anses som indirekte tilbakebetaling.",
+     "3. Rapportering",
+     "Landbrukstilsynet skal utarbeide rapporter om gjennomføringen av gebyrinnkrevingen med opplysning om:",
+     "størrelsen på gebyrene eller de faste satsene som innkreves i hvert tilfelle, iht. for å opptre som rapportør, eller for godkjenning;",
+     "beregningsmetoden for gebyrene i forhold til faktorene oppført på listen i vedlegg til kap. 4 om innkreving av gebyrer.",
+     "Denne instruks trer i kraft straks. Fra samme tid oppheves instruks til Landbrukstilsynet for tilsyn mv. etter fôrvareregelverket – EØS av 14. desember 2000 nr. 1422.",
+     "Godkjenningsnummeret nevnt i artikkel 5 nr. 1 og registreringsnummeret nevnt i artikkel 10 nr. 1 i direktiv 95/69/EF skal ha følgende form:",
+     "Tegnet «α» dersom produsenten eller forhandleren er godkjent.",
+     "ISO-koden for medlemslandet eller tredjelandet der produsenten eller forhandleren har sin beliggenhet.",
+     "Det nasjonale referansenummeret med høyst åtte alfanumeriske tegn.",
+     "Fullstendig liste over kostnadene som skal tas i betraktning ved beregningen av gebyrene for å opptre som rapportør, eller for godkjenning, innebærer:"
+    ]
+   },
+   "hjemmelsstatus": [
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1973/03/23/18/nor/§3",
+     "rolle": "materiell",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2003-12-19-124",
+     "opphevet_av_sitat": "Følgende lover oppheves: Lov 23. mars 1973 nr. 18 om tilsyn med fôrvarer (fôrvareloven)",
+     "videreforing_kilde": "NL/lov/2003-12-19-124",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2003/12/19/124/nor/§36/ledd-2",
+     "videreforing_form": "V3",
+     "videreforing_dekning": "dokumenttype_ikke_nevnt",
+     "videreforing_sitat": "Forskrift eller enkeltvedtak gitt i eller i medhold av lovbestemmelser som blir opphevet eller endret etter §§ 34 eller 35, gjelder fortsatt inntil de blir opphevet."
+    }
+   ],
+   "funn": [
+    {
+     "status": "oppdaget",
+     "undertype": "uavklart",
+     "tittel": "Hjemmel opphevet, videreføringen nevner ikke vedtakstypen: Instruks for tilsyn etter forvareregelverket (FOR-2001-07-04-820)",
+     "beskrivelse": "Lovdata viser «Instruks for tilsyn etter forvareregelverket» (FOR-2001-07-04-820) som gjeldende. Hjemmelen er opphevet, men videreført av en overgangsregel som ikke nevner denne typen vedtak. Om videreføringen dekker vedtaket, er ikke vurdert, og ingen annen hjemmel som bærer, er vurdert. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1973-03-23-18 § 3 er opphevet, men videreført av LOV-2003-12-19-124 § 36 andre ledd (rolle materiell, og videreføringen nevner ikke denne typen vedtak, så om den dekker forskriften, er ikke vurdert)."
+    }
+   ]
+  },
+  {
+   "id": "K05",
+   "gjelder": "Ikke lest som enkeltvedtak (kontroll)",
+   "forskrift": {
+    "id": "d4355119-6c39-49e4-9a39-93bc30889f22",
+    "dokument_id": "INS/forskrift/2003-05-08-594",
+    "tittel": "Instruks for hvalkjøttkontroll.",
+    "kortnavn": "Instruks for hvalkjøttkontroll",
+    "annet_om_dokumentet": "Fastsatt av Statens næringsmiddeltilsyn 8. mai 2003 med hjemmel i forskrift av 6. mars 2003 nr. 288 om hygiene og kontroll ved produksjon og frambud av kjøtt fra sjøpattedyr (sjøpattedyrforskriften) § 35.",
+    "ikrafttredelse": "2003-05-08",
+    "rent_endringsvedtak": false,
+    "innhold": [
+     "Tilsyn med godkjenninger",
+     "Tilsynsveterinæren skal i tillegg til det ordinære tilsynet med at forskriftens krav er overholdt, spesielt kontrollere at virksomheter innehar nødvendige godkjenninger, jf. sjøpattedyrforskriften § 4, § 5, § 6 og/eller § 7.",
+     "Undersøkelse av hvalkjøtt",
+     "Undersøkelse iht. sjøpattedyrforskriften § 35 skal omfatte:",
+     "visuell undersøkelse av hvalkjøttet, eventuelt etterfulgt av laboratorieundersøkelse dersom den visuelle undersøkelsen ikke anses tilstrekkelig.",
+     "undersøkelse av avvik i konsistens, farge, lukt og smak.",
+     "andre undersøkelser når tilsynsveterinæren anser dette nødvendig.",
+     "analyse av miljøgifter dersom det anses nødvendig.",
+     "alle nødvendige undersøkelser, herunder innsnitting for å avklare om hvalkjøttet kan være helsefarlig. Dette gjelder særlig ved:",
+     "forekomst av sår, svulster eller abcesser.",
+     "skader som ikke er forårsaket av fangsten.",
+     "avmagring eller ødem.",
+     "andre tydelige og omfattende endringer, herunder bedervelse.",
+     "Rapportering",
+     "Tilsynsveterinæren skal etter endt fangstsesong, senest 1. oktober, rapportere resultatet av hvalkjøttkontrollens undersøkelser til Statens næringsmiddeltilsyn på fastsatt skjema.",
+     "Ikrafttredelse",
+     "Instruksen trer i kraft straks. Samtidig oppheves instruks av 2. mai 1997 nr. 424 for hvalkjøttkontroll."
+    ]
+   },
+   "hjemmelsstatus": [
+    {
+     "hjemmel": "https://lovdata.no/eli/forskrift/2003/03/06/288/nor/§35",
+     "rolle": "kompetanseledd",
+     "status": "opphevet",
+     "bevistrinn": "E1",
+     "opphevet_av": "SF/forskrift/2019-03-27-397",
+     "opphevet_av_sitat": "Forskriften trer i kraft 1. april 2019 og samtidig oppheves forskrift 6. mars 2003 nr. 288 om særskilte krav til kontroll ved produksjon og omsetning av kjøtt fra sjøpattedyr (sjøpattedyrkontrollforskriften)."
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1997/01/10/9/nor/§20",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2003-12-19-124",
+     "opphevet_av_sitat": "Følgende lover oppheves: Lov 10. januar 1997 nr. 9 om kjøttproduksjon (kjøttproduksjonsloven)",
+     "videreforing_kilde": "NL/lov/2003-12-19-124",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2003/12/19/124/nor/§36/ledd-2",
+     "videreforing_form": "V3",
+     "videreforing_dekning": "dokumenttype_ikke_nevnt",
+     "videreforing_sitat": "Forskrift eller enkeltvedtak gitt i eller i medhold av lovbestemmelser som blir opphevet eller endret etter §§ 34 eller 35, gjelder fortsatt inntil de blir opphevet."
+    }
+   ],
+   "funn": [
+    {
+     "status": "oppdaget",
+     "undertype": "uavklart",
+     "tittel": "Hjemmel opphevet, de andre hjemlene ikke vurdert: Instruks for hvalkjøttkontroll (FOR-2003-05-08-594)",
+     "beskrivelse": "Lovdata viser «Instruks for hvalkjøttkontroll» (FOR-2003-05-08-594) som gjeldende. Minst én hjemmel som teller, er opphevet uten funnet videreføring. De andre hjemlene er gjeldende, men rollen deres er ikke vurdert, så det er uavklart om de bærer forskriften. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- FOR-2003-03-06-288 § 35 er opphevet av FOR-2019-03-27-397 § 11 første ledd: «Forskriften trer i kraft 1. april 2019 og samtidig oppheves forskrift 6. mars 2003 nr. 288 om særskilte krav til kontroll ved produksjon og omsetning av kjøtt fra sjøpattedyr (sjøpattedyrkontrollforskriften).»\n- LOV-1997-01-10-9 § 20 er opphevet, men videreført av LOV-2003-12-19-124 § 36 andre ledd (rollen er ikke vurdert).\n- Om forskriften har uttømt virkningen (et rent endrings-, opphevings- eller ikrafttredelsesvedtak), er ikke klassifisert (#446)."
+    }
+   ]
+  },
+  {
+   "id": "K06",
+   "gjelder": "Ikke lest som enkeltvedtak (kontroll)",
+   "forskrift": {
+    "id": "9dc1fe1b-d7ca-4888-b243-33841305ddbf",
+    "dokument_id": "INS/forskrift/2009-11-20-1428",
+    "tittel": "Vedtak om status som vitenskapelig høgskole og nytt navn for Høgskolen i Molde",
+    "kortnavn": "Vedtak om status som vitenskapelig høgskole HiM",
+    "annet_om_dokumentet": "Hjemmel: Fastsatt ved kgl.res. 20. november 2009 med hjemmel i lov 1. april 2005 nr. 15 om universiteter og høyskoler (universitets- og høyskoleloven) § 1-2 andre ledd. Fremmet av Kunnskapsdepartementet.",
+    "ikrafttredelse": "2010-01-01",
+    "rent_endringsvedtak": false,
+    "innhold": [
+     "Med hjemmel i § 1-2 annet ledd i lov 1. april 2005 nr. 15 om universiteter og høyskoler får Høgskolen i Molde med virkning fra 1. januar 2010 status som vitenskapelig høyskole med fullmakter etter loven § 3-3 annet ledd. Fra samme dato blir institusjonens navn «Høgskolen i Molde, vitenskapelig høgskole i logistikk»."
+    ]
+   },
+   "hjemmelsstatus": [
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2005/04/01/15/nor/§1-2",
+     "rolle": "materiell",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2024-03-08-9",
+     "opphevet_av_sitat": "Samtidig oppheves lov 1. april 2005 nr. 15 om universiteter og høyskoler.",
+     "videreforing_kilde": "NL/lov/2024-03-08-9",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2024/03/08/9/nor/§17-3/ledd-1",
+     "videreforing_form": "V3",
+     "videreforing_dekning": "dokumenttype_ikke_nevnt",
+     "videreforing_sitat": "Forskrifter og enkeltvedtak som er fastsatt med hjemmel i regler som blir opphevet eller endret med denne loven, gjelder til departementet fastsetter noe annet."
+    }
+   ],
+   "funn": [
+    {
+     "status": "oppdaget",
+     "undertype": "uavklart",
+     "tittel": "Hjemmel opphevet, videreføringen nevner ikke vedtakstypen: Vedtak om status som vitenskapelig høgskole HiM (FOR-2009-11-20-1428)",
+     "beskrivelse": "Lovdata viser «Vedtak om status som vitenskapelig høgskole HiM» (FOR-2009-11-20-1428) som gjeldende. Hjemmelen er opphevet, men videreført av en overgangsregel som ikke nevner denne typen vedtak. Om videreføringen dekker vedtaket, er ikke vurdert, og ingen annen hjemmel som bærer, er vurdert. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-2005-04-01-15 § 1-2 er opphevet, men videreført av LOV-2024-03-08-9 § 17-3 første ledd (rolle materiell, og videreføringen nevner ikke denne typen vedtak, så om den dekker forskriften, er ikke vurdert)."
+    }
+   ]
+  },
+  {
+   "id": "K07",
+   "gjelder": "Ikke lest som enkeltvedtak (kontroll)",
+   "forskrift": {
+    "id": "c7ac50c7-a4cf-4a95-9cdc-d6df545f6046",
+    "dokument_id": "INS/forskrift/2010-11-19-1470",
+    "tittel": "Vedtak om Høgskolen i Bodø – godkjenning av status som universitet",
+    "kortnavn": "Vedtak om HiBo som UiN, Universitetet i Nordland",
+    "annet_om_dokumentet": "Hjemmel: Fastsatt ved kgl.res. 19. november 2010 med hjemmel i lov 1. april 2005 nr. 15 om universiteter og høyskoler (universitets- og høyskoleloven) § 1-2 annet ledd. Fremmet av Kunnskapsdepartementet.",
+    "ikrafttredelse": "2011-01-01",
+    "rent_endringsvedtak": false,
+    "innhold": [
+     "Med hjemmel i § 1-2 annet ledd i lov 1. april 2005 nr. 15 om universiteter og høyskoler får Høgskolen i Bodø med virkning fra 1. januar 2011 status som universitet med fullmakter etter loven § 3-3 første ledd. Fra samme dato blir institusjonens navn «Universitetet i Nordland»."
+    ]
+   },
+   "hjemmelsstatus": [
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2005/04/01/15/nor/§1-2",
+     "rolle": "materiell",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2024-03-08-9",
+     "opphevet_av_sitat": "Samtidig oppheves lov 1. april 2005 nr. 15 om universiteter og høyskoler.",
+     "videreforing_kilde": "NL/lov/2024-03-08-9",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2024/03/08/9/nor/§17-3/ledd-1",
+     "videreforing_form": "V3",
+     "videreforing_dekning": "dokumenttype_ikke_nevnt",
+     "videreforing_sitat": "Forskrifter og enkeltvedtak som er fastsatt med hjemmel i regler som blir opphevet eller endret med denne loven, gjelder til departementet fastsetter noe annet."
+    }
+   ],
+   "funn": [
+    {
+     "status": "oppdaget",
+     "undertype": "uavklart",
+     "tittel": "Hjemmel opphevet, videreføringen nevner ikke vedtakstypen: Vedtak om HiBo som UiN, Universitetet i Nordland (FOR-2010-11-19-1470)",
+     "beskrivelse": "Lovdata viser «Vedtak om HiBo som UiN, Universitetet i Nordland» (FOR-2010-11-19-1470) som gjeldende. Hjemmelen er opphevet, men videreført av en overgangsregel som ikke nevner denne typen vedtak. Om videreføringen dekker vedtaket, er ikke vurdert, og ingen annen hjemmel som bærer, er vurdert. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-2005-04-01-15 § 1-2 er opphevet, men videreført av LOV-2024-03-08-9 § 17-3 første ledd (rolle materiell, og videreføringen nevner ikke denne typen vedtak, så om den dekker forskriften, er ikke vurdert)."
+    }
+   ]
+  },
+  {
+   "id": "K08",
+   "gjelder": "Ikke lest som enkeltvedtak (kontroll)",
+   "forskrift": {
+    "id": "fe6b0827-e5a6-4b8b-8550-6c6620d23f2e",
+    "dokument_id": "INS/forskrift/2011-01-21-93",
+    "tittel": "Fusjon mellom Høgskolen i Oslo og Høgskolen i Akershus",
+    "kortnavn": "Fusjon mellom HiO og HiA",
+    "annet_om_dokumentet": "Hjemmel: Fastsatt ved kgl.res. 21. januar 2011 med hjemmel i lov 1. april 2005 nr. 15 om universiteter og høyskoler (universitets- og høyskoleloven) § 7-2 første ledd. Fremmet av Kunnskapsdepartementet.",
+    "ikrafttredelse": "2011-08-01",
+    "rent_endringsvedtak": false,
+    "innhold": [
+     "Høgskolen i Oslo og Høgskolen i Akershus organiseres fra 1. august 2011 som én institusjon under navnet Høgskolen i Oslo og Akershus."
+    ]
+   },
+   "hjemmelsstatus": [
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2005/04/01/15/nor/§7-2",
+     "rolle": "materiell",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2024-03-08-9",
+     "opphevet_av_sitat": "Samtidig oppheves lov 1. april 2005 nr. 15 om universiteter og høyskoler.",
+     "videreforing_kilde": "NL/lov/2024-03-08-9",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2024/03/08/9/nor/§17-3/ledd-1",
+     "videreforing_form": "V3",
+     "videreforing_dekning": "dokumenttype_ikke_nevnt",
+     "videreforing_sitat": "Forskrifter og enkeltvedtak som er fastsatt med hjemmel i regler som blir opphevet eller endret med denne loven, gjelder til departementet fastsetter noe annet."
+    }
+   ],
+   "funn": [
+    {
+     "status": "oppdaget",
+     "undertype": "uavklart",
+     "tittel": "Hjemmel opphevet, videreføringen nevner ikke vedtakstypen: Fusjon mellom HiO og HiA (FOR-2011-01-21-93)",
+     "beskrivelse": "Lovdata viser «Fusjon mellom HiO og HiA» (FOR-2011-01-21-93) som gjeldende. Hjemmelen er opphevet, men videreført av en overgangsregel som ikke nevner denne typen vedtak. Om videreføringen dekker vedtaket, er ikke vurdert, og ingen annen hjemmel som bærer, er vurdert. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-2005-04-01-15 § 7-2 er opphevet, men videreført av LOV-2024-03-08-9 § 17-3 første ledd (rolle materiell, og videreføringen nevner ikke denne typen vedtak, så om den dekker forskriften, er ikke vurdert)."
+    }
+   ]
+  },
+  {
+   "id": "K09",
+   "gjelder": "Ikke lest som enkeltvedtak (kontroll)",
+   "forskrift": {
+    "id": "30e572f8-52b5-4667-9344-2281c29eed62",
+    "dokument_id": "INS/forskrift/2012-02-03-125",
+    "tittel": "Endring av navn på Kunsthøgskolen i Bergen til Kunst- og designhøgskolen i Bergen",
+    "kortnavn": "Endring av navn på Kunsthøgskolen i Bergen",
+    "annet_om_dokumentet": "Hjemmel: Fastsatt ved kgl.res. 3. februar 2012 med hjemmel i lov 1. april 2005 nr. 15 om universiteter og høyskoler (universitets- og høyskoleloven) § 7-2 første ledd. Fremmet av Kunnskapsdepartementet.",
+    "ikrafttredelse": "2012-02-03",
+    "rent_endringsvedtak": false,
+    "innhold": [
+     "Kunsthøgskolen i Bergen endrer navn til Kunst- og designhøgskolen i Bergen, jf. lov 1. april 2005 nr. 15 om universiteter og høyskoler § 7-2 første ledd."
+    ]
+   },
+   "hjemmelsstatus": [
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2005/04/01/15/nor/§7-2",
+     "rolle": "materiell",
+     "status": "viderefort",
+     "bevistrinn": "EN_LTI",
+     "opphevet_av": "NL/lov/2024-03-08-9",
+     "opphevet_av_sitat": "Samtidig oppheves lov 1. april 2005 nr. 15 om universiteter og høyskoler.",
+     "videreforing_kilde": "NL/lov/2024-03-08-9",
+     "videreforing_eid": "https://lovdata.no/eli/lov/2024/03/08/9/nor/§17-3/ledd-1",
+     "videreforing_form": "V3",
+     "videreforing_dekning": "dokumenttype_ikke_nevnt",
+     "videreforing_sitat": "Forskrifter og enkeltvedtak som er fastsatt med hjemmel i regler som blir opphevet eller endret med denne loven, gjelder til departementet fastsetter noe annet."
+    }
+   ],
+   "funn": [
+    {
+     "status": "oppdaget",
+     "undertype": "uavklart",
+     "tittel": "Hjemmel opphevet, videreføringen nevner ikke vedtakstypen: Endring av navn på Kunsthøgskolen i Bergen (FOR-2012-02-03-125)",
+     "beskrivelse": "Lovdata viser «Endring av navn på Kunsthøgskolen i Bergen» (FOR-2012-02-03-125) som gjeldende. Hjemmelen er opphevet, men videreført av en overgangsregel som ikke nevner denne typen vedtak. Om videreføringen dekker vedtaket, er ikke vurdert, og ingen annen hjemmel som bærer, er vurdert. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-2005-04-01-15 § 7-2 er opphevet, men videreført av LOV-2024-03-08-9 § 17-3 første ledd (rolle materiell, og videreføringen nevner ikke denne typen vedtak, så om den dekker forskriften, er ikke vurdert)."
+    }
+   ]
+  },
+  {
+   "id": "K10",
+   "gjelder": "Ikke lest som enkeltvedtak (kontroll)",
+   "forskrift": {
+    "id": "7dc59b3e-830b-4bef-9a3b-172045989908",
+    "dokument_id": "SF/forskrift/2009-06-05-617",
+    "tittel": "Vedtak om dispensasjon fra kravet om diplomatisk klarering for forskningsfartøyer som er sivile statsfartøyer",
+    "kortnavn": "Vedtak om dispensasjon for forskningsfartøyer",
+    "annet_om_dokumentet": "Hjemmel: Fastsatt av Forsvarsdepartementet 5. juni 2009 med hjemmel i forskrift 2. mai 1997 nr. 396 om adgang til og opphold på norsk territorium under fredsforhold for fremmede militære og sivile statsfartøyer § 18.",
+    "ikrafttredelse": "2009-06-05",
+    "rent_endringsvedtak": false,
+    "innhold": [
+     "Forskningsfartøyer som er sivile statsfartøyer, og som har fått konsesjon fra norsk myndighet til å drive forskningsvirksomhet av ikke-kommersiell karakter innenfor norsk jurisdiksjonsområde, gis dispensasjon fra kravet om diplomatisk klarering i forskrift 2. mai 1997 nr. 396 om adgang til og opphold på norsk territorium under fredsforhold for fremmede militære og sivile statsfartøyer § 3. Diplomatisk klarering anses gitt ved tildeling av konsesjon. Dispensasjon forutsetter at adgang til og opphold i norsk territorialfarvann er beskrevet i konsesjonen.",
+     "Vedtaket trer i kraft straks."
+    ]
+   },
+   "hjemmelsstatus": [
+    {
+     "hjemmel": "https://lovdata.no/eli/forskrift/1997/05/02/396/nor/§18",
+     "rolle": "kompetanseledd",
+     "status": "aktiv"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1914/08/18/3/nor/§1",
+     "status": "opphevet",
+     "bevistrinn": "E1",
+     "opphevet_av": "NL/lov/2015-06-19-65",
+     "opphevet_av_sitat": "Med virkning fra den tid straffeloven 2005 trer i kraft oppheves følgende lover: lov 18. august 1914 nr. 3 om forsvarshemmeligheter"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2003/06/27/57/nor/§2",
+     "status": "aktiv"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/2003/06/27/57/nor/§3",
+     "status": "aktiv"
+    }
+   ],
+   "funn": [
+    {
+     "status": "oppdaget",
+     "undertype": "uavklart",
+     "tittel": "Hjemmel opphevet, de andre hjemlene ikke vurdert: Vedtak om dispensasjon for forskningsfartøyer (FOR-2009-06-05-617)",
+     "beskrivelse": "Lovdata viser «Vedtak om dispensasjon for forskningsfartøyer» (FOR-2009-06-05-617) som gjeldende. Minst én hjemmel som teller, er opphevet uten funnet videreføring. De andre hjemlene kan bære forskriften, men det er ikke vurdert: rollen deres er ikke avklart, eller videreføringen nevner ikke denne typen vedtak. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1914-08-18-3 § 1 er opphevet av LOV-2015-06-19-65 § 2 første ledd punkt 1: «Med virkning fra den tid straffeloven 2005 trer i kraft oppheves følgende lover: lov 18. august 1914 nr. 3 om forsvarshemmeligheter».\n- LOV-2003-06-27-57 § 2 og § 3 er aktiv (rollen er ikke vurdert)."
+    }
+   ]
+  },
+  {
+   "id": "K11",
+   "gjelder": "Ikke lest som enkeltvedtak (kontroll)",
+   "forskrift": {
+    "id": "55b81c6d-0aca-4c92-8747-9b255efd3e10",
+    "dokument_id": "INS/forskrift/1990-09-28-866",
+    "tittel": "Godkjenning av våpen og flagg for Den norske kirke",
+    "kortnavn": "Godkjenning av våpen og flagg",
+    "annet_om_dokumentet": "Fastsatt ved Kronprinsreg.res. av 28. september 1990. Fremmet av Kirke- og kulturdepartementet. Hjemmel i sedvanerettslige regler.",
+    "ikrafttredelse": "1990-10-28",
+    "rent_endringsvedtak": false,
+    "innhold": [
+     "Olavsmerket godkjennes som våpen og flagg for Den norske kirke. Den norske kirkes våpen blir: I rødt gull kløverbladkors lagt over to økser med gull skaft og sølv blad som vender utover. Den norske kirkes flagg blir: I rødt et gult kløverbladkors lagt over to økser med gult skaft og hvite blad som vender utover.",
+     "Kirkemøtet bemyndiges til å fastsette forskrifter for bruken av Den norske kirkes våpen og flagg."
+    ]
+   },
+   "hjemmelsstatus": [],
+   "funn": []
+  },
+  {
+   "id": "K12",
+   "gjelder": "Ikke lest som enkeltvedtak (kontroll)",
+   "forskrift": {
+    "id": "52c70d84-43d6-4ff0-9cf6-2823ccb34f29",
+    "dokument_id": "SF/forskrift/1952-08-22-5",
+    "tittel": "Forskrifter om vernepliktige sivilarbeidere.",
+    "kortnavn": "Forskrift om vernepliktige sivilarbeidere",
+    "annet_om_dokumentet": null,
+    "ikrafttredelse": null,
+    "rent_endringsvedtak": false,
+    "innhold": [
+     "I henhold til §§ 6 og 9 i lov om vernepliktige sivilarbeidere av 17. juni 1937 bestemmes:",
+     "1) Dillingøy leir i Moss godkjennes som ordinær tvangsarbeidsleir for vernepliktige sivilarbeidere som ilegges tvangsarbeid etter ovennevnte lovs § 6.",
+     "2) Kretsfengslene og de større hjelpefengsler godkjennes som tvangsarbeidsanstalter for vernepliktige sivilarbeidere som etter å være ilagt tvangsarbeid etter lovens § 6 nekter å arbeide i den ordinære tvangsarbeidsleir eller der gjør seg skyldig i grovere disiplinærbrudd. Likeledes godkjennes de nevnte fengsler til midlertidig anbringelse av slike sivilarbeidere i forbindelse med innsettelsen i tvangsarbeid i Dillingøy leir eller under ekstraordinære forhold.",
+     "3) Justisdepartementet bemyndiges til å gi nærmere forskrifter om avtjening av sivilarbeideres tvangsarbeid.",
+     "4) Kgl.resolusjon av 28. mars 1926 og bestemmelser truffet i medhold av denne oppheves. Mannskap som allerede er ilagt tvangsarbeid, og som har mindre enn 1 måned igjen av tjenesten, kan etter bestemmelse av Justisdepartementet pålegges å fullføre denne i kretsfengsel eller større hjelpefengsel."
+    ]
+   },
+   "hjemmelsstatus": [
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1965/03/19/3/nor/§27",
+     "status": "opphevet",
+     "bevistrinn": "E1",
+     "opphevet_av": "NL/lov/2016-08-12-77",
+     "opphevet_av_sitat": "Fra det tidspunkt loven trer i kraft oppheves: lov 19. mars 1965 nr. 3 om fritaking for militærtjeneste av overbevisningsgrunner"
+    }
+   ],
+   "funn": [
+    {
+     "status": "oppdaget",
+     "undertype": "hjemmel_opphevet",
+     "tittel": "Hjemmel opphevet, videreføring ikke funnet: Forskrift om vernepliktige sivilarbeidere (FOR-1952-08-22-5)",
+     "beskrivelse": "Lovdata viser «Forskrift om vernepliktige sivilarbeidere» (FOR-1952-08-22-5) som gjeldende. Alle hjemlene som teller, er opphevet, og maskinregelen har ikke funnet en overgangsregel som viderefører forskriften. Ikke funnet betyr ikke at den ikke finnes. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1965-03-19-3 § 27 er opphevet av LOV-2016-08-12-77 § 87 første ledd punkt 3: «Fra det tidspunkt loven trer i kraft oppheves: lov 19. mars 1965 nr. 3 om fritaking for militærtjeneste av overbevisningsgrunner».\n- Ikke kontrollert: Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2016-08-12-77 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument."
+    }
+   ]
+  }
+ ]
+}
