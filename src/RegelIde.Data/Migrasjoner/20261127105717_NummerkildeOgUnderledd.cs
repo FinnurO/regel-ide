@@ -15,11 +15,9 @@ namespace RegelIde.Data.Migrasjoner
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<string>(
-                name: "nummer_kilde",
-                table: "rettskilde_noder",
-                type: "text",
-                nullable: true);
+            // IF NOT EXISTS: HistoriskSkjema i Data.Tests legger kolonnen til på eldre skjema før senere migrasjoner kjøres (samme mønster
+            // som er_merknad og endringsrolle).
+            migrationBuilder.Sql("ALTER TABLE rettskilde_noder ADD COLUMN IF NOT EXISTS nummer_kilde text;");
 
             migrationBuilder.AddCheckConstraint(
                 name: "ck_rettskilde_noder_nummer_kilde",

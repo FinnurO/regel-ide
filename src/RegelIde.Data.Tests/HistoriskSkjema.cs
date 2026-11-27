@@ -175,7 +175,9 @@ internal static class HistoriskSkjema
                 + "ALTER TABLE rettskilder ADD COLUMN IF NOT EXISTS vedtaksform_regelversjon text; "
                 + "ALTER TABLE rettskilder ADD COLUMN IF NOT EXISTS ikraft_status text; "
                 + "ALTER TABLE rettskilder ADD COLUMN IF NOT EXISTS ikraft_status_grunnlag text; "
-                + "ALTER TABLE rettskilde_noder ADD COLUMN IF NOT EXISTS endringsrolle text;");
+                + "ALTER TABLE rettskilde_noder ADD COLUMN IF NOT EXISTS endringsrolle text; "
+                // [Ny, issue #508] NummerkildeOgUnderledd (samme IF NOT EXISTS-mønster).
+                + "ALTER TABLE rettskilde_noder ADD COLUMN IF NOT EXISTS nummer_kilde text;");
         }
     }
 
