@@ -1791,8 +1791,8 @@ public static partial class LovdataHtmlParser
         return new UnderleddDeling(leddtekst, grupper, overskrift);
     }
 
-    /// <summary>[Ny, issue #508, juristrunden J2] Øvre grense for hva som regnes som en overskrift. Lengste overskrift i den delte basen
-    /// med overskriftsform (parentes eller kursiv uten skilletegn) er under denne grensen; se PR-en for #508.</summary>
+    /// <summary>[Ny, issue #508, juristrunden J2] Juristens «kort», satt til 12 ord. Grensen er et valg, ikke målt; tilfellene der kursiv og
+    /// regelen peker hver sin vei, listes i samlekjøringen, og det er der en feil grense vil synes.</summary>
     private const int OverskriftMaksOrd = 12;
 
     private static bool ErOverskrift(string tekst) =>
