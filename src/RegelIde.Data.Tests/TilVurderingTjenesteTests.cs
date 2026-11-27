@@ -49,6 +49,11 @@ public class TilVurderingTjenesteTests(EmbeddedPostgresFixture fixture)
         Assert.Equal(oppdaget.Count, tv.UtgattAktor.Oppdaget);
         Assert.Equal(oppdaget.Count(f => mangler[f.Id].Any(TilVurderingTjeneste.ErNavneformmangel)), tv.Departementer.FunnMedNavneformmangel);
         Assert.Equal(oppdaget.Count(f => mangler[f.Id].Any(TilVurderingTjeneste.ErEtterfolgermangel)), tv.Etterfolgere.FunnMedEtterfolgermangel);
+        // Den kumulative lista teller hvert funn én gang, og ender på alle funnene som lista holder igjen.
+        Assert.Equal(tv.Departementer.Aktorer.Count, tv.Departementer.FunnKumulativt.Count);
+        Assert.True(tv.Departementer.FunnKumulativt.Zip(tv.Departementer.FunnKumulativt.Skip(1)).All(p => p.First <= p.Second));
+        Assert.True(tv.Departementer.FunnKumulativt.Last() <= tv.Departementer.FunnMedNavneformmangel);
+        Assert.Equal(tv.Departementer.Aktorer[0].Funn, tv.Departementer.FunnKumulativt[0]);
         Assert.Equal(await db.Strukturkanter.CountAsync(k => k.Typekode == "etterfolger"
             && (k.Status == Strukturkanter.MaskineltForeslatt || k.Status == Strukturkanter.ManueltForeslatt)), tv.Etterfolgere.Forslag);
     }

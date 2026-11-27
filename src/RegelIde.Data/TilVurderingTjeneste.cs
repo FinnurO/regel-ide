@@ -122,9 +122,9 @@ public sealed class TilVurderingTjeneste(RegelIdeDbContext db, AktorkoTjeneste a
             .ToDictionary(b => b.Id, b => new { b.Id, b.Term, b.Navneformgrunn, b.Godkjenning, Aktor = b.VirksomhetReferanseId!.Value });
         var funnPerAktor = navneformmangler.Where(k => ventende.ContainsKey(k.BegrepId!.Value))
             .Select(k => (Aktor: ventende[k.BegrepId!.Value].Aktor, Funn: k.FunnId))
-            .Distinct().GroupBy(x => x.Aktor).ToDictionary(g => g.Key, g => g.Count());
+            .Distinct().ToLookup(x => x.Aktor, x => x.Funn);
         var iBruk = navneformmangler.Select(k => k.BegrepId!.Value).ToHashSet();
-        var aktorIder = funnPerAktor.Keys.ToList();
+        var aktorIder = funnPerAktor.Select(g => g.Key).ToList();
         var visning = await new VirksomhetVisningsnavnTjeneste(db).AlleAsync(ct);
         var registernavn = await db.Virksomheter.AsNoTracking().Where(v => aktorIder.Contains(v.Id)).ToDictionaryAsync(v => v.Id, v => v.Navn, ct);
         var rader = aktorIder
@@ -133,15 +133,23 @@ public sealed class TilVurderingTjeneste(RegelIdeDbContext db, AktorkoTjeneste a
                 visning.GetValueOrDefault(id) ?? registernavn.GetValueOrDefault(id) ?? id.ToString(),
                 ventende.Values.Where(b => b.Aktor == id && iBruk.Contains(b.Id)).OrderBy(b => b.Term, StringComparer.Ordinal)
                     .Select(b => new TilVurderingNavneform(b.Id, b.Term, b.Navneformgrunn, b.Godkjenning!)).ToList(),
-                funnPerAktor[id]))
+                funnPerAktor[id].Count()))
             .OrderByDescending(r => r.Funn).ThenBy(r => r.Navn, StringComparer.Ordinal).ToList();
+        // Et funn kan vente på navneformer hos flere aktører. Summen av radene teller det da flere ganger; den kumulative lista gjør ikke det,
+        // så «de sju første holder igjen N funn» er riktig (Start her, docs/09 §59).
+        var sett = new HashSet<Guid>();
+        var kumulativt = rader.Select(r =>
+        {
+            sett.UnionWith(funnPerAktor[r.VirksomhetId]);
+            return sett.Count;
+        }).ToList();
 
         var forslag = await db.Strukturkanter.AsNoTracking()
             .Where(k => k.Typekode == "etterfolger" && Forslag.Contains(k.Status)).Select(k => new { k.Id, k.Status }).ToListAsync(ct);
         var manuelle = forslag.Where(k => k.Status == Strukturkanter.ManueltForeslatt).Select(k => k.Id).ToHashSet();
 
         return (
-            new TilVurderingDepartementer(rader, medNavneform),
+            new TilVurderingDepartementer(rader, medNavneform, kumulativt),
             new TilVurderingUtgattAktor(antallFunn),
             new TilVurderingEtterfolgere(forslag.Count, manuelle.Count, medEtterfolger,
                 etterfolgermangler.Where(k => manuelle.Contains(k.StrukturkantId!.Value)).Select(k => k.FunnId).Distinct().Count()));
@@ -234,7 +242,8 @@ public sealed record TilVurdering(
 
 /// <param name="Aktorer">Aktørene med navneformer som er forslag og holder igjen funn om utgåtte aktører, flest funn først.</param>
 /// <param name="FunnMedNavneformmangel">Funn (oppdaget, utgått aktør) med minst én navneform som ikke er vurdert, også de uten knapp.</param>
-public sealed record TilVurderingDepartementer(IReadOnlyList<TilVurderingDepartement> Aktorer, int FunnMedNavneformmangel);
+/// <param name="FunnKumulativt">Element i: antall ulike funn de i+1 første aktørene i lista holder igjen.</param>
+public sealed record TilVurderingDepartementer(IReadOnlyList<TilVurderingDepartement> Aktorer, int FunnMedNavneformmangel, IReadOnlyList<int> FunnKumulativt);
 
 public sealed record TilVurderingDepartement(Guid VirksomhetId, string Navn, IReadOnlyList<TilVurderingNavneform> Navneformer, int Funn);
 
