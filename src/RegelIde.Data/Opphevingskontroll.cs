@@ -131,23 +131,61 @@ public static class Opphevingskontroll
         var etter = setning[(mal.Index + mal.Length)..];
         if (!EtterMalet.IsMatch(etter)) return true;
         var verb = Regex.Match(etter, @"\b(oppheves|avløses|erstattes)\b");
-        return verb.Success && !EtterVerbet.IsMatch(etter[(verb.Index + verb.Length)..]);
+        if (!verb.Success) return false;
+        var etterVerbet = EtterVerbet.Match(etter[(verb.Index + verb.Length)..]);
+        if (!etterVerbet.Success) return true;
+        // [Ny, #502] En dato rett etter verbet som ikke er passert («Forskrift 9. oktober 2015 nr. 1166 … oppheves 31. desember 2026.»): opphevingen
+        // virker ikke ennå, så målet er ikke opphevet. Det leses ikke som en hel oppheving (som «ikke i kraft» i hjemmelsstatusen).
+        return etterVerbet.Groups["dato"].Success && DatoFraTekst(etterVerbet.Groups["dato"].Value) is { } d && d > Idag();
+    }
+
+    private static DateOnly Idag() => DateOnly.FromDateTime(DateTime.Now);
+
+    /// <summary>«1. januar 2019» → 2019-01-01, ellers null.</summary>
+    private static DateOnly? DatoFraTekst(string s)
+    {
+        var m = Regex.Match(s, @"(\d{1,2})\.\s*" + Maaned + @"\s+(\d{4})", RegexOptions.IgnoreCase);
+        if (!m.Success) return null;
+        var mnd = Array.IndexOf(Maaneder, m.Groups[2].Value.ToLowerInvariant()) + 1;
+        return DateOnly.TryParse($"{m.Groups[3].Value}-{mnd:00}-{int.Parse(m.Groups[1].Value):00}", out var d) ? d : null;
     }
 
     /// <summary>[Ny, #429 PR 4] Hvitelisten for det som står rett etter målets nummer: slutten på setningen, en liste («og», «samt», komma
     /// og et nytt dokument eller verbet), tittelen («om», «for», «angående», «vedrørende», «hvor», tankestrek, parentes), eller verbet. Formene
     /// er hentet fra de 44 hele opphevingene juristen kontrollerte i måling 3 (<c>jurist429c/kildefeil_opphevende.tsv</c>). «for så vidt» er
-    /// tatt ut før denne testen.</summary>
+    /// tatt ut før denne testen.
+    /// <para>
+    /// [ENDRET, #502, prosjekteierens avgjørelse 2026-11-27] To former til, hentet fra opphevingene R8 leste som delvise (8 LTI-funn i #472):
+    /// <list type="bullet">
+    /// <item><b>En tittel som begynner med «av» og det som delegeres:</b> «Delegering 29. juni 2001 nr. 721 av myndighet til Forsvarsdepartementet
+    /// …» (DEL/forskrift/2018-12-20-2052 punkt 5), «… nr. 1192 av departementets myndighet …», «… nr. 1093 av utøvelsen av statens
+    /// partsstilling …», «… nr. 1578 av fullmakt til …». Bare «av» med myndighet, mynde, kompetanse, fullmakt eller utøvelse, også med en eier
+    /// foran («departementets», «Kongens»). Et annet ord etter «av» er fortsatt delvis.</item>
+    /// <item><b>Utstederen etter «fra»:</b> «Samtidig oppheves instruks 18. mars 2017 nr. 357 fra Mattilsynet ved Hovedkontoret til Debio …»
+    /// (LTI/forskrift/2019-07-02-961 kap. II). Bare «fra» med et navn med stor bokstav, så «fra og med § 3» er fortsatt delvis.</item>
+    /// </list>
+    /// </para></summary>
     internal static readonly Regex EtterMalet = new(
         @"^\s*([.;:]|$|(og|samt|eller)\b|[–(]|-\s|(om|for|angående|vedrørende|hvor)\b|(oppheves|avløses|erstattes|er\s+opphevet)\b|med\s+virkning\b"
-        + @"|,\s*((oppheves|avløses|erstattes|er\s+opphevet|og|samt)\b|(kgl|kongelig|kronprins|forskrift|vedtak|delegering|instruks|resolusjon|lov|rundskriv)\w*))",
+        + @"|,\s*((oppheves|avløses|erstattes|er\s+opphevet|og|samt)\b|(kgl|kongelig|kronprins|forskrift|vedtak|delegering|instruks|resolusjon|lov|rundskriv)\w*)"
+        + @"|av\s+(\w+s\s+)?(myndighet|mynde|kompetanse|fullmakt|utøvelse)\w*\b"
+        + @"|(?-i:fra\s+[A-ZÆØÅ]))",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>[Ny, #429 PR 4] Hvitelisten for det som står rett etter verbet når verbet står etter målet: slutten på setningen, eller når
     /// opphevingen virker («med virkning fra», «fra», «ved ikraftsetting», «når», «samtidig», «straks», «i sin helhet»). «oppheves for så vidt
-    /// gjelder …», «oppheves kapittel 6» og alt annet er delvis.</summary>
+    /// gjelder …», «oppheves kapittel 6» og alt annet er delvis.
+    /// <para>
+    /// [ENDRET, #502, prosjekteierens avgjørelse 2026-11-27] <b>En dato rett etter verbet</b>, når setningen slutter der: «Delegering 27. juni
+    /// 2003 nr. 802 av myndighet … oppheves 1. januar 2019.» (DEL/forskrift/2018-12-20-2052 punkt 5), «Forskrift 26. oktober 2021 nr. 3092 om
+    /// nasjonal retningslinje for barnesykepleierutdanning oppheves 1. januar 2026.» Datoen sier når opphevingen virker, som «fra ‹dato›».
+    /// En dato som følges av «nr.», er et dokument, og en dato som følges av noe annet («oppheves 1. januar 2006 med virkning for regnskapsår
+    /// påbegynt …»), er fortsatt delvis. En dato som ikke er passert, gir ingen hel oppheving: opphevingen virker ikke ennå («… nr. 1166 …
+    /// oppheves 31. desember 2026.», SF/forskrift/2026-03-23-454 § 25).
+    /// </para></summary>
     internal static readonly Regex EtterVerbet = new(
-        @"^\s*,?\s*([.;]|$|med\s+virkning\b|fra\b|ved\s+ikraft|når\b|samtidig\b|straks\b|i\s+sin\s+helhet\b)",
+        @"^\s*,?\s*([.;]|$|med\s+virkning\b|fra\b|ved\s+ikraft|når\b|samtidig\b|straks\b|i\s+sin\s+helhet\b"
+        + @"|(den\s+)?(?<dato>\d{1,2}\.\s*(januar|februar|mars|april|mai|juni|juli|august|september|oktober|november|desember)\s+\d{4})\s*([.;]|$))",
         RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     /// <summary>En setning som kan videreføre vedtak og forskrifter gitt i medhold av loven med datoen og nummeret (havne- og

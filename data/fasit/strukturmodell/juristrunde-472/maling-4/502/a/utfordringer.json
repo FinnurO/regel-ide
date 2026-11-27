@@ -1,0 +1,450 @@
+[
+ {
+  "id": "E01",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "FOR-2018-12-20-2052 punkt 5 (overskrift «Oppheving av myndighetsfordelingen og delegeringer etter sikkerhetsloven 1998») opphever delegeringen 2001 nr. 721 med full tittel og nummer, uten avgrensning; «av myndighet til …» er tittelen, og «oppheves 1. januar 2019» sier bare når opphevingen virker. Lovdata (DELO) viser vedtaket som «Opphevet ved vedtak 20 des 2018 nr. 2052». Funnet «Hjemmel opphevet» skal ikke stå.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/DEL/forskrift/2018-12-20-2052",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/DELO/forskrift/2001-06-29-721",
+    "funksjon": "forutsatt_kilde"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "E02",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Samme punkt 5 i FOR-2018-12-20-2052 opphever delegeringen 2003 nr. 802 (sikkerhetsloven § 2 tredje ledd) i sin helhet med virkning 1. januar 2019. Paragrafen i setningen er en del av tittelen, ikke en avgrensning av hva som oppheves: vedtaket har bare den ene hjemmelen. Riktig forklart bort.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/DEL/forskrift/2018-12-20-2052",
+    "funksjon": "direkte_hjemmel"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "E03",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Punkt 5 i FOR-2018-12-20-2052 opphever delegeringen 2004 nr. 1221 til Petroleumstilsynet i sin helhet (setningen mangler «§» foran 23, en trykkfeil i kilden uten betydning). Lovdata (DELO) viser vedtaket som «Opphevet ved vedtak 20 des 2018 nr. 2052». At kompetanseleddet FOR-2003-12-19-1592 står som aktivt, endrer ikke dette.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/DEL/forskrift/2018-12-20-2052",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/DELO/forskrift/2004-02-12-1221",
+    "funksjon": "forutsatt_kilde"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "E04",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Punkt 5 i FOR-2018-12-20-2052: «Kronprinsregentens resolusjon 4. juli 2003 nr. 900 om fordelingen av ansvar …» oppheves 1. januar 2019. «om» etter nummeret er tittelen, og datoen etter verbet er virkningstidspunktet, som er passert. Hel oppheving; funnet skal ikke stå.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/DEL/forskrift/2018-12-20-2052",
+    "funksjon": "direkte_hjemmel"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "E05",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "FOR-2008-12-19-1538 kap. II: «Fra samme tidspunkt oppheves Finansdepartementets delegering 26. september 2005 nr. 1093 av utøvelsen av statens partsstilling …», med vedtakets egen tittel. Lovdata (DELO) viser «Opphevet 1 jan 2009, jf. vedtak 19 des 2008 nr. 1538». [slutning] 2005-vedtaket delegerte tre ting (instruks og overtakelse etter skattebetalingsloven § 48 nr. 4, partsstilling i mva-saker og partsstilling i arveavgiftssaker), mens 2008-vedtaket bare delegerer arveavgiftssakene på nytt. Opphevingen er likevel hel etter ordlyden. Om mva-delen ble delegert på nytt et annet sted, er ikke kontrollert, og det påvirker ikke R8.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/DEL/forskrift/2008-12-19-1538",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/DELO/forskrift/2005-09-26-1093",
+    "funksjon": "forutsatt_kilde"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/LTI/forskrift/2005-09-26-1093",
+    "funksjon": "forutsatt_kilde"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "E06",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "FOR-2018-12-14-1920 kap. II, «Følgende delegeringsvedtak oppheves:» med punkt 1 «Delegering 11. september 2014 nr. 1192 av departementets myndighet … og overgangsregler». Formelen i forelderen og vedtakets fulle tittel gir hel oppheving; «og overgangsregler» er en del av tittelen. Lovdata (DELO) viser «Opphevet ved vedtak 14 des 2018 nr. 1920». Forskriften trer i kraft straks og har ingen overgangsregel som holder delegeringen i live.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/LTI/forskrift/2018-12-14-1920",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/DELO/forskrift/2014-09-11-1192",
+    "funksjon": "forutsatt_kilde"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "E07",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "FOR-2019-07-02-961 kap. II: «Instruksen trer i kraft straks. Samtidig oppheves instruks 18. mars 2017 nr. 357 fra Mattilsynet ved Hovedkontoret til Debio …». «fra Mattilsynet» er utstederen i tittelen, ikke en avgrensning. Lovdata (INSO) viser «Opphevet ved vedtak 2 juli 2019 nr. 961», og 2019-instruksen har nr. 357 i «Endrer». Hel oppheving.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/LTI/forskrift/2019-07-02-961",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/INSO/forskrift/2017-03-18-357",
+    "funksjon": "forutsatt_kilde"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "E08",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "FOR-2021-11-14-3414 (Kirkemøtet) kap. I opphever delegeringen 2018 nr. 852 med full tittel, og kap. II sier «Vedtaket trer i kraft straks.» Lovdata (DELO) viser «Opphevet ved vedtak 14 nov 2021 nr. 3414». Hel oppheving. At kirkeloven 1996 senere er opphevet, er da uten betydning.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/LTI/forskrift/2021-11-14-3414",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/DELO/forskrift/2018-04-16-852",
+    "funksjon": "forutsatt_kilde"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "E09",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Privatskulelova 1985 er opphevet, både av FOR-2003-07-04-896 punkt 3 («… vert oppheva 1. oktober 2003.») og, med bedre bevis, av privatskolelova (LOV-2003-07-04-84) § 8-2 andre ledd: «Samstundes blir lov 14. juni 1985 nr. 73 … oppheva.» Den står i korpus, og Lovdata har 1985-loven i «Endrer» for 2003-loven. Ingen videreføring er funnet: overgangsforskriften (punkt 1–4) har ingen regel om forskrifter etter 1985-loven, og § 8-1 i 2003-loven har bare en forskriftshjemmel for overgangsregler. Lovdata viser FOR-2003-02-13-224 fortsatt med hjemmel LOV-1985-06-14-73-§26 og uten endringer. Funnet holder. Merknad 1: beviset bør helst være lovens § 8-2 andre ledd (E1), ikke ikraftsettingsforskriften (E2). Resultatet er det samme. [slutning] Den passive formen «blir … oppheva» med tittelen mellom ser ut til ikke å bli lest. Merknad 2 [slutning]: forskriften er summarisk kunngjort og fastsatt «for 2003 – 2004», så den har trolig uttømt virkningen. Det hører til #446. Om tilskuddet nå har hjemmel i utdanningsstøtteloven, er ikke kontrollert.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/DEL/forskrift/2003-07-04-896",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/lov/2003-07-04-84 § 8-1 og § 8-2",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/SF/forskrift/2003-02-13-224",
+    "funksjon": "forutsatt_kilde"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "E10",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "FOR-2014-09-11-1192 er opphevet i sin helhet av FOR-2018-12-14-1920 kap. II punkt 1, som i E06, og Lovdata (DELO) viser den som opphevet. Når kilden ikke gjelder, er det utgåtte departementsnavnet ingen feil å rette. Det er derfor riktig at funnet forklares bort og at kilden går til kildefeilkøen. Kildefeilen beskriver korpusstatusen («står som gjeldende»): korpuset har bare den kunngjorte LTI-versjonen, mens Lovdatas ajourførte versjon viser opphevingen.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/LTI/forskrift/2018-12-14-1920",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/DELO/forskrift/2014-09-11-1192",
+    "funksjon": "forutsatt_kilde"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "E11",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Opphevingen er riktig lest: skiltforskriften 2005 § 47 andre ledd opphever skiltforskriftene 1980 i sin helhet 1. juni 2006 (E1). Men beviset for «erstattet» peker på feil bestemmelse. erstattet_av_eid er § 28 første ledd, og den treffes bare fordi den inneholder ordet «delegeres» («For kommunal veg kan vedtaksmyndigheten helt eller delvis delegeres til kommune eller politi …»). § 28 nr. 1 gjelder Statens vegvesens myndighet for forbuds- og påbudsskilt. Den tildeler ikke den myndigheten Samferdselsdepartementet delegerte til Vegdirektoratet etter 1980-forskriften § 26 nr. 1 første ledd tredje punktum. [slutning] § 26 i 2005-forskriften gjelder fartsgrenser, og nr. 1 gir Vegdirektoratet myndighet til høyere fartsgrense. Trolig er det den myndigheten 2005-vedtaket gjaldt. I så fall er «erstattet» riktig i sak, men beviset skal være § 26 nr. 1, ikke § 28 nr. 1. 1980-teksten er ikke åpen på Lovdata, så dette er ikke kontrollert. Utenfor raden: FOR-2005-11-09-1278 kap. II sier «Delegeringsvedtaket gjelder fram til 1. juni 2006», og Lovdata oppgir ikrafttredelse «09.11.2005 – 01.06.2006». Vedtaket har altså løpt ut av seg selv og bør ikke regnes som gjeldende. Ingen funn endres.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "https://lovdata.no/dokument/SF/forskrift/2005-10-07-1219/§28",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/SF/forskrift/2005-10-07-1219/§47",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/LTI/forskrift/2005-11-09-1278",
+    "funksjon": "direkte_hjemmel"
+   },
+   {
+    "ref": "https://lovdata.no/dokument/LTI/forskrift/1980-10-10-1 (teksten ikke tilgjengelig)",
+    "funksjon": "ikke_funnet"
+   }
+  ],
+  "klasse": "usikker",
+  "feilarsak": null
+ },
+ {
+  "id": "K01",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Hel oppheving av FOR-2022-03-14-387: tittelen med «om», og datoen etter verbet (1. august 2025) er passert. Riktig lest.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "SF/forskrift/2025-07-04-1457 § 22 tredje ledd (sitatet)",
+    "funksjon": "direkte_hjemmel"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "K02",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Hel oppheving av FOR-1997-03-25-265 med virkning 1. april 2003. Riktig lest.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "SF/forskrift/2003-03-07-290 kap. II (sitatet)",
+    "funksjon": "direkte_hjemmel"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "K03",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "«oppheves: delegering 1. juli 1998 nr. 688 av myndighet til å føre register over postoperatører.» Hele delegeringen, med tittel. Riktig lest.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "SF/forskrift/2015-09-18-1063 § 29 andre ledd (sitatet)",
+    "funksjon": "direkte_hjemmel"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "K04",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "En liste av to hele forskrifter med tittel og felles virkningsdato. FOR-2013-12-09-1552 er opphevet i sin helhet. Riktig lest.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "SF/forskrift/2019-11-11-1492 § 16 andre ledd (sitatet)",
+    "funksjon": "direkte_hjemmel"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "K05",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Hel oppheving av FOR-2003-09-02-1116 (fruktjuice) med virkning 28. oktober 2013. Riktig lest.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "SF/forskrift/2013-05-13-509 § 9 tredje ledd (sitatet)",
+    "funksjon": "direkte_hjemmel"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "K06",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Hel oppheving av FOR-2025-07-04-1464 med virkning 1. januar 2026, som er passert (i dag er det 2026-11-27). Riktig lest. Merk at lesingen avhenger av kjøredatoen: før 2026-01-01 ville samme setning ikke blitt lest som hel oppheving (se sammendraget).",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "SF/forskrift/2025-09-04-1828 § 18 tredje ledd (sitatet)",
+    "funksjon": "direkte_hjemmel"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "K07",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Det som oppheves, er «forskrifter gitt i medhold av» verdipapirsentralloven 1985, ikke loven selv. Det er riktig at vakten avviser setningen som hel oppheving av LOV-1985-06-14-62. Før #502 ble den godtatt, og det var feil.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "DEL/forskrift/2002-12-20-1627 § 1 andre ledd (sitatet)",
+    "funksjon": "direkte_hjemmel"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "K08",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Svalbardloven nevnes bare som hjemmel («Med hjemmel i lov 17. juli 1925 nr. 11 … § 4»). Det som oppheves, er en «tidligere delegering gitt til Oljedirektoratet 4. mai 1988». Det er riktig å avvise setningen som oppheving av svalbardloven. Før #502 ble den godtatt, og det var feil.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "DEL/forskrift/2003-12-19-1948 punkt 6 (sitatet)",
+    "funksjon": "direkte_hjemmel"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "K09",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Det som oppheves, er «tidligere enkeltvedtak … fastsatt med hjemmel i» 1971-loven og 2002-loven, ikke lovene selv. Det er riktig å avvise setningen.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "SF/forskrift/2012-11-22-1088 § 34 første ledd (sitatet)",
+    "funksjon": "direkte_hjemmel"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "K10",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Yrkestransportlova oppheves ikke. «om oppheving av rådsforordning (EØF) nr. 1191/69» er en del av tittelen til forordning 1370/2007. Det er riktig å avvise setningen.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "SF/forskrift/2022-12-20-2384 § 2 andre ledd punkt 2 (sitatet)",
+    "funksjon": "direkte_hjemmel"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "K11",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Den andre setningen («Delegeringen oppheves for saker der stevning er inngitt etter 31. desember 2016.») avgrenser opphevingen: delegeringen 2010 nr. 425 gjelder fortsatt for saker der stevning var inngitt før 1. januar 2017. Det er derfor riktig å lese opphevingen som delvis og ikke som hel. [slutning] Kilden er også et eksempel på det #503 handler om, en oppheving for nye tilfeller.",
+  "retting": null,
+  "ny_rad": null,
+  "implementeringsstatus": null,
+  "kilder": [
+   {
+    "ref": "LTI/forskrift/2016-12-13-1596 kap. II andre ledd (sitatet)",
+    "funksjon": "direkte_hjemmel"
+   }
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ }
+]

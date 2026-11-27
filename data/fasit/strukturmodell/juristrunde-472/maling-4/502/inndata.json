@@ -1,0 +1,877 @@
+{
+ "sak": "#502 (R8: flere former for hel oppheving), måling 4 del 1",
+ "dato": "2026-11-27",
+ "grunnlag": "Kopien regelide_502_jurist etter kaldkjøringen med #502. Sveipet over alle (node, mål) i gjeldende primærkilder står i r8-setninger.tsv: 56 går fra avvist til godtatt, 9 fra godtatt til avvist av vakten, og 11 fra avvist til avvist av vakten.",
+ "klasser": {
+  "riktig": "E-kort: utfallet etter #502 er riktig (forskriften er opphevet i sin helhet av setningen, så funnet skal ikke stå; det nye funnet holder; hjemmelen er erstattet). K-kort: lesingen etter #502 er riktig (hel oppheving av målet, eller ikke en hel oppheving av målet).",
+  "feil": "utfallet eller lesingen etter #502 er feil",
+  "usikker": "kan ikke avgjøres fra kildene"
+ },
+ "feilarsaker": [
+  "tekstlesingen",
+  "populasjonen",
+  "dekningen",
+  "rollen",
+  "videreforingsformen",
+  "pastanden",
+  "annet"
+ ],
+ "kort": [
+  {
+   "id": "E01",
+   "gjelder": "#472: forklart bort fordi forskriften selv er opphevet (R8)",
+   "funn": {
+    "id": "4fa54dc0-edba-4c21-9439-541f3bd5b9ad",
+    "ekstern_nokkel": "hjemmel-opphevet:forskrift/2001/06/29/721/nor",
+    "kategori": "hjemmel_opphevet",
+    "status": "forklart_bort",
+    "undertype": "hjemmel_opphevet",
+    "tittel": "Hjemmel opphevet, videreføring ikke funnet: Delegering til FD etter sikkerhetsloven (FOR-2001-06-29-721)",
+    "beskrivelse": "Korpuset har «Delegering til FD etter sikkerhetsloven» (FOR-2001-06-29-721) bare slik det ble kunngjort i Norsk Lovtidend, med status gjeldende. Alle hjemlene som teller, er opphevet, og maskinregelen har ikke funnet en overgangsregel som viderefører forskriften. Ikke funnet betyr ikke at den ikke finnes. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1998-03-20-10 § 12, § 15, § 16 og § 29 er opphevet av LOV-2018-06-01-24 § 12-2 første ledd: «Fra det tidspunktet loven trer i kraft, oppheves lov 20. mars 1998 nr. 10 om forebyggende sikkerhetstjeneste.»\n- Ikke kontrollert: Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2018-06-01-24 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.\n- Kunngjort versjon, gjeldende status ikke kontrollert: korpuset har bare vedtaket slik det ble kunngjort i Norsk Lovtidend, og Lovdatas ajourførte status er ikke slått opp. Vedtaket kan selv være opphevet ved en kilde som ikke er i korpus.",
+    "forklart_bort_begrunnelse": "Forklart bort av maskinregelen monster:hjemmel-opphevet (regelversjon 472-pr5-2026-11-25, #472 PR 4, prosjekteierens avgjørelse 2026-11-24 etter måling 1). Forskriften er selv opphevet av FOR-2018-12-20-2052 punkt-5/punkt-2 (eId https://lovdata.no/eli/forskrift/2018/12/20/2052/nor/punkt-5/punkt-2): «Delegering 29. juni 2001 nr. 721 av myndighet til Forsvarsdepartementet etter sikkerhetsloven § 12 andre ledd, § 15 fjerde ledd, § 16 andre ledd og § 29 oppheves 1. januar 2019.». Samme lesing som R8 i #429.",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-2001-06-29-721 Delegering til FD etter sikkerhetsloven",
+      "merknad": "forskriften",
+      "eid": null
+     },
+     {
+      "rolle": "opphevende_bestemmelse",
+      "etikett": "LOV-2018-06-01-24 § 12-2 første ledd",
+      "merknad": "opphever LOV-1998-03-20-10",
+      "eid": "https://lovdata.no/eli/lov/2018/06/01/24/nor/§12-2/ledd-1"
+     }
+    ]
+   },
+   "forskrift": {
+    "id": "a1df4293-cddb-422b-839c-cfbf5b5c3be5",
+    "dokument_id": "LTI/forskrift/2001-06-29-721",
+    "tittel": "Delegering av myndighet til Forsvarsdepartementet etter sikkerhetsloven § 12 andre ledd, § 15 fjerde ledd, § 16 andre ledd og § 29.",
+    "annet_om_dokumentet": "Fastsatt ved kgl.res. 29. juni 2001 med hjemmel i lov av 20. mars 1998 nr. 10 om forebyggende sikkerhetstjeneste (sikkerhetsloven) § 12 andre ledd, § 15 fjerde ledd, § 16 andre ledd og § 29. Fremmet av Forsvarsdepartementet.",
+    "ikrafttredelse": "2001-07-01",
+    "rent_endringsvedtak": false,
+    "kildeform": "kunngjort"
+   },
+   "hjemmelsstatus": [
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1998/03/20/10/nor/§12",
+     "rolle": "materiell",
+     "status": "opphevet",
+     "bevistrinn": "E1",
+     "opphevet_av": "NL/lov/2018-06-01-24",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2018/06/01/24/nor/§12-2/ledd-1",
+     "opphevet_av_sitat": "Fra det tidspunktet loven trer i kraft, oppheves lov 20. mars 1998 nr. 10 om forebyggende sikkerhetstjeneste.",
+     "kunnskapsstatus": "tekstfunn"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1998/03/20/10/nor/§15",
+     "rolle": "materiell",
+     "status": "opphevet",
+     "bevistrinn": "E1",
+     "opphevet_av": "NL/lov/2018-06-01-24",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2018/06/01/24/nor/§12-2/ledd-1",
+     "opphevet_av_sitat": "Fra det tidspunktet loven trer i kraft, oppheves lov 20. mars 1998 nr. 10 om forebyggende sikkerhetstjeneste.",
+     "kunnskapsstatus": "tekstfunn"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1998/03/20/10/nor/§16",
+     "rolle": "materiell",
+     "status": "opphevet",
+     "bevistrinn": "E1",
+     "opphevet_av": "NL/lov/2018-06-01-24",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2018/06/01/24/nor/§12-2/ledd-1",
+     "opphevet_av_sitat": "Fra det tidspunktet loven trer i kraft, oppheves lov 20. mars 1998 nr. 10 om forebyggende sikkerhetstjeneste.",
+     "kunnskapsstatus": "tekstfunn"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1998/03/20/10/nor/§29",
+     "rolle": "materiell",
+     "status": "opphevet",
+     "bevistrinn": "E1",
+     "opphevet_av": "NL/lov/2018-06-01-24",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2018/06/01/24/nor/§12-2/ledd-1",
+     "opphevet_av_sitat": "Fra det tidspunktet loven trer i kraft, oppheves lov 20. mars 1998 nr. 10 om forebyggende sikkerhetstjeneste.",
+     "kunnskapsstatus": "tekstfunn"
+    }
+   ],
+   "opphevende_kilde": {
+    "id": "e29a04f2-6730-4dd4-965c-afd99ea6952f",
+    "dokument_id": "DEL/forskrift/2018-12-20-2052",
+    "tittel": "Ikraftsetting av lov 1. juni 2018 nr. 24 om nasjonal sikkerhet med overgangsregler, fordeling av myndighet, videreføring av forskrifter m.m.",
+    "annet_om_dokumentet": "Hjemmel: Fastsatt ved kgl.res. 20. desember 2018 med hjemmel i lov 1. juni 2018 nr. 24 om nasjonal sikkerhet (sikkerhetsloven) § 2-1, § 2-2, § 2-3, § 2-4, § 3-1, § 3-2, § 4-1, § 4-2, § 4-3, § 4-4, § 4-5, § 5-2, § 5-3, § 5-5, § 5-6, § 6-2, § 6-3, § 6-5, § 6-6, § 7-1, § 7-2, § 7-3, § 7-4, § 8-1, § 8-3, § 8-5, § 8-6, § 8-9, § 9-2, § 9-3, § 9-4, § 10-1, § 10-2 og § 11-2 og lov 4. desember 1992 nr. 126 om arkiv § 12. Fremmet av Forsvarsdepartementet.",
+    "ikrafttredelse": "2019-01-01",
+    "rent_endringsvedtak": false,
+    "kildeform": "konsolidert",
+    "node": [
+     {
+      "eid": "https://lovdata.no/eli/forskrift/2018/12/20/2052/nor/punkt-5/punkt-2",
+      "tekst": "Delegering 29. juni 2001 nr. 721 av myndighet til Forsvarsdepartementet etter sikkerhetsloven § 12 andre ledd, § 15 fjerde ledd, § 16 andre ledd og § 29 oppheves 1. januar 2019.",
+      "forelder": "Oppheving av myndighetsfordelingen og delegeringer etter sikkerhetsloven 1998"
+     }
+    ]
+   }
+  },
+  {
+   "id": "E02",
+   "gjelder": "#472: forklart bort fordi forskriften selv er opphevet (R8)",
+   "funn": {
+    "id": "b6dd6abd-11d9-47f2-b412-abd2db8ad33f",
+    "ekstern_nokkel": "hjemmel-opphevet:forskrift/2003/06/27/802/nor",
+    "kategori": "hjemmel_opphevet",
+    "status": "forklart_bort",
+    "undertype": "hjemmel_opphevet",
+    "tittel": "Hjemmel opphevet, videreføring ikke funnet: Deleg. til FD etter sikkerhetsloven (FOR-2003-06-27-802)",
+    "beskrivelse": "Korpuset har «Deleg. til FD etter sikkerhetsloven» (FOR-2003-06-27-802) bare slik det ble kunngjort i Norsk Lovtidend, med status gjeldende. Alle hjemlene som teller, er opphevet, og maskinregelen har ikke funnet en overgangsregel som viderefører forskriften. Ikke funnet betyr ikke at den ikke finnes. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1998-03-20-10 § 2 er opphevet av LOV-2018-06-01-24 § 12-2 første ledd: «Fra det tidspunktet loven trer i kraft, oppheves lov 20. mars 1998 nr. 10 om forebyggende sikkerhetstjeneste.»\n- Ikke kontrollert: Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2018-06-01-24 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.\n- Kunngjort versjon, gjeldende status ikke kontrollert: korpuset har bare vedtaket slik det ble kunngjort i Norsk Lovtidend, og Lovdatas ajourførte status er ikke slått opp. Vedtaket kan selv være opphevet ved en kilde som ikke er i korpus.",
+    "forklart_bort_begrunnelse": "Forklart bort av maskinregelen monster:hjemmel-opphevet (regelversjon 472-pr5-2026-11-25, #472 PR 4, prosjekteierens avgjørelse 2026-11-24 etter måling 1). Forskriften er selv opphevet av FOR-2018-12-20-2052 punkt-5/punkt-3 (eId https://lovdata.no/eli/forskrift/2018/12/20/2052/nor/punkt-5/punkt-3): «Delegering 27. juni 2003 nr. 802 av myndighet til Forsvarsdepartementet etter sikkerhetsloven § 2 tredje ledd oppheves 1. januar 2019.». Samme lesing som R8 i #429.",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-2003-06-27-802 Deleg. til FD etter sikkerhetsloven",
+      "merknad": "forskriften",
+      "eid": null
+     },
+     {
+      "rolle": "opphevende_bestemmelse",
+      "etikett": "LOV-2018-06-01-24 § 12-2 første ledd",
+      "merknad": "opphever LOV-1998-03-20-10",
+      "eid": "https://lovdata.no/eli/lov/2018/06/01/24/nor/§12-2/ledd-1"
+     }
+    ]
+   },
+   "forskrift": {
+    "id": "d26f080e-eebd-4ff0-8c25-b65c7029e7c5",
+    "dokument_id": "LTI/forskrift/2003-06-27-802",
+    "tittel": "Delegering av myndighet til Forsvarsdepartementet etter sikkerhetsloven § 2 tredje ledd.",
+    "annet_om_dokumentet": "Fastsatt ved kgl.res. 27. juni 2003 med hjemmel i lov av 20. mars 1998 nr. 10 om forebyggende sikkerhetstjeneste (sikkerhetsloven) § 2 tredje ledd. Fremmet av Forsvarsdepartementet.",
+    "ikrafttredelse": "2003-06-27",
+    "rent_endringsvedtak": false,
+    "kildeform": "kunngjort"
+   },
+   "hjemmelsstatus": [
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1998/03/20/10/nor/§2",
+     "rolle": "materiell",
+     "status": "opphevet",
+     "bevistrinn": "E1",
+     "opphevet_av": "NL/lov/2018-06-01-24",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2018/06/01/24/nor/§12-2/ledd-1",
+     "opphevet_av_sitat": "Fra det tidspunktet loven trer i kraft, oppheves lov 20. mars 1998 nr. 10 om forebyggende sikkerhetstjeneste.",
+     "kunnskapsstatus": "tekstfunn"
+    }
+   ],
+   "opphevende_kilde": {
+    "id": "e29a04f2-6730-4dd4-965c-afd99ea6952f",
+    "dokument_id": "DEL/forskrift/2018-12-20-2052",
+    "tittel": "Ikraftsetting av lov 1. juni 2018 nr. 24 om nasjonal sikkerhet med overgangsregler, fordeling av myndighet, videreføring av forskrifter m.m.",
+    "annet_om_dokumentet": "Hjemmel: Fastsatt ved kgl.res. 20. desember 2018 med hjemmel i lov 1. juni 2018 nr. 24 om nasjonal sikkerhet (sikkerhetsloven) § 2-1, § 2-2, § 2-3, § 2-4, § 3-1, § 3-2, § 4-1, § 4-2, § 4-3, § 4-4, § 4-5, § 5-2, § 5-3, § 5-5, § 5-6, § 6-2, § 6-3, § 6-5, § 6-6, § 7-1, § 7-2, § 7-3, § 7-4, § 8-1, § 8-3, § 8-5, § 8-6, § 8-9, § 9-2, § 9-3, § 9-4, § 10-1, § 10-2 og § 11-2 og lov 4. desember 1992 nr. 126 om arkiv § 12. Fremmet av Forsvarsdepartementet.",
+    "ikrafttredelse": "2019-01-01",
+    "rent_endringsvedtak": false,
+    "kildeform": "konsolidert",
+    "node": [
+     {
+      "eid": "https://lovdata.no/eli/forskrift/2018/12/20/2052/nor/punkt-5/punkt-3",
+      "tekst": "Delegering 27. juni 2003 nr. 802 av myndighet til Forsvarsdepartementet etter sikkerhetsloven § 2 tredje ledd oppheves 1. januar 2019.",
+      "forelder": "Oppheving av myndighetsfordelingen og delegeringer etter sikkerhetsloven 1998"
+     }
+    ]
+   }
+  },
+  {
+   "id": "E03",
+   "gjelder": "#472: forklart bort fordi forskriften selv er opphevet (R8)",
+   "funn": {
+    "id": "933fa9e9-f3e9-4326-bd48-dc7ec5163852",
+    "ekstern_nokkel": "hjemmel-opphevet:forskrift/2004/02/12/1221/nor",
+    "kategori": "hjemmel_opphevet",
+    "status": "forklart_bort",
+    "undertype": "hjemmel_opphevet",
+    "tittel": "Hjemmel opphevet, videreføring ikke funnet: Deleg. til Ptil etter sikkerhetsloven (FOR-2004-02-12-1221)",
+    "beskrivelse": "Korpuset har «Deleg. til Ptil etter sikkerhetsloven» (FOR-2004-02-12-1221) bare slik det ble kunngjort i Norsk Lovtidend, med status gjeldende. Alle hjemlene som teller, er opphevet, og maskinregelen har ikke funnet en overgangsregel som viderefører forskriften. Ikke funnet betyr ikke at den ikke finnes. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1998-03-20-10 § 23 er opphevet av LOV-2018-06-01-24 § 12-2 første ledd: «Fra det tidspunktet loven trer i kraft, oppheves lov 20. mars 1998 nr. 10 om forebyggende sikkerhetstjeneste.»\n- Ikke kontrollert: Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2018-06-01-24 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.\n- Kunngjort versjon, gjeldende status ikke kontrollert: korpuset har bare vedtaket slik det ble kunngjort i Norsk Lovtidend, og Lovdatas ajourførte status er ikke slått opp. Vedtaket kan selv være opphevet ved en kilde som ikke er i korpus.",
+    "forklart_bort_begrunnelse": "Forklart bort av maskinregelen monster:hjemmel-opphevet (regelversjon 472-pr5-2026-11-25, #472 PR 4, prosjekteierens avgjørelse 2026-11-24 etter måling 1). Forskriften er selv opphevet av FOR-2018-12-20-2052 punkt-5/punkt-4 (eId https://lovdata.no/eli/forskrift/2018/12/20/2052/nor/punkt-5/punkt-4): «Delegering 12. februar 2004 nr. 1221 av myndighet til Petroleumstilsynet etter sikkerhetsloven 23 første ledd oppheves 1. januar 2019.». Samme lesing som R8 i #429.",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-2004-02-12-1221 Deleg. til Ptil etter sikkerhetsloven",
+      "merknad": "forskriften",
+      "eid": null
+     },
+     {
+      "rolle": "opphevende_bestemmelse",
+      "etikett": "LOV-2018-06-01-24 § 12-2 første ledd",
+      "merknad": "opphever LOV-1998-03-20-10",
+      "eid": "https://lovdata.no/eli/lov/2018/06/01/24/nor/§12-2/ledd-1"
+     }
+    ]
+   },
+   "forskrift": {
+    "id": "84bfe560-70e1-4ec4-a0f2-6d9548a98e96",
+    "dokument_id": "LTI/forskrift/2004-02-12-1221",
+    "tittel": "Delegering av myndighet til Petroleumstilsynet etter sikkerhetsloven § 23 første ledd.",
+    "annet_om_dokumentet": "Fastsatt av Arbeids- og administrasjonsdepartementet 12. februar 2004 med hjemmel i lov 20. mars 1998 nr. 10 om forebyggende sikkerhetstjeneste (sikkerhetsloven) § 23 første ledd og vedtak 19. desember 2003 nr. 1592 om opprettelse av Petroleumstilsynet.",
+    "ikrafttredelse": "2004-02-12",
+    "rent_endringsvedtak": false,
+    "kildeform": "kunngjort"
+   },
+   "hjemmelsstatus": [
+    {
+     "hjemmel": "https://lovdata.no/eli/forskrift/2003/12/19/1592/nor",
+     "rolle": "kompetanseledd",
+     "status": "aktiv",
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1998/03/20/10/nor/§23",
+     "rolle": "materiell",
+     "status": "opphevet",
+     "bevistrinn": "E1",
+     "opphevet_av": "NL/lov/2018-06-01-24",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2018/06/01/24/nor/§12-2/ledd-1",
+     "opphevet_av_sitat": "Fra det tidspunktet loven trer i kraft, oppheves lov 20. mars 1998 nr. 10 om forebyggende sikkerhetstjeneste.",
+     "kunnskapsstatus": "tekstfunn"
+    }
+   ],
+   "opphevende_kilde": {
+    "id": "e29a04f2-6730-4dd4-965c-afd99ea6952f",
+    "dokument_id": "DEL/forskrift/2018-12-20-2052",
+    "tittel": "Ikraftsetting av lov 1. juni 2018 nr. 24 om nasjonal sikkerhet med overgangsregler, fordeling av myndighet, videreføring av forskrifter m.m.",
+    "annet_om_dokumentet": "Hjemmel: Fastsatt ved kgl.res. 20. desember 2018 med hjemmel i lov 1. juni 2018 nr. 24 om nasjonal sikkerhet (sikkerhetsloven) § 2-1, § 2-2, § 2-3, § 2-4, § 3-1, § 3-2, § 4-1, § 4-2, § 4-3, § 4-4, § 4-5, § 5-2, § 5-3, § 5-5, § 5-6, § 6-2, § 6-3, § 6-5, § 6-6, § 7-1, § 7-2, § 7-3, § 7-4, § 8-1, § 8-3, § 8-5, § 8-6, § 8-9, § 9-2, § 9-3, § 9-4, § 10-1, § 10-2 og § 11-2 og lov 4. desember 1992 nr. 126 om arkiv § 12. Fremmet av Forsvarsdepartementet.",
+    "ikrafttredelse": "2019-01-01",
+    "rent_endringsvedtak": false,
+    "kildeform": "konsolidert",
+    "node": [
+     {
+      "eid": "https://lovdata.no/eli/forskrift/2018/12/20/2052/nor/punkt-5/punkt-4",
+      "tekst": "Delegering 12. februar 2004 nr. 1221 av myndighet til Petroleumstilsynet etter sikkerhetsloven 23 første ledd oppheves 1. januar 2019.",
+      "forelder": "Oppheving av myndighetsfordelingen og delegeringer etter sikkerhetsloven 1998"
+     }
+    ]
+   }
+  },
+  {
+   "id": "E04",
+   "gjelder": "#472: forklart bort fordi forskriften selv er opphevet (R8)",
+   "funn": {
+    "id": "50d440fd-fd6d-478b-9298-3853a9f8b41a",
+    "ekstern_nokkel": "hjemmel-opphevet:forskrift/2003/07/04/900/nor",
+    "kategori": "hjemmel_opphevet",
+    "status": "forklart_bort",
+    "undertype": "hjemmel_opphevet",
+    "tittel": "Hjemmel opphevet, videreføring ikke funnet: Fordeling av ansvar for sikkerhetstjeneste (FOR-2003-07-04-900)",
+    "beskrivelse": "Korpuset har «Fordeling av ansvar for sikkerhetstjeneste» (FOR-2003-07-04-900) bare slik det ble kunngjort i Norsk Lovtidend, med status gjeldende. Alle hjemlene som teller, er opphevet, og maskinregelen har ikke funnet en overgangsregel som viderefører forskriften. Ikke funnet betyr ikke at den ikke finnes. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1998-03-20-10 § 7 er opphevet av LOV-2018-06-01-24 § 12-2 første ledd: «Fra det tidspunktet loven trer i kraft, oppheves lov 20. mars 1998 nr. 10 om forebyggende sikkerhetstjeneste.»\n- Ikke kontrollert: Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2018-06-01-24 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.\n- Kunngjort versjon, gjeldende status ikke kontrollert: korpuset har bare vedtaket slik det ble kunngjort i Norsk Lovtidend, og Lovdatas ajourførte status er ikke slått opp. Vedtaket kan selv være opphevet ved en kilde som ikke er i korpus.",
+    "forklart_bort_begrunnelse": "Forklart bort av maskinregelen monster:hjemmel-opphevet (regelversjon 472-pr5-2026-11-25, #472 PR 4, prosjekteierens avgjørelse 2026-11-24 etter måling 1). Forskriften er selv opphevet av FOR-2018-12-20-2052 punkt-5/punkt-1 (eId https://lovdata.no/eli/forskrift/2018/12/20/2052/nor/punkt-5/punkt-1): «Kronprinsregentens resolusjon 4. juli 2003 nr. 900 om fordelingen av ansvar for forebyggende sikkerhetstjeneste og Nasjonal sikkerhetsmyndighet oppheves 1. januar 2019.». Samme lesing som R8 i #429.",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-2003-07-04-900 Fordeling av ansvar for sikkerhetstjeneste",
+      "merknad": "forskriften",
+      "eid": null
+     },
+     {
+      "rolle": "opphevende_bestemmelse",
+      "etikett": "LOV-2018-06-01-24 § 12-2 første ledd",
+      "merknad": "opphever LOV-1998-03-20-10",
+      "eid": "https://lovdata.no/eli/lov/2018/06/01/24/nor/§12-2/ledd-1"
+     }
+    ]
+   },
+   "forskrift": {
+    "id": "a1598b47-1a99-40e8-9a94-14533a58cd8b",
+    "dokument_id": "LTI/forskrift/2003-07-04-900",
+    "tittel": "Fordeling av ansvar for forebyggende sikkerhetstjeneste og Nasjonal sikkerhetsmyndighet.",
+    "annet_om_dokumentet": "Fastsatt ved Kronprinsreg.res. 4. juli 2003 med hjemmel i lov av 20. mars 1998 nr. 10 om forebyggende sikkerhetstjeneste (sikkerhetsloven) § 7. Fremmet av Forsvarsdepartementet.",
+    "ikrafttredelse": "2003-07-04",
+    "rent_endringsvedtak": false,
+    "kildeform": "kunngjort"
+   },
+   "hjemmelsstatus": [
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1998/03/20/10/nor/§7",
+     "rolle": "materiell",
+     "status": "opphevet",
+     "bevistrinn": "E1",
+     "opphevet_av": "NL/lov/2018-06-01-24",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2018/06/01/24/nor/§12-2/ledd-1",
+     "opphevet_av_sitat": "Fra det tidspunktet loven trer i kraft, oppheves lov 20. mars 1998 nr. 10 om forebyggende sikkerhetstjeneste.",
+     "kunnskapsstatus": "tekstfunn"
+    }
+   ],
+   "opphevende_kilde": {
+    "id": "e29a04f2-6730-4dd4-965c-afd99ea6952f",
+    "dokument_id": "DEL/forskrift/2018-12-20-2052",
+    "tittel": "Ikraftsetting av lov 1. juni 2018 nr. 24 om nasjonal sikkerhet med overgangsregler, fordeling av myndighet, videreføring av forskrifter m.m.",
+    "annet_om_dokumentet": "Hjemmel: Fastsatt ved kgl.res. 20. desember 2018 med hjemmel i lov 1. juni 2018 nr. 24 om nasjonal sikkerhet (sikkerhetsloven) § 2-1, § 2-2, § 2-3, § 2-4, § 3-1, § 3-2, § 4-1, § 4-2, § 4-3, § 4-4, § 4-5, § 5-2, § 5-3, § 5-5, § 5-6, § 6-2, § 6-3, § 6-5, § 6-6, § 7-1, § 7-2, § 7-3, § 7-4, § 8-1, § 8-3, § 8-5, § 8-6, § 8-9, § 9-2, § 9-3, § 9-4, § 10-1, § 10-2 og § 11-2 og lov 4. desember 1992 nr. 126 om arkiv § 12. Fremmet av Forsvarsdepartementet.",
+    "ikrafttredelse": "2019-01-01",
+    "rent_endringsvedtak": false,
+    "kildeform": "konsolidert",
+    "node": [
+     {
+      "eid": "https://lovdata.no/eli/forskrift/2018/12/20/2052/nor/punkt-5/punkt-1",
+      "tekst": "Kronprinsregentens resolusjon 4. juli 2003 nr. 900 om fordelingen av ansvar for forebyggende sikkerhetstjeneste og Nasjonal sikkerhetsmyndighet oppheves 1. januar 2019.",
+      "forelder": "Oppheving av myndighetsfordelingen og delegeringer etter sikkerhetsloven 1998"
+     }
+    ]
+   }
+  },
+  {
+   "id": "E05",
+   "gjelder": "#472: forklart bort fordi forskriften selv er opphevet (R8)",
+   "funn": {
+    "id": "8caac433-19d0-4b30-9bd8-113c826a513d",
+    "ekstern_nokkel": "hjemmel-opphevet:forskrift/2005/09/26/1093/nor",
+    "kategori": "hjemmel_opphevet",
+    "status": "forklart_bort",
+    "undertype": "blandede_hjemler",
+    "tittel": "Blandede hjemler, én opphevet uten funnet videreføring: Deleg. av utøvelsen av statens partsstilling (FOR-2005-09-26-1093)",
+    "beskrivelse": "Korpuset har «Deleg. av utøvelsen av statens partsstilling» (FOR-2005-09-26-1093) bare slik det ble kunngjort i Norsk Lovtidend, med status gjeldende. Minst én hjemmel som teller, er opphevet uten funnet videreføring, mens andre hjemler bærer. Hvilken del av forskriften som står uten hjemmel, er ikke avgjort. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1915-08-13-5 § 191 er aktiv (rolle materiell).\n- LOV-1952-11-21-2 § 48 er opphevet av LOV-2005-06-17-67 § 19-1 andre ledd: «(2) Lov 21. november 1952 nr. 2 om betaling og innkreving av skatt (skattebetalingsloven) oppheves fra den tid Kongen bestemmer.»\n- Ikke kontrollert: Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2005-06-17-67 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.\n- Kunngjort versjon, gjeldende status ikke kontrollert: korpuset har bare vedtaket slik det ble kunngjort i Norsk Lovtidend, og Lovdatas ajourførte status er ikke slått opp. Vedtaket kan selv være opphevet ved en kilde som ikke er i korpus.",
+    "forklart_bort_begrunnelse": "Forklart bort av maskinregelen monster:hjemmel-opphevet (regelversjon 472-pr5-2026-11-25, #472 PR 4, prosjekteierens avgjørelse 2026-11-24 etter måling 1). Forskriften er selv opphevet av FOR-2008-12-19-1538 kap-II/ledd-1 (eId kap-II/ledd-1): «Fra samme tidspunkt oppheves Finansdepartementets delegering 26. september 2005 nr. 1093 av utøvelsen av statens partsstilling i prosesser på Skattedirektoratets område.». Samme lesing som R8 i #429.",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-2005-09-26-1093 Deleg. av utøvelsen av statens partsstilling",
+      "merknad": "forskriften",
+      "eid": null
+     },
+     {
+      "rolle": "opphevende_bestemmelse",
+      "etikett": "LOV-2005-06-17-67 § 19-1 andre ledd",
+      "merknad": "opphever LOV-1952-11-21-2",
+      "eid": "https://lovdata.no/eli/lov/2005/06/17/67/nor/§19-1/ledd-2"
+     }
+    ]
+   },
+   "forskrift": {
+    "id": "9474c758-aac9-45e1-b7fc-4db7a5f95938",
+    "dokument_id": "LTI/forskrift/2005-09-26-1093",
+    "tittel": "Delegering av utøvelsen av statens partsstilling i prosesser på Skattedirektoratets område.",
+    "annet_om_dokumentet": "Fastsatt av Finansdepartementet 26. september 2005 med hjemmel i lov 21. november 1952 nr. 2 om betaling av skatt § 48 nr. 4 og lov 13. august 1915 nr. 5 om domstolene (domstolloven) § 191.",
+    "ikrafttredelse": "2006-01-01",
+    "rent_endringsvedtak": false,
+    "kildeform": "kunngjort"
+   },
+   "hjemmelsstatus": [
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§191",
+     "rolle": "materiell",
+     "status": "aktiv",
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1952/11/21/2/nor/§48",
+     "rolle": "materiell",
+     "status": "opphevet",
+     "bevistrinn": "E1",
+     "opphevet_av": "NL/lov/2005-06-17-67",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2005/06/17/67/nor/§19-1/ledd-2",
+     "opphevet_av_sitat": "(2) Lov 21. november 1952 nr. 2 om betaling og innkreving av skatt (skattebetalingsloven) oppheves fra den tid Kongen bestemmer.",
+     "kunnskapsstatus": "tekstfunn"
+    }
+   ],
+   "opphevende_kilde": {
+    "id": "92f6b32f-f8dc-419d-8c7e-b51fd74f7aae",
+    "dokument_id": "DEL/forskrift/2008-12-19-1538",
+    "tittel": "Delegering av Finansdepartementets myndighet til å utøve statens partsstilling i saker om fastsettelse av arveavgift til Skattedirektoratet",
+    "annet_om_dokumentet": "Hjemmel: Fastsatt av Finansdepartementet 19. desember 2008 med hjemmel i lov 13. august 1915 nr. 5 om domstolene (domstolloven) § 191.",
+    "ikrafttredelse": "2009-01-01",
+    "rent_endringsvedtak": false,
+    "kildeform": "konsolidert",
+    "node": [
+     {
+      "eid": "kap-II/ledd-1",
+      "tekst": "Delegeringen har virkning fra 1. januar 2009. Fra samme tidspunkt oppheves Finansdepartementets delegering 26. september 2005 nr. 1093 av utøvelsen av statens partsstilling i prosesser på Skattedirektoratets område.",
+      "forelder": null
+     }
+    ]
+   }
+  },
+  {
+   "id": "E06",
+   "gjelder": "#472: forklart bort fordi forskriften selv er opphevet (R8)",
+   "funn": {
+    "id": "2aaf99d6-be7d-46a8-8e0f-67e1bb936751",
+    "ekstern_nokkel": "hjemmel-opphevet:forskrift/2014/09/11/1192/nor",
+    "kategori": "hjemmel_opphevet",
+    "status": "forklart_bort",
+    "undertype": "hjemmel_opphevet",
+    "tittel": "Hjemmel opphevet, videreføring ikke funnet: Deleg. til Bufetat etter adopsjonsloven (FOR-2014-09-11-1192)",
+    "beskrivelse": "Korpuset har «Deleg. til Bufetat etter adopsjonsloven» (FOR-2014-09-11-1192) bare slik det ble kunngjort i Norsk Lovtidend, med status gjeldende. Alle hjemlene som teller, er opphevet, og maskinregelen har ikke funnet en overgangsregel som viderefører forskriften. Ikke funnet betyr ikke at den ikke finnes. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1986-02-28-8 § 16e er opphevet av LOV-2017-06-16-48 § 52 første ledd: «Fra samme tidspunkt oppheves lov 28. februar 1986 nr. 8 om adopsjon.»\n- Kunngjort versjon, gjeldende status ikke kontrollert: korpuset har bare vedtaket slik det ble kunngjort i Norsk Lovtidend, og Lovdatas ajourførte status er ikke slått opp. Vedtaket kan selv være opphevet ved en kilde som ikke er i korpus.",
+    "forklart_bort_begrunnelse": "Forklart bort av maskinregelen monster:hjemmel-opphevet (regelversjon 472-pr5-2026-11-25, #472 PR 4, prosjekteierens avgjørelse 2026-11-24 etter måling 1). Forskriften er selv opphevet av FOR-2018-12-14-1920 kap-II/ledd-1/punkt-1 (eId kap-II/ledd-1/punkt-1): «Følgende delegeringsvedtak oppheves: Delegering 11. september 2014 nr. 1192 av departementets myndighet til å utrede adopsjonssøkere til utenlandsadopsjon til Barne-, ungdoms- og familieetaten og overgangsregler.». Samme lesing som R8 i #429.",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-2014-09-11-1192 Deleg. til Bufetat etter adopsjonsloven",
+      "merknad": "forskriften",
+      "eid": null
+     },
+     {
+      "rolle": "opphevende_bestemmelse",
+      "etikett": "LOV-2017-06-16-48 § 52 første ledd",
+      "merknad": "opphever LOV-1986-02-28-8",
+      "eid": "https://lovdata.no/eli/lov/2017/06/16/48/nor/§52/ledd-1"
+     }
+    ]
+   },
+   "forskrift": {
+    "id": "b4665f16-6258-4848-a2b2-dd2950829ff7",
+    "dokument_id": "LTI/forskrift/2014-09-11-1192",
+    "tittel": "Delegering av departementets myndighet til å utrede adopsjonssøkere til utenlandsadopsjon til Barne-, ungdoms- og familieetaten og overgangsregler",
+    "annet_om_dokumentet": "Hjemmel: Fastsatt av Barne-, likestillings- og inkluderingsdepartementet 11. september 2014 med hjemmel i lov 28. februar 1986 nr. 8 om adopsjon (adopsjonsloven) § 16e andre ledd.",
+    "ikrafttredelse": "2015-02-01",
+    "rent_endringsvedtak": false,
+    "kildeform": "kunngjort"
+   },
+   "hjemmelsstatus": [
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1986/02/28/8/nor/§16e",
+     "rolle": "materiell",
+     "status": "opphevet",
+     "bevistrinn": "E1",
+     "opphevet_av": "NL/lov/2017-06-16-48",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2017/06/16/48/nor/§52/ledd-1",
+     "opphevet_av_sitat": "Fra samme tidspunkt oppheves lov 28. februar 1986 nr. 8 om adopsjon.",
+     "kunnskapsstatus": "tekstfunn"
+    }
+   ],
+   "opphevende_kilde": {
+    "id": "a669c67f-70b1-4fde-b71c-d6f78655ebb6",
+    "dokument_id": "LTI/forskrift/2018-12-14-1920",
+    "tittel": "Forskrift om oppheving av forskrifter og delegeringsvedtak hjemlet i opphevet lov 28. februar 1986 nr. 8 om adopsjon (adopsjonsloven)",
+    "annet_om_dokumentet": "Hjemmel: Fastsatt av Barne– og likestillingsdepartementet 14. desember 2018 med hjemmel i lov 16. juni 2017 nr. 48 om adopsjon (adopsjonsloven).",
+    "ikrafttredelse": "2018-12-14",
+    "rent_endringsvedtak": false,
+    "kildeform": "kunngjort",
+    "node": [
+     {
+      "eid": "kap-II/ledd-1/punkt-1",
+      "tekst": "Delegering 11. september 2014 nr. 1192 av departementets myndighet til å utrede adopsjonssøkere til utenlandsadopsjon til Barne-, ungdoms- og familieetaten og overgangsregler.",
+      "forelder": "Følgende delegeringsvedtak oppheves:"
+     }
+    ]
+   }
+  },
+  {
+   "id": "E07",
+   "gjelder": "#472: forklart bort fordi forskriften selv er opphevet (R8)",
+   "funn": {
+    "id": "4d4bcff3-1b25-4c37-8892-e512983d00d8",
+    "ekstern_nokkel": "hjemmel-opphevet:forskrift/2017/03/18/357/nor",
+    "kategori": "hjemmel_opphevet",
+    "status": "forklart_bort",
+    "undertype": "hjemmel_opphevet",
+    "tittel": "Hjemmel opphevet, videreføring ikke funnet: Instruks fra til Debio mv. etter økologiforskriften (FOR-2017-03-18-357)",
+    "beskrivelse": "Korpuset har «Instruks fra til Debio mv. etter økologiforskriften» (FOR-2017-03-18-357) bare slik det ble kunngjort i Norsk Lovtidend, med status gjeldende. Alle hjemlene som teller, er opphevet, og maskinregelen har ikke funnet en overgangsregel som viderefører forskriften. Ikke funnet betyr ikke at den ikke finnes. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- FOR-2017-03-18-355 § 20 er opphevet av FOR-2022-06-11-1171 § 28 første ledd: «Fra samme tidspunkt oppheves forskrift 18. mars 2017 nr. 355 om økologisk produksjon og merking av økologiske landbruksprodukter, akvakulturprodukter, næringsmidler og fôr (økologiforskriften).»\n- FOR-2017-03-18-356 er selv en forskrift der hjemmelen er opphevet uten funnet videreføring. Statusen arves (svakeste premiss).\n- Kunngjort versjon, gjeldende status ikke kontrollert: korpuset har bare vedtaket slik det ble kunngjort i Norsk Lovtidend, og Lovdatas ajourførte status er ikke slått opp. Vedtaket kan selv være opphevet ved en kilde som ikke er i korpus.",
+    "forklart_bort_begrunnelse": "Forklart bort av maskinregelen monster:hjemmel-opphevet (regelversjon 472-pr5-2026-11-25, #472 PR 4, prosjekteierens avgjørelse 2026-11-24 etter måling 1). Forskriften er selv opphevet av FOR-2019-07-02-961 kap-II/ledd-1 (eId kap-II/ledd-1): «Samtidig oppheves instruks 18. mars 2017 nr. 357 fra Mattilsynet ved Hovedkontoret til Debio og det regionale Mattilsynet for utøving av delegert myndighet etter økologiforskriften.». Samme lesing som R8 i #429.",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-2017-03-18-357 Instruks fra til Debio mv. etter økologiforskriften",
+      "merknad": "forskriften",
+      "eid": null
+     },
+     {
+      "rolle": "opphevende_bestemmelse",
+      "etikett": "FOR-2022-06-11-1171 § 28 første ledd",
+      "merknad": "opphever FOR-2017-03-18-355",
+      "eid": "https://lovdata.no/eli/forskrift/2022/06/11/1171/nor/§28/ledd-1"
+     }
+    ]
+   },
+   "forskrift": {
+    "id": "9fa612b1-f3f4-4883-8e2b-9f102f7c5340",
+    "dokument_id": "LTI/forskrift/2017-03-18-357",
+    "tittel": "Instruks fra Mattilsynet ved Hovedkontoret til Debio og det regionale Mattilsynet for utøving av delegert myndighet etter økologiforskriften",
+    "annet_om_dokumentet": "Hjemmel: Fastsatt av Mattilsynet ved Hovedkontoret 18. mars 2017 med hjemmel i forskrift 18. mars 2017 nr. 355 om økologisk produksjon og merking av økologiske landbruksprodukter, akvakulturprodukter, næringsmidler og fôr (økologiforskriften) § 20 og delegeringsvedtak 18. mars 2017 nr. 356.",
+    "ikrafttredelse": "2017-03-18",
+    "rent_endringsvedtak": false,
+    "kildeform": "kunngjort"
+   },
+   "hjemmelsstatus": [
+    {
+     "hjemmel": "https://lovdata.no/eli/forskrift/2017/03/18/355/nor/§20",
+     "rolle": "kompetanseledd",
+     "status": "opphevet",
+     "bevistrinn": "E1",
+     "opphevet_av": "SF/forskrift/2022-06-11-1171",
+     "opphevet_av_eid": "https://lovdata.no/eli/forskrift/2022/06/11/1171/nor/§28/ledd-1",
+     "opphevet_av_sitat": "Fra samme tidspunkt oppheves forskrift 18. mars 2017 nr. 355 om økologisk produksjon og merking av økologiske landbruksprodukter, akvakulturprodukter, næringsmidler og fôr (økologiforskriften).",
+     "kunnskapsstatus": "tekstfunn"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/forskrift/2017/03/18/356/nor",
+     "rolle": "kompetanseledd",
+     "status": "aktiv",
+     "kunnskapsstatus": "normalisering"
+    }
+   ],
+   "opphevende_kilde": {
+    "id": "7e1b71fb-6eab-4169-aaba-d2992d8520eb",
+    "dokument_id": "LTI/forskrift/2019-07-02-961",
+    "tittel": "Instruks fra Mattilsynet ved Hovedkontoret til Debio og det regionale Mattilsynet om utøving av delegert myndighet etter økologiforskriften",
+    "annet_om_dokumentet": "Hjemmel: Fastsatt av Mattilsynet 2. juli 2019 med hjemmel i forskrift 18. mars 2017 nr. 355 om økologisk produksjon og merking av økologiske landbruksprodukter, akvakulturprodukter, næringsmidler og fôr (økologiforskriften) § 20 og delegeringsvedtak 18. mars 2017 nr. 356.",
+    "ikrafttredelse": "2019-07-02",
+    "rent_endringsvedtak": false,
+    "kildeform": "kunngjort",
+    "node": [
+     {
+      "eid": "kap-II/ledd-1",
+      "tekst": "Instruksen trer i kraft straks. Samtidig oppheves instruks 18. mars 2017 nr. 357 fra Mattilsynet ved Hovedkontoret til Debio og det regionale Mattilsynet for utøving av delegert myndighet etter økologiforskriften.",
+      "forelder": null
+     }
+    ]
+   }
+  },
+  {
+   "id": "E08",
+   "gjelder": "#472: forklart bort fordi forskriften selv er opphevet (R8)",
+   "funn": {
+    "id": "846a801e-f94a-4ded-bb6d-a4914c864bf1",
+    "ekstern_nokkel": "hjemmel-opphevet:forskrift/2018/04/16/852/nor",
+    "kategori": "hjemmel_opphevet",
+    "status": "forklart_bort",
+    "undertype": "hjemmel_opphevet",
+    "tittel": "Hjemmel opphevet, videreføring ikke funnet: Deleg. av myndighet til Kirkerådet (FOR-2018-04-16-852)",
+    "beskrivelse": "Korpuset har «Deleg. av myndighet til Kirkerådet» (FOR-2018-04-16-852) bare slik det ble kunngjort i Norsk Lovtidend, med status gjeldende. Alle hjemlene som teller, er opphevet, og maskinregelen har ikke funnet en overgangsregel som viderefører forskriften. Ikke funnet betyr ikke at den ikke finnes. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1996-06-07-31 § 6 og § 23 er opphevet av LOV-2020-04-24-31 § 24 fjerde ledd: «Lov 7. juni 1996 nr. 31 om Den norske kirke oppheves.»\n- Ikke kontrollert: Ikraftsettingen av opphevingsbestemmelsen er ikke kontrollert: NL/lov/2020-04-24-31 kan settes i kraft til ulik tid, og korpuset har ikrafttredelse bare per dokument.\n- Kunngjort versjon, gjeldende status ikke kontrollert: korpuset har bare vedtaket slik det ble kunngjort i Norsk Lovtidend, og Lovdatas ajourførte status er ikke slått opp. Vedtaket kan selv være opphevet ved en kilde som ikke er i korpus.",
+    "forklart_bort_begrunnelse": "Forklart bort av maskinregelen monster:hjemmel-opphevet (regelversjon 472-pr5-2026-11-25, #472 PR 4, prosjekteierens avgjørelse 2026-11-24 etter måling 1). Forskriften er selv opphevet av FOR-2021-11-14-3414 kap-I/ledd-1 (eId kap-I/ledd-1): «Delegering 16. april 2018 nr. 852 av myndighet til Kirkerådet til å foreta endringer i kirkevalgreglene på bakgrunn av Kirkemøtets føringer, oppheves.». Samme lesing som R8 i #429.",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-2018-04-16-852 Deleg. av myndighet til Kirkerådet",
+      "merknad": "forskriften",
+      "eid": null
+     },
+     {
+      "rolle": "opphevende_bestemmelse",
+      "etikett": "LOV-2020-04-24-31 § 24 fjerde ledd",
+      "merknad": "opphever LOV-1996-06-07-31",
+      "eid": "https://lovdata.no/eli/lov/2020/04/24/31/nor/§24/ledd-4"
+     }
+    ]
+   },
+   "forskrift": {
+    "id": "2136be8c-36a4-43b8-a44c-9b6171244639",
+    "dokument_id": "LTI/forskrift/2018-04-16-852",
+    "tittel": "Delegering av myndighet til Kirkerådet til å foreta endringer i kirkevalgreglene på bakgrunn av Kirkemøtets føringer",
+    "annet_om_dokumentet": "Hjemmel: Fastsatt av Kirkemøtet 16. april 2018 med hjemmel i lov 7. juni 1996 nr. 31 om Den norske kirke (kirkeloven) § 6 tredje ledd og § 23 annet ledd.",
+    "ikrafttredelse": "2018-04-16",
+    "rent_endringsvedtak": false,
+    "kildeform": "kunngjort"
+   },
+   "hjemmelsstatus": [
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1996/06/07/31/nor/§23",
+     "rolle": "materiell",
+     "status": "opphevet",
+     "bevistrinn": "E1",
+     "opphevet_av": "NL/lov/2020-04-24-31",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2020/04/24/31/nor/§24/ledd-4",
+     "opphevet_av_sitat": "Lov 7. juni 1996 nr. 31 om Den norske kirke oppheves.",
+     "kunnskapsstatus": "tekstfunn"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1996/06/07/31/nor/§6",
+     "rolle": "materiell",
+     "status": "opphevet",
+     "bevistrinn": "E1",
+     "opphevet_av": "NL/lov/2020-04-24-31",
+     "opphevet_av_eid": "https://lovdata.no/eli/lov/2020/04/24/31/nor/§24/ledd-4",
+     "opphevet_av_sitat": "Lov 7. juni 1996 nr. 31 om Den norske kirke oppheves.",
+     "kunnskapsstatus": "tekstfunn"
+    }
+   ],
+   "opphevende_kilde": {
+    "id": "df5bf62a-c270-4e61-8536-111e85f2abac",
+    "dokument_id": "LTI/forskrift/2021-11-14-3414",
+    "tittel": "Vedtak om oppheving av delegering av myndighet til Kirkerådet til å foreta endringer i kirkevalgreglene på bakgrunn av Kirkemøtets føringer",
+    "annet_om_dokumentet": "Hjemmel: Fastsatt av Kirkemøtet 14. november 2021 med hjemmel i lov 7. juni 1996 nr. 31 om Den norske kirke (kirkeloven) § 6 tredje ledd og § 23 annet ledd.",
+    "ikrafttredelse": "2021-11-14",
+    "rent_endringsvedtak": true,
+    "kildeform": "kunngjort",
+    "node": [
+     {
+      "eid": "kap-I/ledd-1",
+      "tekst": "Delegering 16. april 2018 nr. 852 av myndighet til Kirkerådet til å foreta endringer i kirkevalgreglene på bakgrunn av Kirkemøtets føringer, oppheves.",
+      "forelder": null
+     }
+    ]
+   }
+  },
+  {
+   "id": "E09",
+   "gjelder": "#472: nytt funn, hjemmelsloven privatskulelova 1985 leses nå som opphevet (E2, uten «Endrer»)",
+   "funn": {
+    "id": "d494da04-5c2b-43e1-bd33-941743548485",
+    "ekstern_nokkel": "hjemmel-opphevet:forskrift/2003/02/13/224/nor",
+    "kategori": "hjemmel_opphevet",
+    "status": "oppdaget",
+    "undertype": "hjemmel_opphevet",
+    "tittel": "Hjemmel opphevet, videreføring ikke funnet: Forskrift om skolepenger i utlandet (FOR-2003-02-13-224)",
+    "beskrivelse": "Lovdata viser «Forskrift om skolepenger i utlandet» (FOR-2003-02-13-224) som gjeldende. Alle hjemlene som teller, er opphevet, og maskinregelen har ikke funnet en overgangsregel som viderefører forskriften. Ikke funnet betyr ikke at den ikke finnes. Om forskriften fortsatt har virkning, er en tolkning: uten en overgangsregel er den i utgangspunktet uten rettslig virkning, men den kan gjelde så langt den kunne vært gitt etter den nye loven (Lovteknikk og lovforberedelse pkt. 7.3.5).\n- LOV-1985-06-14-73 § 26 er opphevet av FOR-2003-07-04-896 punkt-3: «Lov av 14. juni 1985 nr. 73 om tilskot til private grunnskular og private skular som gjev vidaregåande opplæring (privatskulelova) vert oppheva 1. oktober 2003.»",
+    "forklart_bort_begrunnelse": null,
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-2003-02-13-224 Forskrift om skolepenger i utlandet",
+      "merknad": "forskriften",
+      "eid": null
+     },
+     {
+      "rolle": "opphevende_bestemmelse",
+      "etikett": "FOR-2003-07-04-896 punkt-3",
+      "merknad": "opphever LOV-1985-06-14-73",
+      "eid": "https://lovdata.no/eli/forskrift/2003/07/04/896/nor/punkt-3"
+     }
+    ]
+   },
+   "forskrift": {
+    "id": "f7c83bc7-0f67-439d-a853-191a5e494478",
+    "dokument_id": "SF/forskrift/2003-02-13-224",
+    "tittel": "Forskrift om tilskudd til dekning av skolepenger til elever ved utenlandske eller internasjonale videregående skoler.",
+    "annet_om_dokumentet": "Fastsatt av Utdannings- og forskningsdepartementet 13. februar 2003 med hjemmel i lov av 14. juni 1985 nr. 73 om tilskot til private grunnskular og private skular som gjev vidaregåande opplæring (privatskulelova) § 26 tilskotsregel nr. 10 bokstav b.",
+    "ikrafttredelse": null,
+    "rent_endringsvedtak": false,
+    "kildeform": "konsolidert"
+   },
+   "hjemmelsstatus": [
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1985/06/14/73/nor/§26",
+     "rolle": "materiell",
+     "status": "opphevet",
+     "bevistrinn": "E2",
+     "opphevet_av": "DEL/forskrift/2003-07-04-896",
+     "opphevet_av_eid": "https://lovdata.no/eli/forskrift/2003/07/04/896/nor/punkt-3",
+     "opphevet_av_sitat": "Lov av 14. juni 1985 nr. 73 om tilskot til private grunnskular og private skular som gjev vidaregåande opplæring (privatskulelova) vert oppheva 1. oktober 2003.",
+     "kunnskapsstatus": "tekstfunn"
+    }
+   ],
+   "opphevende_kilde": {
+    "id": "890e70f7-f893-4720-b442-0508f934bc22",
+    "dokument_id": "DEL/forskrift/2003-07-04-896",
+    "tittel": "Ikraftsetjing og overgangsreglar til lov av 4. juli 2003 nr. 84 om frittståande skolar (friskolelova).",
+    "annet_om_dokumentet": "Fastsett ved Kronprinsreg.res. 4. juli 2003 med heimel i lov av 4. juli 2003 nr. 84 om frittståande skolar (friskolelova) § 7-7 og § 7-9. Fremja av Utdannings- og forskingsdepartementet. Endra 20 mai 2005 nr. 437.",
+    "ikrafttredelse": "2003-10-01",
+    "rent_endringsvedtak": false,
+    "kildeform": "konsolidert",
+    "node": [
+     {
+      "eid": "https://lovdata.no/eli/forskrift/2003/07/04/896/nor/punkt-3",
+      "tekst": "Lov av 14. juni 1985 nr. 73 om tilskot til private grunnskular og private skular som gjev vidaregåande opplæring (privatskulelova) vert oppheva 1. oktober 2003.",
+      "forelder": null
+     }
+    ]
+   }
+  },
+  {
+   "id": "E10",
+   "gjelder": "#429: forklart bort, kilden går til kildefeilkøen (R8)",
+   "funn": {
+    "id": "8b0cf55a-3f55-4463-a7a2-b5113bb883bf",
+    "ekstern_nokkel": "utgatt-aktor:forskrift/2014/09/11/1192/nor:79581a05-0924-4f42-95fd-e1cb45acf1e2",
+    "kategori": "utgatt_aktor",
+    "status": "forklart_bort",
+    "undertype": "utgatt_navn",
+    "tittel": "Utgått navn i Deleg. til Bufetat etter adopsjonsloven: Barne-, likestillings- og inkluderingsdepartementet",
+    "beskrivelse": "«Delegering av departementets myndighet til å utrede adopsjonssøkere til utenlandsadopsjon til Barne-, ungdoms- og familieetaten og overgangsregler» (FOR-2014-09-11-1192) er gjeldende og bruker «Barne-, likestillings- og inkluderingsdepartementet» i én bestemmelse. Navnet er utgått. Aktøren finnes fortsatt, nå som Barne- og familiedepartementet.\n- Om oppgaven i bestemmelsen fortsatt ligger hos Barne- og familiedepartementet, er ikke vurdert. Den kan være flyttet til en annen aktør.\n- Lovdata oppgir Barne- og likestillingsdepartementet som ansvarlig departement for rettskilden (metadata, sekundær kilde). Barne- og likestillingsdepartementet er navn på mer enn én aktør i modellen.",
+    "forklart_bort_begrunnelse": "Forklart bort av maskinregelen monster:utgatt-aktor (#429 PR 3, Johanns avgjørelse 2026-11-02). R8: rettskilden er opphevet av FOR-2018-12-14-1920 kap-II/ledd-1/punkt-1 (eId kap-II/ledd-1/punkt-1): «Følgende delegeringsvedtak oppheves: Delegering 11. september 2014 nr. 1192 av departementets myndighet til å utrede adopsjonssøkere til utenlandsadopsjon til Barne-, ungdoms- og familieetaten og overgangsregler.». Sendt til kildefeilkøen (kildefeil 51ed4f6b-ff46-4d4a-a9e5-e9ed5e13726e).",
+    "koblinger": [
+     {
+      "rolle": "gjelder_bestemmelse",
+      "etikett": "FOR-2014-09-11-1192 § 1 første ledd",
+      "merknad": null,
+      "eid": "https://lovdata.no/eli/forskrift/2014/09/11/1192/nor/§1/ledd-1"
+     },
+     {
+      "rolle": "berort_aktor",
+      "etikett": "Barne- og familiedepartementet",
+      "merknad": null,
+      "eid": null
+     },
+     {
+      "rolle": "navneform",
+      "etikett": "Barne-, likestillings- og inkluderingsdepartementet",
+      "merknad": null,
+      "eid": null
+     }
+    ]
+   },
+   "forskrift": {
+    "id": "b4665f16-6258-4848-a2b2-dd2950829ff7",
+    "dokument_id": "LTI/forskrift/2014-09-11-1192",
+    "tittel": "Delegering av departementets myndighet til å utrede adopsjonssøkere til utenlandsadopsjon til Barne-, ungdoms- og familieetaten og overgangsregler",
+    "annet_om_dokumentet": "Hjemmel: Fastsatt av Barne-, likestillings- og inkluderingsdepartementet 11. september 2014 med hjemmel i lov 28. februar 1986 nr. 8 om adopsjon (adopsjonsloven) § 16e andre ledd.",
+    "ikrafttredelse": "2015-02-01",
+    "rent_endringsvedtak": false,
+    "kildeform": "kunngjort"
+   },
+   "kildefeil": [
+    {
+     "status": "Ny",
+     "type": "opphevet_av_annen_kilde",
+     "beskrivelse": "«Delegering av departementets myndighet til å utrede adopsjonssøkere til utenlandsadopsjon til Barne-, ungdoms- og familieetaten og overgangsregler» (FOR-2014-09-11-1192) står som gjeldende, men FOR-2018-12-14-1920 kap-II/ledd-1/punkt-1 opphever den: «Følgende delegeringsvedtak oppheves: Delegering 11. september 2014 nr. 1192 av departementets myndighet til å utrede adopsjonssøkere til utenlandsadopsjon til Barne-, ungdoms- og familieetaten og overgangsregler.». Lovdata-statusen er ikke vedlikeholdt for denne kilden (#429 måling 2, R8). Maskinregelen for utgåtte aktører lager ingen funn i kilden."
+    }
+   ],
+   "opphevende_kilde": {
+    "id": "a669c67f-70b1-4fde-b71c-d6f78655ebb6",
+    "dokument_id": "LTI/forskrift/2018-12-14-1920",
+    "tittel": "Forskrift om oppheving av forskrifter og delegeringsvedtak hjemlet i opphevet lov 28. februar 1986 nr. 8 om adopsjon (adopsjonsloven)",
+    "annet_om_dokumentet": "Hjemmel: Fastsatt av Barne– og likestillingsdepartementet 14. desember 2018 med hjemmel i lov 16. juni 2017 nr. 48 om adopsjon (adopsjonsloven).",
+    "ikrafttredelse": "2018-12-14",
+    "rent_endringsvedtak": false,
+    "kildeform": "kunngjort",
+    "node": [
+     {
+      "eid": "kap-II/ledd-1/punkt-1",
+      "tekst": "Delegering 11. september 2014 nr. 1192 av departementets myndighet til å utrede adopsjonssøkere til utenlandsadopsjon til Barne-, ungdoms- og familieetaten og overgangsregler.",
+      "forelder": "Følgende delegeringsvedtak oppheves:"
+     }
+    ]
+   }
+  },
+  {
+   "id": "E11",
+   "gjelder": "Hjemmelsstatus: skiltforskriftene 1980 som hjemmel (kompetanseledd) går fra ukjent til erstattet (E1). Ingen funn endres.",
+   "forskrift": {
+    "id": "61963816-3d5e-4590-9077-65af66f9e684",
+    "dokument_id": "LTI/forskrift/2005-11-09-1278",
+    "tittel": "Delegering av myndighet til Vegdirektoratet etter forskrifter om offentlige trafikkskilt, vegoppmerking, trafikklyssignaler og anvisninger (skiltforskrifter).",
+    "annet_om_dokumentet": "Fastsatt av Samferdselsdepartementet 9. november 2005 med hjemmel i vegtrafikklov 18. juni 1965 nr. 4 § 5 og § 6, jf. forskrift 10. oktober 1980 nr. 1 om offentlige trafikkskilt, vegoppmerking, trafikklyssignaler og anvisninger (skiltforskrifter) § 26 nr. 1 første ledd tredje punktum.",
+    "ikrafttredelse": "2005-11-09",
+    "rent_endringsvedtak": false,
+    "kildeform": "kunngjort"
+   },
+   "hjemmelsstatus": [
+    {
+     "hjemmel": "https://lovdata.no/eli/forskrift/1980/10/10/1/nor/§26",
+     "rolle": "kompetanseledd",
+     "status": "erstattet",
+     "bevistrinn": "E1",
+     "opphevet_av": "SF/forskrift/2005-10-07-1219",
+     "opphevet_av_eid": "https://lovdata.no/eli/forskrift/2005/10/07/1219/nor/§47/ledd-2",
+     "opphevet_av_sitat": "Forskrifter 10. oktober 1980 nr. 1 om offentlige trafikkskilt, vegoppmerking, trafikklyssignaler og anvisninger (skiltforskrifter) oppheves 1. juni 2006.",
+     "kunnskapsstatus": "fortolkning"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1965/06/18/4/nor/§5",
+     "rolle": "materiell",
+     "status": "aktiv",
+     "kunnskapsstatus": "normalisering"
+    },
+    {
+     "hjemmel": "https://lovdata.no/eli/lov/1965/06/18/4/nor/§6",
+     "rolle": "materiell",
+     "status": "aktiv",
+     "kunnskapsstatus": "normalisering"
+    }
+   ],
+   "opphevende_kilde": {
+    "id": "537ab876-5903-4cd0-aa6b-80f94d916ebf",
+    "dokument_id": "SF/forskrift/2005-10-07-1219",
+    "tittel": "Forskrift om offentlige trafikkskilt, vegoppmerking, trafikklyssignaler og anvisninger (skiltforskriften)",
+    "annet_om_dokumentet": "Hjemmel: Fastsatt av Samferdselsdepartementet 7. oktober 2005 med hjemmel i lov 18. juni 1965 nr. 4 om vegtrafikk (vegtrafikkloven) § 5, § 6 og § 43, jf. delegeringsvedtak 17. mars 1967 nr. 3462.\nEndret ved forskrifter 8 jan 2007 nr. 8, 9 april 2008 nr. 334, 17 juli 2008 nr. 812, 21 aug 2008 nr. 939, 8 feb 2008 nr. 117. 27 nov 2008 nr. 1262 jf. 17 april 2009 nr. 425, 18 feb 2009 nr. 201, 16 okt 2009 nr. 1277, 9 des 2009 nr. 1517, 22 juni 2010 nr. 934, 24 mai 2011 nr. 543, 21 nov 2011 nr. 1125, 14 jan 2013 nr. 40, 25 sep 2014 nr. 1241, 18 mars 2016 nr. 265, 5 mai 2017 nr. 531, 19 des 2019 nr. 2042 (i kraft 1 jan 2020), 30 jan 2020 nr. 91, 6 des 2019 nr. 1647 (i kraft 1 juli 2020), 27 okt 2020 nr. 2144, 15 april 2021 nr. 1161, 7 mai 2021 nr. 1453 (i kraft 18 mai 2021), 26 aug 2021 nr. 2579, 19 april 2022 nr. 583, 30 mai 2022 nr. 933 (i kraft 15 juni 2022), 22 des 2022 nr. 2460, 22 juli 2024 nr. 1801, 22 juli 2024 nr. 1801 (i kraft 1 jan 2025), 12 aug 2026 nr. 1625.\nRettelser: 01.11.2005 (§ 6, tekst til skilt 202), 03.11.2005, 14.11.2005 (skilt 106.3), 04.11.2006 (skilt 1094, overskrift), 26.05.2006 (skilt 904V), 21.06.2022 (tekst for skilt 382), 07.08.2024 (struktur i § 39 og § 40), 30.01.2025 (strukturforbedring for skiltoppsett).",
+    "ikrafttredelse": "2005-10-07",
+    "rent_endringsvedtak": false,
+    "kildeform": "konsolidert",
+    "node": [
+     {
+      "eid": "https://lovdata.no/eli/forskrift/2005/10/07/1219/nor/§47/ledd-2",
+      "tekst": "Forskrifter 10. oktober 1980 nr. 1 om offentlige trafikkskilt, vegoppmerking, trafikklyssignaler og anvisninger (skiltforskrifter) oppheves 1. juni 2006.",
+      "forelder": null
+     }
+    ]
+   }
+  },
+  {
+   "id": "K01",
+   "gjelder": "Kontroll: setning som før ble lest som delvis og nå som hel oppheving",
+   "kilde": "SF/forskrift/2025-07-04-1457",
+   "eid": "https://lovdata.no/eli/forskrift/2025/07/04/1457/nor/§22/ledd-3",
+   "maal": "2022-3-14-387",
+   "sitat": "Forskrift 14. mars 2022 nr. 387 om nasjonal retningslinje for tverrfaglig videreutdanning i psykisk helse-, rus- og avhengighetsarbeid oppheves 1. august 2025.",
+   "hele_teksten": "Forskrift 14. mars 2022 nr. 387 om nasjonal retningslinje for tverrfaglig videreutdanning i psykisk helse-, rus- og avhengighetsarbeid oppheves 1. august 2025."
+  },
+  {
+   "id": "K02",
+   "gjelder": "Kontroll: setning som før ble lest som delvis og nå som hel oppheving",
+   "kilde": "SF/forskrift/2003-03-07-290",
+   "eid": "kap-II/ledd-1",
+   "maal": "1997-3-25-265",
+   "sitat": "Forskrift av 25. mars 1997 nr. 265 om stønad til motorkjøretøy eller annet transportmiddel oppheves 1. april 2003.",
+   "hele_teksten": "Forskrift av 25. mars 1997 nr. 265 om stønad til motorkjøretøy eller annet transportmiddel oppheves 1. april 2003."
+  },
+  {
+   "id": "K03",
+   "gjelder": "Kontroll: setning som før ble lest som delvis og nå som hel oppheving",
+   "kilde": "SF/forskrift/2015-09-18-1063",
+   "eid": "https://lovdata.no/eli/forskrift/2015/09/18/1063/nor/§29/ledd-2/punkt-3",
+   "maal": "1998-7-1-688",
+   "sitat": "Fra den tid forskriften trer i kraft oppheves: delegering 1. juli 1998 nr. 688 av myndighet til å føre register over postoperatører.",
+   "hele_teksten": "Fra den tid forskriften trer i kraft oppheves: delegering 1. juli 1998 nr. 688 av myndighet til å føre register over postoperatører."
+  },
+  {
+   "id": "K04",
+   "gjelder": "Kontroll: setning som før ble lest som delvis og nå som hel oppheving",
+   "kilde": "SF/forskrift/2019-11-11-1492",
+   "eid": "https://lovdata.no/eli/forskrift/2019/11/11/1492/nor/§16/ledd-2",
+   "maal": "2013-12-9-1552",
+   "sitat": "Forskrift 8. juni 2013 nr. 672 om sertifikat etter sjøloven § 182a og forskrift 9. desember 2013 nr. 1552 om forsikring og annen sikkerhet for ansvar etter enkelte bestemmelser i sjøloven oppheves 1. januar 2020.",
+   "hele_teksten": "Forskrift 8. juni 2013 nr. 672 om sertifikat etter sjøloven § 182a og forskrift 9. desember 2013 nr. 1552 om forsikring og annen sikkerhet for ansvar etter enkelte bestemmelser i sjøloven oppheves 1. januar 2020."
+  },
+  {
+   "id": "K05",
+   "gjelder": "Kontroll: setning som før ble lest som delvis og nå som hel oppheving",
+   "kilde": "SF/forskrift/2013-05-13-509",
+   "eid": "https://lovdata.no/eli/forskrift/2013/05/13/509/nor/§9/ledd-3",
+   "maal": "2003-9-2-1116",
+   "sitat": "Forskrift 2. september 2003 nr. 1116 om fruktjuice og lignende produkter oppheves 28. oktober 2013.",
+   "hele_teksten": "Forskrift 2. september 2003 nr. 1116 om fruktjuice og lignende produkter oppheves 28. oktober 2013."
+  },
+  {
+   "id": "K06",
+   "gjelder": "Kontroll: setning som før ble lest som delvis og nå som hel oppheving",
+   "kilde": "SF/forskrift/2025-09-04-1828",
+   "eid": "https://lovdata.no/eli/forskrift/2025/09/04/1828/nor/§18/ledd-3",
+   "maal": "2025-7-4-1464",
+   "sitat": "Forskrift 4. juli 2025 nr. 1464 om nasjonal retningslinje for barnevernspedagogutdanning oppheves 1. januar 2026.",
+   "hele_teksten": "Forskrift 4. juli 2025 nr. 1464 om nasjonal retningslinje for barnevernspedagogutdanning oppheves 1. januar 2026."
+  },
+  {
+   "id": "K07",
+   "gjelder": "Kontroll: setning som før ble godtatt som hel oppheving og nå avvises av vakten",
+   "kilde": "DEL/forskrift/2002-12-20-1627",
+   "eid": "https://lovdata.no/eli/forskrift/2002/12/20/1627/nor/§1/ledd-2",
+   "maal": "1985-6-14-62",
+   "hele_teksten": "Fra samme tidspunkt oppheves forskrifter gitt i medhold av lov av 14. juni 1985 nr. 62 om Verdipapirsentral."
+  },
+  {
+   "id": "K08",
+   "gjelder": "Kontroll: setning som før ble godtatt som hel oppheving og nå avvises av vakten",
+   "kilde": "DEL/forskrift/2003-12-19-1948",
+   "eid": "https://lovdata.no/eli/forskrift/2003/12/19/1948/nor/ledd-1/punkt-6",
+   "maal": "1925-7-17-11",
+   "hele_teksten": "Med hjemmel i lov 17. juli 1925 nr. 11 om Svalbard § 4 og kgl.res. 25. mars 1988 nr. 250 om sikkerhet for undersøkelse og leteboring etter petroleumsforekomster på Svalbard gis Petroleumstilsynet myndighet til å føre tilsyn med og fatte de enkeltvedtak som er nødvendig for gjennomføringen av forskriften § 10. Tidligere delegering gitt til Oljedirektoratet 4. mai 1988 oppheves."
+  },
+  {
+   "id": "K09",
+   "gjelder": "Kontroll: setning som før ble godtatt som hel oppheving og nå avvises av vakten",
+   "kilde": "SF/forskrift/2012-11-22-1088",
+   "eid": "https://lovdata.no/eli/forskrift/2012/11/22/1088/nor/§34/ledd-1",
+   "maal": "1971-5-21-47",
+   "hele_teksten": "Tidligere enkeltvedtak om intervaller for periodisk kontroll av transportabelt trykkutstyr, fastsatt med hjemmel i lov 21. mai 1971 nr. 47 om brannfarlige varer samt væsker og gasser under trykk, eller lov 14. juni 2002 nr. 20 om vern mot brann, eksplosjon og ulykker med farlig stoff og om brannvesenets redningsoppgaver, eller i forskrifter gitt i medhold av disse, oppheves med virkning fra 1. januar 2015."
+  },
+  {
+   "id": "K10",
+   "gjelder": "Kontroll: setning som før ble godtatt som hel oppheving og nå avvises av vakten",
+   "kilde": "SF/forskrift/2022-12-20-2384",
+   "eid": "https://lovdata.no/eli/forskrift/2022/12/20/2384/nor/§2/ledd-2/punkt-2",
+   "maal": "2002-6-21-45",
+   "hele_teksten": "operatør med løyve for persontransport etter lov 21. juni 2002 nr. 45 om yrkestransport med motorvogn og fartøy (yrkestransportlova), eller med løyvefritak etter samme lov, som skal oppfylle offentlig tjenesteplikt i henhold til forskrift 17. desember 2010 nr. 1673 om gjennomføring i norsk rett av EØS-avtalen vedlegg XIII nr. 4a (forordning (EF) nr. 1370/2007) om offentlig persontransport med jernbane og på vei og om oppheving av rådsforordning (EØF) nr. 1191/69 og nr. 1107/70."
+  },
+  {
+   "id": "K11",
+   "gjelder": "Kontroll: «av myndighet» ville gjort setningen hel, men neste setning avgrenser opphevingen, så den leses som delvis",
+   "kilde": "LTI/forskrift/2016-12-13-1596",
+   "eid": "kap-II/ledd-2",
+   "maal": "2010-3-18-425",
+   "hele_teksten": "Fra samme tid oppheves:Delegering 18. mars 2010 nr. 425 av myndighet fra Helse- og omsorgsdepartementet til Helsedirektoratet etter tvisteloven § 2-5. Delegeringen oppheves for saker der stevning er inngitt etter 31. desember 2016."
+  }
+ ]
+}
