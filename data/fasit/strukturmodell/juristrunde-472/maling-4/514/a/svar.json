@@ -1,0 +1,27 @@
+[
+ {
+  "id": "V02",
+  "svar": "aksepter",
+  "begrunnelse": "Rettet. Når dekningen bare bygger på at vedtaket er lest som enkeltvedtak, er kunnskapsstatusen nå fortolkning (HjemmelsstatusRegel.SettVidereforing, dekketSomEnkeltvedtak). Det gjelder alle fire radene (V01–V04), fordi INS og SF ikke var dekket etter prefikset før #514. Testen N16_… holder det fast. Kaldkjøringen er gjentatt i kopien."
+ },
+ {
+  "id": "V05",
+  "svar": "aksepter",
+  "begrunnelse": "Rettet. En tittel som begynner med «Forskrift» leses ikke som enkeltvedtak (Enkeltvedtaklesing). TONO-vedtaket faller da ut, og utfallet er uendret fordi hjemmelen er aktiv. Treffene er nå V01–V04. Ordet «fortsatt» i parten forsvinner med det."
+ },
+ {
+  "id": "merknad-vedtak",
+  "svar": "aksepter",
+  "begrunnelse": "Rettet. Bare ordene «vedtak» og «enkeltvedtak» (med bøyning) dekker, ikke «vedtaksmyndighet» (\\b(enkelt)?vedtak(et|ene|a)?\\b). At «vedtak» alene dekker enkeltvedtak, er ikke prøvd i utvalget; det står i docs/33 som ikke målt."
+ },
+ {
+  "id": "merknad-statlig",
+  "svar": "delvis",
+  "begrunnelse": "Enig i at statlig organ bare kjennes på navnet. Ingen statlige eller private institusjoner som faller feil, finnes i korpus nå (juristens egen kontroll). Å slå opp organet i virksomhetskatalogen er en større endring; den føres som kjent begrensning i docs/33, ikke bygget her."
+ },
+ {
+  "id": "K01",
+  "svar": "aksepter",
+  "begrunnelse": "Vedtektene for Norsk Tipping ble gitt på nytt i 2022. Det gjelder populasjonen (#472), ikke #514, og føres som oppfølging i PR-en."
+ }
+]

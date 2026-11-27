@@ -3176,6 +3176,48 @@ er 16 av de 163 (DEL 12, INS 2, LTI 1, SF 1, frø 20261127). Filene ligger i `da
 
 #429 trenger ingen ny kjøring.
 
+[ENDRET, #514, prosjekteierens avgjørelse 2026-11-27] **Enkeltvedtak som overgangsregelen dekker** (spørsmålet etter måling 3b, N14 og N16). Noen
+SF- og INS-kilder er enkeltvedtak, ikke forskrifter eller instrukser. Lovdatas base sier ikke det, så det leses av vedtaket (`Enkeltvedtaklesing`).
+Det gjettes ikke (§8): alle vilkårene må holde.
+1. **Innholdet** har en operativ setning som gir en navngitt part en avgjørelse: «meddeles/gis/tildeles/innvilges X tillatelse/konsesjon/løyve/
+   dispensasjon/fritak/godkjenning/samtykke/bevilling/autorisasjon/akkreditering/status som …», «får X (med virkning fra ‹dato›) status som …» eller
+   «X godkjennes som …».
+2. **Tittelen** eller kortnavnet nevner parten (det første ordet i navnet), og tittelen begynner ikke med «Forskrift».
+3. **Vedtaket er kort** (høyst 8 noder med tekst) og har ingen generelle regler («Formål», «Virkeområde», «Denne forskrift gjelder»).
+4. **Parten er ikke et statlig organ** («Høgskolen i …», «Universitetet i …», «Statens …», «…departementet», «…direktoratet», «…tilsynet»). Status,
+   navn og fusjon for et statlig organ er organiseringsvedtak (#438, avgjørelse B i #446), ikke enkeltvedtak etter fvl. § 2 første ledd bokstav b.
+   Kjent begrensning: organet kjennes bare på navnet. Ingen institusjon i korpus faller feil i dag.
+
+**Hjemmelsteksten** («vedtak om …» rettet mot en navngitt part) er undersøkt og gir 0 treff blant de 1 533 korte vedtakene utenom DEL. Den brukes ikke.
+
+**Dekningen:** et vedtak som er lest som enkeltvedtak, er dekket når overgangsregelen nevner «enkeltvedtak» eller «vedtak» (ordet, ikke
+«vedtaksmyndighet»). «vedtak» alene dekker enkeltvedtak (fvl. § 2 første ledd bokstav a og b), men det er ikke prøvd i målingen: alle treffene sier
+«enkeltvedtak». Regelen kan bare gjøre flere videreføringer dekket. Dekningen bygger da på lesingen av vedtakstypen, så kunnskapsstatusen er
+fortolkning. Rapporten fra hjemmelsstatusen teller enkeltvedtakene (`enkeltvedtak`, med `?medRader=true` lista `enkeltvedtakListe`). Regelversjonen
+for hjemmelsstatusen er `514-2026-11-27`. Testene står i `EnkeltvedtakTests`.
+
+**Treffene** (hele populasjonen): INS/forskrift/2011-06-24-650 (Lovisenberg diakonale høgskole, N14), SF/forskrift/2001-08-31-1074 (Posten Norge BA,
+N16), INS/forskrift/2011-06-24-649 (Ansgar Teologiske Høgskole) og INS/forskrift/2007-03-16-304 (Norsk Lærerakademi). Overgangsreglene er uhl. 2024
+§ 17-3 («Forskrifter og enkeltvedtak …») og postloven 2015 § 57 fjerde ledd («Enkeltvedtak med hjemmel i lov 29. november 1996 nr. 73 …»).
+
+**Kaldkjørt i kopien** (`regelide_502`, etter #502, API på 5387, 2026-11-27):
+
+| | Før (#502) | Etter (#514) |
+|---|---|---|
+| Hjemmelsrader med endret dekning | — | 4: dokumenttype ikke nevnt → dekket (kunnskapsstatus fortolkning). Ingen status endres |
+| Samlet: videreført / uavklart | 317 / 189 | 321 / 185 |
+| #472, oppdaget | 397 | **393**: N14, N16, Ansgar og NLA forklart bort (samlet videreført) |
+| #429 | 591 | uendret |
+| Ny kjøring | — | 0 på alt |
+
+Juristen anslo i måling 3b om lag 8 av 12 INS- og SF-funn. Det var for høyt, fordi anslaget regnet med de statlige høgskolevedtakene (Molde, Bodø,
+fusjonen HiO/HiAk og navneendringen for KHiB), som står som uavklart.
+
+**Målt 2026-11-27 (måling 4 del 2, to runder, i kopien).** Alle 5 treffene fra første versjon og 12 kontrollvedtak. Treffene etter rettingene er
+4/4 riktige, **1,00 (Wilson 95 % 0,51–1,00)**. Før rettingen var det 4/5, 0,80 (0,38–0,96): TONO-vedtaket (SF/forskrift/1971-06-25-3800) har også en
+generell regel og er nå utelatt (vilkår 2). Kontroll 12/12, 1,00 (0,76–1,00). Rettet etter runde 1: kunnskapsstatusen (fortolkning), TONO, og
+«vedtaksmyndighet». Filene står i `data/fasit/strukturmodell/juristrunde-472/maling-4/514/`.
+
 ### 5.22 Vedtaksformen: rene endrings-, ikrafttredelses- og opphevingsvedtak (#446 PR 1, bygget 2026-11-26)
 
 [Ny, prosjekteierens avgjørelse 2026-11-25 i #446] Et vedtak som bare endrer, setter i kraft eller opphever andre dokumenter, har uttømt

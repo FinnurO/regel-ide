@@ -1,0 +1,249 @@
+[
+ {
+  "id": "V01",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Lovisenberg diakonale høgskole er en privat institusjon. Vedtaket etter uhl. 2005 § 1-2 annet ledd avgjør kategorien og dermed fullmaktene etter § 3-3 annet ledd for én bestemt juridisk person. Det er et enkeltvedtak etter fvl. § 2 første ledd bokstav b [slutning]. Uhl. 2024 § 17-3 viderefører «Forskrifter og enkeltvedtak», så vedtaket er dekket uansett om det leses som forskrift eller som enkeltvedtak. Feilen før #514 var altså at INS ble lest som instruks, ikke at vedtakstypen var uklar. Utfallet (videreført og funnet forklart bort) er riktig. Ikke kontrollert: om departementet har «fastsatt noe annet» etter § 17-3.",
+  "retting": null,
+  "kilder": [
+   {"ref": "INS/forskrift/2011-06-24-650 (innholdet)", "funksjon": "direkte_hjemmel"},
+   {"ref": "uhl. 2005 (lov 1. april 2005 nr. 15) § 1-2 annet ledd: kategorien for den enkelte institusjon avgjøres av Kongen", "funksjon": "direkte_hjemmel"},
+   {"ref": "uhl. 2024 (lov 8. mars 2024 nr. 9) § 17-3", "funksjon": "direkte_hjemmel"},
+   {"ref": "fvl. § 2 første ledd bokstav b", "funksjon": "forutsatt_kilde"}
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "V02",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "lav",
+  "innvending": "Lesingen og utfallet holder. Tillatelsen er gitt til et selvstendig selskap (Posten Norge BA, nå Posten Bring AS), ikke til et statlig organ. Den gjelder Postens rett til å utgi frimerker, så den er et enkeltvedtak etter fvl. § 2 første ledd bokstav b [slutning]. Postloven 2015 § 57 fjerde ledd viderefører enkeltvedtak etter postloven 1996 «som er i kraft», og ordningen finnes fortsatt i postloven 2015 § 18 første ledd. Innvendingen gjelder kunnskapsstatusen. Overgangsregelen nevner bare enkeltvedtak, så her avgjør vedtakstypen dekningen alene, og den er lest av en maskinregel, ikke sagt i teksten. Raden har likevel kunnskapsstatus «tekstfunn» (V1) i kopien. Når dekningen hviler på Enkeltvedtaklesing, bør kunnskapsstatusen være «fortolkning», som for dekningen «dokumenttype ikke nevnt» i docs/33 §5.20 [slutning]. Feltet finnes ikke i kortet.",
+  "retting": null,
+  "kilder": [
+   {"ref": "SF/forskrift/2001-08-31-1074 (innholdet)", "funksjon": "direkte_hjemmel"},
+   {"ref": "postloven 2015 (lov 4. september 2015 nr. 91) § 57 fjerde ledd", "funksjon": "direkte_hjemmel"},
+   {"ref": "postloven 2015 § 18 første ledd (tillatelse til å utgi frimerker påført «Norge» eller «Noreg»)", "funksjon": "forutsatt_kilde"},
+   {"ref": "docs/33 §5.20 (kunnskapsstatus per hjemmel)", "funksjon": "forutsatt_kilde"},
+   {"ref": "fvl. § 2 første ledd bokstav b", "funksjon": "forutsatt_kilde"}
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "V03",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder av samme grunner som V01. Ansgar Teologiske Høgskole (nå Ansgar høyskole) er privat, og statusvedtaket etter uhl. 2005 § 1-2 annet ledd er rettet mot den [slutning]. Uhl. 2024 § 17-3 nevner både forskrifter og enkeltvedtak, så vedtaket er dekket. Utfallet er riktig. Ikke kontrollert: om departementet har fastsatt noe annet.",
+  "retting": null,
+  "kilder": [
+   {"ref": "INS/forskrift/2011-06-24-649 (innholdet)", "funksjon": "direkte_hjemmel"},
+   {"ref": "uhl. 2005 § 1-2 annet ledd", "funksjon": "direkte_hjemmel"},
+   {"ref": "uhl. 2024 § 17-3", "funksjon": "direkte_hjemmel"}
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "V04",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Godkjenningen som høyskole av en privat institusjon etter uhl. 2005 § 1-2 er et enkeltvedtak rettet mot institusjonen [slutning], og uhl. 2024 § 17-3 dekker det. Hjemmelen i vedtaket er «§ 1-2» uten ledd, men det endrer ikke dekningen, fordi § 17-3 gjelder alle regler som oppheves. Ikke kontrollert: om institusjonen senere er slått sammen eller har skiftet navn. Det angår om vedtaket fortsatt har virkning (#438), ikke dekningen.",
+  "retting": null,
+  "kilder": [
+   {"ref": "INS/forskrift/2007-03-16-304 (innholdet)", "funksjon": "direkte_hjemmel"},
+   {"ref": "uhl. 2005 § 1-2 annet ledd", "funksjon": "direkte_hjemmel"},
+   {"ref": "uhl. 2024 § 17-3", "funksjon": "direkte_hjemmel"}
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "V05",
+  "dom": "innvending",
+  "gjelder": "raden",
+  "alvor": "middels",
+  "innvending": "Lesingen som enkeltvedtak er bare delvis riktig. Dokumentet er blandet. Del I er to bevillinger (til TONO og NCB), og de er enkeltvedtak, men de gjaldt «for et tidsrom av ti år med virkning fra 1. april 1971». Lovdata viser ingen fornyelse, så bevillingene har etter ordlyden løpt ut i 1981 [slutning]. Del II overfører bevillingsmyndigheten til departementet (en delegering). Del III fastsetter at avgiften er høyst fem prosent av «de avgiftspliktiges bruttoomsetning». Det er en generell regel for et ubestemt antall avgiftspliktige, altså en forskrift etter fvl. § 2 første ledd bokstav c [slutning]. Vilkår 3 i regelen («ingen generelle regler») fanger bare overskriftene Formål, Virkeområde og «Denne forskrift gjelder», ikke en slik materiell generell regel. Utfallet påvirkes ikke her, fordi hjemmelen (lov 9. april 1965 nr. 1 § 3) er aktiv. Men oppheves hjemmelen og overgangsregelen bare nevner enkeltvedtak, vil regelen kalle forskriftsdelen dekket, og det er motsatt resultat for den delen. Den leste parten har også fått med ordet «fortsatt» («TONO (…) fortsatt»), en feil i tekstlesingen.",
+  "retting": {"gjelder": "Ikke lest som enkeltvedtak (blandet: enkeltvedtak, delegering og forskrift)", "lest_part": "TONO (Norsk Komponistforenings Internasjonale Musikkbyrå)"},
+  "kilder": [
+   {"ref": "SF/forskrift/1971-06-25-3800 del I–III (Lovdata, endret ved forskrift 25. mars 2002 nr. 376 i del II)", "funksjon": "direkte_hjemmel"},
+   {"ref": "fvl. § 2 første ledd bokstav b og c", "funksjon": "forutsatt_kilde"},
+   {"ref": "src/RegelIde.Data/Enkeltvedtaklesing.cs (Generell, vilkår 3)", "funksjon": "forutsatt_kilde"}
+  ],
+  "klasse": "feil",
+  "feilarsak": "vedtakstypen"
+ },
+ {
+  "id": "K01",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Vedtektene for et statlig aksjeselskap er selskapsrettslige og organisatoriske bestemmelser, ikke et enkeltvedtak, og pengespilloven 2022 § 38 andre ledd nevner bare forskrifter. Utenfor #514: vedtektene ble gitt på nytt i sin helhet 25. november 2022 (nr. 2256, i kraft 1. januar 2023), og innholdet viser til pengespilloven § 11 og § 12, altså den nye loven. Funnet bygger derfor trolig på en utdatert hjemmelsopplysning, og det bør tas med i #438 eller i hjemmelsstatusen [slutning].",
+  "retting": null,
+  "kilder": [
+   {"ref": "INS/forskrift/1992-12-11-1266 (innholdet og annet om dokumentet)", "funksjon": "direkte_hjemmel"},
+   {"ref": "pengespilloven 2022 (lov 18. mars 2022 nr. 12) § 38 andre ledd (sitatet)", "funksjon": "direkte_hjemmel"}
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "K02",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Dette er en tjenesteinstruks for et statlig kontrollorgan (oppnevning, oppgaver og rapportering) og ikke et enkeltvedtak. Overgangsregelen nevner bare forskrifter, så dekningen «dokumenttype ikke nevnt» er riktig.",
+  "retting": null,
+  "kilder": [
+   {"ref": "INS/forskrift/2000-03-21-285 (innholdet)", "funksjon": "direkte_hjemmel"},
+   {"ref": "pengespilloven 2022 § 38 andre ledd (sitatet)", "funksjon": "direkte_hjemmel"}
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "K03",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Dette er en instruks til et statlig tilsynsorgan om hvordan tilsynet skal utøves, med formål, virkeområde og definisjoner. Den er generell og intern, ikke et enkeltvedtak. Matloven § 36 andre ledd nevner forskrift og enkeltvedtak, men ikke instruks. Utenfor raden: Statens dyrehelsetilsyn finnes ikke lenger (Mattilsynet fra 2004), så om instruksen fortsatt har virkning, er et spørsmål for #438.",
+  "retting": null,
+  "kilder": [
+   {"ref": "INS/forskrift/2001-02-01-1702 (innholdet)", "funksjon": "direkte_hjemmel"},
+   {"ref": "matloven (lov 19. desember 2003 nr. 124) § 36 andre ledd (sitatet)", "funksjon": "direkte_hjemmel"}
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "K04",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Dette er en tilsynsinstruks til Landbrukstilsynet med 161 noder og definisjoner, så den er ikke et enkeltvedtak. Matloven § 36 andre ledd nevner ikke instruks.",
+  "retting": null,
+  "kilder": [
+   {"ref": "INS/forskrift/2001-07-04-820 (innholdet)", "funksjon": "direkte_hjemmel"},
+   {"ref": "matloven § 36 andre ledd (sitatet)", "funksjon": "direkte_hjemmel"}
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "K05",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Dette er en instruks til tilsynsveterinæren om kontrollens innhold, og den er generell og intern, ikke et enkeltvedtak. At den tidligere ble forklart bort (docs/33 §5.21), angår ikke #514.",
+  "retting": null,
+  "kilder": [
+   {"ref": "INS/forskrift/2003-05-08-594 (innholdet)", "funksjon": "direkte_hjemmel"}
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "K06",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Uhl. 2005 § 1-2 annet ledd er samme hjemmel som i V01 og V03, men Høgskolen i Molde er et statlig forvaltningsorgan og ikke et eget rettssubjekt. Kategorien og navnet er et organiseringsvedtak om statens egen forvaltning. Fvl. § 2 første ledd bokstav b forutsetter rettigheter eller plikter for en «person» utenfor organet som avgjør [slutning]. Skillet mellom statlig og privat institusjon i vilkår 4 er derfor rettslig riktig. Navnedelen er et engangsvedtak (avgjørelse B, #438). Da passer det at funnet står som «uavklart»: § 17-3 nevner forskrifter og enkeltvedtak, men ikke organiseringsvedtak. Svakhet i regelen (ikke i dette kortet): vilkår 4 kjenner statlige organer på navnet («Høgskolen …», «Universitetet …»). Statlige institusjoner med andre navn, som Norges idrettshøgskole, Kunsthøgskolen i Oslo og Samisk høgskole, slipper gjennom. Private institusjoner med navn som begynner på «Høgskolen» blir utelatt.",
+  "retting": null,
+  "kilder": [
+   {"ref": "INS/forskrift/2009-11-20-1428 (innholdet)", "funksjon": "direkte_hjemmel"},
+   {"ref": "uhl. 2005 § 1-2 annet ledd", "funksjon": "direkte_hjemmel"},
+   {"ref": "uhl. 2024 § 17-3", "funksjon": "direkte_hjemmel"},
+   {"ref": "fvl. § 2 første ledd bokstav b", "funksjon": "forutsatt_kilde"},
+   {"ref": "docs/33 §5.22, prosjekteierens avgjørelse B (#446)", "funksjon": "forutsatt_kilde"}
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "K07",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder av samme grunner som K06. Høgskolen i Bodø er statlig, og status som universitet og nytt navn er et organiseringsvedtak, ikke et enkeltvedtak [slutning]. Utenfor raden: Universitetet i Nordland gikk senere inn i Nord universitet, så vedtaket har trolig uttømt virkning (#438) [slutning, ikke kontrollert i korpus].",
+  "retting": null,
+  "kilder": [
+   {"ref": "INS/forskrift/2010-11-19-1470 (innholdet)", "funksjon": "direkte_hjemmel"},
+   {"ref": "uhl. 2005 § 1-2 annet ledd", "funksjon": "direkte_hjemmel"},
+   {"ref": "fvl. § 2 første ledd bokstav b", "funksjon": "forutsatt_kilde"}
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "K08",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Sammenslåingen av to statlige høyskoler er et organiseringsvedtak og et engangsvedtak (#438), ikke et enkeltvedtak. Merk at det ikke er vilkår 4 som holder vedtaket ute. Teksten har ikke noe avgjørelsesord, så vilkår 1 slår ikke til. Kortet sier derfor lite om statlig-vilkåret.",
+  "retting": null,
+  "kilder": [
+   {"ref": "INS/forskrift/2011-01-21-93 (innholdet)", "funksjon": "direkte_hjemmel"},
+   {"ref": "docs/33 §5.22, avgjørelse B", "funksjon": "forutsatt_kilde"}
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "K09",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Navneendringen for en statlig høyskole er et navnevedtak og hører til #438 (avgjørelse B), ikke et enkeltvedtak. Som i K08 er det vilkår 1 som holder vedtaket ute (ingen avgjørelsesord), ikke vilkår 4.",
+  "retting": null,
+  "kilder": [
+   {"ref": "INS/forskrift/2012-02-03-125 (innholdet)", "funksjon": "direkte_hjemmel"},
+   {"ref": "docs/33 §5.22, avgjørelse B", "funksjon": "forutsatt_kilde"}
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "K10",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Dispensasjonen gjelder alle forskningsfartøyer som er sivile statsfartøyer og har konsesjon, altså en ubestemt krets. Det er en generell dispensasjon og dermed en forskrift etter fvl. § 2 første ledd bokstav c, ikke et enkeltvedtak [slutning]. Regelen leser den riktig ikke som enkeltvedtak, fordi parten ikke står mellom «gis» og «dispensasjon».",
+  "retting": null,
+  "kilder": [
+   {"ref": "SF/forskrift/2009-06-05-617 (innholdet)", "funksjon": "direkte_hjemmel"},
+   {"ref": "fvl. § 2 første ledd bokstav c", "funksjon": "forutsatt_kilde"}
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "K11",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Godkjenningen av våpen og flagg for Den norske kirke i 1990, da kirken var en del av staten, er et organiseringsvedtak. Dokumentet har også en delegering til Kirkemøtet. Det er ikke et enkeltvedtak etter fvl. § 2 første ledd bokstav b [slutning]. Kortet har ingen hjemmelsrader, så dekningen er ikke aktuell.",
+  "retting": null,
+  "kilder": [
+   {"ref": "INS/forskrift/1990-09-28-866 (innholdet)", "funksjon": "direkte_hjemmel"}
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ },
+ {
+  "id": "K12",
+  "dom": "holder",
+  "gjelder": "raden",
+  "alvor": null,
+  "innvending": "Holder. Godkjenningen av leirer og fengsler som tvangsarbeidsanstalter, delegeringen og opphevingen er organiseringstiltak og generelle regler. Vedtaket er ikke rettet mot en part med egne rettigheter, så det er ikke et enkeltvedtak. Regelen ser ikke parten «Dillingøy» i tittelen og leser riktig null. Hjemmelen er opphevet uten funnet videreføring, så #514 endrer uansett ikke utfallet.",
+  "retting": null,
+  "kilder": [
+   {"ref": "SF/forskrift/1952-08-22-5 (innholdet)", "funksjon": "direkte_hjemmel"}
+  ],
+  "klasse": "riktig",
+  "feilarsak": null
+ }
+]
