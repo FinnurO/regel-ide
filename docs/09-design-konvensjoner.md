@@ -1660,3 +1660,27 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
 - **Kaldsjekket 2026-11-24** i kopien `regelide_472pr4` (API 5387, web 5373): fra forsiden til «Funn til vurdering», søk «Siviltjenesten». Lista
   viste FOR-2005-12-16-1816 med merket. Funnet viste påstanden «Korpuset har … bare slik det ble kunngjort i Norsk Lovtidend», mangelen og feltet.
   Etter lagring med «Gjeldende status» var merket borte. Kopien er slettet.
+
+## 59. Startsiden «Til vurdering» (issue #517, Johanns avgjørelser 2026-11-27)
+
+- **Hvor:** `pages/TilVurdering.tsx` på «/» (før sendte «/» til Tjenester). Menylenken «Til vurdering» står først i sidemenyen, over gruppene,
+  med `Badge` (`variant="tinted"`, `neutral`, som aktørkøen i §50) for elementene i de klare køene. Telleren vises ikke mens tallet lastes
+  eller når kallet feiler: en gjettet 0 vises aldri.
+- **En guide, ikke en kø.** Siden lenker inn i køene som finnes, og har ingen knapper som skriver. Tallene kommer fra ett kall,
+  `GET /api/til-vurdering` (`TilVurderingTjeneste`), som regner med samme regel som køen (premissporten, aktørkøens ruting,
+  forslagskøens ventende). Feiler kallet, står en `warning`-`Alert` «Tallene er ikke tilgjengelige», ingen tall.
+- **Rekkefølgen og tekstene** står i den rene modulen `tilvurdering/tilVurdering.ts` (vitest, §17). [LÅST, #517] Rekkefølgen er fast og
+  begrunnet: departementenes navneformer, aktørkøens klare navn, etterfølgerforslag, resten av aktørkøen, piloten, «gjeldende status».
+  «Start her» er den første av dem som har noe som venter; i dag departementene, med de sju aktørene som holder igjen flest funn.
+- **Oppsettet:** H1 og `Metatekst`-ingress med tidspunktet tallene er hentet. Så «Start her» som `Card data-color="accent" variant="tinted"`,
+  det eneste uthevede kortet på siden (samme regel som hjemmelkortet, §52), med `Tag` `info` «Start her», tiden, en kompakt tabell og én
+  primærknapp. Deretter to kort med `Card` padding 0 og kompakt tabell (§6): «Klar til vurdering» (nummerert, med tid) og «Venter på noe annet
+  enn deg». Til slutt de eldre køene og det som ligger utenfor appen i lukkede `Details`.
+- **Per kø:** lenken (intern med `Link asChild`, saken på GitHub med ↗ når køen mangler en skjerm), hvor i appen som `Metatekst`, «Hva én
+  vurdering krever» i en lukket `Details`, antallet, tid per element og i alt, hva den låser opp med tall, og hva som blokkerer.
+- **Fargerollene (låst per betydning, §15/§25/§35):** det som blokkerer en kø (mangler skjerm, måling eller arbeidsflyt) er `warning`, et
+  synlig hull. En rekkefølge («Etter punkt 2 og 4») er `neutral`. «Start her» er `info`. Navneformgrunnen bruker `NavneformgrunnTag` (§15).
+  Ingen nye farger.
+- **Tid er et anslag** og står som det, i ingressen, i kolonneoverskriften og ved «Start her» (AK 5). Minuttene per element står i modulen;
+  totalen regnes av antallet.
+- **Det appen ikke vet, vises uten tall** (fasitgjennomgangen #309, åpne pull requests): en lenke og en merknad, ikke en gjettet verdi.

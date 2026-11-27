@@ -40,6 +40,8 @@ import KildefeilListe from './pages/KildefeilListe';
 import FunnListe from './pages/FunnListe';
 import FunnDetalj from './pages/FunnDetalj';
 import FunnNytt from './pages/FunnNytt';
+// [Ny, issue #517] «Til vurdering» er startsiden.
+import TilVurdering from './pages/TilVurdering';
 
 /** [Ny, issue #440] /navnekandidater → /aktorko. ?rettskildeId følger med (køen filtrerer på den); ?oppdagelsesKilde og de andre
  * filtrene hører til den flate lista, så da går omdirigeringen dit. */
@@ -57,10 +59,10 @@ function App() {
       <Sidebar />
       <main className="innhold">
         <Routes>
-          {/* "Startside" (Startside Alternativ 1c, 2026-08-20) ER Tjenester-siden — ingen egen
-              landingsside bygget, siden det er virksomhetens eget arbeidsprodukt (ikke Rettskilder,
-              den forrige defaultruten) som er det naturlige stedet å lande. */}
-          <Route path="/" element={<Navigate to="/tjenester" replace />} />
+          {/* [ENDRET, issue #517, Johanns avgjørelse 2026-11-27] Startsiden er «Til vurdering»: det som venter på en menneskelig
+              avgjørelse, per kø. Før (Startside Alternativ 1c, 2026-08-20) sendte «/» til Tjenester, som var virksomhetens eget
+              arbeidsprodukt; nå er det vurderingene som holder modellen igjen, som er stedet å begynne. */}
+          <Route path="/" element={<TilVurdering />} />
           <Route path="/rettskilder" element={<RettskilderListe />} />
           <Route path="/rettskilder/:id" element={<RettskildeDetalj />} />
           <Route path="/importer" element={<Importer />} />

@@ -3227,3 +3227,34 @@ export interface GeneriskOmtaleRapport {
   skrevet: boolean; ord: string; forekomster: number; rettskilder: number; utenfor: number; utenforPerRute: Record<string, number>;
   navneformFinnes: boolean; tagget: number; ikkeTagget: number; sperre: string | null;
 }
+
+// ---------------------------------------------------------------------- [Ny, issue #517] «Til vurdering»
+
+/** [Ny, #517] Svaret fra `GET /api/til-vurdering`: bare tall og id-er. Tekstene og rekkefølgen står i `tilvurdering/tilVurdering.ts`. */
+export interface TilVurderingDto {
+  hentet: string;
+  departementer: {
+    aktorer: {
+      virksomhetId: string; navn: string; funn: number;
+      navneformer: { begrepId: string; term: string; navneformgrunn: string | null; godkjenning: string }[];
+    }[];
+    funnMedNavneformmangel: number;
+    /** Element i: antall ulike funn de i+1 første aktørene holder igjen. */
+    funnKumulativt: number[];
+  };
+  aktorko: {
+    antallNavn: number; forekomster: number; klare: number; trengerSted: number; perHandling: Record<string, number>;
+    relasjonerVenterPaNavn: number; pilotNavn: number;
+  };
+  etterfolgere: { forslag: number; manuelle: number; funnMedEtterfolgermangel: number; funnManuelle: number };
+  pilot: { forslag: number; ki: number; monster: number; rettskilder: string[] };
+  hjemmelOpphevet: { oppdaget: number; holdesAvNyHjemmel: number; kunngjortVersjon: number; andreFunnOppdaget: number };
+  utgattAktor: { oppdaget: number };
+  forekomster: { term: string; forslag: number; slutninger: number }[];
+  klasseforslag: number;
+  navneformforslag: number;
+  ressortkanter: number;
+  kildefeil: { ny: number; perType: Record<string, number> };
+  forslagskoTotalt: number;
+  eldre: { begrepskandidater: number; relaterteDefinisjoner: number; virksomhetskandidater: number };
+}
