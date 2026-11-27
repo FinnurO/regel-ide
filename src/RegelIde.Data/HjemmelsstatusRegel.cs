@@ -94,7 +94,12 @@ public sealed record HjemmelsstatusRapport(
     // [Ny, #501] Kortnavnet fra tittelen for lovene med en lest oppheving (distinkte lover): «entydig», eller grunnen til at det ikke gis.
     IReadOnlyDictionary<string, int>? KortnavnFraTittel = null,
     // [Ny, #501] Med rader: lesingen per lov (ELI, kortnavnet eller null, grunnen).
-    IReadOnlyList<HjemmelsstatusKortnavn>? KortnavnPerLov = null);
+    IReadOnlyList<HjemmelsstatusKortnavn>? KortnavnPerLov = null,
+    // [Ny, #514] Forskriftene som er lest som enkeltvedtak, hjemmelsradene deres som er dekket, og lista (parten og setningen).
+    int Enkeltvedtak = 0, int EnkeltvedtakDekketRader = 0, IReadOnlyList<HjemmelsstatusEnkeltvedtak>? EnkeltvedtakListe = null);
+
+/// <summary>[Ny, #514] En forskrift som er lest som enkeltvedtak.</summary>
+public sealed record HjemmelsstatusEnkeltvedtak(string? DokumentId, string Part, string Sitat);
 
 /// <summary>[Ny, #501] Kortnavnet fra tittelen for én opphevet lov.</summary>
 public sealed record HjemmelsstatusKortnavn(string Eli, string? Kortnavn, string Grunn);
@@ -161,6 +166,8 @@ public sealed class HjemmelsstatusRegel(RegelIdeDbContext db, IKunngjortTekstkil
         public IReadOnlyDictionary<string, IReadOnlyList<KunngjortNode>> Kunngjort = new Dictionary<string, IReadOnlyList<KunngjortNode>>();
         /// <summary>[Ny, #501] Kortnavnet fra tittelen til en opphevet lov, når det er entydig (V4).</summary>
         public Kortnavnregister Kortnavn = Kortnavnregister.Tomt;
+        /// <summary>[Ny, #514] Forskriftene som er lest som enkeltvedtak (<see cref="Enkeltvedtaklesing"/>), med parten og setningen.</summary>
+        public Dictionary<Guid, Enkeltvedtaklesning> Enkeltvedtak = [];
         public int VaktAvviste;
         public int LovtidendEtterspurt;
         public readonly Dictionary<string, Dokumentutfall> Utfall = new(StringComparer.Ordinal);
@@ -325,6 +332,7 @@ public sealed class HjemmelsstatusRegel(RegelIdeDbContext db, IKunngjortTekstkil
         {
             Kilder = kilder, GjeldendePrimaer = gjeldendePrimaer, Endrer = endrer, Kandidater = kandidater, NoderPerKilde = [],
             Videreforingsnoder = videreforingsnoder, MalNoder = malNoder, Kortnavn = await Kortnavnregister.LastAsync(db, ct),
+            Enkeltvedtak = await EnkeltvedtakAsync(rader, kilder, ct),
         };
 
         // Bevistrinnene i korpuset først; så de opphevende kildenes noder (videreføring, ikraftsetting, tildeling); så Lovtidend for EN.
@@ -596,11 +604,12 @@ public sealed class HjemmelsstatusRegel(RegelIdeDbContext db, IKunngjortTekstkil
 
     private static void SettUtfall(HjemmelsstatusEntitet r, Dokumentutfall u, Kilde? f, string hjemmelEid, Data data, DateOnly idag)
     {
+        var ev = f is null ? null : data.Enkeltvedtak.GetValueOrDefault(f.Id);
         if (u.Bevis is not { } b)
         {
             r.UkjentGrunn = u.UkjentGrunn ?? Hjemmelsstatus.GrunnIngen;
             // EN uten Lovtidend-treff: videreføringen står for seg (opphevingen ikke lest), statusen er ukjent.
-            if (u.Videreforing.FirstOrDefault() is { } vfEn) SettVidereforing(r, vfEn, Hjemmelstekstlesing.Mal(r.HjemmelEli!)!, f, hjemmelEid);
+            if (u.Videreforing.FirstOrDefault() is { } vfEn) SettVidereforing(r, vfEn, Hjemmelstekstlesing.Mal(r.HjemmelEli!)!, f, hjemmelEid, ev);
             return;
         }
         r.Bevistrinn = b.Trinn;
@@ -637,7 +646,7 @@ public sealed class HjemmelsstatusRegel(RegelIdeDbContext db, IKunngjortTekstkil
         var mal = Hjemmelstekstlesing.Mal(r.HjemmelEli!)!;
         foreach (var v in u.Videreforing)
         {
-            if (SettVidereforing(r, v, mal, f, hjemmelEid) is not { } ks) continue;
+            if (SettVidereforing(r, v, mal, f, hjemmelEid, ev) is not { } ks) continue;
             r.Status = r.VidereforingTidsfrist is { } frist && frist < idag ? Hjemmelsstatus.VidereforingUtlopt : Hjemmelsstatus.Viderefort;
             r.Kunnskapsstatus = SvakestePremiss.Rang(ks) > SvakestePremiss.Rang(bevisstatus) ? ks : bevisstatus;
             return;
@@ -648,7 +657,8 @@ public sealed class HjemmelsstatusRegel(RegelIdeDbContext db, IKunngjortTekstkil
 
     /// <summary>Setter videreføringsfeltene når kandidaten dekker hjemmelen, og returnerer kunnskapsstatusen den gir. Null når avgrensningen
     /// i setningen ikke dekker hjemmelens paragraf (S12): da er beviset ikke gyldig for denne hjemmelen.</summary>
-    private static string? SettVidereforing(HjemmelsstatusEntitet r, Videreforingskandidat v, Dokumentmal mal, Kilde? f, string hjemmelEid)
+    private static string? SettVidereforing(HjemmelsstatusEntitet r, Videreforingskandidat v, Dokumentmal mal, Kilde? f, string hjemmelEid,
+        Enkeltvedtaklesning? enkeltvedtak = null)
     {
         string? dekning = null;
         var (kap, par) = Hjemmelstekstlesing.Avgrensning(v.Sitat, mal);
@@ -666,6 +676,12 @@ public sealed class HjemmelsstatusRegel(RegelIdeDbContext db, IKunngjortTekstkil
                 "instruks" => typer.Contains("instruks"),
                 _ => typer.Contains("forskrift") || typer.Contains("reglement") || typer.Contains("vedtekt"),
             };
+            // [Ny, #514, prosjekteierens avgjørelse 2026-11-27] Et vedtak som er lest som enkeltvedtak (Enkeltvedtaklesing), er også dekket når
+            // overgangsregelen nevner enkeltvedtak eller vedtak: «Forskrifter og enkeltvedtak som er fastsatt med hjemmel i regler som blir opphevet
+            // … gjelder til departementet fastsetter noe annet.» (uhl. 2024 § 17-3, N14), «Enkeltvedtak med hjemmel i lov 29. november 1996 nr. 73
+            // … skal fortsatt gjelde.» (postloven 2015 § 57 fjerde ledd, N16). «vedtak» alene dekker også enkeltvedtak (fvl. § 2 første ledd
+            // bokstav a og b). Regelen kan bare gjøre flere videreføringer dekket: det som var dekket etter prefikset, er fortsatt dekket.
+            if (!dekket && enkeltvedtak is not null && Dokumenttype(f) != "delegering" && typer.Contains("vedtak")) dekket = true;
             dekning = dekket ? Hjemmelsstatus.Dekket : Hjemmelsstatus.DokumenttypeIkkeNevnt;
         }
         r.VidereforingRettskildeId = v.KildeId;
@@ -690,6 +706,39 @@ public sealed class HjemmelsstatusRegel(RegelIdeDbContext db, IKunngjortTekstkil
         if ((f.DokumentId ?? "").StartsWith("DEL/", StringComparison.Ordinal) || ErDelegeringstittel(f.Tittel)) return "delegering";
         if ((f.DokumentId ?? "").StartsWith("INS/", StringComparison.Ordinal) || f.Tittel.StartsWith("Instruks", StringComparison.OrdinalIgnoreCase)) return "instruks";
         return "forskrift";
+    }
+
+    /// <summary>
+    /// [Ny, #514] Leser hvilke forskrifter som er enkeltvedtak (<see cref="Enkeltvedtaklesing"/>). Bare gjeldende primære forskrifter med hjemmelsrader,
+    /// utenom DEL (delegeringsvedtak), og bare de korte (høyst <see cref="Enkeltvedtaklesing.MaksNoder"/> noder med tekst).
+    /// </summary>
+    private async Task<Dictionary<Guid, Enkeltvedtaklesning>> EnkeltvedtakAsync(List<Hjemmelsrad> rader, Dictionary<Guid, Kilde> kilder, CancellationToken ct)
+    {
+        var ut = new Dictionary<Guid, Enkeltvedtaklesning>();
+        var ider = rader.Select(h => h.RettskildeId).Distinct()
+            .Where(id => kilder.GetValueOrDefault(id) is { Kildetype: "Forskrift", Entitetsstatus: "gjeldende", Importrolle: "primaer" } k
+                         && !(k.DokumentId ?? "").StartsWith("DEL/", StringComparison.Ordinal))
+            .ToList();
+        foreach (var bit in ider.Chunk(2000))
+        {
+            var antall = await db.RettskildeNoder.AsNoTracking()
+                .Where(n => bit.Contains(n.RettskildeId) && n.Entitetsstatus == "gjeldende" && !n.ErMerknad && n.Tekst != null)
+                .GroupBy(n => n.RettskildeId).Select(g => new { g.Key, Antall = g.Count() }).ToListAsync(ct);
+            var korte = antall.Where(a => a.Antall <= Enkeltvedtaklesing.MaksNoder).Select(a => a.Key).ToList();
+            if (korte.Count == 0) continue;
+            var noder = await db.RettskildeNoder.AsNoTracking()
+                .Where(n => korte.Contains(n.RettskildeId) && n.Entitetsstatus == "gjeldende" && !n.ErMerknad && n.Tekst != null)
+                .Select(n => new { n.RettskildeId, n.Tekst, n.Sorteringsrekkefolge }).ToListAsync(ct);
+            var titler = await db.Rettskilder.AsNoTracking().Where(r => korte.Contains(r.Id))
+                .Select(r => new { r.Id, r.Tittel, r.Kortnavn }).ToDictionaryAsync(r => r.Id, ct);
+            foreach (var g in noder.GroupBy(n => n.RettskildeId))
+            {
+                var t = titler[g.Key];
+                if (Enkeltvedtaklesing.Les(t.Tittel, t.Kortnavn, g.OrderBy(n => n.Sorteringsrekkefolge).Select(n => n.Tekst!).ToList()) is { } l)
+                    ut[g.Key] = l;
+            }
+        }
+        return ut;
     }
 
     private static bool ErDelegeringstittel(string tittel) =>
@@ -829,7 +878,11 @@ public sealed class HjemmelsstatusRegel(RegelIdeDbContext db, IKunngjortTekstkil
             Tell(beregnet.Select(b => b.Rolle)), Tell(beregnet.Select(b => b.RolleRegel)), Tell(beregnet.Select(b => b.VidereforingForm)),
             Tell(beregnet.Select(b => b.VidereforingDekning)), Tell(beregnet.Select(b => (string?)b.Kunnskapsstatus)),
             refRader, lt, fTall, data.VaktAvviste, radliste,
-            Tell(opphevedeLover.Select(e => e.Kortnavn is not null ? "entydig" : (string?)e.Grunn)), medRader ? opphevedeLover : null);
+            Tell(opphevedeLover.Select(e => e.Kortnavn is not null ? "entydig" : (string?)e.Grunn)), medRader ? opphevedeLover : null,
+            data.Enkeltvedtak.Count,
+            beregnet.Count(b => b.VidereforingDekning == Hjemmelsstatus.Dekket && data.Enkeltvedtak.ContainsKey(b.RettskildeId)),
+            data.Enkeltvedtak.Select(e => new HjemmelsstatusEnkeltvedtak(data.Kilder.GetValueOrDefault(e.Key)?.DokumentId, e.Value.Part, e.Value.Sitat))
+                .OrderBy(e => e.DokumentId, StringComparer.Ordinal).ToList());
     }
 
     // ---- Lesing for rettskildesiden ---------------------------------------------------------------------------------------------------
