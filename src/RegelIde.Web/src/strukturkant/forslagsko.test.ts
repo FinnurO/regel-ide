@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { StrukturkantDto } from '../api/types';
-import { avvisningstekst, grupperPerHjemmel, tillitFor } from './forslagsko';
+import { avvisningstekst, filtrerForslag, forslagsfilterFra, grupperPerHjemmel, gruppehandlingerTillatt, tillitFor } from './forslagsko';
 
 const kant = (id: string, hjemmel: string | null, tittel: string | null) =>
   ({ id, hjemmelRettskildeId: hjemmel, hjemmelRettskildeTittel: tittel }) as StrukturkantDto;
@@ -22,5 +22,25 @@ describe('forslagskøen for strukturkanter (#313)', () => {
   it('sier hvem som avviste og hvorfor', () => {
     expect(avvisningstekst({ sistEndretAv: 'Kari', sistEndretTidspunkt: null, avvisningBegrunnelse: 'Feil retning.' }))
       .toBe('Avvist av Kari (menneske) ukjent tidspunkt: Feil retning.');
+  });
+});
+
+describe('[#517 PR 3] filteret fra «Til vurdering»', () => {
+  const kant = (typekode: string, hjemmelRettskildeId: string | null) => ({ typekode, hjemmelRettskildeId });
+  const kanter = [kant('etterfolger', 'a'), kant('etterfolger', null), kant('forvaltning', 'a'), kant('forvaltning', 'b')];
+
+  it('type og hjemmel leses fra lenken; tomt filter gir alle', () => {
+    expect(forslagsfilterFra(new URLSearchParams('type=etterfolger&hjemmel=a,%20b,'))).toEqual({ type: 'etterfolger', hjemler: ['a', 'b'] });
+    expect(filtrerForslag(kanter, forslagsfilterFra(new URLSearchParams('')))).toHaveLength(4);
+  });
+
+  it('typefilteret tar med kanter uten hjemmel; hjemmelfilteret bare kanter med en av hjemlene', () => {
+    expect(filtrerForslag(kanter, { type: 'etterfolger', hjemler: [] })).toHaveLength(2);
+    expect(filtrerForslag(kanter, { type: null, hjemler: ['a'] })).toEqual([kant('etterfolger', 'a'), kant('forvaltning', 'a')]);
+  });
+
+  it('gruppeknappene står ikke med typefilter, fordi de virker på hele hjemmelen', () => {
+    expect(gruppehandlingerTillatt({ type: 'etterfolger', hjemler: [] })).toBe(false);
+    expect(gruppehandlingerTillatt({ type: null, hjemler: ['a'] })).toBe(true);
   });
 });

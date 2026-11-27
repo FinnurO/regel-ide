@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { TilVurderingDto } from '../api/types';
-import { START_HER_ANTALL, byggTilVurdering, startHerDepartementer, tidPerElement, tidTotalt } from './tilVurdering';
+import { START_HER_ANTALL, aktorLenke, byggTilVurdering, startHerDepartementer, tidPerElement, tidTotalt } from './tilVurdering';
 
 /** [Ny, issue #517] Tallene fra kartleggingen 2026-11-27 (kopi av den delte basen). */
 function dto(endre: (d: TilVurderingDto) => void = () => {}): TilVurderingDto {
@@ -51,8 +51,9 @@ describe('rekkefølgen er fast (Johann 2026-11-27)', () => {
 describe('tallene (AK 1 og 3)', () => {
   it('telleren på menylenken er summen av de klare køene', () => {
     const v = byggTilVurdering(dto());
-    // 25 aktører + 57 klare + 52 etterfølgere + 126 resten (188 − 57 − 5 som venter på modellvalg) + 215 pilot + 46 kunngjort
-    expect(v.klare.map((k) => k.venter)).toEqual([25, 57, 52, 126, 215, 46]);
+    // 25 aktører + 62 til godkjenning + 52 etterfølgere + 121 andre (73 + 39 + 7 + 2) + 215 pilot + 46 kunngjort. De 5 som venter på
+    // modellvalg er ikke med.
+    expect(v.klare.map((k) => k.venter)).toEqual([25, 62, 52, 121, 215, 46]);
     expect(v.klarTeller).toBe(521);
   });
 
@@ -69,6 +70,20 @@ describe('tallene (AK 1 og 3)', () => {
   it('ingen blokkering når ingen venter på modellvalg', () => {
     const v = byggTilVurdering(dto((d) => { d.aktorko.perHandling = { godkjenn: 62 }; }));
     expect(v.klare.find((k) => k.id === 'aktorko-resten')!.blokkerer).toBeNull();
+  });
+});
+
+describe('lenkene har filteret køen viser tallet med (AK 6)', () => {
+  it('aktørkøen, forslagskøen og funnene', () => {
+    const v = byggTilVurdering(dto((d) => { d.pilot.rettskilder = ['r1', 'r2']; }));
+    const href = (id: string) => v.klare.find((k) => k.id === id)!.href;
+    expect(href('aktorko-klare')).toBe('/aktorko?handling=godkjenn');
+    expect(href('aktorko-resten')).toBe('/aktorko?handling=andre');
+    expect(href('etterfolgere')).toBe('/ki-oppdagelse?type=etterfolger');
+    expect(href('pilot')).toBe('/ki-oppdagelse?hjemmel=r1,r2');
+    expect(href('kunngjort')).toBe('/funn?kategori=hjemmel_opphevet&status=oppdaget&mangel=kunngjort');
+    expect(v.blokkerte.find((k) => k.id === 'hjemmel-opphevet')!.href).toBe('/funn?kategori=hjemmel_opphevet&status=oppdaget');
+    expect(aktorLenke('x')).toBe('/virksomheter/x?fane=navneformer');
   });
 });
 

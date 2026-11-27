@@ -173,5 +173,28 @@ export function passerForhandsfilter(f: AktorkoForhandKort | null | undefined, t
   return true;
 }
 
+/**
+ * [Ny, issue #517 PR 3] Filteret på handling i forhåndsklassifiseringen, satt fra lenkene på «Til vurdering» (`?handling=`). `godkjenn` er
+ * navnene som skal godkjennes (aktør, klasse, rolle, område); `andre` er generisk omtale, ikke en aktør, koble og ta med. Navnene som venter
+ * på modellvalg og navnene uten forhåndsklassifisering er med i ingen av dem, slik at tallene er de samme som på «Til vurdering».
+ */
+export type Handlingsfilter = 'alle' | 'godkjenn' | 'andre';
+
+export const HANDLINGSFILTER_TEKST: Record<Exclude<Handlingsfilter, 'alle'>, string> = {
+  godkjenn: 'Forslag: godkjenn',
+  andre: 'Forslag: omtale, ikke en aktør, koble eller ta med',
+};
+
+export function handlingsfilterFra(verdi: string | null): Handlingsfilter {
+  return verdi === 'godkjenn' || verdi === 'andre' ? verdi : 'alle';
+}
+
+export function passerHandlingsfilter(f: AktorkoForhandKort | null | undefined, h: Handlingsfilter): boolean {
+  if (h === 'alle') return true;
+  if (!f) return false;
+  if (h === 'godkjenn') return f.handling === 'godkjenn';
+  return f.handling === 'generisk_omtale' || f.handling === 'ikke_aktor' || f.handling === 'koble' || f.handling === 'ta_med';
+}
+
 /** «Bare aktører med høy sikkerhet» er de to filtrene satt til aktør og høy. */
 export const erBareSikreAktorer = (type: Typefilter, sikkerhet: Sikkerhetsfilter) => type === 'aktor' && sikkerhet === 'hoy';

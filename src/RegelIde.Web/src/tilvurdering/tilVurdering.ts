@@ -17,6 +17,9 @@ export const START_HER_ANTALL = 7;
 /** Anslag per aktør: åpne siden, lese navnet og hjemmelen, ett eller to klikk. */
 const DEPARTEMENT_MINUTTER: [number, number] = [2, 3];
 
+/** [Ny, #517 PR 3] Aktørsiden åpnet på fanen Navneformer, der navneformene som er forslag har «Godkjenn». */
+export const aktorLenke = (virksomhetId: string) => `/virksomheter/${virksomhetId}?fane=navneformer`;
+
 export const GITHUB_SAK = (nr: number) => `https://github.com/FinnurO/regel-ide/issues/${nr}`;
 
 /** Det som holder en kø igjen. `warning` er et synlig hull (docs/09 §15/§25); `neutral` er en opplysning om rekkefølge. */
@@ -90,7 +93,10 @@ export function byggTilVurdering(tv: TilVurderingDto): TilVurderingVisning {
   const dep = tv.departementer;
   const ak = tv.aktorko;
   const venterModellvalg = ak.perHandling['venter'] ?? 0;
-  const restAktorko = Math.max(0, ak.antallNavn - ak.klare - venterModellvalg);
+  const tilGodkjenning = ak.perHandling['godkjenn'] ?? 0;
+  // [ENDRET, #517 PR 3] Radene følger filteret på handling i aktørkøen (`?handling=godkjenn|andre`), så tallet er det samme som køen viser
+  // med lenkens filter (AK 1 og 6). De som trenger «Hvor gjelder den?», står derfor under godkjenning, ikke under resten.
+  const andre = ['generisk_omtale', 'ikke_aktor', 'koble', 'ta_med'].reduce((sum, h) => sum + (ak.perHandling[h] ?? 0), 0);
   const funnAlleAktorer = dep.funnKumulativt.length > 0 ? dep.funnKumulativt[dep.funnKumulativt.length - 1] : 0;
 
   const klare: KoRad[] = [
@@ -104,7 +110,7 @@ export function byggTilVurdering(tv: TilVurderingDto): TilVurderingVisning {
       venterTillegg: 'aktører',
       minutter: DEPARTEMENT_MINUTTER,
       krever: [
-        'Åpne aktøren og gå til fanen Navneformer.',
+        'Lenken åpner aktøren på fanen Navneformer.',
         '«Godkjenn» på navneformen som er forslag. Ett klikk per navneform.',
         'Navnet og hjemmelen står på siden, så du bekrefter et faktum om navnehistorikken, ikke en tolkning.',
       ],
@@ -115,50 +121,51 @@ export function byggTilVurdering(tv: TilVurderingDto): TilVurderingVisning {
     {
       id: 'aktorko-klare',
       tittel: 'Aktørkø: godkjenn forhåndsklassifiserte navn',
-      href: '/aktorko',
+      href: '/aktorko?handling=godkjenn',
       ekstern: false,
-      hvor: 'Aktørkøen, filter «Forslag: type» = aktør, klasse, rolle eller område',
-      venter: ak.klare,
+      hvor: 'Aktørkøen, filtrert på forslag til godkjenning',
+      venter: tilGodkjenning,
+      venterTillegg: `${tall(ak.klare)} klare`,
       minutter: [1, 1],
       krever: [
         '«Godta forslaget» fyller ut skjemaet. Ingenting lagres ennå.',
         'Velg «Hvor sikkert er det?» (Faglig vurdert eller Godkjent).',
         '«Godkjenn «navn»». Tre klikk.',
+        `${tall(ak.trengerSted)} er en klasse, rolle eller et område uten hjemmel: velg i tillegg «Hvor gjelder den?».`,
       ],
-      laaserOpp: `${tall(ak.klare)} nye aktører, klasser og roller. Av relasjonene i forhåndsklassifiseringen står `
+      laaserOpp: `${tall(tilGodkjenning)} nye aktører, klasser, roller og områder. Av relasjonene i forhåndsklassifiseringen står `
         + `${tall(ak.relasjonerVenterPaNavn)} som «Opprett navnet først»; de kan skrives når navnet er godkjent.`,
       blokkerer: null,
     },
     {
       id: 'etterfolgere',
       tittel: 'Etterfølgerforslag',
-      href: '/ki-oppdagelse',
+      href: '/ki-oppdagelse?type=etterfolger',
       ekstern: false,
-      hvor: 'Forslagskøen, gruppert per hjemmel',
+      hvor: 'Forslagskøen, filtrert på typen etterfølger',
       venter: tv.etterfolgere.forslag,
       venterTillegg: `${tall(tv.etterfolgere.manuelle)} manuelle`,
       minutter: [1, 2],
       krever: [
         'Les utsagnet («X etterfølger Y») og hjemmelen eller kilden utenfor korpus.',
-        '«Godkjenn», eller «Avvis» med begrunnelse.',
+        '«Godkjenn», eller «Avvis» med begrunnelse. Med filteret står ikke «Godkjenn alle» per hjemmel; kryss av og bruk «Godkjenn valgte».',
         `Ta de ${tall(tv.etterfolgere.manuelle)} manuelt foreslåtte først: de holder igjen ${tall(tv.etterfolgere.funnManuelle)} funn.`,
       ],
       laaserOpp: `«Etterfølger ikke vurdert» forsvinner fra ${tall(tv.etterfolgere.funnMedEtterfolgermangel)} funn om utgåtte aktører.`,
-      blokkerer: { tekst: 'Forslagskøen kan ikke filtrere på type', farge: 'warning' },
+      blokkerer: null,
     },
     {
       id: 'aktorko-resten',
       tittel: 'Aktørkø: resten',
-      href: '/aktorko',
+      href: '/aktorko?handling=andre',
       ekstern: false,
-      hvor: 'Aktørkøen, filter «Forslag: type» = omtale eller ikke en aktør',
-      venter: restAktorko,
+      hvor: 'Aktørkøen, filtrert på omtale, ikke en aktør, koble og ta med',
+      venter: andre,
       minutter: [0.5, 1],
       krever: [
         `Generisk omtale (${tall(ak.perHandling['generisk_omtale'] ?? 0)}): «Godta forslaget» → «Tørrkjør» → «Lagre: tagg N som generisk omtale».`,
         `Ikke en aktør (${tall(ak.perHandling['ikke_aktor'] ?? 0)}): «Godta forslaget» fyller ut begrunnelsen → lagre.`,
         `Koble (${tall(ak.perHandling['koble'] ?? 0)}) og ta med (${tall(ak.perHandling['ta_med'] ?? 0)}): «Godta forslaget» → skjemaets knapp.`,
-        `Til godkjenning, men uten hjemmel (${tall(ak.trengerSted)}): velg i tillegg «Hvor gjelder den?».`,
       ],
       laaserOpp: `Køen blir tom bortsett fra navnene som venter på modellvalg. ${tall(ak.pilotNavn)} av de ${tall(ak.antallNavn)} navnene står i `
         + 'barnehageregelverket, så piloten kan lastes uten at utsagn faller bort for en ukjent aktør.',
@@ -167,9 +174,9 @@ export function byggTilVurdering(tv: TilVurderingDto): TilVurderingVisning {
     {
       id: 'pilot',
       tittel: 'Piloten: barnehageloven',
-      href: '/ki-oppdagelse',
+      href: tv.pilot.rettskilder.length > 0 ? `/ki-oppdagelse?hjemmel=${tv.pilot.rettskilder.join(',')}` : '/ki-oppdagelse',
       ekstern: false,
-      hvor: 'Forslagskøen, hjemler i barnehageregelverket (#375)',
+      hvor: 'Forslagskøen, filtrert på hjemler i barnehageregelverket (#375)',
       venter: tv.pilot.forslag,
       minutter: [1, 2],
       krever: [
@@ -183,9 +190,9 @@ export function byggTilVurdering(tv: TilVurderingDto): TilVurderingVisning {
     {
       id: 'kunngjort',
       tittel: 'Hjemmel opphevet: gjeldende status',
-      href: '/funn',
+      href: '/funn?kategori=hjemmel_opphevet&status=oppdaget&mangel=kunngjort',
       ekstern: false,
-      hvor: 'Funn til vurdering, kategori «Hjemmel opphevet», merket «Kunngjort versjon»',
+      hvor: 'Funn til vurdering, filtrert på «Hjemmel opphevet», oppdaget og «Kunngjort versjon»',
       venter: tv.hjemmelOpphevet.kunngjortVersjon,
       minutter: [2, 3],
       krever: [
@@ -204,7 +211,7 @@ export function byggTilVurdering(tv: TilVurderingDto): TilVurderingVisning {
 
   const blokkerte: KoRad[] = [
     {
-      id: 'hjemmel-opphevet', tittel: 'Hjemmel opphevet', href: '/funn', ekstern: false, hvor: 'Funn til vurdering (#472)',
+      id: 'hjemmel-opphevet', tittel: 'Hjemmel opphevet', href: '/funn?kategori=hjemmel_opphevet&status=oppdaget', ekstern: false, hvor: 'Funn til vurdering (#472)',
       venter: tv.hjemmelOpphevet.oppdaget, krever: [],
       laaserOpp: `Juristvurdering per funn. ${tall(tv.hjemmelOpphevet.holdesAvNyHjemmel)} holdes av «Ny hjemmel»: først da kan «mulig bortfalt» `
         + 'stå og funnet publiseres.',

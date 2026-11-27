@@ -1684,3 +1684,13 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
 - **Tid er et anslag** og står som det, i ingressen, i kolonneoverskriften og ved «Start her» (AK 5). Minuttene per element står i modulen;
   totalen regnes av antallet.
 - **Det appen ikke vet, vises uten tall** (fasitgjennomgangen #309, åpne pull requests): en lenke og en merknad, ikke en gjettet verdi.
+- [Ny, #517 PR 3] **Lenkene har filteret køen viser tallet med** (AK 6), og filteret vises i køen som en `Chip.Removable`, som
+  rettskildefilteret i aktørkøen (§50):
+  - aktørkøen `?handling=godkjenn|andre` («Forslag: godkjenn» / «Forslag: omtale, ikke en aktør, koble eller ta med»;
+    `passerHandlingsfilter` i `kandidater/aktorkoForhand.ts`). Navn som venter på modellvalg er med i ingen av dem;
+  - forslagskøen `?type=etterfolger` og `?hjemmel=id,id` (`filtrerForslag` i `strukturkant/forslagsko.ts`), med `Metatekst` «Viser N av M
+    forslag». Med typefilter står ikke «Godkjenn alle N» / «Avvis alle N» per hjemmel: de virker i API-et på alle forslagene med hjemmelen,
+    og tallet på knappen ville ikke vært det knappen gjør. «Godkjenn valgte» står;
+  - funnene `?kategori=…&status=…&mangel=kunngjort` (`passerMangelfilter` i `funn/funnTekst.ts`);
+  - aktørsiden `?fane=navneformer`.
+  En ukjent verdi i lenken gir ingen filter (ingen gjettet verdi).

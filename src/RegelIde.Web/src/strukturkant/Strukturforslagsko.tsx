@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link as RouterLink } from 'react-router';
+import { Link as RouterLink, useSearchParams } from 'react-router';
 import {
-  Alert, Button, Card, Checkbox, Details, Field, Heading, Label, Link, Paragraph, Select, Spinner, Switch, Table, Tag, Textfield,
+  Alert, Button, Card, Checkbox, Chip, Details, Field, Heading, Label, Link, Paragraph, Select, Spinner, Switch, Table, Tag, Textfield,
 } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type {
@@ -14,7 +14,10 @@ import { Massehandlingsrad } from '../kandidater/Massehandlingsrad';
 import { useKandidatvalg } from '../kandidater/useKandidatvalg';
 import { STRUKTURKANT_KATEGORI_VISNING, StrukturkantTabell } from './StrukturkantTabell';
 import { AKTORKORUTE_TEKST, blirNavnekandidatIAktorsveipet, erGeneriskOrdUtenBinding } from '../kandidater/aktorkorute';
-import { AKTORSTATUS_VISNING, avvisningstekst, grupperPerHjemmel, tillitFor, UTFALL_VISNING, type Hjemmelgruppe } from './forslagsko';
+import {
+  AKTORSTATUS_VISNING, avvisningstekst, filtrerForslag, forslagsfilterFra, grupperPerHjemmel, gruppehandlingerTillatt, tillitFor, UTFALL_VISNING,
+  type Hjemmelgruppe,
+} from './forslagsko';
 
 /**
  * [Ny, issue #313 «Strukturmodell 8», 2026-10-15] Forslagskøen for strukturkanter — ÉN kø for alle maskinelle forslag (mønster og KI),
@@ -28,6 +31,9 @@ import { AKTORSTATUS_VISNING, avvisningstekst, grupperPerHjemmel, tillitFor, UTF
  * - **Vis avviste:** de avviste, med hvem, når og hvorfor.
  */
 export function Strukturforslagsko() {
+  // [Ny, issue #517 PR 3] Filteret fra lenkene på «Til vurdering» (`?type=etterfolger`, `?hjemmel=id,id`). Vises som Chip som kan fjernes.
+  const [sokeparametre, setSokeparametre] = useSearchParams();
+  const filter = useMemo(() => forslagsfilterFra(sokeparametre), [sokeparametre]);
   const [rettskilder, setRettskilder] = useState<RettskildeSammendrag[]>([]);
   const [rettskildeId, setRettskildeId] = useState('');
   const [lag, setLag] = useState<'monster' | 'ki'>('monster');
@@ -58,7 +64,8 @@ export function Strukturforslagsko() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(lastKo, [visAvviste]);
 
-  const grupper = useMemo(() => grupperPerHjemmel(forslag ?? []), [forslag]);
+  const synlige = useMemo(() => filtrerForslag(forslag ?? [], filter), [forslag, filter]);
+  const grupper = useMemo(() => grupperPerHjemmel(synlige), [synlige]);
 
   async function kjorAktorsveip(navnekandidater: boolean) {
     setLastFeil(null);
@@ -216,8 +223,28 @@ export function Strukturforslagsko() {
       </div>
       {feil && <Alert data-color="danger" style={{ marginBottom: '0.75rem' }}>{feil}</Alert>}
 
+      {(filter.type || filter.hjemler.length > 0) && forslag && (
+        <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', alignItems: 'center', marginBottom: '0.75rem' }}>
+          {filter.type && (
+            <Chip.Removable data-size="sm" aria-label="Fjern typefilteret"
+              onClick={() => { sokeparametre.delete('type'); setSokeparametre(sokeparametre); }}>
+              Bare typen «{filter.type}»
+            </Chip.Removable>
+          )}
+          {filter.hjemler.length > 0 && (
+            <Chip.Removable data-size="sm" aria-label="Fjern hjemmelfilteret"
+              onClick={() => { sokeparametre.delete('hjemmel'); setSokeparametre(sokeparametre); }}>
+              Bare {filter.hjemler.length} hjemler
+            </Chip.Removable>
+          )}
+          <Metatekst as="span" style={{ margin: 0 }}>
+            Viser {synlige.length.toLocaleString('nb-NO')} av {forslag.length.toLocaleString('nb-NO')} forslag.
+            {!gruppehandlingerTillatt(filter) && ' «Godkjenn alle» og «Avvis alle» per hjemmel står ikke med typefilter: de virker på alle forslagene med hjemmelen.'}
+          </Metatekst>
+        </div>
+      )}
       {!forslag && <Spinner aria-label="Laster …" data-size="sm" />}
-      {forslag && forslag.length === 0 && <Paragraph>Ingen ventende forslag.</Paragraph>}
+      {forslag && synlige.length === 0 && <Paragraph>Ingen ventende forslag{forslag.length > 0 ? ' med filteret' : ''}.</Paragraph>}
       {grupper.map((g) => {
         const nokkel = g.hjemmelRettskildeId ?? 'ingen';
         const venter = bekreft?.hjemmel === nokkel ? bekreft.handling : null;
@@ -225,7 +252,7 @@ export function Strukturforslagsko() {
           <Details key={nokkel} style={{ marginBottom: '0.6rem' }}>
             <Details.Summary>{g.tittel} — {g.kanter.length} forslag</Details.Summary>
             <Details.Content>
-              {g.hjemmelRettskildeId && (
+              {g.hjemmelRettskildeId && gruppehandlingerTillatt(filter) && (
                 <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.5rem' }}>
                   {venter ? (
                     <>

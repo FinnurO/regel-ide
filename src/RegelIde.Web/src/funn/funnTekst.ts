@@ -97,3 +97,14 @@ export function utenEtterfolgerpunkt<T extends { overskrift: string | null }>(pu
   if (etterfolgere.length > 0) return punkter;
   return punkter.filter((p) => p.overskrift?.trim().toLowerCase() !== ETTERFOLGER_OVERSKRIFT.toLowerCase());
 }
+
+/** [Ny, issue #517 PR 3] Filteret på premissmangel fra lenkene på «Til vurdering» (`/funn?mangel=kunngjort`). Nøkkelen i lenken peker på
+ *  starten av mangelteksten API-et skriver; en ukjent nøkkel gir ingen filter. */
+export const MANGELFILTER: Record<string, { start: string; tekst: string }> = {
+  kunngjort: { start: KUNNGJORT_MANGEL_START, tekst: 'Kunngjort versjon, status ikke kontrollert' },
+};
+
+export function passerMangelfilter(mangler: string[] | null | undefined, filter: string | null): boolean {
+  if (!filter || !MANGELFILTER[filter]) return true;
+  return (mangler ?? []).some((m) => m.startsWith(MANGELFILTER[filter].start));
+}

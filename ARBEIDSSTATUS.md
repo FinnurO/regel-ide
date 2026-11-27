@@ -94,5 +94,5 @@ Johanns avgjørelser 2026-11-27: startside «/», fast og begrunnet rekkefølge,
 | PR | Gren | Status | Verifisert hvordan |
 |---|---|---|---|
 | PR 1: `GET /api/til-vurdering` (`TilVurderingTjeneste`), bare tellinger | `vurderingsguide` | **PR åpen, venter på Johann (§19).** Ingen migrasjon, ingenting skrevet til delt `regelide` | `TilVurderingTjenesteTests` (8) og `TilVurderingEndepunktTests` + Helsesjekk + Aktørkø lokalt. Kaldt mot kopien `regelide_tilvurdering` (API 5587): 0,4 s varm, 1,5 s første kall; tallene som i kartleggingen (25 aktører/582 funn, 52 etterfølgere/312 funn, aktørkø 188/57 klare) |
-| PR 2: siden og menylenken, `tilVurdering.ts` med vitest, docs/09 §59 | `vurderingsguide-side` | Under arbeid | — |
-| PR 3: filtrerte lenker inn i køene | `vurderingsguide-lenker` | Ikke startet | — |
+| PR 2: siden og menylenken, `tilVurdering.ts` med vitest, docs/09 §59 | `vurderingsguide-side` | **PR #520 åpen, venter på Johann (§19).** | tsc -b, vitest. Kaldt i nettleseren (web 5373 mot API 5587): telleren, «Start her» med 7 departementer og 431 funn, Navneformer-fanen hos JD har «Godkjenn» |
+| PR 3: filtrerte lenker inn i køene | `vurderingsguide-lenker` | **PR åpen, venter på Johann (§19).** | tsc -b, vitest 186. Kaldt fra «/»: aktørkø godkjenn 62 og andre 121, forslagskø etterfølger 53 av 1 902 (uten «Godkjenn alle») og pilot 215 (16 hjemler), funn kunngjort 46 og hjemmel opphevet 404, aktørsiden åpner Navneformer |

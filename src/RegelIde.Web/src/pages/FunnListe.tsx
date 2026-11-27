@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link as RouterLink } from 'react-router';
-import { Alert, Button, Card, Field, Heading, Label, Link, Paragraph, Search, Select, Spinner, Table } from '@digdir/designsystemet-react';
+import { Link as RouterLink, useSearchParams } from 'react-router';
+import { Alert, Button, Card, Chip, Field, Heading, Label, Link, Paragraph, Search, Select, Spinner, Table } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { FunnDto, FunnKategori, FunnStatus } from '../api/types';
 import { Metatekst } from '../entitet/Metatekst';
+import { MANGELFILTER, passerMangelfilter } from '../funn/funnTekst';
 import { ALLE_KATEGORIER, ALLE_STATUSER, FunnMerker, KATEGORI_TEKST, STATUS_VISNING } from '../funn/FunnVisning';
 
 /**
@@ -23,8 +24,19 @@ function bestemmelseskort(f: FunnDto): string {
 export default function FunnListe() {
   const [funn, setFunn] = useState<FunnDto[] | null>(null);
   const [feil, setFeil] = useState<string | null>(null);
-  const [kategori, setKategori] = useState<FunnKategori | ''>('');
-  const [status, setStatus] = useState<FunnStatus | ''>('');
+  // [ENDRET, issue #517 PR 3] Kategori, status og premissmangel kan settes fra lenken (`?kategori=…&status=…&mangel=kunngjort`), slik
+  // «Til vurdering» lenker hit. En ukjent verdi gir ingen filter, ikke et gjettet.
+  const [sokeparametre, setSokeparametre] = useSearchParams();
+  const [kategori, setKategori] = useState<FunnKategori | ''>(() => {
+    const k = sokeparametre.get('kategori');
+    return k && (ALLE_KATEGORIER as string[]).includes(k) ? (k as FunnKategori) : '';
+  });
+  const [status, setStatus] = useState<FunnStatus | ''>(() => {
+    const st = sokeparametre.get('status');
+    return st && (ALLE_STATUSER as string[]).includes(st) ? (st as FunnStatus) : '';
+  });
+  const mangel = sokeparametre.get('mangel');
+  const mangelfilter = mangel && MANGELFILTER[mangel] ? mangel : null;
   const [sok, setSok] = useState('');
 
   useEffect(() => {
@@ -36,9 +48,10 @@ export default function FunnListe() {
 
   const synlige = useMemo(() => {
     const q = sok.trim().toLowerCase();
-    if (!funn || !q) return funn ?? [];
-    return funn.filter((f) => [f.tittel, f.beskrivelse, ...f.koblinger.map((k) => k.etikett)].some((t) => t.toLowerCase().includes(q)));
-  }, [funn, sok]);
+    const medMangel = (funn ?? []).filter((f) => passerMangelfilter(f.premissmangler, mangelfilter));
+    if (!q) return medMangel;
+    return medMangel.filter((f) => [f.tittel, f.beskrivelse, ...f.koblinger.map((k) => k.etikett)].some((t) => t.toLowerCase().includes(q)));
+  }, [funn, sok, mangelfilter]);
 
   return (
     <>
@@ -71,6 +84,12 @@ export default function FunnListe() {
             {ALLE_STATUSER.map((s) => <Select.Option key={s} value={s}>{STATUS_VISNING[s].tekst}</Select.Option>)}
           </Select>
         </Field>
+        {mangelfilter && (
+          <Chip.Removable data-size="sm" aria-label="Fjern filteret på premissmangel"
+            onClick={() => { sokeparametre.delete('mangel'); setSokeparametre(sokeparametre); }}>
+            Mangel: {MANGELFILTER[mangelfilter].tekst}
+          </Chip.Removable>
+        )}
         <Button data-size="sm" asChild><RouterLink to="/funn/ny">Registrer funn</RouterLink></Button>
       </div>
 

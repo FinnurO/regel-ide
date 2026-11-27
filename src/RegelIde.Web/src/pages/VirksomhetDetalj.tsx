@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { ErstattetTag, HovedetterfolgerUkjentTag, NedlagtTag } from '../virksomhet/NedlagtTag';
-import { Link as RouterLink, useNavigate, useParams } from 'react-router';
+import { Link as RouterLink, useNavigate, useParams, useSearchParams } from 'react-router';
 import { Alert, Button, Card, Dialog, Field, Heading, Label, Link, Paragraph, Select, Spinner, Table, Tabs, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import { rettskildeLenkeForId } from '../api/eidLenker';
@@ -57,6 +57,7 @@ const SLETT_OVERSIKT_ETIKETTER: [key: keyof VirksomhetSlettOversiktDto, etikett:
 // [ENDRET, issue #441, Johanns avgjørelser 2026-10-30] + 'oversikt' (hjemmelen og rettskildene, standardfanen). «Myndighet & relasjoner» heter
 // «Etter kategori» og beholdes. «Rettskilder» (fastsatt av) er tatt ut: det er filteret «Fastsatt av» i rettskildelista på oversikten.
 type Fane = 'oversikt' | 'grunndata' | 'navneformer' | 'omrade' | 'myndighet' | 'kandidater' | 'farligSone';
+const FANER: Fane[] = ['oversikt', 'grunndata', 'navneformer', 'omrade', 'myndighet', 'kandidater', 'farligSone'];
 
 export default function VirksomhetDetalj() {
   const { id } = useParams<{ id: string }>();
@@ -64,7 +65,13 @@ export default function VirksomhetDetalj() {
   const { virksomheter, virksomheterPerId, laster: virksomheterLaster, oppdater: oppdaterVirksomheter } = useVirksomheter();
   // [Ny, issue #385] Avviste navneforslag vises bare på forespørsel.
   const [visAvvisteNavneformer, setVisAvvisteNavneformer] = useState(false);
-  const [fane, setFane] = useState<Fane>('oversikt');
+  // [ENDRET, issue #517 PR 3] `?fane=navneformer` åpner den fanen («Til vurdering» lenker dit for navneformene som venter). En ukjent verdi
+  // gir standardfanen, ikke en gjettet fane.
+  const [sokeparametre] = useSearchParams();
+  const [fane, setFane] = useState<Fane>(() => {
+    const f = sokeparametre.get('fane');
+    return f && (FANER as string[]).includes(f) ? (f as Fane) : 'oversikt';
+  });
 
   const [begrep, setBegrep] = useState<VirksomhetsbegrepDto[] | null>(null);
   // [ENDRET, issue #311] ÉN liste med alle strukturkantene virksomheten står i (var tildelinger + relasjoner
