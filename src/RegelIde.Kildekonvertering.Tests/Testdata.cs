@@ -79,4 +79,12 @@ internal static class Testdata
     /// </summary>
     public static string LesEnergilovenUtdrag10_2() =>
         File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Testdata", "Utdrag", "energiloven-LOV-1990-06-29-50-utdrag-10-2.html"));
+
+    /// <summary>
+    /// [Ny, issue #508] Utdrag av ekte Lovdata-HTML fra den delte basen (rettskilder.innhold, lagret ved import, ikke hentet på nytt),
+    /// 2026-11-27: hele dokumenthodet, og bare de navngitte paragrafene med kapitlene rundt. Laget med HtmlAgilityPack, så resten av
+    /// markupen er uendret. Ligger i Testdata/Utdrag av samme grunn som energiloven-utdraget over.
+    /// </summary>
+    public static string LesUtdrag(string filnavn) =>
+        File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Testdata", "Utdrag", filnavn));
 }
