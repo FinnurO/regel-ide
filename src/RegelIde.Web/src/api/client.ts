@@ -188,6 +188,7 @@ import type {
   FunnKoblingInn,
   NyttFunnInn,
   ForhandRelasjoner, ForhandRelasjonsforslag,
+  TilVurderingDto,
 } from './types';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5187';
@@ -868,6 +869,8 @@ export const api = {
   // [Ny, issue #440 PR 1] Aktørkøen — bare lesing.
   hentAktorko: () => kall<AktorkoListe>('/api/aktorko'),
   hentAktorkoFordeling: () => kall<AktorkoFordeling>('/api/aktorko/fordeling'),
+  /** [Ny, issue #517] Tellingene til startsiden «Til vurdering». Bare lesing. */
+  hentTilVurdering: () => kall<TilVurderingDto>('/api/til-vurdering'),
   hentAktorkoNavn: (nokkel: string) => kall<AktorkoDetalj>(`/api/aktorko/${encodeURIComponent(nokkel)}`),
   /** [Ny, issue #440 PR 2] Skrivingen i aktørkøen. Hver handling er én transaksjon; svaret er kvitteringen. */
   godkjennAktorkoNavn: (nokkel: string, body: AktorkoGodkjenningRequest) =>

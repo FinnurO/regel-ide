@@ -4,6 +4,7 @@ import { Badge, Dropdown, Label } from '@digdir/designsystemet-react';
 import { api } from '../api/client';
 import { useBruker } from '../bruker/BrukerContext';
 import { GlobaltSok } from '../sok/GlobaltSok';
+import { byggTilVurdering } from '../tilvurdering/tilVurdering';
 
 /**
  * Gruppert sidemeny (2026-08-20, "Startside Alternativ 1c"; regruppert til seks seksjoner
@@ -131,9 +132,20 @@ function useAktorkoTeller(): number | null {
   return antall;
 }
 
+/** [Ny, issue #517, Johanns avgjørelse 2026-11-27] Elementene i de klare køene på «Til vurdering». Null mens det lastes eller når kallet
+ * feiler: da vises ingen teller (ikke en gjettet 0), som telleren for aktørkøen. */
+function useTilVurderingTeller(): number | null {
+  const [antall, setAntall] = useState<number | null>(null);
+  useEffect(() => {
+    api.hentTilVurdering().then((t) => setAntall(byggTilVurdering(t).klarTeller)).catch(() => setAntall(null));
+  }, []);
+  return antall;
+}
+
 export function Sidebar() {
   const { brukere, gjeldendeBruker, velgBruker, laster, ekteInnlogging, innloggingsfeil } = useBruker();
   const aktorkoTeller = useAktorkoTeller();
+  const tilVurderingTeller = useTilVurderingTeller();
 
   return (
     <aside className="sidebar">
@@ -150,6 +162,15 @@ export function Sidebar() {
       </div>
 
       <nav className="sidebar__nav">
+        {/* [Ny, issue #517] Startsiden står først, over gruppene: den er ingen del av domenet, men stedet å begynne. `end`, så den bare er
+            aktiv på «/». */}
+        <NavLink to="/" end className={({ isActive }) => `sidebar__item${isActive ? ' aktiv' : ''}`}>
+          Til vurdering
+          {tilVurderingTeller !== null && (
+            <Badge count={tilVurderingTeller} maxCount={9999} variant="tinted" data-color="neutral" data-size="sm"
+              aria-label={`${tilVurderingTeller} elementer klare til vurdering`} style={{ marginLeft: 'auto' }} />
+          )}
+        </NavLink>
         {GRUPPER.map((gruppe) => (
           <div key={gruppe.heading}>
             <div className="sidebar__gruppe-heading">{gruppe.heading}</div>
