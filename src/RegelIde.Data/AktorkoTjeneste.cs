@@ -927,6 +927,15 @@ public sealed class AktorkoTjeneste(RegelIdeDbContext db)
         }
     }
 
+    /// <summary>[Ny, #517 «Til vurdering», 2026-11-27] Gruppene i køen, uten hjemmelforslag og merknadsoppslag. Samme ruting og gruppering som
+    /// <see cref="KoAsync"/>, men uten det som gjør den treg (målt 2,4 s mot den delte basen; dette er rutingen alene, som
+    /// <see cref="FordelingAsync"/> bruker, 0,1–0,2 s). Til tellingene på startsiden.</summary>
+    public async Task<List<Kogruppe>> GrupperAsync(CancellationToken ct = default)
+    {
+        var (forekomster, svar) = await RutAlleAsync(ct);
+        return KoGrupper(forekomster, svar);
+    }
+
     private static List<Kogruppe> KoGrupper(List<KoForekomst> forekomster, List<Rutingssvar> svar) =>
         Aktorkoregler.Grupper(forekomster.Where((_, i) => svar[i].Rute == Aktorkoruter.Aktorko)).ToList();
 

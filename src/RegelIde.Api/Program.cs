@@ -108,6 +108,7 @@ builder.Services.AddScoped<AktorkoTjeneste>();
 builder.Services.AddScoped<AktorsideTjeneste>(); // [Ny, issue #441] den samlede aktørsiden (lesing + «Godkjenn hjemmelen»)
 builder.Services.AddScoped<AktorkoSkrivTjeneste>(); // [Ny, issue #440 PR 2] skrivingen i aktørkøen, én transaksjon per handling
 builder.Services.AddScoped<AktorkoRelasjonTjeneste>(); // [Ny, issue #469] forhåndsklassifiseringens relasjoner som strukturkanter, én knapp per relasjon
+builder.Services.AddScoped<TilVurderingTjeneste>(); // [Ny, issue #517] tellingene til startsiden «Til vurdering»; bare lesing
 builder.Services.AddScoped<BegrepsoppdagelseSveipTjeneste>();
 builder.Services.AddScoped<VilkarregisterTjeneste>();
 builder.Services.AddScoped<RegelnoderegisterTjeneste>();
@@ -1784,6 +1785,7 @@ app.MapFunnEndepunkter();
 app.MapHjemmelsstatusEndepunkter(); // [Ny, issue #472 PR 1]
 // [Ny, issue #440] Aktørkøen — endepunktene står i AktorkoEndepunkter.cs.
 app.MapAktorkoEndepunkter();
+app.MapTilVurderingEndepunkter(); // [Ny, issue #517]
 app.MapAktorsideEndepunkter(); // [Ny, issue #441]
 
 var lovdataResynk = app.MapGroup("/api/administrasjon/lovdata-resynk").WithOpenApi();
