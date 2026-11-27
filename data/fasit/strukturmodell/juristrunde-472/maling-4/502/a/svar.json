@@ -1,0 +1,22 @@
+[
+ {
+  "id": "E11",
+  "svar": "aksepter",
+  "begrunnelse": "Enig. Opphevingen av skiltforskriftene 1980 er riktig lest (det er det #502 endret), men statusen «erstattet» bygger på den eldre tildelingsregelen (Hjemmelstekstlesing.TildelerKompetanse, første node med «delegeres» i vedtaket som opphever, juristrunde 1 R4 i #472). Kortet klasses som usikker og telles ikke i presisjonen for #502. Feilen og at FOR-2005-11-09-1278 gjaldt «fram til 1. juni 2006» føres i PR-en som oppfølging, ikke bygget her (docs/33 §5.20 om erstattet). Ingen funn endres av raden."
+ },
+ {
+  "id": "merknad-3",
+  "svar": "delvis",
+  "begrunnelse": "Datoen leses mot dagens dato med vilje: en oppheving som ikke virker ennå, er ikke en oppheving (CLAUDE.md §8), og #446 leser ikraftstatusen på samme måte (Vedtaksform: «Datoer som alle er passert, gir ja», docs/33 §5.22). Kjøringen er derfor avhengig av datoen, som ikraftstatusen er. Inkonsekvensen med «oppheves fra ‹dato›» og «med virkning fra ‹dato›» er reell, men de formene ble godtatt uten datosjekk før #502 (#429 PR 4 (1a)). Å legge sjekken på dem kan gjøre godtatte setninger delvise og ligger utenfor #502. Den føres som oppfølging i PR-en og docs/33, ikke bygget her."
+ },
+ {
+  "id": "merknad-4",
+  "svar": "delvis",
+  "begrunnelse": "Riktig at hvitelisten bare ser på begynnelsen etter nummeret. Det gjelder også titlene som ble godtatt før #502 («nr. N om X, punkt 2, oppheves»), og tittelen leses bevisst ikke (#429 PR 4 (1a): paragrafer og ledd står i nesten alle hele titler). Formen er ikke observert i sveipet. Ingen endring; den nevnes i docs/33 som kjent begrensning."
+ },
+ {
+  "id": "merknad-5",
+  "svar": "aksepter",
+  "begrunnelse": "Passiv form med tittelen mellom målet og verbet («Samstundes blir lov … (privatskulelova) oppheva.») gir ikke E1. Svaret for E09 er det samme. Føres som kjent begrensning i docs/33, ikke bygget her."
+ }
+]

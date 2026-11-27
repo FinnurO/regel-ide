@@ -1,0 +1,65 @@
+{
+ "sak": "#514",
+ "dato": "2026-11-27",
+ "database": "regelide_502",
+ "klasse_per_kort_etter_rettingen": {
+  "V01": "riktig",
+  "V02": "riktig",
+  "V03": "riktig",
+  "V04": "riktig",
+  "V05": "riktig (kontroll etter rettingen; feil som treff før)",
+  "K01": "riktig",
+  "K02": "riktig",
+  "K03": "riktig",
+  "K04": "riktig",
+  "K05": "riktig",
+  "K06": "riktig",
+  "K07": "riktig",
+  "K08": "riktig",
+  "K09": "riktig",
+  "K10": "riktig",
+  "K11": "riktig",
+  "K12": "riktig"
+ },
+ "treff": {
+  "riktig": 4,
+  "feil": 0,
+  "presisjon": 1.0,
+  "wilson95": [
+   0.51,
+   1.0
+  ]
+ },
+ "treff_for_rettingen": {
+  "riktig": 4,
+  "feil": 1,
+  "presisjon": 0.8,
+  "wilson95": [
+   0.38,
+   0.96
+  ]
+ },
+ "kontroll": {
+  "riktig": 13,
+  "feil": 0,
+  "wilson95": [
+   0.77,
+   1.0
+  ]
+ },
+ "totalt": {
+  "riktig": 17,
+  "feil": 0,
+  "wilson95": [
+   0.82,
+   1.0
+  ]
+ },
+ "uenighet_igjen": [],
+ "oppfolging": [
+  "Vilkår 3 fanger ikke en generell regel uten overskrift; TONO-rettingen ser bare på tittelen.",
+  "Statlig organ kjennes bare på navnet; slå opp i virksomhetskatalogen når korpuset utvides.",
+  "«vedtak» alene som dekning er ikke målt.",
+  "K01 (#472): vedtektene for Norsk Tipping ble gitt på nytt i 2022, funnet bygger trolig på utdatert hjemmel."
+ ]
+}

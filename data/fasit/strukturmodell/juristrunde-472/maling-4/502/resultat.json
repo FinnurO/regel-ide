@@ -1,0 +1,68 @@
+{
+ "sak": "#502",
+ "dato": "2026-11-27",
+ "kjoredato": "2026-11-27",
+ "database": "regelide_502_jurist",
+ "klasse_per_kort": {
+  "E01": "riktig",
+  "E02": "riktig",
+  "E03": "riktig",
+  "E04": "riktig",
+  "E05": "riktig",
+  "E06": "riktig",
+  "E07": "riktig",
+  "E08": "riktig",
+  "E09": "riktig",
+  "E10": "riktig",
+  "E11": "usikker",
+  "K01": "riktig",
+  "K02": "riktig",
+  "K03": "riktig",
+  "K04": "riktig",
+  "K05": "riktig",
+  "K06": "riktig",
+  "K07": "riktig",
+  "K08": "riktig",
+  "K09": "riktig",
+  "K10": "riktig",
+  "K11": "riktig"
+ },
+ "totalt": {
+  "riktig": 21,
+  "feil": 0,
+  "usikker": 1,
+  "presisjon": 1.0,
+  "wilson95": [
+   0.85,
+   1.0
+  ]
+ },
+ "endret": {
+  "riktig": 10,
+  "feil": 0,
+  "usikker": 1,
+  "presisjon": 1.0,
+  "wilson95": [
+   0.72,
+   1.0
+  ]
+ },
+ "kontroll": {
+  "riktig": 11,
+  "feil": 0,
+  "usikker": 0,
+  "presisjon": 1.0,
+  "wilson95": [
+   0.74,
+   1.0
+  ]
+ },
+ "uenighet_igjen": [],
+ "oppfolging": [
+  "E11: «erstattet» bygger på TildelerKompetanse (første node med «delegeres»), trolig feil bestemmelse (§ 28 i stedet for § 26 nr. 1), og FOR-2005-11-09-1278 gjaldt bare fram til 1. juni 2006.",
+  "Datosjekken: en framtidig dato skal gi «ikke i kraft ennå», ikke delvis, og sjekken skal også gjelde «fra ‹dato›» og «med virkning fra ‹dato›». Målinger må oppgi kjøredatoen.",
+  "Hvitelisten leser bare begynnelsen etter nummeret («… nr. N av myndighet til X, punkt 2, oppheves» ville blitt godtatt). Ikke observert.",
+  "Passiv form med tittel mellom målet og verbet gir ikke E1 (privatskolelova § 8-2 andre ledd).",
+  "Dokumenter uten nummer i lister avvises av vakten (INS/forskrift/2010-12-21-1790, SF/forskrift/1984-04-10-940). Uendret fra før #502."
+ ]
+}
